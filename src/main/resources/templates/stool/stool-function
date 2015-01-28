@@ -1,0 +1,185 @@
+# Stool shell functions for bash
+# Source this file in your ~/.bashrc
+
+export STOOL_INVOCATION=${{stool.home}}/sessions/.stool-invocation-$$-$(date +%N)
+
+stool() {
+  # Special variable handling: they are private and you cannot export them on Mac OS.
+  # We make them available to the java code under the EXPORTED_ prefix
+  export EXPORTED_PS1="$PS1"
+  export EXPORTED_PWD="$PWD"
+
+  local home=${{stool.home}}
+  local cp
+  local verbose=false
+  local command="empty"
+  for arg in $* ; do
+    if [ ${arg:0:1} == "-" ] ; then
+      if [ $arg == "-v" ] ; then
+        verbose=true
+      fi
+    else
+      if [ $command == "empty" ] ; then
+        command=$arg
+      fi
+    fi
+  done
+  if [ $command == "reselect" ]; then
+    if [ -f $home/sessions/$USER ]; then
+      if $verbose ; then
+        echo "reselect"
+      fi
+      source $home/sessions/$USER
+    else
+      if $verbose ; then
+        echo "reselect none"
+      fi
+    fi
+  else
+    if [ -z $STOOL_SOURCE ] ; then
+      cp="$home/bin/stool.jar"
+    else
+      # for stool development
+      cp=$STOOL_SOURCE/target/setup-stool
+      if [ ! -e $cp ] ; then
+        echo "$cp not found. Check your STOOL_SOURCE variable and re-build."
+        return
+      fi
+    fi
+
+    STOOL_HOME=$home ${{java.home}}/bin/java $STOOL_OPTS -cp $cp com.oneandone.sales.tools.stool.Main -invocation $STOOL_INVOCATION "$@"
+    result=$?
+    if [ -f $STOOL_INVOCATION ] ; then
+      . $STOOL_INVOCATION
+      # I've seen an empty $USER when running stool from a cron jobs
+      mv -f $STOOL_INVOCATION $home/sessions/$USER || echo '$USER variable is not set'
+    fi
+  fi
+
+  unset EXPORTED_PS1
+  unset EXPORTED_PWD
+
+  return $result
+}
+
+stoolIndicatorColor() {
+    local home=${{stool.home}}
+    local RED="\033[0;31m"
+    local BLUE_BACKGROUND="\033[44;1;37m"
+    local DIR=$home/wrappers/$STOOL_SELECTED/anchor
+    if [ ! -e $DIR ] ; then
+      echo -e "$BLUE_BACKGROUND"
+    else
+      if [ `uname` == Darwin ] ; then
+        local fmt=-f
+      else
+        local fmt=--format
+      fi
+      if [ $(id -u) == $(stat -L $fmt %u $DIR) ] ; then
+        echo -e ""
+      else
+        echo -e "$RED"
+      fi
+    fi
+}
+
+_stool_complete() {
+      local home=${{stool.home}}
+      local cur prev cmd
+      local select_opts general_opts
+      COMPREPLY=()
+      cur="${COMP_WORDS[COMP_CWORD]}"
+      prev="${COMP_WORDS[COMP_CWORD-1]}"
+      cmd="stop remove chown rename build run validate version help system-start system-upgrade config import system-stop refresh move restart status select system-install duso list create history start cd"
+      general_opts="-v -e"
+      select_opts="-stage -all -all-state -all-owner"
+      fail_opts="before after never"
+
+      case "${prev}" in
+        create)
+            if [[ ${cur} == -* ]] ; then
+                local option="-quiet -prefix -name "
+                COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
+                return 0
+            fi
+            # url
+            return 0
+            ;;
+        import)
+            if [[ ${cur} == -* ]] ; then
+                local option="-max"
+                COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
+                return 0
+            else
+                COMPREPLY=( $(compgen -f "$2" ) )
+                return 0
+            fi
+            ;;
+        select)
+            local stages=$(for dir in `ls -1 $home/wrappers/`; do echo ${dir}; done; echo 'none')
+            COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
+            return 0
+            ;;
+        status)
+            local stages=$(for dir in `ls -1 $home/wrappers/`; do echo ${dir}; done)
+            COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
+            return 0
+            ;;
+        run)
+            if [[ ${cur} == -* ]] ; then
+                local option="-debug"
+                COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
+            fi
+            ;;
+        stop)
+            if [[ ${cur} == -* ]] ; then
+                local option="-sleep -stail"
+                COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
+            fi
+            ;;
+        config)
+            compopt +o nospace &>/dev/null
+            local option="suffix until maven.opts sslUrl java.home tomcat.select tomcat.perm tomcat.heap tomcat.version tomcat.opts port.prefix build cookies mode autoRefresh comment"
+            COMPREPLY=( $(compgen -o nospace -W "${option}" -- ${cur}) )
+            return 0
+            ;;
+        restart)
+            if [[ ${cur} == -* ]] ; then
+                local option="-debug"
+                COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
+            fi
+            ;;
+        chown)
+            COMPREPLY=( $(compgen -W "$USER" -- ${cur}) )
+            return 0
+            ;;
+        rename)
+            if [[ ${cur} == -* ]] ; then
+                local option="-force -batch"
+            COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
+                return 0
+            fi
+            ;;
+        remove)
+            if [[ ${cur} == -* ]] ; then
+                local option="-force -batch"
+                COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
+                return 0
+            fi
+            ;;
+           cd)
+            local stages="wrapper conf java jmx log run tomcat conf logs temp work  "
+            COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
+            return 0
+            ;;
+        *)
+            ;;
+      esac
+
+      COMPREPLY=( $(compgen -W "${cmd}" -- ${cur}) )
+      return 0
+}
+
+if [ "x$BASH" != "x" ] ; then
+    complete -F _stool_complete stool
+fi

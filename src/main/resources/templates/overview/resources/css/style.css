@@ -1,0 +1,35 @@
+td.disabled a {
+    color: #666;
+    cursor: not-allowed;
+    opacity: 1;
+}
+
+td.disabled a:hover {
+    text-decoration: none;
+}
+
+#info {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+#info div {
+    width: 350px;
+}
+
+.nav-search {
+    padding: 3px;
+}
+
+.refresh.true {
+    background-color: rgb(34, 158, 25);
+}
+
+.table td.option {
+    padding-right: 0;
+}
+
+.until.expired {
+    color: #f04124;
+}

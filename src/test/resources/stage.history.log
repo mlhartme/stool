@@ -1,0 +1,10 @@
+2013-11-28 10:12:09,617 | UUID=6153167c-dae5-4657-8c60-494f73faf0c1, stage=ac1-hello1 | net.oneandone.sushi.cli.Command | mabraun | Invoking Start
+2013-11-28 10:12:11,538 | UUID=6153167c-dae5-4657-8c60-494f73faf0c1, stage=ac1-hello1 | OUT.INFO | mabraun | starting tomcat ...
+2013-11-28 10:12:11,632 | UUID=6153167c-dae5-4657-8c60-494f73faf0c1, stage=ac1-hello1 | OUT.INFO | mabraun | Applications available:
+2013-11-28 10:12:11,634 | UUID=6153167c-dae5-4657-8c60-494f73faf0c1, stage=ac1-hello1 | OUT.INFO | mabraun |   http://hellowar.ac1-hello1.maxpower.websales.united.domain:9760
+2013-11-28 10:12:12,948 | UUID=0ef6b913-1a9f-4d80-8edd-aa18780b490a, stage=ac1-hello1 | net.oneandone.sushi.cli.Command | mabraun | Invoking Stop
+2013-11-28 10:12:13,892 | UUID=0ef6b913-1a9f-4d80-8edd-aa18780b490a, stage=ac1-hello1 | OUT.INFO | mabraun | stopping tomcat ...
+2013-11-28 10:12:15,217 | UUID=0ef6b913-1a9f-4d80-8edd-aa18780b490a, stage=ac1-hello1 | OUT.INFO | mabraun | state: down
+2013-11-28 10:12:16,278 | UUID=cdd52c15-6d51-4dbb-a8c1-ac095b50e101, stage=ac1-hello1 | net.oneandone.sushi.cli.Command | mabraun | Invoking Restart
+2013-11-28 10:12:17,054 | UUID=cdd52c15-6d51-4dbb-a8c1-ac095b50e101, stage=ac1-hello1 | OUT.INFO | mabraun | stopping tomcat ...
+2013-11-28 10:12:17,055 | UUID=cdd52c15-6d51-4dbb-a8c1-ac095b50e101, stage=ac1-hello1 | OUT.ERROR | mabraun | tomcat is no running.

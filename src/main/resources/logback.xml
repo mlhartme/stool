@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <appender name="ErrorTool" class="com.oneandone.sales.tools.stool.util.ErrorToolAppender">
+  </appender>
+
+  <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
+    <!-- in the absence of the class attribute, it is assumed that the
+         desired discriminator type is
+         ch.qos.logback.classic.sift.MDCBasedDiscriminator -->
+    <discriminator>
+      <key>stage</key>
+      <defaultValue>unknown</defaultValue>
+    </discriminator>
+    <sift>
+      <appender name="FILE-${stage}" class="com.oneandone.sales.tools.stool.util.StoolLogFileAppender">
+        <file>${STOOL_HOME}/wrappers/${stage}/shared/log/stool.log</file>
+        <append>true</append>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+          <pattern>%date | %mdc | %logger | ${USER} | %msg%n</pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+          <level>INFO</level>
+        </filter>
+      </appender>
+    </sift>
+  </appender>
+
+  <!--Daily rolling file appender -->
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <File>${STOOL_HOME}/logs/stool.log</File>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <FileNamePattern>${STOOL_HOME}/logs/stool.%d{yyyy-MM-dd}.log.gz</FileNamePattern>
+    </rollingPolicy>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%date | %mdc | %logger | ${USER} | %msg%n</pattern>
+    </encoder>
+    <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+      <level>INFO</level>
+    </filter>
+  </appender>
+
+  <logger name="com.oneandone.sales.tools.stool.overview.ErrorCollector" level="debug">
+    <appender-ref ref="ErrorTool"/>
+  </logger>
+  <root>
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="SIFT"/>
+  </root>
+</configuration>
