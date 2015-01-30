@@ -2,6 +2,9 @@
   <body>
     <release version="3.0.0">
       <action date="2015-01-28" dev="mhm" type="update">
+        Moved code to github; changed groupId to net.oneandone. Adjusted package accordingly.
+      </action>
+      <action date="2015-01-28" dev="mhm" type="update">
         Moving monitoring code into separate application.
       </action>
       <action date="2015-01-28" dev="mhm" type="update">
@@ -68,9 +71,6 @@
       </action>
       <action date="2015-01-13" dev="mhm" type="update">
         New ErrorTool appender with less dependencies.
-      </action>
-      <action date="2015-01-13" dev="mhm" type="update">
-        Align groupId and package name with svn location.
       </action>
     </release>
     <release date="2014-12-16" version="2.13.11">
