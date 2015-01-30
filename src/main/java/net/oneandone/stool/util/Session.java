@@ -134,8 +134,11 @@ public class Session {
         this.selectedStageName = null;
         this.invocationFile = invocationFile;
         this.subversion = new Subversion(null, null);
-        this.users = new Users(
-                Ldap.create(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials));
+        if (configuration.ldapUrl.isEmpty()) {
+            this.users = Users.fromLogin();
+        } else {
+            this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials);
+        }
     }
 
     //--

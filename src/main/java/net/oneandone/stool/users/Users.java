@@ -20,10 +20,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Users {
+    public static Users fromLdap(String url, String principal, String credentials) {
+        return new Users(Ldap.create(url, principal, credentials));
+    }
+
+    public static Users fromLogin() {
+        return new Users(null);
+    }
+
+    //--
+
     private final Ldap ldap;
     private final Map<String, User> users;
 
-    public Users(Ldap ldap) {
+    private Users(Ldap ldap) {
         this.ldap = ldap;
         this.users = new HashMap<>();
     }
@@ -33,7 +43,11 @@ public class Users {
 
         user = users.get(login);
         if (user == null) {
-            user = ldap.lookup(login);
+            if (ldap == null) {
+                user = new User(login, login, login + "@localhost", "unknown department", "unknown phone");
+            } else {
+                user = ldap.lookup(login);
+            }
             users.put(login, user);
         }
         return user;

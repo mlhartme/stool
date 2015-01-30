@@ -54,7 +54,7 @@ public class Ldap {
 
     private final DirContext context;
 
-    public Ldap(DirContext context) {
+    private Ldap(DirContext context) {
         this.context = context;
     }
 
