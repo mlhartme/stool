@@ -166,6 +166,7 @@ public class Configuration extends BaseConfiguration {
           .setPrettyPrinting()
           .create();
     }
+
     public void addDefaults(String javaHome, String wsdtoolsHome) {
         StageConfiguration defaultConfiguration;
         StageConfiguration controlpanelConfiguration;
