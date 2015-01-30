@@ -16,7 +16,7 @@
 package net.oneandone.stool.overview.config;
 
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.stool.devreg.Users;
+import net.oneandone.stool.users.Users;
 import net.oneandone.stool.overview.IndexController;
 import net.oneandone.stool.overview.Stages;
 import net.oneandone.stool.util.Environment;

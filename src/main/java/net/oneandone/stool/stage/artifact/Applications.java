@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import net.oneandone.stool.devreg.Users;
+import net.oneandone.stool.users.Users;
 import org.eclipse.aether.artifact.DefaultArtifact;
 
 import java.io.IOException;

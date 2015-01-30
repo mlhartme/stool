@@ -16,8 +16,8 @@
 package net.oneandone.stool.overview;
 
 import net.oneandone.stool.EnumerationFailed;
-import net.oneandone.stool.devreg.UserNotFound;
-import net.oneandone.stool.devreg.Users;
+import net.oneandone.stool.users.UserNotFound;
+import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import org.springframework.beans.factory.annotation.Autowired;

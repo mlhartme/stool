@@ -16,8 +16,8 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.Until;
-import net.oneandone.stool.devreg.User;
-import net.oneandone.stool.devreg.UserNotFound;
+import net.oneandone.stool.users.User;
+import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Processes;

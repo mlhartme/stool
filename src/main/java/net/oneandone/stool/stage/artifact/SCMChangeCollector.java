@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import net.oneandone.stool.devreg.UserNotFound;
-import net.oneandone.stool.devreg.Users;
+import net.oneandone.stool.users.UserNotFound;
+import net.oneandone.stool.users.Users;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNURL;

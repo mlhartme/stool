@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import net.oneandone.stool.devreg.User;
+import net.oneandone.stool.users.User;
 
 import java.util.Date;
 

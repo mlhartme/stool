@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import net.oneandone.stool.devreg.UserNotFound;
-import net.oneandone.stool.devreg.Users;
+import net.oneandone.stool.users.UserNotFound;
+import net.oneandone.stool.users.Users;
 
 import javax.naming.NamingException;
 import java.io.IOException;
