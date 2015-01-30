@@ -30,7 +30,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Ldap access and factory for developers.
+ * Ldap access and factory for users.
  */
 public class Ldap {
     public static Ldap create(String url, String principal, String credentials) {
@@ -58,10 +58,10 @@ public class Ldap {
         this.context = context;
     }
 
-    //-- lookup developers
+    //-- lookup users
 
     /** @return never null */
-    public User developerByLogin(String login) throws NamingException, UserNotFound {
+    public User lookup(String login) throws NamingException, UserNotFound {
         Map<String, User> result;
 
         result = listFromLdap("o", login);
@@ -75,7 +75,7 @@ public class Ldap {
         }
     }
 
-    /** @return uid to Developer mapping */
+    /** @return uid to user mapping */
     private LinkedHashMap<String, User> listFromLdap(String ... args) throws NamingException {
         LinkedHashMap<String, User> result;
         NamingEnumeration<SearchResult> answer;

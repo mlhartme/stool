@@ -17,6 +17,6 @@ package net.oneandone.stool.users;
 
 public class UserNotFound extends Exception {
     public UserNotFound(String id) {
-        super("developer not found: " + id);
+        super("user not found: " + id);
     }
 }

@@ -31,13 +31,13 @@ public class SCMChangeCollector {
     private final long revisionA;
     private final long revisionB;
     private final String url;
-    private Users developers;
+    private Users users;
 
-    public SCMChangeCollector(String url, long revisionA, long revisionB, Users developers) {
+    public SCMChangeCollector(String url, long revisionA, long revisionB, Users users) {
         this.revisionA = revisionA;
         this.revisionB = revisionB;
         this.url = url;
-        this.developers = developers;
+        this.users = users;
     }
 
     public Changes collect() throws IOException, NamingException, UserNotFound {
@@ -54,7 +54,7 @@ public class SCMChangeCollector {
                 if (entry instanceof SVNLogEntry) {
                     SVNLogEntry logEntry = (SVNLogEntry) entry;
                     Change change;
-                    change = new Change(logEntry.getRevision(), developers.byLogin(logEntry.getAuthor()),
+                    change = new Change(logEntry.getRevision(), users.byLogin(logEntry.getAuthor()),
                       logEntry.getMessage(), logEntry.getDate().getTime());
                     changes.add(change);
                 }

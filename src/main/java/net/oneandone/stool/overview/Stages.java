@@ -34,10 +34,10 @@ public class Stages {
         lastCacheRenew = 0L;
     }
 
-    public Collection<StageInfo> load(Session session, Users developers)
+    public Collection<StageInfo> load(Session session, Users users)
             throws IOException, SAXException, NamingException, UserNotFound, EnumerationFailed {
         if (System.currentTimeMillis() - lastCacheRenew > 4000) {
-            stages = StageGatherer.get(session, developers);
+            stages = StageGatherer.get(session, users);
             lastCacheRenew = System.currentTimeMillis();
         }
         return stages;

@@ -22,21 +22,21 @@ import java.util.Date;
 
 public class Change {
     private final long revision;
-    private final User developer;
+    private final User user;
     private final String message;
     private final Date date;
 
-    public Change(long revision, User developer, String message, long timestamp) {
+    public Change(long revision, User user, String message, long timestamp) {
         this.revision = revision;
-        this.developer = developer;
+        this.user = user;
         this.message = message;
         this.date = new Date(timestamp);
     }
     public long getRevision() {
         return revision;
     }
-    public User getDeveloper() {
-        return developer;
+    public User getUser() {
+        return user;
     }
     public String getMessage() {
         return message;

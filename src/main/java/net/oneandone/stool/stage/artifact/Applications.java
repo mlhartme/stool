@@ -51,12 +51,12 @@ public class Applications {
         return Collections.unmodifiableList(artifacts);
     }
 
-    public Changes changes(Users developers, boolean readonly) {
+    public Changes changes(Users users, boolean readonly) {
         try {
             if (mergedChanges == null) {
                 mergedChanges = Changes.none();
                 for (Application app : apps) {
-                    mergedChanges.merge(app.changes(developers, readonly));
+                    mergedChanges.merge(app.changes(users, readonly));
                 }
 
 

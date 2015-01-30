@@ -59,7 +59,7 @@ public class StageController {
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(StageController.class);
 
     @Autowired
-    private Users developers;
+    private Users users;
 
     @Autowired
     private World world;
@@ -82,14 +82,14 @@ public class StageController {
     @RequestMapping(method = RequestMethod.GET)
     public Collection<StageInfo> stages()
             throws IOException, URISyntaxException, SAXException, NamingException, UserNotFound, EnumerationFailed {
-        return stages.load(session, developers);
+        return stages.load(session, users);
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
     public ModelAndView stagesAsHtml(ModelAndView modelAndView)
             throws SAXException, NamingException, UserNotFound, IOException, EnumerationFailed {
         modelAndView.setViewName("stages");
-        modelAndView.addObject("stages", stages.load(session, developers));
+        modelAndView.addObject("stages", stages.load(session, users));
 
         return modelAndView;
     }
@@ -100,14 +100,14 @@ public class StageController {
         Stage stage;
         stage = resolveStage(stageName);
 
-        return new ResponseEntity<>(StageInfo.fromStage(stage, developers), HttpStatus.OK);
+        return new ResponseEntity<>(StageInfo.fromStage(stage, users), HttpStatus.OK);
     }
 
     @RequestMapping(value = "{name}", method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
     public ModelAndView stageAsHtml(@PathVariable(value = "name") String stageName, ModelAndView modelAndView) throws Exception {
         List<StageInfo> stageInfos = new ArrayList<>();
         modelAndView.setViewName("stages");
-        for (StageInfo stageInfo : stages.load(session, developers)) {
+        for (StageInfo stageInfo : stages.load(session, users)) {
             if (stageName.equals(stageInfo.name)) {
                 stageInfos.add(stageInfo);
             }

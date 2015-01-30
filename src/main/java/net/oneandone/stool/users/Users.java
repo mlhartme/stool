@@ -21,21 +21,21 @@ import java.util.Map;
 
 public class Users {
     private final Ldap ldap;
-    private final Map<String, User> developers;
+    private final Map<String, User> users;
 
     public Users(Ldap ldap) {
         this.ldap = ldap;
-        this.developers = new HashMap<>();
+        this.users = new HashMap<>();
     }
 
     public User byLogin(String login) throws UserNotFound, NamingException {
-        User developer;
+        User user;
 
-        developer = developers.get(login);
-        if (developer == null) {
-            developer = ldap.developerByLogin(login);
-            developers.put(login, developer);
+        user = users.get(login);
+        if (user == null) {
+            user = ldap.lookup(login);
+            users.put(login, user);
         }
-        return developer;
+        return user;
     }
 }

@@ -64,8 +64,8 @@ public class OverviewConfiguration {
     }
 
     @Bean
-    public Users developers() throws IOException {
-        return session().developers;
+    public Users users() throws IOException {
+        return session().users;
     }
 
     @Bean

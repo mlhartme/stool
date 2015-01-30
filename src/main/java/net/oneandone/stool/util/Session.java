@@ -134,7 +134,7 @@ public class Session {
         this.selectedStageName = null;
         this.invocationFile = invocationFile;
         this.subversion = new Subversion(null, null);
-        this.developers = new Users(
+        this.users = new Users(
                 Ldap.create(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials));
     }
 
@@ -156,7 +156,7 @@ public class Session {
 
     private String selectedStageName;
     private Processes processes;
-    public final Users developers;
+    public final Users users;
 
     //--
 
@@ -458,7 +458,7 @@ public class Session {
 
     public User lookupUser(String login) throws NamingException, UserNotFound {
         if (!configuration.security.isLocal()) {
-            return developers.byLogin(login);
+            return users.byLogin(login);
         } else {
             return null;
         }

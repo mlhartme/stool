@@ -126,7 +126,7 @@ public class Application {
     }
 
 
-    public Changes changes(Users developers, boolean readonly) throws IOException {
+    public Changes changes(Users users, boolean readonly) throws IOException {
         Node changesFile;
         String svnurl;
         ChangeCollector changeCollector;
@@ -147,7 +147,7 @@ public class Application {
             return Changes.none();
         }
         try {
-            changeCollector = new ChangeCollector(currentWarFile(), futureWarFile(), developers);
+            changeCollector = new ChangeCollector(currentWarFile(), futureWarFile(), users);
             svnurl = pom().getScm().getUrl();
             if (svnurl.contains("tags")) {
                 changes = changeCollector.withXMLChanges();

@@ -214,13 +214,13 @@ public class ArtifactStage extends Stage {
         }
 
         application.replaceFutureWarFile(candidate);
-        Changes changes = application.changes(session.developers, false);
+        Changes changes = application.changes(session.users, false);
         console.verbose.println("Update for " + application.artifactId() + " prepared.");
         for (Change change : changes.getChanges()) {
             StringBuilder output;
             output = new StringBuilder();
-            if (change.getDeveloper() != null) {
-                output.append(change.getDeveloper().name).append(" : ");
+            if (change.getUser() != null) {
+                output.append(change.getUser().name).append(" : ");
             }
 
             output.append(change.getMessage());
@@ -257,6 +257,6 @@ public class ArtifactStage extends Stage {
 
     @Override
     public Changes changes(boolean readonly) {
-        return applications.changes(session.developers, readonly);
+        return applications.changes(session.users, readonly);
     }
 }

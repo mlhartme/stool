@@ -153,19 +153,21 @@ public class Validate extends StageCommand {
             problems.add(problem.toString());
         }
     }
+
     private String[] stageEmails(Stage stage) throws IOException, NamingException {
         String owner;
-        User developer;
+        User user;
+
         owner = stage.ownerOverview();
         try {
-            developer = session.lookupUser(owner);
-        } catch (UserNotFound developerNotFound) {
+            user = session.lookupUser(owner);
+        } catch (UserNotFound e) {
             owner = session.configuration.contactAdmin;
             if (owner.isEmpty()) {
                 return new String[]{};
             }
-            return new String[]{owner};
+            return new String[]{ owner };
         }
-        return new String[]{developer.email};
+        return new String[]{ user.email };
     }
 }

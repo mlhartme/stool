@@ -47,7 +47,7 @@ public class StageInfo {
     public String state;
 
 
-    public static StageInfo fromStage(Stage stage, Users developers) throws IOException, SAXException {
+    public static StageInfo fromStage(Stage stage, Users users) throws IOException, SAXException {
         StageInfo stageInfo;
         stageInfo = new StageInfo();
         stageInfo.name = stage.getName();
@@ -58,9 +58,9 @@ public class StageInfo {
             stageInfo.urls = stage.urls();
         }
         try {
-            stageInfo.owner = developers.byLogin(stage.ownerOverview()).name;
+            stageInfo.owner = users.byLogin(stage.ownerOverview()).name;
         } catch (NamingException | UserNotFound e) {
-            stageInfo.owner = "Unkown";
+            stageInfo.owner = "Unknown";
             LOG.error("Cannot lookup User " + stage.ownerOverview(), e);
         }
         stageInfo.updateAvailable = stage.updateAvailable();

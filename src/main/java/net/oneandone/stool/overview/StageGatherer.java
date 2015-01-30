@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class StageGatherer {
-    public static List<StageInfo> get(Session session, Users developers)
+    public static List<StageInfo> get(Session session, Users users)
             throws IOException, SAXException, NamingException, UserNotFound, EnumerationFailed {
         List<StageInfo> stageInfos;
         stageInfos = new ArrayList<>();
@@ -39,7 +39,7 @@ public abstract class StageGatherer {
         List<Stage> stages = getStages(session);
 
         for (Stage stage : stages) {
-            stageInfos.add(StageInfo.fromStage(stage, developers));
+            stageInfos.add(StageInfo.fromStage(stage, users));
         }
         return stageInfos;
     }
@@ -53,11 +53,11 @@ public abstract class StageGatherer {
         });
     }
 
-    public static StageInfo get(String name, Session session, Users developers)
+    public static StageInfo get(String name, Session session, Users users)
             throws IOException, SAXException, NamingException, UserNotFound, EnumerationFailed {
         List<Stage> stages = getStages(name, session);
         session.getProcesses(true);
-        return StageInfo.fromStage(stages.get(0), developers);
+        return StageInfo.fromStage(stages.get(0), users);
     }
 
     public static List<Stage> getStages(final String name, Session session) throws IOException, EnumerationFailed {

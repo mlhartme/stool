@@ -63,7 +63,7 @@ public class Changes {
         StringBuilder stringBuilder;
         stringBuilder = new StringBuilder();
         for (Change change : changes) {
-            stringBuilder.append(change.getDeveloper().name).append(": \n").append(change.getMessage()).append("\n\n");
+            stringBuilder.append(change.getUser().name).append(": \n").append(change.getMessage()).append("\n\n");
         }
 
         return stringBuilder.toString();

@@ -42,14 +42,14 @@ public class User {
 
     @Override
     public boolean equals(Object object) {
-        User developer;
+        User user;
 
         if (!(object instanceof User)) {
             return false;
         }
-        developer = (User) object;
-        return login.equals(developer.login) && name.equals(developer.name) && email.equals(developer.email)
-                && department.equals(developer.department) && phone.equals(developer.phone);
+        user = (User) object;
+        return login.equals(user.login) && name.equals(user.name) && email.equals(user.email)
+                && department.equals(user.department) && phone.equals(user.phone);
     }
 
     public int hashCode() {

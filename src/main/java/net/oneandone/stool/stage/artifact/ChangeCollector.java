@@ -24,12 +24,12 @@ import java.io.IOException;
 public class ChangeCollector {
     private final WarFile current;
     private final WarFile future;
-    private final Users developers;
+    private final Users users;
 
-    public ChangeCollector(WarFile current, WarFile future, Users developers) {
+    public ChangeCollector(WarFile current, WarFile future, Users users) {
         this.current = current;
         this.future = future;
-        this.developers = developers;
+        this.users = users;
     }
     public Changes withSCM(String svnurl) throws NoChangesAvailableException {
         SCMChangeCollector changeCollector;
@@ -40,7 +40,7 @@ public class ChangeCollector {
             currentRev = current.revision();
             futureRev = future.revision();
 
-            changeCollector = new SCMChangeCollector(svnurl, currentRev + 1, futureRev, developers);
+            changeCollector = new SCMChangeCollector(svnurl, currentRev + 1, futureRev, users);
             return changeCollector.collect();
         } catch (IOException | UserNotFound | NamingException e) {
             throw new NoChangesAvailableException(e);

@@ -37,7 +37,7 @@ public class GoController {
     @Autowired
     private World world;
     @Autowired
-    private Users developers;
+    private Users users;
 
     @Autowired
     private Session session;
@@ -53,7 +53,7 @@ public class GoController {
             return new ModelAndView("redirect:" + baseurl + "/#!404:" + requestetStage);
         }
 
-        StageInfo stage = StageGatherer.get(requestetStage, session, developers);
+        StageInfo stage = StageGatherer.get(requestetStage, session, users);
 
         switch (stage.getRunning()) {
             case "up":
