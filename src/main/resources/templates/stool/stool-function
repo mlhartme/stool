@@ -47,7 +47,7 @@ stool() {
       fi
     fi
 
-    STOOL_HOME=$home ${{java.home}}/bin/java $STOOL_OPTS -cp $cp com.oneandone.sales.tools.stool.Main -invocation $STOOL_INVOCATION "$@"
+    STOOL_HOME=$home ${{java.home}}/bin/java $STOOL_OPTS -cp $cp net.oneandone.stool.Main -invocation $STOOL_INVOCATION "$@"
     result=$?
     if [ -f $STOOL_INVOCATION ] ; then
       . $STOOL_INVOCATION

@@ -28,7 +28,7 @@ import javax.servlet.ServletRegistration;
 public class ApplicationInitializer extends AbstractSecurityWebApplicationInitializer {
 
 
-    private static final String CONFIG_LOCATION = "com.oneandone.sales.tools.stool.overview.config";
+    private static final String CONFIG_LOCATION = "net.oneandone.stool.overview.config";
     private static final String MAPPING_URL = "/";
 
 
