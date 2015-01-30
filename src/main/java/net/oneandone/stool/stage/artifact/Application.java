@@ -17,8 +17,7 @@ package net.oneandone.stool.stage.artifact;
 
 import com.google.gson.Gson;
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.stool.devreg.Ldap;
-import net.oneandone.stool.overview.Developers;
+import net.oneandone.stool.devreg.Users;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
@@ -127,7 +126,7 @@ public class Application {
     }
 
 
-    public Changes changes(Developers developers, boolean readonly) throws IOException {
+    public Changes changes(Users developers, boolean readonly) throws IOException {
         Node changesFile;
         String svnurl;
         ChangeCollector changeCollector;

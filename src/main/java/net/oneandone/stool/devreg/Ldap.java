@@ -61,13 +61,13 @@ public class Ldap {
     //-- lookup developers
 
     /** @return never null */
-    public Developer developerByLogin(String login) throws NamingException, DeveloperNotFound {
-        Map<String, Developer> result;
+    public User developerByLogin(String login) throws NamingException, UserNotFound {
+        Map<String, User> result;
 
         result = listFromLdap("o", login);
         switch (result.size()) {
             case 0:
-                throw new DeveloperNotFound(login);
+                throw new UserNotFound(login);
             case 1:
                 return result.values().iterator().next();
             default:
@@ -76,8 +76,8 @@ public class Ldap {
     }
 
     /** @return uid to Developer mapping */
-    private LinkedHashMap<String, Developer> listFromLdap(String ... args) throws NamingException {
-        LinkedHashMap<String, Developer> result;
+    private LinkedHashMap<String, User> listFromLdap(String ... args) throws NamingException {
+        LinkedHashMap<String, User> result;
         NamingEnumeration<SearchResult> answer;
         BasicAttributes matchAttrs;
 
@@ -94,7 +94,7 @@ public class Ldap {
             SearchResult obj = answer.next();
             Attributes attrs = obj.getAttributes();
             result.put(get(attrs, "uid"),
-                    new Developer(
+                    new User(
                             get(attrs, "o"),
                             get(attrs, "givenname") + " " + get(attrs, "sn"),
                             get(attrs, "mail") /* email is mandatory for me - although ldap returns employees without */,

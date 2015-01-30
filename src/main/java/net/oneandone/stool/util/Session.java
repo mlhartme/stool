@@ -19,10 +19,10 @@ import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.Configuration;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.devreg.Developer;
-import net.oneandone.stool.devreg.DeveloperNotFound;
+import net.oneandone.stool.devreg.User;
+import net.oneandone.stool.devreg.UserNotFound;
 import net.oneandone.stool.devreg.Ldap;
-import net.oneandone.stool.overview.Developers;
+import net.oneandone.stool.devreg.Users;
 import net.oneandone.stool.setup.Install;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -134,7 +134,7 @@ public class Session {
         this.selectedStageName = null;
         this.invocationFile = invocationFile;
         this.subversion = new Subversion(null, null);
-        this.developers = new Developers(
+        this.developers = new Users(
                 Ldap.create(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials));
     }
 
@@ -156,7 +156,7 @@ public class Session {
 
     private String selectedStageName;
     private Processes processes;
-    public final Developers developers;
+    public final Users developers;
 
     //--
 
@@ -456,7 +456,7 @@ public class Session {
         return lst;
     }
 
-    public Developer lookupUser(String login) throws NamingException, DeveloperNotFound {
+    public User lookupUser(String login) throws NamingException, UserNotFound {
         if (!configuration.security.isLocal()) {
             return developers.byLogin(login);
         } else {

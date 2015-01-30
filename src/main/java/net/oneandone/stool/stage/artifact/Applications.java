@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import net.oneandone.stool.overview.Developers;
+import net.oneandone.stool.devreg.Users;
 import org.eclipse.aether.artifact.DefaultArtifact;
 
 import java.io.IOException;
@@ -51,7 +51,7 @@ public class Applications {
         return Collections.unmodifiableList(artifacts);
     }
 
-    public Changes changes(Developers developers, boolean readonly) {
+    public Changes changes(Users developers, boolean readonly) {
         try {
             if (mergedChanges == null) {
                 mergedChanges = Changes.none();

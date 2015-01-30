@@ -17,7 +17,8 @@ package net.oneandone.stool.overview;
 
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.EnumerationFailed;
-import net.oneandone.stool.devreg.DeveloperNotFound;
+import net.oneandone.stool.devreg.UserNotFound;
+import net.oneandone.stool.devreg.Users;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
@@ -58,7 +59,7 @@ public class StageController {
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(StageController.class);
 
     @Autowired
-    private Developers developers;
+    private Users developers;
 
     @Autowired
     private World world;
@@ -80,13 +81,13 @@ public class StageController {
 
     @RequestMapping(method = RequestMethod.GET)
     public Collection<StageInfo> stages()
-            throws IOException, URISyntaxException, SAXException, NamingException, DeveloperNotFound, EnumerationFailed {
+            throws IOException, URISyntaxException, SAXException, NamingException, UserNotFound, EnumerationFailed {
         return stages.load(session, developers);
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
     public ModelAndView stagesAsHtml(ModelAndView modelAndView)
-            throws SAXException, NamingException, DeveloperNotFound, IOException, EnumerationFailed {
+            throws SAXException, NamingException, UserNotFound, IOException, EnumerationFailed {
         modelAndView.setViewName("stages");
         modelAndView.addObject("stages", stages.load(session, developers));
 

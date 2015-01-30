@@ -15,9 +15,8 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import net.oneandone.stool.devreg.DeveloperNotFound;
-import net.oneandone.stool.devreg.Ldap;
-import net.oneandone.stool.overview.Developers;
+import net.oneandone.stool.devreg.UserNotFound;
+import net.oneandone.stool.devreg.Users;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNLogEntry;
 import org.tmatesoft.svn.core.SVNURL;
@@ -32,16 +31,16 @@ public class SCMChangeCollector {
     private final long revisionA;
     private final long revisionB;
     private final String url;
-    private Developers developers;
+    private Users developers;
 
-    public SCMChangeCollector(String url, long revisionA, long revisionB, Developers developers) {
+    public SCMChangeCollector(String url, long revisionA, long revisionB, Users developers) {
         this.revisionA = revisionA;
         this.revisionB = revisionB;
         this.url = url;
         this.developers = developers;
     }
 
-    public Changes collect() throws IOException, NamingException, DeveloperNotFound {
+    public Changes collect() throws IOException, NamingException, UserNotFound {
 
         SVNClientManager clientManager = SVNClientManager.newInstance();
         SVNRepository repository = null;

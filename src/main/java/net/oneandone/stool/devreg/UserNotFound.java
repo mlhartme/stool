@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.devreg;
 
-public class DeveloperNotFound extends Exception {
-    public DeveloperNotFound(String id) {
+public class UserNotFound extends Exception {
+    public UserNotFound(String id) {
         super("developer not found: " + id);
     }
 }

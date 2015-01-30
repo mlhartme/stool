@@ -15,14 +15,14 @@
  */
 package net.oneandone.stool.devreg;
 
-public class Developer {
+public class User {
     public final String login;
     public final String name;
     public final String email;
     public final String department;
     public final String phone;
 
-    public Developer(String login, String name, String email, String department, String phone) {
+    public User(String login, String name, String email, String department, String phone) {
         this.login = login;
         this.name = name;
         this.email = email;
@@ -42,12 +42,12 @@ public class Developer {
 
     @Override
     public boolean equals(Object object) {
-        Developer developer;
+        User developer;
 
-        if (!(object instanceof Developer)) {
+        if (!(object instanceof User)) {
             return false;
         }
-        developer = (Developer) object;
+        developer = (User) object;
         return login.equals(developer.login) && name.equals(developer.name) && email.equals(developer.email)
                 && department.equals(developer.department) && phone.equals(developer.phone);
     }

@@ -16,7 +16,8 @@
 package net.oneandone.stool.overview;
 
 import net.oneandone.stool.EnumerationFailed;
-import net.oneandone.stool.devreg.DeveloperNotFound;
+import net.oneandone.stool.devreg.UserNotFound;
+import net.oneandone.stool.devreg.Users;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,14 +37,14 @@ public class GoController {
     @Autowired
     private World world;
     @Autowired
-    private Developers developers;
+    private Users developers;
 
     @Autowired
     private Session session;
 
     @RequestMapping(value = "/**", method = RequestMethod.GET)
     public ModelAndView goToStage(HttpServletRequest httpServletRequest)
-            throws IOException, SAXException, NamingException, DeveloperNotFound, EnumerationFailed {
+            throws IOException, SAXException, NamingException, UserNotFound, EnumerationFailed {
         String requestetStage = httpServletRequest.getServletPath().replace("/go/", "");
         String baseurl = httpServletRequest.getRequestURL().toString();
         baseurl = baseurl.substring(0, baseurl.indexOf('/', 8));

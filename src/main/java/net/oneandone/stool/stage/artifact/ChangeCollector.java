@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import net.oneandone.stool.devreg.DeveloperNotFound;
-import net.oneandone.stool.overview.Developers;
+import net.oneandone.stool.devreg.UserNotFound;
+import net.oneandone.stool.devreg.Users;
 
 import javax.naming.NamingException;
 import java.io.IOException;
@@ -24,9 +24,9 @@ import java.io.IOException;
 public class ChangeCollector {
     private final WarFile current;
     private final WarFile future;
-    private final Developers developers;
+    private final Users developers;
 
-    public ChangeCollector(WarFile current, WarFile future, Developers developers) {
+    public ChangeCollector(WarFile current, WarFile future, Users developers) {
         this.current = current;
         this.future = future;
         this.developers = developers;
@@ -42,7 +42,7 @@ public class ChangeCollector {
 
             changeCollector = new SCMChangeCollector(svnurl, currentRev + 1, futureRev, developers);
             return changeCollector.collect();
-        } catch (IOException | DeveloperNotFound | NamingException e) {
+        } catch (IOException | UserNotFound | NamingException e) {
             throw new NoChangesAvailableException(e);
         }
     }

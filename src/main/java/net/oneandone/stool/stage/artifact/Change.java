@@ -15,18 +15,18 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import net.oneandone.stool.devreg.Developer;
+import net.oneandone.stool.devreg.User;
 
 import java.util.Date;
 
 
 public class Change {
     private final long revision;
-    private final Developer developer;
+    private final User developer;
     private final String message;
     private final Date date;
 
-    public Change(long revision, Developer developer, String message, long timestamp) {
+    public Change(long revision, User developer, String message, long timestamp) {
         this.revision = revision;
         this.developer = developer;
         this.message = message;
@@ -35,7 +35,7 @@ public class Change {
     public long getRevision() {
         return revision;
     }
-    public Developer getDeveloper() {
+    public User getDeveloper() {
         return developer;
     }
     public String getMessage() {

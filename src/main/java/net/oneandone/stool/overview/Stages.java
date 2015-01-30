@@ -16,7 +16,8 @@
 package net.oneandone.stool.overview;
 
 import net.oneandone.stool.EnumerationFailed;
-import net.oneandone.stool.devreg.DeveloperNotFound;
+import net.oneandone.stool.devreg.UserNotFound;
+import net.oneandone.stool.devreg.Users;
 import net.oneandone.stool.util.Session;
 import org.xml.sax.SAXException;
 
@@ -33,8 +34,8 @@ public class Stages {
         lastCacheRenew = 0L;
     }
 
-    public Collection<StageInfo> load(Session session, Developers developers)
-            throws IOException, SAXException, NamingException, DeveloperNotFound, EnumerationFailed {
+    public Collection<StageInfo> load(Session session, Users developers)
+            throws IOException, SAXException, NamingException, UserNotFound, EnumerationFailed {
         if (System.currentTimeMillis() - lastCacheRenew > 4000) {
             stages = StageGatherer.get(session, developers);
             lastCacheRenew = System.currentTimeMillis();

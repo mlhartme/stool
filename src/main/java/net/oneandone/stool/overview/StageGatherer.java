@@ -17,7 +17,8 @@ package net.oneandone.stool.overview;
 
 import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.Overview;
-import net.oneandone.stool.devreg.DeveloperNotFound;
+import net.oneandone.stool.devreg.UserNotFound;
+import net.oneandone.stool.devreg.Users;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Session;
@@ -29,8 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class StageGatherer {
-    public static List<StageInfo> get(Session session, Developers developers)
-            throws IOException, SAXException, NamingException, DeveloperNotFound, EnumerationFailed {
+    public static List<StageInfo> get(Session session, Users developers)
+            throws IOException, SAXException, NamingException, UserNotFound, EnumerationFailed {
         List<StageInfo> stageInfos;
         stageInfos = new ArrayList<>();
         session.getProcesses(true);
@@ -52,8 +53,8 @@ public abstract class StageGatherer {
         });
     }
 
-    public static StageInfo get(String name, Session session, Developers developers)
-            throws IOException, SAXException, NamingException, DeveloperNotFound, EnumerationFailed {
+    public static StageInfo get(String name, Session session, Users developers)
+            throws IOException, SAXException, NamingException, UserNotFound, EnumerationFailed {
         List<Stage> stages = getStages(name, session);
         session.getProcesses(true);
         return StageInfo.fromStage(stages.get(0), developers);

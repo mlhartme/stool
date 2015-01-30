@@ -18,7 +18,8 @@ package net.oneandone.stool.overview;
 
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Until;
-import net.oneandone.stool.devreg.DeveloperNotFound;
+import net.oneandone.stool.devreg.UserNotFound;
+import net.oneandone.stool.devreg.Users;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.util.BuildStats;
@@ -46,7 +47,7 @@ public class StageInfo {
     public String state;
 
 
-    public static StageInfo fromStage(Stage stage, Developers developers) throws IOException, SAXException {
+    public static StageInfo fromStage(Stage stage, Users developers) throws IOException, SAXException {
         StageInfo stageInfo;
         stageInfo = new StageInfo();
         stageInfo.name = stage.getName();
@@ -58,7 +59,7 @@ public class StageInfo {
         }
         try {
             stageInfo.owner = developers.byLogin(stage.ownerOverview()).name;
-        } catch (NamingException | DeveloperNotFound e) {
+        } catch (NamingException | UserNotFound e) {
             stageInfo.owner = "Unkown";
             LOG.error("Cannot lookup User " + stage.ownerOverview(), e);
         }

@@ -16,8 +16,8 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.Until;
-import net.oneandone.stool.devreg.Developer;
-import net.oneandone.stool.devreg.DeveloperNotFound;
+import net.oneandone.stool.devreg.User;
+import net.oneandone.stool.devreg.UserNotFound;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Processes;
@@ -155,11 +155,11 @@ public class Validate extends StageCommand {
     }
     private String[] stageEmails(Stage stage) throws IOException, NamingException {
         String owner;
-        Developer developer;
+        User developer;
         owner = stage.ownerOverview();
         try {
             developer = session.lookupUser(owner);
-        } catch (DeveloperNotFound developerNotFound) {
+        } catch (UserNotFound developerNotFound) {
             owner = session.configuration.contactAdmin;
             if (owner.isEmpty()) {
                 return new String[]{};

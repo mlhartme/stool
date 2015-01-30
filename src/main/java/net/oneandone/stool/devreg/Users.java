@@ -13,27 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.overview;
-
-import net.oneandone.stool.devreg.Developer;
-import net.oneandone.stool.devreg.DeveloperNotFound;
-import net.oneandone.stool.devreg.Ldap;
+package net.oneandone.stool.devreg;
 
 import javax.naming.NamingException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Developers {
+public class Users {
     private final Ldap ldap;
-    private final Map<String, Developer> developers;
+    private final Map<String, User> developers;
 
-    public Developers(Ldap ldap) {
+    public Users(Ldap ldap) {
         this.ldap = ldap;
         this.developers = new HashMap<>();
     }
 
-    public Developer byLogin(String login) throws DeveloperNotFound, NamingException {
-        Developer developer;
+    public User byLogin(String login) throws UserNotFound, NamingException {
+        User developer;
 
         developer = developers.get(login);
         if (developer == null) {
