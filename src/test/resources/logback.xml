@@ -5,7 +5,7 @@
     <encoder>
       <pattern>%m%n</pattern>
     </encoder>
-    <filter class="net.oneandone.sales.tools.stool.util.ConsoleFilter"/>
+    <filter class="net.oneandone.stool.util.ConsoleFilter"/>
     <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
       <level>INFO</level>
     </filter>

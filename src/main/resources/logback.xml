@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-  <appender name="ErrorTool" class="net.oneandone.sales.tools.stool.util.ErrorToolAppender">
+  <appender name="ErrorTool" class="net.oneandone.stool.util.ErrorToolAppender">
   </appender>
 
   <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
@@ -12,7 +12,7 @@
       <defaultValue>unknown</defaultValue>
     </discriminator>
     <sift>
-      <appender name="FILE-${stage}" class="net.oneandone.sales.tools.stool.util.StoolLogFileAppender">
+      <appender name="FILE-${stage}" class="net.oneandone.stool.util.StoolLogFileAppender">
         <file>${STOOL_HOME}/wrappers/${stage}/shared/log/stool.log</file>
         <append>true</append>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -39,7 +39,7 @@
     </filter>
   </appender>
 
-  <logger name="net.oneandone.sales.tools.stool.overview.ErrorCollector" level="debug">
+  <logger name="net.oneandone.stool.overview.ErrorCollector" level="debug">
     <appender-ref ref="ErrorTool"/>
   </logger>
   <root>
