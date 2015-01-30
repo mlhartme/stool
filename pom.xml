@@ -262,13 +262,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-resources-plugin</artifactId>
-        <configuration>
-          <includeEmptyDirs>true</includeEmptyDirs>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>net.oneandone.maven.plugins</groupId>
         <artifactId>application</artifactId>
         <version>1.5.1</version>
