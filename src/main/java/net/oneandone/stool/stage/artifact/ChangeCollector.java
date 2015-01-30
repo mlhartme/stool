@@ -16,7 +16,7 @@
 package net.oneandone.stool.stage.artifact;
 
 import net.oneandone.stool.devreg.DeveloperNotFound;
-import net.oneandone.stool.devreg.Ldap;
+import net.oneandone.stool.overview.Developers;
 
 import javax.naming.NamingException;
 import java.io.IOException;
@@ -24,12 +24,12 @@ import java.io.IOException;
 public class ChangeCollector {
     private final WarFile current;
     private final WarFile future;
-    private final Ldap ldap;
+    private final Developers developers;
 
-    public ChangeCollector(WarFile current, WarFile future, Ldap ldap) {
+    public ChangeCollector(WarFile current, WarFile future, Developers developers) {
         this.current = current;
         this.future = future;
-        this.ldap = ldap;
+        this.developers = developers;
     }
     public Changes withSCM(String svnurl) throws NoChangesAvailableException {
         SCMChangeCollector changeCollector;
@@ -40,7 +40,7 @@ public class ChangeCollector {
             currentRev = current.revision();
             futureRev = future.revision();
 
-            changeCollector = new SCMChangeCollector(svnurl, currentRev + 1, futureRev, ldap);
+            changeCollector = new SCMChangeCollector(svnurl, currentRev + 1, futureRev, developers);
             return changeCollector.collect();
         } catch (IOException | DeveloperNotFound | NamingException e) {
             throw new NoChangesAvailableException(e);

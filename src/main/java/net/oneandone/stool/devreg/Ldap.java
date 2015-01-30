@@ -62,44 +62,16 @@ public class Ldap {
 
     /** @return never null */
     public Developer developerByLogin(String login) throws NamingException, DeveloperNotFound {
-        try {
-            return oneFromLdap(login, "o", login);
-        } catch (DeveloperAmbiguous e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    /** @return never null */
-    public Developer developerByEmail(String email) throws NamingException, DeveloperNotFound {
-        try {
-            return oneFromLdap(email, "mail", email);
-        } catch (DeveloperAmbiguous e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    /** @return never null */
-    public Developer developerByUid(String uid) throws NamingException, DeveloperNotFound {
-        try {
-            return oneFromLdap(uid, "uid", uid);
-        } catch (DeveloperAmbiguous e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    //--
-
-    private Developer oneFromLdap(String message, String ... attrs) throws NamingException, DeveloperNotFound, DeveloperAmbiguous {
         Map<String, Developer> result;
 
-        result = listFromLdap(attrs);
+        result = listFromLdap("o", login);
         switch (result.size()) {
             case 0:
-                throw new DeveloperNotFound(message);
+                throw new DeveloperNotFound(login);
             case 1:
                 return result.values().iterator().next();
             default:
-                throw new DeveloperAmbiguous(message);
+                throw new IllegalStateException(login + ": ambiguous");
         }
     }
 

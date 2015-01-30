@@ -134,8 +134,8 @@ public class Session {
         this.selectedStageName = null;
         this.invocationFile = invocationFile;
         this.subversion = new Subversion(null, null);
-        this.ldap = Ldap.create(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials);
-        this.developers = new Developers(ldap);
+        this.developers = new Developers(
+                Ldap.create(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials));
     }
 
     //--
@@ -156,9 +156,7 @@ public class Session {
 
     private String selectedStageName;
     private Processes processes;
-    public final Ldap ldap;
-    private final Developers developers;
-
+    public final Developers developers;
 
     //--
 

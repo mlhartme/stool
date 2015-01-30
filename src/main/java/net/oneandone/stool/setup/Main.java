@@ -83,11 +83,13 @@ public class Main extends Cli implements Command {
 
     @Override
     public void printHelp() {
-        console.info.println("Setup stool.");
-        console.info.println("  Create a new Stool home directory or upgrade an existing.");
-        console.info.println("usage: setup-stool [oldHome] home");
+        console.info.println("Setup stool " + version());
+        console.info.println("usage: setup-stool [<old>] <home>");
+        console.info.println("  Create a new <home> directory, upgrades an existing <home> (incremental upgrade), ");
+        console.info.println("  or upgrade and existing <old> home directory into a new <home> (full upgrade).");
+        console.info.println("  Does not modify anything outside the home directory.");
         console.info.println("documentation:");
-        console.info.println("  http://wiki.intranet.1and1.com/bin/view/UE/StoolHome");
+        console.info.println("  https://github.com/mlhartme/stool");
     }
 
     @Override
@@ -98,7 +100,8 @@ public class Main extends Cli implements Command {
 
         version = Configuration.version();
         if (home == null) {
-            throw new ArgumentException("missing home argument");
+            printHelp();
+            return;
         }
         if (oldHome == null) {
             oldHome = home;

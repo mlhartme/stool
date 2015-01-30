@@ -294,8 +294,9 @@ public class Main extends Cli implements Command {
         console.info.println("home directory: " + stoolhome);
         console.info.println();
         console.info.println("documentation:");
-        console.info.println("  http://wiki.intranet.1and1.com/bin/view/UE/StoolHome");
+        console.info.println("  https://github.com/mlhartme/stool");
     }
+
     private Session session() throws IOException {
         if (session == null) {
             session = Session.load(environment, console, invocationFile);

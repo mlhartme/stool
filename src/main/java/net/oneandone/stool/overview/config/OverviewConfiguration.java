@@ -65,7 +65,7 @@ public class OverviewConfiguration {
 
     @Bean
     public Developers developers() throws IOException {
-        return new Developers(session().ldap);
+        return session().developers;
     }
 
     @Bean

@@ -35,16 +35,6 @@
 
     <spring.version>4.0.5.RELEASE</spring.version>
     <spring.security.version>4.0.0.RC1</spring.security.version>
-    <sonar.artifact.path>target/${project.build.finalName}.${project.packaging}</sonar.artifact.path>
-    <sonar.build-stability.url>${project.ciManagement.system}:${project.ciManagement.url}</sonar.build-stability.url>
-    <sonar.artifact.path>target/stool</sonar.artifact.path>
-    <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-    <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
-    <jacoco.outputDir>${project.build.directory}</jacoco.outputDir>
-    <jacoco.out.ut.file>jacoco-ut.exec</jacoco.out.ut.file>
-    <sonar.jacoco.reportPath>${jacoco.outputDir}/${jacoco.out.ut.file}</sonar.jacoco.reportPath>
-    <jacoco.out.it.file>jacoco-it.exec</jacoco.out.it.file>
-    <sonar.jacoco.itReportPath>${jacoco.outputDir}/${jacoco.out.it.file}</sonar.jacoco.itReportPath>
     <javax.net.ssl.trustStore/>
   </properties>
 

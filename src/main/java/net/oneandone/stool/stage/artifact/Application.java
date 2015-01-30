@@ -18,6 +18,7 @@ package net.oneandone.stool.stage.artifact;
 import com.google.gson.Gson;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.devreg.Ldap;
+import net.oneandone.stool.overview.Developers;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
@@ -126,7 +127,7 @@ public class Application {
     }
 
 
-    public Changes changes(Ldap ldap, boolean readonly) throws IOException {
+    public Changes changes(Developers developers, boolean readonly) throws IOException {
         Node changesFile;
         String svnurl;
         ChangeCollector changeCollector;
@@ -147,7 +148,7 @@ public class Application {
             return Changes.none();
         }
         try {
-            changeCollector = new ChangeCollector(currentWarFile(), futureWarFile(), ldap);
+            changeCollector = new ChangeCollector(currentWarFile(), futureWarFile(), developers);
             svnurl = pom().getScm().getUrl();
             if (svnurl.contains("tags")) {
                 changes = changeCollector.withXMLChanges();

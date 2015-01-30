@@ -127,6 +127,9 @@ public class Configuration extends BaseConfiguration {
         } else {
             adminGroup = "users";
         }
+        ldapUrl = "";
+        ldapPrincipal = "";
+        ldapCredentials = "";
     }
 
     // TODO: doesn't work in integration tests

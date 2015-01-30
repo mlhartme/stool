@@ -19,6 +19,7 @@ import net.oneandone.stool.Overview;
 import net.oneandone.stool.configuration.Configuration;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Files;
+import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
@@ -62,8 +63,14 @@ public class Install {
 
     private void createHome() throws IOException {
         Configuration conf;
+        RmRfThread cleanup;
 
         home.checkNotExists();
+
+        cleanup = new RmRfThread(console);
+        cleanup.add(home);
+        Runtime.getRuntime().addShutdownHook(cleanup);
+
         home.mkdirs();
         copyResources();
         conf = new Configuration();
@@ -71,6 +78,9 @@ public class Install {
         tuneHostname(conf);
         tuneExplicit(conf);
         conf.save(home);
+
+        // ok, no exceptions - we have a proper install directory: no cleanup
+        Runtime.getRuntime().removeShutdownHook(cleanup);
     }
 
     private void copyResources() throws IOException {
