@@ -18,9 +18,9 @@ package net.oneandone.stool.util;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
-import com.oneandone.sales.tools.devreg.model.Machine;
-import com.oneandone.sales.tools.devreg.model.Probe;
 import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -43,18 +43,36 @@ public class ErrorToolAppender extends AppenderBase<ILoggingEvent> {
     }
 
     public static void main(String[] args) throws Exception {
-        send(true, Level.WARN, MACHINE, "my subject", "my body");
+        send(true, Level.WARN, HOSTNAME, "my subject", "my body");
     }
 
-    private static final Machine MACHINE;
+    private static final String HOSTNAME;
 
     static {
         try {
-            // TODO
-            MACHINE = Probe.machine(new World());
+            HOSTNAME = hostname(new World());
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public static String hostname(World world) throws IOException {
+        FileNode file = world.file("/etc/hostname");
+
+        String hostname;
+        if (file.exists()) {
+            hostname = file.readString();
+        } else {
+            hostname = (new Launcher((FileNode) world.getWorking(), new String[]{ "hostname" })).exec();
+        }
+
+        hostname = hostname.trim();
+        int idx = hostname.indexOf(46);
+        if (idx != -1) {
+            hostname = hostname.substring(0, idx);
+        }
+
+        return hostname;
     }
 
     public ErrorToolAppender() {
@@ -69,7 +87,7 @@ public class ErrorToolAppender extends AppenderBase<ILoggingEvent> {
         }
     }
 
-    public static void send(boolean dev, Level level, Machine machine, String subject, String body) throws IOException {
+    public static void send(boolean dev, Level level, String hostname, String subject, String body) throws IOException {
         StringBuilder dest;
         URL url;
         HttpURLConnection con;
@@ -80,18 +98,9 @@ public class ErrorToolAppender extends AppenderBase<ILoggingEvent> {
 
         add("product", "stool", dest);
         add("category", "default", dest);
-        add("container", machine.getName() + " " + machine.getIp4(), dest);
-        add("sessionId", machine.getMac(), dest);
+        add("container", hostname, dest);
+        add("sessionId", hostname, dest);
 
-        /*
-        add("servlet", "msg.getServlet()", dest);
-        add("container", "devreg", dest);
-        add("port", "443", dest);
-        add("uri", "msg.getUri()", dest);
-        add("scheme", "https", dest);
-        add("page", "msg.getPage()", dest);
-        add("query", "msg.getQuery()", dest);
-*/
         add("subject", subject, dest);
         add("body", body, dest);
         add("occurTime", Long.toString(System.currentTimeMillis()), dest);

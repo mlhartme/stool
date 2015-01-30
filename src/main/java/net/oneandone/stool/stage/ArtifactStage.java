@@ -214,7 +214,7 @@ public class ArtifactStage extends Stage {
         }
 
         application.replaceFutureWarFile(candidate);
-        Changes changes = application.changes(false);
+        Changes changes = application.changes(session.ldap, false);
         console.verbose.println("Update for " + application.artifactId() + " prepared.");
         for (Change change : changes.getChanges()) {
             StringBuilder output;
@@ -257,6 +257,6 @@ public class ArtifactStage extends Stage {
 
     @Override
     public Changes changes(boolean readonly) {
-        return applications.changes(readonly);
+        return applications.changes(session.ldap, readonly);
     }
 }

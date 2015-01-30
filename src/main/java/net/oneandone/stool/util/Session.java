@@ -15,13 +15,13 @@
  */
 package net.oneandone.stool.util;
 
-import com.oneandone.sales.tools.devreg.model.Developer;
-import com.oneandone.sales.tools.devreg.model.DeveloperNotFound;
-import com.oneandone.sales.tools.devreg.model.Ldap;
 import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.Configuration;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.devreg.Developer;
+import net.oneandone.stool.devreg.DeveloperNotFound;
+import net.oneandone.stool.devreg.Ldap;
 import net.oneandone.stool.overview.Developers;
 import net.oneandone.stool.setup.Install;
 import net.oneandone.stool.stage.Stage;
@@ -134,7 +134,7 @@ public class Session {
         this.selectedStageName = null;
         this.invocationFile = invocationFile;
         this.subversion = new Subversion(null, null);
-        this.ldap = Ldap.create();
+        this.ldap = Ldap.create(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials);
         this.developers = new Developers(ldap);
     }
 

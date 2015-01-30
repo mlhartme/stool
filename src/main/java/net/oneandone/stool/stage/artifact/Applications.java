@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.stage.artifact;
 
+import net.oneandone.stool.devreg.Ldap;
 import org.eclipse.aether.artifact.DefaultArtifact;
 
 import java.io.IOException;
@@ -50,12 +51,12 @@ public class Applications {
         return Collections.unmodifiableList(artifacts);
     }
 
-    public Changes changes(boolean readonly) {
+    public Changes changes(Ldap ldap, boolean readonly) {
         try {
             if (mergedChanges == null) {
                 mergedChanges = Changes.none();
                 for (Application app : apps) {
-                    mergedChanges.merge(app.changes(readonly));
+                    mergedChanges.merge(app.changes(ldap, readonly));
                 }
 
 

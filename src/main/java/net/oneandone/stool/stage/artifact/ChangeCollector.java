@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import com.oneandone.sales.tools.devreg.model.DeveloperNotFound;
-import com.oneandone.sales.tools.devreg.model.Ldap;
+import net.oneandone.stool.devreg.DeveloperNotFound;
+import net.oneandone.stool.devreg.Ldap;
 
 import javax.naming.NamingException;
 import java.io.IOException;

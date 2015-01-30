@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import com.oneandone.sales.tools.devreg.model.Developer;
+import net.oneandone.stool.devreg.Developer;
 
 import java.util.Date;
 

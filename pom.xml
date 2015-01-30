@@ -87,12 +87,6 @@
     </dependency>
 
     <dependency>
-      <groupId>com.oneandone.sales.tools</groupId>
-      <artifactId>devreg</artifactId>
-      <version>3.2.0</version>
-    </dependency>
-
-    <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>
       <version>1.5.0-b01</version>

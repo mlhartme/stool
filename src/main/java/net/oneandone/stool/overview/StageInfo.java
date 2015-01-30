@@ -16,9 +16,9 @@
 package net.oneandone.stool.overview;
 
 
-import com.oneandone.sales.tools.devreg.model.DeveloperNotFound;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Until;
+import net.oneandone.stool.devreg.DeveloperNotFound;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.util.BuildStats;

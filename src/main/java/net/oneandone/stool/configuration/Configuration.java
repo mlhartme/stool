@@ -94,6 +94,15 @@ public class Configuration extends BaseConfiguration {
     @Expose
     public int baseHeap;
 
+    @Expose
+    public String ldapUrl;
+
+    @Expose
+    public String ldapPrincipal;
+
+    @Expose
+    public String ldapCredentials;
+
     /**
      * Number of days to wait before removing an expired stage.
      */

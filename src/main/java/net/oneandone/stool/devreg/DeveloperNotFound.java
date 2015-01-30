@@ -13,19 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.stage.artifact;
+package net.oneandone.stool.devreg;
 
-import com.oneandone.sales.tools.devreg.model.Ldap;
-import org.junit.Test;
-
-public class SCMChangeCollectorIT {
-    @Test
-    public void testCollect() throws Exception {
-        Ldap ldap;
-
-        ldap = Ldap.create();
-        SCMChangeCollector changeCollector;
-        changeCollector = new SCMChangeCollector("https://svn.1and1.org/svn/sales/tools/stool/trunk", 904722L, 906268L, ldap);
-        Changes changes = changeCollector.collect();
+public class DeveloperNotFound extends Exception {
+    public DeveloperNotFound(String id) {
+        super("developer not found: " + id);
     }
 }

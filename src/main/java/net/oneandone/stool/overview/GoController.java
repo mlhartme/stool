@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.overview;
 
-import com.oneandone.sales.tools.devreg.model.DeveloperNotFound;
 import net.oneandone.stool.EnumerationFailed;
+import net.oneandone.stool.devreg.DeveloperNotFound;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import org.springframework.beans.factory.annotation.Autowired;
