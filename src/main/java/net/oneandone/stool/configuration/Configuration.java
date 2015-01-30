@@ -129,25 +129,14 @@ public class Configuration extends BaseConfiguration {
         }
     }
 
-    //TODO: hidden stages
+    // TODO: doesn't work in integration tests
     public static Version version() throws IOException {
-        // do not load from jar manifest because this is unavailable for tests
-        InputStream src = null;
-        Properties p;
-        try {
-            src = Configuration.class.getResourceAsStream("/META-INF/pominfo.properties");
-            p = new Properties();
-            p.load(src);
-            if (!"stool".equals(p.get("artifactId"))) {
-                throw new IllegalStateException(p.toString());
-            }
-            return Version.valueOf(String.valueOf(p.get("version")));
-        } finally {
-            if (src != null) {
-                src.close();
-            }
-        }
+        String str;
+
+        str = Configuration.class.getPackage().getSpecificationVersion();
+        return Version.valueOf(String.valueOf(str));
     }
+
     private static FileNode configurationFile(FileNode home) {
         return home.isDirectory() ? home.join("config.json") : home;
     }
