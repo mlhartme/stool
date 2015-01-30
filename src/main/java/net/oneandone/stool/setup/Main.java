@@ -42,9 +42,25 @@ public class Main extends Cli implements Command {
 
     private FileNode home;
     private FileNode oldHome;
-    private final Map<String, String> config = new HashMap<>();
+    private final Map<String, String> config;
 
     private Main() {
+        config = fromEnvironment();
+    }
+
+    public static Map<String, String> fromEnvironment() {
+        final String prefix = "SETUP_STOOL_";
+        String key;
+        Map<String, String> result;
+
+        result = new HashMap<>();
+        for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
+            key = entry.getKey();
+            if (key.startsWith(prefix)) {
+                result.put(key.substring(prefix.length()), entry.getValue());
+            }
+        }
+        return result;
     }
 
     @Remaining

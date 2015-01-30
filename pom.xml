@@ -358,8 +358,7 @@
             </goals>
             <configuration>
               <runOrder>alphabetical</runOrder>
-              <argLine>-Xmx1024m -XX:MaxPermSize=256m -Djava.awt.headless=true ${jacoco.agent.it.arg}
-              </argLine>
+              <argLine>-Xmx1024m -XX:MaxPermSize=256m -Djava.awt.headless=true ${jacoco.agent.it.arg}</argLine>
               <excludes>
                 <exclude>**/*ManualIT.java</exclude>
               </excludes>
