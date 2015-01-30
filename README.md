@@ -2,9 +2,11 @@ Building
 
 Add to your setting
 
-   <profiles>
     <profile>
      <id>stool</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
      <repositories>
        <repository>
          <id>spring-milestone</id>
@@ -12,8 +14,3 @@ Add to your setting
        </repository>
      </repositories>
    </profile>
-
-  <activeProfiles>
-    <activeProfile>stool</activeProfile>
-  </activeProfiles>
-
