@@ -104,7 +104,9 @@ public class IndexController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
         subject = "[Stool] Feedback from " + SecurityContextHolder.getContext().getAuthentication().getName();
-        new Mailer().send(session.configuration.contactAdmin, new String[]{ session.configuration.contactAdmin }, subject, message);
+        new Mailer(session.configuration.mailHost, session.configuration.mailUsername,
+                session.configuration.mailPassword).send(session.configuration.contactAdmin,
+                new String[] { session.configuration.contactAdmin }, subject, message);
         return new ResponseEntity(HttpStatus.ACCEPTED);
     }
 

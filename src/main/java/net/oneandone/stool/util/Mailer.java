@@ -39,9 +39,6 @@ public class Mailer {
     private final String username;
     private final String password;
 
-    public Mailer() {
-        this("mri.server.lan", "", "");
-    }
     public Mailer(String smtphost, String username, String password) {
         this.smtphost = smtphost;
         this.username = username;

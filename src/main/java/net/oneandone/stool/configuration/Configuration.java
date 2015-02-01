@@ -22,6 +22,7 @@ import com.google.gson.annotations.Expose;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.configuration.adapter.VersionTypeAdapter;
+import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -103,6 +104,15 @@ public class Configuration extends BaseConfiguration {
     @Expose
     public String ldapCredentials;
 
+    @Expose
+    public String mailHost;
+
+    @Expose
+    public String mailUsername;
+
+    @Expose
+    public String mailPassword;
+
     /**
      * Number of days to wait before removing an expired stage.
      */
@@ -130,6 +140,9 @@ public class Configuration extends BaseConfiguration {
         ldapUrl = "";
         ldapPrincipal = "";
         ldapCredentials = "";
+        mailHost = "";
+        mailUsername = "";
+        mailPassword = "";
     }
 
     // TODO: doesn't work in integration tests

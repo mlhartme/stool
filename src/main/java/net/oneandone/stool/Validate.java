@@ -71,7 +71,8 @@ public class Validate extends StageCommand {
         header("validate " + hostname);
         processes = session.getProcesses(false);
         if (email) {
-            mailer = new Mailer();
+            mailer = new Mailer(session.configuration.mailHost,
+                    session.configuration.mailUsername, session.configuration.mailPassword);
         }
         super.doInvoke();
     }
