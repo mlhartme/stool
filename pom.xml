@@ -18,6 +18,11 @@
   <packaging>jar</packaging>
 
   <properties>
+    <aetherVersion>1.0.0.v20140518</aetherVersion>
+    <guava.version>14.0.1</guava.version>
+    <mavenVersion>3.2.5</mavenVersion>
+    <wagonVersion>2.8</wagonVersion>
+
     <enforcer.skip>true</enforcer.skip>
 
     <!-- disabled because it complain about comment-only code blocks -->
@@ -82,7 +87,7 @@
     <dependency>
       <groupId>net.oneandone.maven</groupId>
       <artifactId>embedded</artifactId>
-      <version>3.8.0</version>
+      <version>3.9.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>net.oneandone</groupId>
@@ -277,10 +282,8 @@
             META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,changelog.txt,
             notice.txt,license.txt
           </remove>
-          <overwrite>META-INF/pominfo.properties, org/apache/commons/logging/**/*,
-            META-INF/sisu/javax.inject.Named
-          </overwrite>
-          <concat>META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
+          <overwrite>META-INF/pominfo.properties, org/apache/commons/logging/**/*</overwrite>
+          <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
 
           <!-- for upload -->
           <symlink>${env.WSDTOOLS_HOME}/bin/setup-stool</symlink>
