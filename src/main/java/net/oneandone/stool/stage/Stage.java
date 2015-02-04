@@ -55,16 +55,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-/** Concrete implementations are WAR, (pws) workspace or Artifact.
- *
- * Some Stage URLs:
- *
- * https://svn.1and1.org/svn/PFX/dsl/dslorder-de/trunk             (war app)
- * https://svn.1and1.org/svn/PFX/dsl/mobileorder-de/trunk          (war app)
- * https://svn.1and1.org/svn/sales/workspaces/dslorder-de          (pustefix workspace)
- * https://svn.1and1.org/svn/sales/workspaces/ACC.1234             (pustefix workspace)
- * gav:de.ui.webdev:pfixui:1.0.34-SNAPSHOT                         (gav of a war)
- * gav:com.oneandone.sales.euede:eue-home:1.8.5                    (gav of a war)
+/**
+ * Concrete implementations are WAR, (pws) workspace or Artifact.
  */
 public abstract class Stage {
     public static Stage load(Session session, FileNode wrapper) throws IOException {
@@ -455,8 +447,6 @@ public abstract class Stage {
     }
 
     protected String extractAppNameFromSvnUrl(String svnUrl) {
-        // https://svn.1and1.org/svn/PFX/dsl/dslorder-de/trunk
-        // https://svn.1and1.org/svn/PFX/dsl/dslorder-de/branches/VTR.XYZ
         int start;
         int end;
 
