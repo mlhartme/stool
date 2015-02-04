@@ -171,7 +171,14 @@ public class Start extends StageCommand {
     }
 
     public void copyTemplate(Stage stage) throws Exception {
-        Files.template(world.resource("templates/stage"), stage.shared(), variables(stage));
+        FileNode shared;
+
+        shared = stage.shared();
+        Files.template(world.resource("templates/stage"), shared, variables(stage));
+        // manually create empty subdirectories, because git doesn't know them
+        for (String dir : new String[] {"ssl", "run"}) {
+            shared.join(dir).mkdirOpt();
+        }
     }
 
     public FileNode tomcatOpt(String version) throws IOException {

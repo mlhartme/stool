@@ -89,7 +89,8 @@ public class Install {
             console.world.locateClasspathItem(getClass()).copyFile(home.join("bin/stool.jar"));
         }
         // manually create empty subdirectories, because git doesn't know them
-        for (String dir : new String[] {"wrappers", "inbox", "logs", "service-wrapper", "sessions", "tomcat"}) {
+        for (String dir : new String[] {"wrappers", "inbox", "logs", "service-wrapper", "service-wrapper/downloads", "sessions",
+                "tomcat", "tomcat/downloads"}) {
             home.join(dir).mkdir();
         }
     }
