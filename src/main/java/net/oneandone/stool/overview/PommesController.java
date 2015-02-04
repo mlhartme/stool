@@ -37,8 +37,6 @@ import java.util.List;
 @RequestMapping("/pommes")
 public class PommesController {
 
-    public static final String POMMES_GLOBAL = "http://ivar.pustemanager64.schlund.de/webdav/pommes.zip";
-
     @Autowired
     private World world;
 
@@ -68,7 +66,8 @@ public class PommesController {
 
     public Database database() throws URISyntaxException, IOException {
         Database database;
-        database = new Database(world.getTemp().join("pommes"), world.node(POMMES_GLOBAL));
+
+        database = Database.load(world);
         database.downloadOpt();
         return database;
     }
