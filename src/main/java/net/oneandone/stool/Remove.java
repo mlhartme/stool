@@ -64,8 +64,8 @@ public class Remove extends StageCommand {
         Node newLogFile;
 
 
-        if (!Role.isAdmin(session.configuration)
-          && !session.configuration.security.isLocal() && stage.getName().equals(Overview.OVERVIEW_NAME)) {
+        if (!Role.isAdmin(session.stoolConfiguration)
+          && !session.stoolConfiguration.security.isLocal() && stage.getName().equals(Overview.OVERVIEW_NAME)) {
             throw new NoPermissionException("You don't have the permissions to do that. This incident will be reported.");
         }
 

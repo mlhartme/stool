@@ -16,7 +16,7 @@
 package net.oneandone.stool.setup;
 
 import net.oneandone.stool.Overview;
-import net.oneandone.stool.configuration.Configuration;
+import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.RmRfThread;
@@ -62,7 +62,7 @@ public class Install {
     }
 
     private void createHome() throws IOException {
-        Configuration conf;
+        StoolConfiguration conf;
         RmRfThread cleanup;
 
         home.checkNotExists();
@@ -73,7 +73,7 @@ public class Install {
 
         home.mkdirs();
         copyResources();
-        conf = new Configuration();
+        conf = new StoolConfiguration();
         conf.addDefaults(javaHome(), environment.get("WSDTOOLS_HOME"));
         tuneHostname(conf);
         tuneExplicit(conf);
@@ -104,7 +104,7 @@ public class Install {
         return result;
     }
 
-    private void tuneExplicit(Configuration conf) {
+    private void tuneExplicit(StoolConfiguration conf) {
         boolean error;
 
         error = false;
@@ -122,7 +122,7 @@ public class Install {
             throw new ArgumentException("invalid configuration");
         }
     }
-    private void tuneHostname(Configuration conf) {
+    private void tuneHostname(StoolConfiguration conf) {
         try {
             conf.hostname = InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {

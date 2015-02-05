@@ -181,7 +181,7 @@ public class SystemImport extends SessionCommand {
         destWrapper = session.wrappers.join(oldWrapper.getName());
         destWrapper.checkNotExists();
         tmpWrapper = console.world.getTemp().createTempDirectory().deleteDirectory();
-        stage = Stage.loadOpt(session, url, session.createStageConfiguration(url, session.configuration.defaults),
+        stage = Stage.loadOpt(session, url, session.createStageConfiguration(url, session.stoolConfiguration.defaults),
                 tmpWrapper, directory);
         stage.tuneConfiguration();
         stage.config().ports = session.createPortsForName(stage.getName());

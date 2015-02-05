@@ -256,7 +256,7 @@ public class Start extends StageCommand {
 
         result = new HashMap<>();
         result.put("java.home", session.jdkHome());
-        result.put("wrapper.java.additional", wrapperJavaAdditional(stage, debug, false, new Macros(session.configuration.macros)));
+        result.put("wrapper.java.additional", wrapperJavaAdditional(stage, debug, false, new Macros(session.stoolConfiguration.macros)));
         return result;
     }
 
@@ -319,7 +319,7 @@ public class Start extends StageCommand {
 
     @Override
     protected void checkCommitted(Stage stage) throws IOException {
-        if (session.configuration.security.isPearl() || session.configuration.security.isWaterloo()) {
+        if (session.stoolConfiguration.security.isPearl() || session.stoolConfiguration.security.isWaterloo()) {
             try {
                 super.checkCommitted(stage);
             } catch (IOException e) {

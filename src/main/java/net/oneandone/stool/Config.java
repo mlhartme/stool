@@ -49,8 +49,8 @@ public class Config extends StageCommand {
 
         role = null;
 
-        if (session.configuration.security.isWaterloo()) {
-            role = Role.detect(session.configuration);
+        if (session.stoolConfiguration.security.isWaterloo()) {
+            role = Role.detect(session.stoolConfiguration);
         }
 
         idx = str.indexOf('=');

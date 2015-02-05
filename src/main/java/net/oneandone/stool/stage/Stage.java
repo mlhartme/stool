@@ -182,7 +182,7 @@ public abstract class Stage {
         return getClass().getSimpleName().toLowerCase();
     }
     public String getDomain() {
-        return getSubdomain() + "." + session.configuration.hostname;
+        return getSubdomain() + "." + session.stoolConfiguration.hostname;
     }
     public String getSubdomain() {
         return getName();  // currently the same
@@ -217,7 +217,7 @@ public abstract class Stage {
         String machine;
         int idx;
 
-        machine = session.configuration.hostname;
+        machine = session.stoolConfiguration.hostname;
         idx = machine.indexOf('.');
         if (idx != -1) {
             machine = machine.substring(0, idx);
@@ -347,7 +347,7 @@ public abstract class Stage {
     protected Launcher catalina(String action) throws IOException {
         Launcher launcher;
 
-        if (session.configuration.security.isShared()) {
+        if (session.stoolConfiguration.security.isShared()) {
             launcher = new Launcher(getDirectory(), "sudo",
                     session.bin("stool-catalina.sh").getAbsolute()).arg(action);
         } else {
@@ -384,7 +384,7 @@ public abstract class Stage {
         checkMemory();
         console.info.println("starting tomcat ...");
         serverXml.save(getServerXml());
-        if (session.configuration.security.isLocal()) {
+        if (session.stoolConfiguration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
             // else: will be deleted by stool-catalina.sh -- with proper permissions
         }
@@ -554,17 +554,17 @@ public abstract class Stage {
             wars = tmp.size();
         }
         if (configuration.tomcatHeap == 0 || configuration.tomcatHeap == 200) {
-            configuration.tomcatHeap = Math.min(4096, 150 + wars * session.configuration.baseHeap);
+            configuration.tomcatHeap = Math.min(4096, 150 + wars * session.stoolConfiguration.baseHeap);
         }
         if (configuration.tomcatPerm == 0 || configuration.tomcatPerm == 64) {
-            configuration.tomcatPerm = Math.min(1024, 100 + wars * session.configuration.basePerm);
+            configuration.tomcatPerm = Math.min(1024, 100 + wars * session.stoolConfiguration.basePerm);
         }
         if (configuration.build.isEmpty() || configuration.build.equals("") || configuration.build.equals("false")) {
             //TODO: schmeiß weg
             configuration.build = getDefaultBuildCommand();
         }
 
-        if (session.configuration.security.isLocal()) {
+        if (session.stoolConfiguration.security.isLocal()) {
             configuration.until = Until.reserved();
         } else {
             configuration.until = Until.withOffset(8);
@@ -679,7 +679,7 @@ public abstract class Stage {
         return Changes.none();
     }
     public FileNode localRepository() {
-        return session.configuration.security.isLocal()
+        return session.stoolConfiguration.security.isLocal()
           ? (FileNode) session.console.world.getHome().join(".m2/repository") : wrapper.join(".m2");
     }
     protected FileNode warFile(MavenProject project) {

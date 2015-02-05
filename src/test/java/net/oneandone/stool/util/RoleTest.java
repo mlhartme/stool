@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.configuration.Configuration;
+import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.configuration.SecurityLevel;
 import org.junit.Test;
 
@@ -26,16 +26,16 @@ public class RoleTest {
 
     @Test
     public void isAdmin() throws Exception {
-        assertTrue(Role.isAdmin(new Configuration()));
+        assertTrue(Role.isAdmin(new StoolConfiguration()));
     }
 
     @Test
     public void isNotAnAdmin() throws Exception {
-        Configuration configuration;
-        configuration = new Configuration();
-        configuration.adminGroup = "HopefullyNotTrueElseIThinkYourGroupSystemIsCrazy";
-        configuration.security = SecurityLevel.GEM;
+        StoolConfiguration stoolConfiguration;
+        stoolConfiguration = new StoolConfiguration();
+        stoolConfiguration.adminGroup = "HopefullyNotTrueElseIThinkYourGroupSystemIsCrazy";
+        stoolConfiguration.security = SecurityLevel.GEM;
 
-        assertFalse(Role.isAdmin(configuration));
+        assertFalse(Role.isAdmin(stoolConfiguration));
     }
 }

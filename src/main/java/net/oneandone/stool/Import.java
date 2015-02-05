@@ -148,7 +148,7 @@ public class Import extends SessionCommand {
         if (url == null) {
             stage = null;
         } else {
-            stage = Stage.loadOpt(session, url, session.createStageConfiguration(url, session.configuration.defaults),
+            stage = Stage.loadOpt(session, url, session.createStageConfiguration(url, session.stoolConfiguration.defaults),
               wrapper, parent);
         }
         if (stage != null) {

@@ -44,8 +44,8 @@ public class Status extends StageCommand {
         header("app urls");
         message(getAppUrlsFrom(stage));
         message("");
-        header("pfxconsole " + session.configuration.hostname + ":" + stage.getPorts().jmx());
-        header("pfxvisualvm " + session.configuration.hostname + ":" + stage.getPorts().jmx());
+        header("pfxconsole " + session.stoolConfiguration.hostname + ":" + stage.getPorts().jmx());
+        header("pfxvisualvm " + session.stoolConfiguration.hostname + ":" + stage.getPorts().jmx());
     }
 
     private String getAppUrlsFrom(Stage stage) throws IOException, SAXException {

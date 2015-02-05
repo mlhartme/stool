@@ -17,11 +17,10 @@ package net.oneandone.stool.util;
 
 import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.configuration.Bedroom;
-import net.oneandone.stool.configuration.Configuration;
+import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
-import net.oneandone.stool.users.Ldap;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.setup.Install;
 import net.oneandone.stool.stage.Stage;
@@ -63,7 +62,7 @@ public class Session {
         } catch (Exception e) {
             throw new IOException("install failed: " + e.getMessage(), e);
         }
-        return new Session(home, console, environment, Configuration.load(home), Bedroom.loadOrCreate(home), null);
+        return new Session(home, console, environment, StoolConfiguration.load(home), Bedroom.loadOrCreate(home), null);
     }
 
     public static Session load(Environment environment, Console console, FileNode invocationFile) throws IOException {
@@ -114,7 +113,7 @@ public class Session {
 
         home = environment.stoolHome(console.world);
         home.checkDirectory();
-        result = new Session(home, console, environment, Configuration.load(home), Bedroom.loadOrCreate(home), invocationFile);
+        result = new Session(home, console, environment, StoolConfiguration.load(home), Bedroom.loadOrCreate(home), invocationFile);
         result.selectedStageName = environment.get(Environment.STOOL_SELECTED);
         return result;
     }
@@ -123,21 +122,21 @@ public class Session {
 
     //--
 
-    public Session(FileNode home, Console console, Environment environment, Configuration configuration,
+    public Session(FileNode home, Console console, Environment environment, StoolConfiguration stoolConfiguration,
                    Bedroom bedroom, FileNode invocationFile) {
         this.home = home;
         this.console = console;
         this.environment = environment;
-        this.configuration = configuration;
+        this.stoolConfiguration = stoolConfiguration;
         this.bedroom = bedroom;
         this.wrappers = home.join("wrappers");
         this.selectedStageName = null;
         this.invocationFile = invocationFile;
         this.subversion = new Subversion(null, null);
-        if (configuration.ldapUrl.isEmpty()) {
+        if (stoolConfiguration.ldapUrl.isEmpty()) {
             this.users = Users.fromLogin();
         } else {
-            this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials);
+            this.users = Users.fromLdap(stoolConfiguration.ldapUrl, stoolConfiguration.ldapPrincipal, stoolConfiguration.ldapCredentials);
         }
     }
 
@@ -147,7 +146,7 @@ public class Session {
     public final FileNode home;
     public final Console console;
     public final Environment environment;
-    public final Configuration configuration;
+    public final StoolConfiguration stoolConfiguration;
     public final Bedroom bedroom;
 
     public final FileNode wrappers;
@@ -164,7 +163,7 @@ public class Session {
     //--
 
     public void saveConfiguration() throws IOException {
-        configuration.save(home);
+        stoolConfiguration.save(home);
     }
 
 
@@ -337,7 +336,7 @@ public class Session {
             mavenOpts = stage.config().mavenOpts;
             mavenOpts = mavenOpts.replace("@localRepository@", stage.localRepository().getAbsolute());
             mavenOpts = mavenOpts.replace("@proxyOpts@", environment.proxyOpts(false));
-            mavenOpts = new Macros(configuration.macros).replace(mavenOpts);
+            mavenOpts = new Macros(stoolConfiguration.macros).replace(mavenOpts);
         }
         env = new Environment();
         env.set(Environment.STOOL_SELECTED, selectedStageName);
@@ -346,7 +345,7 @@ public class Session {
             env.set(Environment.MACHINE, stage.getMachine());
         }
         // for pws:
-        env.set(Environment.STAGE_HOST, stage != null ? stage.getName() + "." + configuration.hostname : null);
+        env.set(Environment.STAGE_HOST, stage != null ? stage.getName() + "." + stoolConfiguration.hostname : null);
         // not that both MAVEN and ANT use JAVA_HOME to locate their JVM - it's not necessary to add java to the PATH variable
         env.set(Environment.JAVA_HOME, stage != null ? stage.config().javaHome : null);
         env.set(Environment.MAVEN_OPTS, mavenOpts);
@@ -356,7 +355,7 @@ public class Session {
         } else {
             stoolIndicator = "\\[$(stoolIndicatorColor)\\]" + stage.getName() + "\\[\\e[m\\]";
         }
-        env.set(Environment.PS1, Strings.replace(configuration.prompt, "\\+", stoolIndicator));
+        env.set(Environment.PS1, Strings.replace(stoolConfiguration.prompt, "\\+", stoolIndicator));
         env.set(Environment.PWD, (stage == null ? ((FileNode) console.world.getWorking()) : stage.getDirectory()).getAbsolute());
         return env;
     }
@@ -367,7 +366,7 @@ public class Session {
     //--
 
     public Ports createPortsForName(String name) throws IOException {
-        return createPorts(Ports.forName(name, configuration.portPrefixFirst, configuration.portPrefixLast));
+        return createPorts(Ports.forName(name, stoolConfiguration.portPrefixFirst, stoolConfiguration.portPrefixLast));
     }
 
     //-- disk space (all values in MB
@@ -375,7 +374,7 @@ public class Session {
         List<Ports> used;
         Ports current;
 
-        if (!portsStart.within(configuration.portPrefixFirst, configuration.portPrefixLast)) {
+        if (!portsStart.within(stoolConfiguration.portPrefixFirst, stoolConfiguration.portPrefixLast)) {
             throw new IllegalArgumentException("ports out of range: " + portsStart);
         }
         used = usedPorts();
@@ -388,8 +387,8 @@ public class Session {
                 }
                 return current;
             }
-            if (current.equals(configuration.portPrefixLast)) {
-                current = configuration.portPrefixFirst;
+            if (current.equals(stoolConfiguration.portPrefixLast)) {
+                current = stoolConfiguration.portPrefixFirst;
             } else {
                 current = current.next();
             }
@@ -435,7 +434,7 @@ public class Session {
         int min;
 
         free = diskFree();
-        min = configuration.diskMin;
+        min = stoolConfiguration.diskMin;
         if (free < min) {
             throw new ArgumentException("Disk almost full. Currently available " + free + " mb, required " + min + " mb.");
         }
@@ -460,7 +459,7 @@ public class Session {
     }
 
     public User lookupUser(String login) throws NamingException, UserNotFound {
-        if (!configuration.security.isLocal()) {
+        if (!stoolConfiguration.security.isLocal()) {
             return users.byLogin(login);
         } else {
             return null;

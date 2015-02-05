@@ -70,9 +70,9 @@ public class IndexController {
         Map<String, String> model;
 
         model = new HashMap<>();
-        for (Field field : session.configuration.getClass().getDeclaredFields()) {
+        for (Field field : session.stoolConfiguration.getClass().getDeclaredFields()) {
             try {
-                model.put(field.getName(), String.valueOf(field.get(session.configuration)));
+                model.put(field.getName(), String.valueOf(field.get(session.stoolConfiguration)));
             } catch (IllegalAccessException ignored) {
                 //we're goin to ignore this. Because we change the format of the configuration. we wont need any private fields
             }
@@ -104,9 +104,9 @@ public class IndexController {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
         subject = "[Stool] Feedback from " + SecurityContextHolder.getContext().getAuthentication().getName();
-        new Mailer(session.configuration.mailHost, session.configuration.mailUsername,
-                session.configuration.mailPassword).send(session.configuration.contactAdmin,
-                new String[] { session.configuration.contactAdmin }, subject, message);
+        new Mailer(session.stoolConfiguration.mailHost, session.stoolConfiguration.mailUsername,
+                session.stoolConfiguration.mailPassword).send(session.stoolConfiguration.contactAdmin,
+                new String[] { session.stoolConfiguration.contactAdmin }, subject, message);
         return new ResponseEntity(HttpStatus.ACCEPTED);
     }
 

@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.configuration.Configuration;
+import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
@@ -27,13 +27,13 @@ public enum Role {
     public static final String ERROR = "You do not have the permissions to do that.";
 
 
-    public static boolean isAdmin(Configuration configuration) {
-        return detect(configuration) == ADMIN;
+    public static boolean isAdmin(StoolConfiguration stoolConfiguration) {
+        return detect(stoolConfiguration) == ADMIN;
 
     }
 
-    public static Role detect(Configuration configuration) {
-        if (!configuration.security.isLocal() && !isInGroup(configuration.adminGroup)) {
+    public static Role detect(StoolConfiguration stoolConfiguration) {
+        if (!stoolConfiguration.security.isLocal() && !isInGroup(stoolConfiguration.adminGroup)) {
             return USER;
         }
         return ADMIN;

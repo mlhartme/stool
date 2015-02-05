@@ -19,7 +19,7 @@ import com.github.zafarkhaja.semver.Version;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.SystemImport;
-import net.oneandone.stool.configuration.Configuration;
+import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
@@ -98,7 +98,7 @@ public class Main extends Cli implements Command {
         Version old;
         Environment environment;
 
-        version = Configuration.version();
+        version = StoolConfiguration.version();
         if (home == null) {
             printHelp();
             return;

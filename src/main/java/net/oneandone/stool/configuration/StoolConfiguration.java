@@ -22,7 +22,6 @@ import com.google.gson.annotations.Expose;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.configuration.adapter.VersionTypeAdapter;
-import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -30,12 +29,10 @@ import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Properties;
 
-public class Configuration extends BaseConfiguration {
+public class StoolConfiguration extends BaseConfiguration {
     @Expose
     public Ports portPrefixFirst;
 
@@ -119,7 +116,7 @@ public class Configuration extends BaseConfiguration {
     @Expose
     public int autoRemove;
 
-    public Configuration() throws IOException {
+    public StoolConfiguration() throws IOException {
         portPrefixFirst = new Ports(900); // avoid clash with default tomcat port 8080
         portPrefixLast = new Ports(999);
         baseHeap = 200;
@@ -149,7 +146,7 @@ public class Configuration extends BaseConfiguration {
     public static Version version() throws IOException {
         String str;
 
-        str = Configuration.class.getPackage().getSpecificationVersion();
+        str = StoolConfiguration.class.getPackage().getSpecificationVersion();
         return Version.valueOf(String.valueOf(str));
     }
 
@@ -157,8 +154,8 @@ public class Configuration extends BaseConfiguration {
         return home.isDirectory() ? home.join("config.json") : home;
     }
 
-    public static Configuration load(FileNode home) throws IOException {
-        return gson(home.getWorld()).fromJson(configurationFile(home).readString(), Configuration.class);
+    public static StoolConfiguration load(FileNode home) throws IOException {
+        return gson(home.getWorld()).fromJson(configurationFile(home).readString(), StoolConfiguration.class);
     }
     private static Gson gson(World world) {
         return new GsonBuilder()
@@ -201,7 +198,7 @@ public class Configuration extends BaseConfiguration {
     }
 
     public void save(FileNode home) throws IOException {
-        configurationFile(home).writeString(gson(home.getWorld()).toJson(this, Configuration.class));
+        configurationFile(home).writeString(gson(home.getWorld()).toJson(this, StoolConfiguration.class));
     }
 
     /**
