@@ -43,9 +43,9 @@ public class Install {
 
     private final FileNode home;
 
-    private final Map<String, String> globalProperties;
+    private final Map<String, Object> globalProperties;
 
-    public Install(boolean withJar, Console console, Environment environment, Map<String, String> globalProperties) {
+    public Install(boolean withJar, Console console, Environment environment, Map<String, Object> globalProperties) {
         this.withJar = withJar;
         this.console = console;
         this.environment = environment;
@@ -74,7 +74,6 @@ public class Install {
         home.mkdirs();
         copyResources();
         conf = new StoolConfiguration();
-        conf.addDefaults(javaHome(), environment.get("WSDTOOLS_HOME"));
         tuneHostname(conf);
         tuneExplicit(conf);
         conf.save(home);
@@ -104,11 +103,19 @@ public class Install {
         return result;
     }
 
+    private void tuneHostname(StoolConfiguration conf) {
+        try {
+            conf.hostname = InetAddress.getLocalHost().getCanonicalHostName();
+        } catch (UnknownHostException e) {
+            console.info.println("WARNING: cannot configure hostname: " + e.getMessage() + ". Using " + conf.hostname);
+        }
+    }
+
     private void tuneExplicit(StoolConfiguration conf) {
         boolean error;
 
         error = false;
-        for (Map.Entry<String, String> entry : globalProperties.entrySet()) {
+        for (Map.Entry<String, Object> entry : globalProperties.entrySet()) {
             try {
                 conf.configure(entry.getKey(), entry.getValue());
                 console.info.println(entry.getKey() + "=" + entry.getValue());
@@ -120,13 +127,6 @@ public class Install {
         }
         if (error) {
             throw new ArgumentException("invalid configuration");
-        }
-    }
-    private void tuneHostname(StoolConfiguration conf) {
-        try {
-            conf.hostname = InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (UnknownHostException e) {
-            console.info.println("WARNING: cannot configure hostname: " + e.getMessage() + ". Using " + conf.hostname);
         }
     }
 

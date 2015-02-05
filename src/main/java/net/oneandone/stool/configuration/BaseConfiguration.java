@@ -22,12 +22,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class BaseConfiguration {
-    public void configure(String key, String str) throws IllegalAccessException, NoSuchFieldException {
+    public void configure(String key, Object strOrMap) throws NoSuchFieldException {
         Field field;
         Class type;
         Object value;
+        String str;
 
         field = getField(key) != null ? getField(key) : getFieldByAnnotation(key);
         if (field == null) {
@@ -36,13 +38,14 @@ public class BaseConfiguration {
         field.setAccessible(true);
         type = field.getType();
         if (type.equals(String.class)) {
-            value = str;
+            value = strOrMap;
         } else if (type.equals(Boolean.class)) {
-            value = Boolean.valueOf(str);
+            value = Boolean.valueOf((String) strOrMap);
         } else if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {
-            value = Integer.valueOf(str);
+            value = Integer.valueOf((String) strOrMap);
         } else if (type.equals(List.class)) {
-            if ((str).contains(",")) {
+            str = (String) strOrMap;
+            if (str.contains(",")) {
                 value = Arrays.asList(str.split(","));
             } else if (str.contains(" ")) {
                 value = Arrays.asList(str.split(" "));
@@ -54,13 +57,19 @@ public class BaseConfiguration {
                 value = Collections.emptyList();
             }
         } else if (type.equals(Until.class)) {
-            value = Until.fromHuman(str);
+            value = Until.fromHuman((String) strOrMap);
         } else if (type.equals(Ports.class)) {
-            value = new Ports(Integer.parseInt(str));
+            value = new Ports(Integer.parseInt((String) strOrMap));
+        } else if (Map.class.isAssignableFrom(type)) {
+            value = strOrMap;
         } else {
             throw new IllegalStateException("Cannot convert String to " + type.getSimpleName());
         }
-        field.set(this, value);
+        try {
+            field.set(this, value);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private Field getField(String key) {

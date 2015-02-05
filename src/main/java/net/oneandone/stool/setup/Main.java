@@ -16,8 +16,10 @@
 package net.oneandone.stool.setup;
 
 import com.github.zafarkhaja.semver.Version;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.SystemImport;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Environment;
@@ -32,7 +34,10 @@ import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Main extends Cli implements Command {
@@ -42,42 +47,38 @@ public class Main extends Cli implements Command {
 
     private FileNode home;
     private FileNode oldHome;
-    private final Map<String, String> config;
+
+    /** maps to String or Map<String, String> */
+    private final Map<String, Object> config;
 
     private Main() {
-        config = fromEnvironment();
-    }
-
-    public static Map<String, String> fromEnvironment() {
-        final String prefix = "SETUP_STOOL_";
-        String key;
-        Map<String, String> result;
-
-        result = new HashMap<>();
-        for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
-            key = entry.getKey();
-            if (key.startsWith(prefix)) {
-                result.put(key.substring(prefix.length()), entry.getValue());
-            }
-        }
-        return result;
+        config = new LinkedHashMap<>();
     }
 
     @Remaining
-    public void remaining(String str) {
+    public void remaining(String str) throws IOException {
         int idx;
+        Object value;
 
-        if (home == null) {
+        idx = str.indexOf('=');
+        if (idx != -1) {
+            config.put(str.substring(0, idx).trim(), str.substring(idx + 1).trim());
+        } else if (str.startsWith("@")) {
+            for (Map.Entry<String, JsonElement> entry : loadJson(console.world.file(str.substring(1))).entrySet()) {
+                if (entry.getValue() instanceof JsonObject) {
+                    value = toMap((JsonObject) entry.getValue());
+                } else {
+                    value = entry.getValue().getAsString();
+                }
+                config.put(entry.getKey(), value);
+            }
+        } else if (home == null) {
             home = console.world.file(str);
         } else if (oldHome == null) {
             oldHome = home;
             home = console.world.file(str);
         } else {
-            idx = str.indexOf('=');
-            if (idx == -1) {
-                throw new ArgumentException("key=value expected, got " + str);
-            }
-            config.put(str.substring(0, idx).trim(), str.substring(idx + 1).trim());
+            throw new ArgumentException("too many directories");
         }
     }
 
@@ -177,4 +178,32 @@ public class Main extends Cli implements Command {
             return Version.valueOf(obj.get("version").getAsString());
         }
     }
+
+    //--
+
+    private static Map<String, Object> toMap(JsonObject object) {
+        Map<String, Object> result;
+        JsonElement value;
+
+        result = new LinkedHashMap<>();
+        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
+            value = entry.getValue();
+            if (value instanceof JsonObject) {
+                result.put(entry.getKey(), toMap((JsonObject) value));
+            } else {
+                result.put(entry.getKey(), value.getAsString());
+            }
+        }
+        return result;
+    }
+
+    private static JsonObject loadJson(FileNode file) throws IOException {
+        JsonParser parser;
+
+        parser = new JsonParser();
+        try (Reader src = file.createReader()) {
+            return (JsonObject) parser.parse(src);
+        }
+    }
+
 }

@@ -120,36 +120,6 @@ public class StageConfiguration extends BaseConfiguration {
         this.autoRefresh = false;
     }
 
-    public static StageConfiguration create(StageConfiguration defaultConfiguration) {
-        StageConfiguration configuration;
-        configuration = new StageConfiguration(new Ports(0), defaultConfiguration.javaHome);
-        if (defaultConfiguration.mode != null) {
-            configuration.mode = defaultConfiguration.mode;
-        }
-        if (defaultConfiguration.build != null) {
-            configuration.build = defaultConfiguration.build;
-        }
-        if (defaultConfiguration.cookies != null) {
-            configuration.cookies = defaultConfiguration.cookies;
-        }
-        if (defaultConfiguration.mavenOpts != null) {
-            configuration.mavenOpts = defaultConfiguration.mavenOpts;
-        }
-        if (defaultConfiguration.tomcatHeap != null) {
-            configuration.tomcatHeap = defaultConfiguration.tomcatHeap;
-        }
-        if (defaultConfiguration.tomcatPerm != null) {
-            configuration.tomcatPerm = defaultConfiguration.tomcatPerm;
-        }
-        if (defaultConfiguration.tomcatVersion != null) {
-            configuration.tomcatVersion = defaultConfiguration.tomcatVersion;
-        }
-        if (defaultConfiguration.tomcatOpts != null) {
-            configuration.tomcatOpts = defaultConfiguration.tomcatOpts;
-        }
-        return configuration;
-    }
-
     public static boolean isConfigurable(String key, Role role) {
         for (Field field : StageConfiguration.class.getDeclaredFields()) {
             if (field.isAnnotationPresent(Option.class) && field.getAnnotation(Option.class).key().equals(key)) {

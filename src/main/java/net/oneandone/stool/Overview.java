@@ -43,7 +43,7 @@ public class Overview {
         Create create;
         StageConfiguration stageConfiguration;
 
-        stageConfiguration = StageConfiguration.create(session.stoolConfiguration.defaults.get(""));
+        stageConfiguration = session.stoolConfiguration.createStageConfiguration("");
         stageConfiguration.ports = session.stoolConfiguration.portPrefixLast;
         create = new Create(session, true, OVERVIEW_NAME, "gav:overview:overview:@overview",
                 overviewDirectory(session), stageConfiguration);

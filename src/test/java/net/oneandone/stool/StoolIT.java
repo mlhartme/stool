@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.fail;
@@ -49,7 +50,7 @@ public class StoolIT {
     private FileNode home;
 
     public StoolIT() throws Exception {
-        Map<String, String> config;
+        Map<String, Object> config;
 
         world = new World();
         log = world.guessProjectHome(StoolIT.class)
@@ -62,7 +63,7 @@ public class StoolIT {
         system.setStoolHome(home);
         system.set(Environment.PWD, "pwd");
         system.set(Environment.PS1, "prompt");
-        config = net.oneandone.stool.setup.Main.fromEnvironment();
+        config = new HashMap<>();
         config.put("diskMin", "500");
         config.put("portPrefixFirst", "1300");
         config.put("portPrefixLast", "1320");

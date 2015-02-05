@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.util;
 
+import com.google.gson.JsonObject;
 import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StoolConfiguration;
@@ -58,7 +59,7 @@ public class Session {
         environment = Environment.loadSystem();
         environment.setStoolHome(home);
         try {
-            new Install(false, console, environment, new HashMap<String, String>()).invoke();
+            new Install(false, console, environment, new HashMap<String, Object>()).invoke();
         } catch (Exception e) {
             throw new IOException("install failed: " + e.getMessage(), e);
         }
@@ -517,17 +518,6 @@ public class Session {
 
     public void saveStageProperties(StageConfiguration stageConfiguration, Node wrapper) throws IOException {
         stageConfiguration.save(wrapper);
-    }
-    public StageConfiguration createStageConfiguration(String url, Map<String, StageConfiguration> defaults) {
-        for (Map.Entry<String, StageConfiguration> entry : defaults.entrySet()) {
-            if (entry.getKey().equals("")) {
-                continue;
-            }
-            if (url.contains(entry.getKey())) {
-                return StageConfiguration.create(entry.getValue());
-            }
-        }
-        return StageConfiguration.create(defaults.get(""));
     }
 
     public StageConfiguration loadStageConfiguration(Node wrapper) throws IOException {

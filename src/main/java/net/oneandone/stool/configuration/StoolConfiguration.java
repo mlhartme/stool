@@ -18,6 +18,8 @@ package net.oneandone.stool.configuration;
 import com.github.zafarkhaja.semver.Version;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.Expose;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
@@ -29,6 +31,7 @@ import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -77,8 +80,9 @@ public class StoolConfiguration extends BaseConfiguration {
     @Expose
     public Map<String, String> macros;
 
+    // preserve order!
     @Expose
-    public Map<String, StageConfiguration> defaults = new LinkedHashMap<>();
+    public LinkedHashMap<String, Map<String, String>> defaults = new LinkedHashMap<>();
 
     /**
      * Base value to calculate ram per application
@@ -116,7 +120,7 @@ public class StoolConfiguration extends BaseConfiguration {
     @Expose
     public int autoRemove;
 
-    public StoolConfiguration() throws IOException {
+    public StoolConfiguration() {
         portPrefixFirst = new Ports(900); // avoid clash with default tomcat port 8080
         portPrefixLast = new Ports(999);
         baseHeap = 200;
@@ -169,34 +173,6 @@ public class StoolConfiguration extends BaseConfiguration {
           .create();
     }
 
-    public void addDefaults(String javaHome, String wsdtoolsHome) {
-        StageConfiguration defaultConfiguration;
-        StageConfiguration controlpanelConfiguration;
-        String mavenOpts = "-Dmaven.repo.local=@localRepository@ @proxyOpts@ @trustStore@";
-
-        defaultConfiguration = new StageConfiguration(new Ports(0), javaHome);
-        defaultConfiguration.tomcatHeap = 0;
-        defaultConfiguration.tomcatPerm = 0;
-        defaultConfiguration.tomcatOpts = "@proxyOpts@ @trustStore@";
-        defaultConfiguration.mavenOpts = mavenOpts;
-        defaultConfiguration.build = "";
-        defaultConfiguration.mode = "test";
-        defaults.put("", defaultConfiguration);
-
-
-        controlpanelConfiguration = new StageConfiguration(new Ports(0), javaHome);
-        controlpanelConfiguration.build = "mvn clean install -Ppublish  -U -B";
-        controlpanelConfiguration.tomcatHeap = 2000;
-        controlpanelConfiguration.tomcatPerm = 512;
-        controlpanelConfiguration.suffix = "/xml/config";
-        controlpanelConfiguration.mode = "test";
-        controlpanelConfiguration.mavenOpts = "-Xmx2500m -XX:MaxPermSize=512m " + mavenOpts;
-        defaults.put("https://svn.1and1.org/svn/PFX/controlpanel/", controlpanelConfiguration);
-
-
-        macros.put("trustStore", "-Djavax.net.ssl.trustStore=" + Strings.removeRightOpt(wsdtoolsHome, "/") + "/cacerts");
-    }
-
     public void save(FileNode home) throws IOException {
         configurationFile(home).writeString(gson(home.getWorld()).toJson(this, StoolConfiguration.class));
     }
@@ -206,4 +182,25 @@ public class StoolConfiguration extends BaseConfiguration {
      */
     public void cleanup() {
     }
+
+    //--
+
+    public StageConfiguration createStageConfiguration(String url) {
+        StageConfiguration configuration;
+
+        configuration = new StageConfiguration(new Ports(0), "TODO");
+        for (Map.Entry<String, Map<String, String>> outer : defaults.entrySet()) {
+            if (url.startsWith(outer.getKey())) {
+                for (Map.Entry<String, String> inner : outer.getValue().entrySet()) {
+                    try {
+                        configuration.configure(inner.getKey(), inner.getValue());
+                    } catch (NoSuchFieldException e) {
+                        throw new IllegalStateException("TODO: " + inner.getKey(), e);
+                    }
+                }
+            }
+        }
+        return configuration;
+    }
+
 }
