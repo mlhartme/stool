@@ -48,10 +48,13 @@ public class Main extends Cli implements Command {
     private FileNode home;
     private FileNode oldHome;
 
+    private final Environment environment;
+
     /** maps to String or Map<String, String> */
     private final Map<String, Object> config;
 
     private Main() {
+        environment = Environment.loadSystem();
         config = new LinkedHashMap<>();
     }
 
@@ -68,7 +71,7 @@ public class Main extends Cli implements Command {
                 if (entry.getValue() instanceof JsonObject) {
                     value = toMap((JsonObject) entry.getValue());
                 } else {
-                    value = entry.getValue().getAsString();
+                    value = environment.substitute(entry.getValue().getAsString());
                 }
                 config.put(entry.getKey(), value);
             }
@@ -97,7 +100,6 @@ public class Main extends Cli implements Command {
     public void invoke() throws Exception {
         Version version;
         Version old;
-        Environment environment;
 
         version = StoolConfiguration.version();
         if (home == null) {
@@ -109,7 +111,6 @@ public class Main extends Cli implements Command {
         } else {
             oldHome.checkDirectory();
         }
-        environment = Environment.loadSystem();
         environment.setStoolHome(home);
         if (oldHome.exists()) {
             old = oldVersion();
@@ -181,7 +182,7 @@ public class Main extends Cli implements Command {
 
     //--
 
-    private static Map<String, Object> toMap(JsonObject object) {
+    private Map<String, Object> toMap(JsonObject object) {
         Map<String, Object> result;
         JsonElement value;
 
@@ -191,7 +192,7 @@ public class Main extends Cli implements Command {
             if (value instanceof JsonObject) {
                 result.put(entry.getKey(), toMap((JsonObject) value));
             } else {
-                result.put(entry.getKey(), value.getAsString());
+                result.put(entry.getKey(), environment.substitute(value.getAsString()));
             }
         }
         return result;

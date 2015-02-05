@@ -25,6 +25,7 @@ import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.configuration.adapter.VersionTypeAdapter;
 import net.oneandone.stool.util.Ports;
+import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
@@ -188,7 +189,7 @@ public class StoolConfiguration extends BaseConfiguration {
     public StageConfiguration createStageConfiguration(String url) {
         StageConfiguration configuration;
 
-        configuration = new StageConfiguration(new Ports(0), "TODO");
+        configuration = new StageConfiguration(javaHome());
         for (Map.Entry<String, Map<String, String>> outer : defaults.entrySet()) {
             if (url.startsWith(outer.getKey())) {
                 for (Map.Entry<String, String> inner : outer.getValue().entrySet()) {
@@ -203,4 +204,14 @@ public class StoolConfiguration extends BaseConfiguration {
         return configuration;
     }
 
+    public String javaHome() {
+        String result;
+
+        result = System.getProperty("java.home");
+        if (result == null) {
+            throw new IllegalStateException();
+        }
+        result = Strings.removeRightOpt(result, "/");
+        return result;
+    }
 }

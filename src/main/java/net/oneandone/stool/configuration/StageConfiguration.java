@@ -100,11 +100,11 @@ public class StageConfiguration extends BaseConfiguration {
     public String comment;
 
 
-    public StageConfiguration(Ports ports, String javaHome) {
+    public StageConfiguration(String javaHome) {
         this.mode = "test";
         this.cookies = true;
         this.build = "false";
-        this.ports = ports;
+        this.ports = new Ports(0);
         this.tomcatOpts = "";
         this.tomcatVersion = "7.0.57";
         this.tomcatService = "3.5.26";

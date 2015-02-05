@@ -72,18 +72,18 @@ public class Install {
         Runtime.getRuntime().addShutdownHook(cleanup);
 
         home.mkdirs();
-        copyResources();
         conf = new StoolConfiguration();
         tuneHostname(conf);
         tuneExplicit(conf);
+        copyResources(variables(conf.javaHome()));
         conf.save(home);
 
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
 
-    private void copyResources() throws IOException {
-        Files.template(home.getWorld().resource("templates/stool"), home, variables());
+    private void copyResources(Map<String, String> variables) throws IOException {
+        Files.template(home.getWorld().resource("templates/stool"), home, variables);
         if (withJar) {
             console.world.locateClasspathItem(getClass()).copyFile(home.join("bin/stool.jar"));
         }
@@ -94,12 +94,12 @@ public class Install {
         }
     }
 
-    private Map<String, String> variables() {
+    private Map<String, String> variables(String javaHome) {
         Map<String, String> result;
 
         result = new HashMap<>();
         result.put("stool.home", home.getAbsolute());
-        result.put("java.home", javaHome());
+        result.put("java.home", javaHome);
         return result;
     }
 
@@ -118,7 +118,6 @@ public class Install {
         for (Map.Entry<String, Object> entry : globalProperties.entrySet()) {
             try {
                 conf.configure(entry.getKey(), entry.getValue());
-                console.info.println(entry.getKey() + "=" + entry.getValue());
             } catch (Exception e) {
                 console.info.println("invalid value for property " + entry.getKey() + " : " + e.getMessage());
                 e.printStackTrace(console.verbose);
@@ -128,16 +127,5 @@ public class Install {
         if (error) {
             throw new ArgumentException("invalid configuration");
         }
-    }
-
-    public String javaHome() {
-        String path;
-
-        path = environment.get("JAVA_HOME");
-        if (path == null) {
-            throw new ArgumentException("JAVA_HOME not found");
-        }
-        path = Strings.removeRightOpt(path, "/");
-        return path;
     }
 }

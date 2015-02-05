@@ -37,7 +37,7 @@ public class Environment {
 
     public static final String STOOL_HOME = "STOOL_HOME";
     public static final String STOOL_SELECTED = "STOOL_SELECTED";
-    // TODO: dump when pws uses stagehost instead, and I'm sure the machine is not needed for repositories
+    // TODO: dump when pws uses stagehost instead
     public static final String MACHINE = "MACHINE";
     public static final String STAGE_HOST = "STAGE_HOST";
     public static final String JAVA_HOME = "JAVA_HOME";
@@ -244,5 +244,54 @@ public class Environment {
                 }
             }
         }
+    }
+
+    public String substitute(String str) {
+        StringBuilder builder;
+        char c;
+        int behind;
+        String key;
+        String value;
+
+        if (str.indexOf('$') == -1) {
+            return str;
+        }
+        builder = new StringBuilder();
+        for (int i = 0, max = str.length(); i < max; i++) {
+            c = str.charAt(i);
+            if (c == '$') {
+                if (i + 1 < max && str.charAt(i + 1) == '$') {
+                    builder.append(c);
+                    i++;
+                } else {
+                    behind = behind(str, i + 1);
+                    key = str.substring(i + 1, behind);
+                    value = get(key);
+                    if (value == null) {
+                        throw new IllegalArgumentException("variable not found: " + key);
+                    }
+                    builder.append(value);
+                    i = behind - 1;
+                }
+            } else {
+                builder.append(c);
+            }
+        }
+        return builder.toString();
+    }
+
+    public int behind(String str, int idx) {
+        int max;
+        char c;
+
+        max = str.length();
+        while (idx < max) {
+            c = str.charAt(idx);
+            if (!Character.isAlphabetic(c) && !Character.isDigit(c) && "_".indexOf(c) == -1) {
+                break;
+            }
+            idx++;
+        }
+        return idx;
     }
 }
