@@ -356,9 +356,6 @@
             <configuration>
               <runOrder>alphabetical</runOrder>
               <argLine>-Xmx1024m -XX:MaxPermSize=256m -Djava.awt.headless=true ${jacoco.agent.it.arg}</argLine>
-              <excludes>
-                <exclude>**/*ManualIT.java</exclude>
-              </excludes>
               <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
             </configuration>
           </execution>
