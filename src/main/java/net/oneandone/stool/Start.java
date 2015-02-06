@@ -282,13 +282,12 @@ public class Start extends StageCommand {
 
         opts.add("-Xmx" + stage.config().tomcatHeap + "m");
         opts.add("-XX:MaxPermSize=" + stage.config().tomcatHeap + "m");
-        opts.add("-Djavax.net.ssl.keyStore=" + stage.shared().join("conf/jmx/pfxadmin.keystore").getAbsolute());
-        opts.add("-Djavax.net.ssl.keyStorePassword=xxxxxx");
+
+        // see http://docs.oracle.com/javase/7/docs/technotes/guides/management/agent.html
         opts.add("-Dcom.sun.management.jmxremote.authenticate=false");
         opts.add("-Dcom.sun.management.jmxremote.port=" + stage.config().ports.jmx());
         opts.add("-Dcom.sun.management.jmxremote.rmi.port=" + stage.config().ports.jmx());
         opts.add("-Dcom.sun.management.jmxremote.ssl=false");
-
         if (debug) {
             opts.add("-Xdebug");
             opts.add("-Xnoagent");
@@ -296,7 +295,6 @@ public class Start extends StageCommand {
             opts.add("-Xrunjdwp:transport=dt_socket,server=y,address="
                     + stage.config().ports.debugPort() + ",suspend=" + (suspend ? "y" : "n"));
         }
-
         i = 1;
         result = new StringBuilder();
         for (String opt : opts) {
