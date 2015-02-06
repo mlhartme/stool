@@ -186,6 +186,7 @@ public abstract class Stage {
     public String getSubdomain() {
         return getName();  // currently the same
     }
+
     public KeyStore keystore() throws IOException {
         KeyStore keyStore;
         FileNode sslDir;
@@ -199,7 +200,6 @@ public abstract class Stage {
             } else {
                 hostname = config().sslUrl;
             }
-            // TODO: Generates after before every start a "new" certificate
             keyStore.download(hostname);
         }
         return keyStore;

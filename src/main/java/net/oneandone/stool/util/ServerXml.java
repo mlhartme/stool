@@ -102,13 +102,12 @@ public class ServerXml {
         String ip;
 
         ip = "0.0.0.0";
-
         tomcatHttpPort = ports.tomcatHttp();
         tomcatSecureHttpPort = ports.tomcatHttps();
         selector = xml.getSelector();
         try {
             connectorEnable(XPATH_EXPR_CONNECTOR_HTTP, ip, tomcatHttpPort, tomcatSecureHttpPort);
-            connectorDisable(XPATH_EXPR_CONNECTOR_AJP, ip, tomcatSecureHttpPort);
+            connectorDisable(XPATH_EXPR_CONNECTOR_AJP);
             sslConnector(tomcatSecureHttpPort, ip, keyStore);
             selector.element(document, XPATH_EXPR_ROOT_ELEM).setAttribute(XPATH_ATTR_PORT, Integer.toString(ports.tomcatStop()));
         } catch (XmlException e) {
@@ -126,7 +125,7 @@ public class ServerXml {
         element.setAttribute("redirectPort", Integer.toString(sslport));
     }
 
-    private void connectorDisable(String path, String ip, int sslport) throws XmlException {
+    private void connectorDisable(String path) throws XmlException {
         Element element;
 
         element = xml.getSelector().elementOpt(document, path);
