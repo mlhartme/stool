@@ -35,20 +35,23 @@ import java.util.List;
 import java.util.Map;
 
 public class SourceStage extends Stage {
+    public static SourceStage forUrl(Session session, FileNode wrapper, FileNode directory, String url, StageConfiguration configuration)
+            throws IOException {
+        return new SourceStage(session, wrapper, directory, url, configuration);
+    }
+    public static SourceStage forLocal(Session session, FileNode wrapper, FileNode stage, StageConfiguration configuration)
+            throws IOException {
+        return forUrl(session, wrapper, stage, SvnNode.urlFromWorkspace(stage), configuration);
+    }
+
+    //--
+    
     /** loaded on demand */
     private List<MavenProject> lazyWars;
 
     public SourceStage(Session session, FileNode wrapper, FileNode directory, String url, StageConfiguration configuration)
       throws ModeException {
         super(session, url, wrapper, directory, configuration);
-    }
-    public static SourceStage forUrl(Session session, FileNode wrapper, FileNode directory, String url, StageConfiguration configuration)
-      throws IOException {
-        return new SourceStage(session, wrapper, directory, url, configuration);
-    }
-    public static SourceStage forLocal(Session session, FileNode wrapper, FileNode stage, StageConfiguration configuration)
-      throws IOException {
-        return forUrl(session, wrapper, stage, SvnNode.urlFromWorkspace(stage), configuration);
     }
 
     @Override
