@@ -22,7 +22,6 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.stage.WarStage;
-import net.oneandone.stool.stage.WorkspaceStage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.RmRfThread;
@@ -34,6 +33,7 @@ import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.cli.Value;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.apache.lucene.queryparser.flexible.core.QueryNodeException;
 
@@ -222,6 +222,7 @@ public class Create extends SessionCommand {
         ArtifactStage artifactStage;
         Stage stage;
         Ports ports;
+        String prepare;
 
         if (ArtifactStage.isArtifact(url)) {
             artifactStage = new ArtifactStage(session, url, wrapper, directory, stageConfiguration);
@@ -231,16 +232,11 @@ public class Create extends SessionCommand {
             url = Strings.removeRightOpt(url, "/");
             console.info.println("checking out " + directory);
             session.subversion().checkout(directory.getParent(), url, directory.getName(), quiet ? console.verbose : console.info);
-            if (WarStage.isWarStage(directory)) {
-                stage = WarStage.forUrl(session, wrapper, directory, url, stageConfiguration);
-            } else {
-                stage = new WorkspaceStage(session, wrapper, directory, url, stageConfiguration);
-                console.info.println("opening workspace to " + directory);
-                // 'pws open' needs M2_OPTS already (more precisely repo location)!
-                // Select before Create? Doesn't work ... :/
-                // BaseCommand.envVars() are still set on last selected - is this a problem?
-                Launcher l = stage.launcher(directory.getParent(),
-                        "pwsraw", "open", "-name", directory.getName(), "-existing", url);
+            stage = WarStage.forUrl(session, wrapper, directory, url, stageConfiguration);
+            // make sure to run in stage environment, e.g. to have proper repository settings
+            prepare = stage.config().prepare;
+            if (!prepare.isEmpty()) {
+                Launcher l = stage.launcher(Strings.toArray(Separator.SPACE.split(prepare)));
                 if (quiet) {
                     l.exec();
                 } else {

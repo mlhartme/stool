@@ -38,9 +38,23 @@ public class StageConfiguration extends BaseConfiguration {
     @Option(key = "cookies", description = "use cookies for tomcat", role = Role.USER)
     public Boolean cookies;
 
+
+    @Expose
+    @Option(key = "prepare", description = "execute this after checkout", role = Role.USER)
+    public String prepare;
+
     @Expose
     @Option(key = "build", description = "arbitrary build command line. Supported variables: @directory@", role = Role.USER)
     public String build;
+
+    @Expose
+    @Option(key = "refresh", description = "execute this for refresh", role = Role.USER)
+    public String refresh;
+
+    @Expose
+    @Option(key = "pom", description = "pom file name", role = Role.USER)
+    public String pom;
+
 
     @Expose
     @Option(key = "port.prefix", description = "do not change this!")
@@ -103,7 +117,10 @@ public class StageConfiguration extends BaseConfiguration {
     public StageConfiguration(String javaHome) {
         this.mode = "test";
         this.cookies = true;
+        this.prepare = "";
         this.build = "false";
+        this.refresh = "";
+        this.pom = "pom.xml";
         this.ports = new Ports(0);
         this.tomcatOpts = "";
         this.tomcatVersion = "7.0.57";

@@ -91,9 +91,6 @@ public abstract class Stage {
         if (WarStage.isWarStage(directory)) {
             return WarStage.forLocal(session, wrapper, directory, configuration);
         }
-        if (directory.join("workspace.xml").isFile()) {
-            return new WorkspaceStage(session, wrapper, directory, url, configuration);
-        }
         return null;
     }
 
@@ -141,7 +138,7 @@ public abstract class Stage {
     public FileNode wrapper;
     /** user visible directory */
     protected FileNode directory;
-    protected StageConfiguration configuration;
+    protected final StageConfiguration configuration;
     /** lazy loading*/
     private BuildStats buildstats;
     private Maven maven;
@@ -533,11 +530,17 @@ public abstract class Stage {
     }
 
     public void refresh(Console console, boolean forcePrepare) throws IOException {
-        if (forcePrepare) {
-            prepareRefresh(console);
-        }
-        executeRefresh(console);
+        String command;
 
+        command = config().refresh;
+        if (command.isEmpty()) {
+            if (forcePrepare) {
+                prepareRefresh(console);
+            }
+            executeRefresh(console);
+        } else {
+            launcher(Strings.toArray(Separator.SPACE.split(command))).exec(console.info);
+        }
     }
 
 

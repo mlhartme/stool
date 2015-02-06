@@ -16,6 +16,7 @@
 package net.oneandone.stool.stage;
 
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
@@ -36,7 +37,7 @@ import java.util.Map;
 
 public class WarStage extends Stage {
     /** loaded on demand */
-    private List<MavenProject> wars;
+    private List<MavenProject> lazyWars;
 
     public WarStage(Session session, FileNode wrapper, FileNode directory, String url, StageConfiguration configuration)
       throws ModeException {
@@ -52,7 +53,8 @@ public class WarStage extends Stage {
     }
 
     public static boolean isWarStage(FileNode directory) {
-        return directory.join("pom.xml").isFile();
+        // TODO
+        return directory.join("pom.xml").isFile() || directory.join("workspace.xml").isFile();
     }
 
     @Override
@@ -63,6 +65,13 @@ public class WarStage extends Stage {
     @Override
     public void start(Console console) throws Exception {
         ServerXml serverXml;
+
+        // TODO workspace stages
+        // FileNode editorLocations = directory.join("tomcat/editor/WEB-INF/editor-locations.xml");
+        // if (editorLocations.exists()) {
+        //    editorLocations.writeString(editorLocations.readString().replace("8080", Integer.toString(configuration.ports.tomcatHttp())));
+        //    Files.stoolFile(editorLocations);
+        // }
 
         serverXml = ServerXml.loadBase(catalinaBase());
         serverXml.hosts(removeSelected(hosts()));
@@ -100,10 +109,10 @@ public class WarStage extends Stage {
     }
 
     private List<MavenProject> wars() throws IOException {
-        if (wars == null) {
-            wars = loadWars(directory.join("pom.xml"));
+        if (lazyWars == null) {
+            lazyWars = loadWars(directory.join(config().pom));
         }
-        return wars;
+        return lazyWars;
     }
 
     private FileNode docroot(World world, MavenProject project) throws IOException {
