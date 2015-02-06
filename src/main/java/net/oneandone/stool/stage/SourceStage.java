@@ -51,11 +51,6 @@ public class SourceStage extends Stage {
         return forUrl(session, wrapper, stage, SvnNode.urlFromWorkspace(stage), configuration);
     }
 
-    public static boolean isSourceStage(FileNode directory) {
-        // TODO
-        return directory.join("pom.xml").isFile() || directory.join("workspace.xml").isFile();
-    }
-
     @Override
     public String getDefaultBuildCommand() {
         return "mvn -B -U clean package";

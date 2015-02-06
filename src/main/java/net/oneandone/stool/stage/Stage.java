@@ -84,11 +84,14 @@ public abstract class Stage {
 
     public static Stage loadOpt(Session session, String url, StageConfiguration configuration, FileNode wrapper,
                                 FileNode directory) throws IOException {
+        if (configuration == null) {
+            throw new IllegalArgumentException();
+        }
         directory.checkDirectory();
         if (url.startsWith("gav:")) {
             return new ArtifactStage(session, url, wrapper, directory, configuration);
         }
-        if (SourceStage.isSourceStage(directory)) {
+        if (directory.join(configuration.pom).exists()) {
             return SourceStage.forLocal(session, wrapper, directory, configuration);
         }
         return null;
