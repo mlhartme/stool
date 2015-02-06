@@ -57,27 +57,11 @@ public class SourceStage extends Stage {
     }
 
     @Override
-    public void start(Console console) throws Exception {
-        ServerXml serverXml;
-
-        // TODO workspace stages
-        // FileNode editorLocations = directory.join("tomcat/editor/WEB-INF/editor-locations.xml");
-        // if (editorLocations.exists()) {
-        //    editorLocations.writeString(editorLocations.readString().replace("8080", Integer.toString(configuration.ports.tomcatHttp())));
-        //    Files.stoolFile(editorLocations);
-        // }
-
-        serverXml = ServerXml.loadBase(catalinaBase());
-        serverXml.hosts(removeSelected(hosts()));
-        serverXml.connectors(configuration.ports, keystore());
-        serverXml.contexts(configuration.mode, configuration.cookies, getPorts());
-        startTomcat(serverXml, console);
-    }
-
-    @Override
     public boolean updateAvailable() {
         return false;
     }
+
+    @Override
     public List<DefaultArtifact> scanWars() throws IOException {
         List<DefaultArtifact> result;
         DefaultArtifact artifact;
@@ -91,7 +75,8 @@ public class SourceStage extends Stage {
         return result;
     }
 
-    private Map<String, String> hosts() throws IOException {
+    @Override
+    protected Map<String, String> hosts() throws IOException {
         Map<String, String> applications;
 
         applications = new LinkedHashMap<>();
@@ -128,16 +113,6 @@ public class SourceStage extends Stage {
             default:
                 throw new FileNotFoundException("web.xml ambiguous: " + result);
         }
-    }
-
-    @Override
-    public void stop(Console console) throws IOException {
-        stopTomcat(console);
-    }
-
-    @Override
-    protected String getAppName() {
-        return extractAppNameFromSvnUrl(url);
     }
 }
 

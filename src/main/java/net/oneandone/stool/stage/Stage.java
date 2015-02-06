@@ -336,9 +336,28 @@ public abstract class Stage {
 
     //-- tomcat helper
 
-    public abstract void start(Console console) throws Exception;
+    public void start(Console console) throws Exception {
+        ServerXml serverXml;
 
-    public abstract void stop(Console console) throws IOException;
+        // TODO workspace stages
+        // FileNode editorLocations = directory.join("tomcat/editor/WEB-INF/editor-locations.xml");
+        // if (editorLocations.exists()) {
+        //    editorLocations.writeString(editorLocations.readString().replace("8080", Integer.toString(configuration.ports.tomcatHttp())));
+        //    Files.stoolFile(editorLocations);
+        // }
+
+        serverXml = ServerXml.loadBase(catalinaBase());
+        serverXml.hosts(removeSelected(hosts()));
+        serverXml.connectors(configuration.ports, keystore());
+        serverXml.contexts(configuration.mode, configuration.cookies, getPorts());
+        startTomcat(serverXml, console);
+    }
+
+    public void stop(Console console) throws IOException {
+        stopTomcat(console);
+    }
+
+    protected abstract Map<String, String> hosts() throws IOException;
 
     /**
      * Wrapper for catalina.sh XOR stool-catalina.sh by ITOSHA.
@@ -436,8 +455,6 @@ public abstract class Stage {
             console.info.println("  " + appUrl);
         }
     }
-
-    protected abstract String getAppName();
 
     protected String extractAppNameFromGav(String svnUrl) {
         // gav:com.oneandone.sales.euede:eue-home:1.8.5

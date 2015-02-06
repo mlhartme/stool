@@ -164,18 +164,7 @@ public class ArtifactStage extends Stage {
     }
 
     @Override
-    public void start(Console console) throws Exception {
-        ServerXml serverXml;
-
-        serverXml = ServerXml.loadBase(catalinaBase());
-        serverXml.hosts(removeSelected(hosts()));
-        serverXml.connectors(configuration.ports, keystore());
-        serverXml.contexts(configuration.mode, configuration.cookies, getPorts());
-
-        startTomcat(serverXml, console);
-    }
-
-    private Map<String, String> hosts() {
+    protected Map<String, String> hosts() {
         Map<String, String> result;
         FileNode dir;
 
@@ -188,15 +177,6 @@ public class ArtifactStage extends Stage {
         return result;
     }
 
-    @Override
-    public void stop(Console console) throws IOException {
-        stopTomcat(console);
-    }
-
-    @Override
-    protected String getAppName() {
-        return extractAppNameFromGav(url);
-    }
     private String hostname(FileNode appdir) {
         return appdir.getName() + "." + getDomain();
     }
@@ -231,6 +211,7 @@ public class ArtifactStage extends Stage {
 
     public ArtifactSource sourceFor(Application application) throws IOException {
         ArtifactSource source;
+
         if ("@inbox".equals(application.artifact().getVersion())) {
             source = new Inbox(application.name(), getName(), session.home.join(Main.INBOX));
         } else if ("@overview".equals(application.artifact().getVersion())) {
