@@ -50,7 +50,7 @@ public class Status extends StageCommand {
     private String getAppUrlsFrom(Stage stage) throws IOException, SAXException {
         FileNode serverXmlFile;
 
-        serverXmlFile = stage.getServerXml();
+        serverXmlFile = stage.serverXml();
         if (serverXmlFile.exists()) {
             return stage.urls(ServerXml.load(serverXmlFile)).values()
               .toString().replaceAll(", ", "\\\n").replace("[", "").replace("]", "");

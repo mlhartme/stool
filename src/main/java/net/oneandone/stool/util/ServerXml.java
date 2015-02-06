@@ -48,12 +48,11 @@ public class ServerXml {
         this.xml = xml;
         this.document = document;
     }
-    public static ServerXml loadBase(Node catalinaBase) throws IOException, SAXException {
-        return load(catalinaBase.join("conf/server.xml"));
-    }
+
     public static ServerXml load(Node src) throws IOException, SAXException {
         return new ServerXml(src.getWorld().getXml(), src.readXml());
     }
+
     public void save(FileNode file) throws IOException {
         file.writeXml(document);
         Files.stoolFile(file);

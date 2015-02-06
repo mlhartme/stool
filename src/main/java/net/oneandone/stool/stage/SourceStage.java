@@ -45,7 +45,7 @@ public class SourceStage extends Stage {
     }
 
     //--
-    
+
     /** loaded on demand */
     private List<MavenProject> lazyWars;
 

@@ -312,8 +312,8 @@ public abstract class Stage {
     }
 
     public Map<String, String> urls() throws IOException, SAXException {
-        if (getServerXml().exists()) {
-            return urls(ServerXml.load(getServerXml()));
+        if (serverXml().exists()) {
+            return urls(ServerXml.load(serverXml()));
         }
         return new TreeMap<>();
     }
@@ -338,6 +338,11 @@ public abstract class Stage {
 
     public void start(Console console) throws Exception {
         ServerXml serverXml;
+        String pidFile;
+        String pidPs;
+
+        checkMemory();
+        console.info.println("starting tomcat ...");
 
         // TODO workspace stages
         // FileNode editorLocations = directory.join("tomcat/editor/WEB-INF/editor-locations.xml");
@@ -346,15 +351,41 @@ public abstract class Stage {
         //    Files.stoolFile(editorLocations);
         // }
 
-        serverXml = ServerXml.loadBase(catalinaBase());
+        serverXml = ServerXml.load(serverXml());
         serverXml.hosts(removeSelected(hosts()));
         serverXml.connectors(configuration.ports, keystore());
         serverXml.contexts(configuration.mode, configuration.cookies, getPorts());
-        startTomcat(serverXml, console);
+        serverXml.save(serverXml());
+        if (session.stoolConfiguration.security.isLocal()) {
+            catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
+            // else: will be deleted by stool-catalina.sh -- with proper permissions
+        }
+        printAppUrls(console, serverXml);
+        catalina("start").exec(console.verbose);
+        pidFile = runningTomcat();
+        if (pidFile == null) {
+            throw new IOException("tomcat startup failed - no pid file found");
+        }
+        pidPs = session.getProcesses(true).tomcatPid(getWrapper());
+        if (!pidFile.equals(pidPs)) {
+            throw new IOException("tomcat pid file does not match tomcat process: " + pidFile + " vs " + pidPs);
+        }
     }
 
+    /** Fails if Tomcat is not running */
     public void stop(Console console) throws IOException {
-        stopTomcat(console);
+        FileNode file;
+
+        console.info.println("stopping tomcat ...");
+        if (runningTomcat() == null) {
+            throw new IOException("tomcat is not running.");
+        }
+        catalina("stop").exec(console.verbose);
+        if (configuration.tomcatVersion.startsWith("6.")) {
+            file = catalinaPid();
+            file.deleteFile();
+            console.info.println("removed stale " + file);
+        }
     }
 
     protected abstract Map<String, String> hosts() throws IOException;
@@ -363,7 +394,7 @@ public abstract class Stage {
      * Wrapper for catalina.sh XOR stool-catalina.sh by ITOSHA.
      * action: start | stop | run
      */
-    protected Launcher catalina(String action) throws IOException {
+    private Launcher catalina(String action) throws IOException {
         Launcher launcher;
 
         if (session.stoolConfiguration.security.isShared()) {
@@ -376,7 +407,7 @@ public abstract class Stage {
         return launcher;
     }
 
-    public Map<String, String> catalinaEnvironment() {
+    private Map<String, String> catalinaEnvironment() {
         Map<String, String> env;
 
         env = new HashMap<>();
@@ -396,29 +427,6 @@ public abstract class Stage {
         return session.environment.proxyOpts(quote);
     }
 
-    protected void startTomcat(ServerXml serverXml, Console console) throws Exception {
-        String pidFile;
-        String pidPs;
-
-        checkMemory();
-        console.info.println("starting tomcat ...");
-        serverXml.save(getServerXml());
-        if (session.stoolConfiguration.security.isLocal()) {
-            catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
-            // else: will be deleted by stool-catalina.sh -- with proper permissions
-        }
-        printAppUrls(console, serverXml);
-        catalina("start").exec(console.verbose);
-        pidFile = runningTomcat();
-        if (pidFile == null) {
-            throw new IOException("tomcat startup failed - no pid file found");
-        }
-        pidPs = session.getProcesses(true).tomcatPid(getWrapper());
-        if (!pidFile.equals(pidPs)) {
-            throw new IOException("tomcat pid file does not match tomcat process: " + pidFile + " vs " + pidPs);
-        }
-    }
-
     private void checkMemory() throws IOException {
         int requested;
 
@@ -432,22 +440,6 @@ public abstract class Stage {
         }
     }
 
-    /** Fails if Tomcat is not running */
-    protected void stopTomcat(Console console) throws IOException {
-        FileNode file;
-
-        console.info.println("stopping tomcat ...");
-        if (runningTomcat() == null) {
-            throw new IOException("tomcat is not running.");
-        }
-        catalina("stop").exec(console.verbose);
-        if (configuration.tomcatVersion.startsWith("6.")) {
-            file = catalinaPid();
-            file.deleteFile();
-            console.info.println("removed stale " + file);
-        }
-    }
-
     protected void printAppUrls(Console console, ServerXml serverXml) throws IOException {
         console.info.println("Applications available:");
         Map<String, String> appUrls = serverXml.allUrls(configuration.suffix);
@@ -456,32 +448,11 @@ public abstract class Stage {
         }
     }
 
-    protected String extractAppNameFromGav(String svnUrl) {
-        // gav:com.oneandone.sales.euede:eue-home:1.8.5
-        int end = svnUrl.lastIndexOf(':');
-        int start = svnUrl.substring(0, end).lastIndexOf(':') + 1;
-        return svnUrl.substring(start, end);
-    }
-
-    protected String extractAppNameFromSvnUrl(String svnUrl) {
-        int start;
-        int end;
-
-        end = svnUrl.lastIndexOf('/');
-        if (!svnUrl.contains("trunk")) {
-            // one more step back for branches/tags
-            end = svnUrl.substring(0, end).lastIndexOf('/');
-        }
-        start = svnUrl.substring(0, end).lastIndexOf('/') + 1;
-        return svnUrl.substring(start, end);
-    }
-
-
     public FileNode catalinaBase() {
         return shared().join("tomcat");
     }
 
-    public FileNode getServerXml() {
+    public FileNode serverXml() {
         return catalinaBase().join("conf", "server.xml");
     }
 
@@ -538,7 +509,6 @@ public abstract class Stage {
 
     //TODO: Maybe rename
     public void prepareRefresh(Console console) throws IOException {
-
     }
 
     public void restoreFromBackup(Console console) throws IOException {
@@ -597,6 +567,7 @@ public abstract class Stage {
     public void setMaven(Maven maven) {
         this.maven = maven;
     }
+
     public Maven maven() throws IOException {
         if (maven == null) {
             maven = Maven.withSettings(session.console.world, localRepository(), null, null);
