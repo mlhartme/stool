@@ -16,7 +16,6 @@
 package net.oneandone.stool.stage;
 
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
@@ -35,24 +34,24 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WarStage extends Stage {
+public class SourceStage extends Stage {
     /** loaded on demand */
     private List<MavenProject> lazyWars;
 
-    public WarStage(Session session, FileNode wrapper, FileNode directory, String url, StageConfiguration configuration)
+    public SourceStage(Session session, FileNode wrapper, FileNode directory, String url, StageConfiguration configuration)
       throws ModeException {
         super(session, url, wrapper, directory, configuration);
     }
-    public static WarStage forUrl(Session session, FileNode wrapper, FileNode directory, String url, StageConfiguration configuration)
+    public static SourceStage forUrl(Session session, FileNode wrapper, FileNode directory, String url, StageConfiguration configuration)
       throws IOException {
-        return new WarStage(session, wrapper, directory, url, configuration);
+        return new SourceStage(session, wrapper, directory, url, configuration);
     }
-    public static WarStage forLocal(Session session, FileNode wrapper, FileNode stage, StageConfiguration configuration)
+    public static SourceStage forLocal(Session session, FileNode wrapper, FileNode stage, StageConfiguration configuration)
       throws IOException {
         return forUrl(session, wrapper, stage, SvnNode.urlFromWorkspace(stage), configuration);
     }
 
-    public static boolean isWarStage(FileNode directory) {
+    public static boolean isSourceStage(FileNode directory) {
         // TODO
         return directory.join("pom.xml").isFile() || directory.join("workspace.xml").isFile();
     }

@@ -21,7 +21,7 @@ import net.oneandone.pommes.model.Pom;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.stage.WarStage;
+import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.RmRfThread;
@@ -232,7 +232,7 @@ public class Create extends SessionCommand {
             url = Strings.removeRightOpt(url, "/");
             console.info.println("checking out " + directory);
             session.subversion().checkout(directory.getParent(), url, directory.getName(), quiet ? console.verbose : console.info);
-            stage = WarStage.forUrl(session, wrapper, directory, url, stageConfiguration);
+            stage = SourceStage.forUrl(session, wrapper, directory, url, stageConfiguration);
             // make sure to run in stage environment, e.g. to have proper repository settings
             prepare = stage.config().prepare;
             if (!prepare.isEmpty()) {

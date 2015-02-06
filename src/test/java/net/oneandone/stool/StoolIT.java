@@ -145,12 +145,7 @@ public class StoolIT {
         turnaround("https://svn.1and1.org/svn/sales/tools/maven/hellowar/tags/hellowar-1.1.7");
     }
 
-    @Test
-    public void turnaroundWorkspace() throws IOException, InterruptedException {
-        turnaround("https://svn.1and1.org/svn/sales/workspaces/stool-it");
-    }
-
-    public void turnaround(String url) throws IOException, InterruptedException {
+    private void turnaround(String url) throws IOException, InterruptedException {
         System.out.println("\nurl: " + url);
         stool("create", "-quiet", url, "it");
         stool("select", "none");

@@ -56,7 +56,7 @@ import java.util.Properties;
 import java.util.TreeMap;
 
 /**
- * Concrete implementations are WarStage or ArtifactStage.
+ * Concrete implementations are SourceStage or ArtifactStage.
  */
 public abstract class Stage {
     public static Stage load(Session session, FileNode wrapper) throws IOException {
@@ -88,8 +88,8 @@ public abstract class Stage {
         if (url.startsWith("gav:")) {
             return new ArtifactStage(session, url, wrapper, directory, configuration);
         }
-        if (WarStage.isWarStage(directory)) {
-            return WarStage.forLocal(session, wrapper, directory, configuration);
+        if (SourceStage.isSourceStage(directory)) {
+            return SourceStage.forLocal(session, wrapper, directory, configuration);
         }
         return null;
     }
@@ -526,21 +526,14 @@ public abstract class Stage {
     }
 
     public void executeRefresh(Console console) throws IOException {
-        session.subversion().update(getDirectory(), console.info);
+        launcher(Strings.toArray(Separator.SPACE.split(config().refresh))).exec(console.info);
     }
 
     public void refresh(Console console, boolean forcePrepare) throws IOException {
-        String command;
-
-        command = config().refresh;
-        if (command.isEmpty()) {
-            if (forcePrepare) {
-                prepareRefresh(console);
-            }
-            executeRefresh(console);
-        } else {
-            launcher(Strings.toArray(Separator.SPACE.split(command))).exec(console.info);
+        if (forcePrepare) {
+            prepareRefresh(console);
         }
+        executeRefresh(console);
     }
 
 

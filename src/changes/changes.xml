@@ -2,6 +2,9 @@
   <body>
     <release version="3.0.0">
       <action date="2015-01-28" dev="mhm" type="update">
+        Removed workspace stages. Generalized war stages and renamed them to source stages.
+      </action>
+      <action date="2015-01-28" dev="mhm" type="update">
         Moved code to github; changed groupId to net.oneandone. Adjusted package accordingly.
       </action>
       <action date="2015-01-28" dev="mhm" type="update">
@@ -145,7 +148,7 @@
         added stool config comment
       </action>
       <action date="2014-09-25" dev="mabraun" type="update">
-        warstages now using maven in batch mode
+        WarStages now using maven in batch mode
       </action>
       <action date="2014-09-24" dev="mabraun" type="update">
         updated help text for create

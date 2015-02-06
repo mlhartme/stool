@@ -119,7 +119,7 @@ public class StageConfiguration extends BaseConfiguration {
         this.cookies = true;
         this.prepare = "";
         this.build = "false";
-        this.refresh = "";
+        this.refresh = "svn up";
         this.pom = "pom.xml";
         this.ports = new Ports(0);
         this.tomcatOpts = "";

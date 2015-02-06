@@ -137,7 +137,7 @@ http://docbook.org/ns/docbook ">
           <listitem>
             <formalpara>
               <title>type</title>
-              <para>How the stage contains the web application(s): war - a Maven war project, or artifact - a Maven artifact.</para>
+              <para>How the stage contains the web application(s): source - checkout of a Maven project, or artifact - a Maven artifact.</para>
             </formalpara>
           </listitem>
           <listitem>
@@ -608,7 +608,7 @@ http://docbook.org/ns/docbook ">
   <chapter>
     <title>Directory Layout</title>
     <para>
-      ... of a war stage
+      ... of a source stage
 
       <programlisting>
         (stage directory) (normal application files)

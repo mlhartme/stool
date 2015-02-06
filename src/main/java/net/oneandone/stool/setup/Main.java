@@ -42,7 +42,15 @@ import java.util.Map;
 
 public class Main extends Cli implements Command {
     public static void main(String[] args) throws Exception {
-        System.exit(new Main().run(args));
+        Main main;
+        String file;
+
+        main = new Main();
+        file = System.getenv("SETUP_STOOL_DEFAULTS");
+        if (file != null) {
+            main.defaultsFile(file);
+        }
+        System.exit(main.run(args));
     }
 
     private FileNode home;
@@ -61,20 +69,12 @@ public class Main extends Cli implements Command {
     @Remaining
     public void remaining(String str) throws IOException {
         int idx;
-        Object value;
 
         idx = str.indexOf('=');
         if (idx != -1) {
             config.put(str.substring(0, idx).trim(), str.substring(idx + 1).trim());
         } else if (str.startsWith("@")) {
-            for (Map.Entry<String, JsonElement> entry : loadJson(console.world.file(str.substring(1))).entrySet()) {
-                if (entry.getValue() instanceof JsonObject) {
-                    value = toMap((JsonObject) entry.getValue());
-                } else {
-                    value = environment.substitute(entry.getValue().getAsString());
-                }
-                config.put(entry.getKey(), value);
-            }
+            defaultsFile(str.substring(1));
         } else if (home == null) {
             home = console.world.file(str);
         } else if (oldHome == null) {
@@ -82,6 +82,19 @@ public class Main extends Cli implements Command {
             home = console.world.file(str);
         } else {
             throw new ArgumentException("too many directories");
+        }
+    }
+
+    private void defaultsFile(String file) throws IOException {
+        Object value;
+
+        for (Map.Entry<String, JsonElement> entry : loadJson(console.world.file(file)).entrySet()) {
+            if (entry.getValue() instanceof JsonObject) {
+                value = toMap((JsonObject) entry.getValue());
+            } else {
+                value = environment.substitute(entry.getValue().getAsString());
+            }
+            config.put(entry.getKey(), value);
         }
     }
 
