@@ -19,19 +19,19 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 
 import java.io.IOException;
+import java.io.StringWriter;
 
-public class SSLKeyStore {
+public class KeyStore {
+    private final FileNode workDir;
     private final FileNode file;
 
-    public SSLKeyStore(FileNode workDir) {
-        file = workDir.join("tomcat.jks");
+    public KeyStore(FileNode workDir) {
+        this.workDir = workDir;
+        this.file = workDir.join("tomcat.jks");
     }
 
     public void download(String hostname) throws IOException {
-        CertificateAuthority ca;
-
-        ca = new CertificateAuthority(file.getParent(), hostname);
-        pkcs12toKeyStore(pkcs12Store(ca.certificate()));
+        pkcs12toKeyStore(pkcs12Store(certificate(hostname)));
     }
 
     public String file() {
@@ -75,4 +75,52 @@ public class SSLKeyStore {
             throw new IOException(e);
         }
     }
+
+    //--
+
+    public Certificate certificate(String hostname) throws IOException {
+        Certificate certificate;
+
+        certificate = create(hostname);
+        if (!(certificate.privateKey().exists() || certificate.certificate().exists())) {
+            generate(hostname);
+            Files.stoolFile(certificate.privateKey());
+            Files.stoolFile(certificate.certificate());
+        }
+        return certificate;
+    }
+
+    private Certificate create(String hostname) throws IOException {
+        FileNode crt, key;
+
+        crt = workDir.join(hostname.replace("*", "_") + ".crt");
+        key = workDir.join(hostname.replace("*", "_") + ".key");
+        return new Certificate(key, crt);
+
+    }
+
+    public void generate(String hostname) throws IOException {
+        extract(doDownload(hostname));
+    }
+
+    private FileNode doDownload(String hostname) throws IOException {
+        String base;
+        StringWriter output;
+        output = new StringWriter();
+        base = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
+        try {
+            FileNode tmp;
+            tmp = workDir.getWorld().getTemp().createTempDirectory();
+            tmp.launcher("wget", "--no-check-certificate", base + hostname, "-O", tmp.join("cert.zip")
+                    .getAbsolute()).exec(output);
+            return tmp.join("cert.zip");
+        } catch (Failure e) {
+            throw new IOException(e.getMessage() + output.toString(), e.getCause());
+        }
+    }
+
+    private void extract(FileNode certificateZip) throws IOException {
+        certificateZip.unzip(workDir);
+    }
+
 }

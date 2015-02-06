@@ -24,12 +24,12 @@ public class KeyStoreIT {
     public void testSignWildcard() throws Exception {
         FileNode workDir;
         World world;
-        SSLKeyStore keyStore;
+        KeyStore keyStore;
 
         world = new World();
         workDir = world.getTemp().createTempDirectory();
 
-        keyStore = new SSLKeyStore(workDir);
+        keyStore = new KeyStore(workDir);
         keyStore.download("*.jenkins.websales.united.domain");
     }
 }

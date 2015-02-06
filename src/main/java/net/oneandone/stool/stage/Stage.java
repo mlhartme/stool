@@ -22,11 +22,10 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.util.BuildStats;
-import net.oneandone.stool.util.CertificateAuthority;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.OwnershipException;
 import net.oneandone.stool.util.Ports;
-import net.oneandone.stool.util.SSLKeyStore;
+import net.oneandone.stool.util.KeyStore;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -187,13 +186,13 @@ public abstract class Stage {
     public String getSubdomain() {
         return getName();  // currently the same
     }
-    public SSLKeyStore keystore() throws IOException {
-        SSLKeyStore keyStore;
+    public KeyStore keystore() throws IOException {
+        KeyStore keyStore;
         FileNode sslDir;
         String hostname;
 
         sslDir = shared().join("ssl");
-        keyStore = new SSLKeyStore(sslDir);
+        keyStore = new KeyStore(sslDir);
         if (!keyStore.exists()) {
             if (config().sslUrl == null || config().sslUrl.equals("")) {
                 hostname = "*." + getDomain();

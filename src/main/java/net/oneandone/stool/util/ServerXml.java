@@ -95,7 +95,7 @@ public class ServerXml {
         }
     }
 
-    public void connectors(Ports ports, SSLKeyStore keyStore) throws IOException {
+    public void connectors(Ports ports, KeyStore keyStore) throws IOException {
         int tomcatHttpPort;
         int tomcatSecureHttpPort;
         Selector selector;
@@ -136,7 +136,7 @@ public class ServerXml {
     }
 
 
-    private void sslConnector(int port, String ip, SSLKeyStore keystore) {
+    private void sslConnector(int port, String ip, KeyStore keystore) {
         Element element;
 
         try {
