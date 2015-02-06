@@ -74,7 +74,7 @@ public class StageInfo {
             stageInfo.category = "trunk";
         } else if (stageInfo.extractionUrl.contains("/branches")) {
             stageInfo.category = "branches";
-        } else if (stageInfo.extractionUrl.contains("/workspaces")) {
+        } else if (stageInfo.extractionUrl.contains("/workspaces")) { // TODO
             stageInfo.category = "workspaces";
         }
 

@@ -33,8 +33,8 @@ http://docbook.org/ns/docbook ">
     <title>Introduction</title>
 
     <para>Stool is a command line tool that provides a lifecycle for stages: create, configure, build, run and remove.
-      A stage contains web applications, that may come in different flavors: Maven war projects,
-      Pustefix workspaces, or artifacts (GAV coordinates). Here's an example, what you can do with stool:
+      A stage contains web applications, that may come in different flavors: Maven war projects or artifacts (GAV coordinates).
+      Here's an example, what you can do with stool:
     </para>
 
     <para>(The following assumes that Stool has been installed properly - see the respective section below)</para>
@@ -127,9 +127,7 @@ http://docbook.org/ns/docbook ">
                 https://svn.1and1.org/svn/sales/tools/maven/hellowar/trunk (war app)
                 https://svn.1and1.org/svn/PFX/dsl/dslorder-de/trunk (war app)
                 https://svn.1and1.org/svn/PFX/dsl/mobileorder-de/trunk (war app)
-                https://pustefix.svn.sourceforge.net/svnroot/pustefix/tags/pustefixframework-0.18.39/pustefix-samples/pustefix-hangman
-                (war app)
-                https://svn.1and1.org/svn/sales/workspaces/dslorder-de (pustefix workspace)
+                https://pustefix.svn.sourceforge.net/svnroot/pustefix/tags/pustefixframework-0.18.39/pustefix-samples/pustefix-hangman (war app)
                 gav:com.oneandone.sales.euede:eue-home:1.8.5-SNAPSHOT (gav of a war)
                 gav:com.oneandone.sales.euede:eue-home:@inbox (gav of a war from inbox)
                 gav:de.ui.webdev:pfixui=old:1.0.33,de.ui.webdev:pfixui=new:1.0.34 (gav with multiple wars)
@@ -139,9 +137,7 @@ http://docbook.org/ns/docbook ">
           <listitem>
             <formalpara>
               <title>type</title>
-              <para>How the stage contains the web application(s): war - a Maven war project, artifact - a Maven artifact,
-                or workspace - a pustefix workspace.
-              </para>
+              <para>How the stage contains the web application(s): war - a Maven war project, or artifact - a Maven artifact.</para>
             </formalpara>
           </listitem>
           <listitem>
@@ -612,7 +608,7 @@ http://docbook.org/ns/docbook ">
   <chapter>
     <title>Directory Layout</title>
     <para>
-      ... of a war stage or a workspace stage
+      ... of a war stage
 
       <programlisting>
         (stage directory) (normal application files)

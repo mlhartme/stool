@@ -56,7 +56,7 @@ import java.util.Properties;
 import java.util.TreeMap;
 
 /**
- * Concrete implementations are WAR, (pws) workspace or Artifact.
+ * Concrete implementations are WarStage or ArtifactStage.
  */
 public abstract class Stage {
     public static Stage load(Session session, FileNode wrapper) throws IOException {

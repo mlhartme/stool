@@ -83,7 +83,7 @@ public abstract class SessionCommand extends BaseCommand {
         for (String line : Separator.on("\n").split(lines)) {
             if (line.trim().length() > 0) {
                 if (line.startsWith("X") || line.startsWith("Performing status on external item")) {
-                    // needed for pws workspace svn:externals  -> ok
+                    // needed for external references
                 } else {
                     return true;
                 }
