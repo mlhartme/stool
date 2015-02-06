@@ -27,8 +27,11 @@ public class SSLKeyStore {
         file = workDir.join("tomcat.jks");
     }
 
-    public void store(Certificate certificate) throws IOException {
-        pkcs12toKeyStore(pkcs12Store(certificate));
+    public void download(String sslUrl) throws IOException {
+        CertificateAuthority ca;
+
+        ca = new CertificateAuthority(file.getParent(), sslUrl);
+        pkcs12toKeyStore(pkcs12Store(ca.certificate()));
     }
 
     public String file() {

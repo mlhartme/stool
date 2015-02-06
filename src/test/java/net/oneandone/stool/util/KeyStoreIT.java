@@ -22,7 +22,6 @@ import org.junit.Test;
 public class KeyStoreIT {
     @Test
     public void testSignWildcard() throws Exception {
-        CertificateAuthority ca;
         FileNode workDir;
         World world;
         SSLKeyStore keyStore;
@@ -30,9 +29,8 @@ public class KeyStoreIT {
         world = new World();
         workDir = world.getTemp().createTempDirectory();
 
-        ca = new CertificateAuthority(workDir, "*.jenkins.websales.united.domain");
         keyStore = new SSLKeyStore(workDir);
-        keyStore.store(ca.certificate());
+        keyStore.download("*.jenkins.websales.united.domain");
     }
 }
 

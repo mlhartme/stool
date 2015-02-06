@@ -202,8 +202,7 @@ public abstract class Stage {
                 sslUrl = config().sslUrl;
             }
             // TODO: Generates after before every start a "new" certificate
-            ca = new CertificateAuthority(sslDir, sslUrl);
-            keyStore.store(ca.certificate());
+            keyStore.download(sslUrl);
         }
         return keyStore;
 
