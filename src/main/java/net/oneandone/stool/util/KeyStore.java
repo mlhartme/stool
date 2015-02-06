@@ -30,8 +30,8 @@ public class KeyStore {
         this.file = workDir.join("tomcat.jks");
     }
 
-    public void download(String hostname) throws IOException {
-        pkcs12toKeyStore(pkcs12Store(certificate(hostname)));
+    public void download(String getUrlStart, String hostname) throws IOException {
+        pkcs12toKeyStore(pkcs12Store(certificate(getUrlStart, hostname)));
     }
 
     public String file() {
@@ -78,12 +78,12 @@ public class KeyStore {
 
     //--
 
-    public Certificate certificate(String hostname) throws IOException {
+    public Certificate certificate(String getUrlStart, String hostname) throws IOException {
         Certificate certificate;
 
         certificate = create(hostname);
         if (!(certificate.privateKey().exists() || certificate.certificate().exists())) {
-            generate(hostname);
+            generate(getUrlStart + hostname);
             Files.stoolFile(certificate.privateKey());
             Files.stoolFile(certificate.certificate());
         }
@@ -99,19 +99,17 @@ public class KeyStore {
 
     }
 
-    public void generate(String hostname) throws IOException {
-        extract(doDownload(hostname));
+    public void generate(String getUrl) throws IOException {
+        extract(doDownload(getUrl));
     }
 
-    private FileNode doDownload(String hostname) throws IOException {
-        String base;
+    private FileNode doDownload(String getUrl) throws IOException {
         StringWriter output;
         output = new StringWriter();
-        base = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
         try {
             FileNode tmp;
             tmp = workDir.getWorld().getTemp().createTempDirectory();
-            tmp.launcher("wget", "--no-check-certificate", base + hostname, "-O", tmp.join("cert.zip")
+            tmp.launcher("wget", "--no-check-certificate", getUrl, "-O", tmp.join("cert.zip")
                     .getAbsolute()).exec(output);
             return tmp.join("cert.zip");
         } catch (Failure e) {

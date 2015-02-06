@@ -108,7 +108,11 @@ public class ServerXml {
         try {
             connectorEnable(XPATH_EXPR_CONNECTOR_HTTP, ip, tomcatHttpPort, tomcatSecureHttpPort);
             connectorDisable(XPATH_EXPR_CONNECTOR_AJP);
-            sslConnector(tomcatSecureHttpPort, ip, keyStore);
+            if (keyStore != null) {
+                sslConnector(tomcatSecureHttpPort, ip, keyStore);
+            } else {
+                connectorDisable(XPATH_EXPR_CONNECTOR_HTTPS);
+            }
             selector.element(document, XPATH_EXPR_ROOT_ELEM).setAttribute(XPATH_ATTR_PORT, Integer.toString(ports.tomcatStop()));
         } catch (XmlException e) {
             throw new RuntimeException("unexpected xml exception", e);

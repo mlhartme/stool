@@ -187,11 +187,14 @@ public abstract class Stage {
         return getName();  // currently the same
     }
 
-    public KeyStore keystore() throws IOException {
+    private KeyStore keystore() throws IOException {
         KeyStore keyStore;
         FileNode sslDir;
         String hostname;
 
+        if (session.stoolConfiguration.certificates.isEmpty()) {
+            return null;
+        }
         sslDir = shared().join("ssl");
         keyStore = new KeyStore(sslDir);
         if (!keyStore.exists()) {
@@ -200,12 +203,14 @@ public abstract class Stage {
             } else {
                 hostname = config().sslUrl;
             }
-            keyStore.download(hostname);
+            keyStore.download(session.stoolConfiguration.certificates, hostname);
         }
         return keyStore;
 
     }
+
     public abstract boolean updateAvailable();
+
     /**
      * @return name "." first part of the domain
      */

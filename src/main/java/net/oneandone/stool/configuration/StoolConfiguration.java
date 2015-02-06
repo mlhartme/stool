@@ -115,6 +115,10 @@ public class StoolConfiguration extends BaseConfiguration {
     @Expose
     public String mailPassword;
 
+    // URL to generate certificates
+    @Expose
+    public String certificates;
+
     /**
      * Number of days to wait before removing an expired stage.
      */
@@ -145,6 +149,7 @@ public class StoolConfiguration extends BaseConfiguration {
         mailHost = "";
         mailUsername = "";
         mailPassword = "";
+        certificates = "";
     }
 
     // TODO: doesn't work in integration tests
