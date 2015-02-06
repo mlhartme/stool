@@ -52,7 +52,7 @@ public class KeyStore {
 
     private void pkcs12toKeyStore(FileNode pkcs12) throws IOException {
         try {
-            file.getParent().launcher("keytool", "-importkeystore", "-srckeystore", pkcs12.getAbsolute(), "-srcstoretype",
+            workDir.launcher("keytool", "-importkeystore", "-srckeystore", pkcs12.getAbsolute(), "-srcstoretype",
               "pkcs12", "-destkeystore", file.getAbsolute(), "-deststoretype", "jks",
               "-deststorepass", password(), "-srcstorepass", password()).exec();
             Files.stoolFile(file);
@@ -64,9 +64,9 @@ public class KeyStore {
     private FileNode pkcs12Store(Certificate certificate) throws IOException {
         FileNode keystore;
 
-        keystore = file.getParent().join("tomcat.p12");
+        keystore = workDir.join("tomcat.p12");
         try {
-            file.getParent().launcher("openssl", "pkcs12",
+            workDir.launcher("openssl", "pkcs12",
               "-export", "-passout", "pass:" + password(), "-in", certificate.certificate().getAbsolute(),
               "-inkey", certificate.privateKey().getAbsolute(), "-out", keystore.getAbsolute(),
               "-name", "tomcat").exec();
