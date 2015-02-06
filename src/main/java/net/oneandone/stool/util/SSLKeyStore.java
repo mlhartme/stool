@@ -15,50 +15,24 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 
 import java.io.IOException;
-public class SSLKeyStore {
 
-    private final FileNode keyStoreFile;
+public class SSLKeyStore {
+    private final FileNode file;
 
     public SSLKeyStore(FileNode workDir) {
-        keyStoreFile = workDir.join("tomcat.jks");
+        file = workDir.join("tomcat.jks");
     }
 
     public void store(Certificate certificate) throws IOException {
         pkcs12toKeyStore(pkcs12Store(certificate));
     }
 
-    private void pkcs12toKeyStore(FileNode pkcs12) throws IOException {
-        try {
-            keyStoreFile.getParent().launcher("keytool", "-importkeystore", "-srckeystore", pkcs12.getAbsolute(), "-srcstoretype",
-              "pkcs12", "-destkeystore", keyStoreFile.getAbsolute(), "-deststoretype", "jks",
-              "-deststorepass", password(), "-srcstorepass", password()).exec();
-            Files.stoolFile(keyStoreFile);
-        } catch (Failure failure) {
-            throw new IOException(failure);
-        }
-    }
-    private FileNode pkcs12Store(Certificate certificate) throws IOException {
-        FileNode keystore;
-        keystore = keyStoreFile.getParent().join("tomcat.p12");
-
-        try {
-            keyStoreFile.getParent().launcher("openssl", "pkcs12",
-              "-export", "-passout", "pass:" + password(), "-in", certificate.certificate().getAbsolute(),
-              "-inkey", certificate.privateKey().getAbsolute(), "-out", keystore.getAbsolute(),
-              "-name", "tomcat").exec();
-            return keystore;
-        } catch (Failure e) {
-            throw new IOException(e);
-        }
-    }
-
     public String file() {
-        return keyStoreFile.getAbsolute();
+        return file.getAbsolute();
     }
 
     public String type() {
@@ -70,7 +44,32 @@ public class SSLKeyStore {
     }
 
     public boolean exists() {
-        return keyStoreFile.exists();
+        return file.exists();
     }
 
+    private void pkcs12toKeyStore(FileNode pkcs12) throws IOException {
+        try {
+            file.getParent().launcher("keytool", "-importkeystore", "-srckeystore", pkcs12.getAbsolute(), "-srcstoretype",
+              "pkcs12", "-destkeystore", file.getAbsolute(), "-deststoretype", "jks",
+              "-deststorepass", password(), "-srcstorepass", password()).exec();
+            Files.stoolFile(file);
+        } catch (Failure failure) {
+            throw new IOException(failure);
+        }
+    }
+
+    private FileNode pkcs12Store(Certificate certificate) throws IOException {
+        FileNode keystore;
+
+        keystore = file.getParent().join("tomcat.p12");
+        try {
+            file.getParent().launcher("openssl", "pkcs12",
+              "-export", "-passout", "pass:" + password(), "-in", certificate.certificate().getAbsolute(),
+              "-inkey", certificate.privateKey().getAbsolute(), "-out", keystore.getAbsolute(),
+              "-name", "tomcat").exec();
+            return keystore;
+        } catch (Failure e) {
+            throw new IOException(e);
+        }
+    }
 }

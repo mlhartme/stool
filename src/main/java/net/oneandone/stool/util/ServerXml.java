@@ -166,19 +166,6 @@ public class ServerXml {
         document.getElementsByTagName("Service").item(0).appendChild(element);
     }
 
-    private void removeAjpConnector() {
-        Element element;
-
-        try {
-            element = xml.getSelector().elementOpt(document, XPATH_EXPR_CONNECTOR_AJP);
-        } catch (XmlException e) {
-            throw new IllegalStateException(e);
-        }
-        if (element != null) {
-            element.getParentNode().removeChild(element);
-        }
-    }
-
     public void applogs(String applogsOld, String applogsNew) throws IOException {
         Selector selector;
         String value;

@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 
@@ -27,7 +26,7 @@ public class CertificateAuthority {
     private final FileNode workingDir;
 
 
-    public CertificateAuthority(FileNode workingDir, String hostname, Console console) {
+    public CertificateAuthority(FileNode workingDir, String hostname) {
         this.workingDir = workingDir;
         this.hostname = hostname;
     }

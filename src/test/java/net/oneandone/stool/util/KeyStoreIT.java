@@ -15,24 +15,22 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.Test;
+
 public class KeyStoreIT {
     @Test
     public void testSignWildcard() throws Exception {
         CertificateAuthority ca;
         FileNode workDir;
         World world;
-        Console console;
         SSLKeyStore keyStore;
 
         world = new World();
-        console = Console.create(world);
         workDir = world.getTemp().createTempDirectory();
 
-        ca = new CertificateAuthority(workDir, "*.jenkins.websales.united.domain", console);
+        ca = new CertificateAuthority(workDir, "*.jenkins.websales.united.domain");
         keyStore = new SSLKeyStore(workDir);
         keyStore.store(ca.certificate());
     }

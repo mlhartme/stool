@@ -190,21 +190,19 @@ public abstract class Stage {
     public SSLKeyStore keystore() throws IOException {
         SSLKeyStore keyStore;
         FileNode sslDir;
+        CertificateAuthority ca;
+        String sslUrl;
 
         sslDir = shared().join("ssl");
         keyStore = new SSLKeyStore(sslDir);
         if (!keyStore.exists()) {
-
-            CertificateAuthority ca;
-            String sslUrl;
-
             if (config().sslUrl == null || config().sslUrl.equals("")) {
                 sslUrl = "*." + getDomain();
             } else {
                 sslUrl = config().sslUrl;
             }
             // TODO: Generates after before every start a "new" certificate
-            ca = new CertificateAuthority(sslDir, sslUrl, session.console);
+            ca = new CertificateAuthority(sslDir, sslUrl);
             keyStore.store(ca.certificate());
         }
         return keyStore;
