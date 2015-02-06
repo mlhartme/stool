@@ -33,7 +33,7 @@ public class KeyStoreIT {
         workDir = world.getTemp().createTempDirectory();
 
         ca = new CertificateAuthority(workDir, "*.jenkins.websales.united.domain", console);
-        keyStore = new SSLKeyStore(workDir, console);
+        keyStore = new SSLKeyStore(workDir);
         keyStore.store(ca.certificate());
     }
 }

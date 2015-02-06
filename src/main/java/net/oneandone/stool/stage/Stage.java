@@ -190,8 +190,9 @@ public abstract class Stage {
     public SSLKeyStore keystore() throws IOException {
         SSLKeyStore keyStore;
         FileNode sslDir;
+
         sslDir = shared().join("ssl");
-        keyStore = new SSLKeyStore(sslDir, session.console);
+        keyStore = new SSLKeyStore(sslDir);
         if (!keyStore.exists()) {
 
             CertificateAuthority ca;

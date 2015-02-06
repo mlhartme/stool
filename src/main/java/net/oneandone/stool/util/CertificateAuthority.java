@@ -24,14 +24,12 @@ import java.io.StringWriter;
 
 public class CertificateAuthority {
     private final String hostname;
-    private final Console console;
     private final FileNode workingDir;
 
 
     public CertificateAuthority(FileNode workingDir, String hostname, Console console) {
         this.workingDir = workingDir;
         this.hostname = hostname;
-        this.console = console;
     }
 
 
@@ -39,11 +37,9 @@ public class CertificateAuthority {
         Certificate certificate;
         certificate = create();
         if (!(certificate.privateKey().exists() || certificate.certificate().exists())) {
-            console.info.print("Downloading SSL Certificates...");
             sign();
             Files.stoolFile(certificate.privateKey());
             Files.stoolFile(certificate.certificate());
-            console.info.print("done.\n");
         }
         return certificate;
     }

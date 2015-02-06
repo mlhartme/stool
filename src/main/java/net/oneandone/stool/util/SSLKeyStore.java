@@ -23,9 +23,8 @@ import java.io.IOException;
 public class SSLKeyStore {
 
     private final FileNode keyStoreFile;
-    private final Console console;
-    public SSLKeyStore(FileNode workDir, Console console) {
-        this.console = console;
+
+    public SSLKeyStore(FileNode workDir) {
         keyStoreFile = workDir.join("tomcat.jks");
     }
 
