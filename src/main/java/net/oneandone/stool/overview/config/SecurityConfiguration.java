@@ -122,6 +122,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public DefaultSpringSecurityContextSource contextSource() {
         DefaultSpringSecurityContextSource contextSource;
+
         contextSource = new DefaultSpringSecurityContextSource(PROVIDER_URL);
         contextSource.setUserDn(USERDN);
         contextSource.setPassword(session.stoolConfiguration.authenticationPassword);
