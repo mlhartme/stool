@@ -29,12 +29,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
-import org.springframework.security.ldap.authentication.BindAuthenticator;
-import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
@@ -172,14 +169,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public BindAuthenticator bindAuthenticator() {
-        BindAuthenticator bindAuthenticator;
-        bindAuthenticator = new BindAuthenticator(contextSource());
-        bindAuthenticator.setUserSearch(ldapUserSearch());
-        return bindAuthenticator;
-    }
-
-    @Bean
     public DefaultLdapAuthoritiesPopulator ldapAuthoritiesPopulator() {
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
         authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=roles,ou=cisostages");
@@ -188,15 +177,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         authoritiesPopulator.setSearchSubtree(false);
         authoritiesPopulator.setIgnorePartialResultException(true);
         return authoritiesPopulator;
-    }
-
-    @Bean
-    public LdapAuthenticationProvider ldapAuthenticationProvider() {
-        LdapAuthenticationProvider authenticationProvider;
-        SimpleAuthorityMapper simpleAuthorityMapper = new SimpleAuthorityMapper();
-        authenticationProvider = new LdapAuthenticationProvider(bindAuthenticator(), ldapAuthoritiesPopulator());
-        authenticationProvider.setAuthoritiesMapper(simpleAuthorityMapper);
-        return authenticationProvider;
     }
 
     @Override
