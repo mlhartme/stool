@@ -128,30 +128,23 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return contextSource;
     }
 
+    @Override
     @Bean
-    public FilterBasedLdapUserSearch ldapUserSearch() {
-        FilterBasedLdapUserSearch filterBasedLdapUserSearch;
-        filterBasedLdapUserSearch = new FilterBasedLdapUserSearch("ou=cisostages", "(uid={0})", contextSource());
-        return filterBasedLdapUserSearch;
-    }
-
-    @Bean
-    public DefaultLdapAuthoritiesPopulator ldapAuthoritiesPopulator() {
+    public UserDetailsService userDetailsServiceBean() throws Exception {
+        FilterBasedLdapUserSearch userSearch;
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
+        LdapUserDetailsService result;
+
+        userSearch = new FilterBasedLdapUserSearch("ou=cisostages", "(uid={0})", contextSource());
         authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=roles,ou=cisostages");
         authoritiesPopulator.setGroupSearchFilter("(member=uid={1})");
         authoritiesPopulator.setGroupRoleAttribute("ou");
         authoritiesPopulator.setSearchSubtree(false);
         authoritiesPopulator.setIgnorePartialResultException(true);
-        return authoritiesPopulator;
-    }
 
-    @Override
-    @Bean
-    public UserDetailsService userDetailsServiceBean() throws Exception {
-        LdapUserDetailsService ldapUserDetailsService = new LdapUserDetailsService(ldapUserSearch(), ldapAuthoritiesPopulator());
-        ldapUserDetailsService.setUserDetailsMapper(new InetOrgPersonContextMapper());
-        return ldapUserDetailsService;
+        result = new LdapUserDetailsService(userSearch, authoritiesPopulator);
+        result.setUserDetailsMapper(new InetOrgPersonContextMapper());
+        return result;
     }
 
 }
