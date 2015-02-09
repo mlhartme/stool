@@ -33,7 +33,7 @@ public class BaseConfiguration {
 
         field = getField(key) != null ? getField(key) : getFieldByAnnotation(key);
         if (field == null) {
-            throw new NoSuchFieldException(key + "not found");
+            throw new NoSuchFieldException(key + " not found");
         }
         field.setAccessible(true);
         type = field.getType();
