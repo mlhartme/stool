@@ -37,12 +37,7 @@ import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopul
 import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.Query;
-import java.lang.management.ManagementFactory;
-import java.util.Set;
+import java.io.IOException;
 
 @EnableWebSecurity
 @Configuration
@@ -75,40 +70,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
           .antMatchers("/**").hasRole("LOGIN");
     }
 
-    @Bean
-    public String hostname() {
-        StringBuilder url;
-        url = new StringBuilder();
-        String stoolUrl = System.getProperty("stool.url");
-        if (stoolUrl != null) {
-            url.append(stoolUrl);
-            return url.toString();
-        }
-        try {
-            MBeanServer mBeanServer;
-            Set<ObjectName> hosts;
-            Set<ObjectName> ports;
-
-            mBeanServer = ManagementFactory.getPlatformMBeanServer();
-            hosts = mBeanServer.queryNames(new ObjectName("*:type=Host,*"), null);
-            ports = mBeanServer.queryNames(new ObjectName("*:type=Connector,*"),
-              Query.match(Query.attr("scheme"), Query.value("https")));
-            if (hosts.size() == 1 && ports.size() == 1) {
-                url.append("https://");
-                url.append(hosts.iterator().next().getKeyProperty("host"));
-                url.append(":").append(ports.iterator().next().getKeyProperty("port"));
-                url.append("/");
-                return url.toString();
-            }
-
-        } catch (MalformedObjectNameException e) {
-            //empty
-        }
-        throw new RuntimeException("Cannot determine hostname. Use -Dstool.url to force a url");
+    private String hostname() throws IOException {
+        return "https://" + session.stoolConfiguration.hostname + ":" + session.load("overview").config().ports.tomcatHttps() + "/";
     }
 
     @Bean
-    public ServiceProperties serviceProperties() {
+    public ServiceProperties serviceProperties() throws IOException {
         ServiceProperties serviceProperties;
         serviceProperties = new ServiceProperties();
         serviceProperties.setService(hostname() + "/j_spring_cas_security_check");
@@ -141,7 +108,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public CasAuthenticationEntryPoint casAuthenticationEntryPoint() {
+    public CasAuthenticationEntryPoint casAuthenticationEntryPoint() throws IOException {
         CasAuthenticationEntryPoint casAuthenticationEntryPoint;
         casAuthenticationEntryPoint = new CasAuthenticationEntryPoint();
         casAuthenticationEntryPoint.setLoginUrl(LOGIN_URL);
