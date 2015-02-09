@@ -60,7 +60,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers("/ressources/**").antMatchers("/favicon.ico").antMatchers("/system").antMatchers("/monitoring");
+        web.ignoring().antMatchers("/ressources/**").antMatchers("/favicon.ico").antMatchers("/system");
     }
 
     @Override

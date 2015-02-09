@@ -39,10 +39,6 @@ public class ApplicationInitializer extends AbstractSecurityWebApplicationInitia
         ServletRegistration.Dynamic dispatcher = servletContext.addServlet("DispatcherServlet", new DispatcherServlet(context));
         dispatcher.setLoadOnStartup(1);
         dispatcher.addMapping(MAPPING_URL);
-
-        ServletRegistration.Dynamic monitoringServlet = servletContext.addServlet("monitoring", new HttpRequestHandlerServlet());
-        monitoringServlet.setLoadOnStartup(1);
-        monitoringServlet.addMapping("/monitoring");
     }
 
     private AnnotationConfigWebApplicationContext getContext() {
