@@ -15,7 +15,9 @@
  */
 package net.oneandone.stool.overview.config;
 
+import net.oneandone.stool.util.Session;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.cas.ServiceProperties;
@@ -150,12 +152,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return casAuthenticationEntryPoint;
     }
 
+    @Autowired
+    private Session session;
+
     @Bean
     public DefaultSpringSecurityContextSource contextSource() {
         DefaultSpringSecurityContextSource contextSource;
         contextSource = new DefaultSpringSecurityContextSource(PROVIDER_URL);
         contextSource.setUserDn(USERDN);
-        contextSource.setPassword(System.getProperty("overview.password"));
+        contextSource.setPassword(session.stoolConfiguration.authenticationPassword);
         return contextSource;
     }
 
