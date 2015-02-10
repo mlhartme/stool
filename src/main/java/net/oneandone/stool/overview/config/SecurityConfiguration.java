@@ -54,7 +54,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         provider = new CasAuthenticationProvider();
         provider.setServiceProperties(serviceProperties());
-        provider.setTicketValidator(ticketValidator());
+        provider.setTicketValidator(new Cas20ServiceTicketValidator(URL_PREFIX));
         provider.setKey("cas");
         provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsService()));
 
@@ -92,11 +92,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         serviceProperties.setService(hostname() + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
-    }
-
-    @Bean
-    public Cas20ServiceTicketValidator ticketValidator() {
-        return new Cas20ServiceTicketValidator(URL_PREFIX);
     }
 
     @Bean
