@@ -42,10 +42,11 @@ import java.io.IOException;
 @EnableWebSecurity
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    private static final String PROVIDER_URL = "ldaps://ldap.1and1.org:636/ou=ims_service,o=1und1,c=DE";
-    private static final String USERDN = "uid=cisostages,ou=accounts,ou=ims_service,o=1und1,c=DE";
     private static final String URL_PREFIX = "https://login.1and1.org/ims-sso";
     private static final String LOGIN_URL = URL_PREFIX + "/login/";
+
+    @Autowired
+    private Session session;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -99,16 +100,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return serviceProperties;
     }
 
-    @Autowired
-    private Session session;
-
     @Bean
     public DefaultSpringSecurityContextSource contextSource() {
         DefaultSpringSecurityContextSource contextSource;
 
-        contextSource = new DefaultSpringSecurityContextSource(PROVIDER_URL);
-        contextSource.setUserDn(USERDN);
-        contextSource.setPassword(session.stoolConfiguration.authenticationPassword);
+        contextSource = new DefaultSpringSecurityContextSource(session.stoolConfiguration.authenticationUrl);
+        contextSource.setUserDn(session.stoolConfiguration.authenticationPrincipal);
+        contextSource.setPassword(session.stoolConfiguration.authenticationCredentials);
         return contextSource;
     }
 

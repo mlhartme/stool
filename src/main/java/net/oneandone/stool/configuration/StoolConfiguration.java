@@ -120,7 +120,13 @@ public class StoolConfiguration extends BaseConfiguration {
     public String certificates;
 
     @Expose
-    public String authenticationPassword;
+    public String authenticationUrl;
+
+    @Expose
+    public String authenticationPrincipal;
+
+    @Expose
+    public String authenticationCredentials;
 
     /**
      * Number of days to wait before removing an expired stage.
@@ -150,11 +156,13 @@ public class StoolConfiguration extends BaseConfiguration {
         ldapUrl = "";
         ldapPrincipal = "";
         ldapCredentials = "";
+        authenticationUrl = "";
+        authenticationPrincipal = "";
+        authenticationCredentials = "";
         mailHost = "";
         mailUsername = "";
         mailPassword = "";
         certificates = "";
-        authenticationPassword = "";
     }
 
     // TODO: doesn't work in integration tests
