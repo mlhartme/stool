@@ -128,12 +128,14 @@ public class StoolConfiguration extends BaseConfiguration {
     @Expose
     public String authenticationCredentials;
 
+    @Expose
+    public String authenticationSso;
+
     /**
      * Number of days to wait before removing an expired stage.
      */
     @Expose
     public int autoRemove;
-
 
     public StoolConfiguration() {
         portPrefixFirst = new Ports(900); // avoid clash with default tomcat port 8080
@@ -159,6 +161,7 @@ public class StoolConfiguration extends BaseConfiguration {
         authenticationUrl = "";
         authenticationPrincipal = "";
         authenticationCredentials = "";
+        authenticationSso = "";
         mailHost = "";
         mailUsername = "";
         mailPassword = "";

@@ -42,9 +42,6 @@ import java.io.IOException;
 @EnableWebSecurity
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    private static final String URL_PREFIX = "https://login.1and1.org/ims-sso";
-    private static final String LOGIN_URL = URL_PREFIX + "/login/";
-
     @Autowired
     private Session session;
 
@@ -54,7 +51,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         provider = new CasAuthenticationProvider();
         provider.setServiceProperties(serviceProperties());
-        provider.setTicketValidator(new Cas20ServiceTicketValidator(URL_PREFIX));
+        provider.setTicketValidator(new Cas20ServiceTicketValidator(session.stoolConfiguration.authenticationSso));
         provider.setKey("cas");
         provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsService()));
 
@@ -74,7 +71,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         filter = new CasAuthenticationFilter();
         filter.setAuthenticationManager(authenticationManager());
         entryPoint = new CasAuthenticationEntryPoint();
-        entryPoint.setLoginUrl(LOGIN_URL);
+        entryPoint.setLoginUrl(session.stoolConfiguration.authenticationSso + "/login/");
         entryPoint.setServiceProperties(serviceProperties());
         http.csrf().disable()
           .exceptionHandling().authenticationEntryPoint(entryPoint)
