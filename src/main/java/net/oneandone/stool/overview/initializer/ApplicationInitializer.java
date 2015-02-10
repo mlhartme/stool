@@ -17,33 +17,23 @@ package net.oneandone.stool.overview.initializer;
 
 import org.springframework.security.web.context.AbstractSecurityWebApplicationInitializer;
 import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.context.support.HttpRequestHandlerServlet;
 import org.springframework.web.servlet.DispatcherServlet;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 
 public class ApplicationInitializer extends AbstractSecurityWebApplicationInitializer {
-
-
-    private static final String CONFIG_LOCATION = "net.oneandone.stool.overview.config";
-    private static final String MAPPING_URL = "/";
-
-
     @Override
     public void afterSpringSecurityFilterChain(ServletContext servletContext) {
-        WebApplicationContext context = getContext();
-        servletContext.addListener(new ContextLoaderListener(context));
-        ServletRegistration.Dynamic dispatcher = servletContext.addServlet("DispatcherServlet", new DispatcherServlet(context));
-        dispatcher.setLoadOnStartup(1);
-        dispatcher.addMapping(MAPPING_URL);
-    }
+        AnnotationConfigWebApplicationContext context;
+        ServletRegistration.Dynamic dispatcher;
 
-    private AnnotationConfigWebApplicationContext getContext() {
-        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
-        context.setConfigLocation(CONFIG_LOCATION);
-        return context;
+        context = new AnnotationConfigWebApplicationContext();
+        context.setConfigLocation("net.oneandone.stool.overview.config");
+        servletContext.addListener(new ContextLoaderListener(context));
+        dispatcher = servletContext.addServlet("DispatcherServlet", new DispatcherServlet(context));
+        dispatcher.setLoadOnStartup(1);
+        dispatcher.addMapping("/");
     }
 }
