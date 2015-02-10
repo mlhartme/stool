@@ -69,11 +69,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         CasAuthenticationFilter filter;
+        CasAuthenticationEntryPoint entryPoint;
 
         filter = new CasAuthenticationFilter();
         filter.setAuthenticationManager(authenticationManager());
+        entryPoint = new CasAuthenticationEntryPoint();
+        entryPoint.setLoginUrl(LOGIN_URL);
+        entryPoint.setServiceProperties(serviceProperties());
         http.csrf().disable()
-          .exceptionHandling().authenticationEntryPoint(casAuthenticationEntryPoint())
+          .exceptionHandling().authenticationEntryPoint(entryPoint)
           .and()
           .addFilter(filter)
           .authorizeRequests()
@@ -92,15 +96,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         serviceProperties.setService(hostname() + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
-    }
-
-    @Bean
-    public CasAuthenticationEntryPoint casAuthenticationEntryPoint() throws IOException {
-        CasAuthenticationEntryPoint casAuthenticationEntryPoint;
-        casAuthenticationEntryPoint = new CasAuthenticationEntryPoint();
-        casAuthenticationEntryPoint.setLoginUrl(LOGIN_URL);
-        casAuthenticationEntryPoint.setServiceProperties(serviceProperties());
-        return casAuthenticationEntryPoint;
     }
 
     @Autowired
