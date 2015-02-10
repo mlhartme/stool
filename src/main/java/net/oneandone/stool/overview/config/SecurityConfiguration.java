@@ -60,11 +60,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        CasAuthenticationFilter filter;
+
+        filter = new CasAuthenticationFilter();
+        filter.setAuthenticationManager(authenticationManager());
         http.csrf().disable()
           .authenticationProvider(casAuthenticationProvider())
           .exceptionHandling().authenticationEntryPoint(casAuthenticationEntryPoint())
           .and()
-          .addFilter(casAuthenticationFilter())
+          .addFilter(filter)
           .authorizeRequests()
           .antMatchers("/whoami").fullyAuthenticated()
           .antMatchers("/**").hasRole("LOGIN");
@@ -81,14 +85,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         serviceProperties.setService(hostname() + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
-    }
-
-    @Bean
-    public CasAuthenticationFilter casAuthenticationFilter() throws Exception {
-        CasAuthenticationFilter casAuthenticationFilter;
-        casAuthenticationFilter = new CasAuthenticationFilter();
-        casAuthenticationFilter.setAuthenticationManager(authenticationManager());
-        return casAuthenticationFilter;
     }
 
     @Bean
