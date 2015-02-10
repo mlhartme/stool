@@ -9,7 +9,7 @@
   </parent>
 
   <name>Stool</name>
-  <url>https://wiki.1and1.org/UE/StoolHome</url>
+  <url>https://github.com/mlhartme/stool</url>
   <description>Stage tool - runs multiple web applications on a single machine.</description>
 
   <groupId>net.oneandone</groupId>

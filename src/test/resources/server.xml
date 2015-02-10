@@ -104,7 +104,6 @@
         </Context>
       </Host>
     </Engine>
-    <Connector SSLEnabled="true" address="10.72.10.12" clientAuth="false" keyAlias="ciso" keystoreFile="/opt/ui/opt/tools/wsdtools/cacerts" maxThreads="150" port="9993" protocol="HTTP/1.1" scheme="https" secure="true" sslProtocol="TLS"/>
     <Connector address="10.72.10.12" port="9992" protocol="AJP/1.3"/>
   </Service>
 </Server>

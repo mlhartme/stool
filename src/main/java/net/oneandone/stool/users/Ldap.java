@@ -41,7 +41,6 @@ public class Ldap {
         env.put(Context.PROVIDER_URL, url);
 
         // Authentication: http://docs.oracle.com/javase/jndi/tutorial/ldap/security/ldap.html
-        // See https://dev-jira.1and1.org/browse/BIT-7753
         env.put(Context.SECURITY_AUTHENTICATION, "simple");
         env.put(Context.SECURITY_PRINCIPAL, principal);
         env.put(Context.SECURITY_CREDENTIALS, credentials);
