@@ -80,7 +80,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
           .exceptionHandling().authenticationEntryPoint(entryPoint)
           .and()
           .addFilter(filter);
-        if (session.stoolConfiguration.ldapCredentials.isEmpty()) {
+        if (session.stoolConfiguration.authenticationUrl.isEmpty()) {
             http.authorizeRequests().antMatchers("/**").hasRole("ANONYMOUS");
         } else {
             http.authorizeRequests()
