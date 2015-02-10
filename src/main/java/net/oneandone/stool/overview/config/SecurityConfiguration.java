@@ -85,15 +85,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
           .antMatchers("/**").hasRole("LOGIN");
     }
 
-    private String hostname() throws IOException {
-        return "https://" + session.stoolConfiguration.hostname + ":" + session.load("overview").config().ports.tomcatHttps() + "/";
-    }
-
     @Bean
     public ServiceProperties serviceProperties() throws IOException {
         ServiceProperties serviceProperties;
+
         serviceProperties = new ServiceProperties();
-        serviceProperties.setService(hostname() + "/j_spring_cas_security_check");
+        serviceProperties.setService("https://" + session.stoolConfiguration.hostname + ":"
+                + session.load("overview").config().ports.tomcatHttps() + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
     }
