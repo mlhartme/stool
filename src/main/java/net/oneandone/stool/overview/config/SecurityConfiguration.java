@@ -42,8 +42,7 @@ import java.io.IOException;
 @EnableWebSecurity
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    private static final String BASEDN = "ou=ims_service,o=1und1,c=DE";
-    private static final String PROVIDER_URL = "ldaps://ldap.1and1.org:636/" + BASEDN;
+    private static final String PROVIDER_URL = "ldaps://ldap.1and1.org:636/ou=ims_service,o=1und1,c=DE";
     private static final String USERDN = "uid=cisostages,ou=accounts,ou=ims_service,o=1und1,c=DE";
     private static final String URL_PREFIX = "https://login.1and1.org/ims-sso";
     private static final String LOGIN_URL = URL_PREFIX + "/login/";
@@ -94,7 +93,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         ServiceProperties serviceProperties;
 
         serviceProperties = new ServiceProperties();
-        serviceProperties.setService("https://" + session.stoolConfiguration.hostname + ":"
+        serviceProperties.setService("https://overview.overview." + session.stoolConfiguration.hostname + ":"
                 + session.load("overview").config().ports.tomcatHttps() + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
