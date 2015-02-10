@@ -56,7 +56,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         provider.setServiceProperties(serviceProperties());
         provider.setTicketValidator(ticketValidator());
         provider.setKey("cas");
-        provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsServiceBean()));
+        provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsService()));
 
         auth.authenticationProvider(provider);
     }
@@ -122,8 +122,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    @Bean
-    public UserDetailsService userDetailsServiceBean() throws Exception {
+    public UserDetailsService userDetailsService() {
         FilterBasedLdapUserSearch userSearch;
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
         LdapUserDetailsService result;
