@@ -65,7 +65,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         filter = new CasAuthenticationFilter();
         filter.setAuthenticationManager(authenticationManager());
         http.csrf().disable()
-          .authenticationProvider(casAuthenticationProvider())
           .exceptionHandling().authenticationEntryPoint(casAuthenticationEntryPoint())
           .and()
           .addFilter(filter)
