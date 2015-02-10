@@ -79,10 +79,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.csrf().disable()
           .exceptionHandling().authenticationEntryPoint(entryPoint)
           .and()
-          .addFilter(filter)
-          .authorizeRequests()
-          .antMatchers("/whoami").fullyAuthenticated()
-          .antMatchers("/**").hasRole("LOGIN");
+          .addFilter(filter);
+        if (session.stoolConfiguration.ldapCredentials.isEmpty()) {
+            http.authorizeRequests().antMatchers("/**").hasRole("ANONYMOUS");
+        } else {
+            http.authorizeRequests()
+                    .antMatchers("/whoami").fullyAuthenticated()
+                    .antMatchers("/**").hasRole("LOGIN");
+        }
     }
 
     @Bean
