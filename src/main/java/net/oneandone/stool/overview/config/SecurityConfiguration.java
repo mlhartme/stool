@@ -50,7 +50,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(casAuthenticationProvider());
+        CasAuthenticationProvider provider;
+
+        provider = new CasAuthenticationProvider();
+        provider.setServiceProperties(serviceProperties());
+        provider.setTicketValidator(ticketValidator());
+        provider.setKey("cas");
+        provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsServiceBean()));
+
+        auth.authenticationProvider(provider);
     }
 
     @Override
@@ -84,17 +92,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         serviceProperties.setService(hostname() + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
-    }
-
-    @Bean
-    public CasAuthenticationProvider casAuthenticationProvider() throws Exception {
-        CasAuthenticationProvider casAuthenticationProvider;
-        casAuthenticationProvider = new CasAuthenticationProvider();
-        casAuthenticationProvider.setServiceProperties(serviceProperties());
-        casAuthenticationProvider.setTicketValidator(ticketValidator());
-        casAuthenticationProvider.setKey("cas");
-        casAuthenticationProvider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsServiceBean()));
-        return casAuthenticationProvider;
     }
 
     @Bean
