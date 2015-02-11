@@ -283,6 +283,7 @@
           </remove>
           <overwrite>META-INF/pominfo.properties, org/apache/commons/logging/**/*</overwrite>
           <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
+          <attach>false</attach>
 
           <!-- for upload -->
           <symlink>http://ivar.pustemanager64.schlund.de/webdav/stool/latest</symlink>
