@@ -325,20 +325,25 @@ public abstract class Stage {
         List<Ports> used;
         Ports firstTry;
 
-        existing = Ports.load(wrapper);
         result = new ArrayList<>();
-        used = null;
-        for (String host : selectedHosts().keySet()) {
-            if (result.size() < existing.size()) {
-                result.add(existing.get(result.size()));
-            } else {
-                if (used == null) {
-                    used = session.usedPorts();
+        if (isOverview()) {
+            result.add(session.stoolConfiguration.portPrefixOverview);
+        } else {
+            existing = Ports.load(wrapper);
+            used = null;
+            for (String host : selectedHosts().keySet()) {
+                if (result.size() < existing.size()) {
+                    result.add(existing.get(result.size()));
+                } else {
+                    if (used == null) {
+                        used = session.usedPorts();
+                    }
+                    firstTry = Ports.forName(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast);
+                    result.add(session.freePorts(used, firstTry));
                 }
-                firstTry = Ports.forName(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast);
-                result.add(session.createPorts(used, firstTry));
             }
         }
+        // also save for overview stage - to have the ports read e.g. for status
         Ports.save(wrapper, result);
         return result;
     }

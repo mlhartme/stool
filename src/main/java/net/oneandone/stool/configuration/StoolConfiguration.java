@@ -38,6 +38,9 @@ import java.util.Map;
 
 public class StoolConfiguration extends BaseConfiguration {
     @Expose
+    public Ports portPrefixOverview;
+
+    @Expose
     public Ports portPrefixFirst;
 
     @Expose
@@ -144,7 +147,8 @@ public class StoolConfiguration extends BaseConfiguration {
     public int autoRemove;
 
     public StoolConfiguration() {
-        portPrefixFirst = new Ports(900); // avoid clash with default tomcat port 8080
+        portPrefixOverview = new Ports(900); // avoid clash with default tomcat port 8080
+        portPrefixFirst = portPrefixOverview.next();
         portPrefixLast = new Ports(999);
         baseHeap = 200;
         basePerm = 60;

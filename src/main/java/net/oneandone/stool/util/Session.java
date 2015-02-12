@@ -367,7 +367,7 @@ public class Session {
     //--
 
     //-- disk space (all values in MB
-    public Ports createPorts(List<Ports> used, Ports start) throws IOException {
+    public Ports freePorts(List<Ports> used, Ports start) throws IOException {
         Ports current;
 
         if (!start.within(stoolConfiguration.portPrefixFirst, stoolConfiguration.portPrefixLast)) {
