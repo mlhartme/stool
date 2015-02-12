@@ -10,21 +10,21 @@ import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PortsList {
-    public static PortsList used(List<FileNode> wrappers) throws IOException {
-        PortsList result;
+public class Ports {
+    public static Ports used(List<FileNode> wrappers) throws IOException {
+        Ports result;
 
-        result = new PortsList();
+        result = new Ports();
         for (FileNode wrapper : wrappers) {
             result.list.addAll(load(wrapper).list);
         }
         return result;
     }
 
-    public static PortsList load(FileNode wrapper) throws IOException {
-        PortsList result;
+    public static Ports load(FileNode wrapper) throws IOException {
+        Ports result;
 
-        result = new PortsList();
+        result = new Ports();
         result.append(wrapper);
         return result;
     }
@@ -37,7 +37,7 @@ public class PortsList {
 
     private final List<PortData> list;
 
-    public PortsList() {
+    public Ports() {
         list = new ArrayList<>();
     }
 
@@ -69,7 +69,7 @@ public class PortsList {
         return list.get(idx);
     }
 
-    public void add(PortsList ports, int idx) {
+    public void add(Ports ports, int idx) {
         list.add(ports.list.get(idx));
     }
 
