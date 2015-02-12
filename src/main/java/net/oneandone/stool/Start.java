@@ -69,7 +69,7 @@ public class Start extends StageCommand {
         stage = selected();
         result.add(stage);
         if (!stage.isOverview()) {
-            stage = session.load("overview");
+            stage = session.load(Overview.OVERVIEW_NAME);
             if (stage.runningTomcat() == null) {
                 result.add(0, stage);
             }
