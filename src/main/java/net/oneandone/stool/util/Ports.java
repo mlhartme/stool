@@ -64,7 +64,7 @@ public class Ports {
 
     //--
 
-    private final List<PortData> list;
+    private final List<Data> list;
 
     public Ports() {
         list = new ArrayList<>();
@@ -94,7 +94,7 @@ public class Ports {
         return list.get(idx).tomcatHttps();
     }
 
-    public PortData get(int idx) {
+    public Data get(int idx) {
         return list.get(idx);
     }
 
@@ -104,15 +104,15 @@ public class Ports {
 
     // TODO
     public void add(int prefix) {
-        list.add(new PortData(prefix));
+        list.add(new Data(prefix));
     }
 
     public void save(FileNode wrapper) throws IOException {
         List<String> lines;
 
         lines = new ArrayList<>();
-        for (PortData portData : list) {
-            lines.add(Integer.toString(portData.prefix));
+        for (Data data : list) {
+            lines.add(Integer.toString(data.prefix));
         }
         file(wrapper).writeLines(lines);
     }
@@ -123,31 +123,31 @@ public class Ports {
         file = file(wrapper);
         if (file.isFile()) {
             for (String line : file.readLines()) {
-                list.add(new PortData(Integer.parseInt(line.trim())));
+                list.add(new Data(Integer.parseInt(line.trim())));
             }
         }
     }
 
     public void checkFree() throws IOException {
-        for (PortData portData : list) {
-            portData.checkFree();
+        for (Data data : list) {
+            data.checkFree();
         }
     }
 
-    public boolean contains(PortData portData) {
-        return list.contains(portData);
+    public boolean contains(Data data) {
+        return list.contains(data);
     }
 
-    public PortData notContained(String host, int first, int last) throws IOException {
-        return notContained(host, new PortData(first), new PortData(last));
+    public Data notContained(String host, int first, int last) throws IOException {
+        return notContained(host, new Data(first), new Data(last));
     }
 
-    public PortData notContained(String host, PortData first, PortData last) throws IOException {
-        return notContained(PortData.forName(host, first, last), first, last);
+    public Data notContained(String host, Data first, Data last) throws IOException {
+        return notContained(Data.forName(host, first, last), first, last);
     }
 
-    public PortData notContained(PortData start, PortData first, PortData last) throws IOException {
-        PortData current;
+    public Data notContained(Data start, Data first, Data last) throws IOException {
+        Data current;
 
         if (!start.within(first, last)) {
             throw new IllegalArgumentException("ports out of range: " + start);
@@ -172,20 +172,20 @@ public class Ports {
 
     //--
 
-    private static class PortData {
-        public static PortData forName(String name, PortData first, PortData last) {
-            return new PortData((Math.abs(name.hashCode()) % (last.prefix - first.prefix + 1)) + first.prefix);
+    private static class Data {
+        public static Data forName(String name, Data first, Data last) {
+            return new Data((Math.abs(name.hashCode()) % (last.prefix - first.prefix + 1)) + first.prefix);
         }
 
         // TODO: private
         public final int prefix;
 
-        public PortData(int prefix) {
+        public Data(int prefix) {
             this.prefix = prefix;
         }
 
-        public PortData next() {
-            return new PortData(prefix + 1);
+        public Data next() {
+            return new Data(prefix + 1);
         }
 
         private int tomcatHttp() {
@@ -219,13 +219,13 @@ public class Ports {
         }
 
         public boolean equals(Object obj) {
-            if (obj instanceof PortData) {
-                return prefix == ((PortData) obj).prefix;
+            if (obj instanceof Data) {
+                return prefix == ((Data) obj).prefix;
             }
             return false;
         }
 
-        public boolean within(PortData first, PortData last) {
+        public boolean within(Data first, Data last) {
             return prefix >= first.prefix && prefix <= last.prefix;
         }
 
