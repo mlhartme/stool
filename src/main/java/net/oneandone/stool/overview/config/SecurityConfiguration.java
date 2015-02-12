@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.overview.config;
 
+import net.oneandone.stool.Overview;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,10 +91,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public ServiceProperties serviceProperties() throws IOException {
         ServiceProperties serviceProperties;
+        Stage stage;
 
+        stage = session.load(Overview.OVERVIEW_NAME);
         serviceProperties = new ServiceProperties();
-        serviceProperties.setService("https://overview.overview." + session.stoolConfiguration.hostname + ":"
-                + session.load("overview").loadMainPorts().tomcatHttps() + "/j_spring_cas_security_check");
+        serviceProperties.setService("https://" + stage.mainHostname() + ":" + stage.loadMainPorts().tomcatHttps() + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
     }

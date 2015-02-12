@@ -714,6 +714,16 @@ public abstract class Stage {
         return new Applogs(shared().join("applogs"));
     }
 
+    public String mainHostname() throws IOException {
+        String result;
+
+        result = session.stoolConfiguration.hostname;
+        if (session.stoolConfiguration.vhosts) {
+            result = hosts().keySet().iterator().next() + "." + result;
+        }
+        return result;
+    }
+
     public static enum State {
         DOWN, SLEEPING, UP, CRASHED, WORKING;
 
