@@ -44,13 +44,9 @@ public class Overview {
         StageConfiguration stageConfiguration;
 
         stageConfiguration = session.stoolConfiguration.createStageConfiguration("");
-        stageConfiguration.ports = session.stoolConfiguration.portPrefixLast;
         create = new Create(session, true, OVERVIEW_NAME, "gav:overview:overview:@overview",
                 overviewDirectory(session), stageConfiguration);
         create.remaining("tomcat.opts=-Doverview.stool.home=" + session.home.getAbsolute());
-        create.remaining("port.prefix=" + session.stoolConfiguration.portPrefixFirst.prefix());
-        session.console.verbose.println("Initiating " + OVERVIEW_NAME + " on "
-                + session.stoolConfiguration.hostname + ":" + stageConfiguration.ports.tomcatHttp());
         try {
             create.doInvoke();
         } catch (Exception e) {

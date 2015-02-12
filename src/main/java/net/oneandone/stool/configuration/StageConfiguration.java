@@ -55,11 +55,6 @@ public class StageConfiguration extends BaseConfiguration {
     @Option(key = "pom", description = "pom file name", role = Role.USER)
     public String pom;
 
-
-    @Expose
-    @Option(key = "port.prefix", description = "do not change this!")
-    public Ports ports;
-
     @Expose
     @Option(key = "tomcat.opts", description = "CATALINE_OPTS without heap/perm settings")
     public String tomcatOpts;
@@ -121,7 +116,6 @@ public class StageConfiguration extends BaseConfiguration {
         this.build = "false";
         this.refresh = "svn up";
         this.pom = "pom.xml";
-        this.ports = new Ports(0);
         this.tomcatOpts = "";
         this.tomcatVersion = "7.0.57";
         this.tomcatService = "3.5.26";

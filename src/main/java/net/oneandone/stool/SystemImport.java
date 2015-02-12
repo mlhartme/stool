@@ -183,7 +183,6 @@ public class SystemImport extends SessionCommand {
         tmpWrapper = console.world.getTemp().createTempDirectory().deleteDirectory();
         stage = Stage.loadOpt(session, url, session.stoolConfiguration.createStageConfiguration(url), tmpWrapper, directory);
         stage.tuneConfiguration();
-        stage.config().ports = session.createPortsForName(stage.getName());
         Files.stoolDirectory(stage.wrapper.mkdir());
         stage.saveWrapper();
         stage.getDirectory().link(stage.anchor());

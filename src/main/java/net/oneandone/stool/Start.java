@@ -19,6 +19,7 @@ import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Macros;
+import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
@@ -82,6 +83,7 @@ public class Start extends StageCommand {
     @Override
     public void doInvoke(Stage stage) throws Exception {
         FileNode download;
+        Ports ports;
 
         serviceWrapperOpt(stage.config().tomcatService);
         download = tomcatOpt(stage.config().tomcatVersion);
@@ -89,7 +91,8 @@ public class Start extends StageCommand {
         checkUntil(stage.config().until);
         checkCommitted(stage);
         checkNotStarted(stage);
-        copyTemplate(stage);
+        ports = Ports.load(stage.wrapper);
+        copyTemplate(stage, ports);
         copyTomcatBase(download, stage.shared(), stage.config().tomcatVersion);
         if (session.bedroom.stages().contains(stage.getName())) {
             console.info.println("leaving sleeping state");
@@ -97,7 +100,7 @@ public class Start extends StageCommand {
         }
         stage.start(console);
         if (debug) {
-            console.info.println("debugging enabled on port " + stage.getPorts().debugPort());
+            console.info.println("debugging enabled on port " + ports.debugPort());
         }
         ping(stage);
         timeEnd();
@@ -190,11 +193,11 @@ public class Start extends StageCommand {
         console.info.println("downloaded: " + dest + " from " + url);
     }
 
-    public void copyTemplate(Stage stage) throws Exception {
+    public void copyTemplate(Stage stage, Ports ports) throws Exception {
         FileNode shared;
 
         shared = stage.shared();
-        Files.template(world.resource("templates/stage"), shared, variables(stage));
+        Files.template(world.resource("templates/stage"), shared, variables(stage, ports));
         // manually create empty subdirectories, because git doesn't know them
         for (String dir : new String[] {"ssl", "run"}) {
             shared.join(dir).mkdirOpt();
@@ -271,16 +274,16 @@ public class Start extends StageCommand {
         src.deleteTree();
     }
 
-    private Map<String, String> variables(Stage stage) {
+    private Map<String, String> variables(Stage stage, Ports ports) {
         Map<String, String> result;
 
         result = new HashMap<>();
         result.put("java.home", session.jdkHome());
-        result.put("wrapper.java.additional", wrapperJavaAdditional(stage, debug, false, new Macros(session.stoolConfiguration.macros)));
+        result.put("wrapper.java.additional", wrapperJavaAdditional(ports, stage, debug, false, new Macros(session.stoolConfiguration.macros)));
         return result;
     }
 
-    private static String wrapperJavaAdditional(Stage stage, boolean debug, boolean suspend, Macros macros) {
+    private static String wrapperJavaAdditional(Ports ports, Stage stage, boolean debug, boolean suspend, Macros macros) {
         String tomcatOpts;
         List<String> opts;
         StringBuilder result;
@@ -305,15 +308,14 @@ public class Start extends StageCommand {
 
         // see http://docs.oracle.com/javase/7/docs/technotes/guides/management/agent.html
         opts.add("-Dcom.sun.management.jmxremote.authenticate=false");
-        opts.add("-Dcom.sun.management.jmxremote.port=" + stage.config().ports.jmx());
-        opts.add("-Dcom.sun.management.jmxremote.rmi.port=" + stage.config().ports.jmx());
+        opts.add("-Dcom.sun.management.jmxremote.port=" + ports.jmx());
+        opts.add("-Dcom.sun.management.jmxremote.rmi.port=" + ports.jmx());
         opts.add("-Dcom.sun.management.jmxremote.ssl=false");
         if (debug) {
             opts.add("-Xdebug");
             opts.add("-Xnoagent");
             opts.add("-Djava.compiler=NONE");
-            opts.add("-Xrunjdwp:transport=dt_socket,server=y,address="
-                    + stage.config().ports.debugPort() + ",suspend=" + (suspend ? "y" : "n"));
+            opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=" + ports.debugPort() + ",suspend=" + (suspend ? "y" : "n"));
         }
         i = 1;
         result = new StringBuilder();

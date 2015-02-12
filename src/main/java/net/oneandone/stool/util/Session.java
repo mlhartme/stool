@@ -402,7 +402,7 @@ public class Session {
 
         used = new ArrayList<>();
         for (FileNode wrapper : getWrappers()) {
-            used.add(loadStageConfiguration(wrapper).ports);
+            used.add(Ports.load(wrapper));
         }
         return used;
     }

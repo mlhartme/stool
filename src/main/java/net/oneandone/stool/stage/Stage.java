@@ -309,8 +309,9 @@ public abstract class Stage {
         }
         return hosts;
     }
-    public Ports getPorts() {
-        return configuration.ports;
+
+    public Ports loadPorts() throws IOException {
+        return Ports.load(wrapper);
     }
 
     public Map<String, String> urls() throws IOException, SAXException {
@@ -360,7 +361,7 @@ public abstract class Stage {
         // }
 
         serverXml = ServerXml.load(serverXml());
-        serverXml.configure(retainSelected(hosts()), config().ports, keystore(), config().mode, config().cookies);
+        serverXml.configure(retainSelected(hosts()), loadPorts(), keystore(), config().mode, config().cookies);
         serverXml.save(serverXml());
         if (session.stoolConfiguration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();

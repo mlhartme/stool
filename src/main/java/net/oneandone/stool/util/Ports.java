@@ -18,10 +18,25 @@ package net.oneandone.stool.util;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
 public class Ports {
+    public static Ports load(FileNode wrapper) throws IOException {
+        return new Ports(Integer.parseInt(file(wrapper).readString().trim()));
+    }
+
+    public void save(FileNode wrapper) throws IOException {
+        file(wrapper).writeString(Integer.toString(prefix));
+    }
+
+    private static FileNode file(FileNode wrapper) {
+        return wrapper.join("ports");
+    }
+
+    //--
+
     public static Ports forName(String name, Ports first, Ports last) {
         return new Ports((Math.abs(name.hashCode()) % (last.prefix - first.prefix + 1)) + first.prefix);
     }

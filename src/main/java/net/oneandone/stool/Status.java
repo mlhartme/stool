@@ -44,7 +44,7 @@ public class Status extends StageCommand {
         header("app urls");
         message(getAppUrlsFrom(stage));
         message("");
-        header("jconsole " + session.stoolConfiguration.hostname + ":" + stage.getPorts().jmx());
+        header("jconsole " + session.stoolConfiguration.hostname + ":" + stage.loadPorts().jmx());
     }
 
     private String getAppUrlsFrom(Stage stage) throws IOException, SAXException {
@@ -69,7 +69,7 @@ public class Status extends StageCommand {
         if (tomcatPid != null) {
             try {
                 if (stage.getDirectory().exec("ps", "u", "-p", tomcatPid).contains("-Xdebug")) {
-                    debug = "on (port " + stage.getPorts().debugPort() + ")";
+                    debug = "on (port " + stage.loadPorts().debugPort() + ")";
                 } else {
                     debug = "off";
                 }

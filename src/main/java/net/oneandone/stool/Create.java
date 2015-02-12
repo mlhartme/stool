@@ -244,8 +244,9 @@ public class Create extends SessionCommand {
                 }
             }
         }
+
         if (portPrefix == 0) {
-            stage.config().ports = session.createPortsForName(stage.getName());
+            ports = session.createPortsForName(stage.getName());
         } else {
             Ports explicit;
 
@@ -254,9 +255,9 @@ public class Create extends SessionCommand {
             if (ports.equals(explicit)) {
                 throw new ArgumentException("port prefix already used: " + portPrefix);
             }
-            stage.config().ports = ports;
         }
         wrapper.mkdir();
+        ports.save(stage.wrapper);
         return stage;
     }
 
