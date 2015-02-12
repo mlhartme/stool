@@ -56,7 +56,6 @@ public class Stop extends StageCommand {
         String name;
 
         name = stage.getName();
-
         if (session.bedroom.stages().contains(name)) {
             if (sleep) {
                 console.info.println("warning: stage already marked as sleeping");

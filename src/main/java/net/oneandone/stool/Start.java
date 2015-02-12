@@ -47,6 +47,9 @@ public class Start extends StageCommand {
     @Option("debug")
     private boolean debug = false;
 
+    @Option("only")
+    private boolean only = false;
+
     @Option("tail")
     private boolean tail = false;
 
@@ -61,6 +64,18 @@ public class Start extends StageCommand {
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
+        Stage overview;
+
+        if (!stage.isOverview() && !only) {
+            overview = session.load("overview");
+            if (overview.runningTomcat() == null) {
+                doStart(overview);
+            }
+        }
+        doStart(stage);
+    }
+
+    private void doStart(Stage stage) throws Exception {
         FileNode download;
 
         serviceWrapperOpt(stage.config().tomcatService);
