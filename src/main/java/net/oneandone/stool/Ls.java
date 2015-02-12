@@ -32,10 +32,12 @@ public class Ls extends StageCommand {
     public Ls(Session session) {
         super(session);
     }
+
     @Override
     protected Lock lock() {
         return null;
     }
+
     @Override
     public boolean doBefore(List<Stage> stages, int indent) throws IOException {
         header("stages");

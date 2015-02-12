@@ -63,19 +63,24 @@ public class Start extends StageCommand {
     }
 
     @Override
-    public void doInvoke(Stage stage) throws Exception {
-        Stage overview;
+    protected List<Stage> defaultSelected(EnumerationFailed notUsed) throws IOException {
+        Stage stage;
+        List<Stage> result;
 
-        if (!stage.isOverview() && !only) {
-            overview = session.load("overview");
-            if (overview.runningTomcat() == null) {
-                doStart(overview);
+        result = new ArrayList();
+        stage = selected();
+        result.add(stage);
+        if (!stage.isOverview()) {
+            stage = session.load("overview");
+            if (stage.runningTomcat() == null) {
+                result.add(0, stage);
             }
         }
-        doStart(stage);
+        return result;
     }
 
-    private void doStart(Stage stage) throws Exception {
+    @Override
+    public void doInvoke(Stage stage) throws Exception {
         FileNode download;
 
         serviceWrapperOpt(stage.config().tomcatService);

@@ -178,6 +178,7 @@ public abstract class StageCommand extends SessionCommand implements Command {
         }
         return result;
     }
+
     protected List<Stage> all(EnumerationFailed problems) throws IOException {
         return session.list(problems, new Predicate() {
             @Override
@@ -186,18 +187,20 @@ public abstract class StageCommand extends SessionCommand implements Command {
             }
         });
     }
-    protected List<Stage> selected() throws IOException {
+
+    protected Stage selected() throws IOException {
         String name;
 
         name = session.getSelectedStageName();
         if (name == null) {
             throw new IOException("no stage selected - run 'stool select myStageName'.");
         }
-        return Collections.singletonList(session.load(name));
+        return session.load(name);
     }
+
     /** override this to change the default */
     protected List<Stage> defaultSelected(EnumerationFailed notUsed) throws IOException {
-        return selected();
+        return Collections.singletonList(selected());
     }
 
     protected void timeStart() {
