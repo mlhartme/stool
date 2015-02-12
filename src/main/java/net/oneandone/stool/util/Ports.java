@@ -109,6 +109,32 @@ public class Ports {
         return list.contains(portData);
     }
 
+    public Ports.PortData notContained(String host, PortData first, PortData last) throws IOException {
+        return notContained(Ports.PortData.forName(host, first, last), first, last);
+    }
+
+    public Ports.PortData notContained(Ports.PortData start, PortData first, PortData last) throws IOException {
+        PortData current;
+
+        if (!start.within(first, last)) {
+            throw new IllegalArgumentException("ports out of range: " + start);
+        }
+        current = start;
+        do {
+            if (!contains(current)) {
+                // port prefix isn't used by another stage
+                current.checkFree();
+                return current;
+            }
+            if (current.equals(last)) {
+                current = first;
+            } else {
+                current = current.next();
+            }
+        } while (!current.equals(start));
+        throw new IOException("cannot allocate ports");
+    }
+
 
 
     //--

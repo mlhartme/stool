@@ -328,31 +328,6 @@ public class Session {
 
     //--
 
-    //-- disk space (all values in MB
-    public Ports.PortData freePorts(Ports used, Ports.PortData start) throws IOException {
-        Ports.PortData current;
-
-        if (!start.within(stoolConfiguration.portPrefixFirst, stoolConfiguration.portPrefixLast)) {
-            throw new IllegalArgumentException("ports out of range: " + start);
-        }
-        current = start;
-        do {
-            if (!used.contains(current)) {
-                // port prefix isn't used by another stage
-                current.checkFree();
-                return current;
-            }
-            if (current.equals(stoolConfiguration.portPrefixLast)) {
-                current = stoolConfiguration.portPrefixFirst;
-            } else {
-                current = current.next();
-            }
-        } while (!current.equals(start));
-        throw new IOException("cannot allocate ports");
-    }
-
-    //--
-
     /** @return memory not yet reserved */
     public int memUnreserved() throws IOException {
         return memTotal() - MEM_RESERVED_OS - memReservedTomcats();

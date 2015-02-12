@@ -332,8 +332,7 @@ public abstract class Stage {
                     if (used == null) {
                         used = Ports.used(session.getWrappers());
                     }
-                    firstTry = Ports.PortData.forName(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast);
-                    result.add(session.freePorts(used, firstTry));
+                    result.add(used.notContained(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast));
                 }
             }
         }
