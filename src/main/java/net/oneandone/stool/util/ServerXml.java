@@ -49,16 +49,18 @@ public class ServerXml {
     }
 
     /** replace existing hosts with hosts from parameter */
-    public void configure(Map<String, String> hosts, List<Ports> allocated, KeyStore keystore, String mode, boolean cookies) throws XmlException {
+    public void configure(Map<String, String> hosts, List<Ports> allocated, KeyStore keystore,
+                          String mode, boolean cookies, String hostname, boolean vhosts) throws XmlException {
         Element template;
         Element service;
         Ports ports;
         int i;
+        String vhost;
 
         if (hosts.isEmpty()) {
             throw new ArgumentException("no hosts match your selection");
         }
-        if (hosts.size() > allocated.size()) {
+        if (hosts.size() != allocated.size()) {
             throw new IllegalArgumentException(hosts.size() + " vs " + allocated.size());
         }
         document.getDocumentElement().setAttribute("port", Integer.toString(allocated.get(0).tomcatStop()));
@@ -68,7 +70,11 @@ public class ServerXml {
             ports = allocated.get(i++);
             service = (Element) template.cloneNode(true);
             document.getDocumentElement().appendChild(service);
-            service(service, entry.getKey(), entry.getValue());
+            vhost = hostname;
+            if (vhosts) {
+                vhost = entry.getKey() + "." + vhost;
+            }
+            service(service, vhost, entry.getValue());
             connectors(service, ports, keystore);
             contexts(service, mode, cookies, ports);
         }
@@ -224,21 +230,19 @@ public class ServerXml {
         Map<String, String> result;
         Element host;
         String hostname;
-        String name;
         String port;
 
         result = new TreeMap<>();
         for (Element service : selector.elements(document.getDocumentElement(), "Service")) {
             host = selector.element(service, "Engine/Host");
             hostname = host.getAttribute("name");
-            name = hostname.substring(0, hostname.indexOf('.'));
             port = port(service, HTTP_PATH);
             if (port != null) {
-                result.put(name, "http://" + hostname + ":" + port + suffix);
+                result.put(hostname, "http://" + hostname + ":" + port + suffix);
             }
             port = port(service, HTTPS_PATH);
             if (port != null) {
-                result.put(name + " SSL", "https://" + hostname + ":" + port + suffix);
+                result.put(hostname + " SSL", "https://" + hostname + ":" + port + suffix);
             }
         }
         return result;

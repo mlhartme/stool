@@ -84,7 +84,7 @@ public class SourceStage extends Stage {
 
         applications = new LinkedHashMap<>();
         for (MavenProject project : wars()) {
-            applications.put(project.getArtifactId() + "." + getDomain(),
+            applications.put(project.getArtifactId() + "." + getName(),
               docroot(session.console.world, project).getAbsolute());
         }
         return applications;

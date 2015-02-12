@@ -181,12 +181,6 @@ public abstract class Stage {
     public String getType() {
         return getClass().getSimpleName().toLowerCase();
     }
-    public String getDomain() {
-        return getSubdomain() + "." + session.stoolConfiguration.hostname;
-    }
-    public String getSubdomain() {
-        return getName();  // currently the same
-    }
 
     private KeyStore keystore() throws IOException {
         KeyStore keyStore;
@@ -200,7 +194,7 @@ public abstract class Stage {
         keyStore = new KeyStore(sslDir);
         if (!keyStore.exists()) {
             if (config().sslUrl == null || config().sslUrl.equals("")) {
-                hostname = "*." + getDomain();
+                hostname = getName() + "." + session.stoolConfiguration.hostname;
             } else {
                 hostname = config().sslUrl;
             }
@@ -224,7 +218,7 @@ public abstract class Stage {
         if (idx != -1) {
             machine = machine.substring(0, idx);
         }
-        return getSubdomain() + "." + machine;
+        return getName() + "." + machine;
     }
     /**
      * technical state
@@ -291,11 +285,16 @@ public abstract class Stage {
         return shared().join("run", name);
     }
 
-    protected Map<String, String> retainSelected(Map<String, String> hosts) {
+    /** return hostname -> docroot mapping, where hostname is artifactId + "." + stageName, to uniquely identify the host */
+    protected abstract Map<String, String> hosts() throws IOException;
+
+    protected Map<String, String> selectedHosts() throws IOException {
+        Map<String, String> hosts;
         Iterator<Map.Entry<String, String>> iter;
         List<String> selected;
         String hostname;
 
+        hosts = hosts();
         selected = configuration.tomcatSelect;
         if (!selected.isEmpty()) {
             iter = hosts.entrySet().iterator();
@@ -326,11 +325,11 @@ public abstract class Stage {
 
         existing = Ports.load(wrapper);
         result = new ArrayList<>();
-        for (String fqdn : hosts().keySet()) {
+        for (String host : selectedHosts().keySet()) {
             if (result.size() < existing.size()) {
                 result.add(existing.get(result.size()));
             } else {
-                result.add(session.createPortsForName(fqdn));
+                result.add(session.createPortsForName(host));
             }
         }
         Ports.save(wrapper, result);
@@ -373,11 +372,10 @@ public abstract class Stage {
         ServerXml serverXml;
         String pidFile;
         String pidPs;
-        List<Ports> ports;
 
         checkMemory();
         console.info.println("starting tomcat ...");
-        hosts = retainSelected(hosts());
+        hosts = selectedHosts();
         // TODO workspace stages
         // FileNode editorLocations = directory.join("tomcat/editor/WEB-INF/editor-locations.xml");
         // if (editorLocations.exists()) {
@@ -386,7 +384,8 @@ public abstract class Stage {
         // }
 
         serverXml = ServerXml.load(serverXml());
-        serverXml.configure(hosts, allocated, keystore(), config().mode, config().cookies);
+        serverXml.configure(hosts, allocated, keystore(), config().mode, config().cookies,
+                session.stoolConfiguration.hostname, session.stoolConfiguration.vhosts);
         serverXml.save(serverXml());
         if (session.stoolConfiguration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
@@ -419,9 +418,6 @@ public abstract class Stage {
             console.info.println("removed stale " + file);
         }
     }
-
-    /** return fqdn -> docroot mapping */
-    protected abstract Map<String, String> hosts() throws IOException;
 
     /**
      * Wrapper for catalina.sh XOR stool-catalina.sh by ITOSHA.

@@ -55,6 +55,12 @@ public class StoolConfiguration extends BaseConfiguration {
     public String hostname;
 
     /**
+     * Use vhosts
+     */
+    @Expose
+    public boolean vhosts;
+
+    /**
      * in megabyte
      */
     @Expose

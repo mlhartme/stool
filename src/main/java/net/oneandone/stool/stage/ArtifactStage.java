@@ -26,7 +26,6 @@ import net.oneandone.stool.stage.artifact.Inbox;
 import net.oneandone.stool.stage.artifact.Maven;
 import net.oneandone.stool.stage.artifact.Overview;
 import net.oneandone.stool.stage.artifact.WarFile;
-import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
@@ -171,14 +170,10 @@ public class ArtifactStage extends Stage {
         result = new LinkedHashMap<>();
         for (Application application : applications.applications()) {
             dir = application.currentFile().getParent();
-            result.put(hostname(dir), dir.getAbsolute() + "/ROOT");
+            result.put(dir.getName() + "." + getName(), dir.getAbsolute() + "/ROOT");
         }
 
         return result;
-    }
-
-    private String hostname(FileNode appdir) {
-        return appdir.getName() + "." + getDomain();
     }
 
     private void refreshWar(Console console, Application application) throws IOException {
