@@ -35,7 +35,7 @@ public class PortsList {
 
     //--
 
-    private final List<Ports> list;
+    private final List<PortData> list;
 
     public PortsList() {
         list = new ArrayList<>();
@@ -65,7 +65,7 @@ public class PortsList {
         return list.get(idx).tomcatHttps();
     }
 
-    public Ports get(int idx) {
+    public PortData get(int idx) {
         return list.get(idx);
     }
 
@@ -74,16 +74,16 @@ public class PortsList {
     }
 
     // TODO
-    public void add(Ports ports) {
-        list.add(ports);
+    public void add(PortData portData) {
+        list.add(portData);
     }
 
     public void save(FileNode wrapper) throws IOException {
         List<String> lines;
 
         lines = new ArrayList<>();
-        for (Ports ports : list) {
-            lines.add(Integer.toString(ports.prefix));
+        for (PortData portData : list) {
+            lines.add(Integer.toString(portData.prefix));
         }
         file(wrapper).writeLines(lines);
     }
@@ -94,34 +94,34 @@ public class PortsList {
         file = file(wrapper);
         if (file.isFile()) {
             for (String line : file.readLines()) {
-                list.add(new Ports(Integer.parseInt(line.trim())));
+                list.add(new PortData(Integer.parseInt(line.trim())));
             }
         }
     }
 
     public void checkFree() throws IOException {
-        for (Ports ports : list) {
-            ports.checkFree();
+        for (PortData portData : list) {
+            portData.checkFree();
         }
     }
 
-    public boolean contains(Ports ports) {
-        return list.contains(ports);
+    public boolean contains(PortData portData) {
+        return list.contains(portData);
     }
 
 
 
     //--
-    
-    public static class Ports {
-        public static Ports forName(String name, Ports first, Ports last) {
-            return new Ports((Math.abs(name.hashCode()) % (last.prefix - first.prefix + 1)) + first.prefix);
+
+    public static class PortData {
+        public static PortData forName(String name, PortData first, PortData last) {
+            return new PortData((Math.abs(name.hashCode()) % (last.prefix - first.prefix + 1)) + first.prefix);
         }
 
         // TODO: private
         public final int prefix;
 
-        public Ports(int prefix) {
+        public PortData(int prefix) {
             this.prefix = prefix;
         }
 
@@ -129,8 +129,8 @@ public class PortsList {
             return prefix;
         }
 
-        public Ports next() {
-            return new Ports(prefix + 1);
+        public PortData next() {
+            return new PortData(prefix + 1);
         }
 
         public int tomcatHttp() {
@@ -164,13 +164,13 @@ public class PortsList {
         }
 
         public boolean equals(Object obj) {
-            if (obj instanceof Ports) {
-                return prefix == ((Ports) obj).prefix;
+            if (obj instanceof PortData) {
+                return prefix == ((PortData) obj).prefix;
             }
             return false;
         }
 
-        public boolean within(Ports first, Ports last) {
+        public boolean within(PortData first, PortData last) {
             return prefix >= first.prefix && prefix <= last.prefix;
         }
 
@@ -216,15 +216,15 @@ public class PortsList {
         }
 
         // TODO: for stool config ...
-        public static class PortsTypeAdapter extends TypeAdapter<Ports> {
+        public static class PortsTypeAdapter extends TypeAdapter<PortData> {
             @Override
-            public void write(JsonWriter out, Ports value) throws IOException {
+            public void write(JsonWriter out, PortData value) throws IOException {
                 out.value(value.prefix);
             }
 
             @Override
-            public Ports read(JsonReader in) throws IOException {
-                return new Ports(in.nextInt());
+            public PortData read(JsonReader in) throws IOException {
+                return new PortData(in.nextInt());
             }
         }
     }

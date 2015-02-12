@@ -317,7 +317,7 @@ public abstract class Stage {
         PortsList existing;
         PortsList result;
         PortsList used;
-        PortsList.Ports firstTry;
+        PortsList.PortData firstTry;
 
         result = new PortsList();
         if (isOverview()) {
@@ -332,7 +332,7 @@ public abstract class Stage {
                     if (used == null) {
                         used = PortsList.used(session.getWrappers());
                     }
-                    firstTry = PortsList.Ports.forName(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast);
+                    firstTry = PortsList.PortData.forName(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast);
                     result.add(session.freePorts(used, firstTry));
                 }
             }

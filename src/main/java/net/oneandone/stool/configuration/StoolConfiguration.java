@@ -34,13 +34,13 @@ import java.util.Map;
 
 public class StoolConfiguration extends BaseConfiguration {
     @Expose
-    public PortsList.Ports portPrefixOverview;
+    public PortsList.PortData portPrefixOverview;
 
     @Expose
-    public PortsList.Ports portPrefixFirst;
+    public PortsList.PortData portPrefixFirst;
 
     @Expose
-    public PortsList.Ports portPrefixLast;
+    public PortsList.PortData portPrefixLast;
     /**
      * ps1 shell string
      */
@@ -143,9 +143,9 @@ public class StoolConfiguration extends BaseConfiguration {
     public int autoRemove;
 
     public StoolConfiguration() {
-        portPrefixOverview = new PortsList.Ports(900); // avoid clash with default tomcat port 8080
+        portPrefixOverview = new PortsList.PortData(900); // avoid clash with default tomcat port 8080
         portPrefixFirst = portPrefixOverview.next();
-        portPrefixLast = new PortsList.Ports(999);
+        portPrefixLast = new PortsList.PortData(999);
         baseHeap = 200;
         basePerm = 60;
         prompt = "{\\+} \\u@\\h:\\w$ ";
@@ -194,7 +194,7 @@ public class StoolConfiguration extends BaseConfiguration {
           .registerTypeAdapter(FileNode.class, new FileNodeTypeAdapter(world))
           .registerTypeAdapter(Version.class, new VersionTypeAdapter())
           .registerTypeAdapter(Until.class, new UntilTypeAdapter())
-          .registerTypeAdapter(PortsList.Ports.class, new PortsList.Ports.PortsTypeAdapter())
+          .registerTypeAdapter(PortsList.PortData.class, new PortsList.PortData.PortsTypeAdapter())
           .excludeFieldsWithoutExposeAnnotation()
           .disableHtmlEscaping()
           .setPrettyPrinting()

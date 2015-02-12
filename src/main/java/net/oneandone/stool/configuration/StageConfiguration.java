@@ -166,7 +166,7 @@ public class StageConfiguration extends BaseConfiguration {
     public static Gson gson() {
         return new GsonBuilder()
           .registerTypeAdapter(Until.class, new UntilTypeAdapter())
-          .registerTypeAdapter(PortsList.Ports.class, new PortsList.Ports.PortsTypeAdapter())
+          .registerTypeAdapter(PortsList.PortData.class, new PortsList.PortData.PortsTypeAdapter())
           .setPrettyPrinting()
           .create();
     }
