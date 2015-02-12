@@ -332,7 +332,7 @@ http://docbook.org/ns/docbook ">
     <sect1>
       <title>Create</title>
 
-      <programlisting><![CDATA[stool create [-quiet|-prefix <n>|-name <str>] <url> [<directory>] {<key>=<value>}]]></programlisting>
+      <programlisting><![CDATA[stool create [-quiet|-name <str>] <url> [<directory>] {<key>=<value>}]]></programlisting>
 
       <para>Creates a new stage directory from the specified url, enters the directory and selects the stage.
         In most cases, you invoke 'stool create' similar to 'svn checkout': with an url and a directory.
@@ -345,7 +345,6 @@ http://docbook.org/ns/docbook ">
       </para>
       <para>If directory is not specified, that current directory with last segment of the url is used.</para>
       <para>Unless specified with the '-name' option, the stage name is the directory name.</para>
-      <para>Create automatically picks a free port prefix (unless you specified one with the '-prefix' option).</para>
       <para>Instead of a &lt;url,&gt; you can specify '% &lt;searchstring&gt;'. This will search Pommes for the specified
         search string, show all corresponding svn urls (including branches), and ask you to select one.
       </para>

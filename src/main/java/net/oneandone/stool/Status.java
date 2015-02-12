@@ -42,13 +42,14 @@ public class Status extends StageCommand {
         message("type:      " + stage.getType());
         message("owner:     " + stage.technicalOwner());
         message("");
-        ports = stage.loadPorts();
-        showDaemonsFrom(stage, ports);
+        ports = showDaemonsFrom(stage);
         message("");
         header("app urls");
         message(getAppUrlsFrom(stage));
         message("");
-        header("jconsole " + session.stoolConfiguration.hostname + ":" + ports.jmx());
+        if (ports != null) {
+            header("jconsole " + session.stoolConfiguration.hostname + ":" + ports.jmx());
+        }
     }
 
     private String getAppUrlsFrom(Stage stage) throws IOException, SAXException {
@@ -63,14 +64,15 @@ public class Status extends StageCommand {
         }
     }
 
-    private void showDaemonsFrom(Stage stage, Ports ports) throws IOException {
+    private Ports showDaemonsFrom(Stage stage) throws IOException {
         String tomcatPid;
         String debug;
-
+        Ports ports;
 
         tomcatPid = stage.runningTomcat();
         showDaemon("tomcat", tomcatPid, stage.state());
         if (tomcatPid != null) {
+            ports = stage.loadPorts();
             try {
                 if (stage.getDirectory().exec("ps", "u", "-p", tomcatPid).contains("-Xdebug")) {
                     debug = "on (port " + ports.debugPort() + ")";
@@ -83,7 +85,10 @@ public class Status extends StageCommand {
             if (debug != null) {
                 message("debugger: " + debug);
             }
+        } else {
+            ports = null;
         }
+        return ports;
     }
 
     private void showDaemon(String name, String pid, Stage.State state) {

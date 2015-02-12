@@ -23,16 +23,23 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 
 public class Ports {
-    public static Ports load(FileNode wrapper) throws IOException {
-        return new Ports(Integer.parseInt(file(wrapper).readString().trim()));
+    private static FileNode file(FileNode wrapper) {
+        return wrapper.join("ports");
+    }
+
+    public static Ports loadOpt(FileNode wrapper) throws IOException {
+        FileNode file;
+
+        file = file(wrapper);
+        if (file.isFile()) {
+            return new Ports(Integer.parseInt(file.readString().trim()));
+        } else {
+            return null;
+        }
     }
 
     public void save(FileNode wrapper) throws IOException {
         file(wrapper).writeString(Integer.toString(prefix));
-    }
-
-    private static FileNode file(FileNode wrapper) {
-        return wrapper.join("ports");
     }
 
     //--

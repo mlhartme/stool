@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.0.0">
+      <action date="2015-02-12" dev="mhm" type="update">
+        Port prefixes are generated now, the respective create option is gone.
+      </action>
       <action date="2015-01-28" dev="mhm" type="update">
         Removed workspace stages. Generalized war stages and renamed them to source stages.
       </action>

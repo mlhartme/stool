@@ -171,7 +171,6 @@ public class Import extends SessionCommand {
 
     private void doImport(Stage stage) throws IOException {
         stage.tuneConfiguration();
-        session.createPortsForName(stage.getName()).save(stage.wrapper);
         Files.stoolDirectory(stage.wrapper.mkdir());
         stage.saveWrapper();
         stage.getDirectory().link(stage.anchor());

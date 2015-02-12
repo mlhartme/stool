@@ -48,9 +48,6 @@ public class Create extends SessionCommand {
     @Option("quiet")
     private boolean quiet = false;
 
-    @Option("prefix")
-    private int portPrefix = 0;
-
     @Option("name")
     private String name = null;
 
@@ -221,7 +218,6 @@ public class Create extends SessionCommand {
     private Stage stage(FileNode wrapper, String url) throws Exception {
         ArtifactStage artifactStage;
         Stage stage;
-        Ports ports;
         String prepare;
 
         if (ArtifactStage.isArtifact(url)) {
@@ -244,21 +240,7 @@ public class Create extends SessionCommand {
                 }
             }
         }
-
-        if (portPrefix == 0) {
-            ports = session.createPortsForName(stage.getName());
-        } else {
-            Ports explicit;
-
-            explicit = new Ports(portPrefix);
-            ports = session.createPorts(explicit);
-            if (ports.equals(explicit)) {
-                throw new ArgumentException("port prefix already used: " + portPrefix);
-            }
-        }
         wrapper.mkdir();
-        ports.save(stage.wrapper);
         return stage;
     }
-
 }

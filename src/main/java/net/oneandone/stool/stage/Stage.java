@@ -311,7 +311,24 @@ public abstract class Stage {
     }
 
     public Ports loadPorts() throws IOException {
-        return Ports.load(wrapper);
+        Ports ports;
+
+        ports = Ports.loadOpt(wrapper);
+        if (ports == null) {
+            throw new IllegalStateException();
+        }
+        return ports;
+    }
+
+    public Ports loadOrGeneratePorts() throws IOException {
+        Ports ports;
+
+        ports = Ports.loadOpt(wrapper);
+        if (ports == null) {
+            ports = session.createPortsForName(getName());
+            ports.save(wrapper);
+        }
+        return ports;
     }
 
     public Map<String, String> urls() throws IOException, SAXException {

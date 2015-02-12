@@ -399,10 +399,14 @@ public class Session {
 
     private List<Ports> usedPorts() throws IOException {
         ArrayList<Ports> used;
+        Ports ports;
 
         used = new ArrayList<>();
         for (FileNode wrapper : getWrappers()) {
-            used.add(Ports.load(wrapper));
+            ports = Ports.loadOpt(wrapper);
+            if (ports != null) {
+                used.add(ports);
+            }
         }
         return used;
     }
