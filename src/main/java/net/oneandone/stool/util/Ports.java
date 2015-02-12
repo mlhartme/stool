@@ -125,31 +125,27 @@ public class Ports {
             this.prefix = prefix;
         }
 
-        public int prefix() {
-            return prefix;
-        }
-
         public PortData next() {
             return new PortData(prefix + 1);
         }
 
-        public int tomcatHttp() {
+        private int tomcatHttp() {
             return prefix * 10;
         }
 
-        public int tomcatStop() {
+        private int tomcatStop() {
             return prefix * 10 + 1;
         }
 
-        public int tomcatHttps() {
+        private int tomcatHttps() {
             return prefix * 10 + 3;
         }
 
-        public int debugPort() {
+        private int debugPort() {
             return prefix * 10 + 5;
         }
 
-        public int jmx() {
+        private int jmx() {
             return prefix * 10 + 6;
         }
 
