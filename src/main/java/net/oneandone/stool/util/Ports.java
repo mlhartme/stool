@@ -100,7 +100,7 @@ public class Ports {
         return list.get(0);
     }
 
-    public void save(FileNode wrapper) throws IOException {
+    private void save(FileNode wrapper) throws IOException {
         List<String> lines;
 
         lines = new ArrayList<>();
@@ -110,7 +110,7 @@ public class Ports {
         file(wrapper).writeLines(lines);
     }
 
-    public void append(FileNode wrapper) throws IOException {
+    private void append(FileNode wrapper) throws IOException {
         FileNode file;
 
         file = file(wrapper);
@@ -127,19 +127,19 @@ public class Ports {
         }
     }
 
-    public boolean contains(Data data) {
+    private boolean contains(Data data) {
         return list.contains(data);
     }
 
-    public Data notContained(String host, int first, int last) throws IOException {
+    private Data notContained(String host, int first, int last) throws IOException {
         return notContained(host, new Data(first), new Data(last));
     }
 
-    public Data notContained(String host, Data first, Data last) throws IOException {
+    private Data notContained(String host, Data first, Data last) throws IOException {
         return notContained(Data.forName(host, first, last), first, last);
     }
 
-    public Data notContained(Data start, Data first, Data last) throws IOException {
+    private Data notContained(Data start, Data first, Data last) throws IOException {
         Data current;
 
         if (!start.within(first, last)) {
