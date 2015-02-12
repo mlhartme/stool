@@ -16,6 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -30,6 +31,8 @@ public class Status extends StageCommand {
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
+        Ports ports;
+
         header(stage.getName());
         message("name:      " + stage.getName());
         message("directory: " + stage.getDirectory().getAbsolute());
@@ -39,12 +42,13 @@ public class Status extends StageCommand {
         message("type:      " + stage.getType());
         message("owner:     " + stage.technicalOwner());
         message("");
-        showDaemonsFrom(stage);
+        ports = stage.loadPorts();
+        showDaemonsFrom(stage, ports);
         message("");
         header("app urls");
         message(getAppUrlsFrom(stage));
         message("");
-        header("jconsole " + session.stoolConfiguration.hostname + ":" + stage.loadPorts().jmx());
+        header("jconsole " + session.stoolConfiguration.hostname + ":" + ports.jmx());
     }
 
     private String getAppUrlsFrom(Stage stage) throws IOException, SAXException {
@@ -59,7 +63,7 @@ public class Status extends StageCommand {
         }
     }
 
-    private void showDaemonsFrom(Stage stage) throws IOException {
+    private void showDaemonsFrom(Stage stage, Ports ports) throws IOException {
         String tomcatPid;
         String debug;
 
@@ -69,7 +73,7 @@ public class Status extends StageCommand {
         if (tomcatPid != null) {
             try {
                 if (stage.getDirectory().exec("ps", "u", "-p", tomcatPid).contains("-Xdebug")) {
-                    debug = "on (port " + stage.loadPorts().debugPort() + ")";
+                    debug = "on (port " + ports.debugPort() + ")";
                 } else {
                     debug = "off";
                 }
