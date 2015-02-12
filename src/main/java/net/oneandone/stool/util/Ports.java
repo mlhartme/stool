@@ -74,8 +74,8 @@ public class Ports {
     }
 
     // TODO
-    public void add(PortData portData) {
-        list.add(portData);
+    public void add(int prefix) {
+        list.add(new PortData(prefix));
     }
 
     public void save(FileNode wrapper) throws IOException {
@@ -109,11 +109,15 @@ public class Ports {
         return list.contains(portData);
     }
 
-    public Ports.PortData notContained(String host, PortData first, PortData last) throws IOException {
-        return notContained(Ports.PortData.forName(host, first, last), first, last);
+    public PortData notContained(String host, int first, int last) throws IOException {
+        return notContained(host, new PortData(first), new PortData(last));
     }
 
-    public Ports.PortData notContained(Ports.PortData start, PortData first, PortData last) throws IOException {
+    public PortData notContained(String host, PortData first, PortData last) throws IOException {
+        return notContained(PortData.forName(host, first, last), first, last);
+    }
+
+    public PortData notContained(PortData start, PortData first, PortData last) throws IOException {
         PortData current;
 
         if (!start.within(first, last)) {
@@ -234,19 +238,6 @@ public class Ports {
                 if (!available) {
                     throw new IOException("portPrefix already in used: " + prefix);
                 }
-            }
-        }
-
-        // TODO: for stool config ...
-        public static class PortsTypeAdapter extends TypeAdapter<PortData> {
-            @Override
-            public void write(JsonWriter out, PortData value) throws IOException {
-                out.value(value.prefix);
-            }
-
-            @Override
-            public PortData read(JsonReader in) throws IOException {
-                return new PortData(in.nextInt());
             }
         }
     }

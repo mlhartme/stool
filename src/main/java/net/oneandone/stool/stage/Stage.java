@@ -331,7 +331,7 @@ public abstract class Stage {
                     if (used == null) {
                         used = Ports.used(session.getWrappers());
                     }
-                    result.add(used.notContained(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast));
+                    result.add(used.notContained(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast).prefix);
                 }
             }
         }

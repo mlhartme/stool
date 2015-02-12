@@ -58,8 +58,6 @@ public class BaseConfiguration {
             }
         } else if (type.equals(Until.class)) {
             value = Until.fromHuman((String) strOrMap);
-        } else if (type.equals(Ports.PortData.class)) {
-            value = new Ports.PortData(Integer.parseInt((String) strOrMap));
         } else if (Map.class.isAssignableFrom(type)) {
             value = strOrMap;
         } else {
