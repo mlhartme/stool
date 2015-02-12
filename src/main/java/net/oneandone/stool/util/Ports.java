@@ -25,41 +25,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Ports {
-    private static FileNode file(FileNode wrapper) {
-        return wrapper.join("ports");
-    }
-
-    public static void save(FileNode wrapper, List<Ports> ports) throws IOException {
-        List<String> lines;
-
-        lines = new ArrayList<>();
-        for (Ports p : ports) {
-            lines.add(Integer.toString(p.prefix));
-        }
-        file(wrapper).writeLines(lines);
-    }
-
-    public static List<Ports> load(FileNode wrapper) throws IOException {
-        List<Ports> result;
-        FileNode file;
-
-        file = file(wrapper);
-        result = new ArrayList<>();
-        if (file.isFile()) {
-            for (String line : file.readLines()) {
-                result.add(new Ports(Integer.parseInt(line.trim())));
-            }
-        }
-        return result;
-    }
-
-    //--
-
     public static Ports forName(String name, Ports first, Ports last) {
         return new Ports((Math.abs(name.hashCode()) % (last.prefix - first.prefix + 1)) + first.prefix);
     }
 
-    private final int prefix;
+    // TODO: private
+    public final int prefix;
 
     public Ports(int prefix) {
         this.prefix = prefix;

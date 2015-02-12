@@ -49,7 +49,7 @@ public class ServerXml {
     }
 
     /** replace existing hosts with hosts from parameter */
-    public void configure(Map<String, String> hosts, List<Ports> allocated, KeyStore keystore,
+    public void configure(Map<String, String> hosts, PortsList allocated, KeyStore keystore,
                           String mode, boolean cookies, String hostname, boolean vhosts) throws XmlException {
         Element template;
         Element service;

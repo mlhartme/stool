@@ -20,6 +20,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Ports;
+import net.oneandone.stool.util.PortsList;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
@@ -80,7 +81,7 @@ public class Start extends StageCommand {
     @Override
     public void doInvoke(Stage stage) throws Exception {
         FileNode download;
-        List<Ports> allocated;
+        PortsList allocated;
 
         serviceWrapperOpt(stage.config().tomcatService);
         download = tomcatOpt(stage.config().tomcatVersion);

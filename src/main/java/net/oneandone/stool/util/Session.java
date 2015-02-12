@@ -367,7 +367,7 @@ public class Session {
     //--
 
     //-- disk space (all values in MB
-    public Ports freePorts(List<Ports> used, Ports start) throws IOException {
+    public Ports freePorts(PortsList used, Ports start) throws IOException {
         Ports current;
 
         if (!start.within(stoolConfiguration.portPrefixFirst, stoolConfiguration.portPrefixLast)) {
@@ -389,18 +389,6 @@ public class Session {
             }
         } while (!current.equals(start));
         throw new IOException("cannot allocate ports");
-    }
-
-    public List<Ports> usedPorts() throws IOException {
-        ArrayList<Ports> used;
-
-        used = new ArrayList<>();
-        for (FileNode wrapper : getWrappers()) {
-            for (Ports ports : Ports.load(wrapper)) {
-                used.add(ports);
-            }
-        }
-        return used;
     }
 
     //--
