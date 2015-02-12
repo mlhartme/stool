@@ -19,18 +19,18 @@ public class Ports {
         session = stage.session;
         result = new Ports();
         if (stage.isOverview()) {
-            result.add(session.stoolConfiguration.portPrefixOverview);
+            result.list.add(new Data(session.stoolConfiguration.portPrefixOverview));
         } else {
             existing = Ports.load(stage.wrapper);
             used = null;
             for (String host : stage.selectedHosts().keySet()) {
                 if (result.size() < existing.size()) {
-                    result.add(existing, result.size());
+                    result.list.add(existing.list.get(result.size()));
                 } else {
                     if (used == null) {
                         used = Ports.used(session.getWrappers());
                     }
-                    result.add(used.notContained(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast).prefix);
+                    result.list.add(used.notContained(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast));
                 }
             }
         }
@@ -38,7 +38,6 @@ public class Ports {
         result.save(stage.wrapper);
         return result;
     }
-
 
     public static Ports used(List<FileNode> wrappers) throws IOException {
         Ports result;
@@ -75,15 +74,15 @@ public class Ports {
     }
 
     public int jmx() {
-        return get(0).jmx();
+        return main().jmx();
     }
 
     public int stop() {
-        return get(0).stop();
+        return main().stop();
     }
 
     public int debug() {
-        return get(0).debug();
+        return main().debug();
     }
 
     public int http(int idx) {
@@ -95,17 +94,10 @@ public class Ports {
     }
 
 
-    private Data get(int idx) {
-        return list.get(idx);
-    }
+    //--
 
-    private void add(Ports ports, int idx) {
-        list.add(ports.list.get(idx));
-    }
-
-    // TODO
-    public void add(int prefix) {
-        list.add(new Data(prefix));
+    private Data main() {
+        return list.get(0);
     }
 
     public void save(FileNode wrapper) throws IOException {
