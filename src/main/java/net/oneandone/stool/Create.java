@@ -23,7 +23,6 @@ import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.util.Files;
-import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Role;
 import net.oneandone.stool.util.Session;

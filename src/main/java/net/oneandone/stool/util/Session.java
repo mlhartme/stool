@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.util;
 
-import com.google.gson.JsonObject;
 import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StoolConfiguration;
@@ -39,13 +38,11 @@ import net.oneandone.sushi.util.Strings;
 import javax.naming.NamingException;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /** Mostly a representation of $STOOL_HOME */
 public class Session {
@@ -332,8 +329,8 @@ public class Session {
     //--
 
     //-- disk space (all values in MB
-    public Ports freePorts(PortsList used, Ports start) throws IOException {
-        Ports current;
+    public PortsList.Ports freePorts(PortsList used, PortsList.Ports start) throws IOException {
+        PortsList.Ports current;
 
         if (!start.within(stoolConfiguration.portPrefixFirst, stoolConfiguration.portPrefixLast)) {
             throw new IllegalArgumentException("ports out of range: " + start);

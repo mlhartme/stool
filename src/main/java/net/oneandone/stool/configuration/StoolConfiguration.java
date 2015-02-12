@@ -18,33 +18,29 @@ package net.oneandone.stool.configuration;
 import com.github.zafarkhaja.semver.Version;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.Expose;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.configuration.adapter.VersionTypeAdapter;
-import net.oneandone.stool.util.Ports;
-import net.oneandone.sushi.cli.ArgumentException;
+import net.oneandone.stool.util.PortsList;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class StoolConfiguration extends BaseConfiguration {
     @Expose
-    public Ports portPrefixOverview;
+    public PortsList.Ports portPrefixOverview;
 
     @Expose
-    public Ports portPrefixFirst;
+    public PortsList.Ports portPrefixFirst;
 
     @Expose
-    public Ports portPrefixLast;
+    public PortsList.Ports portPrefixLast;
     /**
      * ps1 shell string
      */
@@ -147,9 +143,9 @@ public class StoolConfiguration extends BaseConfiguration {
     public int autoRemove;
 
     public StoolConfiguration() {
-        portPrefixOverview = new Ports(900); // avoid clash with default tomcat port 8080
+        portPrefixOverview = new PortsList.Ports(900); // avoid clash with default tomcat port 8080
         portPrefixFirst = portPrefixOverview.next();
-        portPrefixLast = new Ports(999);
+        portPrefixLast = new PortsList.Ports(999);
         baseHeap = 200;
         basePerm = 60;
         prompt = "{\\+} \\u@\\h:\\w$ ";
@@ -198,7 +194,7 @@ public class StoolConfiguration extends BaseConfiguration {
           .registerTypeAdapter(FileNode.class, new FileNodeTypeAdapter(world))
           .registerTypeAdapter(Version.class, new VersionTypeAdapter())
           .registerTypeAdapter(Until.class, new UntilTypeAdapter())
-          .registerTypeAdapter(Ports.class, new Ports.PortsTypeAdapter())
+          .registerTypeAdapter(PortsList.Ports.class, new PortsList.Ports.PortsTypeAdapter())
           .excludeFieldsWithoutExposeAnnotation()
           .disableHtmlEscaping()
           .setPrettyPrinting()

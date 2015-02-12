@@ -24,7 +24,6 @@ import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.util.BuildStats;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.OwnershipException;
-import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.KeyStore;
 import net.oneandone.stool.util.PortsList;
 import net.oneandone.stool.util.ServerXml;
@@ -318,7 +317,7 @@ public abstract class Stage {
         PortsList existing;
         PortsList result;
         PortsList used;
-        Ports firstTry;
+        PortsList.Ports firstTry;
 
         result = new PortsList();
         if (isOverview()) {
@@ -333,7 +332,7 @@ public abstract class Stage {
                     if (used == null) {
                         used = PortsList.used(session.getWrappers());
                     }
-                    firstTry = Ports.forName(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast);
+                    firstTry = PortsList.Ports.forName(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast);
                     result.add(session.freePorts(used, firstTry));
                 }
             }
