@@ -328,7 +328,7 @@ public abstract class Stage {
             used = null;
             for (String host : selectedHosts().keySet()) {
                 if (result.size() < existing.size()) {
-                    result.add(existing.get(result.size()));
+                    result.add(existing, result.size());
                 } else {
                     if (used == null) {
                         used = PortsList.used(session.getWrappers());

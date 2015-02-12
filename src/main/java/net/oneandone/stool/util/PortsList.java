@@ -53,10 +53,23 @@ public class PortsList {
         return get(0).debugPort();
     }
 
+    public int http(int idx) {
+        return list.get(idx).tomcatHttp();
+    }
+
+    public int https(int idx) {
+        return list.get(idx).tomcatHttps();
+    }
+
     public Ports get(int idx) {
         return list.get(idx);
     }
 
+    public void add(PortsList ports, int idx) {
+        list.add(ports.list.get(idx));
+    }
+
+    // TODO
     public void add(Ports ports) {
         list.add(ports);
     }
@@ -77,7 +90,7 @@ public class PortsList {
         file = file(wrapper);
         if (file.isFile()) {
             for (String line : file.readLines()) {
-                add(new Ports(Integer.parseInt(line.trim())));
+                list.add(new Ports(Integer.parseInt(line.trim())));
             }
         }
     }
@@ -91,4 +104,5 @@ public class PortsList {
     public boolean contains(Ports ports) {
         return list.contains(ports);
     }
+
 }

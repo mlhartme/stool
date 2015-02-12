@@ -26,7 +26,6 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -53,7 +52,6 @@ public class ServerXml {
                           String mode, boolean cookies, String hostname, boolean vhosts) throws XmlException {
         Element template;
         Element service;
-        Ports ports;
         int i;
         String vhost;
 
@@ -67,7 +65,6 @@ public class ServerXml {
         template = selector.element(document, "Server/Service");
         i = 0;
         for (Map.Entry<String, String> entry : hosts.entrySet()) {
-            ports = allocated.get(i++);
             service = (Element) template.cloneNode(true);
             document.getDocumentElement().appendChild(service);
             vhost = hostname;
@@ -75,8 +72,9 @@ public class ServerXml {
                 vhost = entry.getKey() + "." + vhost;
             }
             service(service, vhost, entry.getValue());
-            connectors(service, ports, keystore);
-            contexts(service, mode, cookies, ports);
+            connectors(service, allocated, i, keystore);
+            contexts(service, mode, cookies, allocated, i);
+            i++;
         }
         template.getParentNode().removeChild(template);
     }
@@ -113,14 +111,14 @@ public class ServerXml {
     private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";
     private static final String HTTPS_PATH = "Connector[starts-with(@secure,'true')]";
 
-    private void connectors(Element service, Ports ports, KeyStore keyStore) {
+    private void connectors(Element service, PortsList ports, int idx, KeyStore keyStore) {
         int tomcatHttpPort;
         int tomcatSecureHttpPort;
         String ip;
 
         ip = "0.0.0.0";
-        tomcatHttpPort = ports.tomcatHttp();
-        tomcatSecureHttpPort = ports.tomcatHttps();
+        tomcatHttpPort = ports.http(idx);
+        tomcatSecureHttpPort = ports.https(idx);
         try {
             connectorDisable(service, "Connector[starts-with(@protocol,'AJP')]");
             connectorEnable(service, HTTP_PATH, ip, tomcatHttpPort, tomcatSecureHttpPort);
@@ -182,7 +180,7 @@ public class ServerXml {
 
     }
 
-    public void contexts(Element service, String mode, boolean cookies, Ports ports) throws XmlException {
+    public void contexts(Element service, String mode, boolean cookies, PortsList ports, int idx) throws XmlException {
         Element context;
         Element manager;
         Element parameter;
@@ -201,7 +199,7 @@ public class ServerXml {
                 parameter = parameterOpt(context, "editor.location");
                 if (parameter != null) {
                     parameter.setAttribute("value", parameter.getAttribute("value")
-                      .replace(":8080", ":" + ports.tomcatHttp()));
+                      .replace(":8080", ":" + ports.http(idx)));
                 }
             }
         }
