@@ -317,7 +317,6 @@ public abstract class Stage {
         Ports existing;
         Ports result;
         Ports used;
-        Ports.PortData firstTry;
 
         result = new Ports();
         if (isOverview()) {
