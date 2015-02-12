@@ -16,7 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.PortsList;
+import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -31,7 +31,7 @@ public class Status extends StageCommand {
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
-        PortsList ports;
+        Ports ports;
 
         header(stage.getName());
         message("name:      " + stage.getName());
@@ -64,10 +64,10 @@ public class Status extends StageCommand {
         }
     }
 
-    private PortsList showDaemonsFrom(Stage stage) throws IOException {
+    private Ports showDaemonsFrom(Stage stage) throws IOException {
         String tomcatPid;
         String debug;
-        PortsList ports;
+        Ports ports;
 
         tomcatPid = stage.runningTomcat();
         showDaemon("tomcat", tomcatPid, stage.state());

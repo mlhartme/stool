@@ -25,7 +25,7 @@ import net.oneandone.stool.util.BuildStats;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.OwnershipException;
 import net.oneandone.stool.util.KeyStore;
-import net.oneandone.stool.util.PortsList;
+import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -309,30 +309,30 @@ public abstract class Stage {
         return hosts;
     }
 
-    public PortsList loadPorts() throws IOException {
-        return PortsList.load(wrapper);
+    public Ports loadPorts() throws IOException {
+        return Ports.load(wrapper);
     }
 
-    public PortsList allocatePorts() throws IOException {
-        PortsList existing;
-        PortsList result;
-        PortsList used;
-        PortsList.PortData firstTry;
+    public Ports allocatePorts() throws IOException {
+        Ports existing;
+        Ports result;
+        Ports used;
+        Ports.PortData firstTry;
 
-        result = new PortsList();
+        result = new Ports();
         if (isOverview()) {
             result.add(session.stoolConfiguration.portPrefixOverview);
         } else {
-            existing = PortsList.load(wrapper);
+            existing = Ports.load(wrapper);
             used = null;
             for (String host : selectedHosts().keySet()) {
                 if (result.size() < existing.size()) {
                     result.add(existing, result.size());
                 } else {
                     if (used == null) {
-                        used = PortsList.used(session.getWrappers());
+                        used = Ports.used(session.getWrappers());
                     }
-                    firstTry = PortsList.PortData.forName(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast);
+                    firstTry = Ports.PortData.forName(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast);
                     result.add(session.freePorts(used, firstTry));
                 }
             }
@@ -373,7 +373,7 @@ public abstract class Stage {
 
     //-- tomcat helper
 
-    public void start(Console console, PortsList allocated) throws Exception {
+    public void start(Console console, Ports allocated) throws Exception {
         Map<String, String> hosts;
         ServerXml serverXml;
         String pidFile;

@@ -22,7 +22,7 @@ import com.google.gson.annotations.Expose;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.configuration.adapter.VersionTypeAdapter;
-import net.oneandone.stool.util.PortsList;
+import net.oneandone.stool.util.Ports;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
@@ -34,13 +34,13 @@ import java.util.Map;
 
 public class StoolConfiguration extends BaseConfiguration {
     @Expose
-    public PortsList.PortData portPrefixOverview;
+    public Ports.PortData portPrefixOverview;
 
     @Expose
-    public PortsList.PortData portPrefixFirst;
+    public Ports.PortData portPrefixFirst;
 
     @Expose
-    public PortsList.PortData portPrefixLast;
+    public Ports.PortData portPrefixLast;
     /**
      * ps1 shell string
      */
@@ -143,9 +143,9 @@ public class StoolConfiguration extends BaseConfiguration {
     public int autoRemove;
 
     public StoolConfiguration() {
-        portPrefixOverview = new PortsList.PortData(900); // avoid clash with default tomcat port 8080
+        portPrefixOverview = new Ports.PortData(900); // avoid clash with default tomcat port 8080
         portPrefixFirst = portPrefixOverview.next();
-        portPrefixLast = new PortsList.PortData(999);
+        portPrefixLast = new Ports.PortData(999);
         baseHeap = 200;
         basePerm = 60;
         prompt = "{\\+} \\u@\\h:\\w$ ";
@@ -194,7 +194,7 @@ public class StoolConfiguration extends BaseConfiguration {
           .registerTypeAdapter(FileNode.class, new FileNodeTypeAdapter(world))
           .registerTypeAdapter(Version.class, new VersionTypeAdapter())
           .registerTypeAdapter(Until.class, new UntilTypeAdapter())
-          .registerTypeAdapter(PortsList.PortData.class, new PortsList.PortData.PortsTypeAdapter())
+          .registerTypeAdapter(Ports.PortData.class, new Ports.PortData.PortsTypeAdapter())
           .excludeFieldsWithoutExposeAnnotation()
           .disableHtmlEscaping()
           .setPrettyPrinting()

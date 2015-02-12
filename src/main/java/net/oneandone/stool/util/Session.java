@@ -329,8 +329,8 @@ public class Session {
     //--
 
     //-- disk space (all values in MB
-    public PortsList.PortData freePorts(PortsList used, PortsList.PortData start) throws IOException {
-        PortsList.PortData current;
+    public Ports.PortData freePorts(Ports used, Ports.PortData start) throws IOException {
+        Ports.PortData current;
 
         if (!start.within(stoolConfiguration.portPrefixFirst, stoolConfiguration.portPrefixLast)) {
             throw new IllegalArgumentException("ports out of range: " + start);

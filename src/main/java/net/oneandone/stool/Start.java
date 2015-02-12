@@ -19,7 +19,7 @@ import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Macros;
-import net.oneandone.stool.util.PortsList;
+import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
@@ -80,7 +80,7 @@ public class Start extends StageCommand {
     @Override
     public void doInvoke(Stage stage) throws Exception {
         FileNode download;
-        PortsList allocated;
+        Ports allocated;
 
         serviceWrapperOpt(stage.config().tomcatService);
         download = tomcatOpt(stage.config().tomcatVersion);
@@ -190,7 +190,7 @@ public class Start extends StageCommand {
         console.info.println("downloaded: " + dest + " from " + url);
     }
 
-    public void copyTemplate(Stage stage, PortsList ports) throws Exception {
+    public void copyTemplate(Stage stage, Ports ports) throws Exception {
         FileNode shared;
 
         shared = stage.shared();
@@ -271,7 +271,7 @@ public class Start extends StageCommand {
         src.deleteTree();
     }
 
-    private Map<String, String> variables(Stage stage, PortsList ports) {
+    private Map<String, String> variables(Stage stage, Ports ports) {
         Map<String, String> result;
 
         result = new HashMap<>();
@@ -280,7 +280,7 @@ public class Start extends StageCommand {
         return result;
     }
 
-    private static String wrapperJavaAdditional(PortsList ports, Stage stage, boolean debug, boolean suspend, Macros macros) {
+    private static String wrapperJavaAdditional(Ports ports, Stage stage, boolean debug, boolean suspend, Macros macros) {
         String tomcatOpts;
         List<String> opts;
         StringBuilder result;

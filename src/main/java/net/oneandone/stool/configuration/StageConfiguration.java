@@ -19,7 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
-import net.oneandone.stool.util.PortsList;
+import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Role;
 import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.Node;
@@ -166,7 +166,7 @@ public class StageConfiguration extends BaseConfiguration {
     public static Gson gson() {
         return new GsonBuilder()
           .registerTypeAdapter(Until.class, new UntilTypeAdapter())
-          .registerTypeAdapter(PortsList.PortData.class, new PortsList.PortData.PortsTypeAdapter())
+          .registerTypeAdapter(Ports.PortData.class, new Ports.PortData.PortsTypeAdapter())
           .setPrettyPrinting()
           .create();
     }

@@ -48,7 +48,7 @@ public class ServerXml {
     }
 
     /** replace existing hosts with hosts from parameter */
-    public void configure(Map<String, String> hosts, PortsList allocated, KeyStore keystore,
+    public void configure(Map<String, String> hosts, Ports allocated, KeyStore keystore,
                           String mode, boolean cookies, String hostname, boolean vhosts) throws XmlException {
         Element template;
         Element service;
@@ -111,7 +111,7 @@ public class ServerXml {
     private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";
     private static final String HTTPS_PATH = "Connector[starts-with(@secure,'true')]";
 
-    private void connectors(Element service, PortsList ports, int idx, KeyStore keyStore) {
+    private void connectors(Element service, Ports ports, int idx, KeyStore keyStore) {
         int tomcatHttpPort;
         int tomcatSecureHttpPort;
         String ip;
@@ -180,7 +180,7 @@ public class ServerXml {
 
     }
 
-    public void contexts(Element service, String mode, boolean cookies, PortsList ports, int idx) throws XmlException {
+    public void contexts(Element service, String mode, boolean cookies, Ports ports, int idx) throws XmlException {
         Element context;
         Element manager;
         Element parameter;
