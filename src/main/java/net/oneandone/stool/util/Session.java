@@ -366,20 +366,14 @@ public class Session {
 
     //--
 
-    public Ports createPortsForName(String name) throws IOException {
-        return createPorts(Ports.forName(name, stoolConfiguration.portPrefixFirst, stoolConfiguration.portPrefixLast));
-    }
-
     //-- disk space (all values in MB
-    public Ports createPorts(Ports portsStart) throws IOException {
-        List<Ports> used;
+    public Ports createPorts(List<Ports> used, Ports start) throws IOException {
         Ports current;
 
-        if (!portsStart.within(stoolConfiguration.portPrefixFirst, stoolConfiguration.portPrefixLast)) {
-            throw new IllegalArgumentException("ports out of range: " + portsStart);
+        if (!start.within(stoolConfiguration.portPrefixFirst, stoolConfiguration.portPrefixLast)) {
+            throw new IllegalArgumentException("ports out of range: " + start);
         }
-        used = usedPorts();
-        current = portsStart;
+        current = start;
         do {
             if (!used.contains(current)) {
                 // port prefix isn't used by another stage
@@ -393,11 +387,11 @@ public class Session {
             } else {
                 current = current.next();
             }
-        } while (!current.equals(portsStart));
-        throw new IOException("cannot allocate port prefix");
+        } while (!current.equals(start));
+        throw new IOException("cannot allocate ports");
     }
 
-    private List<Ports> usedPorts() throws IOException {
+    public List<Ports> usedPorts() throws IOException {
         ArrayList<Ports> used;
 
         used = new ArrayList<>();

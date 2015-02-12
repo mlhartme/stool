@@ -322,14 +322,21 @@ public abstract class Stage {
     public List<Ports> allocatePorts() throws IOException {
         List<Ports> existing;
         List<Ports> result;
+        List<Ports> used;
+        Ports firstTry;
 
         existing = Ports.load(wrapper);
         result = new ArrayList<>();
+        used = null;
         for (String host : selectedHosts().keySet()) {
             if (result.size() < existing.size()) {
                 result.add(existing.get(result.size()));
             } else {
-                result.add(session.createPortsForName(host));
+                if (used == null) {
+                    used = session.usedPorts();
+                }
+                firstTry = Ports.forName(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast);
+                result.add(session.createPorts(used, firstTry));
             }
         }
         Ports.save(wrapper, result);
@@ -678,9 +685,11 @@ public abstract class Stage {
             return buildstats;
         }
     }
+
     public boolean isOverview() {
         return false;
     }
+
     public BuildStats loadBuildStats() throws IOException {
         FileNode buildstatFile = shared().join("buildstats.json");
         if (buildstatFile.exists() && !buildstatFile.readString().equals("")) {

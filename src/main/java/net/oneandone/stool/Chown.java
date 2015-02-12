@@ -54,6 +54,7 @@ public class Chown extends StageCommand {
         this.force = force;
         this.overview = overview;
     }
+
     @Remaining
     public void user(String user) {
         if (userArgument != null) {
@@ -64,6 +65,7 @@ public class Chown extends StageCommand {
         }
         this.userArgument = user;
     }
+
     @Override
     public void doInvoke(Stage stage) throws Exception {
         String user;
