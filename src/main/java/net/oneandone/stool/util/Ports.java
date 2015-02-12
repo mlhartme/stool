@@ -1,8 +1,6 @@
 package net.oneandone.stool.util;
 
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -11,6 +9,37 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Ports {
+    // TODO: ugly reference to stage ...
+    public static Ports forStage(Stage stage) throws IOException {
+        Session session;
+        Ports existing;
+        Ports result;
+        Ports used;
+
+        session = stage.session;
+        result = new Ports();
+        if (stage.isOverview()) {
+            result.add(session.stoolConfiguration.portPrefixOverview);
+        } else {
+            existing = Ports.load(stage.wrapper);
+            used = null;
+            for (String host : stage.selectedHosts().keySet()) {
+                if (result.size() < existing.size()) {
+                    result.add(existing, result.size());
+                } else {
+                    if (used == null) {
+                        used = Ports.used(session.getWrappers());
+                    }
+                    result.add(used.notContained(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast).prefix);
+                }
+            }
+        }
+        // also save for overview stage - to have the ports read e.g. for status
+        result.save(stage.wrapper);
+        return result;
+    }
+
+
     public static Ports used(List<FileNode> wrappers) throws IOException {
         Ports result;
 
@@ -143,7 +172,7 @@ public class Ports {
 
     //--
 
-    public static class PortData {
+    private static class PortData {
         public static PortData forName(String name, PortData first, PortData last) {
             return new PortData((Math.abs(name.hashCode()) % (last.prefix - first.prefix + 1)) + first.prefix);
         }

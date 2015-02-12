@@ -127,7 +127,7 @@ public abstract class Stage {
 
     //--
 
-    protected final Session session;
+    public final Session session;
 
     //-- main methods
     protected final String url;
@@ -288,7 +288,7 @@ public abstract class Stage {
     /** return hostname -> docroot mapping, where hostname is artifactId + "." + stageName, to uniquely identify the host */
     protected abstract Map<String, String> hosts() throws IOException;
 
-    protected Map<String, String> selectedHosts() throws IOException {
+    public Map<String, String> selectedHosts() throws IOException {
         Map<String, String> hosts;
         Iterator<Map.Entry<String, String>> iter;
         List<String> selected;
@@ -311,33 +311,6 @@ public abstract class Stage {
 
     public Ports loadPorts() throws IOException {
         return Ports.load(wrapper);
-    }
-
-    public Ports allocatePorts() throws IOException {
-        Ports existing;
-        Ports result;
-        Ports used;
-
-        result = new Ports();
-        if (isOverview()) {
-            result.add(session.stoolConfiguration.portPrefixOverview);
-        } else {
-            existing = Ports.load(wrapper);
-            used = null;
-            for (String host : selectedHosts().keySet()) {
-                if (result.size() < existing.size()) {
-                    result.add(existing, result.size());
-                } else {
-                    if (used == null) {
-                        used = Ports.used(session.getWrappers());
-                    }
-                    result.add(used.notContained(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast).prefix);
-                }
-            }
-        }
-        // also save for overview stage - to have the ports read e.g. for status
-        result.save(wrapper);
-        return result;
     }
 
     public Map<String, String> urls() throws IOException, SAXException {
