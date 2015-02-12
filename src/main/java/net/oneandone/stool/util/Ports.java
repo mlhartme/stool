@@ -79,26 +79,27 @@ public class Ports {
     }
 
     public int stop() {
-        return get(0).tomcatStop();
+        return get(0).stop();
     }
 
     public int debug() {
-        return get(0).debugPort();
+        return get(0).debug();
     }
 
     public int http(int idx) {
-        return list.get(idx).tomcatHttp();
+        return list.get(idx).http();
     }
 
     public int https(int idx) {
-        return list.get(idx).tomcatHttps();
+        return list.get(idx).https();
     }
 
-    public Data get(int idx) {
+
+    private Data get(int idx) {
         return list.get(idx);
     }
 
-    public void add(Ports ports, int idx) {
+    private void add(Ports ports, int idx) {
         list.add(ports.list.get(idx));
     }
 
@@ -177,7 +178,6 @@ public class Ports {
             return new Data((Math.abs(name.hashCode()) % (last.prefix - first.prefix + 1)) + first.prefix);
         }
 
-        // TODO: private
         public final int prefix;
 
         public Data(int prefix) {
@@ -188,19 +188,19 @@ public class Ports {
             return new Data(prefix + 1);
         }
 
-        private int tomcatHttp() {
+        public int http() {
             return prefix * 10;
         }
 
-        private int tomcatStop() {
-            return prefix * 10 + 1;
-        }
-
-        private int tomcatHttps() {
+        public int https() {
             return prefix * 10 + 3;
         }
 
-        private int debugPort() {
+        public int stop() {
+            return prefix * 10 + 1;
+        }
+
+        private int debug() {
             return prefix * 10 + 5;
         }
 
@@ -240,10 +240,10 @@ public class Ports {
             // convert portPrefix (three digits) into a proper port (add fourth digit aka suffix)
             List<Integer> portsToCheck = new ArrayList<>();
             portsToCheck.add(jmx());
-            portsToCheck.add(debugPort());
-            portsToCheck.add(tomcatStop());
-            portsToCheck.add(tomcatHttp());
-            portsToCheck.add(tomcatHttps());
+            portsToCheck.add(debug());
+            portsToCheck.add(stop());
+            portsToCheck.add(http());
+            portsToCheck.add(https());
 
             for (int portNumber : portsToCheck) {
                 socket = null;
