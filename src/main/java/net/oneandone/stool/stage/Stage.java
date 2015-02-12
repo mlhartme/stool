@@ -37,6 +37,7 @@ import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
+import net.oneandone.sushi.xml.XmlException;
 import org.apache.maven.model.Build;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
@@ -290,7 +291,7 @@ public abstract class Stage {
         return shared().join("run", name);
     }
 
-    protected Map<String, String> removeSelected(Map<String, String> hosts) {
+    protected Map<String, String> retainSelected(Map<String, String> hosts) {
         Iterator<Map.Entry<String, String>> iter;
         List<String> selected;
         String hostname;
@@ -320,9 +321,15 @@ public abstract class Stage {
     }
 
     //--
+
     public Map<String, String> urls(ServerXml serverXml) throws IOException {
-        return serverXml.allUrls(configuration.suffix);
+        try {
+            return serverXml.allUrls(configuration.suffix);
+        } catch (XmlException e) {
+            throw new IOException("cannot read server.xml: " + e.getMessage(), e);
+        }
     }
+
     /** @return null when not supported. Otherwise, file must not be null, but does not have to exist. */
     public abstract List<DefaultArtifact> scanWars() throws IOException;
 
@@ -353,9 +360,7 @@ public abstract class Stage {
         // }
 
         serverXml = ServerXml.load(serverXml());
-        serverXml.hosts(removeSelected(hosts()));
-        serverXml.connectors(configuration.ports, keystore());
-        serverXml.contexts(configuration.mode, configuration.cookies, getPorts());
+        serverXml.configure(retainSelected(hosts()), config().ports, keystore(), config().mode, config().cookies);
         serverXml.save(serverXml());
         if (session.stoolConfiguration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
@@ -441,7 +446,7 @@ public abstract class Stage {
         }
     }
 
-    protected void printAppUrls(Console console, ServerXml serverXml) throws IOException {
+    protected void printAppUrls(Console console, ServerXml serverXml) throws XmlException {
         console.info.println("Applications available:");
         Map<String, String> appUrls = serverXml.allUrls(configuration.suffix);
         for (String appUrl : appUrls.values()) {

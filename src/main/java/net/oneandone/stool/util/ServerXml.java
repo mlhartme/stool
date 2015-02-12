@@ -25,27 +25,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class ServerXml {
-    private static final String XPATH_EXPR_CONNECTOR_HTTP = "/Server/Service/Connector[starts-with(@protocol,'HTTP')]";
-    private static final String XPATH_EXPR_CONNECTOR_AJP = "/Server/Service/Connector[starts-with(@protocol,'AJP')]";
-    private static final String XPATH_EXPR_CONNECTOR_HTTPS = "/Server/Service/Connector[starts-with(@secure,'true')]";
-    private static final String XPATH_EXPR_ENGINE = "/Server/Service/Engine";
-    private static final String XPATH_EXPR_HOSTS = "/Server/Service/Engine/Host";
-    private static final String XPATH_EXPR_ROOT_ELEM = "/Server";
-    private static final String XPATH_ATTR_PORT = "port";
-    private static final String XPATH_ATTR_NAME = "name";
-    private static final String XPATH_ATTR_VALUE = "value";
-    private final Xml xml;
+    private final Selector selector;
     private final Document document;
 
     public ServerXml(Xml xml, Document document) {
-        this.xml = xml;
+        this.selector = xml.getSelector();
         this.document = document;
     }
 
@@ -59,95 +48,108 @@ public class ServerXml {
     }
 
     /** replace existing hosts with hosts from parameter */
-    public void hosts(Map<String, String> hosts) throws XmlException {
-        Element engine;
-        Element host;
-        Element context;
-        String docbase;
-
+    public void configure(Map<String, String> hosts, Ports ports, KeyStore keystore, String mode, boolean cookies) throws XmlException {
+        Element template;
+        Element service;
 
         if (hosts.isEmpty()) {
             throw new ArgumentException("no hosts match your selection");
         }
-        engine = xml.getSelector().element(document, XPATH_EXPR_ENGINE);
-        engine.setAttribute("defaultHost", hosts.entrySet().iterator().next().getKey());
-        for (Element child : xml.getSelector().elements(document, XPATH_EXPR_HOSTS)) {
-            child.getParentNode().removeChild(child);
-        }
+        document.getDocumentElement().setAttribute("port", Integer.toString(ports.tomcatStop()));
+        template = selector.element(document, "Server/Service");
         for (Map.Entry<String, String> entry : hosts.entrySet()) {
-            host = document.createElement("Host");
-            host.setAttribute(XPATH_ATTR_NAME, entry.getKey());
-            docbase = entry.getValue();
-            if (docbase.endsWith("/ROOT")) { // TODO: special case for artifact stages that need unpacking ...
-                host.setAttribute("appBase", docbase.substring(0, docbase.length() - 5));
-                docbase = "ROOT";
-            } else {
-                // to force tomcat 6 not to load catalina base and its subdirectory
-                host.setAttribute("appBase", "noSuchDirectory");
-            }
-            host.setAttribute("autoDeploy", "false");
-            engine.appendChild(host);
-            context = document.createElement("Context");
-            context.setAttribute("allowLinking", "true"); // for Mamba  -- TODO
-            context.setAttribute("path", "");
-            context.setAttribute("docBase", docbase);
-            host.appendChild(context);
+            service = (Element) template.cloneNode(true);
+            document.getDocumentElement().appendChild(service);
+            service(service, entry.getKey(), entry.getValue());
+            connectors(service, ports, keystore);
+            contexts(service, mode, cookies, ports);
+            ports = ports.next(); // TODO
         }
+        template.getParentNode().removeChild(template);
     }
 
-    public void connectors(Ports ports, KeyStore keyStore) throws IOException {
+    private void service(Element service, String hostName, String docbase) throws XmlException {
+        Element engine;
+        Element host;
+        Element context;
+
+        service.setAttribute("name", hostName);
+        engine = selector.element(service, "Engine");
+        engine.setAttribute("defaultHost", hostName);
+        for (Element child : selector.elements(service, "Engine/Host")) {
+            child.getParentNode().removeChild(child);
+        }
+        host = service.getOwnerDocument().createElement("Host");
+        host.setAttribute("name", hostName);
+        if (docbase.endsWith("/ROOT")) { // TODO: special case for artifact stages that need unpacking ...
+            host.setAttribute("appBase", docbase.substring(0, docbase.length() - 5));
+            docbase = "ROOT";
+        } else {
+            // to force tomcat 6 not to load catalina base and its subdirectory
+            host.setAttribute("appBase", "noSuchDirectory");
+        }
+        host.setAttribute("autoDeploy", "false");
+        engine.appendChild(host);
+        context = service.getOwnerDocument().createElement("Context");
+        context.setAttribute("allowLinking", "true"); // for Mamba  -- TODO
+        context.setAttribute("path", "");
+        context.setAttribute("docBase", docbase);
+        host.appendChild(context);
+    }
+
+    private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";
+    private static final String HTTPS_PATH = "Connector[starts-with(@secure,'true')]";
+
+    private void connectors(Element service, Ports ports, KeyStore keyStore) {
         int tomcatHttpPort;
         int tomcatSecureHttpPort;
-        Selector selector;
         String ip;
 
         ip = "0.0.0.0";
         tomcatHttpPort = ports.tomcatHttp();
         tomcatSecureHttpPort = ports.tomcatHttps();
-        selector = xml.getSelector();
         try {
-            connectorEnable(XPATH_EXPR_CONNECTOR_HTTP, ip, tomcatHttpPort, tomcatSecureHttpPort);
-            connectorDisable(XPATH_EXPR_CONNECTOR_AJP);
+            connectorDisable(service, "Connector[starts-with(@protocol,'AJP')]");
+            connectorEnable(service, HTTP_PATH, ip, tomcatHttpPort, tomcatSecureHttpPort);
             if (keyStore != null) {
-                sslConnector(tomcatSecureHttpPort, ip, keyStore);
+                sslConnector(service, HTTPS_PATH, tomcatSecureHttpPort, ip, keyStore);
             } else {
-                connectorDisable(XPATH_EXPR_CONNECTOR_HTTPS);
+                connectorDisable(service, HTTPS_PATH);
             }
-            selector.element(document, XPATH_EXPR_ROOT_ELEM).setAttribute(XPATH_ATTR_PORT, Integer.toString(ports.tomcatStop()));
         } catch (XmlException e) {
             throw new RuntimeException("unexpected xml exception", e);
         }
     }
 
-    private void connectorEnable(String path, String ip, int port, int sslport) throws XmlException {
+    private void connectorEnable(Element service, String path, String ip, int port, int sslport) throws XmlException {
         Element element;
 
-        element = xml.getSelector().element(document, path);
-        element.setAttribute(XPATH_ATTR_PORT, Integer.toString(port));
+        element = selector.element(service, path);
+        element.setAttribute("port", Integer.toString(port));
         element.setAttribute("address", ip);
         element.setAttribute("useBodyEncodingForURI", "true");
         element.setAttribute("redirectPort", Integer.toString(sslport));
     }
 
-    private void connectorDisable(String path) throws XmlException {
+    private void connectorDisable(Element service, String path) throws XmlException {
         Element element;
 
-        element = xml.getSelector().elementOpt(document, path);
+        element = selector.elementOpt(service, path);
         if (element != null) {
             element.getParentNode().removeChild(element);
         }
     }
 
 
-    private void sslConnector(int port, String ip, KeyStore keystore) {
+    private void sslConnector(Element service, String path, int port, String ip, KeyStore keystore) throws XmlException {
         Element element;
 
-        try {
-            element = xml.getSelector().element(document, XPATH_EXPR_CONNECTOR_HTTPS);
-        } catch (XmlException e) {
-            element = document.createElement("Connector");
+        element = selector.elementOpt(service, path);
+        if (element == null) {
+            element = service.getOwnerDocument().createElement("Connector");
+            service.appendChild(element);
         }
-        element.setAttribute(XPATH_ATTR_PORT, Integer.toString(port));
+        element.setAttribute("port", Integer.toString(port));
         element.setAttribute("SSLEnabled", "true");
         element.setAttribute("address", ip);
         element.setAttribute("secure", "true");
@@ -162,63 +164,38 @@ public class ServerXml {
         element.setAttribute("keystoreFile", keystore.file());
         element.setAttribute("keystoreType", keystore.type());
 
-
         element.removeAttribute("SSLCertificateFile");
         element.removeAttribute("SSLCertificateKeyFile");
 
-        document.getElementsByTagName("Service").item(0).appendChild(element);
     }
 
-    public void applogs(String applogsOld, String applogsNew) throws IOException {
-        Selector selector;
-        String value;
-
-        selector = xml.getSelector();
-        for (Element element : selector.elements(document, "/Server/Service/Engine/Host/Context/Parameter[@name='logroot']")) {
-            // handle /private/var vs /var issue on Mac OS:
-            value = element.getAttribute(XPATH_ATTR_VALUE);
-            value = new File(value).getCanonicalPath();
-            applogsOld = new File(applogsOld).getCanonicalPath();
-            if (!value.startsWith(applogsOld)) {
-                throw new IllegalStateException(value + " must start with " + applogsOld);
-            }
-            element.setAttribute(XPATH_ATTR_VALUE, applogsNew + value.substring(applogsOld.length()));
-        }
-    }
-
-    public void contexts(String mode, boolean cookies, Ports ports) throws IOException {
-        Selector selector;
+    public void contexts(Element service, String mode, boolean cookies, Ports ports) throws XmlException {
         Element context;
         Element manager;
         Element parameter;
 
-        selector = xml.getSelector();
-        try {
-            for (Element host : selector.elements(document, "/Server/Service/Engine/Host")) {
-                context = selector.element(host, "Context");
-                context.setAttribute("cookies", Boolean.toString(cookies));
-                if (selector.elementOpt(context, "Manager") == null) {
-                    // disable session persistence
-                    manager = document.createElement("Manager");
-                    manager.setAttribute("pathname", "");
-                    context.appendChild(manager);
-                }
-                if (!host.getAttribute(XPATH_ATTR_NAME).startsWith("cms.")) {
-                    parameter(context, "mode").setAttribute(XPATH_ATTR_VALUE, mode);
-                    parameter = parameterOpt(context, "editor.location");
-                    if (parameter != null) {
-                        parameter.setAttribute(XPATH_ATTR_VALUE, parameter.getAttribute(XPATH_ATTR_VALUE)
-                          .replace(":8080", ":" + ports.tomcatHttp()));
-                    }
+        for (Element host : selector.elements(service, "Engine/Host")) {
+            context = selector.element(host, "Context");
+            context.setAttribute("cookies", Boolean.toString(cookies));
+            if (selector.elementOpt(context, "Manager") == null) {
+                // disable session persistence
+                manager = service.getOwnerDocument().createElement("Manager");
+                manager.setAttribute("pathname", "");
+                context.appendChild(manager);
+            }
+            if (!host.getAttribute("name").startsWith("cms.")) {
+                parameter(context, "mode").setAttribute("value", mode);
+                parameter = parameterOpt(context, "editor.location");
+                if (parameter != null) {
+                    parameter.setAttribute("value", parameter.getAttribute("value")
+                      .replace(":8080", ":" + ports.tomcatHttp()));
                 }
             }
-        } catch (XmlException e) {
-            throw new IOException("unexpected xml exception", e);
         }
     }
 
     private Element parameterOpt(Element context, String name) throws XmlException {
-        return xml.getSelector().elementOpt(context, "Parameter[@name='" + name + "']");
+        return selector.elementOpt(context, "Parameter[@name='" + name + "']");
     }
 
     private Element parameter(Element context, String name) throws XmlException {
@@ -226,8 +203,8 @@ public class ServerXml {
 
         parameter = parameterOpt(context, name);
         if (parameter == null) {
-            parameter = document.createElement("Parameter");
-            parameter.setAttribute(XPATH_ATTR_NAME, name);
+            parameter = context.getOwnerDocument().createElement("Parameter");
+            parameter.setAttribute("name", name);
             parameter.setAttribute("override", "false");
             context.appendChild(parameter);
         }
@@ -236,84 +213,37 @@ public class ServerXml {
 
     //--
 
-    public List<Element> getHosts() throws IOException {
-        return xml.getSelector().elements(document, ServerXml.XPATH_EXPR_HOSTS);
-    }
+    public Map<String, String> allUrls(String suffix) throws XmlException {
+        Map<String, String> result;
+        Element host;
+        String hostname;
+        String name;
+        String port;
 
-    private Map<String, String> getAppUrls() throws IOException {
-        Map<String, String> appUrls;
-        String artifactId;
-        String appUrl;
-        appUrls = new TreeMap<>();
-        for (Element elem : getHosts()) {
-            appUrl = elem.getAttribute(XPATH_ATTR_NAME);
-            if (appUrl != null && !appUrl.isEmpty() && appUrl.indexOf('.') != -1) {
-                artifactId = appUrl.substring(0, appUrl.indexOf('.'));
-                appUrls.put(artifactId, appUrl);
+        result = new TreeMap<>();
+        for (Element service : selector.elements(document.getDocumentElement(), "Service")) {
+            host = selector.element(service, "Engine/Host");
+            hostname = host.getAttribute("name");
+            name = hostname.substring(0, hostname.indexOf('.'));
+            port = port(service, HTTP_PATH);
+            if (port != null) {
+                result.put(name, "http://" + hostname + ":" + port + suffix);
+            }
+            port = port(service, HTTPS_PATH);
+            if (port != null) {
+                result.put(name + " SSL", "https://" + hostname + ":" + port + suffix);
             }
         }
-        return appUrls;
+        return result;
     }
 
-    public Map<String, String> allUrls(String suffix) throws IOException {
-        Map<String, String> urls;
+    private String port(Element service, String connectorPath) throws XmlException {
+        Element connector;
 
-        urls = new TreeMap<>();
-        urls.putAll(httpUrls(suffix));
-        urls.putAll(secureHttpUrls(suffix));
-        return urls;
-    }
-
-    public Map<String, String> secureHttpUrls(String suffix) throws IOException {
-        Map<String, String> newResults;
-        Map<String, String> oldResults;
-        newResults = new TreeMap<>();
-        try {
-            oldResults = urls("https", secureHttpPort(), suffix);
-        } catch (XmlException e) {
-            oldResults = new TreeMap<>();
+        connector = selector.elementOpt(service, connectorPath);
+        if (connector == null) {
+            return null;
         }
-        for (Map.Entry<String, String> entry : oldResults.entrySet()) {
-            newResults.put(entry.getKey() + " SSL", entry.getValue());
-        }
-
-        return newResults;
-
+        return connector.getAttribute("port");
     }
-
-    public Map<String, String> httpUrls(String suffix) throws IOException {
-        try {
-            return urls("http", httpPort(), suffix);
-        } catch (XmlException e) {
-            return new TreeMap<>();
-        }
-    }
-
-    public Map<String, String> urls(String protocol, String port, String suffix) throws IOException {
-        Map<String, String> urls;
-        StringBuilder builder;
-        urls = new TreeMap<>();
-
-        for (Map.Entry<String, String> url : getAppUrls().entrySet()) {
-            builder = new StringBuilder(protocol);
-            builder.append("://").append(url.getValue()).append(":").append(port).append(suffix);
-            urls.put(url.getKey(), builder.toString());
-        }
-        return urls;
-    }
-
-    public String secureHttpPort() throws XmlException {
-        Element element;
-        element = xml.getSelector().element(document, XPATH_EXPR_CONNECTOR_HTTPS);
-        return element.getAttribute(XPATH_ATTR_PORT);
-    }
-
-    public String httpPort() throws XmlException {
-        Element element;
-        element = xml.getSelector().element(document, XPATH_EXPR_CONNECTOR_HTTP);
-        return element.getAttribute(XPATH_ATTR_PORT);
-
-    }
-
-
 }
