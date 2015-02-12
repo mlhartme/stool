@@ -63,7 +63,7 @@ public class ServerXml {
         if (hosts.size() != allocated.size()) {
             throw new IllegalArgumentException(hosts.size() + " vs " + allocated.size());
         }
-        document.getDocumentElement().setAttribute("port", Integer.toString(allocated.get(0).tomcatStop()));
+        document.getDocumentElement().setAttribute("port", Integer.toString(allocated.stop()));
         template = selector.element(document, "Server/Service");
         i = 0;
         for (Map.Entry<String, String> entry : hosts.entrySet()) {

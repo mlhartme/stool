@@ -41,6 +41,18 @@ public class PortsList {
         return list.size();
     }
 
+    public int jmx() {
+        return get(0).jmx();
+    }
+
+    public int stop() {
+        return get(0).tomcatStop();
+    }
+
+    public int debug() {
+        return get(0).debugPort();
+    }
+
     public Ports get(int idx) {
         return list.get(idx);
     }
@@ -67,6 +79,12 @@ public class PortsList {
             for (String line : file.readLines()) {
                 add(new Ports(Integer.parseInt(line.trim())));
             }
+        }
+    }
+
+    public void checkFree() throws IOException {
+        for (Ports ports : list) {
+            ports.checkFree();
         }
     }
 

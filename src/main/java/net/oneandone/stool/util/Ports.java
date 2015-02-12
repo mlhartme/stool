@@ -21,6 +21,7 @@ import com.google.gson.stream.JsonWriter;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +87,45 @@ public class Ports {
     }
 
     //--
+    /**
+     * See http://stackoverflow.com/questions/434718/sockets-discover-port-availability-using-java
+     */
+    public void checkFree() throws IOException {
+        boolean available;
+        ServerSocket socket;
+
+        // convert portPrefix (three digits) into a proper port (add fourth digit aka suffix)
+        List<Integer> portsToCheck = new ArrayList<>();
+        portsToCheck.add(jmx());
+        portsToCheck.add(debugPort());
+        portsToCheck.add(tomcatStop());
+        portsToCheck.add(tomcatHttp());
+        portsToCheck.add(tomcatHttps());
+
+        for (int portNumber : portsToCheck) {
+            socket = null;
+            available = false;
+            try {
+                socket = new ServerSocket(portNumber);
+                available = true;
+            } catch (IOException e) {
+                break;
+            } finally {
+                // Clean up
+                if (socket != null) {
+                    try {
+                        socket.close();
+                    } catch (IOException e) {
+                        /* should not be thrown */
+                        e.printStackTrace();
+                    }
+                }
+            }
+            if (!available) {
+                throw new IOException("portPrefix already in used: " + prefix);
+            }
+        }
+    }
 
     // TODO: for stool config ...
     public static class PortsTypeAdapter extends TypeAdapter<Ports> {

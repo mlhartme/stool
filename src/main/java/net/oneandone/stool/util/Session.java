@@ -181,42 +181,7 @@ public class Session {
     }
 
     //-- environment handling
-    /**
-     * Open sockets to see if standard apache/tomcat ports are already taken by another process.
-     *
-     * See http://stackoverflow.com/questions/434718/sockets-discover-port-availability-using-java
-     * TODO: Better exception message or magix to get a new port
-     */
-    private static boolean areStandardPortsAvailableFor(Ports ports) {
-        boolean portsAvalaible = true;
-        ServerSocket socket = null;
 
-        // convert portPrefix (three digits) into a proper port (add fourth digit aka suffix)
-        List<Integer> portsToCheck = new ArrayList<>();
-        portsToCheck.add(ports.tomcatStop());
-        portsToCheck.add(ports.tomcatHttp());
-
-        for (int portNumber : portsToCheck) {
-            try {
-                socket = new ServerSocket(portNumber);
-            } catch (IOException e) {
-                portsAvalaible = false;
-                break;
-            } finally {
-                // Clean up
-                if (socket != null) {
-                    try {
-                        socket.close();
-                    } catch (IOException e) {
-                        /* should not be thrown */
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-
-        return portsAvalaible;
-    }
     public static int memTotal() throws IOException {
         long result;
 
@@ -377,9 +342,7 @@ public class Session {
         do {
             if (!used.contains(current)) {
                 // port prefix isn't used by another stage
-                if (!areStandardPortsAvailableFor(current)) {
-                    throw new IllegalStateException("port occupied: " + current);
-                }
+                current.checkFree();
                 return current;
             }
             if (current.equals(stoolConfiguration.portPrefixLast)) {

@@ -90,7 +90,7 @@ public class Start extends StageCommand {
         checkCommitted(stage);
         checkNotStarted(stage);
         allocated = stage.allocatePorts();
-        copyTemplate(stage, allocated.get(0));
+        copyTemplate(stage, allocated);
         copyTomcatBase(download, stage.shared(), stage.config().tomcatVersion);
         if (session.bedroom.stages().contains(stage.getName())) {
             console.info.println("leaving sleeping state");
@@ -98,7 +98,7 @@ public class Start extends StageCommand {
         }
         stage.start(console, allocated);
         if (debug) {
-            console.info.println("debugging enabled on port " + allocated.get(0).debugPort());
+            console.info.println("debugging enabled on port " + allocated.debug());
         }
         ping(stage);
         timeEnd();
@@ -191,7 +191,7 @@ public class Start extends StageCommand {
         console.info.println("downloaded: " + dest + " from " + url);
     }
 
-    public void copyTemplate(Stage stage, Ports ports) throws Exception {
+    public void copyTemplate(Stage stage, PortsList ports) throws Exception {
         FileNode shared;
 
         shared = stage.shared();
@@ -272,7 +272,7 @@ public class Start extends StageCommand {
         src.deleteTree();
     }
 
-    private Map<String, String> variables(Stage stage, Ports ports) {
+    private Map<String, String> variables(Stage stage, PortsList ports) {
         Map<String, String> result;
 
         result = new HashMap<>();
@@ -281,7 +281,7 @@ public class Start extends StageCommand {
         return result;
     }
 
-    private static String wrapperJavaAdditional(Ports ports, Stage stage, boolean debug, boolean suspend, Macros macros) {
+    private static String wrapperJavaAdditional(PortsList ports, Stage stage, boolean debug, boolean suspend, Macros macros) {
         String tomcatOpts;
         List<String> opts;
         StringBuilder result;
@@ -313,7 +313,7 @@ public class Start extends StageCommand {
             opts.add("-Xdebug");
             opts.add("-Xnoagent");
             opts.add("-Djava.compiler=NONE");
-            opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=" + ports.debugPort() + ",suspend=" + (suspend ? "y" : "n"));
+            opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=" + ports.debug() + ",suspend=" + (suspend ? "y" : "n"));
         }
         i = 1;
         result = new StringBuilder();

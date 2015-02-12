@@ -310,14 +310,8 @@ public abstract class Stage {
         return hosts;
     }
 
-    public Ports loadMainPorts() throws IOException {
-        PortsList result;
-
-        result = PortsList.load(wrapper);
-        if (result.size() == 0) {
-            throw new IllegalStateException();
-        }
-        return result.get(0);
+    public PortsList loadPorts() throws IOException {
+        return PortsList.load(wrapper);
     }
 
     public PortsList allocatePorts() throws IOException {
