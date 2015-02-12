@@ -26,6 +26,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -48,22 +49,28 @@ public class ServerXml {
     }
 
     /** replace existing hosts with hosts from parameter */
-    public void configure(Map<String, String> hosts, Ports ports, KeyStore keystore, String mode, boolean cookies) throws XmlException {
+    public void configure(Map<String, String> hosts, List<Ports> allocated, KeyStore keystore, String mode, boolean cookies) throws XmlException {
         Element template;
         Element service;
+        Ports ports;
+        int i;
 
         if (hosts.isEmpty()) {
             throw new ArgumentException("no hosts match your selection");
         }
-        document.getDocumentElement().setAttribute("port", Integer.toString(ports.tomcatStop()));
+        if (hosts.size() > allocated.size()) {
+            throw new IllegalArgumentException(hosts.size() + " vs " + allocated.size());
+        }
+        document.getDocumentElement().setAttribute("port", Integer.toString(allocated.get(0).tomcatStop()));
         template = selector.element(document, "Server/Service");
+        i = 0;
         for (Map.Entry<String, String> entry : hosts.entrySet()) {
+            ports = allocated.get(i++);
             service = (Element) template.cloneNode(true);
             document.getDocumentElement().appendChild(service);
             service(service, entry.getKey(), entry.getValue());
             connectors(service, ports, keystore);
             contexts(service, mode, cookies, ports);
-            ports = ports.next(); // TODO
         }
         template.getParentNode().removeChild(template);
     }

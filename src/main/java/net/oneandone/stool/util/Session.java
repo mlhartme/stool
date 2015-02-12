@@ -399,12 +399,10 @@ public class Session {
 
     private List<Ports> usedPorts() throws IOException {
         ArrayList<Ports> used;
-        Ports ports;
 
         used = new ArrayList<>();
         for (FileNode wrapper : getWrappers()) {
-            ports = Ports.loadOpt(wrapper);
-            if (ports != null) {
+            for (Ports ports : Ports.load(wrapper)) {
                 used.add(ports);
             }
         }

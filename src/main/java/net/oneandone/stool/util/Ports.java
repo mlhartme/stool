@@ -21,25 +21,36 @@ import com.google.gson.stream.JsonWriter;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Ports {
     private static FileNode file(FileNode wrapper) {
         return wrapper.join("ports");
     }
 
-    public static Ports loadOpt(FileNode wrapper) throws IOException {
+    public static void save(FileNode wrapper, List<Ports> ports) throws IOException {
+        List<String> lines;
+
+        lines = new ArrayList<>();
+        for (Ports p : ports) {
+            lines.add(Integer.toString(p.prefix));
+        }
+        file(wrapper).writeLines(lines);
+    }
+
+    public static List<Ports> load(FileNode wrapper) throws IOException {
+        List<Ports> result;
         FileNode file;
 
         file = file(wrapper);
+        result = new ArrayList<>();
         if (file.isFile()) {
-            return new Ports(Integer.parseInt(file.readString().trim()));
-        } else {
-            return null;
+            for (String line : file.readLines()) {
+                result.add(new Ports(Integer.parseInt(line.trim())));
+            }
         }
-    }
-
-    public void save(FileNode wrapper) throws IOException {
-        file(wrapper).writeString(Integer.toString(prefix));
+        return result;
     }
 
     //--
@@ -105,6 +116,7 @@ public class Ports {
 
     //--
 
+    // TODO: for stool config ...
     public static class PortsTypeAdapter extends TypeAdapter<Ports> {
         @Override
         public void write(JsonWriter out, Ports value) throws IOException {

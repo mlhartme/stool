@@ -83,7 +83,7 @@ public class Start extends StageCommand {
     @Override
     public void doInvoke(Stage stage) throws Exception {
         FileNode download;
-        Ports ports;
+        List<Ports> ports;
 
         serviceWrapperOpt(stage.config().tomcatService);
         download = tomcatOpt(stage.config().tomcatVersion);
@@ -91,16 +91,16 @@ public class Start extends StageCommand {
         checkUntil(stage.config().until);
         checkCommitted(stage);
         checkNotStarted(stage);
-        ports = stage.loadOrGeneratePorts();
-        copyTemplate(stage, ports);
+        ports = stage.allocatePorts();
+        copyTemplate(stage, ports.get(0));
         copyTomcatBase(download, stage.shared(), stage.config().tomcatVersion);
         if (session.bedroom.stages().contains(stage.getName())) {
             console.info.println("leaving sleeping state");
             session.bedroom.remove(stage.getName());
         }
-        stage.start(console);
+        stage.start(console, ports);
         if (debug) {
-            console.info.println("debugging enabled on port " + ports.debugPort());
+            console.info.println("debugging enabled on port " + ports.get(0).debugPort());
         }
         ping(stage);
         timeEnd();

@@ -72,7 +72,7 @@ public class Status extends StageCommand {
         tomcatPid = stage.runningTomcat();
         showDaemon("tomcat", tomcatPid, stage.state());
         if (tomcatPid != null) {
-            ports = stage.loadPorts();
+            ports = stage.loadMainPorts();
             try {
                 if (stage.getDirectory().exec("ps", "u", "-p", tomcatPid).contains("-Xdebug")) {
                     debug = "on (port " + ports.debugPort() + ")";

@@ -92,7 +92,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         serviceProperties = new ServiceProperties();
         serviceProperties.setService("https://overview.overview." + session.stoolConfiguration.hostname + ":"
-                + session.load("overview").loadPorts().tomcatHttps() + "/j_spring_cas_security_check");
+                + session.load("overview").loadMainPorts().tomcatHttps() + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
     }

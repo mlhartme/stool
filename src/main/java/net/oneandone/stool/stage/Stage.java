@@ -310,25 +310,31 @@ public abstract class Stage {
         return hosts;
     }
 
-    public Ports loadPorts() throws IOException {
-        Ports ports;
+    public Ports loadMainPorts() throws IOException {
+        List<Ports> result;
 
-        ports = Ports.loadOpt(wrapper);
-        if (ports == null) {
+        result = Ports.load(wrapper);
+        if (result.isEmpty()) {
             throw new IllegalStateException();
         }
-        return ports;
+        return result.get(0);
     }
 
-    public Ports loadOrGeneratePorts() throws IOException {
-        Ports ports;
+    public List<Ports> allocatePorts() throws IOException {
+        List<Ports> existing;
+        List<Ports> result;
 
-        ports = Ports.loadOpt(wrapper);
-        if (ports == null) {
-            ports = session.createPortsForName(getName());
-            ports.save(wrapper);
+        existing = Ports.load(wrapper);
+        result = new ArrayList<>();
+        for (String fqdn : hosts().keySet()) {
+            if (result.size() < existing.size()) {
+                result.add(existing.get(result.size()));
+            } else {
+                result.add(session.createPortsForName(fqdn));
+            }
         }
-        return ports;
+        Ports.save(wrapper, result);
+        return result;
     }
 
     public Map<String, String> urls() throws IOException, SAXException {
@@ -362,14 +368,16 @@ public abstract class Stage {
 
     //-- tomcat helper
 
-    public void start(Console console) throws Exception {
+    public void start(Console console, List<Ports> allocated) throws Exception {
+        Map<String, String> hosts;
         ServerXml serverXml;
         String pidFile;
         String pidPs;
+        List<Ports> ports;
 
         checkMemory();
         console.info.println("starting tomcat ...");
-
+        hosts = retainSelected(hosts());
         // TODO workspace stages
         // FileNode editorLocations = directory.join("tomcat/editor/WEB-INF/editor-locations.xml");
         // if (editorLocations.exists()) {
@@ -378,7 +386,7 @@ public abstract class Stage {
         // }
 
         serverXml = ServerXml.load(serverXml());
-        serverXml.configure(retainSelected(hosts()), loadPorts(), keystore(), config().mode, config().cookies);
+        serverXml.configure(hosts, allocated, keystore(), config().mode, config().cookies);
         serverXml.save(serverXml());
         if (session.stoolConfiguration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
@@ -412,6 +420,7 @@ public abstract class Stage {
         }
     }
 
+    /** return fqdn -> docroot mapping */
     protected abstract Map<String, String> hosts() throws IOException;
 
     /**
