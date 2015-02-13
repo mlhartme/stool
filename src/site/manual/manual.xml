@@ -46,7 +46,7 @@ http://docbook.org/ns/docbook ">
 
     <para>Create a new stage by checking out an application:
 
-      <programlisting>stool create https://svn.1and1.org/svn/sales/tools/maven/hellowar/trunk</programlisting>
+      <programlisting>stool create https://svn.code.sf.net/p/pustefix/code/tags/pustefixframework-0.18.84/pustefix-samples/pustefix-sample1</programlisting>
 
       Build the application:
 
@@ -124,13 +124,8 @@ http://docbook.org/ns/docbook ">
               <title>url</title>
               <para>Specifies where the web applications come from: A Subversion URL or Maven Coordinates.</para>
               <programlisting>Examples
-                https://svn.1and1.org/svn/sales/tools/maven/hellowar/trunk (war app)
-                https://svn.1and1.org/svn/PFX/dsl/dslorder-de/trunk (war app)
-                https://svn.1and1.org/svn/PFX/dsl/mobileorder-de/trunk (war app)
-                https://pustefix.svn.sourceforge.net/svnroot/pustefix/tags/pustefixframework-0.18.39/pustefix-samples/pustefix-hangman (war app)
-                gav:com.oneandone.sales.euede:eue-home:1.8.5-SNAPSHOT (gav of a war)
-                gav:com.oneandone.sales.euede:eue-home:@inbox (gav of a war from inbox)
-                gav:de.ui.webdev:pfixui=old:1.0.33,de.ui.webdev:pfixui=new:1.0.34 (gav with multiple wars)
+                https://svn.code.sf.net/p/pustefix/code/tags/pustefixframework-0.18.84/pustefix-samples/pustefix-sample1
+                gav:org.pustefixframework:pustefix-sample1:0.18.84
               </programlisting>
             </formalpara>
           </listitem>

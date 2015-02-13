@@ -27,6 +27,7 @@ import org.apache.commons.io.output.TeeOutputStream;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
@@ -107,7 +108,7 @@ public class StoolIT {
     public void systemTurnAround() throws Exception {
         System.out.println("\nStartup-Turnaround");
         stool("system-start");
-        stool("create", "-quiet", "gav:com.oneandone.sales.tools.maven:hellowar:1.1.7", "it");
+        stool("create", "-quiet", "gav:org.pustefixframework:pustefix-sample1:0.18.84", "it");
         stool("select", "none");
         stool("select", "it");
         stool("status");
@@ -138,13 +139,19 @@ public class StoolIT {
 
     @Test
     public void turnaroundArtifact() throws IOException, InterruptedException {
-        turnaround("gav:com.oneandone.sales.tools.maven:hellowar:1.1.7");
+        turnaround("gav:org.pustefixframework:pustefix-sample1:0.18.84");
     }
 
     @Test
-    public void turnaroundWar() throws IOException, InterruptedException {
-        turnaround("https://svn.1and1.org/svn/sales/tools/maven/hellowar/tags/hellowar-1.1.7");
+    public void turnaroundSource() throws IOException, InterruptedException {
+        turnaround("https://svn.code.sf.net/p/pustefix/code/tags/pustefixframework-0.18.84/pustefix-samples/pustefix-sample1");
     }
+
+    @Ignore // TODO
+    public void turnaroundSourceMultiModule() throws IOException, InterruptedException {
+        turnaround("https://svn.code.sf.net/p/pustefix/code/tags/pustefixframework-0.18.84/pustefix-samples");
+    }
+
 
     private void turnaround(String url) throws IOException, InterruptedException {
         System.out.println("\nurl: " + url);
