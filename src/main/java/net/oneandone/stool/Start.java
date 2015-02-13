@@ -299,7 +299,7 @@ public class Start extends StageCommand {
 
         // for tomcat
         opts.add("-Djava.endorsed.dirs=%CATALINA_HOME%/endorsed");
-        opts.add("-Djava.io.tmpdir%CATALINA_BASE%/temp");
+        opts.add("-Djava.io.tmpdir=%CATALINA_BASE%/temp");
         opts.add("-Djava.util.logging.config.file=%CATALINA_BASE%/conf/logging.properties");
         opts.add("-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager");
         opts.add("-Dcatalina.base=%CATALINA_BASE%");
