@@ -119,7 +119,7 @@ public class Chown extends StageCommand {
         stage = Stage.load(session, stage.wrapper);
         newline();
         if (startAgain && !stop) {
-            new Start(session, false).doInvoke(stage);
+            new Start(session, false, false).doInvoke(stage);
         }
         if (session.isSelected(stage)) {
             session.select(stage);

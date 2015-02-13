@@ -389,13 +389,14 @@ http://docbook.org/ns/docbook ">
     <sect1>
       <title>Start</title>
 
-      <programlisting><![CDATA[stool start [-debug|-tail]]]></programlisting>
+      <programlisting><![CDATA[stool start [-debug|-suspend|-tail]]]></programlisting>
 
       <para>Creates the necessary configuration and starts Tomcat. If the stage is an artifact stage,
         you can start it right away; otherwise, you have to build it first. Depending on your application,
         startup may take a while; you can check catalina.out to verify if start is complete:
         'stool cd logs &amp;&amp; tail -f catalina.out'
       </para>
+      <para>'-debug' enables the debugger. If suspend is specified as well, the jvm waits for the debugger to connect.</para>
       <para>Use the '-tail' option to get catalina.out printed to the console until you press ctrl-c.</para>
       <para>Startup is refused if your stage has expired. In this case, use 'stool config until=newdata' to confiure
         a new 'until' date.
@@ -405,6 +406,7 @@ http://docbook.org/ns/docbook ">
         Alternatively, you can place customized Tomcats into this directory, provided they unpack to a directory that
         matches the base file name of the tar.gz file.
       </para>
+      <para>Start generates a tomcat base directory if it does not yet exist. If it exists, only the server.xml is updated.</para>
     </sect1>
 
     <sect1>

@@ -109,10 +109,12 @@ public class Main extends Cli implements Command {
     public Build build() throws IOException {
         return new Build(session());
     }
+
     @Child("start")
     public Start start() throws IOException {
-        return new Start(session(), false);
+        return new Start(session(), false, false);
     }
+
     @Child("stop")
     public Stop stop() throws IOException {
         return new Stop(session());
@@ -254,7 +256,7 @@ public class Main extends Cli implements Command {
         console.info.println("  .....................................  environment variables");
         console.info.println("  refresh [-build|-stop|-own|-debug] ..  update the stage, with optional building;");
         console.info.println("  .....................................  restart and chowning when necessary");
-        console.info.println("  start [-debug|-tail] ................  starts the stage, and optionally tails catalina.out");
+        console.info.println("  start [-debug|-suspend|-tail] .......  starts the stage, and optionally tails catalina.out");
         console.info.println("  stop [-sleep|-crashed]...............  stops the stage");
         console.info.println("  restart [-debug] ....................  restarts the stage");
         console.info.println("  move <dest> .........................  changes the stage directory; the stage name is not changed");

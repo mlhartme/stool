@@ -45,7 +45,7 @@ public class Build extends StageCommand {
             }
             new Stop(session).doInvoke(stage);
             build(stage);
-            new Start(session, false).doInvoke(stage);
+            new Start(session, false, false).doInvoke(stage);
             return;
         }
 

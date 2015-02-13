@@ -4,6 +4,9 @@
       <action date="2015-02-13" dev="mhm" type="update">
         Tomcat base is created once, with a server.xml.template stripped from comments. Starting an application only overwrite server.xml.
       </action>
+      <action date="2015-02-13" dev="mhm" type="add">
+        Added start -suspend option to wait for a debugger to connect.
+      </action>
       <action date="2015-02-12" dev="mhm" type="update">
         Port prefixes are generated now, the respective create option is gone.
       </action>

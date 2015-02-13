@@ -117,7 +117,7 @@ public class Refresh extends StageCommand {
             if (stop) {
                 console.info.println("state is *not* re-started");
             } else {
-                new Start(session, debug).doInvoke(stage);
+                new Start(session, debug, false).doInvoke(stage);
             }
         }
     }

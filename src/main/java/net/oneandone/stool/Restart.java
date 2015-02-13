@@ -39,7 +39,7 @@ public class Restart extends StageCommand {
         // tomcat may take some time
         Thread.sleep(5000);
 
-        new Start(session, debug).doInvoke(stage);
+        new Start(session, debug, false).doInvoke(stage);
         if (session.bedroom.stages().contains(stage.getName())) {
             console.info.println("stopped sleeping");
         }

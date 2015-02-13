@@ -49,12 +49,16 @@ public class Start extends StageCommand {
     @Option("debug")
     private boolean debug = false;
 
+    @Option("suspend")
+    private boolean suspend = false;
+
     @Option("tail")
     private boolean tail = false;
 
-    public Start(Session session, boolean debug) throws IOException {
+    public Start(Session session, boolean debug, boolean suspend) throws IOException {
         super(session);
         this.debug = debug;
+        this.suspend = suspend;
     }
 
     public static String tomcatName(String version) {
@@ -285,11 +289,11 @@ public class Start extends StageCommand {
 
         result = new HashMap<>();
         result.put("java.home", session.jdkHome());
-        result.put("wrapper.java.additional", wrapperJavaAdditional(ports, stage, debug, false, new Macros(session.stoolConfiguration.macros)));
+        result.put("wrapper.java.additional", wrapperJavaAdditional(ports, stage, new Macros(session.stoolConfiguration.macros)));
         return result;
     }
 
-    private static String wrapperJavaAdditional(Ports ports, Stage stage, boolean debug, boolean suspend, Macros macros) {
+    private String wrapperJavaAdditional(Ports ports, Stage stage, Macros macros) {
         String tomcatOpts;
         List<String> opts;
         StringBuilder result;
