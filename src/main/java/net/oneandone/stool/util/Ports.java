@@ -257,7 +257,7 @@ public class Ports {
                     }
                 }
                 if (!available) {
-                    throw new IOException("portPrefix already in used: " + prefix);
+                    throw new IOException("portPrefix " + prefix + " already in used: " + portNumber);
                 }
             }
         }

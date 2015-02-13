@@ -65,7 +65,8 @@ public class StoolIT {
         system.set(Environment.PS1, "prompt");
         config = new HashMap<>();
         config.put("diskMin", "500");
-        config.put("portPrefixFirst", "1300");
+        config.put("portPrefixOverview", "1300");
+        config.put("portPrefixFirst", "1301");
         config.put("portPrefixLast", "1320");
 
         new Install(false, Console.create(world), system, config).invoke();
@@ -176,6 +177,7 @@ public class StoolIT {
         stool("rename", "renamed");
         stool("move", home.getParent().join("movedStages").getAbsolute());
         stool("remove", "-batch");
+        stool("stop", "-stage", "overview");
     }
 
     private void stool(String... args) throws IOException {
