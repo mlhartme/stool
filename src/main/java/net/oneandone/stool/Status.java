@@ -53,12 +53,11 @@ public class Status extends StageCommand {
     }
 
     private String getAppUrlsFrom(Stage stage) throws IOException, SAXException {
-        FileNode serverXmlFile;
+        FileNode file;
 
-        serverXmlFile = stage.serverXml();
-        if (serverXmlFile.exists()) {
-            return stage.urls(ServerXml.load(serverXmlFile)).values()
-              .toString().replaceAll(", ", "\\\n").replace("[", "").replace("]", "");
+        file = stage.serverXml();
+        if (file.exists()) {
+            return stage.urls(ServerXml.load(file)).values().toString().replaceAll(", ", "\\\n").replace("[", "").replace("]", "");
         } else {
             return "(unknown until first stage start)";
         }

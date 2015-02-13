@@ -20,6 +20,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Ports;
+import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
@@ -90,7 +91,7 @@ public class Start extends StageCommand {
         checkNotStarted(stage);
         allocated = Ports.forStage(stage);
         copyTemplate(stage, allocated);
-        copyTomcatBase(download, stage.shared(), stage.config().tomcatVersion);
+        copyTomcatBaseOpt(download, stage.shared(), stage.config().tomcatVersion);
         if (session.bedroom.stages().contains(stage.getName())) {
             console.info.println("leaving sleeping state");
             session.bedroom.remove(stage.getName());
@@ -255,20 +256,28 @@ public class Start extends StageCommand {
         }
     }
 
-    public void copyTomcatBase(FileNode download, FileNode shared, String version) throws IOException {
+    public void copyTomcatBaseOpt(FileNode download, FileNode shared, String version) throws IOException, SAXException {
         String name;
         FileNode src;
         FileNode dest;
+        ServerXml serverXml;
+        FileNode file;
 
         name = tomcatName(version);
         dest = shared.join("tomcat");
-        Files.stoolDirectory(dest.mkdirOpt());
-        tar(shared, "zxf",
-          download.getAbsolute(), "--exclude", name + "/lib", "--exclude", name + "/bin", "--exclude", name + "/webapps");
-        src = shared.join(name);
-        // copy via template to get permissions fixed
-        Files.template(src, dest, new HashMap<String, String>());
-        src.deleteTree();
+        if (!dest.exists()) {
+            tar(shared, "zxf",
+                    download.getAbsolute(), "--exclude", name + "/lib", "--exclude", name + "/bin", "--exclude", name + "/webapps");
+            src = shared.join(name);
+            src.move(dest);
+
+            file = dest.join("conf/server.xml");
+            serverXml = ServerXml.load(file);
+            serverXml.stripComments();
+            serverXml.save(dest.join("conf/server.xml.template"));
+            file.deleteFile();
+            Files.stoolTree(dest);
+        }
     }
 
     private Map<String, String> variables(Stage stage, Ports ports) {

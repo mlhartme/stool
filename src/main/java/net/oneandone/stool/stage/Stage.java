@@ -360,8 +360,7 @@ public abstract class Stage {
         //    Files.stoolFile(editorLocations);
         // }
 
-        serverXml = ServerXml.load(serverXml());
-        serverXml.stripComments();
+        serverXml = ServerXml.load(serverXmlTemplate());
         serverXml.configure(hosts, allocated, keystore(), config().mode, config().cookies,
                 session.stoolConfiguration.hostname, session.stoolConfiguration.vhosts);
         serverXml.save(serverXml());
@@ -461,6 +460,10 @@ public abstract class Stage {
 
     public FileNode serverXml() {
         return catalinaBase().join("conf", "server.xml");
+    }
+
+    public FileNode serverXmlTemplate() {
+        return catalinaBase().join("conf", "server.xml.template");
     }
 
     //--

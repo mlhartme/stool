@@ -18,6 +18,7 @@ package net.oneandone.stool.util;
 import net.oneandone.sushi.fs.Copy;
 import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
 import net.oneandone.sushi.util.Substitution;
 
@@ -47,6 +48,12 @@ public final class Files {
             if (isBinary(binary.getName())) {
                 Files.stoolFile(binary.copyFile(dest.join(binary.getRelative(src))));
             }
+        }
+    }
+
+    public static void stoolTree(FileNode dir) throws IOException {
+        for (Node node : dir.find("**/*")) {
+            Files.stoolNode(node);
         }
     }
 
