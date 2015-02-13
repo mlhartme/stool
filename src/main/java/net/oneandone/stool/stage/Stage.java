@@ -361,6 +361,7 @@ public abstract class Stage {
         // }
 
         serverXml = ServerXml.load(serverXml());
+        serverXml.stripComments();
         serverXml.configure(hosts, allocated, keystore(), config().mode, config().cookies,
                 session.stoolConfiguration.hostname, session.stoolConfiguration.vhosts);
         serverXml.save(serverXml());

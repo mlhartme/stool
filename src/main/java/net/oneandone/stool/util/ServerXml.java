@@ -21,11 +21,15 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.xml.Selector;
 import net.oneandone.sushi.xml.Xml;
 import net.oneandone.sushi.xml.XmlException;
+import org.w3c.dom.Comment;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -77,6 +81,30 @@ public class ServerXml {
             i++;
         }
         template.getParentNode().removeChild(template);
+    }
+
+    public void stripComments() {
+        stripComments(document.getChildNodes());
+    }
+
+    private static void stripComments(NodeList children) {
+        org.w3c.dom.Node child;
+        List<Comment> remove;
+
+        remove = new ArrayList<>();
+        for (int i = 0, max = children.getLength(); i < max; i++) {
+            child = children.item(i);
+            if (child instanceof Element) {
+                stripComments(child.getChildNodes());
+            } else if (child instanceof Comment) {
+                remove.add((Comment) child);
+            } else {
+                // nothing to do
+            }
+        }
+        for (Comment c : remove) {
+            c.getParentNode().removeChild(c);
+        }
     }
 
     private void service(Element service, String hostName, String docbase) throws XmlException {

@@ -161,6 +161,7 @@ public abstract class StageCommand extends SessionCommand implements Command {
                 throw new ArgumentException("too many select options");
         }
     }
+
     private List<Stage> explicit(String names) throws IOException {
         FileNode wrapper;
         List<Stage> result;
