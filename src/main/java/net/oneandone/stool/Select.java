@@ -60,7 +60,7 @@ public class Select extends SessionCommand {
             if (session.getSelectedStageName() == null) {
                 console.info.println("already selected: none");
             } else {
-                console.info.println("selecting none");
+                console.verbose.println("selecting none");
                 session.resetEnvironment();
             }
             return;
@@ -69,7 +69,7 @@ public class Select extends SessionCommand {
         if (!wrapper.isDirectory()) {
             throw new IOException("No such stage: " + stageName + suggestion());
         }
-        console.info.println("selecting stage " + stageName);
+        console.verbose.println("selecting stage " + stageName);
         if (session.getSelectedStageName() == null) {
             session.backupEnvironment();
         }
