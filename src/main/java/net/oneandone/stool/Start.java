@@ -280,6 +280,14 @@ public class Start extends StageCommand {
             serverXml.stripComments();
             serverXml.save(dest.join("conf/server.xml.template"));
             file.deleteFile();
+
+            dest.join("conf/logging.properties").appendLines(
+                    "",
+                    "# appended by Stool: make sure we see application output in catalina.out",
+                    "org.apache.catalina.core.ContainerBase.[Catalina].level = INFO",
+                    "org.apache.catalina.core.ContainerBase.[Catalina].handlers = 1catalina.org.apache.juli.FileHandler"
+            );
+
             Files.stoolTree(dest);
         }
     }
