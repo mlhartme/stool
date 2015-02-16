@@ -61,7 +61,7 @@ public class Main extends Cli implements Command {
         info = new PrintWriter(MultiOutputStream.createTeeStream(System.out, new Slf4jOutputStream(infoLogger, false)), true);
         error = new PrintWriter(MultiOutputStream.createTeeStream(System.err, new Slf4jOutputStream(errorLogger, false)), true);
 
-        // empty prefix is replaced by stage commands when ierating multiple stages
+        // empty prefix is replaced by stage commands when iterating multiple stages
         info = new PrefixWriter(info);
         error = new PrefixWriter(error);
 

@@ -53,11 +53,10 @@ public class ServerXml {
 
     /** replace existing hosts with hosts from parameter */
     public void configure(Map<String, String> hosts, Ports allocated, KeyStore keystore,
-                          String mode, boolean cookies, String hostname, boolean vhosts) throws XmlException {
+                          String mode, boolean cookies, String hostname) throws XmlException {
         Element template;
         Element service;
         int i;
-        String vhost;
 
         if (hosts.isEmpty()) {
             throw new ArgumentException("no hosts match your selection");
@@ -71,11 +70,7 @@ public class ServerXml {
         for (Map.Entry<String, String> entry : hosts.entrySet()) {
             service = (Element) template.cloneNode(true);
             document.getDocumentElement().appendChild(service);
-            vhost = hostname;
-            if (vhosts) {
-                vhost = entry.getKey() + "." + vhost;
-            }
-            service(service, vhost, entry.getValue());
+            service(service, entry.getValue(), entry.getKey() + "." + hostname, hostname);
             connectors(service, allocated, i, keystore);
             contexts(service, mode, cookies, allocated, i);
             i++;
@@ -107,19 +102,20 @@ public class ServerXml {
         }
     }
 
-    private void service(Element service, String hostName, String docbase) throws XmlException {
+    private void service(Element service, String docbase, String hostname, String ... aliases) throws XmlException {
         Element engine;
         Element host;
         Element context;
+        Element element;
 
-        service.setAttribute("name", hostName);
+        service.setAttribute("name", hostname);
         engine = selector.element(service, "Engine");
-        engine.setAttribute("defaultHost", hostName);
+        engine.setAttribute("defaultHost", hostname);
         for (Element child : selector.elements(service, "Engine/Host")) {
             child.getParentNode().removeChild(child);
         }
         host = service.getOwnerDocument().createElement("Host");
-        host.setAttribute("name", hostName);
+        host.setAttribute("name", hostname);
         if (docbase.endsWith("/ROOT")) { // TODO: special case for artifact stages that need unpacking ...
             host.setAttribute("appBase", docbase.substring(0, docbase.length() - 5));
             docbase = "ROOT";
@@ -134,6 +130,11 @@ public class ServerXml {
         context.setAttribute("path", "");
         context.setAttribute("docBase", docbase);
         host.appendChild(context);
+        for (String alias : aliases) {
+            element = service.getOwnerDocument().createElement("alias");
+            element.setAttribute("name", alias);
+            host.insertBefore(element, host.getFirstChild());
+        }
     }
 
     private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";

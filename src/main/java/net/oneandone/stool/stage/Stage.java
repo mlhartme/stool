@@ -361,8 +361,7 @@ public abstract class Stage {
         // }
 
         serverXml = ServerXml.load(serverXmlTemplate());
-        serverXml.configure(hosts, allocated, keystore(), config().mode, config().cookies,
-                session.stoolConfiguration.hostname, session.stoolConfiguration.vhosts);
+        serverXml.configure(hosts, allocated, keystore(), config().mode, config().cookies, session.stoolConfiguration.hostname);
         serverXml.save(serverXml());
         if (session.stoolConfiguration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
