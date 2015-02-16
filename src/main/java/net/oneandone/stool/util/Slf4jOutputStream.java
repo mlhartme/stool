@@ -40,11 +40,6 @@ public class Slf4jOutputStream extends OutputStream {
         this.logger = logger;
     }
 
-    public Logger getLogger() {
-        return logger;
-    }
-
-
     public void write(int b) {
         if (b == 10) {
             writeLine();
