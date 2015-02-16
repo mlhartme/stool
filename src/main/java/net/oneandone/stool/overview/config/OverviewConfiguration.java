@@ -37,8 +37,6 @@ import java.util.concurrent.Executors;
 @Configuration
 @ComponentScan(basePackageClasses = {IndexController.class})
 public class OverviewConfiguration {
-    // TODO: creates many worlds, subversions, etc ...
-
     @Bean
     public World world() {
         return new World();

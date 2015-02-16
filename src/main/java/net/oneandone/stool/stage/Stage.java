@@ -324,7 +324,7 @@ public abstract class Stage {
 
     public Map<String, String> urls(ServerXml serverXml) throws IOException {
         try {
-            return serverXml.allUrls(configuration.suffix);
+            return serverXml.allUrls(session.stoolConfiguration.vhosts, configuration.suffix);
         } catch (XmlException e) {
             throw new IOException("cannot read server.xml: " + e.getMessage(), e);
         }
@@ -447,7 +447,7 @@ public abstract class Stage {
 
     protected void printAppUrls(Console console, ServerXml serverXml) throws XmlException {
         console.info.println("Applications available:");
-        Map<String, String> appUrls = serverXml.allUrls(configuration.suffix);
+        Map<String, String> appUrls = serverXml.allUrls(session.stoolConfiguration.vhosts, configuration.suffix);
         for (String appUrl : appUrls.values()) {
             console.info.println("  " + appUrl);
         }

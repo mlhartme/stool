@@ -253,7 +253,7 @@ public class ServerXml {
 
     //--
 
-    public Map<String, String> allUrls(String suffix) throws XmlException {
+    public Map<String, String> allUrls(boolean vhost, String suffix) throws XmlException {
         Map<String, String> result;
         Element host;
         String hostname;
@@ -262,7 +262,11 @@ public class ServerXml {
         result = new TreeMap<>();
         for (Element service : selector.elements(document.getDocumentElement(), "Service")) {
             host = selector.element(service, "Engine/Host");
-            hostname = host.getAttribute("name");
+            if (vhost) {
+                hostname = host.getAttribute("name");
+            } else {
+                hostname = selector.element(host, "alias").getAttribute("name");
+            }
             port = port(service, HTTP_PATH);
             if (port != null) {
                 result.put(hostname, "http://" + hostname + ":" + port + suffix);

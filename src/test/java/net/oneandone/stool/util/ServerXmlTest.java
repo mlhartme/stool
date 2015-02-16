@@ -26,9 +26,8 @@ public class ServerXmlTest {
     private static final World WORLD = new World();
 
     @Test
-    public void getAppUrlstomcat7() throws Exception {
-        Node serverXml = WORLD.resource("server.xml");
-        Map<String, String> appUrls = ServerXml.load(serverXml).allUrls("/abc");
+    public void getAppUrlsTomcat7() throws Exception {Node serverXml = WORLD.resource("server.xml");
+        Map<String, String> appUrls = ServerXml.load(serverXml).allUrls(true, "/abc");
         Assert.assertEquals(1, appUrls.size());
     }
 }
