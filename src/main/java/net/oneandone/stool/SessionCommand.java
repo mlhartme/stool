@@ -18,25 +18,34 @@ package net.oneandone.stool;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.cli.Command;
+import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Option;
+import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
+import java.io.Writer;
 
-public abstract class SessionCommand extends BaseCommand {
+public abstract class SessionCommand implements Command {
 
+    protected final Console console;
+    protected final World world;
     protected final Session session;
 
+    public SessionCommand(Session session) {
+        this.console = session.console;
+        this.world = console.world;
+        this.session = session;
+    }
+    
     @Option("nolock")
     protected boolean noLock;
 
-
-    public SessionCommand(Session session) {
-        super(session.console);
-        this.session = session;
-    }
 
     // override if you don't want locking
     protected Lock lock() {
@@ -91,4 +100,34 @@ public abstract class SessionCommand extends BaseCommand {
         }
         return false;
     }
+
+    //--
+
+    protected void run(Launcher l, Node output) throws IOException {
+        message(l, output instanceof FileNode ? " > " + output : "");
+        runQuiet(l, output);
+    }
+
+    protected void runQuiet(Launcher l, Node output) throws IOException {
+        try (Writer out = output.createWriter()) {
+            l.exec(out);
+        }
+    }
+
+    protected void header(String h) {
+        console.info.println("[" + h + "]");
+    }
+
+    protected void message(Launcher l, String suffix) {
+        message(Separator.SPACE.join(l.getBuilder().command()) + suffix);
+    }
+
+    protected void message(String msg) {
+        console.info.println(Strings.indent(msg, "  "));
+    }
+
+    protected void newline() {
+        console.info.println();
+    }
+
 }
