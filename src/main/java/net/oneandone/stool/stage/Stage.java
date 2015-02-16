@@ -75,14 +75,14 @@ public abstract class Stage {
         if (url == null) {
             throw new IOException("cannot determine stage url: " + directory);
         }
-        result = loadOpt(session, url, configuration, wrapper, directory);
+        result = createOpt(session, url, configuration, wrapper, directory);
         if (result == null) {
             throw new IOException("unknown stage type: " + directory);
         }
         return result;
     }
 
-    public static Stage loadOpt(Session session, String url, StageConfiguration configuration, FileNode wrapper,
+    public static Stage createOpt(Session session, String url, StageConfiguration configuration, FileNode wrapper,
                                 FileNode directory) throws IOException {
         if (configuration == null) {
             throw new IllegalArgumentException();
@@ -554,8 +554,7 @@ public abstract class Stage {
         if (configuration.tomcatPerm == 0 || configuration.tomcatPerm == 64) {
             configuration.tomcatPerm = Math.min(1024, 100 + wars * session.stoolConfiguration.basePerm);
         }
-        if (configuration.build.isEmpty() || configuration.build.equals("") || configuration.build.equals("false")) {
-            //TODO: schmeiß weg
+        if (configuration.build.isEmpty() || configuration.build.equals("false")) {
             configuration.build = getDefaultBuildCommand();
         }
 

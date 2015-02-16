@@ -18,6 +18,7 @@ package net.oneandone.stool;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -143,15 +144,18 @@ public class Import extends SessionCommand {
         }
 
         name = parent.getName();
-        Stage.checkName(name);
+        try {
+            Stage.checkName(name);
+        } catch (ArgumentException e) {
+            name = "imported-" + result.size();
+        }
         wrapper = session.wrappers.join(name);
         wrapper.checkNotExists();
         url = Stage.probe(parent);
         if (url == null) {
             stage = null;
         } else {
-            stage = Stage.loadOpt(session, url, session.stoolConfiguration.createStageConfiguration(url),
-              wrapper, parent);
+            stage = Stage.createOpt(session, url, session.stoolConfiguration.createStageConfiguration(url), wrapper, parent);
         }
         if (stage != null) {
             // bingo
