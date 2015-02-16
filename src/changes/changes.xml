@@ -4,6 +4,9 @@
       <action date="2015-02-16" dev="mhm" type="update">
         Improved fail modes: they also apply to the stage command itself. And: 'before' was renamed to 'normal'.
       </action>
+      <action date="2015-02-16" dev="mhm" type="update">
+        Improved default name when creating artifact stages: use the artifactId.
+      </action>
       <action date="2015-02-16" dev="mhm" type="fix">
         Stop on slepping stage puts it in state stopped now.
       </action>

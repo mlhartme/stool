@@ -763,6 +763,30 @@ public abstract class Stage {
     }
 
     public static String nameForUrl(String url) {
+        if (url.startsWith("gav:")) {
+            return nameForGavUrl(url);
+        } else {
+            return nameForSvnUrl(url);
+        }
+
+    }
+
+    public static String nameForGavUrl(String url) {
+        int end;
+        int start;
+
+        end = url.lastIndexOf(':');
+        if (end == -1) {
+            return "stage";
+        }
+        start = url.lastIndexOf(':', end - 1);
+        if (end == -1) {
+            return "stage";
+        }
+        return url.substring(start + 1, end);
+    }
+
+    public static String nameForSvnUrl(String url) {
         String result;
         int idx;
 
@@ -777,5 +801,4 @@ public abstract class Stage {
         result = result.substring(idx + 1); // ok for -1
         return result.isEmpty() ? "stage" : result;
     }
-
 }
