@@ -572,10 +572,12 @@ public abstract class Stage {
     }
 
     //--
+
     public void setMaven(Maven maven) {
         this.maven = maven;
     }
 
+    /** CAUTION: this is not a session method, because it respected the stage repository */
     public Maven maven() throws IOException {
         if (maven == null) {
             maven = Maven.withSettings(session.console.world, localRepository(), null, null);
@@ -584,6 +586,7 @@ public abstract class Stage {
         }
         return maven;
     }
+
     protected List<MavenProject> loadWars(FileNode rootPom) throws IOException {
         List<MavenProject> wars;
         List<String> profiles;
