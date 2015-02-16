@@ -23,16 +23,11 @@ import net.oneandone.stool.configuration.Until;
 import java.io.IOException;
 
 public class UntilTypeAdapter extends TypeAdapter<Until> {
-
-    //TODO: Putzen -> Null zeug weg
     @Override
     public void write(JsonWriter out, Until value) throws IOException {
-        if (null == value) {
-            out.value("null");
-        } else {
-            out.value(value.toString());
-        }
+        out.value(value.toString());
     }
+
     @Override
     public Until read(JsonReader in) throws IOException {
         return Until.fromString(in.nextString());

@@ -21,43 +21,34 @@ import org.joda.time.Days;
 import org.joda.time.Period;
 public class Until {
 
-    private DateTime date;
-
-    public Until() {
-        date = DateTime.now().plusDays(7);
-    }
     public static Until reserved() {
-        Until until;
-
-        until = new Until();
-        until.date = null;
-
-        return until;
+        return new Until(null);
     }
+
+    public static Until withDefaultOffset() {
+        return withOffset(7);
+    }
+
     public static Until withOffset(int days) {
-        Until until;
-
-        until = new Until();
-        until.date = DateTime.now().plusDays(days);
-
-        return until;
-
+        return new Until(DateTime.now().plusDays(days));
     }
+
     public static Until fromString(String input) {
         Until until;
-        until = new Until();
-        if (null == input || input.equals("null") || input.equals("") || input.equals("reserved") || input.equals("expired")) {
-            until.date = null;
-        } else {
-            until.date = DateTimeParser.create().parse(input);
-        }
 
+        until = Until.withDefaultOffset();
+        if (null == input || input.equals("null") || input.equals("") || input.equals("reserved") || input.equals("expired")) {
+            Until.reserved();
+        } else {
+            new Until(DateTimeParser.create().parse(input));
+        }
         return until;
     }
 
     public static Until fromHuman(String input) {
         Until until;
-        until = new Until();
+
+        until = Until.withDefaultOffset();
         if (null == input || input.equals("null") || input.equals("")) {
             throw new IllegalArgumentException("Please provide a valid date. For example "
               + new DateTime().plus(Days.days(10)).toString("yyyy-MM-dd"));
@@ -69,6 +60,16 @@ public class Until {
 
         return until;
     }
+
+    //--
+
+    /** null stands for 'reserved' */
+    private DateTime date;
+
+    public Until(DateTime date) {
+        this.date = date;
+    }
+
     public boolean expired() {
         return date != null && DateTime.now().isAfter(date);
     }
