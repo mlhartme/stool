@@ -93,11 +93,8 @@ public class Status extends StageCommand {
     private void showDaemon(String name, String pid, Stage.State state) {
         String status;
 
-        if (state != Stage.State.DOWN && state != Stage.State.CRASHED) {
+        if (state == Stage.State.UP) {
             status = "up (pid " + pid + ")";
-            if (state == Stage.State.SLEEPING) {
-                status = status + " AND sleeping";
-            }
         } else {
             status = String.valueOf(state);
         }

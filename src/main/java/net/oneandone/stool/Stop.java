@@ -53,24 +53,29 @@ public class Stop extends StageCommand {
     }
 
     public void invokeNormal(Stage stage) throws Exception {
+        boolean alreadySleeping;
         String name;
 
         name = stage.getName();
-        if (session.bedroom.stages().contains(name)) {
+        alreadySleeping = session.bedroom.stages().contains(name);
+        if (alreadySleeping) {
             if (sleep) {
                 console.info.println("warning: stage already marked as sleeping");
             } else {
                 console.info.println("going from sleeping to stopped.");
             }
+        } else {
+            stage.stop(console);
         }
-        stage.stop(console);
         if (sleep) {
-            session.bedroom.add(name);
+            if (!alreadySleeping) {
+                session.bedroom.add(name);
+            }
             console.info.println("state: sleeping");
         } else {
+            session.bedroom.remove(name);
             console.info.println("state: down");
         }
-
     }
 
     public void invokeStale(Stage stage) throws Exception {
