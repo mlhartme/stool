@@ -70,6 +70,8 @@ public class Import extends SessionCommand {
         for (FileNode directory : includes) {
             scan(directory, found, existing);
         }
+        console.info.print("[" + found.size() + " candidates]\u001b[K\r");
+        console.info.println();
         switch (found.size()) {
             case 0:
                 console.info.println("No stage candidates.");
