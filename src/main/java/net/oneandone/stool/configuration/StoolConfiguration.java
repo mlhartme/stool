@@ -22,7 +22,6 @@ import com.google.gson.annotations.Expose;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.configuration.adapter.VersionTypeAdapter;
-import net.oneandone.stool.util.Ports;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
@@ -144,7 +143,8 @@ public class StoolConfiguration extends BaseConfiguration {
     public int autoRemove;
 
     public StoolConfiguration() {
-        portFirst = 9000;
+        portOverview = 9000;
+        portFirst = 9002;
         portLast = 9999;
         baseHeap = 200;
         basePerm = 60;

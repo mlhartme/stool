@@ -6,6 +6,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Ports {
@@ -16,6 +17,7 @@ public class Ports {
         Ports result;
         Ports used;
         List<String> names;
+        List<String> hosts;
 
         session = stage.session;
         result = new Ports();
@@ -23,20 +25,27 @@ public class Ports {
         used = null;
         names = new ArrayList<>();
         names.add(stage.getName() + "-stop");
-        names.add(stage.getName() + "-jmx");
-        names.add(stage.getName() + "-debug");
-        for (String name : stage.selectedHosts().keySet()) {
-            names.add(name + "-http");
-            names.add(name + "-https");
+        names.add(stage.getName() + "-jmx-debug");
+        hosts = new ArrayList<>(stage.selectedHosts().keySet());
+        Collections.sort(hosts); // guarantied ordering
+        for (String host : hosts) {
+            names.add(host);
         }
         for (String name : names) {
-            if (result.list.size() < existing.list.size()) {
-                result.list.add(existing.list.get(result.list.size()));
+            if (result.evens.size() < existing.evens.size()) {
+                result.evens.add(existing.evens.get(result.evens.size()));
             } else {
                 if (used == null) {
                     used = Ports.used(session.getWrappers());
                 }
-                result.list.add(used.notContained(name, session.stoolConfiguration.portFirst, session.stoolConfiguration.portLast));
+                if (stage.isOverview()) {
+                    if (hosts.size() != 1) {
+                        throw new IllegalStateException();
+                    }
+                    result.evens.add(session.stoolConfiguration.portOverview);
+                } else {
+                    result.evens.add(used.notContained(name, session.stoolConfiguration.portFirst, session.stoolConfiguration.portLast));
+                }
             }
         }
         result.save(stage.wrapper);
@@ -48,7 +57,7 @@ public class Ports {
 
         result = new Ports();
         for (FileNode wrapper : wrappers) {
-            result.list.addAll(load(wrapper).list);
+            result.evens.addAll(load(wrapper).evens);
         }
         return result;
     }
@@ -67,34 +76,35 @@ public class Ports {
 
     //--
 
-    private final List<Integer> list;
+    /** stores even ports nummers; its successor is also considered as allocated */
+    private final List<Integer> evens;
 
     public Ports() {
-        list = new ArrayList<>();
+        evens = new ArrayList<>();
     }
 
     public int hosts() {
-        return (list.size() - 3) / 2;
+        return evens.size() - 2;
     }
 
     public int stop() {
-        return list.get(0);
+        return evens.get(0);
     }
 
     public int jmx() {
-        return list.get(1);
+        return evens.get(1);
     }
 
     public int debug() {
-        return list.get(2);
+        return evens.get(1) + 1;
     }
 
     public int http(int idx) {
-        return list.get(3 + idx * 2);
+        return evens.get(2 + idx);
     }
 
     public int https(int idx) {
-        return list.get(3 + idx * 2 + 1);
+        return evens.get(2 + idx) + 1;
     }
 
     //--
@@ -103,8 +113,8 @@ public class Ports {
         List<String> lines;
 
         lines = new ArrayList<>();
-        for (Integer port : list) {
-            lines.add(port.toString());
+        for (Integer even : evens) {
+            lines.add(even.toString());
         }
         file(wrapper).writeLines(lines);
     }
@@ -115,13 +125,13 @@ public class Ports {
         file = file(wrapper);
         if (file.isFile()) {
             for (String line : file.readLines()) {
-                list.add(Integer.parseInt(line.trim()));
+                evens.add(Integer.parseInt(line.trim()));
             }
         }
     }
 
-    private boolean contains(int port) {
-        return list.contains(port);
+    private boolean contains(int even) {
+        return evens.contains(even);
     }
 
     private int notContained(String host, int first, int last) throws IOException {
@@ -134,6 +144,15 @@ public class Ports {
         if ((start < first) || (start > last)) {
             throw new IllegalArgumentException("ports out of range: " + start);
         }
+        if (start % 2 != 0) {
+            throw new IllegalArgumentException("even port expected: " + start);
+        }
+        if (first % 2 != 0) {
+            throw new IllegalArgumentException("even port expected: " + first);
+        }
+        if (last % 2 != 1) {
+            throw new IllegalArgumentException("odd port expected: " + last);
+        }
         current = start;
         do {
             if (!contains(current)) {
@@ -144,7 +163,7 @@ public class Ports {
             if (current == last) {
                 current = first;
             } else {
-                current = current + 1;;
+                current = current + 2;
             }
         } while (current != start);
         throw new IOException("cannot allocate port");
@@ -183,6 +202,6 @@ public class Ports {
     }
 
     public static int forName(String name, int first, int last) {
-        return (Math.abs(name.hashCode()) % (last - first + 1)) + first;
+        return ((Math.abs(name.hashCode()) % (last - first + 1)) + first) & 0xfffffffe;
     }
 }
