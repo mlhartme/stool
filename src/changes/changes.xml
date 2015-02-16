@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.0.0">
+      <action date="2015-02-16" dev="mhm" type="update">
+        Improved fail modes: they also apply to the stage command itself. And: 'before' was renamed to 'normal'.
+      </action>
       <action date="2015-02-16" dev="mhm" type="fix">
         Stop on slepping stage puts it in state stopped now.
       </action>

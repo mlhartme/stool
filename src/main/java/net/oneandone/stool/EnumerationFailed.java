@@ -21,11 +21,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
-* Created by mhm on 13.01.15.
-*/
 public class EnumerationFailed extends Exception {
-    private Map<FileNode, IOException> problems;
+    private Map<FileNode, Exception> problems;
 
     public EnumerationFailed() {
         problems = new HashMap<>();
@@ -35,7 +32,7 @@ public class EnumerationFailed extends Exception {
         return problems.isEmpty();
     }
 
-    public void add(FileNode wrapper, IOException cause) {
+    public void add(FileNode wrapper, Exception cause) {
         problems.put(wrapper, cause);
         addSuppressed(cause);
     }
@@ -49,8 +46,8 @@ public class EnumerationFailed extends Exception {
             return null;
         }
 
-        result = new StringBuilder("stage enumeration failed for the following stage(s):\n");
-        for (Map.Entry<FileNode, IOException> entry : problems.entrySet()) {
+        result = new StringBuilder("stage command failed for the following stage(s):\n");
+        for (Map.Entry<FileNode, Exception> entry : problems.entrySet()) {
             result.append("  ").append(entry.getKey().getName()).append(": ").append(entry.getValue().getMessage());
         }
         return result.toString();

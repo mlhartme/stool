@@ -198,9 +198,10 @@ http://docbook.org/ns/docbook ">
       </para>
 
       <para>Stage commands have a failure mode, configurable with '-fail &lt;mode>', to specify how to deal with
-        broken stages. Mode 'before' reports problems before running the actual command; this is the default.
-        'after' reports problems after the actuals command was invoked none-broken stages.
-        And finally 'never' only prints a warning for broken stages.
+        broken stages and failed stage commands. Mode 'normal' reports problems as soon as they are detected; this is the default.
+        'after' reports problems after the actual command was invoked on all selected stages.
+        And finally 'never' is similar to 'after', but reports warnings instead of errors (and thus, stool always returns
+        with a success error code).
       </para>
     </sect1>
 

@@ -49,7 +49,7 @@ public abstract class StageCommand extends SessionCommand implements Command {
     private String allOwner;
 
     @Option("fail")
-    private Fail fail = Fail.BEFORE;
+    private Fail fail = Fail.NORMAL;
 
     public StageCommand(Session session) {
         super(session);
@@ -69,15 +69,15 @@ public abstract class StageCommand extends SessionCommand implements Command {
         Lock lock;
         int width;
         List<Stage> lst;
-        EnumerationFailed enumerationFailed;
-        String enumrationFailedMessage;
+        EnumerationFailed failures;
+        String failureMessage;
         boolean withPrefix;
 
-        enumerationFailed = new EnumerationFailed();
-        lst = selected(enumerationFailed);
-        enumrationFailedMessage = enumerationFailed.getMessage();
-        if (enumrationFailedMessage != null && fail == Fail.BEFORE) {
-            throw enumerationFailed;
+        failures = new EnumerationFailed();
+        lst = selected(failures);
+        failureMessage = failures.getMessage();
+        if (failureMessage != null && fail == Fail.NORMAL) {
+            throw failures;
         }
 
         width = 0;
@@ -104,6 +104,11 @@ public abstract class StageCommand extends SessionCommand implements Command {
             } catch (Error | RuntimeException e) {
                 console.error.println(stage.getName() + ": " + e.getMessage());
                 throw e;
+            } catch (Exception e) {
+                if (fail == Fail.NORMAL) {
+                    throw e;
+                }
+                failures.add(stage.getWrapper(), e);
             } finally {
                 if (console.info instanceof PrefixWriter) {
                     ((PrefixWriter) console.info).setPrefix("");
@@ -114,12 +119,13 @@ public abstract class StageCommand extends SessionCommand implements Command {
             }
         }
         doAfter();
-        if (enumrationFailedMessage != null) {
+        failureMessage = failures.getMessage();
+        if (failureMessage != null) {
             switch (fail) {
                 case AFTER:
-                    throw enumerationFailed;
+                    throw failures;
                 case NEVER:
-                    console.info.println("WARNING: " + enumrationFailedMessage);
+                    console.info.println("WARNING: " + failureMessage);
                     break;
                 default:
                     throw new IllegalStateException(fail.toString());
@@ -226,7 +232,7 @@ public abstract class StageCommand extends SessionCommand implements Command {
     }
 
     public static enum Fail {
-        BEFORE, AFTER, NEVER
+        NORMAL, AFTER, NEVER
     }
 
 }

@@ -284,10 +284,10 @@ public class Main extends Cli implements Command {
         console.info.println("  -all-state [down|sleep|up]");
         console.info.println("  -all-owner <owner>");
         console.info.println();
-        console.info.println("failure option for stage enumeration");
-        console.info.println("  -fail before");
-        console.info.println("  -fail after");
-        console.info.println("  -fail never");
+        console.info.println("failure mode for stage command");
+        console.info.println("  -fail normal       fail immediately");
+        console.info.println("  -fail after        fail after all stages have been tried");
+        console.info.println("  -fail never        report errors as warning");
         console.info.println();
         console.info.println("global options");
         console.info.println("  -v  verbose output");
