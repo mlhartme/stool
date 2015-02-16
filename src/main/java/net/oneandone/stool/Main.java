@@ -231,6 +231,7 @@ public class Main extends Cli implements Command {
     public Sudo sudo() throws IOException {
         return new Sudo(session());
     }
+
     @Override
     public void printHelp() {
         String stoolhome;
