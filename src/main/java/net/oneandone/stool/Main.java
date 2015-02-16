@@ -16,7 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.util.Environment;
-import net.oneandone.stool.util.Files;
+import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Slf4jOutputStream;
 import net.oneandone.sushi.cli.Child;
@@ -27,51 +27,42 @@ import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.InputLogStream;
-import net.oneandone.sushi.io.MultiOutputStream;
-import net.oneandone.sushi.io.PrefixWriter;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.UUID;
 
 public class Main extends Cli implements Command {
     public static void main(String[] args) throws IOException {
         MDC.put("UUID", UUID.randomUUID().toString());
-        PrintWriter info;
-        PrintWriter error;
+        String user;
         InputStream input;
         World world;
         Environment environment;
+        FileNode home;
         Console console;
+        Logging logging;
         Logger inputLogger;
 
         world = new World();
+        user = System.getProperty("user.name");
         environment = Environment.loadSystem();
-        environment.stoolHome(world).checkDirectory();
-
-        fixLogPermissions(world, environment);
-        inputLogger = LoggerFactory.getLogger("IN");
-        Logger errorLogger = LoggerFactory.getLogger("OUT.ERROR");
-        Logger infoLogger = LoggerFactory.getLogger("OUT.INFO");
-        info = new PrintWriter(MultiOutputStream.createTeeStream(System.out, new Slf4jOutputStream(infoLogger, false)), true);
-        error = new PrintWriter(MultiOutputStream.createTeeStream(System.err, new Slf4jOutputStream(errorLogger, false)), true);
-
-        // empty prefix is replaced by stage commands when iterating multiple stages
-        info = new PrefixWriter(info);
-        error = new PrefixWriter(error);
-
+        home = environment.stoolHome(world);
+        home.checkDirectory();
+        logging = new Logging(home.join("logs"), user);
+        logging.fixPermissions();
+        inputLogger = logging.logger("IN");
         input = new InputLogStream(System.in, new Slf4jOutputStream(inputLogger, true));
-        console = new Console(world, info, error, input);
+        console = new Console(world, logging.writer(System.out, "OUT"), logging.writer(System.err, "ERR"), input);
 
-        System.exit(new Main(environment, console, inputLogger, args).run(args));
+        System.exit(new Main(user, environment, console, inputLogger, args).run(args));
     }
 
     public static final String INBOX = "inbox";
+    private String user;
     private String[] stoolArgs;
     private Environment environment;
     private Session session;
@@ -79,30 +70,13 @@ public class Main extends Cli implements Command {
     @Option("invocation")
     private FileNode invocationFile;
 
-    public Main(Environment environment, Console console, Logger inputlogger, String[] stoolArgs) {
+    public Main(String user, Environment environment, Console console, Logger inputlogger, String[] stoolArgs) {
         super(console);
+        this.user = user;
         this.environment = environment;
         this.session = null;
         this.inputLogger = inputlogger;
         this.stoolArgs = stoolArgs;
-    }
-
-    //TODO: this is just a silly hack. Cause i don't know why sometimes the stool.log has 644.
-    //TODO: crashing if stool_home is not set
-    private static void fixLogPermissions(World world, Environment environment) throws IOException {
-        FileNode home;
-
-        home = environment.stoolHome(world);
-        try {
-            if (home.join("logs", "stool.log").exists()) {
-                Files.stoolFile(home.join("logs", "stool.log"));
-            } else {
-                Files.stoolFile(home.join("logs", "stool.log").writeString(""));
-            }
-        } catch (IOException e) {
-            home.join("logs", "stool.log").deleteFile();
-            Files.stoolFile(home.join("logs", "stool.log").writeString(""));
-        }
     }
 
     @Child("build")
@@ -306,7 +280,7 @@ public class Main extends Cli implements Command {
 
     private Session session() throws IOException {
         if (session == null) {
-            session = Session.load(environment, console, invocationFile);
+            session = Session.load(user, environment, console, invocationFile);
         }
         MDC.put("stage", session.getSelectedStageName());
         if (stoolArgs != null) {

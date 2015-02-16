@@ -53,12 +53,13 @@ public class Install {
         this.globalProperties = globalProperties;
     }
 
-    public void invoke() throws Exception {
+    public Session invoke(String user) throws Exception {
         Session session;
 
         createHome();
-        session = Session.load(environment, console, null);
+        session = Session.load(user, environment, console, null);
         Overview.createOverview(session);
+        return session;
     }
 
     private void createHome() throws IOException {

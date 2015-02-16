@@ -108,9 +108,11 @@ public class Main extends Cli implements Command {
 
     @Override
     public void invoke() throws Exception {
+        String user;
         Version version;
         Version old;
 
+        user = System.getProperty("user.name");
         version = versionObject();
         if (home == null) {
             printHelp();
@@ -131,12 +133,12 @@ public class Main extends Cli implements Command {
                 }
                 incrementalUpgrade(old, version);
             } else {
-                fullUpgrade(old, version, environment);
+                fullUpgrade(user, old, version, environment);
             }
         } else {
             console.info.println("Ready to install Stool " + version + " to " + home.getAbsolute());
             console.pressReturn();
-            new Install(true, console, environment, config).invoke();
+            new Install(true, console, environment, config).invoke(user);
             console.info.println("Done. To complete the installation:");
             console.info.println("1. add");
             console.info.println("       source " + home.join("stool-function").getAbsolute());
@@ -145,7 +147,7 @@ public class Main extends Cli implements Command {
         }
     }
 
-    private void fullUpgrade(Version old, Version version, Environment environment) throws Exception {
+    private void fullUpgrade(String user, Version old, Version version, Environment environment) throws Exception {
         RmRfThread cleanup;
         Session session;
 
@@ -154,8 +156,7 @@ public class Main extends Cli implements Command {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
-        new Install(true, console, environment, config).invoke();
-        session = Session.load(environment, console, null);
+        session = new Install(true, console, environment, config).invoke(user);
         new SystemImport(session, oldHome).invoke();
 
         Runtime.getRuntime().removeShutdownHook(cleanup);

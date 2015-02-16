@@ -493,11 +493,11 @@ public abstract class Stage {
     }
 
     public void checkOwnership() throws IOException, OwnershipException {
-        if (hijackedByOverview() && owner().equals(session.whoAmI())) {
+        if (hijackedByOverview() && owner().equals(session.user)) {
             session.console.info.println("The stage is currently owned by the overview. Going to own it to you back.");
             new Chown(session, true);
         }
-        if (!technicalOwner().equals(session.whoAmI())) {
+        if (!technicalOwner().equals(session.user)) {
             throw new OwnershipException("Only the owner of the stage is allowed to to do this.\n"
               + "Just own the stage via 'stool chown' and try again.");
         }

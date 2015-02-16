@@ -84,7 +84,7 @@ public class Refresh extends StageCommand {
         boolean stopped;
         String chowned;
 
-        me = session.whoAmI();
+        me = session.user;
         if (stage.state() == Stage.State.UP) {
             new Stop(session).doInvoke(stage);
             stopped = true;

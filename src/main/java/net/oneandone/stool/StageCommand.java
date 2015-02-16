@@ -62,7 +62,7 @@ public abstract class StageCommand extends SessionCommand {
 
     }
     protected Lock stageLock(Stage stage) {
-        return new Lock(session.whoAmI(), stage.shared().join("stage.aquire"));
+        return new Lock(session.user, stage.shared().join("stage.aquire"));
     }
 
     @Override
