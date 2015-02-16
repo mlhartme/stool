@@ -61,8 +61,8 @@ public class ServerXml {
         if (hosts.isEmpty()) {
             throw new ArgumentException("no hosts match your selection");
         }
-        if (hosts.size() != allocated.size()) {
-            throw new IllegalArgumentException(hosts.size() + " vs " + allocated.size());
+        if (hosts.size() != allocated.hosts()) {
+            throw new IllegalArgumentException(hosts.size() + " vs " + allocated.hosts());
         }
         document.getDocumentElement().setAttribute("port", Integer.toString(allocated.stop()));
         template = selector.element(document, "Server/Service");

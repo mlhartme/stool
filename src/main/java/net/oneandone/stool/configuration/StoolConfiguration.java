@@ -34,13 +34,13 @@ import java.util.Map;
 
 public class StoolConfiguration extends BaseConfiguration {
     @Expose
-    public int portPrefixOverview;
+    public int portOverview;
 
     @Expose
-    public int portPrefixFirst;
+    public int portFirst;
 
     @Expose
-    public int portPrefixLast;
+    public int portLast;
 
     /**
      * ps1 shell string
@@ -144,9 +144,8 @@ public class StoolConfiguration extends BaseConfiguration {
     public int autoRemove;
 
     public StoolConfiguration() {
-        portPrefixOverview = 900; // avoid clash with default tomcat port 8080
-        portPrefixFirst = 901;
-        portPrefixLast = 999;
+        portFirst = 9000;
+        portLast = 9999;
         baseHeap = 200;
         basePerm = 60;
         prompt = "{\\+} \\u@\\h:\\w$ ";

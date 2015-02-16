@@ -15,26 +15,30 @@ public class Ports {
         Ports existing;
         Ports result;
         Ports used;
+        List<String> names;
 
         session = stage.session;
         result = new Ports();
-        if (stage.isOverview()) {
-            result.list.add(new Data(session.stoolConfiguration.portPrefixOverview));
-        } else {
-            existing = Ports.load(stage.wrapper);
-            used = null;
-            for (String host : stage.selectedHosts().keySet()) {
-                if (result.size() < existing.size()) {
-                    result.list.add(existing.list.get(result.size()));
-                } else {
-                    if (used == null) {
-                        used = Ports.used(session.getWrappers());
-                    }
-                    result.list.add(used.notContained(host, session.stoolConfiguration.portPrefixFirst, session.stoolConfiguration.portPrefixLast));
+        existing = Ports.load(stage.wrapper);
+        used = null;
+        names = new ArrayList<>();
+        names.add(stage.getName() + "-stop");
+        names.add(stage.getName() + "-jmx");
+        names.add(stage.getName() + "-debug");
+        for (String name : stage.selectedHosts().keySet()) {
+            names.add(name + "-http");
+            names.add(name + "-https");
+        }
+        for (String name : names) {
+            if (result.list.size() < existing.list.size()) {
+                result.list.add(existing.list.get(result.list.size()));
+            } else {
+                if (used == null) {
+                    used = Ports.used(session.getWrappers());
                 }
+                result.list.add(used.notContained(name, session.stoolConfiguration.portFirst, session.stoolConfiguration.portLast));
             }
         }
-        // also save for overview stage - to have the ports read e.g. for status
         result.save(stage.wrapper);
         return result;
     }
@@ -63,49 +67,44 @@ public class Ports {
 
     //--
 
-    private final List<Data> list;
+    private final List<Integer> list;
 
     public Ports() {
         list = new ArrayList<>();
     }
 
-    public int size() {
-        return list.size();
-    }
-
-    public int jmx() {
-        return main().jmx();
+    public int hosts() {
+        return (list.size() - 3) / 2;
     }
 
     public int stop() {
-        return main().stop();
+        return list.get(0);
+    }
+
+    public int jmx() {
+        return list.get(1);
     }
 
     public int debug() {
-        return main().debug();
+        return list.get(2);
     }
 
     public int http(int idx) {
-        return list.get(idx).http();
+        return list.get(3 + idx * 2);
     }
 
     public int https(int idx) {
-        return list.get(idx).https();
+        return list.get(3 + idx * 2 + 1);
     }
-
 
     //--
-
-    private Data main() {
-        return list.get(0);
-    }
 
     private void save(FileNode wrapper) throws IOException {
         List<String> lines;
 
         lines = new ArrayList<>();
-        for (Data data : list) {
-            lines.add(Integer.toString(data.prefix));
+        for (Integer port : list) {
+            lines.add(port.toString());
         }
         file(wrapper).writeLines(lines);
     }
@@ -116,150 +115,74 @@ public class Ports {
         file = file(wrapper);
         if (file.isFile()) {
             for (String line : file.readLines()) {
-                list.add(new Data(Integer.parseInt(line.trim())));
+                list.add(Integer.parseInt(line.trim()));
             }
         }
     }
 
-    public void checkFree() throws IOException {
-        for (Data data : list) {
-            data.checkFree();
-        }
+    private boolean contains(int port) {
+        return list.contains(port);
     }
 
-    private boolean contains(Data data) {
-        return list.contains(data);
+    private int notContained(String host, int first, int last) throws IOException {
+        return notContained(forName(host, first, last), first, last);
     }
 
-    private Data notContained(String host, int first, int last) throws IOException {
-        return notContained(host, new Data(first), new Data(last));
-    }
+    private int notContained(int start, int first, int last) throws IOException {
+        int current;
 
-    private Data notContained(String host, Data first, Data last) throws IOException {
-        return notContained(Data.forName(host, first, last), first, last);
-    }
-
-    private Data notContained(Data start, Data first, Data last) throws IOException {
-        Data current;
-
-        if (!start.within(first, last)) {
+        if ((start < first) || (start > last)) {
             throw new IllegalArgumentException("ports out of range: " + start);
         }
         current = start;
         do {
             if (!contains(current)) {
                 // port prefix isn't used by another stage
-                current.checkFree();
+                checkFree(current);
                 return current;
             }
-            if (current.equals(last)) {
+            if (current == last) {
                 current = first;
             } else {
-                current = current.next();
+                current = current + 1;;
             }
-        } while (!current.equals(start));
-        throw new IOException("cannot allocate ports");
+        } while (current != start);
+        throw new IOException("cannot allocate port");
     }
 
+    //
 
+    /**
+     * See http://stackoverflow.com/questions/434718/sockets-discover-port-availability-using-java
+     */
+    private static void checkFree(int port) throws IOException {
+        boolean available;
+        ServerSocket socket;
 
-    //--
-
-    private static class Data {
-        public static Data forName(String name, Data first, Data last) {
-            return new Data((Math.abs(name.hashCode()) % (last.prefix - first.prefix + 1)) + first.prefix);
-        }
-
-        public final int prefix;
-
-        public Data(int prefix) {
-            this.prefix = prefix;
-        }
-
-        public Data next() {
-            return new Data(prefix + 1);
-        }
-
-        public int http() {
-            return prefix * 10;
-        }
-
-        public int https() {
-            return prefix * 10 + 3;
-        }
-
-        public int stop() {
-            return prefix * 10 + 1;
-        }
-
-        private int debug() {
-            return prefix * 10 + 5;
-        }
-
-        private int jmx() {
-            return prefix * 10 + 6;
-        }
-
-        //--
-
-        public String toString() {
-            return Integer.toString(prefix);
-        }
-
-        public int hashCode() {
-            return prefix;
-        }
-
-        public boolean equals(Object obj) {
-            if (obj instanceof Data) {
-                return prefix == ((Data) obj).prefix;
-            }
-            return false;
-        }
-
-        public boolean within(Data first, Data last) {
-            return prefix >= first.prefix && prefix <= last.prefix;
-        }
-
-        //--
-        /**
-         * See http://stackoverflow.com/questions/434718/sockets-discover-port-availability-using-java
-         */
-        public void checkFree() throws IOException {
-            boolean available;
-            ServerSocket socket;
-
-            // convert portPrefix (three digits) into a proper port (add fourth digit aka suffix)
-            List<Integer> portsToCheck = new ArrayList<>();
-            portsToCheck.add(jmx());
-            portsToCheck.add(debug());
-            portsToCheck.add(stop());
-            portsToCheck.add(http());
-            portsToCheck.add(https());
-
-            for (int portNumber : portsToCheck) {
-                socket = null;
-                available = false;
+        socket = null;
+        available = false;
+        try {
+            socket = new ServerSocket(port);
+            available = true;
+        } catch (IOException e) {
+            // fall-through
+        } finally {
+            // Clean up
+            if (socket != null) {
                 try {
-                    socket = new ServerSocket(portNumber);
-                    available = true;
+                    socket.close();
                 } catch (IOException e) {
-                    break;
-                } finally {
-                    // Clean up
-                    if (socket != null) {
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            /* should not be thrown */
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                if (!available) {
-                    throw new IOException("portPrefix " + prefix + " already in used: " + portNumber);
+                    /* should not be thrown */
+                    e.printStackTrace();
                 }
             }
         }
+        if (!available) {
+            throw new IOException("port already in use: " + port);
+        }
+    }
+
+    public static int forName(String name, int first, int last) {
+        return (Math.abs(name.hashCode()) % (last - first + 1)) + first;
     }
 }
