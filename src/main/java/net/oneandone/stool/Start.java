@@ -280,6 +280,7 @@ public class Start extends StageCommand {
 
         result = new HashMap<>();
         result.put("java.home", session.jdkHome());
+        result.put("wrapper.port", Integer.toString(ports.wrapper()));
         result.put("wrapper.java.additional", wrapperJavaAdditional(ports, stage, new Macros(session.stoolConfiguration.macros)));
         return result;
     }

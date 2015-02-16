@@ -24,7 +24,7 @@ public class Ports {
         existing = Ports.load(stage.wrapper);
         used = null;
         names = new ArrayList<>();
-        names.add(stage.getName() + "-stop");
+        names.add(stage.getName() + "-stop-wrapper");
         names.add(stage.getName() + "-jmx-debug");
         hosts = new ArrayList<>(stage.selectedHosts().keySet());
         Collections.sort(hosts); // guarantied ordering
@@ -89,6 +89,10 @@ public class Ports {
 
     public int stop() {
         return evens.get(0);
+    }
+
+    public int wrapper() {
+        return evens.get(0) + 1;
     }
 
     public int jmx() {
