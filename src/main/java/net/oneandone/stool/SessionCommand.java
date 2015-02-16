@@ -15,12 +15,19 @@
  */
 package net.oneandone.stool;
 
+import com.github.zafarkhaja.semver.Version;
+import net.oneandone.stool.configuration.BaseConfiguration;
+import net.oneandone.stool.configuration.StoolConfiguration;
+import net.oneandone.stool.setup.Update;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Command;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Option;
+import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -30,6 +37,8 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.net.URISyntaxException;
+import java.util.List;
 
 public abstract class SessionCommand implements Command {
 
@@ -42,10 +51,13 @@ public abstract class SessionCommand implements Command {
         this.world = console.world;
         this.session = session;
     }
-    
+
     @Option("nolock")
     protected boolean noLock;
 
+
+    @Option("updateCheck")
+    private boolean updateCheck;
 
     // override if you don't want locking
     protected Lock lock() {
@@ -56,6 +68,7 @@ public abstract class SessionCommand implements Command {
     public void invoke() throws Exception {
         Lock lock;
 
+        updateCheck();
         lock = noLock ? null : lock();
         if (lock != null) {
             lock.aquire(getClass().getSimpleName().toLowerCase(), console);
@@ -130,4 +143,33 @@ public abstract class SessionCommand implements Command {
         console.info.println();
     }
 
+    //--
+
+    private static final long MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
+
+    public void updateCheck() throws URISyntaxException, IOException {
+        List<FileNode> updates;
+        FileNode checked;
+        Node src;
+
+        checked = session.home.join("downloads/.update.checked");
+        if (updateCheck || ((session.stoolConfiguration.updateInterval > 0) && updateCheckPending(checked))) {
+            src = world.node(session.stoolConfiguration.updateSource);
+            console.verbose.println("checking for updates at " + src.getURI());
+            src.checkDirectory();
+            updates = Update.check(net.oneandone.stool.setup.Main.versionObject(), src, session.home);
+            for (FileNode file : updates) {
+                console.info.println("INFO: found a new Stool version, update by running " + file);
+            }
+            if (!updates.isEmpty()) {
+                console.info.println("(you can disable this up-to-date check in " + StoolConfiguration.configurationFile(session.home) + ", set 'updateInterval' to 0)");
+            }
+            checked.writeBytes();
+            Files.stoolFile(checked);
+        }
+    }
+
+    private boolean updateCheckPending(FileNode marker) throws GetLastModifiedException {
+        return !marker.exists() || ((System.currentTimeMillis() - marker.getLastModified()) > session.stoolConfiguration.updateInterval * MILLIS_PER_DAY);
+    }
 }

@@ -24,7 +24,7 @@ public class Update {
         for (Node file : src.list()) {
             if (file.getName().endsWith(".sh")) {
                 version = file.getName();
-                version = Strings.removeLeft(version, "setup-stool");
+                version = Strings.removeLeft(version, "setup-stool-");
                 version = Strings.removeRight(version, ".sh");
                 next = Version.valueOf(version);
                 if (next.greaterThan(current)) {
@@ -34,8 +34,8 @@ public class Update {
                         if (current.getMajorVersion() == next.getMajorVersion() && current.getMinorVersion() == next.getMinorVersion()) {
                             args = home.getAbsolute();
                         } else {
-                            args = home.getAbsolute() + " " + home.getParent().join("stool-" + next.getMajorVersion() + ". "
-                                    + next.getMinorVersion() + "." + next.getPatchVersion()).getAbsolute();
+                            args = home.getAbsolute() + " " + home.getParent().join("stool-"
+                                    + next.getMajorVersion() + "." + next.getMinorVersion()).getAbsolute();
                         }
                         script.writeLines(
                                 "#!/bin/sh",
@@ -44,6 +44,7 @@ public class Update {
                                 download.getAbsolute() + " " + args
                         );
                         script.setPermissions("rwxrwxr-x");
+                        result.add(script);
                     }
                 }
             }

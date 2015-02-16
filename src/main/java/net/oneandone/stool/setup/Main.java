@@ -19,7 +19,6 @@ import com.github.zafarkhaja.semver.Version;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.SystemImport;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Environment;
@@ -35,9 +34,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Main extends Cli implements Command {
@@ -114,7 +111,7 @@ public class Main extends Cli implements Command {
         Version version;
         Version old;
 
-        version = StoolConfiguration.version();
+        version = versionObject();
         if (home == null) {
             printHelp();
             return;
@@ -218,6 +215,16 @@ public class Main extends Cli implements Command {
         try (Reader src = file.createReader()) {
             return (JsonObject) parser.parse(src);
         }
+    }
+
+    //--
+
+    // TODO: doesn't work in integration tests
+    public static Version versionObject() {
+        String str;
+
+        str = StoolConfiguration.class.getPackage().getSpecificationVersion();
+        return Version.valueOf(String.valueOf(str));
     }
 
 }
