@@ -66,23 +66,6 @@ public class Start extends StageCommand {
     }
 
     @Override
-    protected List<Stage> defaultSelected(EnumerationFailed notUsed) throws IOException {
-        Stage stage;
-        List<Stage> result;
-
-        result = new ArrayList();
-        stage = selected();
-        result.add(stage);
-        if (!stage.isOverview()) {
-            stage = session.load(Overview.OVERVIEW_NAME);
-            if (stage.runningTomcat() == null) {
-                result.add(0, stage);
-            }
-        }
-        return result;
-    }
-
-    @Override
     public void doInvoke(Stage stage) throws Exception {
         FileNode download;
         Ports allocated;
