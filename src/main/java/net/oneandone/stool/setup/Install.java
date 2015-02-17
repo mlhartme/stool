@@ -53,12 +53,13 @@ public class Install {
         this.globalProperties = globalProperties;
     }
 
-    public void invoke() throws Exception {
+    public Session invoke(String user) throws Exception {
         Session session;
 
         createHome();
-        session = Session.load(environment, console, null);
+        session = Session.load(user, environment, console, null);
         Overview.createOverview(session);
+        return session;
     }
 
     private void createHome() throws IOException {
@@ -88,7 +89,7 @@ public class Install {
             console.world.locateClasspathItem(getClass()).copyFile(home.join("bin/stool.jar"));
         }
         // manually create empty subdirectories, because git doesn't know them
-        for (String dir : new String[] {"wrappers", "inbox", "logs", "service-wrapper", "service-wrapper/downloads", "sessions",
+        for (String dir : new String[] {"wrappers", "downloads", "inbox", "logs", "service-wrapper", "service-wrapper/downloads", "sessions",
                 "tomcat", "tomcat/downloads"}) {
             home.join(dir).mkdir();
         }

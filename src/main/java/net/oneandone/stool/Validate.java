@@ -107,7 +107,7 @@ public class Validate extends StageCommand {
                 if (stage.state() == Stage.State.UP) {
                     new Stop(session).doInvoke(stage);
                 }
-                if (!stage.technicalOwner().equals(session.whoAmI())) {
+                if (!stage.technicalOwner().equals(session.user)) {
                     new Chown(session, true).doInvoke(stage);
                 }
                 new Remove(session, true, true).doInvoke(stage);

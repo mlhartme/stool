@@ -46,27 +46,10 @@ import java.util.List;
 
 /** Mostly a representation of $STOOL_HOME */
 public class Session {
-    public static Session forTesting(World world) throws IOException {
-        Console console;
-        FileNode home;
-        Environment environment;
-
-        console = Console.create(world);
-        home = world.getTemp().createTempDirectory().join("stool");
-        environment = Environment.loadSystem();
-        environment.setStoolHome(home);
-        try {
-            new Install(false, console, environment, new HashMap<String, Object>()).invoke();
-        } catch (Exception e) {
-            throw new IOException("install failed: " + e.getMessage(), e);
-        }
-        return new Session(home, console, environment, StoolConfiguration.load(home), Bedroom.loadOrCreate(home), null);
-    }
-
-    public static Session load(Environment environment, Console console, FileNode invocationFile) throws IOException {
+    public static Session load(String user, Environment environment, Console console, FileNode invocationFile) throws IOException {
         Session session;
 
-        session = loadWithoutWipe(environment, console, invocationFile);
+        session = loadWithoutWipe(user, environment, console, invocationFile);
 
         // my first thought was to watch for filesystem events to trigger wrapper wiping.
         // But there's quite a big delay and rmdif+mkdir is reported as modification. Plus the code is quite complex and
@@ -105,13 +88,13 @@ public class Session {
         console.verbose.println("wipeStaleWrappers done, ms=" + ((System.currentTimeMillis() - s)));
     }
 
-    public static Session loadWithoutWipe(Environment environment, Console console, FileNode invocationFile) throws IOException {
+    public static Session loadWithoutWipe(String user, Environment environment, Console console, FileNode invocationFile) throws IOException {
         FileNode home;
         Session result;
 
         home = environment.stoolHome(console.world);
         home.checkDirectory();
-        result = new Session(home, console, environment, StoolConfiguration.load(home), Bedroom.loadOrCreate(home), invocationFile);
+        result = new Session(user, home, console, environment, StoolConfiguration.load(home), Bedroom.loadOrCreate(home), invocationFile);
         result.selectedStageName = environment.get(Environment.STOOL_SELECTED);
         return result;
     }
@@ -120,8 +103,9 @@ public class Session {
 
     //--
 
-    public Session(FileNode home, Console console, Environment environment, StoolConfiguration stoolConfiguration,
+    public Session(String user, FileNode home, Console console, Environment environment, StoolConfiguration stoolConfiguration,
                    Bedroom bedroom, FileNode invocationFile) {
+        this.user = user;
         this.home = home;
         this.console = console;
         this.environment = environment;
@@ -139,6 +123,8 @@ public class Session {
     }
 
     //--
+
+    public final String user;
 
     // TODO: redundant!
     public final FileNode home;
@@ -322,9 +308,6 @@ public class Session {
         env.set(Environment.PWD, (stage == null ? ((FileNode) console.world.getWorking()) : stage.getDirectory()).getAbsolute());
         return env;
     }
-    public String whoAmI() {
-        return System.getProperty("user.name");
-    }
 
     //--
 
@@ -394,7 +377,7 @@ public class Session {
 
     /** session lock */
     public Lock lock() {
-        return new Lock(whoAmI(), home.join("stool.aquire"));
+        return new Lock(user, home.join("stool.aquire"));
     }
 
     public boolean isSelected(Stage stage) {

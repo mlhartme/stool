@@ -19,7 +19,6 @@ import com.github.zafarkhaja.semver.Version;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.SystemImport;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Environment;
@@ -35,9 +34,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Main extends Cli implements Command {
@@ -111,10 +108,12 @@ public class Main extends Cli implements Command {
 
     @Override
     public void invoke() throws Exception {
+        String user;
         Version version;
         Version old;
 
-        version = StoolConfiguration.version();
+        user = System.getProperty("user.name");
+        version = versionObject();
         if (home == null) {
             printHelp();
             return;
@@ -134,12 +133,12 @@ public class Main extends Cli implements Command {
                 }
                 incrementalUpgrade(old, version);
             } else {
-                fullUpgrade(old, version, environment);
+                fullUpgrade(user, old, version, environment);
             }
         } else {
             console.info.println("Ready to install Stool " + version + " to " + home.getAbsolute());
             console.pressReturn();
-            new Install(true, console, environment, config).invoke();
+            new Install(true, console, environment, config).invoke(user);
             console.info.println("Done. To complete the installation:");
             console.info.println("1. add");
             console.info.println("       source " + home.join("stool-function").getAbsolute());
@@ -148,7 +147,7 @@ public class Main extends Cli implements Command {
         }
     }
 
-    private void fullUpgrade(Version old, Version version, Environment environment) throws Exception {
+    private void fullUpgrade(String user, Version old, Version version, Environment environment) throws Exception {
         RmRfThread cleanup;
         Session session;
 
@@ -157,8 +156,7 @@ public class Main extends Cli implements Command {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
-        new Install(true, console, environment, config).invoke();
-        session = Session.load(environment, console, null);
+        session = new Install(true, console, environment, config).invoke(user);
         new SystemImport(session, oldHome).invoke();
 
         Runtime.getRuntime().removeShutdownHook(cleanup);
@@ -218,6 +216,16 @@ public class Main extends Cli implements Command {
         try (Reader src = file.createReader()) {
             return (JsonObject) parser.parse(src);
         }
+    }
+
+    //--
+
+    // TODO: doesn't work in integration tests
+    public static Version versionObject() {
+        String str;
+
+        str = StoolConfiguration.class.getPackage().getSpecificationVersion();
+        return Version.valueOf(String.valueOf(str));
     }
 
 }

@@ -33,9 +33,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class StageCommand extends SessionCommand implements Command {
+public abstract class StageCommand extends SessionCommand {
     protected long start;
     protected long end;
+
     @Option("stage")
     private String stageNames;
 
@@ -61,7 +62,7 @@ public abstract class StageCommand extends SessionCommand implements Command {
 
     }
     protected Lock stageLock(Stage stage) {
-        return new Lock(session.whoAmI(), stage.shared().join("stage.aquire"));
+        return new Lock(session.user, stage.shared().join("stage.aquire"));
     }
 
     @Override

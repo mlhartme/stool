@@ -71,7 +71,7 @@ public class Chown extends StageCommand {
         String user;
         boolean startAgain;
 
-        user = userArgument != null ? userArgument : session.whoAmI();
+        user = userArgument != null ? userArgument : session.user;
         if (!session.stoolConfiguration.security.isLocal()
           && stage.getName().equals(Overview.OVERVIEW_NAME) && Role.isAdmin(session.stoolConfiguration)) {
             console.info.println("You're not allowed to do this. This incident will be reported.");

@@ -48,6 +48,11 @@ public class OverviewConfiguration {
     }
 
     @Bean
+    public String user() {
+        return System.getProperty("overview.user.name");
+    }
+
+    @Bean
     public Console console() {
         return Console.create(world());
     }
@@ -58,7 +63,7 @@ public class OverviewConfiguration {
 
         system = Environment.loadSystem();
         system.setStoolHome(home());
-        return Session.load(system, console(), null);
+        return Session.load(user(), system, console(), null);
     }
 
     @Bean

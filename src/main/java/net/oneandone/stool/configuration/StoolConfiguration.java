@@ -136,6 +136,13 @@ public class StoolConfiguration extends BaseConfiguration {
     @Expose
     public String authenticationSso;
 
+    @Expose
+    public String updateSource;
+
+    // numer of days between up-to-data checks
+    @Expose
+    public int updateInterval;
+
     /**
      * Number of days to wait before removing an expired stage.
      */
@@ -172,17 +179,11 @@ public class StoolConfiguration extends BaseConfiguration {
         mailUsername = "";
         mailPassword = "";
         certificates = "";
+        updateSource = "";
+        updateInterval = 0;
     }
 
-    // TODO: doesn't work in integration tests
-    public static Version version() throws IOException {
-        String str;
-
-        str = StoolConfiguration.class.getPackage().getSpecificationVersion();
-        return Version.valueOf(String.valueOf(str));
-    }
-
-    private static FileNode configurationFile(FileNode home) {
+    public static FileNode configurationFile(FileNode home) {
         return home.isDirectory() ? home.join("config.json") : home;
     }
 
