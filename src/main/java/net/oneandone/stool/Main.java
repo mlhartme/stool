@@ -52,8 +52,7 @@ public class Main extends Cli implements Command {
         environment = Environment.loadSystem();
         home = environment.stoolHome(world);
         home.checkDirectory();
-        logging = new Logging(home.join("logs"), user);
-        logging.fixPermissions();
+        logging = new Logging(home.join("logs/stool.log"), user);
         inputLogger = logging.logger("IN");
         input = new InputLogStream(System.in, new Slf4jOutputStream(inputLogger, true));
         console = new Console(world, logging.writer(System.out, "OUT"), logging.writer(System.err, "ERR"), input);

@@ -137,7 +137,7 @@ public abstract class StageCommand extends SessionCommand {
             }
         }
     }
-    private void addStageAppenders(Stage stage) {
+    private void addStageAppenders(Stage stage) throws IOException {
         Logging logging;
 
         logging = session.logging;
@@ -147,11 +147,11 @@ public abstract class StageCommand extends SessionCommand {
         addStageAppender(stage, logging, "ERR");
     }
 
-    private void addStageAppender(Stage stage, Logging logging, String name) {
+    private void addStageAppender(Stage stage, Logging logging, String name) throws IOException {
         Logger logger;
 
         logger = logging.lookup(name);
-        logger.addAppender(logging.stageFileAppender(stage.getWrapper().join("stage.log")));
+        logger.addAppender(logging.stageAppender(stage.getWrapper().join("stage.log"), name));
     }
 
     private void removeStageAppenders() {
