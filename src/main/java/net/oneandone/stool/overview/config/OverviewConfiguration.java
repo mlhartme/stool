@@ -63,7 +63,7 @@ public class OverviewConfiguration {
 
         system = Environment.loadSystem();
         system.setStoolHome(home());
-        return Session.load(user(), system, console(), null);
+        return Session.load(null /* TODO */, user(), system, console(), null);
     }
 
     @Bean

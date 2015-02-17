@@ -58,20 +58,23 @@ public class Main extends Cli implements Command {
         input = new InputLogStream(System.in, new Slf4jOutputStream(inputLogger, true));
         console = new Console(world, logging.writer(System.out, "OUT"), logging.writer(System.err, "ERR"), input);
 
-        System.exit(new Main(user, environment, console, inputLogger, args).run(args));
+        System.exit(new Main(logging, user, environment, console, inputLogger, args).run(args));
     }
 
     public static final String INBOX = "inbox";
-    private String user;
-    private String[] stoolArgs;
-    private Environment environment;
+
+    private final Logging logging;
+    private final String user;
+    private final String[] stoolArgs;
+    private final Environment environment;
     private Session session;
-    private Logger inputLogger;
+    private final Logger inputLogger;
     @Option("invocation")
     private FileNode invocationFile;
 
-    public Main(String user, Environment environment, Console console, Logger inputlogger, String[] stoolArgs) {
+    public Main(Logging logging, String user, Environment environment, Console console, Logger inputlogger, String[] stoolArgs) {
         super(console);
+        this.logging = logging;
         this.user = user;
         this.environment = environment;
         this.session = null;
@@ -280,7 +283,7 @@ public class Main extends Cli implements Command {
 
     private Session session() throws IOException {
         if (session == null) {
-            session = Session.load(user, environment, console, invocationFile);
+            session = Session.load(logging, user, environment, console, invocationFile);
         }
         MDC.put("stage", session.getSelectedStageName());
         if (stoolArgs != null) {

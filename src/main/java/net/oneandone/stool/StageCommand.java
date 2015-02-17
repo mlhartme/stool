@@ -15,12 +15,14 @@
  */
 package net.oneandone.stool;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.core.Appender;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Lock;
+import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Command;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -101,6 +103,7 @@ public abstract class StageCommand extends SessionCommand {
                 if (withPrefix) {
                     ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
                 }
+                addStageAppenders(stage);
                 doInvoke(stage);
             } catch (Error | RuntimeException e) {
                 console.error.println(stage.getName() + ": " + e.getMessage());
@@ -111,6 +114,7 @@ public abstract class StageCommand extends SessionCommand {
                 }
                 failures.add(stage.getWrapper(), e);
             } finally {
+                removeStageAppenders();
                 if (console.info instanceof PrefixWriter) {
                     ((PrefixWriter) console.info).setPrefix("");
                 }
@@ -133,6 +137,39 @@ public abstract class StageCommand extends SessionCommand {
             }
         }
     }
+    private void addStageAppenders(Stage stage) {
+        Logging logging;
+
+        logging = session.logging;
+
+        addStageAppender(stage, logging, "IN");
+        addStageAppender(stage, logging, "OUT");
+        addStageAppender(stage, logging, "ERR");
+    }
+
+    private void addStageAppender(Stage stage, Logging logging, String name) {
+        Logger logger;
+
+        logger = logging.lookup(name);
+        logger.addAppender(logging.stageFileAppender(stage.getWrapper().join("stage.log")));
+    }
+
+    private void removeStageAppenders() {
+        removeStageAppender("IN");
+        removeStageAppender("OUT");
+        removeStageAppender("ERR");
+    }
+
+    private void removeStageAppender(String name) {
+        Logger logger;
+        Appender appender;
+
+        logger = session.logging.lookup(name);
+        appender = logger.getAppender("stageAppender");
+        logger.detachAppender(appender);
+        appender.stop();
+    }
+
     private List<Stage> selected(EnumerationFailed problems) throws IOException {
         int count;
         final Stage.State s;

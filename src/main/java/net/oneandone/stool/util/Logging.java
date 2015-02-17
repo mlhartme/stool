@@ -4,6 +4,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -87,11 +89,39 @@ public class Logging {
         return result;
     }
 
+    public Appender<ILoggingEvent> stageFileAppender(FileNode file) {
+        RollingFileAppender result;
+        TimeBasedRollingPolicy policy;
+
+        result = new RollingFileAppender();
+
+        policy = new TimeBasedRollingPolicy();
+        policy.setContext(context);
+        policy.setParent(result);
+        policy.setFileNamePattern("stage-%d{yyyy-MM-dd}.log.gz");
+        policy.setMaxHistory(7);
+        policy.start();
+
+        result.setContext(context);
+        result.setName("stageAppender");
+        result.setEncoder(encoder(file.getName()));
+        result.setAppend(true);
+        result.setFile(file.getAbsolute());
+
+        result.setRollingPolicy(policy);
+        result.start();
+        return result;
+    }
+
     private PatternLayoutEncoder encoder(String logger) {
         PatternLayoutEncoder logEncoder = new PatternLayoutEncoder();
         logEncoder.setContext(context);
         logEncoder.setPattern("%date | %mdc | " + logger + " | " + user + " | %msg%n");
         logEncoder.start();
         return logEncoder;
+    }
+
+    public Logger lookup(String name) {
+        return context.getLogger(name);
     }
 }
