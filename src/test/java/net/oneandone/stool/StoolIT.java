@@ -200,7 +200,7 @@ public class StoolIT {
         output = new ByteArrayOutputStream();
         wrapped = new PrintWriter(new TeeOutputStream(log, output), true);
         console = new Console(world, new PrefixWriter(wrapped), new PrefixWriter(wrapped), System.in);
-        main = new Main(null /* TODO */, TEST_USER, system, console, LoggerFactory.getLogger("Integrationtest"), null);
+        main = new Main(null /* TODO */, TEST_USER, "TODO", system, console);
         command = "stool";
         for (String arg : args) {
             command = command + " " + arg;
@@ -237,7 +237,7 @@ public class StoolIT {
         } catch (Exception e) {
             throw new IOException("install failed: " + e.getMessage(), e);
         }
-        return new Session(null /* TODO */, TEST_USER, home, console, environment, StoolConfiguration.load(home), Bedroom.loadOrCreate(home), null);
+        return new Session(null /* TODO */, TEST_USER, "TODO", home, console, environment, StoolConfiguration.load(home), Bedroom.loadOrCreate(home), null);
     }
 
 }

@@ -58,7 +58,7 @@ public class Install {
         Session session;
 
         createHome();
-        session = Session.load(null /* TODO */, user, environment, console, null);
+        session = Session.load(null /* TODO */, user, "install", environment, console, null);
         Overview.createOverview(session);
         return session;
     }

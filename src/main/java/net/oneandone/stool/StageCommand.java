@@ -138,20 +138,17 @@ public abstract class StageCommand extends SessionCommand {
         }
     }
     private void addStageAppenders(Stage stage) throws IOException {
-        Logging logging;
-
-        logging = session.logging;
-
-        addStageAppender(stage, logging, "IN");
-        addStageAppender(stage, logging, "OUT");
-        addStageAppender(stage, logging, "ERR");
+        addStageAppender(stage, "IN").info("{" + stage.getName() + "} " + session.command);
+        addStageAppender(stage, "OUT");
+        addStageAppender(stage, "ERR");
     }
 
-    private void addStageAppender(Stage stage, Logging logging, String name) throws IOException {
+    private Logger addStageAppender(Stage stage, String name) throws IOException {
         Logger logger;
 
-        logger = logging.lookup(name);
-        logger.addAppender(logging.stageAppender(stage.getWrapper().join("stage.log"), name));
+        logger = session.logging.lookup(name);
+        logger.addAppender(session.logging.stageAppender(stage.getWrapper().join("stage.log"), name));
+        return logger;
     }
 
     private void removeStageAppenders() {

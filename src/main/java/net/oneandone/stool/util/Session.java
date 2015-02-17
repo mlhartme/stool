@@ -46,10 +46,10 @@ import java.util.List;
 
 /** Mostly a representation of $STOOL_HOME */
 public class Session {
-    public static Session load(Logging logging, String user, Environment environment, Console console, FileNode invocationFile) throws IOException {
+    public static Session load(Logging logging, String user, String command, Environment environment, Console console, FileNode invocationFile) throws IOException {
         Session session;
 
-        session = loadWithoutWipe(logging, user, environment, console, invocationFile);
+        session = loadWithoutWipe(logging, user, command, environment, console, invocationFile);
 
         // my first thought was to watch for filesystem events to trigger wrapper wiping.
         // But there's quite a big delay and rmdif+mkdir is reported as modification. Plus the code is quite complex and
@@ -88,13 +88,13 @@ public class Session {
         console.verbose.println("wipeStaleWrappers done, ms=" + ((System.currentTimeMillis() - s)));
     }
 
-    public static Session loadWithoutWipe(Logging logging, String user, Environment environment, Console console, FileNode invocationFile) throws IOException {
+    public static Session loadWithoutWipe(Logging logging, String user, String command, Environment environment, Console console, FileNode invocationFile) throws IOException {
         FileNode home;
         Session result;
 
         home = environment.stoolHome(console.world);
         home.checkDirectory();
-        result = new Session(logging, user, home, console, environment, StoolConfiguration.load(home), Bedroom.loadOrCreate(home), invocationFile);
+        result = new Session(logging, user, command, home, console, environment, StoolConfiguration.load(home), Bedroom.loadOrCreate(home), invocationFile);
         result.selectedStageName = environment.get(Environment.STOOL_SELECTED);
         return result;
     }
@@ -105,6 +105,7 @@ public class Session {
 
     public final Logging logging;
     public final String user;
+    public final String command;
 
     // TODO: redundant!
     public final FileNode home;
@@ -124,10 +125,11 @@ public class Session {
     private Processes processes;
     public final Users users;
 
-    public Session(Logging logging, String user, FileNode home, Console console, Environment environment, StoolConfiguration stoolConfiguration,
+    public Session(Logging logging, String user, String command, FileNode home, Console console, Environment environment, StoolConfiguration stoolConfiguration,
                    Bedroom bedroom, FileNode invocationFile) {
         this.logging = logging;
         this.user = user;
+        this.command = command;
         this.home = home;
         this.console = console;
         this.environment = environment;

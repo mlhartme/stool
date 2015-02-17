@@ -27,6 +27,7 @@ import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.InputLogStream;
+import net.oneandone.sushi.util.Separator;
 import org.slf4j.Logger;
 import org.slf4j.MDC;
 
@@ -46,6 +47,7 @@ public class Main extends Cli implements Command {
         Console console;
         Logging logging;
         Logger inputLogger;
+        String command;
 
         world = new World();
         user = System.getProperty("user.name");
@@ -57,28 +59,29 @@ public class Main extends Cli implements Command {
         input = new InputLogStream(System.in, new Slf4jOutputStream(inputLogger, true));
         console = new Console(world, logging.writer(System.out, "OUT"), logging.writer(System.err, "ERR"), input);
 
-        System.exit(new Main(logging, user, environment, console, inputLogger, args).run(args));
+        command = Separator.SPACE.join(Arrays.copyOfRange(args, 2 /* skip invocation file */, args.length));
+        inputLogger.info("stool " + command);
+        System.exit(new Main(logging, user, command, environment, console).run(args));
     }
 
     public static final String INBOX = "inbox";
 
     private final Logging logging;
     private final String user;
-    private final String[] stoolArgs;
+    private final String command;
     private final Environment environment;
     private Session session;
-    private final Logger inputLogger;
+
     @Option("invocation")
     private FileNode invocationFile;
 
-    public Main(Logging logging, String user, Environment environment, Console console, Logger inputlogger, String[] stoolArgs) {
+    public Main(Logging logging, String user, String command, Environment environment, Console console) {
         super(console);
         this.logging = logging;
         this.user = user;
+        this.command = command;
         this.environment = environment;
         this.session = null;
-        this.inputLogger = inputlogger;
-        this.stoolArgs = stoolArgs;
     }
 
     @Child("build")
@@ -282,20 +285,8 @@ public class Main extends Cli implements Command {
 
     private Session session() throws IOException {
         if (session == null) {
-            session = Session.load(logging, user, environment, console, invocationFile);
+            session = Session.load(logging, user, command, environment, console, invocationFile);
         }
-        MDC.put("stage", session.getSelectedStageName());
-        if (stoolArgs != null) {
-            StringBuilder stoolarguments;
-            stoolarguments = new StringBuilder("stool");
-            for (String arg : Arrays.copyOfRange(stoolArgs, 2, stoolArgs.length)) {
-                stoolarguments.append(' ').append(arg);
-            }
-            if (inputLogger != null) {
-                inputLogger.info(stoolarguments.toString());
-            }
-        }
-
         return session;
     }
 
