@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.configuration.SecurityLevel;
+import net.oneandone.stool.configuration.StoolConfiguration;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

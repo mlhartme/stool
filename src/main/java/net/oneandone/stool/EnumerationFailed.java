@@ -17,7 +17,6 @@ package net.oneandone.stool;
 
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -17,9 +17,9 @@ package net.oneandone.stool.overview;
 
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.EnumerationFailed;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.CreateOutputStreamException;

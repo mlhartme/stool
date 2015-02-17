@@ -18,10 +18,10 @@ package net.oneandone.stool.overview;
 
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Until;
-import net.oneandone.stool.users.UserNotFound;
-import net.oneandone.stool.users.Users;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.stage.artifact.Changes;
+import net.oneandone.stool.users.UserNotFound;
+import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.BuildStats;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;

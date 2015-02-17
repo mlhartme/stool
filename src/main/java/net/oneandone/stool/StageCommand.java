@@ -19,7 +19,6 @@ import ch.qos.logback.classic.Logger;
 import ch.qos.logback.core.Appender;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Lock;
-import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;

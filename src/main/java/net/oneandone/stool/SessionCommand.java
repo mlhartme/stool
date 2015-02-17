@@ -15,15 +15,12 @@
  */
 package net.oneandone.stool;
 
-import com.github.zafarkhaja.semver.Version;
-import net.oneandone.stool.configuration.BaseConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.setup.Update;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Command;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Option;

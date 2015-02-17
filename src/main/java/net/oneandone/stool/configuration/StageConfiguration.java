@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
-import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Role;
 import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.Node;

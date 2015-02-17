@@ -16,9 +16,7 @@
 package net.oneandone.stool.stage;
 
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;

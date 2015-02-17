@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.configuration;
 
-import net.oneandone.stool.util.Ports;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
