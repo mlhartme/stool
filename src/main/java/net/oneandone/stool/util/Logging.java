@@ -9,11 +9,11 @@ import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiOutputStream;
 import net.oneandone.sushi.io.PrefixWriter;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-
 
 public class Logging {
     private final LoggerContext context;
@@ -21,9 +21,11 @@ public class Logging {
     private final String user;
 
     public Logging(FileNode logs, String user) {
-        this.context = new LoggerContext();
+        this.context = (LoggerContext) LoggerFactory.getILoggerFactory();
         this.logs = logs;
         this.user = user;
+        // the default configuration sets the root logger to level DEBUG
+        context.getLogger("ROOT").setLevel(Level.WARN);
     }
 
     public void fixPermissions() throws IOException {
