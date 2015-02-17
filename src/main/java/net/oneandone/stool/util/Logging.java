@@ -21,11 +21,17 @@ public class Logging {
     private final String user;
 
     public Logging(FileNode logs, String user) {
+        Logger root;
+
         this.context = (LoggerContext) LoggerFactory.getILoggerFactory();
         this.logs = logs;
         this.user = user;
-        // the default configuration sets the root logger to level DEBUG
-        context.getLogger("ROOT").setLevel(Level.WARN);
+
+        // adjust the default configuration
+        root = context.getLogger("ROOT");
+        root.detachAndStopAllAppenders();
+        root.addAppender(fileAppender("OTHER"));
+        root.setLevel(Level.INFO);
     }
 
     public void fixPermissions() throws IOException {

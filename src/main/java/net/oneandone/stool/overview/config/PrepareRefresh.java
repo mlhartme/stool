@@ -22,6 +22,7 @@ import net.oneandone.stool.overview.StoolCallable;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Slf4jOutputStream;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
 import java.util.List;
@@ -33,7 +34,7 @@ public class PrepareRefresh extends TimerTask {
     private final PrintWriter printWriter;
     public PrepareRefresh(Session session) {
         this.session = session;
-        this.printWriter = new PrintWriter(new Slf4jOutputStream(org.slf4j.LoggerFactory.getLogger(PrepareRefresh.class), false));
+        this.printWriter = new PrintWriter(new Slf4jOutputStream(LoggerFactory.getLogger(PrepareRefresh.class), false));
     }
 
     @Override
