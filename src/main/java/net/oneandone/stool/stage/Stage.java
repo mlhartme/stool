@@ -581,7 +581,7 @@ public abstract class Stage {
     public Maven maven() throws IOException {
         if (maven == null) {
             maven = Maven.withSettings(session.console.world, localRepository(), null, null);
-            // always get the latest snapshot
+            // always get the latest snapshots
             maven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
         }
         return maven;
