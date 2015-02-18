@@ -16,6 +16,10 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 
 public class Logging {
+    public static Logging forHome(FileNode home, String user) throws IOException {
+        return new Logging(home.join("logs/stool.log"), user);
+    }
+
     private final LoggerContext context;
     private final FileNode stool;
     private final String user;

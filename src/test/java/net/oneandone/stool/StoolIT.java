@@ -21,17 +21,21 @@ import net.oneandone.stool.setup.Install;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Slf4jOutputStream;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.io.InputLogStream;
+import net.oneandone.sushi.io.MultiOutputStream;
 import net.oneandone.sushi.util.Strings;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,7 +45,7 @@ import static org.junit.Assert.fail;
  * Integration test for stool.
  */
 public class StoolIT {
-    public static final String TESTUSER = "testuser";
+    public static final String TESTUSER = System.getProperty("user.name");
 
     private World world;
     private Logging logging;
@@ -53,7 +57,6 @@ public class StoolIT {
 
         world = new World();
         logging = new Logging(world.guessProjectHome(StoolIT.class).join("target/stoolIT.log"), TESTUSER);
-        world.setWorking(world.getTemp().createTempDirectory());
         home = world.getTemp().createTempDirectory().join("stool");
 
         system = Environment.loadSystem();
@@ -70,19 +73,25 @@ public class StoolIT {
         world.setWorking(home.getParent().join("stages").mkdir());
     }
 
-    private static String str(ByteArrayOutputStream output) {
-        try {
-            return new String(output.toByteArray(), "UTF8");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     @Test
     public void install() throws Exception {
         Session session;
+        World world;
+        Console console;
+        FileNode home1;
+        Environment environment;
 
-        session = testSession(new World());
+        world = new World();
+        console = Console.create(world);
+        home1 = world.getTemp().createTempDirectory().join("stool");
+        environment = Environment.loadSystem();
+        environment.setStoolHome(home1);
+        try {
+            new Install(false, console, environment, new HashMap<String, Object>()).invoke(TESTUSER);
+        } catch (Exception e) {
+            throw new IOException("install failed: " + e.getMessage(), e);
+        }
+        session = new Session(logging, TESTUSER, "TODO", home1, console, environment, StoolConfiguration.load(home1), Bedroom.loadOrCreate(home1), null);
         Assert.assertTrue(session.home.exists());
         Assert.assertTrue(session.home.join("sessions").exists());
         Assert.assertTrue(session.home.join("tomcat").exists());
@@ -174,12 +183,21 @@ public class StoolIT {
     }
 
     private void stool(String... args) throws IOException {
+        OutputStream devNull;
         int result;
         Main main;
         FileNode post;
         String command;
+        Logger inputLogger;
+        InputStream input;
+        Console console;
 
-        main = Main.create(world, logging, TESTUSER, "TODO", system);
+        inputLogger = logging.logger("IN");
+        input = new InputLogStream(System.in, new Slf4jOutputStream(inputLogger, true));
+        inputLogger.info("TODO");
+        devNull = MultiOutputStream.createNullStream();
+        console = new Console(world, logging.writer(devNull, "OUT"), logging.writer(devNull, "ERR"), input);
+        main = new Main(logging, TESTUSER, "TODO", system, console);
         command = "stool";
         for (String arg : args) {
             command = command + " " + arg;
@@ -187,7 +205,7 @@ public class StoolIT {
 
         System.out.print("  Running: " + command);
         post = world.getTemp().createTempFile();
-        result = main.run(Strings.append(new String[]{"-v", "-invocation", post.getAbsolute()}, args));
+        result = main.run(Strings.append(new String[] { "-invocation", post.getAbsolute(), "-v" }, args));
         post.deleteFile();
         if (result == 0) {
             System.out.println(" -> ok.");
@@ -196,24 +214,4 @@ public class StoolIT {
             fail();
         }
     }
-
-    //--
-
-    private Session testSession(World world) throws IOException {
-        Console console;
-        FileNode home;
-        Environment environment;
-
-        console = Console.create(world);
-        home = world.getTemp().createTempDirectory().join("stool");
-        environment = Environment.loadSystem();
-        environment.setStoolHome(home);
-        try {
-            new Install(false, console, environment, new HashMap<String, Object>()).invoke(TESTUSER);
-        } catch (Exception e) {
-            throw new IOException("install failed: " + e.getMessage(), e);
-        }
-        return new Session(logging, TESTUSER, "TODO", home, console, environment, StoolConfiguration.load(home), Bedroom.loadOrCreate(home), null);
-    }
-
 }

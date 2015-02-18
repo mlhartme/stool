@@ -85,7 +85,7 @@ public class Session {
         console.verbose.println("wipeStaleWrappers done, ms=" + ((System.currentTimeMillis() - s)));
     }
 
-    public static Session loadWithoutWipe(Logging logging, String user, String command, Environment environment, Console console, FileNode invocationFile) throws IOException {
+    private static Session loadWithoutWipe(Logging logging, String user, String command, Environment environment, Console console, FileNode invocationFile) throws IOException {
         FileNode home;
         Session result;
 

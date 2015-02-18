@@ -49,29 +49,24 @@ public class Main extends Cli implements Command {
         FileNode home;
         Logging logging;
         String command;
+        Logger inputLogger;
+        InputStream input;
+        Console console;
 
         world = new World();
         user = System.getProperty("user.name");
         environment = Environment.loadSystem();
         home = environment.stoolHome(world);
         home.checkDirectory();
-        logging = new Logging(home.join("logs/stool.log"), user);
+        logging = Logging.forHome(home, user);
         command = "stool " + Separator.SPACE.join(Arrays.copyOfRange(args, 2 /* skip invocation file */, args.length));
-        return create(world, logging, user, command, environment).run(args);
-    }
-
-    public static Main create(World world, Logging logging, String user, String command, Environment environment) throws IOException {
-        Logger inputLogger;
-        InputStream input;
-        Console console;
-
         inputLogger = logging.logger("IN");
         input = new InputLogStream(System.in, new Slf4jOutputStream(inputLogger, true));
         inputLogger.info(command);
         console = new Console(world, logging.writer(System.out, "OUT"), logging.writer(System.err, "ERR"), input);
-        return new Main(logging, user, command, environment, console);
-
+        return new Main(logging, user, command, environment, console).run(args);
     }
+
     public static final String INBOX = "inbox";
 
     private final Logging logging;

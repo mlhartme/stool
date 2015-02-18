@@ -19,6 +19,7 @@ import net.oneandone.stool.Overview;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Files;
+import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -56,7 +57,7 @@ public class Install {
         Session session;
 
         createHome();
-        session = Session.load(null /* TODO */, user, "install", environment, console, null);
+        session = Session.load(Logging.forHome(home, user), user, "setup-stool", environment, console, null);
         Overview.createOverview(session);
         return session;
     }
