@@ -21,48 +21,37 @@ import org.joda.time.format.DateTimeFormat;
 import java.util.UUID;
 
 public class LogEntry {
-    public final UUID uuid;
-    public final String in;
-    public final String out;
-    public final String user;
     public final DateTime dateTime;
-    public final String command;
+    public final UUID uuid;
+    public final String logger;
+    public final String user;
+    public final String message;
 
-    public LogEntry(UUID uuid, String in, String out, String user, DateTime dateTime, String command) {
-        this.uuid = uuid;
-        this.in = in;
-        this.out = out;
-        this.user = user;
+    public LogEntry(DateTime dateTime, UUID uuid, String logger, String user, String message) {
         this.dateTime = dateTime;
-        this.command = command;
+        this.uuid = uuid;
+        this.logger = logger;
+        this.user = user;
+        this.message = message;
     }
 
-    public static LogEntry parse(String logLine) {
+    public static LogEntry parse(String line) {
         DateTime dateTime;
         UUID uuid;
         String user;
         String[] log;
-        String out;
-        String command;
+        String logger;
+        String message;
 
-        log = logLine.split("\\|");
+        log = line.split("\\|");
+        if (log.length != 5) {
+            throw new IllegalArgumentException(line);
+        }
         dateTime = DateTime.parse(log[0].trim(), DateTimeFormat.forPattern("Y-M-d H:m:s,SSS"));
         uuid = UUID.fromString(log[1].substring(log[1].indexOf('=') + 1).trim());
+        logger = log[2].trim();
         user = log[3].trim();
-        switch (log[2].trim()) {
-            case "OUT":
-            case "ERR":
-                out = log[4].trim();
-                command = null;
-                break;
-            case "IN":
-                out = null;
-                command = log[4].trim();
-                break;
-            default:
-                out = null;
-                command = log[4].trim();
-        }
-        return new LogEntry(uuid, null, out, user, dateTime, command);
+        message = log[4].trim();
+        return new LogEntry(dateTime, uuid, logger, user, message);
     }
 }

@@ -49,28 +49,25 @@ public class History extends StageCommand {
     @Override
     public void doInvoke(Stage s) throws Exception {
         List<LogEntry> logEntries;
+        int counter ;
+        UUID uuid;
 
         logEntries = readLog(s.shared().join("log/stool.log"));
-        int counter = 1;
-        UUID uuid = null;
+        counter = 1;
+        uuid = null;
         for (LogEntry entry : logEntries) {
-            if (entry.command != null) {
+            if (entry.logger.equals("IN")) {
                 if (detail == -1 || detail == counter) {
-                    console.info.println("["+ counter+ "] " + entry.dateTime.toString(DateTimeFormat.shortDateTime())
-                        + " " + entry.user + ": " + entry.command);
+                    console.info.println("[" + counter + "] " + entry.dateTime.toString(DateTimeFormat.shortDateTime())
+                        + " " + entry.user + ": " + entry.message);
                 }
                 if (detail == counter) {
                     uuid = entry.uuid;
                 }
                 counter++;
             }
-            if (null != uuid && entry.uuid.equals(uuid)) {
-                if (entry.out != null) {
-                    console.info.println("     " + entry.out);
-                }
-                if (entry.in != null) {
-                    console.info.println("     " + entry.in);
-                }
+            if (entry.uuid.equals(uuid)) {
+                console.info.println("     " + entry.message);
             }
 
             if (counter > max) {
