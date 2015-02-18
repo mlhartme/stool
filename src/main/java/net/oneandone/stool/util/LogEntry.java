@@ -21,39 +21,48 @@ import org.joda.time.format.DateTimeFormat;
 import java.util.UUID;
 
 public class LogEntry {
-    public UUID uuid;
-    public String in;
-    public String out;
-    public String user;
-    public String stage;
-    public DateTime dateTime;
-    public String command;
+    public final UUID uuid;
+    public final String in;
+    public final String out;
+    public final String user;
+    public final DateTime dateTime;
+    public final String command;
 
-    public static LogEntry get(String logLine) {
-        LogEntry logEntry;
-        String[] log;
-        String[] mdc;
-
-        logEntry = new LogEntry();
-
-        log = logLine.split("\\|");
-        mdc = log[1].split(", ");
-        logEntry.dateTime = DateTime.parse(log[0].trim(), DateTimeFormat.forPattern("Y-M-d H:m:s,SSS"));
-        logEntry.uuid = UUID.fromString(mdc[0].substring(mdc[0].indexOf('=') + 1));
-        logEntry.stage = mdc[1].substring(mdc[1].indexOf('=') + 1).trim();
-        logEntry.user = log[3].trim();
-        switch (log[2].trim()) {
-            case "OUT.INFO":
-            case "OUT.ERROR":
-                logEntry.out = log[4].trim();
-                break;
-            case "IN":
-                logEntry.command = log[4].trim();
-                break;
-            default:
-                logEntry.command = log[4].trim();
-        }
-        return logEntry;
+    public LogEntry(UUID uuid, String in, String out, String user, DateTime dateTime, String command) {
+        this.uuid = uuid;
+        this.in = in;
+        this.out = out;
+        this.user = user;
+        this.dateTime = dateTime;
+        this.command = command;
     }
 
+    public static LogEntry parse(String logLine) {
+        DateTime dateTime;
+        UUID uuid;
+        String user;
+        String[] log;
+        String out;
+        String command;
+
+        log = logLine.split("\\|");
+        dateTime = DateTime.parse(log[0].trim(), DateTimeFormat.forPattern("Y-M-d H:m:s,SSS"));
+        uuid = UUID.fromString(log[1].substring(log[1].indexOf('=') + 1).trim());
+        user = log[3].trim();
+        switch (log[2].trim()) {
+            case "OUT":
+            case "ERR":
+                out = log[4].trim();
+                command = null;
+                break;
+            case "IN":
+                out = null;
+                command = log[4].trim();
+                break;
+            default:
+                out = null;
+                command = log[4].trim();
+        }
+        return new LogEntry(uuid, null, out, user, dateTime, command);
+    }
 }

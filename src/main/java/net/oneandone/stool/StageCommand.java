@@ -146,7 +146,7 @@ public abstract class StageCommand extends SessionCommand {
         Logger logger;
 
         logger = session.logging.lookup(name);
-        logger.addAppender(session.logging.stageAppender(stage.getWrapper().join("stage.log"), name));
+        logger.addAppender(session.logging.stageAppender(stage.shared().join("log/stool.log"), name));
         return logger;
     }
 

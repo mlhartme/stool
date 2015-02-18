@@ -29,36 +29,35 @@ public class LogEntryTest {
     @Test
     public void testLogEntry() throws Exception {
         String log;
-        log = "2013-11-28 10:12:12,948 | UUID=0ef6b913-1a9f-4d80-8edd-aa18780b490a, stage=ac1-hello1 "
+        log = "2013-11-28 10:12:12,948 | UUID=0ef6b913-1a9f-4d80-8edd-aa18780b490a "
           + "| net.oneandone.sushi.cli.Command | mabraun | Invoking Stop";
-        LogEntry logEntry = LogEntry.get(log);
+        LogEntry logEntry = LogEntry.parse(log);
         assertEquals(DateTime.parse("2013-11-28 10:12:12,948", DateTimeFormat.forPattern("Y-M-d h:m:s,SSS")),
           logEntry.dateTime);
         assertEquals(UUID.fromString("0ef6b913-1a9f-4d80-8edd-aa18780b490a"), logEntry.uuid);
-        assertEquals("ac1-hello1", logEntry.stage);
         assertEquals("mabraun", logEntry.user);
         assertEquals("Invoking Stop", logEntry.command);
         assertNull(logEntry.in);
         assertNull(logEntry.out);
 
 
-        log = "2013-11-28 10:12:11,632 | UUID=6153167c-dae5-4657-8c60-494f73faf0c1, stage=ac1-hello1 |"
-          + " OUT.INFO | mabraun | Applications available:";
-        logEntry = LogEntry.get(log);
+        log = "2013-11-28 10:12:11,632 | UUID=6153167c-dae5-4657-8c60-494f73faf0c1 |"
+          + " OUT | mabraun | Applications available:";
+        logEntry = LogEntry.parse(log);
         assertNull(logEntry.command);
         assertNull(logEntry.in);
         assertEquals("Applications available:", logEntry.out);
 
-        log = "2013-11-28 10:12:17,055 | UUID=cdd52c15-6d51-4dbb-a8c1-ac095b50e101, stage=ac1-hello1 |"
-          + "OUT.ERROR | mabraun | tomcat is no running.";
-        logEntry = LogEntry.get(log);
+        log = "2013-11-28 10:12:17,055 | UUID=cdd52c15-6d51-4dbb-a8c1-ac095b50e101 |"
+          + "ERR | mabraun | tomcat is no running.";
+        logEntry = LogEntry.parse(log);
         assertNull(logEntry.command);
         assertNull(logEntry.in);
         assertEquals("tomcat is no running.", logEntry.out);
 
-        log = "2013-11-28 10:12:17,055 | UUID=cdd52c15-6d51-4dbb-a8c1-ac095b50e101, stage=ac1-hello1 |"
+        log = "2013-11-28 10:12:17,055 | UUID=cdd52c15-6d51-4dbb-a8c1-ac095b50e101 |"
           + " IN | mabraun | tomcat is no running.";
-        logEntry = LogEntry.get(log);
+        logEntry = LogEntry.parse(log);
         assertNull(logEntry.in);
         assertNull(logEntry.out);
         assertEquals("tomcat is no running.", logEntry.command);

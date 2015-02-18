@@ -58,7 +58,7 @@ public class Logging {
     }
 
     public RollingFileAppender stageAppender(FileNode file, String encoderName) throws IOException {
-        return fileAppender("stageAppender", file, encoderName, "stage-%d{yyyy-MM-dd}.log.gz");
+        return fileAppender("stageAppender", file, encoderName, "stool-%d{yyyy-MM-dd}.log.gz");
     }
 
     private RollingFileAppender fileAppender(String name, FileNode file, String encoderName, String pattern) throws IOException {

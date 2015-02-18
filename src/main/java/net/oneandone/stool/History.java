@@ -49,7 +49,8 @@ public class History extends StageCommand {
     @Override
     public void doInvoke(Stage s) throws Exception {
         List<LogEntry> logEntries;
-        logEntries = readLog(s.wrapper.join("shared", "log", "stool.log"));
+
+        logEntries = readLog(s.shared().join("log/stool.log"));
         int counter = 1;
         UUID uuid = null;
         for (LogEntry entry : logEntries) {
@@ -79,11 +80,12 @@ public class History extends StageCommand {
     }
 
     public static List<LogEntry> readLog(Node logfile) throws IOException {
-        List<LogEntry> logEntries = new LinkedList<>();
-        for (String line : logfile.readLines()) {
-            logEntries.add(LogEntry.get(line));
-        }
-        return logEntries;
-    }
+        List<LogEntry> result;
 
+        result = new LinkedList<>();
+        for (String line : logfile.readLines()) {
+            result.add(LogEntry.parse(line));
+        }
+        return result;
+    }
 }
