@@ -39,7 +39,7 @@ public class Update {
                         }
                         script.writeLines(
                                 "#!/bin/sh",
-                                "curl -o " + download.getAbsolute() + " " + file.getURI(),
+                                "curl --fail --silent --show-error -o" + download.getAbsolute() + " " + file.getURI(),
                                 "chmod a+x " + download.getAbsolute(),
                                 download.getAbsolute() + " " + args
                         );
