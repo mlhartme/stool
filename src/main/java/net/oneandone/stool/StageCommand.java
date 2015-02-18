@@ -137,7 +137,7 @@ public abstract class StageCommand extends SessionCommand {
         }
     }
     private void addStageAppenders(Stage stage) throws IOException {
-        addStageAppender(stage, "IN").info("{" + stage.getName() + "} " + session.command);
+        addStageAppender(stage, "IN").info(session.command);
         addStageAppender(stage, "OUT");
         addStageAppender(stage, "ERR");
     }

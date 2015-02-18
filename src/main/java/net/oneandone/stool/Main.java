@@ -59,8 +59,8 @@ public class Main extends Cli implements Command {
         input = new InputLogStream(System.in, new Slf4jOutputStream(inputLogger, true));
         console = new Console(world, logging.writer(System.out, "OUT"), logging.writer(System.err, "ERR"), input);
 
-        command = Separator.SPACE.join(Arrays.copyOfRange(args, 2 /* skip invocation file */, args.length));
-        inputLogger.info("stool " + command);
+        command = "stool " + Separator.SPACE.join(Arrays.copyOfRange(args, 2 /* skip invocation file */, args.length));
+        inputLogger.info(command);
         System.exit(new Main(logging, user, command, environment, console).run(args));
     }
 
