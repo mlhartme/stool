@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class Ports {
+    private static final int INTERNAL_PAIRS = 2;
+
     // TODO: ugly reference to stage ...
     public static Ports forStage(Stage stage) throws IOException {
         Session session;
@@ -28,9 +30,7 @@ public class Ports {
         names.add(stage.getName() + "-jmx-debug");
         hosts = new ArrayList<>(stage.selectedHosts().keySet());
         Collections.sort(hosts); // guarantied ordering
-        for (String host : hosts) {
-            names.add(host);
-        }
+        names.addAll(hosts);
         for (String name : names) {
             if (result.evens.size() < existing.evens.size()) {
                 result.evens.add(existing.evens.get(result.evens.size()));
@@ -38,7 +38,7 @@ public class Ports {
                 if (used == null) {
                     used = Ports.used(session.getWrappers());
                 }
-                if (stage.isOverview()) {
+                if (result.evens.size() == INTERNAL_PAIRS && stage.isOverview()) {
                     if (hosts.size() != 1) {
                         throw new IllegalStateException();
                     }
@@ -84,7 +84,7 @@ public class Ports {
     }
 
     public int hosts() {
-        return evens.size() - 2;
+        return evens.size() - INTERNAL_PAIRS;
     }
 
     public int stop() {
@@ -104,11 +104,11 @@ public class Ports {
     }
 
     public int http(int idx) {
-        return evens.get(2 + idx);
+        return evens.get(INTERNAL_PAIRS + idx);
     }
 
     public int https(int idx) {
-        return evens.get(2 + idx) + 1;
+        return evens.get(INTERNAL_PAIRS + idx) + 1;
     }
 
     //--
