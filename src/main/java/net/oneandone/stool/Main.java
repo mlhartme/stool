@@ -38,15 +38,16 @@ import java.util.UUID;
 
 public class Main extends Cli implements Command {
     public static void main(String[] args) throws IOException {
+        System.exit(doRun(args));
+    }
+
+    public static int doRun(String[] args) throws IOException {
         MDC.put("UUID", UUID.randomUUID().toString());
         String user;
-        InputStream input;
         World world;
         Environment environment;
         FileNode home;
-        Console console;
         Logging logging;
-        Logger inputLogger;
         String command;
 
         world = new World();
@@ -55,15 +56,22 @@ public class Main extends Cli implements Command {
         home = environment.stoolHome(world);
         home.checkDirectory();
         logging = new Logging(home.join("logs/stool.log"), user);
-        inputLogger = logging.logger("IN");
-        input = new InputLogStream(System.in, new Slf4jOutputStream(inputLogger, true));
-        console = new Console(world, logging.writer(System.out, "OUT"), logging.writer(System.err, "ERR"), input);
-
         command = "stool " + Separator.SPACE.join(Arrays.copyOfRange(args, 2 /* skip invocation file */, args.length));
-        inputLogger.info(command);
-        System.exit(new Main(logging, user, command, environment, console).run(args));
+        return create(world, logging, user, command, environment).run(args);
     }
 
+    public static Main create(World world, Logging logging, String user, String command, Environment environment) throws IOException {
+        Logger inputLogger;
+        InputStream input;
+        Console console;
+
+        inputLogger = logging.logger("IN");
+        input = new InputLogStream(System.in, new Slf4jOutputStream(inputLogger, true));
+        inputLogger.info(command);
+        console = new Console(world, logging.writer(System.out, "OUT"), logging.writer(System.err, "ERR"), input);
+        return new Main(logging, user, command, environment, console);
+
+    }
     public static final String INBOX = "inbox";
 
     private final Logging logging;

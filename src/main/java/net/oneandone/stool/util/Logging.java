@@ -54,11 +54,11 @@ public class Logging {
     }
 
     private RollingFileAppender stoolAppender(String logger) throws IOException {
-        return fileAppender("stoolAppender", stool, logger, "stool-%d{yyyy-MM-dd}.log.gz");
+        return fileAppender("stoolAppender", stool, logger, stool.getParent().getAbsolute() + "/stool-%d{yyyy-MM-dd}.log.gz");
     }
 
     public RollingFileAppender stageAppender(FileNode file, String encoderName) throws IOException {
-        return fileAppender("stageAppender", file, encoderName, "stool-%d{yyyy-MM-dd}.log.gz");
+        return fileAppender("stageAppender", file, encoderName, file.getParent().getAbsolute() + "/stool-%d{yyyy-MM-dd}.log.gz");
     }
 
     private RollingFileAppender fileAppender(String name, FileNode file, String encoderName, String pattern) throws IOException {

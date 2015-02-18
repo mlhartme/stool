@@ -19,23 +19,18 @@ import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.setup.Install;
 import net.oneandone.stool.util.Environment;
+import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Strings;
-import org.apache.commons.io.output.TeeOutputStream;
-import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,8 +41,10 @@ import static org.junit.Assert.fail;
  * Integration test for stool.
  */
 public class StoolIT {
+    public static final String TESTUSER = "testuser";
+
     private World world;
-    private OutputStream log;
+    private Logging logging;
     private Environment system;
     private FileNode home;
 
@@ -55,11 +52,9 @@ public class StoolIT {
         Map<String, Object> config;
 
         world = new World();
-        log = world.guessProjectHome(StoolIT.class)
-          .join("target/stoolIT-" + Thread.currentThread().getName() + ".log").createOutputStream();
+        logging = new Logging(world.guessProjectHome(StoolIT.class).join("target/stoolIT.log"), TESTUSER);
         world.setWorking(world.getTemp().createTempDirectory());
         home = world.getTemp().createTempDirectory().join("stool");
-        log.write(("Home will take place at " + home.getAbsolute() + "\n").getBytes());
 
         system = Environment.loadSystem();
         system.setStoolHome(home);
@@ -71,7 +66,7 @@ public class StoolIT {
         config.put("portFirst", "1302");
         config.put("portLast", "1319");
 
-        new Install(false, Console.create(world), system, config).invoke(TEST_USER);
+        new Install(false, Console.create(world), system, config).invoke(TESTUSER);
         world.setWorking(home.getParent().join("stages").mkdir());
     }
 
@@ -81,15 +76,6 @@ public class StoolIT {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    @Before
-    public void before() throws IOException {
-
-    }
-    @After
-    public void afterClass() throws IOException {
-        log.close();
     }
 
     @Test
@@ -188,18 +174,12 @@ public class StoolIT {
     }
 
     private void stool(String... args) throws IOException {
-        ByteArrayOutputStream output;
-        PrintWriter wrapped;
-        Console console;
         int result;
         Main main;
         FileNode post;
         String command;
 
-        output = new ByteArrayOutputStream();
-        wrapped = new PrintWriter(new TeeOutputStream(log, output), true);
-        console = new Console(world, new PrefixWriter(wrapped), new PrefixWriter(wrapped), System.in);
-        main = new Main(null /* TODO */, TEST_USER, "TODO", system, console);
+        main = Main.create(world, logging, TESTUSER, "TODO", system);
         command = "stool";
         for (String arg : args) {
             command = command + " " + arg;
@@ -213,16 +193,13 @@ public class StoolIT {
             System.out.println(" -> ok.");
         } else {
             System.out.println(" -> failed: " + result);
-            System.out.println(str(output));
             fail();
         }
     }
 
     //--
 
-    public static final String TEST_USER = "testuser";
-
-    public static Session testSession(World world) throws IOException {
+    private Session testSession(World world) throws IOException {
         Console console;
         FileNode home;
         Environment environment;
@@ -232,11 +209,11 @@ public class StoolIT {
         environment = Environment.loadSystem();
         environment.setStoolHome(home);
         try {
-            new Install(false, console, environment, new HashMap<String, Object>()).invoke(TEST_USER);
+            new Install(false, console, environment, new HashMap<String, Object>()).invoke(TESTUSER);
         } catch (Exception e) {
             throw new IOException("install failed: " + e.getMessage(), e);
         }
-        return new Session(null /* TODO */, TEST_USER, "TODO", home, console, environment, StoolConfiguration.load(home), Bedroom.loadOrCreate(home), null);
+        return new Session(logging, TESTUSER, "TODO", home, console, environment, StoolConfiguration.load(home), Bedroom.loadOrCreate(home), null);
     }
 
 }
