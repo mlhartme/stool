@@ -106,7 +106,7 @@ public class Create extends SessionCommand {
         String url;
         RmRfThread cleanup;
 
-        if (!Role.isAdmin(session.stoolConfiguration) && session.stoolConfiguration.security.isWaterloo()) {
+        if (!Role.isAdmin(session.configuration) && session.configuration.security.isWaterloo()) {
             throw new IOException("You don't have the permissions to do that. This incident will be reported.");
         }
 
@@ -195,7 +195,7 @@ public class Create extends SessionCommand {
             throw new ArgumentException("stage name already exists: " + name);
         }
         if (stageConfiguration == null) {
-            stageConfiguration = session.stoolConfiguration.createStageConfiguration(url);
+            stageConfiguration = session.configuration.createStageConfiguration(url);
         }
     }
 

@@ -48,7 +48,7 @@ public class Status extends StageCommand {
         message(getAppUrlsFrom(stage));
         message("");
         if (ports != null) {
-            header("jconsole " + session.stoolConfiguration.hostname + ":" + ports.jmx());
+            header("jconsole " + session.configuration.hostname + ":" + ports.jmx());
         }
     }
 

@@ -191,7 +191,7 @@ public class StageController {
         String id;
         id = UUID.randomUUID().toString();
         executorService.submit(new StoolCallable(command, options, stage, SecurityContextHolder.getContext().getAuthentication().getName(),
-          id, (FileNode) logDir(), !session.stoolConfiguration.security.isLocal()));
+          id, (FileNode) logDir(), !session.configuration.security.isLocal()));
         return id;
     }
 

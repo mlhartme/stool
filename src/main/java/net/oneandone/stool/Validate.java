@@ -67,12 +67,12 @@ public class Validate extends StageCommand {
 
     @Override
     public void doInvoke() throws Exception {
-        hostname = session.stoolConfiguration.hostname;
+        hostname = session.configuration.hostname;
         header("validate " + hostname);
         processes = session.getProcesses(false);
         if (email) {
-            mailer = new Mailer(session.stoolConfiguration.mailHost,
-                    session.stoolConfiguration.mailUsername, session.stoolConfiguration.mailPassword);
+            mailer = new Mailer(session.configuration.mailHost,
+                    session.configuration.mailUsername, session.configuration.mailPassword);
         }
         super.doInvoke();
     }
@@ -102,8 +102,8 @@ public class Validate extends StageCommand {
                     e.printStackTrace(console.error);
                 }
             }
-            if (session.stoolConfiguration.autoRemove > -1
-              && stage.config().until.isBefore(session.stoolConfiguration.autoRemove)) {
+            if (session.configuration.autoRemove > -1
+              && stage.config().until.isBefore(session.configuration.autoRemove)) {
                 if (stage.state() == Stage.State.UP) {
                     new Stop(session).doInvoke(stage);
                 }
@@ -147,8 +147,8 @@ public class Validate extends StageCommand {
         if (until.expired()) {
             problem = new StringBuilder();
             problem.append("'until' date has expired: ").append(until).append("\n");
-            if (session.stoolConfiguration.autoRemove > -1) {
-                problem.append("Stages will be removed ").append(session.stoolConfiguration.autoRemove);
+            if (session.configuration.autoRemove > -1) {
+                problem.append("Stages will be removed ").append(session.configuration.autoRemove);
                 problem.append("days a after an expired until date.");
             }
             problems.add(problem.toString());
@@ -163,7 +163,7 @@ public class Validate extends StageCommand {
         try {
             user = session.lookupUser(owner);
         } catch (UserNotFound e) {
-            owner = session.stoolConfiguration.contactAdmin;
+            owner = session.configuration.contactAdmin;
             if (owner.isEmpty()) {
                 return new String[]{};
             }

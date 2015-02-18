@@ -37,14 +37,15 @@ public class Ports {
             } else {
                 if (used == null) {
                     used = Ports.used(session.getWrappers());
+                    used.evens.add(session.configuration.portOverview);
                 }
                 if (stage.isOverview()) {
                     if (hosts.size() != 1) {
                         throw new IllegalStateException();
                     }
-                    result.evens.add(session.stoolConfiguration.portOverview);
+                    result.evens.add(session.configuration.portOverview);
                 } else {
-                    result.evens.add(used.notContained(name, session.stoolConfiguration.portFirst, session.stoolConfiguration.portLast));
+                    result.evens.add(used.notContained(name, session.configuration.portFirst, session.configuration.portLast));
                 }
             }
         }

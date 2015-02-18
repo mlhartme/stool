@@ -32,6 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class StoolConfiguration extends BaseConfiguration {
+    /** may be separate port or part of the portFirst ... portLast range; has to end with 2 to use single-sign-on */
     @Expose
     public int portOverview;
 

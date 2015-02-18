@@ -108,7 +108,7 @@ public class Session {
     public final FileNode home;
     public final Console console;
     public final Environment environment;
-    public final StoolConfiguration stoolConfiguration;
+    public final StoolConfiguration configuration;
     public final Bedroom bedroom;
 
     public final FileNode wrappers;
@@ -122,7 +122,7 @@ public class Session {
     private Processes processes;
     public final Users users;
 
-    public Session(Logging logging, String user, String command, FileNode home, Console console, Environment environment, StoolConfiguration stoolConfiguration,
+    public Session(Logging logging, String user, String command, FileNode home, Console console, Environment environment, StoolConfiguration configuration,
                    Bedroom bedroom, FileNode invocationFile) {
         this.logging = logging;
         this.user = user;
@@ -130,23 +130,23 @@ public class Session {
         this.home = home;
         this.console = console;
         this.environment = environment;
-        this.stoolConfiguration = stoolConfiguration;
+        this.configuration = configuration;
         this.bedroom = bedroom;
         this.wrappers = home.join("wrappers");
         this.selectedStageName = null;
         this.invocationFile = invocationFile;
         this.subversion = new Subversion(null, null);
-        if (stoolConfiguration.ldapUrl.isEmpty()) {
+        if (configuration.ldapUrl.isEmpty()) {
             this.users = Users.fromLogin();
         } else {
-            this.users = Users.fromLdap(stoolConfiguration.ldapUrl, stoolConfiguration.ldapPrincipal, stoolConfiguration.ldapCredentials);
+            this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials);
         }
     }
 
     //--
 
     public void saveConfiguration() throws IOException {
-        stoolConfiguration.save(home);
+        configuration.save(home);
     }
 
 
@@ -284,7 +284,7 @@ public class Session {
             mavenOpts = stage.config().mavenOpts;
             mavenOpts = mavenOpts.replace("@localRepository@", stage.localRepository().getAbsolute());
             mavenOpts = mavenOpts.replace("@proxyOpts@", environment.proxyOpts(false));
-            mavenOpts = new Macros(stoolConfiguration.macros).replace(mavenOpts);
+            mavenOpts = new Macros(configuration.macros).replace(mavenOpts);
         }
         env = new Environment();
         env.set(Environment.STOOL_SELECTED, selectedStageName);
@@ -293,7 +293,7 @@ public class Session {
             env.set(Environment.MACHINE, stage.getMachine());
         }
         // for pws:
-        env.set(Environment.STAGE_HOST, stage != null ? stage.getName() + "." + stoolConfiguration.hostname : null);
+        env.set(Environment.STAGE_HOST, stage != null ? stage.getName() + "." + configuration.hostname : null);
         // not that both MAVEN and ANT use JAVA_HOME to locate their JVM - it's not necessary to add java to the PATH variable
         env.set(Environment.JAVA_HOME, stage != null ? stage.config().javaHome : null);
         env.set(Environment.MAVEN_OPTS, mavenOpts);
@@ -303,7 +303,7 @@ public class Session {
         } else {
             stoolIndicator = "\\[$(stoolIndicatorColor)\\]" + stage.getName() + "\\[\\e[m\\]";
         }
-        env.set(Environment.PS1, Strings.replace(stoolConfiguration.prompt, "\\+", stoolIndicator));
+        env.set(Environment.PS1, Strings.replace(configuration.prompt, "\\+", stoolIndicator));
         env.set(Environment.PWD, (stage == null ? ((FileNode) console.world.getWorking()) : stage.getDirectory()).getAbsolute());
         return env;
     }
@@ -336,7 +336,7 @@ public class Session {
         int min;
 
         free = diskFree();
-        min = stoolConfiguration.diskMin;
+        min = configuration.diskMin;
         if (free < min) {
             throw new ArgumentException("Disk almost full. Currently available " + free + " mb, required " + min + " mb.");
         }
@@ -361,7 +361,7 @@ public class Session {
     }
 
     public User lookupUser(String login) throws NamingException, UserNotFound {
-        if (!stoolConfiguration.security.isLocal()) {
+        if (!configuration.security.isLocal()) {
             return users.byLogin(login);
         } else {
             return null;
