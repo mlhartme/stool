@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -23,10 +25,13 @@ public class Logging {
     public static Logging forHome(FileNode home, String user) throws IOException {
         String today;
         String id;
+        Logging result;
 
         today = DATE_FORMAT.format(new Date());
         id = Integer.toString(id(home.join("logs"), today));
-        return new Logging(id, home.join("logs/stool.log"), user);
+        result = new Logging(id, home.join("logs/stool.log"), user);
+        result.configureRootLogger();
+        return result;
     }
 
     private final String id;
@@ -34,13 +39,15 @@ public class Logging {
     private final FileNode stool;
     private final String user;
 
-    public Logging(String id, FileNode stool, String user) throws IOException {
-        Logger root;
-
+    public Logging(String id, FileNode stool, String user) {
         this.id = id;
         this.context = (LoggerContext) LoggerFactory.getILoggerFactory();
         this.stool = stool;
         this.user = user;
+    }
+
+    public void configureRootLogger() throws IOException {
+        Logger root;
 
         // adjust the default configuration
         root = context.getLogger("ROOT");
@@ -175,4 +182,15 @@ public class Logging {
         return file;
     }
 
+    public Logger errorTool(String url) throws MalformedURLException {
+        Logger logger;
+
+        logger = context.getLogger("errortool");
+        if (url == null) {
+            logger.setLevel(Level.OFF);
+        } else {
+            logger.addAppender(new ErrorToolAppender(new URL(url)));
+        }
+        return null;
+    }
 }

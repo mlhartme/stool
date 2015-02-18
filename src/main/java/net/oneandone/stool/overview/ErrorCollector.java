@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 package net.oneandone.stool.overview;
+import net.oneandone.stool.util.Logging;
+import net.oneandone.stool.util.Session;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,16 +25,25 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.net.MalformedURLException;
+
 @RestController
 @RequestMapping("/error")
 public class ErrorCollector {
+    @Autowired
+    private Session session;
 
-    private static final Logger LOG = LoggerFactory.getLogger(ErrorCollector.class);
+    @Autowired
+    private Logging logging;
+
+    private Logger log;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ResponseEntity collect(@RequestParam String payload) {
-
-        LOG.error(payload);
+    public ResponseEntity collect(@RequestParam String payload) throws MalformedURLException {
+        if (log == null) {
+            log = logging.errorTool(session.stoolConfiguration.errorTool);
+        }
+        log.error(payload);
         return new ResponseEntity(HttpStatus.OK);
     }
 

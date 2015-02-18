@@ -30,66 +30,23 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 public class ErrorToolAppender extends AppenderBase<ILoggingEvent> {
-    private static final URL PROD_URL;
-    private static final URL DEV_URL;
+    private final URL url;
 
-    static {
-        try {
-            PROD_URL = new URL("http://errortool.schlund.de/errortoolng-http/datacollector");
-            DEV_URL = new URL("http://errortooldev.schlund.de/errortoolng-http/datacollector");
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException();
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
-        send(true, Level.WARN, HOSTNAME, "my subject", "my body");
-    }
-
-    private static final String HOSTNAME;
-
-    static {
-        try {
-            HOSTNAME = hostname(new World());
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    public static String hostname(World world) throws IOException {
-        FileNode file = world.file("/etc/hostname");
-
-        String hostname;
-        if (file.exists()) {
-            hostname = file.readString();
-        } else {
-            hostname = (new Launcher((FileNode) world.getWorking(), new String[]{ "hostname" })).exec();
-        }
-
-        hostname = hostname.trim();
-        int idx = hostname.indexOf(46);
-        if (idx != -1) {
-            hostname = hostname.substring(0, idx);
-        }
-
-        return hostname;
-    }
-
-    public ErrorToolAppender() {
+    public ErrorToolAppender(URL url) {
+        this.url = url;
     }
 
     @Override
     protected void append(ILoggingEvent event) {
         try {
-            send(true, event.getLevel(), null, "subject", event.getFormattedMessage());
+            send(url, event.getLevel(), null, "subject", event.getFormattedMessage());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public static void send(boolean dev, Level level, String hostname, String subject, String body) throws IOException {
+    public static void send(URL url, Level level, String hostname, String subject, String body) throws IOException {
         StringBuilder dest;
-        URL url;
         HttpURLConnection con;
 
         dest = new StringBuilder();
@@ -108,7 +65,6 @@ public class ErrorToolAppender extends AppenderBase<ILoggingEvent> {
 
         byte[] formData = dest.toString().getBytes("ascii");
 
-        url = dev ? DEV_URL : PROD_URL;
         con = (HttpURLConnection) url.openConnection();
         con.setReadTimeout(250);
         con.setConnectTimeout(250);
@@ -119,6 +75,7 @@ public class ErrorToolAppender extends AppenderBase<ILoggingEvent> {
         con.setRequestProperty("User-Agent", "com.oneandone.sales.applog.errortoollog4j.JavaNetErrortoolAppender-0.0.1");
         con.getOutputStream().write(formData);
         con.getResponseCode();
+        con.disconnect();
     }
 
     private static void add(String parameter, String value, StringBuilder dest) {

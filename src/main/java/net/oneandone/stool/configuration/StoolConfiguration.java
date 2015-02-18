@@ -149,6 +149,12 @@ public class StoolConfiguration extends BaseConfiguration {
     @Expose
     public int autoRemove;
 
+    /**
+     * url or null
+     */
+    @Expose
+    public String errorTool;
+
     public StoolConfiguration() {
         portOverview = 9000;
         portFirst = 9002;
