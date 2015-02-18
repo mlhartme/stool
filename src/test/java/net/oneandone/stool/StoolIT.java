@@ -15,12 +15,9 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.configuration.Bedroom;
-import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.setup.Install;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
-import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Slf4jOutputStream;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
@@ -28,7 +25,8 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.InputLogStream;
 import net.oneandone.sushi.io.MultiOutputStream;
 import net.oneandone.sushi.util.Strings;
-import org.junit.Assert;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -52,12 +50,18 @@ public class StoolIT {
     private Environment system;
     private FileNode home;
 
-    public StoolIT() throws Exception {
+    public StoolIT() {
+    }
+
+    @Before
+    public void before() throws Exception {
         Map<String, Object> config;
+        FileNode stages;
 
         world = new World();
-        logging = new Logging(world.guessProjectHome(StoolIT.class).join("target/stoolIT.log"), TESTUSER);
-        home = world.getTemp().createTempDirectory().join("stool");
+        home = world.guessProjectHome(StoolIT.class).join("target/it/home");
+        home.getParent().mkdirsOpt();
+        home.deleteTreeOpt();
 
         system = Environment.loadSystem();
         system.setStoolHome(home);
@@ -68,70 +72,20 @@ public class StoolIT {
         config.put("portOverview", "1300");
         config.put("portFirst", "1302");
         config.put("portLast", "1319");
-
         new Install(false, Console.create(world), system, config).invoke(TESTUSER);
-        world.setWorking(home.getParent().join("stages").mkdir());
-    }
-
-    @Test
-    public void install() throws Exception {
-        Session session;
-        World world;
-        Console console;
-        FileNode home1;
-        Environment environment;
-
-        world = new World();
-        console = Console.create(world);
-        home1 = world.getTemp().createTempDirectory().join("stool");
-        environment = Environment.loadSystem();
-        environment.setStoolHome(home1);
-        try {
-            new Install(false, console, environment, new HashMap<String, Object>()).invoke(TESTUSER);
-        } catch (Exception e) {
-            throw new IOException("install failed: " + e.getMessage(), e);
-        }
-        session = new Session(logging, TESTUSER, "TODO", home1, console, environment, StoolConfiguration.load(home1), Bedroom.loadOrCreate(home1), null);
-        Assert.assertTrue(session.home.exists());
-        Assert.assertTrue(session.home.join("sessions").exists());
-        Assert.assertTrue(session.home.join("tomcat").exists());
-        Assert.assertTrue(session.home.join("tomcat/downloads").exists());
-        Assert.assertTrue(session.home.join("logs").exists());
-        Assert.assertTrue(session.home.join("wrappers").exists());
-    }
-
-    @Test
-    public void systemTurnAround() throws Exception {
-        System.out.println("\nStartup-Turnaround");
+        stages = home.getParent().join("stages");
+        stages.deleteTreeOpt();
+        stages.mkdir();
+        world.setWorking(stages);
+        logging = Logging.forHome(home, TESTUSER);
         stool("system-start");
-        stool("create", "-quiet", "gav:org.pustefixframework:pustefix-sample1:0.18.84", "it");
-        stool("select", "none");
-        stool("select", "it");
-        stool("status");
-        stool("validate");
-        stool("build");
-        stool("config", "tomcat.opts=@trustStore@");
-        stool("config", "tomcat.heap=300");
-        stool("refresh");
-        stool("start");
-        stool("stop", "-sleep");
-        stool("start");
-        stool("status");
-        stool("validate");
-        stool("restart");
-        stool("refresh");
-        stool("refresh", "-build");
-        stool("refresh", "-debug");
-        stool("refresh", "-stop");
-        stool("start");
-        stool("stop");
-        stool("list");
-        stool("validate");
-        stool("history");
-        stool("rename", "renamed");
-        stool("remove", "-batch");
+    }
+
+    @After
+    public void after() throws Exception {
         stool("system-stop");
     }
+
 
     @Test
     public void turnaroundArtifact() throws IOException, InterruptedException {
@@ -182,6 +136,7 @@ public class StoolIT {
         stool("remove", "-batch");
     }
 
+
     private void stool(String... args) throws IOException {
         OutputStream devNull;
         int result;
@@ -197,12 +152,9 @@ public class StoolIT {
         inputLogger.info("TODO");
         devNull = MultiOutputStream.createNullStream();
         console = new Console(world, logging.writer(devNull, "OUT"), logging.writer(devNull, "ERR"), input);
-        main = new Main(logging, TESTUSER, "TODO", system, console);
-        command = "stool";
-        for (String arg : args) {
-            command = command + " " + arg;
-        }
-
+        command = command(args);
+        inputLogger.info(command);
+        main = new Main(logging, TESTUSER, command, system, console);
         System.out.print("  Running: " + command);
         post = world.getTemp().createTempFile();
         result = main.run(Strings.append(new String[] { "-invocation", post.getAbsolute(), "-v" }, args));
@@ -213,5 +165,15 @@ public class StoolIT {
             System.out.println(" -> failed: " + result);
             fail();
         }
+    }
+
+    private String command(String[] args) {
+        StringBuilder command;
+
+        command = new StringBuilder("stool");
+        for (String arg : args) {
+            command.append(' ').append(arg);
+        }
+        return command.toString();
     }
 }
