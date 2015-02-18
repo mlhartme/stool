@@ -15,43 +15,40 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.sushi.util.Separator;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
-import java.util.UUID;
+import java.util.List;
 
 public class LogEntry {
+    private static final Separator SEP = Separator.on('|').trim();
+    private static final DateTimeFormatter FMT = DateTimeFormat.forPattern("Y-M-d H:m:s,SSS");
+
+    public static LogEntry parse(String line) {
+        List<String> fields;
+
+        fields = SEP.split(line);
+        if (fields.size() != 5) {
+            throw new IllegalArgumentException(line);
+        }
+        return new LogEntry(DateTime.parse(fields.get(0), FMT), fields.get(1), fields.get(2), fields.get(3), fields.get(4));
+    }
+
+    //--
+
     public final DateTime dateTime;
-    public final UUID uuid;
+    public final String id;
     public final String logger;
     public final String user;
     public final String message;
 
-    public LogEntry(DateTime dateTime, UUID uuid, String logger, String user, String message) {
+    public LogEntry(DateTime dateTime, String id, String logger, String user, String message) {
         this.dateTime = dateTime;
-        this.uuid = uuid;
+        this.id = id;
         this.logger = logger;
         this.user = user;
         this.message = message;
-    }
-
-    public static LogEntry parse(String line) {
-        DateTime dateTime;
-        UUID uuid;
-        String user;
-        String[] log;
-        String logger;
-        String message;
-
-        log = line.split("\\|");
-        if (log.length != 5) {
-            throw new IllegalArgumentException(line);
-        }
-        dateTime = DateTime.parse(log[0].trim(), DateTimeFormat.forPattern("Y-M-d H:m:s,SSS"));
-        uuid = UUID.fromString(log[1].substring(log[1].indexOf('=') + 1).trim());
-        logger = log[2].trim();
-        user = log[3].trim();
-        message = log[4].trim();
-        return new LogEntry(dateTime, uuid, logger, user, message);
     }
 }

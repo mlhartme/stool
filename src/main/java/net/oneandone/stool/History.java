@@ -26,7 +26,6 @@ import org.joda.time.format.DateTimeFormat;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 public class History extends StageCommand {
 
@@ -50,11 +49,11 @@ public class History extends StageCommand {
     public void doInvoke(Stage s) throws Exception {
         List<LogEntry> logEntries;
         int counter ;
-        UUID uuid;
+        String id;
 
         logEntries = readLog(s.shared().join("log/stool.log"));
         counter = 1;
-        uuid = null;
+        id = null;
         for (LogEntry entry : logEntries) {
             if (entry.logger.equals("IN")) {
                 if (detail == -1 || detail == counter) {
@@ -62,11 +61,11 @@ public class History extends StageCommand {
                         + " " + entry.user + ": " + entry.message);
                 }
                 if (detail == counter) {
-                    uuid = entry.uuid;
+                    id = entry.id;
                 }
                 counter++;
             }
-            if (entry.uuid.equals(uuid)) {
+            if (entry.id.equals(id)) {
                 console.info.println("     " + entry.message);
             }
 

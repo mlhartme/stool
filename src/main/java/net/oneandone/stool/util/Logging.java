@@ -14,19 +14,30 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Logging {
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyMMdd-");
+
     public static Logging forHome(FileNode home, String user) throws IOException {
-        return new Logging(home.join("logs/stool.log"), user);
+        String today;
+        String id;
+
+        today = DATE_FORMAT.format(new Date());
+        id = Integer.toString(id(home.join("logs"), today));
+        return new Logging(id, home.join("logs/stool.log"), user);
     }
 
+    private final String id;
     private final LoggerContext context;
     private final FileNode stool;
     private final String user;
 
-    public Logging(FileNode stool, String user) throws IOException {
+    public Logging(String id, FileNode stool, String user) throws IOException {
         Logger root;
 
+        this.id = id;
         this.context = (LoggerContext) LoggerFactory.getILoggerFactory();
         this.stool = stool;
         this.user = user;
@@ -96,7 +107,7 @@ public class Logging {
     private PatternLayoutEncoder encoder(String logger) {
         PatternLayoutEncoder logEncoder = new PatternLayoutEncoder();
         logEncoder.setContext(context);
-        logEncoder.setPattern("%date | %mdc | " + logger + " | " + user + " | %msg%n");
+        logEncoder.setPattern("%date | " + id + " | " + logger + " | " + user + " | %msg%n");
         logEncoder.start();
         return logEncoder;
     }
@@ -104,4 +115,64 @@ public class Logging {
     public Logger lookup(String name) {
         return context.getLogger(name);
     }
+
+
+    //--
+
+    /**
+     * Unique id starting with 1 every day, bumped for every invocation.
+     */
+    private static int id(FileNode varRun, String prefix) throws IOException {
+        int retries;
+        FileNode lock;
+        FileNode file;
+        int id;
+        String str;
+
+        retries = 0;
+        while (true) {
+            lock = varRun.join("id.lock");
+            try {
+                lock.mkfile();
+                break;
+            } catch (IOException e) {
+                retries++;
+                if (retries > 10) {
+                    throw new IOException("cannot create " + lock);
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e1) {
+                    break;
+                }
+            }
+        }
+        try {
+            file = varRun.join("id");
+            if (!file.exists()) {
+                id = 1;
+                touch(file);
+            } else {
+                str = file.readString();
+                if (str.startsWith(prefix)) {
+                    id = Integer.parseInt(str.substring(prefix.length())) + 1;
+                } else {
+                    id = 1;
+                }
+            }
+            file.writeString(prefix + id);
+            return id;
+        } finally {
+            lock.deleteFile();
+        }
+    }
+
+    private static FileNode touch(FileNode file) throws IOException {
+        if (!file.exists()) {
+            file.mkfile();
+            file.setPermissions("rw-rw----");
+        }
+        return file;
+    }
+
 }
