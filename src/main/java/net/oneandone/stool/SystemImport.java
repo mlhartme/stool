@@ -156,7 +156,17 @@ public class SystemImport extends SessionCommand {
 
         dest = session.home.join(path);
         current = dest.readString();
-        result = mergeConfig(oldHome.join(path).readString(), current, "version" /* version was removed in 2.13 -> 3.0 */);
+        result = mergeConfig(oldHome.join(path).readString(), current,
+                /* version was removed in 2.13 -> 3.0: */
+                "version", "stages",
+                // TODO: *10 ...
+                "portPrefixFirst", "portPrefixLast",
+                // TODO: -> autoRemove
+                "autoremove",
+                // because values are all-strings no (e.g. in tomcat.select)
+                // TODO: workspace stages will be broken ...
+                "defaults"
+        );
         diff = Diff.diff(current, result);
         return new Patch("M " + dest.getAbsolute(), diff) {
             public void apply() throws IOException {
@@ -188,7 +198,9 @@ public class SystemImport extends SessionCommand {
         stage.getDirectory().link(stage.anchor());
         tmpConfig = tmpWrapper.join("config.json");
         tmp = tmpConfig.readString();
-        tmp = mergeConfig(oldWrapper.join("config.json").readString(), tmp);
+        tmp = mergeConfig(oldWrapper.join("config.json").readString(), tmp,
+                // 2.13 -> 3.0 chages
+                "portPrefix");
         tmpConfig.writeString(tmp);
         msg = Diff.diff(oldWrapper.join("config.json").readString(), tmp);
         if (msg.isEmpty()) {
