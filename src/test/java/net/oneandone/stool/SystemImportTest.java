@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -28,7 +30,8 @@ public class SystemImportTest {
 
         result = SystemImport.mergeConfig(
                 "{\n  \"version\": \"3.0.0-SNAPSHOT\"\n}\n",
-                "{\n  \"version\": \"3.0.0-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}");
+                "{\n  \"version\": \"3.0.0-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}",
+                new Object() {});
         assertEquals("{\n  \"version\": \"3.0.0-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}", result);
     }
 
@@ -38,18 +41,47 @@ public class SystemImportTest {
 
         result = SystemImport.mergeConfig(
                 "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}\n",
-                "{\n  \"version\": \"3.0.0-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}");
+                "{\n  \"version\": \"3.0.0-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}",
+                new Object() {});
         assertEquals("{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}", result);
     }
 
     @Test
-    public void mergeAdditional() throws IOException {
+    public void mergeRemove() throws IOException {
         String result;
 
         result = SystemImport.mergeConfig(
                 "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\",\n  \"additional\": \"foo\"\n}\n",
                 "{\n  \"version\": \"3.0.0-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}",
-                "additional");
+                new Object() {
+                    void additionalRemove() {}
+                });
         assertEquals("{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}", result);
+    }
+
+    @Test
+    public void mergeRename() throws IOException {
+        String result;
+
+        result = SystemImport.mergeConfig(
+                "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"before\": \"/Users/mhm\"\n}\n",
+                "{\n  \"version\": \"3.0.0-SNAPSHOT\"\n}",
+                new Object() {
+                    String beforeRename() { return "after"; }
+                });
+        assertEquals("{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"after\": \"/Users/mhm\"\n}", result);
+    }
+
+    @Test
+    public void mergeTransform() throws IOException {
+        String result;
+
+        result = SystemImport.mergeConfig(
+                "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": 5\n}\n",
+                "{\n  \"version\": \"3.0.0-SNAPSHOT\"\n}",
+                new Object() {
+                    JsonElement stagesTransform(JsonElement orig) { return new JsonPrimitive(orig.getAsInt() * 2); }
+                });
+        assertEquals("{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": 10\n}", result);
     }
 }

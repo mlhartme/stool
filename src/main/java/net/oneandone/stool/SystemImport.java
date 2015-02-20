@@ -18,6 +18,7 @@ package net.oneandone.stool;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
 import net.oneandone.stool.configuration.Bedroom;
@@ -34,6 +35,8 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -157,16 +160,30 @@ public class SystemImport extends SessionCommand {
         dest = session.home.join(path);
         current = dest.readString();
         result = mergeConfig(oldHome.join(path).readString(), current,
-                /* version was removed in 2.13 -> 3.0: */
-                "version", "stages",
-                // TODO: *10 ...
-                "portPrefixFirst", "portPrefixLast",
-                // TODO: -> autoRemove
-                "autoremove",
-                // because values are all-strings no (e.g. in tomcat.select)
-                // TODO: workspace stages will be broken ...
-                "defaults"
-        );
+                new Object() {
+                    void versionRemove() {}
+                    void stagesRemove() {}
+                    // because values are all-strings no (e.g. in tomcat.select)
+                    void defaultsRemove() {}
+
+                    String portPrefixFirstRename() {
+                        return "portFirst";
+                    }
+                    JsonElement portPrefixFirstTransform(JsonElement orig) {
+                        return new JsonPrimitive(orig.getAsInt() * 10);
+                    }
+
+                    String portPrefixLastRename() {
+                        return "portLast";
+                    }
+                    JsonElement portPrefixLastTransform(JsonElement orig) {
+                        return new JsonPrimitive(orig.getAsInt() * 10 + 9);
+                    }
+
+                    String autoremoveRename(JsonElement orig) {
+                        return "autoRemove";
+                    }
+                });
         diff = Diff.diff(current, result);
         return new Patch("M " + dest.getAbsolute(), diff) {
             public void apply() throws IOException {
@@ -215,29 +232,70 @@ public class SystemImport extends SessionCommand {
         };
     }
 
-    public static String mergeConfig(String srcString, String destString, String ... ignores) throws IOException {
-        return mergeConfig(srcString, destString, Arrays.asList(ignores));
-    }
-
-    public static String mergeConfig(String srcString, String destString, List<String> ignores) throws IOException {
+    public static String mergeConfig(String srcString, String destString, Object mapper) throws IOException {
         JsonParser parser;
         JsonObject src;
         JsonObject dest;
-        String name;
+        Object[] mapped;
 
         parser = new JsonParser();
         src = (JsonObject) parser.parse(srcString);
         dest = (JsonObject) parser.parse(destString);
         for (Map.Entry<String, JsonElement> entry : src.entrySet()) {
-            name = entry.getKey();
-            if (!ignores.contains(name)) {
-                if (dest.get(name) == null) {
-                    throw new IllegalStateException("entry not found: " + name);
-                }
-                dest.add(name, entry.getValue());
+            mapped = map(mapper, entry.getKey(), entry.getValue());
+            if (mapped != null) {
+                dest.add((String) mapped[0], (JsonElement) mapped[1]);
             }
         }
         return toString(dest);
+    }
+
+    private static Object[] map(Object mapper, String name, JsonElement value) {
+        Class clazz;
+        Method rename;
+        Method transform;
+
+        clazz = mapper.getClass();
+        try {
+            clazz.getDeclaredMethod(name + "Remove", new Class[] {});
+            return null;
+        } catch (NoSuchMethodException e) {
+            // fall-through
+        }
+        try {
+            rename = clazz.getDeclaredMethod(name + "Rename", new Class[]{});
+        } catch (NoSuchMethodException e) {
+            rename = null;
+        }
+        try {
+            transform = clazz.getDeclaredMethod(name + "Transform", new Class[]{ JsonElement.class });
+        } catch (NoSuchMethodException e) {
+            transform = null;
+        }
+        return new Object[] { rename(rename, mapper, name), transform(transform, mapper, value) };
+    }
+
+    private static String rename(Method method, Object object, String old) {
+        if (method == null) {
+            return old;
+        } else {
+            try {
+                return (String) method.invoke(object);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new IllegalStateException(e);
+            }
+        }
+    }
+    private static JsonElement transform(Method method, Object object, JsonElement old) {
+        if (method == null) {
+            return old;
+        } else {
+            try {
+                return (JsonElement) method.invoke(object, old);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new IllegalStateException(e);
+            }
+        }
     }
 
     public static String toString(JsonObject obj) {
