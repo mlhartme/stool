@@ -65,6 +65,7 @@ public class Ls extends StageCommand {
         message("   mem free: " + Strings.padLeft("~" + session.memUnreserved() + " Mb", padStorage));
         message("   disk free:" + Strings.padLeft("~" + session.diskFree() + " Mb", padStorage));
         message("");
+        throw new RuntimeException("test");
     }
 
     protected List<Stage> defaultSelected(EnumerationFailed problems) throws IOException {

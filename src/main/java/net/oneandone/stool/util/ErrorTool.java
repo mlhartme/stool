@@ -16,29 +16,23 @@
 package net.oneandone.stool.util;
 
 import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.AppenderBase;
+import net.oneandone.stool.setup.Main;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
-public class ErrorToolAppender extends AppenderBase<ILoggingEvent> {
-    private final URL url;
+public class ErrorTool {
+    public static void send(URL url, Level level, String hostname, String subject, Exception e) throws IOException {
+        StringWriter dest;
 
-    public ErrorToolAppender(URL url) {
-        this.url = url;
-    }
-
-    @Override
-    protected void append(ILoggingEvent event) {
-        try {
-            send(url, event.getLevel(), null, "subject", event.getFormattedMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        dest = new StringWriter();
+        e.printStackTrace(new PrintWriter(dest));
+        send(url, level, hostname, subject, dest.getBuffer().toString());
     }
 
     public static void send(URL url, Level level, String hostname, String subject, String body) throws IOException {
@@ -52,7 +46,7 @@ public class ErrorToolAppender extends AppenderBase<ILoggingEvent> {
         add("product", "stool", dest);
         add("category", "default", dest);
         add("container", hostname, dest);
-        add("sessionId", hostname, dest);
+        add("sessionId", Main.versionObject().toString(), dest);
 
         add("subject", subject, dest);
         add("body", body, dest);

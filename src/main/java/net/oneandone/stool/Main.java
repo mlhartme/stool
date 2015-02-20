@@ -15,15 +15,20 @@
  */
 package net.oneandone.stool;
 
+import ch.qos.logback.classic.Level;
+import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Environment;
+import net.oneandone.stool.util.ErrorTool;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Slf4jOutputStream;
+import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Child;
 import net.oneandone.sushi.cli.Cli;
 import net.oneandone.sushi.cli.Command;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Option;
+import net.oneandone.sushi.cli.Parser;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.InputLogStream;
@@ -32,6 +37,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Arrays;
 
 public class Main extends Cli implements Command {
@@ -49,6 +55,7 @@ public class Main extends Cli implements Command {
         Logger inputLogger;
         InputStream input;
         Console console;
+        Main main;
 
         world = new World();
         user = System.getProperty("user.name");
@@ -61,7 +68,25 @@ public class Main extends Cli implements Command {
         input = new InputLogStream(System.in, new Slf4jOutputStream(inputLogger, true));
         inputLogger.info(command);
         console = new Console(world, logging.writer(System.out, "OUT"), logging.writer(System.err, "ERR"), input);
-        return new Main(logging, user, command, environment, console).run(args);
+        main = new Main(logging, user, command, environment, console);
+
+        try {
+            return main.run(args);
+        } catch (RuntimeException e) {
+            try {
+                Session session;
+                StoolConfiguration config;
+
+                session = main.session();
+                config = session.configuration;
+                if (config.errorTool != null) {
+                    ErrorTool.send(new URL(config.errorTool), Level.ERROR, session.user + "@" + config.hostname, session.command, e);
+                }
+            } catch (Exception nested) {
+                e.addSuppressed(nested);
+            }
+            throw e;
+        }
     }
 
     public static final String INBOX = "inbox";
@@ -82,6 +107,36 @@ public class Main extends Cli implements Command {
         this.command = command;
         this.environment = environment;
         this.session = null;
+    }
+
+    // TODO: same as sushi's run method, but does not catch RuntimeExceptions
+    @Override
+    public int run(String... args) {
+        Parser parser;
+        Command command;
+
+        parser = Parser.create(schema, getClass());
+        try {
+            command = (Command) parser.run(this, args);
+            console.verbose.println("command line: " + Arrays.asList(args));
+            if (pretend) {
+                console.info.println("pretend-only, command " + command + " is not executed");
+            } else {
+                command.invoke();
+            }
+        } catch (ArgumentException e) {
+            console.error.println(e.getMessage());
+            console.info.println("Specify 'help' to get a usage message.");
+            e.printStackTrace(exception ? console.error : console.verbose);
+            return -1;
+        } catch (RuntimeException e) {
+            throw e;
+        } catch (Exception e) {
+            console.error.println(e.getMessage());
+            e.printStackTrace(exception ? console.error : console.verbose);
+            return -1;
+        }
+        return 0;
     }
 
     @Child("build")

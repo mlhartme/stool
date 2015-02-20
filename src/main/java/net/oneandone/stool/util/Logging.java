@@ -182,19 +182,4 @@ public class Logging {
         }
         return file;
     }
-
-    public Logger errorTool(String url) throws MalformedURLException {
-        Logger logger;
-        Appender appender;
-
-        logger = context.getLogger("errortool");
-        if (url == null) {
-            logger.setLevel(Level.OFF);
-        } else {
-            appender = new ErrorToolAppender(new URL(url));
-            appender.start();
-            logger.addAppender(appender);
-        }
-        return logger;
-    }
 }

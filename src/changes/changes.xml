@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.0.0">
+      <action date="2015-02-20" dev="mhm" type="update">
+        Send RuntimeException to ErrorTool (if errortool url is configured).
+      </action>
       <action date="2015-02-17" dev="mhm" type="fix">
         Fixed stage logging, it used to log only for the selected stage.
       </action>
