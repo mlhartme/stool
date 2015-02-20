@@ -187,18 +187,18 @@ public abstract class Stage {
         FileNode sslDir;
         String hostname;
 
-        if (session.stoolConfiguration.certificates.isEmpty()) {
+        if (session.configuration.certificates.isEmpty()) {
             return null;
         }
         sslDir = shared().join("ssl");
         keyStore = new KeyStore(sslDir);
         if (!keyStore.exists()) {
             if (config().sslUrl == null || config().sslUrl.equals("")) {
-                hostname = getName() + "." + session.stoolConfiguration.hostname;
+                hostname = getName() + "." + session.configuration.hostname;
             } else {
                 hostname = config().sslUrl;
             }
-            keyStore.download(session.stoolConfiguration.certificates, hostname);
+            keyStore.download(session.configuration.certificates, hostname);
         }
         return keyStore;
 
@@ -213,7 +213,7 @@ public abstract class Stage {
         String machine;
         int idx;
 
-        machine = session.stoolConfiguration.hostname;
+        machine = session.configuration.hostname;
         idx = machine.indexOf('.');
         if (idx != -1) {
             machine = machine.substring(0, idx);
@@ -324,7 +324,7 @@ public abstract class Stage {
 
     public Map<String, String> urls(ServerXml serverXml) throws IOException {
         try {
-            return serverXml.allUrls(session.stoolConfiguration.vhosts, configuration.suffix);
+            return serverXml.allUrls(session.configuration.vhosts, configuration.suffix);
         } catch (XmlException e) {
             throw new IOException("cannot read server.xml: " + e.getMessage(), e);
         }
@@ -361,9 +361,9 @@ public abstract class Stage {
         // }
 
         serverXml = ServerXml.load(serverXmlTemplate());
-        serverXml.configure(hosts, allocated, keystore(), config().mode, config().cookies, session.stoolConfiguration.hostname);
+        serverXml.configure(hosts, allocated, keystore(), config().mode, config().cookies, session.configuration.hostname);
         serverXml.save(serverXml());
-        if (session.stoolConfiguration.security.isLocal()) {
+        if (session.configuration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
             // else: will be deleted by stool-catalina.sh -- with proper permissions
         }
@@ -402,7 +402,7 @@ public abstract class Stage {
     private Launcher catalina(String action) throws IOException {
         Launcher launcher;
 
-        if (session.stoolConfiguration.security.isShared()) {
+        if (session.configuration.security.isShared()) {
             launcher = new Launcher(getDirectory(), "sudo",
                     session.bin("stool-catalina.sh").getAbsolute()).arg(action);
         } else {
@@ -447,7 +447,7 @@ public abstract class Stage {
 
     protected void printAppUrls(Console console, ServerXml serverXml) throws XmlException {
         console.info.println("Applications available:");
-        Map<String, String> appUrls = serverXml.allUrls(session.stoolConfiguration.vhosts, configuration.suffix);
+        Map<String, String> appUrls = serverXml.allUrls(session.configuration.vhosts, configuration.suffix);
         for (String appUrl : appUrls.values()) {
             console.info.println("  " + appUrl);
         }
@@ -549,16 +549,16 @@ public abstract class Stage {
             wars = tmp.size();
         }
         if (configuration.tomcatHeap == 0 || configuration.tomcatHeap == 200) {
-            configuration.tomcatHeap = Math.min(4096, 150 + wars * session.stoolConfiguration.baseHeap);
+            configuration.tomcatHeap = Math.min(4096, 150 + wars * session.configuration.baseHeap);
         }
         if (configuration.tomcatPerm == 0 || configuration.tomcatPerm == 64) {
-            configuration.tomcatPerm = Math.min(1024, 100 + wars * session.stoolConfiguration.basePerm);
+            configuration.tomcatPerm = Math.min(1024, 100 + wars * session.configuration.basePerm);
         }
         if (configuration.build.isEmpty() || configuration.build.equals("false")) {
             configuration.build = getDefaultBuildCommand();
         }
 
-        if (session.stoolConfiguration.security.isLocal()) {
+        if (session.configuration.security.isLocal()) {
             configuration.until = Until.reserved();
         } else {
             configuration.until = Until.withOffset(8);
@@ -679,7 +679,7 @@ public abstract class Stage {
         return Changes.none();
     }
     public FileNode localRepository() {
-        return session.stoolConfiguration.security.isLocal()
+        return session.configuration.security.isLocal()
           ? (FileNode) session.console.world.getHome().join(".m2/repository") : wrapper.join(".m2");
     }
     protected FileNode warFile(MavenProject project) {
@@ -701,8 +701,8 @@ public abstract class Stage {
     public String mainHostname() throws IOException {
         String result;
 
-        result = session.stoolConfiguration.hostname;
-        if (session.stoolConfiguration.vhosts) {
+        result = session.configuration.hostname;
+        if (session.configuration.vhosts) {
             result = hosts().keySet().iterator().next() + "." + result;
         }
         return result;

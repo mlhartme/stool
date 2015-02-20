@@ -150,8 +150,8 @@ public abstract class SessionCommand implements Command {
         Node src;
 
         checked = session.home.join("downloads/.update.checked");
-        if (updateCheck || ((session.stoolConfiguration.updateInterval > 0) && updateCheckPending(checked))) {
-            src = world.node(session.stoolConfiguration.updateSource);
+        if (updateCheck || ((session.configuration.updateInterval > 0) && updateCheckPending(checked))) {
+            src = world.node(session.configuration.updateSource);
             console.verbose.println("checking for updates at " + src.getURI());
             src.checkDirectory();
             updates = Update.check(net.oneandone.stool.setup.Main.versionObject(), src, session.home);
@@ -167,6 +167,6 @@ public abstract class SessionCommand implements Command {
     }
 
     private boolean updateCheckPending(FileNode marker) throws GetLastModifiedException {
-        return !marker.exists() || ((System.currentTimeMillis() - marker.getLastModified()) > session.stoolConfiguration.updateInterval * MILLIS_PER_DAY);
+        return !marker.exists() || ((System.currentTimeMillis() - marker.getLastModified()) > session.configuration.updateInterval * MILLIS_PER_DAY);
     }
 }

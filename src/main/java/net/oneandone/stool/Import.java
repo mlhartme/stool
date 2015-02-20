@@ -155,7 +155,7 @@ public class Import extends SessionCommand {
         if (url == null) {
             stage = null;
         } else {
-            stage = Stage.createOpt(session, url, session.stoolConfiguration.createStageConfiguration(url), wrapper, parent);
+            stage = Stage.createOpt(session, url, session.configuration.createStageConfiguration(url), wrapper, parent);
         }
         if (stage != null) {
             // bingo

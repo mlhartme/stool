@@ -42,13 +42,13 @@ public class SystemValidate extends SessionCommand {
         String ip;
         String subDomain;
 
-        ip = digIp(session.stoolConfiguration.hostname);
+        ip = digIp(session.configuration.hostname);
         if (ip.isEmpty()) {
-            console.error.println("missing dns entry for " + session.stoolConfiguration.hostname);
+            console.error.println("missing dns entry for " + session.configuration.hostname);
         }
-        subDomain = digIp("foo." + session.stoolConfiguration.hostname);
+        subDomain = digIp("foo." + session.configuration.hostname);
         if (subDomain.isEmpty() || !subDomain.endsWith(ip)) {
-            console.error.println("missing dns * entry for " + session.stoolConfiguration.hostname + " (" + subDomain + ")");
+            console.error.println("missing dns * entry for " + session.configuration.hostname + " (" + subDomain + ")");
         }
     }
 

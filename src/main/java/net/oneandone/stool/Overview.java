@@ -43,7 +43,7 @@ public class Overview {
         Create create;
         StageConfiguration stageConfiguration;
 
-        stageConfiguration = session.stoolConfiguration.createStageConfiguration("");
+        stageConfiguration = session.configuration.createStageConfiguration("");
         create = new Create(session, true, OVERVIEW_NAME, "gav:overview:overview:@overview",
                 overviewDirectory(session), stageConfiguration);
         create.remaining("tomcat.opts=-Doverview.stool.home=" + session.home.getAbsolute() + " -Doverview.user.name=" + session.user);
