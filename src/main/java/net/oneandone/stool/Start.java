@@ -196,7 +196,7 @@ public class Start extends StageCommand {
         FileNode base;
 
         name = tomcatName(version);
-        download = session.home.join("tomcat/downloads", name + ".tar.gz");
+        download = session.home.join("downloads", name + ".tar.gz");
         if (!download.exists()) {
             console.info.println("downloading tomcat ...");
             try {
@@ -217,12 +217,14 @@ public class Start extends StageCommand {
     }
 
     public void serviceWrapperOpt(String version) throws IOException {
+        String platform;
         FileNode download;
         String name;
         FileNode base;
 
-        name = "wrapper-macosx-universal-64-" + version;
-        download = session.home.join("service-wrapper/downloads", name + ".tar.gz");
+        platform = (OS.CURRENT == OS.LINUX) ? "linux-x86-64" : "macosx-universal-64";
+        name = "wrapper-" + platform + "-" + version;
+        download = session.home.join("downloads", name + ".tar.gz");
         if (!download.exists()) {
             downloadFile("http://wrapper.tanukisoftware.com/download/" + version + "/" + name + ".tar.gz", download);
             download.checkFile();
