@@ -8,7 +8,7 @@
 #  SERVICE_WRAPPER
 #  STAGE        - simple name
 
-export WRAPPER_HOME=${STOOL_HOME}/service-wrapper/wrapper-macosx-universal-64-${SERVICE_WRAPPER}
+export WRAPPER_HOME=${STOOL_HOME}/service-wrapper/${SERVICE_WRAPPER_NAME}
 
 APP_NAME="tomcat"
 APP_LONG_NAME="Stage ${STAGE} Tomcat"

@@ -217,13 +217,11 @@ public class Start extends StageCommand {
     }
 
     public void serviceWrapperOpt(String version) throws IOException {
-        String platform;
         FileNode download;
         String name;
         FileNode base;
 
-        platform = (OS.CURRENT == OS.LINUX) ? "linux-x86-64" : "macosx-universal-64";
-        name = "wrapper-" + platform + "-" + version;
+        name = serviceWrapperName(version);
         download = session.home.join("downloads", name + ".tar.gz");
         if (!download.exists()) {
             downloadFile("http://wrapper.tanukisoftware.com/download/" + version + "/" + name + ".tar.gz", download);
@@ -235,6 +233,16 @@ public class Start extends StageCommand {
             base.checkDirectory();
         }
     }
+
+    public static String serviceWrapperName(String version) {
+        String platform;
+        String name;
+
+        platform = (OS.CURRENT == OS.LINUX) ? "linux-x86-64" : "macosx-universal-64";
+        name = "wrapper-" + platform + "-" + version;
+        return name;
+    }
+
 
     private void tar(FileNode directory, String... args) throws IOException {
         String output;

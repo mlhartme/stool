@@ -420,7 +420,7 @@ public abstract class Stage {
         env.put("JAVA_HOME", configuration.javaHome);
         env.put("CATALINA_BASE", catalinaBase().getAbsolute());
         env.put("CATALINA_HOME", catalinaHome().getAbsolute());
-        env.put("SERVICE_WRAPPER", config().tomcatService);
+        env.put("SERVICE_WRAPPER_NAME", Start.serviceWrapperName(config().tomcatService));
         env.put("STAGE", getName());
         return env;
     }
