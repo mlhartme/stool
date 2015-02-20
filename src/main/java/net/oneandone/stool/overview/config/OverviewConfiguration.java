@@ -20,6 +20,7 @@ import net.oneandone.stool.overview.IndexController;
 import net.oneandone.stool.overview.Stages;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Environment;
+import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
@@ -60,10 +61,14 @@ public class OverviewConfiguration {
     @Bean
     public Session session() throws IOException {
         Environment system;
+        FileNode home;
+        String user;
 
         system = Environment.loadSystem();
-        system.setStoolHome(home());
-        return Session.load(null /* TODO */, user(), "TODO", system, console(), null);
+        home = home();
+        user = user();
+        system.setStoolHome(home);
+        return Session.load(Logging.forHome(home, user), user, "overview", system, console(), null);
     }
 
     @Bean

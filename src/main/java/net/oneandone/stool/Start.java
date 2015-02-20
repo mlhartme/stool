@@ -83,10 +83,10 @@ public class Start extends StageCommand {
             console.info.println("leaving sleeping state");
             session.bedroom.remove(stage.getName());
         }
-        stage.start(console, allocated);
-        if (debug) {
+        if (debug || suspend) {
             console.info.println("debugging enabled on port " + allocated.debug());
         }
+        stage.start(console, allocated);
         ping(stage);
         timeEnd();
         stage.buildStats().start(executionTime());
@@ -313,7 +313,7 @@ public class Start extends StageCommand {
         opts.add("-Dcom.sun.management.jmxremote.port=" + ports.jmx());
         opts.add("-Dcom.sun.management.jmxremote.rmi.port=" + ports.jmx());
         opts.add("-Dcom.sun.management.jmxremote.ssl=false");
-        if (debug) {
+        if (debug || suspend) {
             opts.add("-Xdebug");
             opts.add("-Xnoagent");
             opts.add("-Djava.compiler=NONE");
@@ -335,7 +335,6 @@ public class Start extends StageCommand {
     private void checkUntil(Until until) {
         if (until.expired()) {
             throw new ArgumentException("'until' date has expired: " + until);
-
         }
     }
 

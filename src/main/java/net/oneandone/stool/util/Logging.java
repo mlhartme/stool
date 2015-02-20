@@ -4,6 +4,7 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.core.Appender;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -184,13 +185,16 @@ public class Logging {
 
     public Logger errorTool(String url) throws MalformedURLException {
         Logger logger;
+        Appender appender;
 
         logger = context.getLogger("errortool");
         if (url == null) {
             logger.setLevel(Level.OFF);
         } else {
-            logger.addAppender(new ErrorToolAppender(new URL(url)));
+            appender = new ErrorToolAppender(new URL(url));
+            appender.start();
+            logger.addAppender(appender);
         }
-        return null;
+        return logger;
     }
 }
