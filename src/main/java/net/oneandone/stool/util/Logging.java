@@ -70,6 +70,8 @@ public class Logging {
         Logger result;
 
         result = context.getLogger(name);
+        // important for test cases, where you might instantiate multiple Logging objects
+        result.detachAndStopAllAppenders();
         result.setAdditive(false);
         result.setLevel(Level.INFO);
         result.addAppender(stoolAppender(name));
