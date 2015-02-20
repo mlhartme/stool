@@ -19,15 +19,11 @@ public class User {
     public final String login;
     public final String name;
     public final String email;
-    public final String department;
-    public final String phone;
 
-    public User(String login, String name, String email, String department, String phone) {
+    public User(String login, String name, String email) {
         this.login = login;
         this.name = name;
         this.email = email;
-        this.department = department;
-        this.phone = phone;
     }
 
     //-- Object methods
@@ -35,9 +31,7 @@ public class User {
     public String toString() {
         return "login: " + login + "\n"
                 + "name: " + name + "\n"
-                + "email: " + email + "\n"
-                + "department: " + department + "\n"
-                + "phone: " + phone;
+                + "email: " + email + "\n";
     }
 
     @Override
@@ -48,8 +42,7 @@ public class User {
             return false;
         }
         user = (User) object;
-        return login.equals(user.login) && name.equals(user.name) && email.equals(user.email)
-                && department.equals(user.department) && phone.equals(user.phone);
+        return login.equals(user.login) && name.equals(user.name) && email.equals(user.email);
     }
 
     public int hashCode() {

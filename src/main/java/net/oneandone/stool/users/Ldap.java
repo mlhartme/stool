@@ -31,6 +31,8 @@ import java.util.Map;
 
 /**
  * Ldap access and factory for users.
+ *
+ * Note: I could Spring Ldap stuff for this, but I didn't succeed to intitiate these objects without injection.
  */
 public class Ldap {
     public static Ldap create(String url, String principal, String credentials) {
@@ -65,7 +67,7 @@ public class Ldap {
     public User lookup(String login) throws NamingException, UserNotFound {
         Map<String, User> result;
 
-        result = listFromLdap("o", login);
+        result = listFromLdap("uid", login);
         switch (result.size()) {
             case 0:
                 throw new UserNotFound(login);
@@ -89,18 +91,16 @@ public class Ldap {
         for (int i = 0; i < args.length; i+= 2) {
             matchAttrs.put(new BasicAttribute(args[i], args[i + 1]));
         }
-        answer = search("ou=People,ou=contacts", matchAttrs);
+        answer = search("ou=users,ou=cisostages", matchAttrs);
         result = new LinkedHashMap<>();
         while (answer.hasMore()) {
             SearchResult obj = answer.next();
             Attributes attrs = obj.getAttributes();
             result.put(get(attrs, "uid"),
                     new User(
-                            get(attrs, "o"),
+                            get(attrs, "uid"),
                             get(attrs, "givenname") + " " + get(attrs, "sn"),
-                            get(attrs, "mail") /* email is mandatory for me - although ldap returns employees without */,
-                            get(attrs, "ou"),
-                            getOpt(attrs, "telephonenumber", "")));
+                            get(attrs, "mail") /* email is mandatory for me - although ldap returns employees without */));
         }
         return result;
     }

@@ -139,7 +139,7 @@ public class Session {
         if (configuration.ldapUrl.isEmpty()) {
             this.users = Users.fromLogin();
         } else {
-            this.users = Users.fromLdap(configuration.ldapUrl, null, null);
+            this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials);
         }
     }
 

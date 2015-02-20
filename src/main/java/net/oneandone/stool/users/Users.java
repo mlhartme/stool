@@ -29,7 +29,7 @@ public class Users {
         StoolConfiguration config;
 
         config = StoolConfiguration.load(new World().file("/Users/mhm/Packages/stool-3.0"));
-        users = Users.fromLdap(config.ldapUrl, null, null);
+        users = Users.fromLdap(config.ldapUrl, config.ldapPrincipal, config.ldapCredentials);
         System.out.println(users.byLogin("mhm"));
         System.out.println("ok");
     }
@@ -58,7 +58,7 @@ public class Users {
         user = users.get(login);
         if (user == null) {
             if (ldap == null) {
-                user = new User(login, login, login + "@localhost", "unknown department", "unknown phone");
+                user = new User(login, login, login + "@localhost");
             } else {
                 user = ldap.lookup(login);
             }

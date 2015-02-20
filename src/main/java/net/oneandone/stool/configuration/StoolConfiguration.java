@@ -104,9 +104,6 @@ public class StoolConfiguration extends BaseConfiguration {
     public int baseHeap;
 
     @Expose
-    public String ldapUrl;
-
-    @Expose
     public String mailHost;
 
     @Expose
@@ -120,16 +117,16 @@ public class StoolConfiguration extends BaseConfiguration {
     public String certificates;
 
     @Expose
-    public String authenticationUrl;
+    public String ldapUrl;
 
     @Expose
-    public String authenticationPrincipal;
+    public String ldapPrincipal;
 
     @Expose
-    public String authenticationCredentials;
+    public String ldapCredentials;
 
     @Expose
-    public String authenticationSso;
+    public String ldapSso;
 
     @Expose
     public String updateSource;
@@ -170,10 +167,9 @@ public class StoolConfiguration extends BaseConfiguration {
             adminGroup = "users";
         }
         ldapUrl = "";
-        authenticationUrl = "";
-        authenticationPrincipal = "";
-        authenticationCredentials = "";
-        authenticationSso = "";
+        ldapPrincipal = "";
+        ldapCredentials = "";
+        ldapSso = "";
         mailHost = "";
         mailUsername = "";
         mailPassword = "";

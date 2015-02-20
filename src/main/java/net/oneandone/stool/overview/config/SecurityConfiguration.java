@@ -53,7 +53,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         provider = new CasAuthenticationProvider();
         provider.setServiceProperties(serviceProperties());
-        provider.setTicketValidator(new Cas20ServiceTicketValidator(session.configuration.authenticationSso));
+        provider.setTicketValidator(new Cas20ServiceTicketValidator(session.configuration.ldapSso));
         provider.setKey("cas");
         provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsService()));
 
@@ -73,13 +73,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         filter = new CasAuthenticationFilter();
         filter.setAuthenticationManager(authenticationManager());
         entryPoint = new CasAuthenticationEntryPoint();
-        entryPoint.setLoginUrl(session.configuration.authenticationSso + "/login/");
+        entryPoint.setLoginUrl(session.configuration.ldapSso + "/login/");
         entryPoint.setServiceProperties(serviceProperties());
         http.csrf().disable()
           .exceptionHandling().authenticationEntryPoint(entryPoint)
           .and()
           .addFilter(filter);
-        if (session.configuration.authenticationUrl.isEmpty()) {
+        if (session.configuration.ldapUrl.isEmpty()) {
             http.authorizeRequests().antMatchers("/**").hasRole("ANONYMOUS");
         } else {
             http.authorizeRequests()
@@ -104,9 +104,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public DefaultSpringSecurityContextSource contextSource() {
         DefaultSpringSecurityContextSource contextSource;
 
-        contextSource = new DefaultSpringSecurityContextSource(session.configuration.authenticationUrl);
-        contextSource.setUserDn(session.configuration.authenticationPrincipal);
-        contextSource.setPassword(session.configuration.authenticationCredentials);
+        contextSource = new DefaultSpringSecurityContextSource(session.configuration.ldapUrl);
+        contextSource.setUserDn(session.configuration.ldapPrincipal);
+        contextSource.setPassword(session.configuration.ldapCredentials);
         return contextSource;
     }
 
