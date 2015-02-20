@@ -98,6 +98,10 @@ public class SystemImport extends SessionCommand {
         if (oldHome.equals(session.home)) {
             throw new ArgumentException("cannot import from myself");
         }
+        console.info.println();
+        console.info.println("CAUTION: import has the following problems:");
+        console.info.println("  * 'defaults' are not migrated");
+        console.info.println();
         oldBedroom = Bedroom.loadOrCreate(oldHome);
         newBedroom = Bedroom.loadOrCreate(session.home);
         newBedroomOrig = newBedroom.stages().toString();
