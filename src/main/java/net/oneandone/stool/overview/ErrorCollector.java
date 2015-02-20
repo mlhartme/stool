@@ -38,7 +38,7 @@ public class ErrorCollector {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ResponseEntity collect(@RequestParam String payload) throws MalformedURLException {
         if (log == null) {
-            log = session.logging.errorTool(session.stoolConfiguration.errorTool);
+            log = session.logging.errorTool(session.configuration.errorTool);
         }
         log.error(payload);
         return new ResponseEntity(HttpStatus.OK);
