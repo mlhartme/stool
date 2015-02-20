@@ -40,10 +40,12 @@ public class Ldap {
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, url);
 
-        // Authentication: http://docs.oracle.com/javase/jndi/tutorial/ldap/security/ldap.html
-        env.put(Context.SECURITY_AUTHENTICATION, "simple");
-        env.put(Context.SECURITY_PRINCIPAL, principal);
-        env.put(Context.SECURITY_CREDENTIALS, credentials);
+        if (principal != null) {
+            // Authentication: http://docs.oracle.com/javase/jndi/tutorial/ldap/security/ldap.html
+            env.put(Context.SECURITY_AUTHENTICATION, "simple");
+            env.put(Context.SECURITY_PRINCIPAL, principal);
+            env.put(Context.SECURITY_CREDENTIALS, credentials);
+        }
         try {
             return new Ldap(new InitialLdapContext(env, null));
         } catch (NamingException e) {

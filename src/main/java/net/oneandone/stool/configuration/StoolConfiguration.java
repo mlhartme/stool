@@ -107,12 +107,6 @@ public class StoolConfiguration extends BaseConfiguration {
     public String ldapUrl;
 
     @Expose
-    public String ldapPrincipal;
-
-    @Expose
-    public String ldapCredentials;
-
-    @Expose
     public String mailHost;
 
     @Expose
@@ -176,8 +170,6 @@ public class StoolConfiguration extends BaseConfiguration {
             adminGroup = "users";
         }
         ldapUrl = "";
-        ldapPrincipal = "";
-        ldapCredentials = "";
         authenticationUrl = "";
         authenticationPrincipal = "";
         authenticationCredentials = "";
