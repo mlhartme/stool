@@ -616,6 +616,7 @@ public abstract class Stage {
     public Macros macros() {
         if (lazyMacros == null) {
             lazyMacros = new Macros();
+            lazyMacros.addAll(session.configuration.macros);
             lazyMacros.add("directory", getDirectory().getAbsolute());
             lazyMacros.add("localRepository", localRepository().getAbsolute());
             lazyMacros.add("proxyOpts", session.environment.proxyOpts(false));

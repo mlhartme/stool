@@ -282,7 +282,6 @@ public class Session {
             mavenOpts = "";
         } else {
             mavenOpts = stage.macros().replace(stage.config().mavenOpts);
-            mavenOpts = new Macros(configuration.macros).replace(mavenOpts);
         }
         env = new Environment();
         env.set(Environment.STOOL_SELECTED, selectedStageName);

@@ -291,11 +291,11 @@ public class Start extends StageCommand {
         result = new HashMap<>();
         result.put("java.home", session.jdkHome());
         result.put("wrapper.port", Integer.toString(ports.wrapper()));
-        result.put("wrapper.java.additional", wrapperJavaAdditional(ports, stage, new Macros(session.configuration.macros)));
+        result.put("wrapper.java.additional", wrapperJavaAdditional(ports, stage));
         return result;
     }
 
-    private String wrapperJavaAdditional(Ports ports, Stage stage, Macros macros) {
+    private String wrapperJavaAdditional(Ports ports, Stage stage) {
         String tomcatOpts;
         List<String> opts;
         StringBuilder result;
@@ -312,7 +312,6 @@ public class Start extends StageCommand {
         opts.add("-Dcatalina.home=%CATALINA_HOME%");
 
         tomcatOpts = stage.macros().replace(stage.config().tomcatOpts);
-        tomcatOpts = macros.replace(tomcatOpts);
         opts.addAll(Separator.SPACE.split(tomcatOpts));
 
         opts.add("-Xmx" + stage.config().tomcatHeap + "m");

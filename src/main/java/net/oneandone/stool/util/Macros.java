@@ -24,17 +24,16 @@ public class Macros {
 
 
     public Macros() {
-        this(new HashMap<String, String>());
-    }
-
-    public Macros(Map<String, String> marcos) {
-        this.macros = marcos;
+        this.macros = new HashMap<>();
     }
 
     public void add(String key, String value) {
         macros.put(key, value);
     }
 
+    public void addAll(Map<String, String> all) {
+        macros.putAll(all);
+    }
 
     public String replace(String string) {
         return replace(string, '@', '@');

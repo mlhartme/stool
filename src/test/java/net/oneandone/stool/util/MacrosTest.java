@@ -19,19 +19,13 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
 public class MacrosTest {
     @Test
     public void testReplace() throws Exception {
-        Map<String, String> macroMap;
         Macros macros;
 
-        macroMap = new HashMap<>();
-        macroMap.put("foo", "bar");
-
-        macros = new Macros(macroMap);
+        macros = new Macros();
+        macros.add("foo", "bar");
 
         Assert.assertThat(macros.replace("yeah @foo@"), CoreMatchers.is("yeah bar"));
     }
