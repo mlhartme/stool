@@ -128,9 +128,6 @@ public class StoolConfiguration extends BaseConfiguration {
     @Expose
     public String ldapSso;
 
-    @Expose
-    public String updateSource;
-
     // numer of days between up-to-data checks
     @Expose
     public int updateInterval;
@@ -174,7 +171,6 @@ public class StoolConfiguration extends BaseConfiguration {
         mailUsername = "";
         mailPassword = "";
         certificates = "";
-        updateSource = "";
         updateInterval = 0;
     }
 

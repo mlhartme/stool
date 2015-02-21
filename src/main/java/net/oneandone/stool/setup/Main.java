@@ -183,7 +183,7 @@ public class Main extends Cli implements Command {
 
         file = oldHome.join("bin/stool.jar");
         if (file.exists()) {
-            file = ((FileNode) file).openZip().join("META-INF/pominfo.properties");
+            file = ((FileNode) file).openZip().join("META-INF/maven/net.oneandone/stool/pom.properties");
             return Version.valueOf((String) file.readProperties().get("version"));
         } else {
             obj = (JsonObject) new JsonParser().parse(oldHome.join("config.json").readString());

@@ -147,14 +147,10 @@ public abstract class SessionCommand implements Command {
     public void updateCheck() throws URISyntaxException, IOException {
         List<FileNode> updates;
         FileNode checked;
-        Node src;
 
         checked = session.home.join("downloads/.update.checked");
         if (updateCheck || ((session.configuration.updateInterval > 0) && updateCheckPending(checked))) {
-            src = world.node(session.configuration.updateSource);
-            console.verbose.println("checking for updates at " + src.getURI());
-            src.checkDirectory();
-            updates = Update.check(net.oneandone.stool.setup.Main.versionObject(), src, session.home);
+            updates = Update.check(net.oneandone.stool.setup.Main.versionObject(), session.home);
             for (FileNode file : updates) {
                 console.info.println("INFO: found a new Stool version, update by running " + file);
             }
