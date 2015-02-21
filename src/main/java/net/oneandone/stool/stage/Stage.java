@@ -24,6 +24,7 @@ import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.util.BuildStats;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.KeyStore;
+import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.OwnershipException;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
@@ -425,7 +426,7 @@ public abstract class Stage {
         return env;
     }
 
-    public String proxyOpts() {
+    public String tomcatProxyOpts() {
         boolean quote;
 
         quote = configuration.tomcatVersion.startsWith("7.");
@@ -605,12 +606,24 @@ public abstract class Stage {
         }
         return wars;
     }
-    public String getBuild() {
-        String result;
 
-        result = configuration.build;
-        return result.replace("@directory@", getDirectory().getAbsolute());
+    public String getBuild() {
+        return macros().replace(configuration.build);
     }
+
+    private Macros lazyMacros = null;
+
+    public Macros macros() {
+        if (lazyMacros == null) {
+            lazyMacros = new Macros();
+            lazyMacros.add("directory", getDirectory().getAbsolute());
+            lazyMacros.add("localRepository", localRepository().getAbsolute());
+            lazyMacros.add("proxyOpts", session.environment.proxyOpts(false));
+            lazyMacros.add("tomcatProxyOpts", tomcatProxyOpts());
+        }
+        return lazyMacros;
+    }
+
     private void addProfilesAndProperties(Properties userProperties, List<String> profiles, String args) {
         int idx;
 

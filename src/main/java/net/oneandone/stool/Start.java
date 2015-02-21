@@ -311,7 +311,7 @@ public class Start extends StageCommand {
         opts.add("-Dcatalina.base=%CATALINA_BASE%");
         opts.add("-Dcatalina.home=%CATALINA_HOME%");
 
-        tomcatOpts = stage.config().tomcatOpts.replace("@proxyOpts@", stage.proxyOpts());
+        tomcatOpts = stage.macros().replace(stage.config().tomcatOpts);
         tomcatOpts = macros.replace(tomcatOpts);
         opts.addAll(Separator.SPACE.split(tomcatOpts));
 

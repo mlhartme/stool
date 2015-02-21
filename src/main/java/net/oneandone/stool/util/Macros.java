@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.util;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Macros {
@@ -22,8 +23,16 @@ public class Macros {
     private final Map<String, String> macros;
 
 
+    public Macros() {
+        this(new HashMap<String, String>());
+    }
+
     public Macros(Map<String, String> marcos) {
         this.macros = marcos;
+    }
+
+    public void add(String key, String value) {
+        macros.put(key, value);
     }
 
 
@@ -33,15 +42,17 @@ public class Macros {
 
     public String replace(String string, Character prefix, Character suffix) {
         String result;
-        String macroKey;
+        String key;
 
+        if (string.indexOf(prefix) == -1) {
+            return string;
+        }
         result = string;
         for (Map.Entry<String, String> macro : macros.entrySet()) {
-            macroKey = String.format("%s%s%s", prefix, macro.getKey(), suffix);
-            result = result.replace(macroKey, macro.getValue());
+            key = prefix + macro.getKey() + suffix;
+            result = result.replace(key, macro.getValue());
         }
 
         return result;
     }
-
 }

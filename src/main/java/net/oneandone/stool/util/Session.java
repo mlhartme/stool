@@ -281,9 +281,7 @@ public class Session {
         if (stage == null) {
             mavenOpts = "";
         } else {
-            mavenOpts = stage.config().mavenOpts;
-            mavenOpts = mavenOpts.replace("@localRepository@", stage.localRepository().getAbsolute());
-            mavenOpts = mavenOpts.replace("@proxyOpts@", environment.proxyOpts(false));
+            mavenOpts = stage.macros().replace(stage.config().mavenOpts);
             mavenOpts = new Macros(configuration.macros).replace(mavenOpts);
         }
         env = new Environment();
