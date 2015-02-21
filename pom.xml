@@ -314,10 +314,7 @@
               <format pattern="yyyy-MM-d" property="now"/>
             </tstamp>
             <mkdir dir="${project.build.directory}/site/manual"/>
-            <exec executable="/bin/bash" failonerror="true" output="${project.build.directory}/stool-help.txt">
-              <arg value="-c"/>
-              <arg value="eval &quot;`${project.build.directory}/stool`&quot; &amp;&amp; stool"/>
-            </exec>
+            <java classname="net.oneandone.stool.Main" classpath="${project.build.directory}/setup-stool" />
             <echo file="${project.build.directory}/now.txt">${now}</echo>
           </preProcess>
         </configuration>
