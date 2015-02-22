@@ -1,3 +1,5 @@
+Maven Site: http://mlhartme.github.io/stool/
+
 Building
 
 Add to your setting
