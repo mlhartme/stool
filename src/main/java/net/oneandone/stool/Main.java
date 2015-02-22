@@ -63,7 +63,7 @@ public class Main extends Cli implements Command {
         home = environment.stoolHome(world);
         home.checkDirectory();
         logging = Logging.forHome(home, user);
-        command = "stool " + Separator.SPACE.join(Arrays.copyOfRange(args, 2 /* skip invocation file */, args.length));
+        command = "stool " + command(args);
         inputLogger = logging.logger("IN");
         input = new InputLogStream(System.in, new Slf4jOutputStream(inputLogger, true));
         inputLogger.info(command);
@@ -87,6 +87,13 @@ public class Main extends Cli implements Command {
             }
             throw e;
         }
+    }
+
+    private static String command(String[] args) {
+        if (args.length >= 2 && args[0].equals("-invocation")) {
+            args = Arrays.copyOfRange(args, 2 /* skip invocation file */, args.length);
+        }
+        return Separator.SPACE.join(args);
     }
 
     public static final String INBOX = "inbox";

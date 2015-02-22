@@ -314,7 +314,8 @@
               <format pattern="yyyy-MM-d" property="now"/>
             </tstamp>
             <mkdir dir="${project.build.directory}/site/manual"/>
-            <java classname="net.oneandone.stool.Main" classpath="${project.build.directory}/setup-stool" />
+            <java classname="net.oneandone.stool.Main" classpath="${project.build.directory}/setup-stool"
+                  fork="true" output="${project.build.directory}/stool-help.txt"/>
             <echo file="${project.build.directory}/now.txt">${now}</echo>
           </preProcess>
         </configuration>
