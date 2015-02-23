@@ -74,6 +74,7 @@ public class WarFile {
     public void readPomInfo() throws IOException {
         Node pominfo;
 
+        // TODO - pominfo plugin is not publically available
         pominfo = file.openZip().join("WEB-INF", "classes", "META-INF", "pominfo.properties");
         if (!pominfo.exists()) {
             throw new NoChangesAvailableException("No pominfo.properties available. Parent Pom is too old. Please update.");

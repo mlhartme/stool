@@ -126,7 +126,12 @@ public class Main extends Cli implements Command {
         }
         environment.setStoolHome(home);
         if (oldHome.exists()) {
-            old = oldVersion();
+            try {
+                old = oldVersion();
+            } catch (IOException e) {
+                throw new ArgumentException("Cannot detect Stool version from old Stool home directory " + oldHome + ": "
+                    + e.getMessage(), e);
+            }
             if (oldHome.equals(home)) {
                 if (old.getMajorVersion() != version.getMajorVersion() || old.getMinorVersion() != version.getMinorVersion()) {
                     throw new ArgumentException("incremental upgrade " + old + " -> " + version

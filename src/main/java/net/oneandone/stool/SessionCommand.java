@@ -157,7 +157,7 @@ public abstract class SessionCommand implements Command {
                 console.info.println("UPDATE: Install this update by running " + file);
             }
             if (!updates.isEmpty()) {
-                console.info.println("(you can disable this up-to-date check in " + StoolConfiguration.configurationFile(session.home) + ", set 'updateInterval' to 0)");
+                console.info.println("UPDATE: (you can disable this up-to-date check in " + StoolConfiguration.configurationFile(session.home) + ", set 'updateInterval' to 0)");
             }
             checked.writeBytes();
             Files.stoolFile(checked);

@@ -87,7 +87,7 @@
     <dependency>
       <groupId>net.oneandone.maven</groupId>
       <artifactId>embedded</artifactId>
-      <version>3.10.0-SNAPSHOT</version>
+      <version>3.10.0</version>
     </dependency>
     <dependency>
       <groupId>net.oneandone</groupId>
@@ -268,7 +268,7 @@
       <plugin>
         <groupId>net.oneandone.maven.plugins</groupId>
         <artifactId>application</artifactId>
-        <version>1.5.2-SNAPSHOT</version>
+        <version>1.5.2</version>
         <configuration>
           <!-- for generate -->
           <path>$PATH</path>
@@ -284,11 +284,6 @@
           <overwrite>META-INF/pominfo.properties, org/apache/commons/logging/**/*</overwrite>
           <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
           <attach>false</attach>
-
-          <!-- for upload -->
-          <symlink>http://ivar.pustemanager64.schlund.de/webdav/stool/latest</symlink>
-          <uploadPermissions>false</uploadPermissions>
-          <skipSymlink>true</skipSymlink>
         </configuration>
         <executions>
           <execution>

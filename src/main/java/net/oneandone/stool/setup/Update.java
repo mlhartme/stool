@@ -52,7 +52,7 @@ public class Update {
                     }
                     script.writeLines(
                             "#!/bin/sh",
-                            "Downloading " + release.name + " ...",
+                            "echo Downloading " + release.name + " ...",
                             "curl -L --fail --silent --show-error -o" + download.getAbsolute() + " " + release.url,
                             "chmod a+x " + download.getAbsolute(),
                             download.getAbsolute() + " " + args
