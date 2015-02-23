@@ -34,6 +34,9 @@
         Switched to Java service wrapper to control Tomcat. The service wrapper version is configurable in the stage configuration.
         A service wrapper is more robust, e.g. it properly stops tomcats when the machine is shut down.
       </action>
+      <action date="2015-01-16" dev="mlhartme" type="update">
+        Stale wrapper wiper: Stool automatically (on every invocation) detects and removes wrappers whose directory has been deleted.
+      </action>
       <action date="2015-01-28" dev="mlhartme" type="remove">
         Removed support for repository stages.
       </action>
