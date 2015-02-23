@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.0.0-beta-2" date="2015-02-19">
-      <action date="2015-02-20" dev="mhm" type="remove">
-        Removed 'updateSource' from global config, downloads/updates are hard-wired to Github now.
+      <action date="2015-02-20" dev="mhm" type="update">
+        Removed 'updateSource' from global config - updates are hard-wired to Github now.
       </action>
     </release>
     <release version="3.0.0-beta-1" date="2015-02-20">
