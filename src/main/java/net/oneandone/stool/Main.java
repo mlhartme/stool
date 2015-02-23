@@ -291,7 +291,7 @@ public class Main extends Cli implements Command {
         console.info.println("stage commands");
         console.info.println("  config {<key>[=<val>]}  .............  get/set stage properties;");
         console.info.println("  .....................................  invoke without arguments to get a list of available keys");
-        console.info.println("  status  .............................  prints stage information (status & purpose)");
+        console.info.println("  status {<field>} ....................  prints selected status fields (default: all)");
         console.info.println("  build  ..............................  builds the stage; for convenience only -- you're free to build ");
         console.info.println(
           "  .....................................  your application as you normally do, stool configure the necessary");
