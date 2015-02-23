@@ -14,7 +14,7 @@
 
   <groupId>net.oneandone</groupId>
   <artifactId>stool</artifactId>
-  <version>3.0.0-beta-2-SNAPSHOT</version>
+  <version>3.0.0-beta-2</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -72,7 +72,7 @@
     <connection>scm:git:ssh://git@github.com/mlhartme/stool.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/mlhartme/stool.git</developerConnection>
     <url>https://github.com/mlhartme/stool</url>
-    <tag>HEAD</tag>
+    <tag>stool-3.0.0-beta-2</tag>
   </scm>
 
   <issueManagement>
