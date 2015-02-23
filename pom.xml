@@ -14,7 +14,7 @@
 
   <groupId>net.oneandone</groupId>
   <artifactId>stool</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>3.0.0-beta-2</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -40,7 +40,7 @@
 
     <spring.version>4.1.3.RELEASE</spring.version>
     <spring.security.version>4.0.0.RC1</spring.security.version>
-    <javax.net.ssl.trustStore/>
+    <javax.net.ssl.trustStore />
   </properties>
 
   <developers>
@@ -70,7 +70,7 @@
     <connection>scm:git:ssh://git@github.com/mlhartme/stool.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/mlhartme/stool.git</developerConnection>
     <url>https://github.com/mlhartme/stool</url>
-    <tag>HEAD</tag>
+    <tag>stool-3.0.0-beta-2</tag>
   </scm>
 
   <issueManagement>
@@ -306,11 +306,10 @@
           <xincludeSupported>true</xincludeSupported>
           <preProcess>
             <tstamp>
-              <format pattern="yyyy-MM-d" property="now"/>
+              <format pattern="yyyy-MM-d" property="now" />
             </tstamp>
-            <mkdir dir="${project.build.directory}/site/manual"/>
-            <java classname="net.oneandone.stool.Main" classpath="${project.build.directory}/setup-stool"
-                  fork="true" output="${project.build.directory}/stool-help.txt"/>
+            <mkdir dir="${project.build.directory}/site/manual" />
+            <java classname="net.oneandone.stool.Main" classpath="${project.build.directory}/setup-stool" fork="true" output="${project.build.directory}/stool-help.txt" />
             <echo file="${project.build.directory}/now.txt">${now}</echo>
           </preProcess>
         </configuration>
