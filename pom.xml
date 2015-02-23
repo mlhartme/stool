@@ -77,7 +77,7 @@
 
   <issueManagement>
     <system>GitHub</system>
-    <url>https://github.com/mlhartme/sushi/issues/</url>
+    <url>https://github.com/mlhartme/stool/issues/</url>
   </issueManagement>
 
   <dependencies>
@@ -375,4 +375,11 @@
       </reporting>
     </profile>
   </profiles>
+  <distributionManagement>
+    <site>
+      <id>github</id>
+      <name>maven-reports at github</name>
+      <url>https://github.com/mlhartme/stool</url>
+    </site>
+  </distributionManagement>
 </project>

@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
+    <release version="3.0.0-beta-3" date="2015-02-23">
+      <action date="2015-02-23" dev="mlhartme" type="remove">
+        Removed resolve command, it was never used.
+      </action>
+    </release>
     <release version="3.0.0-beta-2" date="2015-02-23">
       <action date="2015-02-23" dev="mlhartme" type="update">
         Status for selected fields.

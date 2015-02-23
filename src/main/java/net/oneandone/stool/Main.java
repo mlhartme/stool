@@ -241,11 +241,6 @@ public class Main extends Cli implements Command {
         return new Cd(session());
     }
 
-    @Child("resolve")
-    public Resolve resolve() throws IOException {
-        return new Resolve(console);
-    }
-
     @Child("system-start")
     public SystemStart systemStart() throws IOException {
         return new SystemStart(session());
