@@ -32,16 +32,18 @@ import java.util.List;
 public abstract class StageGatherer {
     public static List<StageInfo> get(Session session, Users users)
             throws IOException, SAXException, NamingException, UserNotFound, EnumerationFailed {
-        List<StageInfo> stageInfos;
-        stageInfos = new ArrayList<>();
-        session.getProcesses(true);
+        List<StageInfo> infos;
+        List<Stage> stages;
 
-        List<Stage> stages = getStages(session);
+        infos = new ArrayList<>();
+        session.wipeStaleWrappers();
+        session.getProcesses(true);
+        stages = getStages(session);
 
         for (Stage stage : stages) {
-            stageInfos.add(StageInfo.fromStage(stage, users));
+            infos.add(StageInfo.fromStage(stage, users));
         }
-        return stageInfos;
+        return infos;
     }
 
     private static List<Stage> getStages(Session session) throws IOException, EnumerationFailed {
