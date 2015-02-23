@@ -270,23 +270,33 @@ public class SystemImport extends SessionCommand {
         Method transform;
 
         clazz = mapper.getClass();
-        try {
-            clazz.getDeclaredMethod(name + "Remove", new Class[] {});
+        if (method(clazz, name + "Remove") != null) {
             return null;
-        } catch (NoSuchMethodException e) {
-            // fall-through
         }
-        try {
-            rename = clazz.getDeclaredMethod(name + "Rename", new Class[]{});
-        } catch (NoSuchMethodException e) {
-            rename = null;
-        }
-        try {
-            transform = clazz.getDeclaredMethod(name + "Transform", new Class[]{ JsonElement.class });
-        } catch (NoSuchMethodException e) {
-            transform = null;
-        }
+        rename = method(clazz, name + "Rename");
+        transform = method(clazz, name + "Transform", JsonElement.class);
         return new Object[] { rename(rename, mapper, name), transform(transform, mapper, value) };
+    }
+
+    /* Search with method by name, check arguments later. Helps to detect methods with wrong arguments. */
+    private static Method method(Class clazz, String name, Class ... args) {
+        Method result;
+
+        result = null;
+        for (Method m : clazz.getDeclaredMethods()) {
+            if (m.getName().equals(name)) {
+                if (result != null) {
+                    throw new ArgumentException("method ambiguous: " + name);
+                }
+                result = m;
+            }
+        }
+        if (result != null) {
+            if (!Arrays.equals(args, result.getParameterTypes())) {
+                throw new ArgumentException("argument type mismatch for method " + name);
+            }
+        }
+        return result;
     }
 
     private static String rename(Method method, Object object, String old) {
