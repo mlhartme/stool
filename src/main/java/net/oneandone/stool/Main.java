@@ -333,8 +333,8 @@ public class Main extends Cli implements Command {
         console.info.println("home directory: " + stoolhome);
         console.info.println();
         console.info.println("exmaple urls: ");
-        console.info.println("  https://svn.code.sf.net/p/pustefix/code/tags/pustefixframework-0.18.84/pustefix-samples/pustefix-sample1");
-        console.info.println("  gav:org.pustefixframework:pustefix-sample1:0.18.84");
+        console.info.println("  gav:org.apache.wicket:wicket-examples:6.19.0  (artifact stage)");
+        console.info.println("  https://github.com/apache/wicket/tags/wicket-6.19.0/wicket-examples (source stage)");
         console.info.println();
         console.info.println("documentation:");
         console.info.println("  https://github.com/mlhartme/stool");

@@ -89,12 +89,12 @@ public class StoolIT {
 
     @Test
     public void turnaroundArtifact() throws IOException, InterruptedException {
-        turnaround("gav:org.pustefixframework:pustefix-sample1:0.18.84");
+        turnaround("gav:org.apache.wicket:wicket-examples:6.19.0");
     }
 
     @Test
     public void turnaroundSource() throws IOException, InterruptedException {
-        turnaround("https://svn.code.sf.net/p/pustefix/code/tags/pustefixframework-0.18.84/pustefix-samples/pustefix-sample1");
+        turnaround("https://github.com/apache/wicket/tags/wicket-6.19.0/wicket-examples");
     }
 
     @Ignore // TODO
