@@ -150,7 +150,7 @@ public class Session {
     }
 
 
-    public String jdkHome() {
+    public static String jdkHome() {
         String result;
 
         result = System.getProperty("java.home");

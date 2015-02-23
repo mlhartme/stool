@@ -21,6 +21,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.SystemImport;
 import net.oneandone.stool.configuration.StoolConfiguration;
+import net.oneandone.stool.stage.artifact.Overview;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
@@ -166,14 +167,19 @@ public class Main extends Cli implements Command {
         console.info.println("2. restart your shell");
     }
 
-    private void incrementalUpgrade(Version old, Version version) throws CopyException {
+    private void incrementalUpgrade(Version old, Version version) throws IOException {
         FileNode jar;
+        FileNode overview;
 
         jar = home.join("bin/stool.jar");
+        overview = home.join("overview/overview/ROOT.war");
         console.info.println("Ready for incremental upgrade of " + home.getAbsolute() + " from version " + old + " to " + version);
         console.info.println("M " + jar);
+        console.info.println("M " + overview);
         console.pressReturn();
         console.world.locateClasspathItem(getClass()).copyFile(jar);
+
+        new Overview(Session.jdkHome(), jar.getWorld()).resolve().relocateTo(overview);
         console.info.println("done");
     }
 

@@ -29,6 +29,7 @@ public class Overview implements ArtifactSource {
         this.jdkHome = jdkHome;
         this.world = world;
     }
+
     @Override
     public WarFile resolve() throws IOException {
         FileNode tmp, lib, cp, dest;
