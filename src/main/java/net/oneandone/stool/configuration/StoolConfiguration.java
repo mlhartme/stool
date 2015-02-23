@@ -84,6 +84,9 @@ public class StoolConfiguration extends BaseConfiguration {
     @Expose
     public SecurityLevel security;
 
+    /**
+     * For additional "system-wide" shortcuts.
+     */
     @Expose
     public Map<String, String> macros;
 

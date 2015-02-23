@@ -99,8 +99,9 @@ public class SystemImport extends SessionCommand {
             throw new ArgumentException("cannot import from myself");
         }
         console.info.println();
-        console.info.println("CAUTION: import has the following problems:");
+        console.info.println("CAUTION: import has the following limitations:");
         console.info.println("  * 'defaults' are not migrated");
+        console.info.println("  * 'portPrefixes' are gone, you stage will run under a new port");
         console.info.println();
         oldBedroom = Bedroom.loadOrCreate(oldHome);
         newBedroom = Bedroom.loadOrCreate(session.home);
@@ -221,7 +222,16 @@ public class SystemImport extends SessionCommand {
         tmp = tmpConfig.readString();
         tmp = mergeConfig(oldWrapper.join("config.json").readString(), tmp,
                 // 2.13 -> 3.0 chages
-                "portPrefix");
+                new Object() {
+                    void portPrefixRemove() {}
+                    JsonElement tomcatOptsTransform(JsonElement orig) {
+                        String str;
+
+                        str = orig.getAsJsonPrimitive().getAsString();
+                        str = str.replace("@proxyOpts@", "@tomcatProxyOpts@");
+                        return new JsonPrimitive(str);
+                    }
+                });
         tmpConfig.writeString(tmp);
         msg = Diff.diff(oldWrapper.join("config.json").readString(), tmp);
         if (msg.isEmpty()) {

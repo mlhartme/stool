@@ -152,7 +152,9 @@ public abstract class SessionCommand implements Command {
         if (updateCheck || ((session.configuration.updateInterval > 0) && updateCheckPending(checked))) {
             updates = Update.check(net.oneandone.stool.setup.Main.versionObject(), session.home);
             for (FileNode file : updates) {
-                console.info.println("INFO: found a new Stool version, update by running " + file);
+                console.info.println("UPDATE: Found a new Stool version.");
+                console.info.println("UPDATE: See https://github.com/mlhartme/stool/releases for details");
+                console.info.println("UPDATE: Install this update by running " + file);
             }
             if (!updates.isEmpty()) {
                 console.info.println("(you can disable this up-to-date check in " + StoolConfiguration.configurationFile(session.home) + ", set 'updateInterval' to 0)");

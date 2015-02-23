@@ -19,57 +19,120 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.cli.Remaining;
+import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Strings;
 import org.xml.sax.SAXException;
 
+import javax.naming.NoPermissionException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class Status extends StageCommand {
+    private static enum Key {
+        NAME, DIRECTORY, WRAPPER, URL, TYPE, OWNER, TOMCAT, DEBUGGER, JCONSOLE, APPS;
+
+        public String toString() {
+            return name().toLowerCase();
+        }
+
+        public int length() {
+            return name().length();
+        }
+    }
+
+    private final List<Key> selected = new ArrayList<>();
+
     public Status(Session session) throws IOException {
         super(session);
     }
 
+    @Remaining
+    public void property(String str) {
+        selected.add(Key.valueOf(str.toUpperCase()));
+    }
+
     @Override
     public void doInvoke(Stage stage) throws Exception {
-        Ports ports;
+        List<Key> keys;
+        Map<Key, Object> status;
+        int width;
+        Object value;
+        List<String> lst;
+        boolean first;
 
-        header(stage.getName());
-        message("name:      " + stage.getName());
-        message("directory: " + stage.getDirectory().getAbsolute());
-        message("wrapper:   " + stage.wrapper.getAbsolute());
-        message("tomcat:    " + stage.catalinaBase().getAbsolute());
-        message("url:       " + stage.getUrl());
-        message("type:      " + stage.getType());
-        message("owner:     " + stage.technicalOwner());
-        message("");
-        ports = showDaemonsFrom(stage);
-        message("");
-        header("app urls");
-        message(getAppUrlsFrom(stage));
-        message("");
-        if (ports != null) {
-            header("jconsole " + session.configuration.hostname + ":" + ports.jmx());
+        status = status(stage);
+        keys = selected.isEmpty() ? Arrays.asList(Key.values()) : selected;
+        width = 0;
+        for (Key key : keys) {
+            width = Math.max(width, key.length());
+        }
+        width += 2;
+        for (Key key : keys) {
+            console.info.print(Strings.times(' ', width - key.length()));
+            console.info.print(key.toString());
+            console.info.print(" : ");
+            value = status.get(key);
+            if (value == null) {
+                console.info.println();
+            } else if (value instanceof String) {
+                console.info.println(value);
+            } else {
+                first = true;
+                lst = (List<String>) value;
+                for (String item : lst) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        console.info.print(Strings.times(' ', width + 3));
+                    }
+                    console.info.println(item);
+                }
+            }
         }
     }
 
-    private String getAppUrlsFrom(Stage stage) throws IOException, SAXException {
+    private Map<Key, Object> status(Stage stage) throws IOException, SAXException {
+        Map<Key, Object> result;
+        Ports ports;
+
+        result = new TreeMap<>();
+        result.put(Key.NAME, stage.getName());
+        result.put(Key.DIRECTORY, stage.getDirectory().getAbsolute());
+        result.put(Key.WRAPPER, stage.wrapper.getAbsolute());
+        result.put(Key.URL, stage.getUrl());
+        result.put(Key.TYPE, stage.getType());
+        result.put(Key.OWNER, stage.technicalOwner());
+        ports = tomcatStatus(stage, result);
+        result.put(Key.APPS, getAppUrls(stage));
+        result.put(Key.JCONSOLE, ports == null ? null : session.configuration.hostname + ":" + ports.jmx());
+        return result;
+    }
+
+    private Object getAppUrls(Stage stage) throws IOException, SAXException {
         FileNode file;
 
         file = stage.serverXml();
         if (file.exists()) {
-            return stage.urls(ServerXml.load(file)).values().toString().replaceAll(", ", "\\\n").replace("[", "").replace("]", "");
+            return new ArrayList<>(stage.urls(ServerXml.load(file)).values());
         } else {
             return "(unknown until first stage start)";
         }
     }
 
-    private Ports showDaemonsFrom(Stage stage) throws IOException {
+    private Ports tomcatStatus(Stage stage, Map<Key, Object> result) throws IOException {
         String tomcatPid;
         String debug;
         Ports ports;
 
         tomcatPid = stage.runningTomcat();
-        showDaemon("tomcat", tomcatPid, stage.state());
+        result.put(Key.TOMCAT, daemonStatus(tomcatPid, stage.state()));
         if (tomcatPid != null) {
             ports = stage.loadPorts();
             try {
@@ -81,23 +144,19 @@ public class Status extends StageCommand {
             } catch (IOException e) {
                 debug = "unknown";
             }
-            if (debug != null) {
-                message("debugger: " + debug);
-            }
         } else {
             ports = null;
+            debug = "off";
         }
+        result.put(Key.DEBUGGER, debug);
         return ports;
     }
 
-    private void showDaemon(String name, String pid, Stage.State state) {
-        String status;
-
+    private String daemonStatus(String pid, Stage.State state) {
         if (state == Stage.State.UP) {
-            status = "up (pid " + pid + ")";
+            return "up (pid " + pid + ")";
         } else {
-            status = String.valueOf(state);
+            return String.valueOf(state);
         }
-        message(name + ": " + status);
     }
 }
