@@ -117,7 +117,7 @@ public class Application {
 
     public void restore() throws IOException {
         if (backupFile().exists()) {
-            console.info.println("Restoring Backup of  " + artifactId());
+            console.info.println("Restoring backup of  " + artifactId());
             currentWarFile = backupWarFile().relocateTo(currentFile());
             console.info.println("Restored.");
         } else {

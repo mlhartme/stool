@@ -61,7 +61,6 @@ public class Refresh extends StageCommand {
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
-
         if (prepare) {
             prepare(stage);
         } else if (restore) {
@@ -115,7 +114,7 @@ public class Refresh extends StageCommand {
         }
         if (stopped) {
             if (stop) {
-                console.info.println("state is *not* re-started");
+                console.info.println("stage is *not* re-started");
             } else {
                 new Start(session, debug, false).doInvoke(stage);
             }

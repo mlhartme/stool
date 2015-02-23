@@ -55,15 +55,6 @@ public class WarFile {
         }
     }
 
-    public String svnurl() throws IOException {
-        if (svnurl != null) {
-            return svnurl;
-        }
-        readPomInfo();
-        return svnurl;
-
-    }
-
     public long revision() throws IOException {
         if (0L != revision) {
             return revision;
@@ -82,6 +73,7 @@ public class WarFile {
 
     public void readPomInfo() throws IOException {
         Node pominfo;
+
         pominfo = file.openZip().join("WEB-INF", "classes", "META-INF", "pominfo.properties");
         if (!pominfo.exists()) {
             throw new NoChangesAvailableException("No pominfo.properties available. Parent Pom is too old. Please update.");
@@ -95,10 +87,12 @@ public class WarFile {
         version = String.valueOf(properties.get("version"));
         revision = Long.valueOf(String.valueOf(properties.get("build.revision")));
     }
+
     @Override
     public int hashCode() {
         return super.hashCode();
     }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

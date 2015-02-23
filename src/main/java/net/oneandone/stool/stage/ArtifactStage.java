@@ -118,7 +118,6 @@ public class ArtifactStage extends Stage {
 
     @Override
     public void prepareRefresh(Console console) throws IOException {
-
         for (Application application : applications.applications()) {
             refreshWar(console, application);
         }
@@ -178,6 +177,8 @@ public class ArtifactStage extends Stage {
 
     private void refreshWar(Console console, Application application) throws IOException {
         WarFile candidate;
+        Changes changes;
+        StringBuilder output;
 
         candidate = sourceFor(application).resolve();
         if (candidate.equals(application.currentWarFile())) {
@@ -189,10 +190,9 @@ public class ArtifactStage extends Stage {
         }
 
         application.replaceFutureWarFile(candidate);
-        Changes changes = application.changes(session.users, false);
+        changes = application.changes(session.users, false);
         console.verbose.println("Update for " + application.artifactId() + " prepared.");
         for (Change change : changes.getChanges()) {
-            StringBuilder output;
             output = new StringBuilder();
             if (change.getUser() != null) {
                 output.append(change.getUser().name).append(" : ");
@@ -201,7 +201,6 @@ public class ArtifactStage extends Stage {
             output.append(change.getMessage());
             console.info.println(output.toString());
         }
-
     }
 
     public ArtifactSource sourceFor(Application application) throws IOException {
