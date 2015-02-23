@@ -185,7 +185,7 @@ public class SystemImport extends SessionCommand {
                         return new JsonPrimitive(orig.getAsInt() * 10 + 9);
                     }
 
-                    String autoremoveRename(JsonElement orig) {
+                    String autoremoveRename() {
                         return "autoRemove";
                     }
                 });
