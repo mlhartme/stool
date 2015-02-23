@@ -286,7 +286,7 @@ public abstract class Stage {
         return shared().join("run", name);
     }
 
-    /** return hostname -> docroot mapping, where hostname is artifactId + "." + stageName, to uniquely identify the host */
+    /** @return hostname to docroot mapping, where hostname is artifactId + "." + stageName, to uniquely identify the host */
     protected abstract Map<String, String> hosts() throws IOException;
 
     public Map<String, String> selectedHosts() throws IOException {
