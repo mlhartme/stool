@@ -98,7 +98,7 @@ public class Main extends Cli implements Command {
 
     @Override
     public void printHelp() {
-        console.info.println("Setup stool " + version());
+        console.info.println("Setup stool " + versionObject());
         console.info.println("usage: setup-stool [<old>] <home>");
         console.info.println("  Create a new <home> directory, upgrades an existing <home> (incremental upgrade), ");
         console.info.println("  or upgrade and existing <old> home directory into a new <home> (full upgrade).");
