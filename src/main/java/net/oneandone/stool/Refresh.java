@@ -68,7 +68,6 @@ public class Refresh extends StageCommand {
         } else {
             timeStart();
             invokeNormal(stage);
-            timeEnd();
             stage.buildStats().refresh(executionTime());
             stage.buildStats().save();
         }

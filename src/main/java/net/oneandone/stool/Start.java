@@ -88,7 +88,6 @@ public class Start extends StageCommand {
         }
         stage.start(console, allocated);
         ping(stage);
-        timeEnd();
         stage.buildStats().start(executionTime());
         stage.buildStats().save();
         if (tail) {

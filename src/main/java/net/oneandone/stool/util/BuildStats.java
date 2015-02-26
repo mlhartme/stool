@@ -40,21 +40,19 @@ public class BuildStats {
         this.file = file;
     }
     public static BuildStats load(Node file) throws IOException {
-        try {
-            BuildStats buildStats = gson().fromJson(file.readString(), BuildStats.class);
-            buildStats.file = file;
-            return buildStats;
-        } catch (MalformedJsonException e) {
-            BuildStats buildStats = new BuildStats(file);
-            buildStats.file = file;
-            return buildStats;
-        }
+        BuildStats result;
+
+        result = gson().fromJson(file.readString(), BuildStats.class);
+        result.file = file;
+        return result;
     }
+
     public static Gson gson() {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.excludeFieldsWithoutExposeAnnotation();
         return gsonBuilder.create();
     }
+
     public long getAvgStart() {
         return start;
     }

@@ -144,7 +144,7 @@ public abstract class Stage {
     protected FileNode directory;
     protected final StageConfiguration configuration;
     /** lazy loading*/
-    private BuildStats buildstats;
+    private BuildStats lazyBuildstats;
     private Maven maven;
 
     //--
@@ -667,28 +667,23 @@ public abstract class Stage {
         }
     }
     public BuildStats buildStats() throws IOException {
-        if (buildstats != null) {
-            return buildstats;
-        } else {
-            buildstats = loadBuildStats();
-            return buildstats;
+        if (lazyBuildstats == null) {
+            FileNode file;
+
+            file = shared().join("buildstats.json");
+            if (file.exists()) {
+                lazyBuildstats = BuildStats.load(file);
+            } else {
+                lazyBuildstats = new BuildStats(file);
+            }
         }
+        return lazyBuildstats;
     }
 
     public boolean isOverview() {
         return false;
     }
 
-    public BuildStats loadBuildStats() throws IOException {
-        FileNode buildstatFile = shared().join("buildstats.json");
-        if (buildstatFile.exists() && !buildstatFile.readString().equals("")) {
-            return BuildStats.load(buildstatFile);
-        } else {
-            BuildStats buildStats = new BuildStats(buildstatFile);
-            buildStats.save();
-            return buildStats;
-        }
-    }
     public Changes changes(boolean readonly) {
         return Changes.none();
     }

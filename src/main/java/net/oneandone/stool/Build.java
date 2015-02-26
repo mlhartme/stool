@@ -50,7 +50,6 @@ public class Build extends StageCommand {
         }
 
         build(stage);
-        timeEnd();
         stage.buildStats().build(executionTime());
         stage.buildStats().save();
     }

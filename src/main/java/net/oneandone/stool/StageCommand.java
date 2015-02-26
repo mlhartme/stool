@@ -36,7 +36,6 @@ import java.util.List;
 
 public abstract class StageCommand extends SessionCommand {
     protected long start;
-    protected long end;
 
     @Option("stage")
     private String stageNames;
@@ -248,12 +247,10 @@ public abstract class StageCommand extends SessionCommand {
         start = System.currentTimeMillis();
     }
 
-    protected void timeEnd() {
-        end = System.currentTimeMillis();
-    }
     protected long executionTime() {
-        return end - start;
+        return System.currentTimeMillis() - start;
     }
+
     /* @return true to use prefix stream */
     public boolean doBefore(List<Stage> stages, int indent) throws IOException {
         return stages.size() != 1;
