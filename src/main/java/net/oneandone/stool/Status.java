@@ -138,7 +138,7 @@ public class Status extends StageCommand {
         if (tomcatPid != null) {
             ports = stage.loadPorts();
             try {
-                if (stage.getDirectory().exec("ps", "u", "-p", tomcatPid).contains("-Xdebug")) {
+                if (stage.shared().join("conf/service-wrapper.conf").readString().contains("=-Xdebug\n")) {
                     debug = "on (port " + ports.debug() + ")";
                 } else {
                     debug = "off";

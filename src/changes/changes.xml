@@ -2,6 +2,9 @@
   <body>
     <release version="3.0.0-beta-3" date="2015-02-23">
       <action date="2015-02-27" dev="mlhartme" type="fix">
+        Fixed debugger field in stool status.
+      </action>
+      <action date="2015-02-27" dev="mlhartme" type="fix">
         Moved overview logs from $HOME/logs/overview to the wrapper/shared/log to fix permission problems when chowning the overview stage.
       </action>
       <action date="2015-02-27" dev="mlhartme" type="update">
