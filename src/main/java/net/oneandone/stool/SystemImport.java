@@ -101,7 +101,7 @@ public class SystemImport extends SessionCommand {
         console.info.println();
         console.info.println("CAUTION: import has the following limitations:");
         console.info.println("  * 'defaults' are not migrated");
-        console.info.println("  * 'portPrefixes' are gone, you stage will run under a new port");
+        console.info.println("  * 'portPrefixes' are gone, your stage will run under a new port");
         console.info.println();
         oldBedroom = Bedroom.loadOrCreate(oldHome);
         newBedroom = Bedroom.loadOrCreate(session.home);
