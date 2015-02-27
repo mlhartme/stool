@@ -23,6 +23,7 @@ import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
+import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
@@ -165,16 +166,17 @@ public class Start extends StageCommand {
 
     }
 
-    //TODO: Does not use current environment?!
-    private void downloadFile(String url, FileNode dest) throws IOException {
+    //TODO: work-around for sushi http problem with proxies
+    public static void downloadFile(Console console, String url, FileNode dest) throws IOException {
+        console.info.print("downloading " + dest + " from " + url + " ...");
         if (OS.CURRENT != OS.MAC) {
             // don't use sushi, it's not proxy-aware
-            dest.getParent().exec("wget", url);
+            dest.getParent().exec("wget", "-q", "-O", dest.getName(), url);
         } else {
             // wget not available on Mac, but Mac usually have no proxy
             dest.getWorld().validNode(url).copyFile(dest);
         }
-        console.info.println("downloaded: " + dest + " from " + url);
+        console.info.println("done");
     }
 
     public void copyTemplate(Stage stage, Ports ports) throws Exception {
@@ -199,7 +201,7 @@ public class Start extends StageCommand {
         if (!download.exists()) {
             console.info.println("downloading tomcat ...");
             try {
-                downloadFile("http://archive.apache.org/dist/tomcat/tomcat-7/v" + version + "/bin/" + name + ".tar.gz", download);
+                downloadFile(console, "http://archive.apache.org/dist/tomcat/tomcat-7/v" + version + "/bin/" + name + ".tar.gz", download);
             } catch (IOException e) {
                 failed = new IOException("Cannot download Tomcat " + version + ". Please provide it manually at " + download);
                 failed.addSuppressed(e);
@@ -223,7 +225,7 @@ public class Start extends StageCommand {
         name = serviceWrapperName(version);
         download = session.home.join("downloads", name + ".tar.gz");
         if (!download.exists()) {
-            downloadFile("http://wrapper.tanukisoftware.com/download/" + version + "/" + name + ".tar.gz", download);
+            downloadFile(console, "http://wrapper.tanukisoftware.com/download/" + version + "/" + name + ".tar.gz", download);
             download.checkFile();
         }
         base = session.home.join("service-wrapper/" + name);

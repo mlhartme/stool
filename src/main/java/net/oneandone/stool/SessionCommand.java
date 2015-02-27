@@ -150,7 +150,7 @@ public abstract class SessionCommand implements Command {
 
         checked = session.home.join("downloads/.update.checked");
         if (updateCheck || ((session.configuration.updateInterval > 0) && updateCheckPending(checked))) {
-            updates = Update.check(net.oneandone.stool.setup.Main.versionObject(), session.home);
+            updates = Update.check(console, net.oneandone.stool.setup.Main.versionObject(), session.home);
             for (FileNode file : updates) {
                 console.info.println("UPDATE: Found a new Stool version.");
                 console.info.println("UPDATE: See https://github.com/mlhartme/stool/releases for details");

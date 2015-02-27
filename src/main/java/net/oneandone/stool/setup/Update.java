@@ -20,6 +20,8 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.oneandone.stool.Start;
+import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
@@ -37,9 +39,10 @@ import java.util.Map;
 
 public class Update {
     public static void main(String[] args) throws IOException {
-        System.out.println("releases " + list(new World()));
+        System.out.println("releases " + list(Console.create(new World())));
     }
-    public static List<FileNode> check(Version current, FileNode home) throws IOException {
+
+    public static List<FileNode> check(Console console, Version current, FileNode home) throws IOException {
         FileNode dest;
         String version;
         Version next;
@@ -50,7 +53,7 @@ public class Update {
 
         dest = home.join("downloads");
         result = new ArrayList<>();
-        for (Release release : list(home.getWorld())) {
+        for (Release release : list(console)) {
             version = release.name;
             version = Strings.removeLeft(version, "setup-stool-");
             version = Strings.removeRight(version, ".sh");
@@ -82,8 +85,9 @@ public class Update {
 
     private static final SimpleDateFormat FMT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
-    private static List<Release> list(World world) throws IOException {
+    private static List<Release> list(Console console) throws IOException {
         JsonArray releases;
+        FileNode tmp;
         List<Release> result;
         JsonObject release;
         JsonArray assets;
@@ -91,7 +95,9 @@ public class Update {
         Date date;
 
         result = new ArrayList<>();
-        releases = (JsonArray) new JsonParser().parse(world.validNode("https://api.github.com/repos/mlhartme/stool/releases").readString());
+        tmp = console.world.getTemp().createTempFile();
+        Start.downloadFile(console, "https://api.github.com/repos/mlhartme/stool/releases", tmp);
+        releases = (JsonArray) new JsonParser().parse(tmp.readString());
         for (JsonElement element : releases) {
             release = (JsonObject) element;
             assets = (JsonArray) release.get("assets");
