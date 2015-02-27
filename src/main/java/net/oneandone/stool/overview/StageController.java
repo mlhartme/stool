@@ -69,7 +69,7 @@ public class StageController {
     private Session session;
 
     @Autowired
-    private Stage self;
+    private FileNode logs;
 
     @Autowired
     private ExecutorService executorService;
@@ -183,15 +183,11 @@ public class StageController {
         return Console.create(world);
     }
 
-    public Node logDir() throws MkdirException {
-        return self.shared().join("log");
-    }
-
     public String execute(String stage, String command, String options) throws IOException {
         String id;
         id = UUID.randomUUID().toString();
         executorService.submit(new StoolCallable(command, options, stage, SecurityContextHolder.getContext().getAuthentication().getName(),
-          id, (FileNode) logDir(), !session.configuration.security.isLocal()));
+          id, logs, !session.configuration.security.isLocal()));
         return id;
     }
 

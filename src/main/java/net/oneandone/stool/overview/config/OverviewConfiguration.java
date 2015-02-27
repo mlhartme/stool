@@ -24,6 +24,8 @@ import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
+import net.oneandone.sushi.fs.MkdirException;
+import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.eclipse.aether.repository.RepositoryPolicy;
@@ -73,8 +75,8 @@ public class OverviewConfiguration {
     }
 
     @Bean
-    public Stage self() throws IOException {
-        return session().load("overview");
+    public FileNode logs() throws IOException {
+        return session().load("overview").shared().join("log");
     }
 
     @Bean

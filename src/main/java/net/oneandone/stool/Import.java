@@ -83,15 +83,16 @@ public class Import extends SessionCommand {
         switch (found.size()) {
             case 0:
                 console.info.println("No stage candidates found.");
-                return;
+                break;
             case 1:
                 stage = found.get(0);
                 console.info.println("Importing " + stage.getDirectory());
                 stage = doImport(stage, null);
                 new Select(session).stageToSelect(stage.getName()).invoke();
-                return;
+                break;
             default:
                 interactiveImport(found);
+                break;
         }
     }
 

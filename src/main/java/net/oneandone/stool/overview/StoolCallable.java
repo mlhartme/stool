@@ -62,7 +62,7 @@ public class StoolCallable implements Callable<StoolProcess> {
             builder.append(" ").append(options);
         }
         builder.append(" >> ").append(logDir.getAbsolute()).append("/")
-          .append(id).append(".log").append("\"");
+          .append(id).append(".log").append("\"\n");
         script = logDir.join(id + ".sh").mkfile();
         script.writeString(builder.toString()).setPermissions("rwx------");
         try {

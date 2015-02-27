@@ -18,6 +18,7 @@ package net.oneandone.stool.overview;
 import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.file.FileNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,7 @@ import java.util.ListIterator;
 public class ProcessesController {
 
     @Autowired
-    private Node home;
+    private FileNode logs;
 
     @RequestMapping(value = "{id}", method = RequestMethod.GET)
     @ResponseBody
@@ -46,7 +47,7 @@ public class ProcessesController {
         Node stat;
         String stoolProcess;
 
-        stat = logDir().join(id + ".stat");
+        stat = logs.join(id + ".stat");
         if (!stat.exists()) {
             return new ResponseEntity(HttpStatus.NOT_FOUND);
         }
@@ -88,8 +89,8 @@ public class ProcessesController {
 
     public Node logFile(String id) throws InterruptedException, ExistsException, MkdirException {
         Node logfile;
-        logfile = logDir().join(id + ".log");
 
+        logfile = logs.join(id + ".log");
         int i = 0;
         do {
             if (logfile.exists()) {
@@ -100,8 +101,5 @@ public class ProcessesController {
             i++;
         } while (i <= 20);
         throw new ResourceNotFoundException();
-    }
-    public Node logDir() throws MkdirException {
-        return home.join("logs", "overview").mkdirOpt();
     }
 }
