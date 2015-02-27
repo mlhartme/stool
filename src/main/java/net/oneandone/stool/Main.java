@@ -281,7 +281,10 @@ public class Main extends Cli implements Command {
         console.info.println("  version         print stool version information");
         console.info.println("  create [-quiet|-prefix <n>] <url> [<name>] [<directory>] {<key>=<val>}");
         console.info.println("  .....................................  creates a new stage named <name> from <url>");
-        console.info.println("  import [-max <n>] <directory>* ......  turns existing applications into a stage");
+        console.info.println("  import [-max <n>] [-name <template>] <directory>* ......");
+        console.info.println("                                         turns existing applications into a stage; template is a string");
+        console.info.println("                                         if it contains %d, it will be replaced by the directory name");
+        console.info.println("                                         it defaults to just %d");
         console.info.println("  select [<stage>|none]  ..............  use <stage> for stage commands");
         console.info.println("stage commands");
         console.info.println("  config {<key>[=<val>]}  .............  get/set stage properties;");

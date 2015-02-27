@@ -31,6 +31,9 @@ public class Import extends SessionCommand {
     @Option("max")
     private int max = 40;
 
+    @Option("name")
+    private String nameTemplate = "%d";
+
     private final List<FileNode> includes;
     private final List<FileNode> excludes;
 
@@ -58,9 +61,8 @@ public class Import extends SessionCommand {
     public void doInvoke() throws Exception {
         List<Stage> found;
         List<FileNode> existing;
-        String str;
-        int n;
         Stage stage;
+        FileNode tempWrapper;
 
         found = new ArrayList<>();
         if (includes.size() == 0) {
@@ -68,64 +70,93 @@ public class Import extends SessionCommand {
         }
         existing = session.stageDirectories();
 
-        for (FileNode directory : includes) {
-            scan(directory, found, existing);
+        tempWrapper = session.wrappers.createTempDirectory();
+        try {
+            for (FileNode directory : includes) {
+                scan(tempWrapper, directory, found, existing);
+            }
+        } finally {
+            tempWrapper.deleteDirectory();
         }
         console.info.print("[" + found.size() + " candidates]\u001b[K\r");
         console.info.println();
         switch (found.size()) {
             case 0:
-                console.info.println("No stage candidates.");
+                console.info.println("No stage candidates found.");
                 return;
             case 1:
                 stage = found.get(0);
-                console.info.println("Importing stage " + stage.getName());
-                doImport(stage);
+                console.info.println("Importing " + stage.getDirectory());
+                stage = doImport(stage, null);
                 new Select(session).stageToSelect(stage.getName()).invoke();
                 return;
             default:
-                for (int i = 0; i < found.size(); i++) {
-                    stage = found.get(i);
-                    console.info.println("[" + (i + 1) + "] " + stage.getName() + "\t" + stage.getUrl());
-                }
-                while (true) {
-                    str = console.readline("[number] to import directory, [a] to import all, or [q] to quit: ").toLowerCase();
-                    if ("q".equals(str)) {
-                        return;
-                    }
-                    if ("a".equals(str)) {
-                        for (Stage f : found) {
-                            if (f != null) {
-                                doImport(f);
-                            }
-                        }
-                        console.info.println("done");
-                        return;
-                    } else {
-                        try {
-                            n = Integer.parseInt(str) - 1;
-                        } catch (NumberFormatException e) {
-                            console.info.println("invalid input: " + str);
-                            continue;
-                        }
-                        stage = found.get(n);
-                        if (stage == null) {
-                            console.info.println("already imported");
-                        } else {
-                            doImport(stage);
-                            found.set(n, null);
-                            console.info.println("done: " + stage.getName());
-                        }
-                    }
-                }
+                interactiveImport(found);
         }
     }
 
-    private void scan(FileNode parent, List<Stage> result, List<FileNode> existingStages) throws IOException {
+    private void interactiveImport(List<Stage> candidates) throws IOException {
+        Stage candidate;
+        String str;
+        int n;
+        int idx;
+        String name;
+
+        while (true) {
+            if (candidates.size() == 0) {
+                console.info.println("Done - no more stage candidates");
+                return;
+            }
+            for (int i = 0; i < candidates.size(); i++) {
+                candidate = candidates.get(i);
+                console.info.println("[" + (i + 1) + "] " + candidate.getDirectory() + "\t" + candidate.getUrl());
+            }
+            console.info.println("[<number> <name>] to import with the specified name");
+            console.info.println("[a] all of the above");
+            console.info.println("[q] quit - none of the above");
+            str = console.readline("Please select: ").toLowerCase().trim();
+            if ("q".equals(str)) {
+                return;
+            } else if ("a".equals(str)) {
+                for (Stage f : new ArrayList<>(candidates)) {
+                    importEntry(candidates, f, null);
+                }
+            } else {
+                idx = str.indexOf(' ');
+                if (idx != -1) {
+                    name = str.substring(idx + 1).trim();
+                    str = str.substring(0, idx);
+                } else {
+                    name = null;
+                }
+                try {
+                    n = Integer.parseInt(str) - 1;
+                } catch (NumberFormatException e) {
+                    console.info.println("invalid input: " + str);
+                    continue;
+                }
+                importEntry(candidates, candidates.get(n), name);
+            }
+        }
+    }
+
+    private void importEntry(List<Stage> candidates, Stage candidate, String forceName) {
+        Stage stage;
+
+        try {
+            stage = doImport(candidate, forceName);
+            candidates.remove(candidate);
+            console.info.println("imported: " + stage.getName());
+        } catch (IOException e) {
+            console.info.println(candidate.getDirectory() + ": import failed: " + e.getMessage());
+            e.printStackTrace(console.verbose);
+        }
+    }
+
+    /** @return stages with temporary wrapper directory */
+    private void scan(FileNode tempWrapper, FileNode parent, List<Stage> result, List<FileNode> existingStages) throws IOException {
         String url;
         Stage stage;
-        FileNode wrapper;
-        String name;
 
         console.info.print("[" + result.size() + " candidates] scanning " + parent + " ...\u001b[K\r");
         console.info.flush();
@@ -143,19 +174,11 @@ public class Import extends SessionCommand {
             return;
         }
 
-        name = parent.getName();
-        try {
-            Stage.checkName(name);
-        } catch (ArgumentException e) {
-            name = "imported-" + result.size();
-        }
-        wrapper = session.wrappers.join(name);
-        wrapper.checkNotExists();
         url = Stage.probe(parent);
         if (url == null) {
             stage = null;
         } else {
-            stage = Stage.createOpt(session, url, session.configuration.createStageConfiguration(url), wrapper, parent);
+            stage = Stage.createOpt(session, url, session.configuration.createStageConfiguration(url), tempWrapper, parent);
         }
         if (stage != null) {
             // bingo
@@ -166,7 +189,7 @@ public class Import extends SessionCommand {
         } else {
             if (!parent.join("pom.xml").isFile()) {
                 for (FileNode child : parent.list()) {
-                    scan(child, result, existingStages);
+                    scan(tempWrapper, child, result, existingStages);
                     if (result.size() >= max) {
                         break;
                     }
@@ -175,10 +198,24 @@ public class Import extends SessionCommand {
         }
     }
 
-    private void doImport(Stage stage) throws IOException {
+    private Stage doImport(Stage candidate, String forceName) throws IOException {
+        FileNode wrapper;
+        String url;
+        FileNode directory;
+        Stage stage;
+
+        url = candidate.getUrl();
+        directory = candidate.getDirectory();
+        wrapper = session.wrappers.join(forceName != null ? forceName : name(directory));
+        stage = Stage.createOpt(session, url, session.configuration.createStageConfiguration(url), wrapper, directory);
         stage.tuneConfiguration();
         Files.stoolDirectory(stage.wrapper.mkdir());
         stage.saveWrapper();
         stage.getDirectory().link(stage.anchor());
+        return stage;
+    }
+
+    private String name(FileNode directory) {
+        return nameTemplate.replace("%d", directory.getName());
     }
 }
