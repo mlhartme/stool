@@ -148,9 +148,9 @@ public class StoolConfiguration extends BaseConfiguration {
     public String errorTool;
 
     public StoolConfiguration() {
-        portOverview = 9000;
-        portFirst = 9002;
+        portFirst = 9000;
         portLast = 9999;
+        portOverview = portFirst;
         baseHeap = 200;
         basePerm = 60;
         prompt = "{\\+} \\u@\\h:\\w$ ";

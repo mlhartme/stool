@@ -176,7 +176,7 @@ public class Start extends StageCommand {
             // wget not available on Mac, but Mac usually have no proxy
             dest.getWorld().validNode(url).copyFile(dest);
         }
-        console.info.println("done");
+        console.info.println(" done");
     }
 
     public void copyTemplate(Stage stage, Ports ports) throws Exception {

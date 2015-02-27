@@ -66,10 +66,10 @@ public class StageController {
     private World world;
 
     @Autowired
-    private Node home;
+    private Session session;
 
     @Autowired
-    private Session session;
+    private Stage self;
 
     @Autowired
     private ExecutorService executorService;
@@ -184,7 +184,7 @@ public class StageController {
     }
 
     public Node logDir() throws MkdirException {
-        return home.join("logs", "overview").mkdirOpt();
+        return self.shared().join("log");
     }
 
     public String execute(String stage, String command, String options) throws IOException {

@@ -18,6 +18,7 @@ package net.oneandone.stool.overview.config;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.overview.IndexController;
 import net.oneandone.stool.overview.Stages;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
@@ -72,6 +73,11 @@ public class OverviewConfiguration {
     }
 
     @Bean
+    public Stage self() throws IOException {
+        return session().load("overview");
+    }
+
+    @Bean
     public Users users() throws IOException {
         return session().users;
     }
@@ -79,6 +85,7 @@ public class OverviewConfiguration {
     @Bean
     public Maven maven() throws IOException {
         Maven maven;
+
         maven = Maven.withSettings(world(), world().getTemp().createTempDirectory(), null, null);
         maven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
         return maven;
