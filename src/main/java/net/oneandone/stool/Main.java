@@ -335,7 +335,7 @@ public class Main extends Cli implements Command {
         console.info.println();
         console.info.println("home directory: " + stoolhome);
         console.info.println();
-        console.info.println("exmaple urls: ");
+        console.info.println("example urls: ");
         console.info.println("  gav:net.oneandone:hellowar:1.0.0  (artifact stage)");
         console.info.println("  https://github.com/mlhartme/hellowar/trunk (source stage)");
         console.info.println();

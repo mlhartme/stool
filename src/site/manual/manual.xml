@@ -392,7 +392,8 @@ http://docbook.org/ns/docbook ">
         startup may take a while; you can check catalina.out to verify if start is complete:
         'stool cd logs &amp;&amp; tail -f catalina.out'
       </para>
-      <para>'-debug' enables the debugger. If suspend is specified as well, the jvm waits for the debugger to connect.</para>
+      <para>'-debug' and '-suspend' enable the debugger. The difference is that suspend waits for the debugger to connect before
+        starting any application code.</para>
       <para>Use the '-tail' option to get catalina.out printed to the console until you press ctrl-c.</para>
       <para>Startup is refused if your stage has expired. In this case, use 'stool config until=newdata' to confiure
         a new 'until' date.
