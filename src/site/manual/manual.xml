@@ -403,7 +403,9 @@ http://docbook.org/ns/docbook ">
         Alternatively, you can place customized Tomcats into this directory, provided they unpack to a directory that
         matches the base file name of the tar.gz file.
       </para>
-      <para>Start generates a tomcat base directory if it does not yet exist. If it exists, only the server.xml is updated.</para>
+      <para>Start generates a Tomcat base directory if it does not yet exist. If it exists, only the server.xml is updated by taking
+        server.xml.template and adding all apps to it.
+      </para>
     </sect1>
 
     <sect1>
