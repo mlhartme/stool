@@ -336,8 +336,8 @@ public class Main extends Cli implements Command {
         console.info.println("home directory: " + stoolhome);
         console.info.println();
         console.info.println("exmaple urls: ");
-        console.info.println("  gav:org.apache.wicket:wicket-examples:6.19.0  (artifact stage)");
-        console.info.println("  https://github.com/apache/wicket/tags/wicket-6.19.0/wicket-examples (source stage)");
+        console.info.println("  gav:net.oneandone:hellowar:1.0.0  (artifact stage)");
+        console.info.println("  https://github.com/mlhartme/hellowar/trunk (source stage)");
         console.info.println();
         console.info.println("documentation:");
         console.info.println("  https://github.com/mlhartme/stool");

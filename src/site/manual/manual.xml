@@ -46,7 +46,7 @@ http://docbook.org/ns/docbook ">
 
     <para>Create a new stage by checking out an application:
 
-      <programlisting>stool create https://github.com/apache/wicket/tags/wicket-6.19.0/wicket-examples</programlisting>
+      <programlisting>stool create https://github.com/mlhartme/hellowar/trunk</programlisting>
 
       Build the application:
 
@@ -124,8 +124,8 @@ http://docbook.org/ns/docbook ">
               <title>url</title>
               <para>Specifies where the web applications come from: A Subversion URL or Maven Coordinates.</para>
               <programlisting>Examples
-                https://github.com/apache/wicket/tags/wicket-6.19.0/wicket-examples
-                gav:org.apache.wicket:wicket-examples:6.19.0
+                https://github.com/mlhartme/hellowar/trunk
+                gav:net.oneandone:hellowar:1.0.0
               </programlisting>
             </formalpara>
           </listitem>

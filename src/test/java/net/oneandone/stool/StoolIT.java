@@ -89,12 +89,12 @@ public class StoolIT {
 
     @Test
     public void turnaroundArtifact() throws IOException, InterruptedException {
-        turnaround("gav:org.apache.wicket:wicket-examples:6.19.0");
+        turnaround("gav:net.oneandone:hellowar:1.0.0");
     }
 
     @Test
     public void turnaroundSource() throws IOException, InterruptedException {
-        turnaround("https://github.com/apache/wicket/tags/wicket-6.19.0/wicket-examples");
+        turnaround("https://github.com/mlhartme/hellowar/trunk");
     }
 
     @Ignore // TODO

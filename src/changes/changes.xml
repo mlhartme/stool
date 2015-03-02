@@ -23,7 +23,7 @@
         Umdated Maven Embedded to fix pom loading problem.
       </action>
       <action date="2015-02-23" dev="mlhartme" type="update">
-        Replaced pustefix samples by wicket samples.
+        Replaced pustefix samples by Hello War samples.
       </action>
     </release>
     <release version="3.0.0-beta-2" date="2015-02-23">
