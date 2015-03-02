@@ -371,7 +371,7 @@ http://docbook.org/ns/docbook ">
 
       <para>Removes the stage, i.e. deletes the stage directory and the wrapper directory.</para>
       <para>Before removing anything, this command checks if there are uncommitted changes or if the stage is started.
-        If so, the command is aborted with an error. In this case, stop the Stage and inspect the uncommited changes; either
+        If so, the command is aborted with an error. In this case, stop the Stage and inspect the uncommitted changes; either
         commit them or revert them. Alternatively, you can disable this check with the -force option.
       </para>
       <para>Also, before removing anything, this command asks if you really want to remove the stage.
@@ -395,7 +395,7 @@ http://docbook.org/ns/docbook ">
       <para>'-debug' and '-suspend' enable the debugger. The difference is that suspend waits for the debugger to connect before
         starting any application code.</para>
       <para>Use the '-tail' option to get catalina.out printed to the console until you press ctrl-c.</para>
-      <para>Startup is refused if your stage has expired. In this case, use 'stool config until=newdata' to confiure
+      <para>Startup is refused if your stage has expired. In this case, use 'stool config until=newdata' to configure
         a new 'until' date.
       </para>
       <para>The Tomcat version is configurable with 'stool config tomcat.version=&lt;version>'. You have to restart the stage
