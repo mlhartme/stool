@@ -17,11 +17,9 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
-import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Remaining;
-import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 import org.xml.sax.SAXException;
 
@@ -112,20 +110,9 @@ public class Status extends StageCommand {
         result.put(Field.TYPE, stage.getType());
         result.put(Field.OWNER, stage.technicalOwner());
         ports = tomcatStatus(stage, result);
-        result.put(Field.APPS, getAppUrls(stage));
+        result.put(Field.APPS, stage.urls());
         result.put(Field.JCONSOLE, ports == null ? null : session.configuration.hostname + ":" + ports.jmx());
         return result;
-    }
-
-    private Object getAppUrls(Stage stage) throws IOException, SAXException {
-        FileNode file;
-
-        file = stage.serverXml();
-        if (file.exists()) {
-            return new ArrayList<>(stage.urls(ServerXml.load(file)).values());
-        } else {
-            return "(unknown until first stage start)";
-        }
     }
 
     private Ports tomcatStatus(Stage stage, Map<Field, Object> result) throws IOException {

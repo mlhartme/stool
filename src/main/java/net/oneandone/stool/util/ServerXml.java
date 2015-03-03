@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.xml.Selector;
@@ -34,6 +33,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class ServerXml {
+    private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";
+    private static final String HTTPS_PATH = "Connector[starts-with(@secure,'true')]";
+
     private final Selector selector;
     private final Document document;
 
@@ -51,110 +53,70 @@ public class ServerXml {
         Files.stoolFile(file);
     }
 
-    /**
-     * @param hosts maps hostname to docroot
-     */
-    public void configure(Map<String, String> hosts, Ports allocated, KeyStore keystore,
-                          String mode, boolean cookies, String editorLocation, String hostname) throws XmlException {
+    public void configure(Ports ports, KeyStore keystore, String mode, boolean cookies, boolean vhosts) throws XmlException {
         Element template;
         Element service;
-        int i;
+        String editorLocation;
+        List<Host> hosts;
 
-        if (hosts.isEmpty()) {
-            throw new ArgumentException("no hosts match your selection");
-        }
-        if (hosts.size() != allocated.hosts()) {
-            throw new IllegalArgumentException(hosts.size() + " vs " + allocated.hosts());
-        }
-        document.getDocumentElement().setAttribute("port", Integer.toString(allocated.stop()));
+        document.getDocumentElement().setAttribute("port", Integer.toString(ports.stop()));
         template = selector.element(document, "Server/Service");
-        i = 0;
-        for (Map.Entry<String, String> entry : hosts.entrySet()) {
+        hosts = ports.hosts();
+        editorLocation = null;
+        for (Host host : hosts) {
+            if (host.isCms()) {
+                editorLocation = host.httpUrl(vhosts);
+            }
+        }
+        for (Host host : hosts) {
             service = (Element) template.cloneNode(true);
             document.getDocumentElement().appendChild(service);
-            service(service, entry.getValue(), entry.getKey() + "." + hostname, hostname);
-            connectors(service, allocated, i, keystore);
-            contexts(service, mode, cookies, editorLocation, allocated, i);
-            i++;
+            service(service, host);
+            connectors(service, host, keystore);
+            contexts(service, mode, cookies, editorLocation);
         }
         template.getParentNode().removeChild(template);
     }
 
-    public void stripComments() {
-        stripComments(document.getChildNodes());
-    }
-
-    private static void stripComments(NodeList children) {
-        org.w3c.dom.Node child;
-        List<Comment> remove;
-
-        remove = new ArrayList<>();
-        for (int i = 0, max = children.getLength(); i < max; i++) {
-            child = children.item(i);
-            if (child instanceof Element) {
-                stripComments(child.getChildNodes());
-            } else if (child instanceof Comment) {
-                remove.add((Comment) child);
-            } else {
-                // nothing to do
-            }
-        }
-        for (Comment c : remove) {
-            c.getParentNode().removeChild(c);
-        }
-    }
-
-    private void service(Element service, String docbase, String hostname, String ... aliases) throws XmlException {
+    private void service(Element service, Host object) throws XmlException {
+        String name;
         Element engine;
         Element host;
         Element context;
         Element element;
 
-        service.setAttribute("name", hostname);
+        name = object.fqdn(true);
+        service.setAttribute("name", name);
         engine = selector.element(service, "Engine");
-        engine.setAttribute("defaultHost", hostname);
+        engine.setAttribute("defaultHost", name);
         for (Element child : selector.elements(service, "Engine/Host")) {
             child.getParentNode().removeChild(child);
         }
         host = service.getOwnerDocument().createElement("Host");
-        host.setAttribute("name", hostname);
-        if (docbase.endsWith("/ROOT")) { // TODO: special case for artifact stages that need unpacking ...
-            host.setAttribute("appBase", docbase.substring(0, docbase.length() - 5));
-            docbase = "ROOT";
-        } else {
-            // to force tomcat 6 not to load catalina base and its subdirectory
-            host.setAttribute("appBase", "noSuchDirectory");
-        }
+        host.setAttribute("name", name);
+        host.setAttribute("appBase", object.appBase());
         host.setAttribute("autoDeploy", "false");
         engine.appendChild(host);
         context = service.getOwnerDocument().createElement("Context");
         context.setAttribute("allowLinking", "true"); // for Mamba  -- TODO
         context.setAttribute("path", "");
-        context.setAttribute("docBase", docbase);
+        context.setAttribute("docBase", object.docBase());
         host.appendChild(context);
-        for (String alias : aliases) {
-            element = service.getOwnerDocument().createElement("alias");
-            element.setAttribute("name", alias);
-            host.insertBefore(element, host.getFirstChild());
-        }
+
+        element = service.getOwnerDocument().createElement("alias");
+        element.setAttribute("name", object.fqdn(false));
+        host.insertBefore(element, host.getFirstChild());
     }
 
-    private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";
-    private static final String HTTPS_PATH = "Connector[starts-with(@secure,'true')]";
-
-    private void connectors(Element service, Ports ports, int idx, KeyStore keyStore) {
-        int tomcatHttpPort;
-        int tomcatSecureHttpPort;
+    private void connectors(Element service, Host host, KeyStore keyStore) {
         String ip;
 
         ip = "0.0.0.0";
-        tomcatHttpPort = ports.http(idx);
-        tomcatSecureHttpPort = ports.https(idx);
         try {
             connectorDisable(service, "Connector[starts-with(@protocol,'AJP')]");
-            connectorEnable(service, HTTP_PATH, ip, tomcatHttpPort, tomcatSecureHttpPort);
+            connectorEnable(service, HTTP_PATH, ip, host.httpPort, host.httpsPort);
             if (keyStore != null) {
-                sslConnector(service, HTTPS_PATH, tomcatSecureHttpPort, ip, keyStore);
+                sslConnector(service, HTTPS_PATH, host.httpsPort, ip, keyStore);
             } else {
                 connectorDisable(service, HTTPS_PATH);
             }
@@ -211,10 +173,9 @@ public class ServerXml {
 
     }
 
-    public void contexts(Element service, String mode, boolean cookies, String editorLocation, Ports ports, int idx) throws XmlException {
+    public void contexts(Element service, String mode, boolean cookies, String editorLocation) throws XmlException {
         Element context;
         Element manager;
-        Element parameter;
 
         for (Element host : selector.elements(service, "Engine/Host")) {
             context = selector.element(host, "Context");
@@ -231,11 +192,6 @@ public class ServerXml {
                     parameter(context, "editor.enabled").setAttribute("value", "true");
                     parameter(context, "editor.location").setAttribute("value", editorLocation);
                     parameter(context, "editor.secret").setAttribute("value", "foobar");
-                }
-                parameter = parameterOpt(context, "editor.location");
-                if (parameter != null) {
-                    parameter.setAttribute("value", parameter.getAttribute("value")
-                      .replace(":8080", ":" + ports.http(idx)));
                 }
             }
         }
@@ -260,39 +216,27 @@ public class ServerXml {
 
     //--
 
-    public Map<String, String> allUrls(boolean vhost, String suffix) throws XmlException {
-        Map<String, String> result;
-        Element host;
-        String hostname;
-        String port;
-
-        result = new TreeMap<>();
-        for (Element service : selector.elements(document.getDocumentElement(), "Service")) {
-            host = selector.element(service, "Engine/Host");
-            if (vhost) {
-                hostname = host.getAttribute("name");
-            } else {
-                hostname = selector.element(host, "alias").getAttribute("name");
-            }
-            port = port(service, HTTP_PATH);
-            if (port != null) {
-                result.put(hostname, "http://" + hostname + ":" + port + suffix);
-            }
-            port = port(service, HTTPS_PATH);
-            if (port != null) {
-                result.put(hostname + " SSL", "https://" + hostname + ":" + port + suffix);
-            }
-        }
-        return result;
+    public void stripComments() {
+        stripComments(document.getChildNodes());
     }
 
-    private String port(Element service, String connectorPath) throws XmlException {
-        Element connector;
+    private static void stripComments(NodeList children) {
+        org.w3c.dom.Node child;
+        List<Comment> remove;
 
-        connector = selector.elementOpt(service, connectorPath);
-        if (connector == null) {
-            return null;
+        remove = new ArrayList<>();
+        for (int i = 0, max = children.getLength(); i < max; i++) {
+            child = children.item(i);
+            if (child instanceof Element) {
+                stripComments(child.getChildNodes());
+            } else if (child instanceof Comment) {
+                remove.add((Comment) child);
+            } else {
+                // nothing to do
+            }
         }
-        return connector.getAttribute("port");
+        for (Comment c : remove) {
+            c.getParentNode().removeChild(c);
+        }
     }
 }

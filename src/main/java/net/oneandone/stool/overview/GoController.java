@@ -57,7 +57,7 @@ public class GoController {
 
         switch (stage.getRunning()) {
             case "up":
-                return new ModelAndView("redirect:" + stage.getUrls().values().toArray()[0]);
+                return new ModelAndView("redirect:" + stage.getUrls().toArray()[0]);
             default:
                 return new ModelAndView("redirect:" + baseurl + "/#!500!" + stage.getName() + "!" + stage.getRunning());
         }

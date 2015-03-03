@@ -38,7 +38,6 @@ import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
-import net.oneandone.sushi.xml.XmlException;
 import org.apache.maven.model.Build;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
@@ -46,7 +45,6 @@ import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.repository.RepositoryPolicy;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -56,7 +54,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.TreeMap;
 
 /**
  * Concrete implementations are SourceStage or ArtifactStage.
@@ -288,7 +285,7 @@ public abstract class Stage {
         return shared().join("run", name);
     }
 
-    /** @return hostname to docroot mapping, where hostname is artifactId + "." + stageName, to uniquely identify the host */
+    /** @return vhost to docroot mapping, where vhost is artifactId + "." + stageName, to uniquely identify the host */
     protected abstract Map<String, String> hosts() throws IOException;
 
     public Map<String, String> selectedHosts() throws IOException {
@@ -313,24 +310,11 @@ public abstract class Stage {
     }
 
     public Ports loadPorts() throws IOException {
-        return Ports.load(wrapper);
+        return Ports.load(session.configuration.hostname, wrapper);
     }
 
-    public Map<String, String> urls() throws IOException, SAXException {
-        if (serverXml().exists()) {
-            return urls(ServerXml.load(serverXml()));
-        }
-        return new TreeMap<>();
-    }
-
-    //--
-
-    public Map<String, String> urls(ServerXml serverXml) throws IOException {
-        try {
-            return serverXml.allUrls(session.configuration.vhosts, configuration.suffix);
-        } catch (XmlException e) {
-            throw new IOException("cannot read server.xml: " + e.getMessage(), e);
-        }
+    public List<String> urls() throws IOException {
+        return Ports.forStage(this).allUrls(session.configuration.certificates.isEmpty(), session.configuration.vhosts, config().suffix);
     }
 
     /** @return null when not supported. Otherwise, file must not be null, but does not have to exist. */
@@ -347,19 +331,15 @@ public abstract class Stage {
 
     //-- tomcat helper
 
-    public void start(Console console, Ports allocated) throws Exception {
-        Map<String, String> hosts;
+    public void start(Console console, Ports ports) throws Exception {
         ServerXml serverXml;
         String pidFile;
         String pidPs;
-        Map<String, String> apps;
+        List<String> apps;
+        KeyStore keystore;
 
         checkMemory();
         console.info.println("starting tomcat ...");
-        hosts = selectedHosts();
-        if (config().pustefixEditor) {
-            hosts.put("cms." + getName(), editorDirectoryNode().getAbsolute());
-        }
 
         // TODO workspace stages
         // FileNode editorLocations = directory.join("tomcat/editor/WEB-INF/editor-locations.xml");
@@ -369,14 +349,13 @@ public abstract class Stage {
         // }
 
         serverXml = ServerXml.load(serverXmlTemplate());
-        serverXml.configure(hosts, allocated, keystore(), config().mode, config().cookies,
-                /* TODO: */ "cms." + getName() + "." + session.configuration.hostname,
-                session.configuration.hostname);
+        keystore = keystore();
+        serverXml.configure(ports, keystore, config().mode, config().cookies, session.configuration.vhosts);
         serverXml.save(serverXml());
-        apps = serverXml.allUrls(session.configuration.vhosts, configuration.suffix);
+        apps = ports.allUrls(keystore != null, session.configuration.vhosts, configuration.suffix);
         if (config().pustefixEditor) {
             userdataDirectory(console);
-            editorDirectory(apps.values());
+            editorDirectory(apps);
         }
         if (session.configuration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
@@ -393,7 +372,7 @@ public abstract class Stage {
             throw new IOException("tomcat pid file does not match tomcat process: " + pidFile + " vs " + pidPs);
         }
         console.info.println("Applications available:");
-        for (String app : apps.values()) {
+        for (String app : apps) {
             console.info.println("  " + app);
         }
     }

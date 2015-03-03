@@ -68,7 +68,7 @@ public class Start extends StageCommand {
     @Override
     public void doInvoke(Stage stage) throws Exception {
         FileNode download;
-        Ports allocated;
+        Ports ports;
 
         serviceWrapperOpt(stage.config().tomcatService);
         download = tomcatOpt(stage.config().tomcatVersion);
@@ -76,17 +76,17 @@ public class Start extends StageCommand {
         checkUntil(stage.config().until);
         checkCommitted(stage);
         checkNotStarted(stage);
-        allocated = Ports.forStage(stage);
-        copyTemplate(stage, allocated);
+        ports = Ports.forStage(stage);
+        copyTemplate(stage, ports);
         copyTomcatBaseOpt(download, stage.shared(), stage.config().tomcatVersion);
         if (session.bedroom.stages().contains(stage.getName())) {
             console.info.println("leaving sleeping state");
             session.bedroom.remove(stage.getName());
         }
         if (debug || suspend) {
-            console.info.println("debugging enabled on port " + allocated.debug());
+            console.info.println("debugging enabled on port " + ports.debug());
         }
-        stage.start(console, allocated);
+        stage.start(console, ports);
         ping(stage);
         stage.buildStats().start(executionTime());
         stage.buildStats().save();
@@ -151,10 +151,10 @@ public class Start extends StageCommand {
         requestFactory.setConnectTimeout(500);
         console.info.println("Ping'n Applications.");
         Thread.sleep(2000);
-        for (String address : stage.urls().values()) {
-            if (address.startsWith("http://")) {
-                uri = new URI(address);
-                console.verbose.println("Opening connection to " + address);
+        for (String url : stage.urls()) {
+            if (url.startsWith("http://")) {
+                uri = new URI(url);
+                console.verbose.println("Opening connection to " + url);
                 try {
                     requestFactory.createRequest(uri, HttpMethod.GET).execute();
                 } catch (IOException e) {

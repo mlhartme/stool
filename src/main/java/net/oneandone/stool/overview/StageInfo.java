@@ -30,6 +30,7 @@ import javax.naming.NamingException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Map;
 
 public class StageInfo {
@@ -37,7 +38,7 @@ public class StageInfo {
     public String name;
     public StageConfiguration configuration;
     public String extractionUrl;
-    public Map<String, String> urls;
+    public List<String> urls;
     public Stage.State running;
     public String owner;
     public boolean updateAvailable;
@@ -121,7 +122,7 @@ public class StageInfo {
         return extractionUrl;
     }
 
-    public Map<String, String> getUrls() {
+    public List<String> getUrls() {
         return urls;
     }
 
@@ -140,7 +141,7 @@ public class StageInfo {
         String content;
         StringBuilder stringBuilder;
         stringBuilder = new StringBuilder("Hi, \n");
-        for (String url : urls.values()) {
+        for (String url : urls) {
             stringBuilder.append(url).append("\n");
         }
 
