@@ -16,123 +16,130 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.sushi.fs.LineFormat;
+import net.oneandone.sushi.fs.LineReader;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.io.Reader;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class Ports {
-    private static final String STOP_WRAPPER = ".stop-wrapper";
-    private static final String JMX_DEBUG = ".jmx-debug";
-
-    private static boolean isInternal(String name) {
-        return name.startsWith(".");
-    }
-
     // TODO: ugly reference to stage ...
-    public static Ports forStage(Stage stage) throws IOException {
-        Session session;
-        Ports existing;
+    public static Ports allocate(Stage stage) throws IOException {
+        Ports previous;
+        Pool pool;
+        String name;
         Ports result;
-        Set<Integer> used;
-        List<String> names;
-        Integer even;
+        String vhost;
+        int even;
+        Host host;
+        Map<String, String> hosts;
 
-        session = stage.session;
-        result = new Ports(stage.session.configuration.hostname);
-        existing = Ports.load(result.hostname, stage.wrapper);
-        used = null;
-        names = new ArrayList<>();
-        names.add(STOP_WRAPPER);
-        names.add(JMX_DEBUG);
-        names.addAll(stage.selectedHosts().keySet());
-        if (stage.config().pustefixEditor) {
-            names.add("cms." + stage.getName());
+        previous = loadOpt(stage);
+        pool = stage.session.createPool();
+        name = stage.getName();
+        if (previous != null) {
+            result = new Ports(previous.stopWrapper, previous.jmxDebug);
+        } else {
+            result = new Ports(pool.allocate(".stop.wrapper." + name), pool.allocate(".jmx.debug." + name));
         }
-        for (String name : names) {
-            even = existing.evens.get(name);
-            if (even == null) {
-                if (used == null) {
-                    used = used(session.getWrappers());
-                    used.add(session.configuration.portOverview);
-                }
-                if (!isInternal(name) && stage.isOverview()) {
-                    even = session.configuration.portOverview;
-                } else {
-                    even = allocate(used, name, session.configuration.portFirst, session.configuration.portLast);
+        hosts = stage.selectedHosts();
+        if (stage.config().pustefixEditor) {
+            hosts.put("cms." + stage.getName(), "TODO");
+        }
+        for (Map.Entry<String, String> entry : hosts.entrySet()) {
+            vhost = entry.getKey();
+            even = 0;
+            if (previous != null) {
+                host = previous.lookup(vhost);
+                if (host != null) {
+                    even = host.even;
                 }
             }
-            result.evens.put(name, even);
+            if (even == 0) {
+                even = pool.allocate(vhost);
+            }
+            result.hosts.add(new Host(even, vhost, stage.session.configuration.hostname, entry.getValue()));
         }
         result.save(stage.wrapper);
         return result;
     }
 
-    public static Ports load(String hostname, FileNode wrapper) throws IOException {
-        Ports result;
+    public static final LineFormat FMT = new LineFormat(LineFormat.LF_SEPARATOR, LineFormat.Trim.ALL, LineFormat.excludes(true));
 
-        result = new Ports(hostname);
-        result.append(wrapper);
-        return result;
+    public static Ports loadOpt(Stage stage) throws IOException {
+        FileNode file;
+        Ports result;
+        String line;
+
+        file = file(stage.wrapper);
+        if (!file.isFile()) {
+            return null;
+        }
+        try (Reader in = file.createReader(); LineReader src = new LineReader(in, FMT)) {
+            result = new Ports(Integer.parseInt(src.next()), Integer.parseInt(src.next()));
+            while (true) {
+                line = src.next();
+                if (line == null) {
+                    break;
+                }
+                result.hosts.add(Host.forLine(line));
+            }
+            return result;
+        }
     }
 
-    private static FileNode file(FileNode wrapper) {
+    public static FileNode file(FileNode wrapper) {
         return wrapper.join("ports");
     }
 
     //--
 
-    private final String hostname;
+    private final int stopWrapper;
+    private final int jmxDebug;
+    private final List<Host> hosts;
 
-    /**
-     * Maps names to stores even ports nummers; its successor is also considered as allocated.
-     * Names starting with . are internal names, all other names are vhosts without the hostname */
-    private final LinkedHashMap<String, Integer> evens;
-
-    public Ports(String hostname) {
-        this.hostname = hostname;
-        this.evens = new LinkedHashMap<>();
+    public Ports(int stopWrapper, int jmxDebug) {
+        this.stopWrapper = stopWrapper;
+        this.jmxDebug = jmxDebug;
+        this.hosts = new ArrayList<>();
     }
 
     public int stop() {
-        return evens.get(STOP_WRAPPER);
+        return stopWrapper;
     }
 
     public int wrapper() {
-        return evens.get(STOP_WRAPPER) + 1;
+        return stopWrapper + 1;
     }
 
     public int jmx() {
-        return evens.get(JMX_DEBUG);
+        return jmxDebug;
     }
 
     public int debug() {
-        return evens.get(JMX_DEBUG) + 1;
+        return jmxDebug + 1;
     }
 
     public List<Host> hosts() {
-        List<Host> result;
-        int even;
-
-        result = new ArrayList<>();
-        for (String name : evens.keySet()) {
-            if (!isInternal(name)) {
-                even = evens.get(name);
-                result.add(new Host(name, hostname, "TODO", even, even + 1));
-            }
-        }
-        return result;
+        return hosts;
     }
 
     public Host mainHost() {
         return hosts().get(0);
+    }
+
+    public Host lookup(String vhost) {
+        for (Host host : hosts) {
+            if (vhost.equals(host.vhost)) {
+                return host;
+            }
+        }
+        return null;
     }
 
     //--
@@ -141,105 +148,15 @@ public class Ports {
         List<String> lines;
 
         lines = new ArrayList<>();
-        for (Map.Entry<String, Integer> even : evens.entrySet()) {
-            lines.add(even.getValue() + " " + even.getKey());
+        lines.add(Integer.toString(stopWrapper));
+        lines.add(Integer.toString(jmxDebug));
+        for (Host host : hosts) {
+            lines.add(host.toLine());
         }
         file(wrapper).writeLines(lines);
     }
 
-    private void append(FileNode wrapper) throws IOException {
-        FileNode file;
-        int idx;
-
-        file = file(wrapper);
-        if (file.isFile()) {
-            for (String line : file.readLines()) {
-                idx = line.indexOf(' ');
-                evens.put(line.substring(idx + 1).trim(), Integer.parseInt(line.substring(0, idx).trim()));
-            }
-        }
-    }
-
     //--
-
-    public static Set<Integer> used(List<FileNode> wrappers) throws IOException {
-        Set<Integer> result;
-
-        result = new HashSet<>();
-        for (FileNode wrapper : wrappers) {
-            result.addAll(load("notused", wrapper).evens.values());
-        }
-        return result;
-    }
-
-    public static int allocate(Collection<Integer> used, String name, int first, int last) throws IOException {
-        return allocate(used, forName(name, first, last), first, last);
-    }
-
-    public static int allocate(Collection<Integer> used, int start, int first, int last) throws IOException {
-        int current;
-
-        if ((start < first) || (start > last)) {
-            throw new IllegalArgumentException("ports out of range: " + start);
-        }
-        if (start % 2 != 0) {
-            throw new IllegalArgumentException("even port expected: " + start);
-        }
-        if (first % 2 != 0) {
-            throw new IllegalArgumentException("even port expected: " + first);
-        }
-        if (last % 2 != 1) {
-            throw new IllegalArgumentException("odd port expected: " + last);
-        }
-        current = start;
-        do {
-            if (!used.contains(current)) {
-                // port prefix isn't used by another stage
-                checkFree(current);
-                return current;
-            }
-            if (current == last) {
-                current = first;
-            } else {
-                current = current + 2;
-            }
-        } while (current != start);
-        throw new IOException("cannot allocate port");
-    }
-
-    public static int forName(String name, int first, int last) {
-        return ((Math.abs(name.hashCode()) % (last - first + 1)) + first) & 0xfffffffe;
-    }
-
-    /**
-     * See http://stackoverflow.com/questions/434718/sockets-discover-port-availability-using-java
-     */
-    public static void checkFree(int port) throws IOException {
-        boolean available;
-        ServerSocket socket;
-
-        socket = null;
-        available = false;
-        try {
-            socket = new ServerSocket(port);
-            available = true;
-        } catch (IOException e) {
-            // fall-through
-        } finally {
-            // Clean up
-            if (socket != null) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    /* should not be thrown */
-                    e.printStackTrace();
-                }
-            }
-        }
-        if (!available) {
-            throw new IOException("port already in use: " + port);
-        }
-    }
 
     public List<String> allUrls(boolean https, boolean vhosts, String suffix) {
         List<String> result;

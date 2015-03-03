@@ -405,7 +405,7 @@ public class Session {
     }
 
     public Processes getProcesses(boolean everytimeNew) throws Failure {
-        if (null == this.processes | everytimeNew) {
+        if (null == this.processes || everytimeNew) {
             this.processes = new Processes(new Launcher((FileNode) home.getWorld().getWorking(), "ps", "aux").exec());
         }
         return this.processes;
@@ -432,5 +432,9 @@ public class Session {
             result.add((FileNode) Stage.anchor(wrapper).resolveLink());
         }
         return result;
+    }
+
+    public Pool createPool() {
+        return new Pool(configuration.portFirst, configuration.portLast, configuration.portOverview, wrappers);
     }
 }

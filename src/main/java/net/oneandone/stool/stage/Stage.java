@@ -309,12 +309,16 @@ public abstract class Stage {
         return hosts;
     }
 
-    public Ports loadPorts() throws IOException {
-        return Ports.load(session.configuration.hostname, wrapper);
+    public Ports loadPortsOpt() throws IOException {
+        return Ports.loadOpt(this);
     }
 
+    /** @return empty list of no ports are allocated */
     public List<String> urls() throws IOException {
-        return Ports.forStage(this).allUrls(session.configuration.certificates.isEmpty(), session.configuration.vhosts, config().suffix);
+        Ports ports;
+
+        ports = loadPortsOpt();
+        return ports == null ? new ArrayList<String>() : ports.allUrls(session.configuration.certificates.isEmpty(), session.configuration.vhosts, config().suffix);
     }
 
     /** @return null when not supported. Otherwise, file must not be null, but does not have to exist. */

@@ -76,7 +76,7 @@ public class StandbyHandler {
             try {
                 stage = Stage.load(session, wrapper);
                 session.console.info.println("[" + stage.getName() + "]");
-                stage.start(session.console, Ports.forStage(stage));
+                stage.start(session.console, Ports.allocate(stage));
                 session.bedroom.remove(name);
                 save = true;
             } catch (IOException e) {

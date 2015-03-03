@@ -114,9 +114,9 @@ public class ServerXml {
         ip = "0.0.0.0";
         try {
             connectorDisable(service, "Connector[starts-with(@protocol,'AJP')]");
-            connectorEnable(service, HTTP_PATH, ip, host.httpPort, host.httpsPort);
+            connectorEnable(service, HTTP_PATH, ip, host.httpPort(), host.httpsPort());
             if (keyStore != null) {
-                sslConnector(service, HTTPS_PATH, host.httpsPort, ip, keyStore);
+                sslConnector(service, HTTPS_PATH, host.httpsPort(), ip, keyStore);
             } else {
                 connectorDisable(service, HTTPS_PATH);
             }
