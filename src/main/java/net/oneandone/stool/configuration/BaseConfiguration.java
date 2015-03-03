@@ -37,7 +37,7 @@ public class BaseConfiguration {
         type = field.getType();
         if (type.equals(String.class)) {
             value = strOrMap;
-        } else if (type.equals(Boolean.class)) {
+        } else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
             value = Boolean.valueOf((String) strOrMap);
         } else if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {
             value = Integer.valueOf((String) strOrMap);

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.0.0-beta-3" date="2015-02-23">
-      <action date="2015-02-27" dev="mlhartme" type="update">
+      <action date="2015-03-03" dev="mlhartme" type="fix">
+        Fixed stool config for boolean values.
+      </action>
+      <action date="2015-03-03" dev="mlhartme" type="update">
         Added support for Pustefix editor: stool config pustefix.editor=true ; stool restart
       </action>
       <action date="2015-02-27" dev="mlhartme" type="fix">
