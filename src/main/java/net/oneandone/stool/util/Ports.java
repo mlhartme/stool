@@ -44,6 +44,9 @@ public class Ports {
         names.add(stage.getName() + "-stop-wrapper");
         names.add(stage.getName() + "-jmx-debug");
         hosts = new ArrayList<>(stage.selectedHosts().keySet());
+        if (stage.config().pustefixEditor) {
+            hosts.add("cms");
+        }
         Collections.sort(hosts); // guarantied ordering
         names.addAll(hosts);
         for (String name : names) {

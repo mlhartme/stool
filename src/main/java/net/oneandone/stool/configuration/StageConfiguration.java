@@ -37,7 +37,6 @@ public class StageConfiguration extends BaseConfiguration {
     @Option(key = "cookies", description = "use cookies for tomcat", role = Role.USER)
     public Boolean cookies;
 
-
     @Expose
     @Option(key = "prepare", description = "execute this after checkout", role = Role.USER)
     public String prepare;
@@ -107,6 +106,17 @@ public class StageConfiguration extends BaseConfiguration {
     @Option(key = "comment", description = "a comment")
     public String comment;
 
+    @Expose
+    @Option(key = "pustefix.editor", description = "enable or disable Pustefix editor")
+    public boolean pustefixEditor;
+
+    @Expose
+    @Option(key = "pustefix.editor.version", description = "version of the editor artifacts")
+    public String pustefixEditorVersion;
+
+    @Expose
+    @Option(key = "pustefix.editor.userdata", description = "svn url for the editor's userdata.xml")
+    public String pustefixEditorUserdata;
 
     public StageConfiguration(String javaHome) {
         this.mode = "test";
@@ -128,6 +138,9 @@ public class StageConfiguration extends BaseConfiguration {
         this.sslUrl = "";
         this.comment = "";
         this.autoRefresh = false;
+        this.pustefixEditor = false;
+        this.pustefixEditorVersion = "";
+        this.pustefixEditorUserdata = "";
     }
 
     public static boolean isConfigurable(String key, Role role) {

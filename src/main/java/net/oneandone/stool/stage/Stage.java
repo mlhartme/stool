@@ -45,10 +45,12 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.repository.RepositoryPolicy;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -350,10 +352,15 @@ public abstract class Stage {
         ServerXml serverXml;
         String pidFile;
         String pidPs;
+        Map<String, String> apps;
 
         checkMemory();
         console.info.println("starting tomcat ...");
         hosts = selectedHosts();
+        if (config().pustefixEditor) {
+            hosts.put("cms." + getName(), editorDirectoryNode().getAbsolute());
+        }
+
         // TODO workspace stages
         // FileNode editorLocations = directory.join("tomcat/editor/WEB-INF/editor-locations.xml");
         // if (editorLocations.exists()) {
@@ -362,13 +369,20 @@ public abstract class Stage {
         // }
 
         serverXml = ServerXml.load(serverXmlTemplate());
-        serverXml.configure(hosts, allocated, keystore(), config().mode, config().cookies, session.configuration.hostname);
+        serverXml.configure(hosts, allocated, keystore(), config().mode, config().cookies,
+                /* TODO: */ "cms." + getName() + "." + session.configuration.hostname,
+                session.configuration.hostname);
         serverXml.save(serverXml());
+        apps = serverXml.allUrls(session.configuration.vhosts, configuration.suffix);
+        if (config().pustefixEditor) {
+            userdataDirectory(console);
+            editorDirectory(apps.values());
+        }
         if (session.configuration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
             // else: will be deleted by stool-catalina.sh -- with proper permissions
         }
-        printAppUrls(console, serverXml);
+
         catalina("start").exec(console.verbose);
         pidFile = runningTomcat();
         if (pidFile == null) {
@@ -377,6 +391,10 @@ public abstract class Stage {
         pidPs = session.getProcesses(true).tomcatPid(getWrapper());
         if (!pidFile.equals(pidPs)) {
             throw new IOException("tomcat pid file does not match tomcat process: " + pidFile + " vs " + pidPs);
+        }
+        console.info.println("Applications available:");
+        for (String app : apps.values()) {
+            console.info.println("  " + app);
         }
     }
 
@@ -443,14 +461,6 @@ public abstract class Stage {
               + "  unreserved: " + unreserved + "\n"
               + "  requested: " + requested + "\n"
               + "Consider stopping stages.");
-        }
-    }
-
-    protected void printAppUrls(Console console, ServerXml serverXml) throws XmlException {
-        console.info.println("Applications available:");
-        Map<String, String> appUrls = serverXml.allUrls(session.configuration.vhosts, configuration.suffix);
-        for (String appUrl : appUrls.values()) {
-            console.info.println("  " + appUrl);
         }
     }
 
@@ -809,5 +819,57 @@ public abstract class Stage {
         idx = result.lastIndexOf('/');
         result = result.substring(idx + 1); // ok for -1
         return result.isEmpty() ? "stage" : result;
+    }
+
+    //-- Pustefix Editor ...
+
+    private FileNode editorDirectoryNode() throws IOException {
+        return shared().join("editor/webapp");
+    }
+
+    private void editorDirectory(Collection<String> apps) throws IOException {
+        FileNode war;
+        FileNode dest;
+        List<String> lines;
+
+        dest = editorDirectoryNode();
+        if (!dest.exists()) {
+            dest.mkdirs();
+            try {
+                war = maven().resolve("org.pustefixframework.editor", "pustefix-editor-webui", "war", config().pustefixEditorVersion);
+            } catch (ArtifactResolutionException e) {
+                throw new IOException("Cannot download editor: " + e.getMessage(), e);
+            }
+            war.unjar(dest);
+            lines = new ArrayList<>();
+            lines.add("<?xml version='1.0' encoding='utf-8' ?>");
+            lines.add("<projects>");
+            for (String app : apps) {
+                lines.add("  <project>");
+                lines.add("    <location>" + app + "</location>");
+                lines.add("    <secret>foobar</secret>");
+                lines.add("  </project>");
+            }
+            lines.add("</projects>");
+            dest.join("WEB-INF/editor-locations.xml").writeLines(lines);
+        }
+    }
+
+    public void userdataDirectory(Console console) throws IOException {
+        FileNode dest;
+        FileNode parent;
+
+        dest = shared().join("editor/userdata");
+        if (!dest.exists()) {
+            parent = dest.getParent();
+            parent.mkdirsOpt();
+            try {
+                session.subversion().checkout(parent, config().pustefixEditorUserdata, dest.getName(), console.verbose);
+            } catch (Failure e) {
+                throw new IOException("cannot checkout editor userdata: " + e.getMessage(), e);
+            }
+        } else {
+            // TODO: check url changes
+        }
     }
 }

@@ -51,9 +51,11 @@ public class ServerXml {
         Files.stoolFile(file);
     }
 
-    /** replace existing hosts with hosts from parameter */
+    /**
+     * @param hosts maps hostname to docroot
+     */
     public void configure(Map<String, String> hosts, Ports allocated, KeyStore keystore,
-                          String mode, boolean cookies, String hostname) throws XmlException {
+                          String mode, boolean cookies, String editorLocation, String hostname) throws XmlException {
         Element template;
         Element service;
         int i;
@@ -72,7 +74,7 @@ public class ServerXml {
             document.getDocumentElement().appendChild(service);
             service(service, entry.getValue(), entry.getKey() + "." + hostname, hostname);
             connectors(service, allocated, i, keystore);
-            contexts(service, mode, cookies, allocated, i);
+            contexts(service, mode, cookies, editorLocation, allocated, i);
             i++;
         }
         template.getParentNode().removeChild(template);
@@ -209,7 +211,7 @@ public class ServerXml {
 
     }
 
-    public void contexts(Element service, String mode, boolean cookies, Ports ports, int idx) throws XmlException {
+    public void contexts(Element service, String mode, boolean cookies, String editorLocation, Ports ports, int idx) throws XmlException {
         Element context;
         Element manager;
         Element parameter;
@@ -225,6 +227,11 @@ public class ServerXml {
             }
             if (!host.getAttribute("name").startsWith("cms.")) {
                 parameter(context, "mode").setAttribute("value", mode);
+                if (editorLocation != null) {
+                    parameter(context, "editor.enabled").setAttribute("value", "true");
+                    parameter(context, "editor.location").setAttribute("value", editorLocation);
+                    parameter(context, "editor.secret").setAttribute("value", "foobar");
+                }
                 parameter = parameterOpt(context, "editor.location");
                 if (parameter != null) {
                     parameter.setAttribute("value", parameter.getAttribute("value")
