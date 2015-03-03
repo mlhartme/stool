@@ -20,7 +20,7 @@
         Fixed update-check to respect proxy settings.
       </action>
       <action date="2015-02-23" dev="mlhartme" type="update">
-        Overview invokes stale wrapper wiper now before gathering stages.
+        Overview now invokes stale wrapper wiper before gathering stages.
       </action>
       <action date="2015-02-23" dev="mlhartme" type="remove">
         Removed resolve command, it was never used.
