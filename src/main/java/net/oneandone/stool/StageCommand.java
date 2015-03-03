@@ -256,7 +256,7 @@ public abstract class StageCommand extends SessionCommand {
         return stages.size() != 1;
     }
 
-    public abstract void doInvoke(Stage s) throws Exception;
+    public abstract void doInvoke(Stage stage) throws Exception;
 
     //--
     public void doAfter() throws IOException {

@@ -18,7 +18,6 @@ package net.oneandone.stool;
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
-import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
