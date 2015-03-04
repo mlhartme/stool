@@ -49,7 +49,7 @@ public class Ports {
         }
         hosts = stage.selectedHosts();
         if (stage.config().pustefixEditor) {
-            hosts.put("cms." + stage.getName(), stage.editorDocroot().getAbsolute());
+            hosts.put(ServerXml.EDITOR_PREFIX + stage.getName(), stage.editorDocroot().getAbsolute());
         }
         for (Map.Entry<String, String> entry : hosts.entrySet()) {
             vhost = entry.getKey();
@@ -166,14 +166,26 @@ public class Ports {
 
     //--
 
-    public List<String> allUrls(boolean https, boolean vhosts, String suffix) {
+    public List<String> allUrls(boolean named, boolean https, boolean vhosts, String suffix) {
+        String namePrefix;
         List<String> result;
+        int idx;
 
         result = new ArrayList<>();
         for (Host host : hosts()) {
-            result.add(host.httpUrl(vhosts) + suffix);
+            if (named) {
+                namePrefix = host.vhost;
+                idx = host.vhost.indexOf('.');
+                if (idx != -1) {
+                    namePrefix = namePrefix.substring(0, idx);
+                }
+                namePrefix = namePrefix + " ";
+            } else {
+                namePrefix = "";
+            }
+            result.add(namePrefix + host.httpUrl(vhosts) + suffix);
             if (https) {
-                result.add(host.httpsUrl(vhosts) + suffix);
+                result.add(namePrefix + host.httpsUrl(vhosts) + suffix);
             }
         }
         return result;

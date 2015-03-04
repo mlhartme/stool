@@ -110,7 +110,7 @@ public class Status extends StageCommand {
         result.put(Field.TYPE, stage.getType());
         result.put(Field.OWNER, stage.technicalOwner());
         ports = tomcatStatus(stage, result);
-        result.put(Field.APPS, stage.urls());
+        result.put(Field.APPS, stage.namedUrls());
         result.put(Field.JCONSOLE, ports == null ? null : session.configuration.hostname + ":" + ports.jmx());
         return result;
     }

@@ -78,7 +78,7 @@ public class Host {
     }
 
     public boolean isCms() {
-        return vhost.startsWith("cms.");
+        return vhost.startsWith(ServerXml.EDITOR_PREFIX);
     }
 
     public String fqdn(boolean vhosts) {

@@ -314,12 +314,21 @@ public abstract class Stage {
     }
 
     /** @return empty list of no ports are allocated */
+    public List<String> namedUrls() throws IOException {
+        return urls(true);
+    }
+
+    /** @return empty list of no ports are allocated */
     public List<String> urls() throws IOException {
+        return urls(false);
+    }
+
+    private List<String> urls(boolean named) throws IOException {
         Ports ports;
 
         ports = loadPortsOpt();
         return ports == null ? new ArrayList<String>()
-                : ports.allUrls(!session.configuration.certificates.isEmpty(), session.configuration.vhosts, config().suffix);
+                : ports.allUrls(named, !session.configuration.certificates.isEmpty(), session.configuration.vhosts, config().suffix);
     }
 
 
@@ -341,7 +350,6 @@ public abstract class Stage {
         ServerXml serverXml;
         String pidFile;
         String pidPs;
-        List<String> apps;
         KeyStore keystore;
 
         checkMemory();
@@ -358,10 +366,9 @@ public abstract class Stage {
         keystore = keystore();
         serverXml.configure(ports, keystore, config().mode, config().cookies, session.configuration.vhosts);
         serverXml.save(serverXml());
-        apps = ports.allUrls(keystore != null, session.configuration.vhosts, configuration.suffix);
         if (config().pustefixEditor) {
             userdataDirectory(console);
-            editorDirectory(apps);
+            editorDirectory(ports.allUrls(false, keystore != null, session.configuration.vhosts, configuration.suffix));
         }
         if (session.configuration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
@@ -378,7 +385,7 @@ public abstract class Stage {
             throw new IOException("tomcat pid file does not match tomcat process: " + pidFile + " vs " + pidPs);
         }
         console.info.println("Applications available:");
-        for (String app : apps) {
+        for (String app : ports.allUrls(true, keystore != null, session.configuration.vhosts, configuration.suffix)) {
             console.info.println("  " + app);
         }
     }

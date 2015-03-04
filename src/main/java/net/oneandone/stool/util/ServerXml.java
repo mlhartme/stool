@@ -29,10 +29,10 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class ServerXml {
+    public static final String EDITOR_PREFIX = "cms.";
+
     private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";
     private static final String HTTPS_PATH = "Connector[starts-with(@secure,'true')]";
 
@@ -186,7 +186,7 @@ public class ServerXml {
                 manager.setAttribute("pathname", "");
                 context.appendChild(manager);
             }
-            if (!host.getAttribute("name").startsWith("cms.")) {
+            if (!host.getAttribute("name").startsWith(EDITOR_PREFIX)) {
                 parameter(context, "mode").setAttribute("value", mode);
                 if (editorLocation != null) {
                     parameter(context, "editor.enabled").setAttribute("value", "true");
