@@ -209,7 +209,7 @@ public class SystemImport extends SessionCommand {
 
         directory = (FileNode) oldWrapper.join("anchor").resolveLink();
         directory.checkDirectory();
-        url = Stage.probe(directory);
+        url = Stage.probe(session.subversion(), directory);
         destWrapper = session.wrappers.join(oldWrapper.getName());
         destWrapper.checkNotExists();
         tmpWrapper = console.world.getTemp().createTempDirectory().deleteDirectory();

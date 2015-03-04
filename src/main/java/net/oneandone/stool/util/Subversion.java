@@ -46,6 +46,18 @@ public class Subversion {
         return launcher.exec();
     }
 
+    public String checkoutUrl(FileNode cwd) throws Failure {
+        Launcher launcher;
+        String str;
+        int idx;
+
+        launcher = launcher(false, cwd, "info");
+        launcher.env("LC_ALL", "C");
+        str = launcher.exec();
+        idx = str.indexOf("URL:");
+        return str.substring(idx, str.indexOf("\n", str.indexOf("URL:")));
+    }
+
     public String ls(FileNode cwd, String url) throws Failure {
         return launcher(false, cwd, "ls", url).exec();
     }
