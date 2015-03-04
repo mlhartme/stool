@@ -78,7 +78,7 @@ public class Host {
     }
 
     public boolean isCms() {
-        return hostname.startsWith(".cms");
+        return vhost.startsWith("cms.");
     }
 
     public String fqdn(boolean vhosts) {
