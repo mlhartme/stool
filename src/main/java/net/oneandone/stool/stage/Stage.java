@@ -856,7 +856,9 @@ public abstract class Stage {
             parent = dest.getParent();
             parent.mkdirsOpt();
             try {
-                session.subversion().checkout(parent, config().pustefixEditorUserdata, dest.getName(), console.verbose);
+                // file name has to be userdata.xml, other names are currently not supported
+                session.subversion().checkout(parent, Strings.removeRight(config().pustefixEditorUserdata, "/userdata.xml"),
+                        dest.getName(), console.verbose);
             } catch (Failure e) {
                 throw new IOException("cannot checkout editor userdata: " + e.getMessage(), e);
             }

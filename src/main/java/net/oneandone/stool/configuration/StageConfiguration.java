@@ -115,7 +115,7 @@ public class StageConfiguration extends BaseConfiguration {
     public String pustefixEditorVersion;
 
     @Expose
-    @Option(key = "pustefix.editor.userdata", description = "svn url for the editor's userdata.xml")
+    @Option(key = "pustefix.editor.userdata", description = "svn url for the editor's user data; has to end with userdata.xml")
     public String pustefixEditorUserdata;
 
     public StageConfiguration(String javaHome) {
