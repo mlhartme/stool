@@ -221,7 +221,7 @@ public class SystemImport extends SessionCommand {
         tmpConfig = tmpWrapper.join("config.json");
         tmp = tmpConfig.readString();
         tmp = mergeConfig(oldWrapper.join("config.json").readString(), tmp,
-                // 2.13 -> 3.0 chages
+                // 2.13 -> 3.0 changes
                 new Object() {
                     void portPrefixRemove() {}
                     JsonElement tomcatOptsTransform(JsonElement orig) {
