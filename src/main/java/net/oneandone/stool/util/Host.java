@@ -90,7 +90,10 @@ public class Host {
     }
 
     public String toLine() {
-        return even + ' ' + vhost + ' ' + hostname + ' ' + docroot;
+        // CAUTION: just
+        //    even + ' '
+        // results in am integer!
+        return Integer.toString(even) + ' ' + vhost + ' ' + hostname + ' ' + docroot;
     }
 
     public String toString() {

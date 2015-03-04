@@ -319,8 +319,9 @@ public abstract class Stage {
 
         ports = loadPortsOpt();
         return ports == null ? new ArrayList<String>()
-                : ports.allUrls(session.configuration.certificates.isEmpty(), session.configuration.vhosts, config().suffix);
+                : ports.allUrls(!session.configuration.certificates.isEmpty(), session.configuration.vhosts, config().suffix);
     }
+
 
     /** @return null when not supported. Otherwise, file must not be null, but does not have to exist. */
     public abstract List<DefaultArtifact> scanWars() throws IOException;
