@@ -54,8 +54,8 @@ public class Subversion {
         launcher = launcher(false, cwd, "info");
         launcher.env("LC_ALL", "C");
         str = launcher.exec();
-        idx = str.indexOf("URL:");
-        return str.substring(idx, str.indexOf("\n", str.indexOf("URL:")));
+        idx = str.indexOf("URL:") + 4;
+        return str.substring(idx, str.indexOf("\n", idx)).trim();
     }
 
     public String ls(FileNode cwd, String url) throws Failure {

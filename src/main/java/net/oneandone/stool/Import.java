@@ -155,7 +155,7 @@ public class Import extends SessionCommand {
     }
 
     /** @return stages with temporary wrapper directory */
-    private void scan(FileNode tempWrapper, FileNode parent, List<Stage> result, List<FileNode> existingStages) throws IOException {
+    private void scan(FileNode tmpWrapper, FileNode parent, List<Stage> result, List<FileNode> existingStages) throws IOException {
         String url;
         Stage stage;
 
@@ -179,7 +179,7 @@ public class Import extends SessionCommand {
         if (url == null) {
             stage = null;
         } else {
-            stage = Stage.createOpt(session, url, session.configuration.createStageConfiguration(url), tempWrapper, parent);
+            stage = Stage.createOpt(session, url, session.configuration.createStageConfiguration(url), tmpWrapper, parent);
         }
         if (stage != null) {
             // bingo
@@ -190,7 +190,7 @@ public class Import extends SessionCommand {
         } else {
             if (!parent.join("pom.xml").isFile()) {
                 for (FileNode child : parent.list()) {
-                    scan(tempWrapper, child, result, existingStages);
+                    scan(tmpWrapper, child, result, existingStages);
                     if (result.size() >= max) {
                         break;
                     }

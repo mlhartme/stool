@@ -77,7 +77,7 @@ public class SystemImport extends SessionCommand {
     public void select(String name) {
         FileNode wrapper;
 
-        wrapper = oldHome.join(name);
+        wrapper = oldHome.join("wrappers", name);
         if (!wrapper.isDirectory()) {
             throw new ArgumentException("old stage not found: " + wrapper.getAbsolute());
         }
@@ -201,7 +201,7 @@ public class SystemImport extends SessionCommand {
         final FileNode tmpWrapper;
         final FileNode destWrapper;
         FileNode directory;
-        Stage stage;
+        final Stage stage;
         String url;
         String msg;
         FileNode tmpConfig;
@@ -242,6 +242,9 @@ public class SystemImport extends SessionCommand {
             @Override
             public void apply() throws IOException {
                 tmpWrapper.move(destWrapper);
+                if (session.configuration.security.isShared()) {
+                    session.chown(stage, stage.owner());
+                }
             }
         };
     }
