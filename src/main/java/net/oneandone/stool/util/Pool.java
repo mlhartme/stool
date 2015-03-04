@@ -63,11 +63,10 @@ public class Pool {
         current = start;
         do {
             if (!used().contains(current)) {
-                // port prefix isn't used by another stage
                 checkFree(current);
                 return current;
             }
-            current = current + 2;
+            current += 2;
             if (current > last) {
                 current = first;
             }
@@ -80,29 +79,11 @@ public class Pool {
     }
 
     public List<Integer> used() throws IOException {
-        FileNode file;
-        String line;
-        int idx;
-
         if (lazyUsed == null) {
             lazyUsed = new ArrayList<>();
+            lazyUsed.add(overview);
             for (FileNode wrapper : wrappers.list()) {
-                file = Ports.file(wrapper);
-                if (file.isFile()) {
-                    try (Reader in = file.createReader(); LineReader src = new LineReader(in, Ports.FMT)) {
-                        while (true) {
-                            line = src.next();
-                            if (line == null) {
-                                break;
-                            }
-                            idx = line.indexOf(' ');
-                            if (idx != -1) {
-                                line = line.substring(0, idx);
-                            }
-                            lazyUsed.add(Integer.parseInt(line));
-                        }
-                    }
-                }
+                Ports.addUsed(wrapper, lazyUsed);
             }
         }
         return lazyUsed;
@@ -137,5 +118,4 @@ public class Pool {
             throw new IOException("port already in use: " + port);
         }
     }
-
 }

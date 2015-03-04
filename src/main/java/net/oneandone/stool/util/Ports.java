@@ -41,27 +41,34 @@ public class Ports {
 
         previous = loadOpt(stage);
         pool = stage.session.createPool();
-        name = stage.getName();
         if (previous != null) {
             result = new Ports(previous.stopWrapper, previous.jmxDebug);
         } else {
+            name = stage.getName();
             result = new Ports(pool.allocate(".stop.wrapper." + name), pool.allocate(".jmx.debug." + name));
         }
         hosts = stage.selectedHosts();
         if (stage.config().pustefixEditor) {
-            hosts.put("cms." + stage.getName(), "TODO");
+            hosts.put("cms." + stage.getName(), stage.editorDocroot().getAbsolute());
         }
         for (Map.Entry<String, String> entry : hosts.entrySet()) {
             vhost = entry.getKey();
-            even = 0;
-            if (previous != null) {
-                host = previous.lookup(vhost);
-                if (host != null) {
-                    even = host.even;
+            if (stage.isOverview()) {
+                if (hosts.size() != 1) {
+                    throw new IllegalStateException(hosts.toString());
                 }
-            }
-            if (even == 0) {
-                even = pool.allocate(vhost);
+                even = stage.session.configuration.portOverview;
+            } else {
+                even = 0;
+                if (previous != null) {
+                    host = previous.lookup(vhost);
+                    if (host != null) {
+                        even = host.even;
+                    }
+                }
+                if (even == 0) {
+                    even = pool.allocate(vhost);
+                }
             }
             result.hosts.add(new Host(even, vhost, stage.session.configuration.hostname, entry.getValue()));
         }
@@ -69,7 +76,7 @@ public class Ports {
         return result;
     }
 
-    public static final LineFormat FMT = new LineFormat(LineFormat.LF_SEPARATOR, LineFormat.Trim.ALL, LineFormat.excludes(true));
+    private static final LineFormat FMT = new LineFormat(LineFormat.LF_SEPARATOR, LineFormat.Trim.ALL, LineFormat.excludes(true));
 
     public static Ports loadOpt(Stage stage) throws IOException {
         FileNode file;
@@ -77,23 +84,24 @@ public class Ports {
         String line;
 
         file = file(stage.wrapper);
-        if (!file.isFile()) {
-            return null;
-        }
-        try (Reader in = file.createReader(); LineReader src = new LineReader(in, FMT)) {
-            result = new Ports(Integer.parseInt(src.next()), Integer.parseInt(src.next()));
-            while (true) {
-                line = src.next();
-                if (line == null) {
-                    break;
+        if (file.isFile()) {
+            try (Reader in = file.createReader(); LineReader src = new LineReader(in, FMT)) {
+                result = new Ports(Integer.parseInt(src.next()), Integer.parseInt(src.next()));
+                while (true) {
+                    line = src.next();
+                    if (line == null) {
+                        break;
+                    }
+                    result.hosts.add(Host.forLine(line));
                 }
-                result.hosts.add(Host.forLine(line));
+                return result;
             }
-            return result;
+        } else {
+            return null;
         }
     }
 
-    public static FileNode file(FileNode wrapper) {
+    private static FileNode file(FileNode wrapper) {
         return wrapper.join("ports");
     }
 
@@ -169,5 +177,30 @@ public class Ports {
             }
         }
         return result;
+    }
+
+    //--
+
+    public static void addUsed(FileNode wrapper, List<Integer> lazyUsed) throws IOException {
+        FileNode file;
+        String line;
+        int idx;
+
+        file = file(wrapper);
+        if (file.isFile()) {
+            try (Reader in = file.createReader(); LineReader src = new LineReader(in, FMT)) {
+                while (true) {
+                    line = src.next();
+                    if (line == null) {
+                        break;
+                    }
+                    idx = line.indexOf(' ');
+                    if (idx != -1) {
+                        line = line.substring(0, idx);
+                    }
+                    lazyUsed.add(Integer.parseInt(line));
+                }
+            }
+        }
     }
 }

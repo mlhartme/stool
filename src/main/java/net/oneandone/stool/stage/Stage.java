@@ -318,7 +318,8 @@ public abstract class Stage {
         Ports ports;
 
         ports = loadPortsOpt();
-        return ports == null ? new ArrayList<String>() : ports.allUrls(session.configuration.certificates.isEmpty(), session.configuration.vhosts, config().suffix);
+        return ports == null ? new ArrayList<String>()
+                : ports.allUrls(session.configuration.certificates.isEmpty(), session.configuration.vhosts, config().suffix);
     }
 
     /** @return null when not supported. Otherwise, file must not be null, but does not have to exist. */
@@ -806,7 +807,7 @@ public abstract class Stage {
 
     //-- Pustefix Editor ...
 
-    private FileNode editorDirectoryNode() throws IOException {
+    public FileNode editorDocroot() throws IOException {
         return shared().join("editor/webapp");
     }
 
@@ -815,7 +816,7 @@ public abstract class Stage {
         FileNode dest;
         List<String> lines;
 
-        dest = editorDirectoryNode();
+        dest = editorDocroot();
         if (!dest.exists()) {
             dest.mkdirs();
             try {
