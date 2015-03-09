@@ -5,14 +5,25 @@
 #  CATALINA_HOME
 #  CATALINA_BASE
 #  STOOL_HOME
-#  SERVICE_WRAPPER
-#  STAGE        - simple name
+#  SERVICE_WRAPPER_NAME
+#  (cwd) the stage directory
 
+if [ -z $SERVICE_WRAPPER_NAME ] ; then
+    # TODO: sudo problem work-around
+    export SERVICE_WRAPPER_NAME=wrapper-linux-x86-64-3.5.26
+fi
+STAGE=`pwd`
+if [ ! -d "$STAGE" ]; then
+    echo "$SCRIPT: $STAGE: no such directory" 1>&2
+    exit 1
+fi
+export STAGE=`basename $STAGE`
+export STOOL_HOME=${{stool.home}}
 export WRAPPER_HOME=${STOOL_HOME}/service-wrapper/${SERVICE_WRAPPER_NAME}
 
 APP_NAME="tomcat"
 APP_LONG_NAME="Stage ${STAGE} Tomcat"
-WRAPPER_CMD=$WRAPPER_HOME/bin/wrapper
+WRAPPER_CMD=${WRAPPER_HOME}/bin/wrapper
 WRAPPER_CONF=${STOOL_HOME}/wrappers/${STAGE}/shared/conf/service-wrapper.conf
 PRIORITY=
 PIDDIR=${STOOL_HOME}/wrappers/${STAGE}/shared/run

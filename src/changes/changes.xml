@@ -26,10 +26,10 @@
         Removed resolve command, it was never used.
       </action>
       <action date="2015-02-23" dev="mlhartme" type="fix">
-        Umdated Maven Embedded to fix pom loading problem.
+        Updated Maven Embedded to fix pom loading problem.
       </action>
       <action date="2015-02-23" dev="mlhartme" type="update">
-        Replaced pustefix samples by Hello War samples.
+        Replaced Pustefix samples by Hello War samples.
       </action>
     </release>
     <release version="3.0.0-beta-2" date="2015-02-23">

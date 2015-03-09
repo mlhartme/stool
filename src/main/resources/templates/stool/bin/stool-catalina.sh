@@ -12,35 +12,8 @@
 #    CATALINA_PID
 # to start/stop tomcat. Catalina processes are started in the current working directory.
 #
-# Invocation only allowed from stool.
-#
-# example: stool-catalina.sh start /path/to/stage/stage3
-#
 
 SCRIPT=$(basename $0)
-SCRIPTDIR=$(cd $(dirname $0) && pwd)
-
-LOGFILE="$SCRIPTDIR/$SCRIPT.log"
-VALIDPARENT='stool'
-
-# this is no security, but just a hint for correct caller
-if ! ps h -o comm,args -p $PPID | grep -q "$VALIDPARENT"; then
-    echo "$SCRIPT: invocation only allowed from $VALIDPARENT" 1>&2
-    pstree -pau 1>&2
-    exit 1
-fi
-
-function isotime() {
-    date +'%Y-%m-%d %H:%M:%S'
-}
-
-function log() {
-    # global LOGFILE
-    local S
-    S=$1; shift
-
-    echo "$(isotime) [$(whoami)] $S" >> "$LOGFILE"
-}
 
 ACTION=$1; shift
 if [ -z "$ACTION" ]; then
@@ -58,6 +31,7 @@ if [ -z "$OWNER" ]; then
     echo "$SCRIPT: $STAGE: cannot determine owner" 1>&2
     exit 1
 fi
+export STAGE=`basename $STAGE`
 
 if [ ! -d "$CATALINA_HOME" ]; then
     echo "$SCRIPT: $CATALINA_HOME: catalina home not found" 1>&2
@@ -70,14 +44,6 @@ fi
 CATALINA_RUN="${{stool.home}}/bin/service-wrapper.sh"
 if [ ! -x "$CATALINA_RUN" ]; then
     echo "$SCRIPT: $CATALINA_RUN: no such file or not executable" 1>&2
-    exit 1
-fi
-
-# check if logfile is writable
-touch -a "$LOGFILE" > /dev/null 2>&1
-if [ ! -w "$LOGFILE" ]; then
-    echo "$SCRIPT: $LOGFILE: cannot write to logfile" 1>&2
-    echo "exiting..." 1>&2
     exit 1
 fi
 
@@ -103,9 +69,7 @@ case "$ACTION" in
 esac
 
 RET=$?
-if [ $RET -eq 0 ]; then
-    log "SUCCESS: sudo [-u $OWNER] $CATALINA_RUN $ACTION"
-else
+if [ ! $RET -eq 0 ]; then
     log "FAILED: sudo [-u $OWNER] $CATALINA_RUN $ACTION"
 fi
 exit $RET
