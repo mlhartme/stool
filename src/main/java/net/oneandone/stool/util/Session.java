@@ -386,7 +386,7 @@ public class Session {
         FileNode script;
         FileNode backup;
 
-        script = bin("stool-apache.sh");
+        script = console.world.file("/opt/ui/opt/stages/.stool/bin/stool-apache.sh");
         backup = home.getWorld().getTemp().createTempFile();
         script.copyFile(backup);
         script.writeLines(

@@ -166,6 +166,7 @@ public class SystemImport extends SessionCommand {
         current = dest.readString();
         result = mergeConfig(oldHome.join(path).readString(), current,
                 new Object() {
+                    void sharedBinRemove() {}
                     void versionRemove() {}
                     void stagesRemove() {}
                     // because values are all-strings no (e.g. in tomcat.select)
@@ -212,10 +213,12 @@ public class SystemImport extends SessionCommand {
         url = Stage.probe(session.subversion(), directory);
         destWrapper = session.wrappers.join(oldWrapper.getName());
         destWrapper.checkNotExists();
-        tmpWrapper = console.world.getTemp().createTempDirectory().deleteDirectory();
+        // Temp Wrapper in wrapper directory, because it fasted to move within the same filesystem.
+        // And Sushi has problems to move the anchor symlink across file systems
+        tmpWrapper = session.wrappers.createTempDirectory();
+        Files.stoolDirectory(tmpWrapper);
         stage = Stage.createOpt(session, url, session.configuration.createStageConfiguration(url), tmpWrapper, directory);
         stage.tuneConfiguration();
-        Files.stoolDirectory(stage.wrapper.mkdir());
         stage.saveWrapper();
         stage.getDirectory().link(stage.anchor());
         tmpConfig = tmpWrapper.join("config.json");
@@ -243,7 +246,8 @@ public class SystemImport extends SessionCommand {
             public void apply() throws IOException {
                 tmpWrapper.move(destWrapper);
                 if (session.configuration.security.isShared()) {
-                    session.chown(stage, stage.owner());
+                    // TODO: I cannot use the chown command because sudo is not allowed for new home
+                    session.sudo("chown", "-R", stage.owner(), destWrapper.getAbsolute());
                 }
             }
         };
