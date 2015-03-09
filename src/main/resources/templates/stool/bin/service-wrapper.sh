@@ -2,9 +2,6 @@
 # Java Service Wrapper (http://wrapper.tanukisoftware.com) script with some extra inital code
 
 # Expected environment:
-#  CATALINA_HOME
-#  CATALINA_BASE
-#  STOOL_HOME
 #  SERVICE_WRAPPER_NAME
 #  (cwd) the stage directory
 
