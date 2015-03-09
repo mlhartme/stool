@@ -90,7 +90,7 @@ public class Install {
         }
         // manually create empty subdirectories, because git doesn't know them
         for (String dir : new String[] {"wrappers", "inbox", "logs", "service-wrapper", "sessions", "tomcat"}) {
-            home.join(dir).mkdir();
+            Files.stoolDirectory(home.join(dir).mkdir());
         }
     }
 

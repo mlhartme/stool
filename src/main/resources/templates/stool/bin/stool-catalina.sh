@@ -31,7 +31,6 @@ if [ -z "$OWNER" ]; then
     echo "$SCRIPT: $STAGE: cannot determine owner" 1>&2
     exit 1
 fi
-export STAGE=`basename $STAGE`
 
 if [ ! -d "$CATALINA_HOME" ]; then
     echo "$SCRIPT: $CATALINA_HOME: catalina home not found" 1>&2
@@ -70,6 +69,6 @@ esac
 
 RET=$?
 if [ ! $RET -eq 0 ]; then
-    log "FAILED: sudo [-u $OWNER] $CATALINA_RUN $ACTION"
+    echo "FAILED: sudo [-u $OWNER] $CATALINA_RUN $ACTION"
 fi
 exit $RET
