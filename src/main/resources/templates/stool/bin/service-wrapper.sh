@@ -2,24 +2,25 @@
 # Java Service Wrapper (http://wrapper.tanukisoftware.com) script with some extra inital code
 
 # Expected environment:
-#  SERVICE_WRAPPER_NAME
-#  (cwd) the stage directory
+#  (cwd) stage directory
+#  $1    catalina_home
+#  $2    catalina_base
+#  $3    wrapper_home (${STOOL_HOME}/service-wrapper/${SERVICE_WRAPPER_NAME})
+#  $4    wrapper_conf (${STAGE_WRAPPER}/shared/conf/service-wrapper.conf)
+#  $5    piddir  (${STAGE_WRAPPER}/shared/run)
+#  (everything else goes to the orginal script)
 
-if [ -z $SERVICE_WRAPPER_NAME ] ; then
-    # TODO: sudo problem work-around
-    export SERVICE_WRAPPER_NAME=wrapper-linux-x86-64-3.5.26
-fi
-STAGE=$(pwd)
-export STAGE=$(basename $STAGE)
-export STOOL_HOME=${{stool.home}}
-export WRAPPER_HOME=${STOOL_HOME}/service-wrapper/${SERVICE_WRAPPER_NAME}
+export CATALINA_HOME=$1 ; shift
+export CATALINA_BASE=$1 ; shift
+export WRAPPER_HOME=$1 ; shift
+WRAPPER_CONF=$1 ; shift
+PIDDIR=$1 ; shift
 
-APP_NAME="tomcat"
-APP_LONG_NAME="Stage ${STAGE} Tomcat"
 WRAPPER_CMD=${WRAPPER_HOME}/bin/wrapper
-WRAPPER_CONF=${STOOL_HOME}/wrappers/${STAGE}/shared/conf/service-wrapper.conf
+STAGE=$(pwd)
+APP_NAME="tomcat"
+APP_LONG_NAME="Stage $(basename ${STAGE}) Tomcat"
 PRIORITY=
-PIDDIR=${STOOL_HOME}/wrappers/${STAGE}/shared/run
 PIDFILE_CHECK_PID=true
 WAIT_AFTER_STARTUP=0
 WAIT_FOR_STARTED_STATUS=true

@@ -50,7 +50,6 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -396,7 +395,7 @@ public abstract class Stage {
         if (runningTomcat() == null) {
             throw new IOException("tomcat is not running.");
         }
-        catalina("stop").exec(console.verbose);
+        catalina("stop", "-force").exec(console.verbose);
         if (configuration.tomcatVersion.startsWith("6.")) {
             file = catalinaPid();
             file.deleteFile();
@@ -406,32 +405,24 @@ public abstract class Stage {
 
     /**
      * Wrapper for catalina.sh XOR stool-catalina.sh by ITOSHA.
-     * action: start | stop | run
+     * action: start | stop -force
      */
-    private Launcher catalina(String action) throws IOException {
+    private Launcher catalina(String ... action) throws IOException {
         Launcher launcher;
 
+        launcher = new Launcher(getDirectory());
         if (session.configuration.security.isShared()) {
-            launcher = new Launcher(getDirectory(), "sudo",
-                    session.bin("stool-catalina.sh").getAbsolute()).arg(action);
+            launcher.arg("sudo", session.bin("stool-catalina.sh").getAbsolute());
         } else {
-            launcher = launcher(session.bin("service-wrapper.sh").getAbsolute()).arg(action);
+            launcher.arg(session.bin("service-wrapper.sh").getAbsolute());
         }
-        launcher.getBuilder().environment().putAll(catalinaEnvironment());
+        launcher.arg(catalinaHome().getAbsolute());
+        launcher.arg(catalinaBase().getAbsolute());
+        launcher.arg(session.home.join("service-wrapper", Start.serviceWrapperName(config().tomcatService)).getAbsolute());
+        launcher.arg(shared().join("conf/service-wrapper.conf").getAbsolute());
+        launcher.arg(shared().join("run").getAbsolute());
+        launcher.arg(action);
         return launcher;
-    }
-
-    private Map<String, String> catalinaEnvironment() {
-        Map<String, String> env;
-
-        env = new HashMap<>();
-        env.put("STOOL_HOME", session.home.getAbsolute());
-        env.put("JAVA_HOME", configuration.javaHome);
-        env.put("CATALINA_BASE", catalinaBase().getAbsolute());
-        env.put("CATALINA_HOME", catalinaHome().getAbsolute());
-        env.put("SERVICE_WRAPPER_NAME", Start.serviceWrapperName(config().tomcatService));
-        env.put("STAGE", getName());
-        return env;
     }
 
     public String tomcatProxyOpts() {
