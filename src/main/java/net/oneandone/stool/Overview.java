@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
@@ -46,7 +47,9 @@ public class Overview {
         stageConfiguration = session.configuration.createStageConfiguration("");
         create = new Create(session, true, OVERVIEW_NAME, "gav:overview:overview:@overview",
                 overviewDirectory(session), stageConfiguration);
-        create.remaining("tomcat.opts=-Doverview.stool.home=" + session.home.getAbsolute() + " -Doverview.user.name=" + session.user);
+        create.remaining("tomcat.opts=-Doverview.stool.home=" + session.home.getAbsolute()
+                + " -Doverview.user.name=" + session.user
+                + " -Doverview.maven.home=" + Maven.locateMaven(session.console.world));
         try {
             create.doInvoke();
         } catch (Exception e) {

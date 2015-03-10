@@ -86,9 +86,14 @@ public class OverviewConfiguration {
 
     @Bean
     public Maven maven() throws IOException {
+        World world;
         Maven maven;
+        FileNode mavenHome;
 
-        maven = Maven.withSettings(world(), world().getTemp().createTempDirectory(), null, null);
+        world = world();
+        mavenHome = world.file(System.getProperty("overview.maven.home"));
+        mavenHome.checkDirectory();
+        maven = Maven.withSettings(world(), world().getTemp().createTempDirectory(), mavenHome.join("conf/settings.xml"), null);
         maven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
         return maven;
     }
