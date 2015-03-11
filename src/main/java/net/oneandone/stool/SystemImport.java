@@ -227,13 +227,6 @@ public class SystemImport extends SessionCommand {
                 // 2.13 -> 3.0 changes
                 new Object() {
                     void portPrefixRemove() {}
-                    JsonElement tomcatOptsTransform(JsonElement orig) {
-                        String str;
-
-                        str = orig.getAsJsonPrimitive().getAsString();
-                        str = str.replace("@proxyOpts@", "@tomcatProxyOpts@");
-                        return new JsonPrimitive(str);
-                    }
                 });
         tmpConfig.writeString(tmp);
         msg = Diff.diff(oldWrapper.join("config.json").readString(), tmp);

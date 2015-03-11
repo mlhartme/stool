@@ -425,13 +425,6 @@ public abstract class Stage {
         return launcher;
     }
 
-    public String tomcatProxyOpts() {
-        boolean quote;
-
-        quote = configuration.tomcatVersion.startsWith("7.");
-        return session.environment.proxyOpts(quote);
-    }
-
     private void checkMemory() throws IOException {
         int requested;
 
@@ -611,7 +604,6 @@ public abstract class Stage {
             lazyMacros.add("directory", getDirectory().getAbsolute());
             lazyMacros.add("localRepository", localRepository().getAbsolute());
             lazyMacros.add("proxyOpts", session.environment.proxyOpts(false));
-            lazyMacros.add("tomcatProxyOpts", tomcatProxyOpts());
         }
         return lazyMacros;
     }
