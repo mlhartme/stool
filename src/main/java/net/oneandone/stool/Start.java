@@ -168,6 +168,7 @@ public class Start extends StageCommand {
     //TODO: work-around for sushi http problem with proxies
     public static void downloadFile(Console console, String url, FileNode dest) throws IOException {
         console.info.print("downloading " + dest + " from " + url + " ...");
+        try {
         if (OS.CURRENT != OS.MAC) {
             // don't use sushi, it's not proxy-aware
             dest.getParent().exec("wget", "-q", "-O", dest.getName(), url);
@@ -175,6 +176,10 @@ public class Start extends StageCommand {
             // wget not available on Mac, but Mac usually have no proxy
             dest.getWorld().validNode(url).copyFile(dest);
         }
+        } catch (IOException e) {
+            throw new IOException(url + ": download failed: " + e.getMessage(), e);
+        }
+
         console.info.println(" done");
     }
 
