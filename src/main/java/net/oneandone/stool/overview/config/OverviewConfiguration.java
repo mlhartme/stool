@@ -24,8 +24,6 @@ import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
-import net.oneandone.sushi.fs.MkdirException;
-import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.eclipse.aether.repository.RepositoryPolicy;
@@ -90,13 +88,8 @@ public class OverviewConfiguration {
 
     @Bean
     public Maven maven() throws IOException {
-        World world;
         Maven maven;
-        FileNode mavenHome;
 
-        world = world();
-        mavenHome = world.file(System.getProperty("overview.maven.home"));
-        mavenHome.checkDirectory();
         maven = self().maven();
         maven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
         return maven;

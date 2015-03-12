@@ -82,7 +82,7 @@ public class StageConfiguration extends BaseConfiguration {
     public String javaHome;
 
     @Expose
-    @Option(key = "maven.home", description = "jdk or jre directory")
+    @Option(key = "maven.home", description = "Maven home")
     public String mavenHome;
 
     @Expose
