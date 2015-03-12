@@ -167,31 +167,6 @@ public class Ports {
 
     //--
 
-    public List<String> allUrls(boolean named, boolean https, boolean vhosts, String suffix) {
-        String namePrefix;
-        List<String> result;
-        int idx;
-
-        result = new ArrayList<>();
-        for (Host host : hosts()) {
-            if (named) {
-                namePrefix = host.vhost;
-                idx = host.vhost.indexOf('.');
-                if (idx != -1) {
-                    namePrefix = namePrefix.substring(0, idx);
-                }
-                namePrefix = namePrefix + " ";
-            } else {
-                namePrefix = "";
-            }
-            result.add(namePrefix + host.httpUrl(vhosts) + suffix);
-            if (https) {
-                result.add(namePrefix + host.httpsUrl(vhosts) + suffix);
-            }
-        }
-        return result;
-    }
-
     public Map<String, String> urlMap(boolean https, boolean vhosts, String suffix) {
         String name;
         Map<String, String> result;

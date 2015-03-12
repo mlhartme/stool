@@ -369,7 +369,7 @@ public abstract class Stage {
         serverXml.save(serverXml());
         if (config().pustefixEditor) {
             userdataDirectory(console);
-            editorDirectory(ports.allUrls(false, keystore != null, session.configuration.vhosts, configuration.suffix));
+            editorDirectory(ports.urlMap(keystore != null, session.configuration.vhosts, configuration.suffix).values());
         }
         if (session.configuration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
@@ -386,7 +386,7 @@ public abstract class Stage {
             throw new IOException("tomcat pid file does not match tomcat process: " + pidFile + " vs " + pidPs);
         }
         console.info.println("Applications available:");
-        for (String app : ports.allUrls(true, keystore != null, session.configuration.vhosts, configuration.suffix)) {
+        for (String app : namedUrls()) {
             console.info.println("  " + app);
         }
     }
