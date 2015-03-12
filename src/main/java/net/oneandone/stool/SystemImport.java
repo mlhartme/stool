@@ -217,7 +217,7 @@ public class SystemImport extends SessionCommand {
         // And Sushi has problems to move the anchor symlink across file systems
         tmpWrapper = session.wrappers.createTempDirectory();
         Files.stoolDirectory(tmpWrapper);
-        stage = Stage.createOpt(session, url, session.configuration.createStageConfiguration(url), tmpWrapper, directory);
+        stage = Stage.createOpt(session, url, session.createStageConfiguration(url), tmpWrapper, directory);
         stage.tuneConfiguration();
         stage.saveWrapper();
         stage.getDirectory().link(stage.anchor());

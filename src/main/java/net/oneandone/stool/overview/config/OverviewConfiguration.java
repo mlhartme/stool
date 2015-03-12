@@ -75,8 +75,12 @@ public class OverviewConfiguration {
     }
 
     @Bean
+    public Stage self() throws IOException {
+        return session().load("overview");
+    }
+    @Bean
     public FileNode logs() throws IOException {
-        return session().load("overview").shared().join("log");
+        return self().shared().join("log");
     }
 
     @Bean
@@ -93,7 +97,7 @@ public class OverviewConfiguration {
         world = world();
         mavenHome = world.file(System.getProperty("overview.maven.home"));
         mavenHome.checkDirectory();
-        maven = Maven.withSettings(world(), world().getTemp().createTempDirectory(), mavenHome.join("conf/settings.xml"), null);
+        maven = self().maven();
         maven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
         return maven;
     }

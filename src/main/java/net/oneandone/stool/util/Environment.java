@@ -41,6 +41,7 @@ public class Environment {
     public static final String MACHINE = "MACHINE";
     public static final String STAGE_HOST = "STAGE_HOST";
     public static final String JAVA_HOME = "JAVA_HOME";
+    public static final String MAVEN_HOME = "MAVEN_HOME";
     public static final String MAVEN_OPTS = "MAVEN_OPTS";
 
     public static final String PS1 = "PS1";

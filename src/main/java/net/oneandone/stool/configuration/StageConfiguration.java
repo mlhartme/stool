@@ -82,6 +82,10 @@ public class StageConfiguration extends BaseConfiguration {
     public String javaHome;
 
     @Expose
+    @Option(key = "maven.home", description = "jdk or jre directory")
+    public String mavenHome;
+
+    @Expose
     @Option(key = "maven.opts",
       description = "MAVEN_OPTS when building this stage. Supported variables: @trustStore@, @proxyOpts@ and @localRepository@")
     public String mavenOpts;
@@ -118,7 +122,7 @@ public class StageConfiguration extends BaseConfiguration {
     @Option(key = "pustefix.editor.userdata", description = "svn url for the editor's user data; has to end with userdata.xml")
     public String pustefixEditorUserdata;
 
-    public StageConfiguration(String javaHome) {
+    public StageConfiguration(String javaHome, String mavenHome) {
         this.mode = "test";
         this.cookies = true;
         this.prepare = "";
@@ -132,6 +136,7 @@ public class StageConfiguration extends BaseConfiguration {
         this.tomcatPerm = 64;
         this.tomcatSelect = new ArrayList<>();
         this.javaHome = javaHome;
+        this.mavenHome = mavenHome;
         this.mavenOpts = "";
         this.until = Until.reserved();
         this.suffix = "";

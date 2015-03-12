@@ -34,6 +34,7 @@ import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
@@ -564,8 +565,11 @@ public abstract class Stage {
 
     /** CAUTION: this is not a session method, because it respected the stage repository */
     public Maven maven() throws IOException {
+        World world;
+
         if (maven == null) {
-            maven = Maven.withSettings(session.console.world, localRepository(), null, null);
+            world = session.console.world;
+            maven = Maven.withSettings(world, localRepository(), world.file(config().mavenHome).join("conf/settings.xml"), null);
             // always get the latest snapshots
             maven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
         }

@@ -179,7 +179,7 @@ public class Import extends SessionCommand {
         if (url == null) {
             stage = null;
         } else {
-            stage = Stage.createOpt(session, url, session.configuration.createStageConfiguration(url), tmpWrapper, parent);
+            stage = Stage.createOpt(session, url, session.createStageConfiguration(url), tmpWrapper, parent);
         }
         if (stage != null) {
             // bingo
@@ -208,7 +208,7 @@ public class Import extends SessionCommand {
         url = candidate.getUrl();
         directory = candidate.getDirectory();
         wrapper = session.wrappers.join(forceName != null ? forceName : name(directory));
-        stage = Stage.createOpt(session, url, session.configuration.createStageConfiguration(url), wrapper, directory);
+        stage = Stage.createOpt(session, url, session.createStageConfiguration(url), wrapper, directory);
         stage.tuneConfiguration();
         Files.stoolDirectory(stage.wrapper.mkdir());
         stage.saveWrapper();

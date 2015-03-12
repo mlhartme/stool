@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StageConfiguration;
@@ -293,6 +294,7 @@ public class Session {
         env.set(Environment.STAGE_HOST, stage != null ? stage.getName() + "." + configuration.hostname : null);
         // not that both MAVEN and ANT use JAVA_HOME to locate their JVM - it's not necessary to add java to the PATH variable
         env.set(Environment.JAVA_HOME, stage != null ? stage.config().javaHome : null);
+        env.set(Environment.MAVEN_HOME, stage != null ? stage.config().mavenHome : null);
         env.set(Environment.MAVEN_OPTS, mavenOpts);
         // to avoid ulimit permission denied warnings on Ubuntu machines:
         if (stage == null) {
@@ -436,5 +438,24 @@ public class Session {
 
     public Pool createPool() {
         return new Pool(configuration.portFirst, configuration.portLast, configuration.portOverview, wrappers);
+    }
+
+    public StageConfiguration createStageConfiguration(String url) throws IOException {
+        StageConfiguration stage;
+
+        stage = new StageConfiguration(javaHome(), Maven.locateMaven(console.world).getAbsolute());
+        configuration.setDefaults(stage, url);
+        return stage;
+    }
+
+    public static String javaHome() {
+        String result;
+
+        result = System.getProperty("java.home");
+        if (result == null) {
+            throw new IllegalStateException();
+        }
+        result = Strings.removeRightOpt(result, "/");
+        return result;
     }
 }

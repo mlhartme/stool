@@ -76,7 +76,7 @@ public class Install {
         conf = new StoolConfiguration();
         tuneHostname(conf);
         tuneExplicit(conf);
-        copyResources(variables(conf.javaHome()));
+        copyResources(variables(Session.javaHome()));
         conf.save(home);
 
         // ok, no exceptions - we have a proper install directory: no cleanup

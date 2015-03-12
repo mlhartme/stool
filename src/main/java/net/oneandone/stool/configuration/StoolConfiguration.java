@@ -19,6 +19,7 @@ import com.github.zafarkhaja.semver.Version;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.configuration.adapter.VersionTypeAdapter;
@@ -207,10 +208,7 @@ public class StoolConfiguration extends BaseConfiguration {
 
     //--
 
-    public StageConfiguration createStageConfiguration(String url) {
-        StageConfiguration configuration;
-
-        configuration = new StageConfiguration(javaHome());
+    public void setDefaults(StageConfiguration configuration, String url) throws IOException {
         for (Map.Entry<String, Map<String, String>> outer : defaults.entrySet()) {
             if (url.startsWith(outer.getKey())) {
                 for (Map.Entry<String, String> inner : outer.getValue().entrySet()) {
@@ -222,17 +220,5 @@ public class StoolConfiguration extends BaseConfiguration {
                 }
             }
         }
-        return configuration;
-    }
-
-    public String javaHome() {
-        String result;
-
-        result = System.getProperty("java.home");
-        if (result == null) {
-            throw new IllegalStateException();
-        }
-        result = Strings.removeRightOpt(result, "/");
-        return result;
     }
 }
