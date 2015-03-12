@@ -206,7 +206,7 @@ public class Ports {
             }
             result.put(name, host.httpUrl(vhosts) + suffix);
             if (https) {
-                result.put(name, host.httpsUrl(vhosts) + suffix);
+                result.put(name + " SSL", host.httpsUrl(vhosts) + suffix);
             }
         }
         return result;
