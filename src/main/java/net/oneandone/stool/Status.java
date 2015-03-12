@@ -32,7 +32,7 @@ import java.util.TreeMap;
 
 public class Status extends StageCommand {
     private static enum Field {
-        NAME, DIRECTORY, WRAPPER, URL, TYPE, OWNER, TOMCAT, DEBUGGER, JCONSOLE, APPS;
+        NAME, DIRECTORY, WRAPPER, URL, TYPE, OWNER, TOMCAT, DEBUGGER, JMX, APPS;
 
         public String toString() {
             return name().toLowerCase();
@@ -101,6 +101,8 @@ public class Status extends StageCommand {
     private Map<Field, Object> status(Stage stage) throws IOException, SAXException {
         Map<Field, Object> result;
         Ports ports;
+        List<String> jmx;
+        String url;
 
         result = new TreeMap<>();
         result.put(Field.NAME, stage.getName());
@@ -111,7 +113,13 @@ public class Status extends StageCommand {
         result.put(Field.OWNER, stage.technicalOwner());
         ports = tomcatStatus(stage, result);
         result.put(Field.APPS, stage.namedUrls());
-        result.put(Field.JCONSOLE, ports == null ? null : session.configuration.hostname + ":" + ports.jmx());
+        jmx = new ArrayList<>();
+        if (ports != null) {
+            url = session.configuration.hostname + ":" + ports.jmx();
+            jmx.add("jconsole " + url);
+            jmx.add("jvisualvm --openjmx " + url);
+        }
+        result.put(Field.JMX, jmx);
         return result;
     }
 

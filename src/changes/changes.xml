@@ -2,6 +2,9 @@
   <body>
     <release version="3.0.0-beta-3" date="2015-02-23">
       <action date="2015-03-12" dev="mlhartme" type="add">
+        Changed status field 'jconsole' to 'jmx'.
+      </action>
+      <action date="2015-03-12" dev="mlhartme" type="add">
         Added maven.home property to configure maven. 
       </action>
       <action date="2015-03-03" dev="mlhartme" type="fix">
