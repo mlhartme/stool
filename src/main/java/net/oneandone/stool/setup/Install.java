@@ -72,7 +72,7 @@ public class Install {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
-        home.mkdirs();
+        Files.stoolDirectory(home.mkdirs());
         conf = new StoolConfiguration();
         tuneHostname(conf);
         tuneExplicit(conf);
