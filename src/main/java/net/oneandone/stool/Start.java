@@ -151,7 +151,7 @@ public class Start extends StageCommand {
         requestFactory.setConnectTimeout(500);
         console.info.println("Ping'n Applications.");
         Thread.sleep(2000);
-        for (String url : stage.urls()) {
+        for (String url : stage.urlMap().values()) {
             if (url.startsWith("http://")) {
                 uri = new URI(url);
                 console.verbose.println("Opening connection to " + url);

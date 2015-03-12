@@ -38,7 +38,8 @@ public class StageInfo {
     public String name;
     public StageConfiguration configuration;
     public String extractionUrl;
-    public List<String> urls;
+    /** Maps name to actual url */
+    public Map<String, String> urls;
     public Stage.State running;
     public String owner;
     public boolean updateAvailable;
@@ -57,7 +58,7 @@ public class StageInfo {
         stageInfo.extractionUrl = stage.getUrl();
         stageInfo.running = stage.isWorking() ? Stage.State.WORKING : stage.state();
         if (stageInfo.running == Stage.State.UP) {
-            stageInfo.urls = stage.urls();
+            stageInfo.urls = stage.urlMap();
         }
         try {
             stageInfo.owner = users.byLogin(stage.ownerOverview()).name;
@@ -122,7 +123,7 @@ public class StageInfo {
         return extractionUrl;
     }
 
-    public List<String> getUrls() {
+    public Map<String, String> getUrls() {
         return urls;
     }
 
@@ -141,7 +142,7 @@ public class StageInfo {
         String content;
         StringBuilder stringBuilder;
         stringBuilder = new StringBuilder("Hi, \n");
-        for (String url : urls) {
+        for (String url : urls.values()) {
             stringBuilder.append(url).append("\n");
         }
 

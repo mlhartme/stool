@@ -51,6 +51,7 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -313,20 +314,22 @@ public abstract class Stage {
 
     /** @return empty list of no ports are allocated */
     public List<String> namedUrls() throws IOException {
-        return urls(true);
+        List<String> result;
+
+        result = new ArrayList<>();
+        for (Map.Entry<String, String> entry : urlMap().entrySet()) {
+            result.add(entry.getKey() + " " + entry.getValue());
+        }
+        return result;
     }
 
-    /** @return empty list of no ports are allocated */
-    public List<String> urls() throws IOException {
-        return urls(false);
-    }
-
-    private List<String> urls(boolean named) throws IOException {
+    /** @return empty map of no ports are allocated */
+    public Map<String, String> urlMap() throws IOException {
         Ports ports;
 
         ports = loadPortsOpt();
-        return ports == null ? new ArrayList<String>()
-                : ports.allUrls(named, !session.configuration.certificates.isEmpty(), session.configuration.vhosts, config().suffix);
+        return ports == null ? new HashMap<String, String>()
+                : ports.urlMap(!session.configuration.certificates.isEmpty(), session.configuration.vhosts, config().suffix);
     }
 
 

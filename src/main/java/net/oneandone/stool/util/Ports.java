@@ -24,6 +24,7 @@ import net.oneandone.sushi.util.Separator;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -161,7 +162,7 @@ public class Ports {
         for (Host host : hosts) {
             lines.add(host.toLine());
         }
-        file(wrapper).writeLines(lines);
+        Files.stoolFile(file(wrapper).writeLines(lines));
     }
 
     //--
@@ -186,6 +187,26 @@ public class Ports {
             result.add(namePrefix + host.httpUrl(vhosts) + suffix);
             if (https) {
                 result.add(namePrefix + host.httpsUrl(vhosts) + suffix);
+            }
+        }
+        return result;
+    }
+
+    public Map<String, String> urlMap(boolean https, boolean vhosts, String suffix) {
+        String name;
+        Map<String, String> result;
+        int idx;
+
+        result = new LinkedHashMap<>();
+        for (Host host : hosts()) {
+            name = host.vhost;
+            idx = host.vhost.indexOf('.');
+            if (idx != -1) {
+                name = name.substring(0, idx);
+            }
+            result.put(name, host.httpUrl(vhosts) + suffix);
+            if (https) {
+                result.put(name, host.httpsUrl(vhosts) + suffix);
             }
         }
         return result;
