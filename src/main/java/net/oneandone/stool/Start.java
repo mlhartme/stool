@@ -171,7 +171,7 @@ public class Start extends StageCommand {
         try {
         if (OS.CURRENT != OS.MAC) {
             // don't use sushi, it's not proxy-aware
-            dest.getParent().exec("wget", "-q", "-O", dest.getName(), url);
+            dest.getParent().exec("wget", "--tries=1", "--connect-timeout=5", "-q", "-O", dest.getName(), url);
         } else {
             // wget not available on Mac, but Mac usually have no proxy
             dest.getWorld().validNode(url).copyFile(dest);
