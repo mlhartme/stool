@@ -130,25 +130,21 @@ public class Status extends StageCommand {
         Ports ports;
 
         tomcatPid = stage.runningTomcat();
-        result.put(Field.TOMCAT, daemonStatus(tomcatPid, stage.state()));
+        result.put(Field.TOMCAT, tomcatPid);
         if (tomcatPid != null) {
             ports = stage.loadPortsOpt();
             if (ports == null) {
-                debug = "off";
+                debug = null;
             } else {
-                try {
-                    if (stage.shared().join("conf/service-wrapper.conf").readString().contains("=-Xdebug\n")) {
-                        debug = "on (port " + ports.debug() + ")";
-                    } else {
-                        debug = "off";
-                    }
-                } catch (IOException e) {
-                    debug = "unknown";
+                if (stage.shared().join("conf/service-wrapper.conf").readString().contains("=-Xdebug\n")) {
+                    debug = Integer.toString(ports.debug());
+                } else {
+                    debug = null;
                 }
             }
         } else {
             ports = null;
-            debug = "off";
+            debug = null;
         }
         result.put(Field.DEBUGGER, debug);
         return ports;

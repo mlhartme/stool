@@ -2,7 +2,8 @@
   <body>
     <release version="3.0.0-beta-3" date="2015-02-23">
       <action date="2015-03-12" dev="mlhartme" type="add">
-        Changed status field 'jconsole' to 'jmx'.
+        Status improvements: added 'state' field; change field 'tomcat' and 'debug' to be port numbers or null;
+        renamed status field 'jconsole' to 'jmx', it containts full jconsole and jvisualvm commands now.
       </action>
       <action date="2015-03-12" dev="mlhartme" type="add">
         Added maven.home property to configure maven. 
