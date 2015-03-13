@@ -32,7 +32,7 @@ import java.util.TreeMap;
 
 public class Status extends StageCommand {
     private static enum Field {
-        NAME, DIRECTORY, WRAPPER, URL, TYPE, OWNER, TOMCAT, DEBUGGER, JMX, APPS;
+        NAME, DIRECTORY, WRAPPER, URL, TYPE, STATE, OWNER, TOMCAT, DEBUGGER, JMX, APPS;
 
         public String toString() {
             return name().toLowerCase();
@@ -111,6 +111,7 @@ public class Status extends StageCommand {
         result.put(Field.URL, stage.getUrl());
         result.put(Field.TYPE, stage.getType());
         result.put(Field.OWNER, stage.technicalOwner());
+        result.put(Field.STATE, stage.state().toString());
         ports = tomcatStatus(stage, result);
         result.put(Field.APPS, stage.namedUrls());
         jmx = new ArrayList<>();
