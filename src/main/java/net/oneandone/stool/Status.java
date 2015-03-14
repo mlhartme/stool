@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class Status extends StageCommand {
-    private static enum Field {
+    public static enum Field {
         NAME, DIRECTORY, WRAPPER, URL, TYPE, STATE, OWNER, TOMCAT, DEBUGGER, JMX, APPS;
 
         public String toString() {
@@ -98,7 +98,7 @@ public class Status extends StageCommand {
         }
     }
 
-    private Map<Field, Object> status(Stage stage) throws IOException, SAXException {
+    public static Map<Field, Object> status(Stage stage) throws IOException {
         Map<Field, Object> result;
         Ports ports;
         List<String> jmx;
@@ -116,7 +116,7 @@ public class Status extends StageCommand {
         result.put(Field.APPS, stage.namedUrls());
         jmx = new ArrayList<>();
         if (ports != null) {
-            url = session.configuration.hostname + ":" + ports.jmx();
+            url = stage.session.configuration.hostname + ":" + ports.jmx();
             jmx.add("jconsole " + url);
             jmx.add("jvisualvm --openjmx " + url);
         }
@@ -124,7 +124,7 @@ public class Status extends StageCommand {
         return result;
     }
 
-    private Ports tomcatStatus(Stage stage, Map<Field, Object> result) throws IOException {
+    private static Ports tomcatStatus(Stage stage, Map<Field, Object> result) throws IOException {
         String tomcatPid;
         String debug;
         Ports ports;
@@ -148,13 +148,5 @@ public class Status extends StageCommand {
         }
         result.put(Field.DEBUGGER, debug);
         return ports;
-    }
-
-    private String daemonStatus(String pid, Stage.State state) {
-        if (state == Stage.State.UP) {
-            return "up (pid " + pid + ")";
-        } else {
-            return String.valueOf(state);
-        }
     }
 }
