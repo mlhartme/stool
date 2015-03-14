@@ -23,8 +23,6 @@ import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
-import net.oneandone.sushi.fs.ModeException;
-import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -278,8 +276,15 @@ public abstract class StageCommand extends SessionCommand {
     private static Predicate compare(final String string) {
         int idx;
         String name;
-        final Status.Field field;
-        final String value;
+        final boolean eq;
+        Status.Field field;
+        final Status.Field constField;
+        String value;
+        String property;
+        final String constProperty;
+        final boolean suffix;
+        final boolean prefix;
+        final String constValue;
 
         idx = string.indexOf('=');
         if (idx == -1) {
@@ -290,18 +295,66 @@ public abstract class StageCommand extends SessionCommand {
                 }
             };
         }
-        name = string.substring(0, idx);
-        field = Status.Field.valueOf(name.toLowerCase());
+        if (idx > 0 && string.charAt(idx - 1) == '!') {
+            eq = false;
+            name = string.substring(0, idx - 1);
+        } else {
+            eq = true;
+            name = string.substring(0, idx);
+        }
+        try {
+            field = Status.Field.valueOf(name.toUpperCase());
+            property = null;
+        } catch (IllegalArgumentException e) {
+            field = null;
+            property = name;
+        }
+        constField = field;
+        constProperty = property;
         value = string.substring(idx + 1);
+        if (value.startsWith("*")) {
+            prefix = false;
+            value = value.substring(1);
+        } else {
+            prefix = true;
+        }
+        if (value.endsWith("*")) {
+            suffix = false;
+            value = value.substring(0, value.length() - 1);
+        } else {
+            suffix = true;
+        }
+        constValue = value;
         return new Predicate() {
             @Override
             public boolean matches(Stage stage) throws IOException {
                 Map<Status.Field, Object> status;
+                boolean result;
+                Object obj;
+                String str;
 
-                status = Status.status(stage);
-                return value.equals(status.get(field));
+                if (constField != null) {
+                    status = Status.status(stage);
+                    obj = status.get(constField);
+                } else {
+                    obj = stage.config().getProperty(constProperty);
+                }
+                if (obj == null) {
+                    str = "";
+                } else {
+                    str = obj.toString();
+                }
+                if (prefix && suffix) {
+                    result = constValue.equals(str);
+                } else if (prefix) {
+                    result = str.startsWith(constValue);
+                } else if (suffix) {
+                    result = str.endsWith(constValue);
+                } else {
+                    result = str.contains(constValue);
+                }
+                return result == eq;
             }
         };
     }
-
 }

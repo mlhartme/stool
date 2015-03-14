@@ -2,6 +2,10 @@
   <body>
     <release version="3.0.0-beta-3" date="2015-02-23">
       <action date="2015-03-12" dev="mlhartme" type="add">
+        Generalized selection options: -all-state and -all-owner are gone, you can express this the -stage option now.
+        Examples: "-stage state=up" or "-stage owner!=mlhartme+state=down"
+      </action>
+      <action date="2015-03-12" dev="mlhartme" type="add">
         Status improvements: added 'state' field; change field 'tomcat' and 'debug' to be port numbers or null;
         renamed status field 'jconsole' to 'jmx', it containts full jconsole and jvisualvm commands now.
       </action>
