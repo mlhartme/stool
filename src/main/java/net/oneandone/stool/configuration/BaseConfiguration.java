@@ -27,6 +27,9 @@ public class BaseConfiguration {
         Field field;
 
         field = getFieldByAnnotation(name);
+        if (field == null) {
+            throw new IllegalArgumentException("no such property: " + name);
+        }
         field.setAccessible(true);
         try {
             return field.get(this);

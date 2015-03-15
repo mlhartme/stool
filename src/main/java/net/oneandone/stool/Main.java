@@ -318,9 +318,10 @@ public class Main extends Cli implements Command {
         console.info.println("  system-import [-include all|config|stages] <old-home> {name}");
         console.info.println("                                         imports global config and the specified stages (default: all)");
         console.info.println();
-        console.info.println("selection options for stage commands");
-        console.info.println("  -stage <predicate>");
-        console.info.println("  -all");
+        console.info.println("select options for stage commands");
+        console.info.println("  (no select option)      operate on the selected stage");
+        console.info.println("  -all                    operate on all stages");
+        console.info.println("  -stage <predicate>      operate on all stages matching the specified predicate");
         console.info.println();
         console.info.println("failure mode for stage command");
         console.info.println("  -fail normal       fail immediately");
