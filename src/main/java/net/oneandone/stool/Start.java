@@ -166,6 +166,7 @@ public class Start extends StageCommand {
     }
 
     //TODO: work-around for sushi http problem with proxies
+    // TODO: race condition for simultaneous downloads
     public static void downloadFile(Console console, String url, FileNode dest) throws IOException {
         console.info.print("downloading " + dest + " from " + url + " ...");
         try {

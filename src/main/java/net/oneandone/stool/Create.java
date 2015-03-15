@@ -30,6 +30,7 @@ import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.cli.Value;
+import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -38,6 +39,9 @@ import org.apache.lucene.queryparser.flexible.core.QueryNodeException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.LinkOption;
+import java.nio.file.attribute.PosixFileAttributes;
+import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -186,6 +190,9 @@ public class Create extends SessionCommand {
         if (!parent.isDirectory()) {
             throw new ArgumentException("parent directory for new stage does not exist: " + directory.getParent());
         }
+        if (session.configuration.security.isShared()) {
+            checkPermissions(directory.getParent());
+        }
         session.checkDiskFree();
         if (name == null) {
             name = directory.getName();
@@ -196,6 +203,21 @@ public class Create extends SessionCommand {
         }
         if (stageConfiguration == null) {
             stageConfiguration = session.createStageConfiguration(url);
+        }
+    }
+
+    private void checkPermissions(FileNode node) throws IOException {
+        PosixFileAttributes attributes;
+        FileNode parent;
+
+        attributes = java.nio.file.Files.readAttributes(node.toPath(), PosixFileAttributes.class, new LinkOption[]{LinkOption.NOFOLLOW_LINKS});
+        if (!attributes.permissions().contains(PosixFilePermission.GROUP_EXECUTE)
+                && !attributes.permissions().contains(PosixFilePermission.OTHERS_EXECUTE)) {
+            throw new IOException(node.getAbsolute() + ": missing execute permission for group or others");
+        }
+        parent = node.getParent();
+        if (parent != null && !parent.equals(node)) {
+            checkPermissions(parent);
         }
     }
 
