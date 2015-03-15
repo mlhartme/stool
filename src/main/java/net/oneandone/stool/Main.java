@@ -319,10 +319,8 @@ public class Main extends Cli implements Command {
         console.info.println("                                         imports global config and the specified stages (default: all)");
         console.info.println();
         console.info.println("selection options for stage commands");
-        console.info.println("  -stage <name{,name,...}>");
+        console.info.println("  -stage <predicate>");
         console.info.println("  -all");
-        console.info.println("  -all-state [down|sleep|up]");
-        console.info.println("  -all-owner <owner>");
         console.info.println();
         console.info.println("failure mode for stage command");
         console.info.println("  -fail normal       fail immediately");
@@ -334,6 +332,16 @@ public class Main extends Cli implements Command {
         console.info.println("  -e  print stacktrace for all errors");
         console.info.println();
         console.info.println("home directory: " + stoolhome);
+        console.info.println();
+        console.info.println("selection predicates");
+        console.info.println("  or        = and {',' and}");
+        console.info.println("  and       = cmp {'+' cmp}");
+        console.info.println("  cmp       = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring) ");
+        console.info.println("  prefix    = VALUE '*'");
+        console.info.println("  suffix    = '*' VALUE");
+        console.info.println("  substring = '*' VALUE '*'");
+        console.info.println("  FIELD     # status field");
+        console.info.println("  PROPERTY  # configuration property");
         console.info.println();
         console.info.println("example urls: ");
         console.info.println("  gav:net.oneandone:hellowar:1.0.0  (artifact stage)");

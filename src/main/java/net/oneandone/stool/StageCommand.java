@@ -23,8 +23,6 @@ import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
-import net.oneandone.sushi.fs.ModeException;
-import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -33,21 +31,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public abstract class StageCommand extends SessionCommand {
     protected long start;
 
     @Option("stage")
-    private String stageNames;
+    private String stageClause;
 
     @Option("all")
     private boolean all;
-
-    @Option("all-state")
-    private String allState;
-
-    @Option("all-owner")
-    private String allOwner;
 
     @Option("fail")
     private Fail fail = Fail.NORMAL;
@@ -169,30 +162,15 @@ public abstract class StageCommand extends SessionCommand {
         int count;
         final Stage.State s;
 
-        count = (stageNames != null ? 1 : 0) + (all ? 1 : 0) + (allOwner != null ? 1 : 0) + (allState != null ? 1 : 0);
+        count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
         switch (count) {
             case 0:
                 return defaultSelected(problems);
             case 1:
                 if (all) {
                     return all(problems);
-                } else if (allOwner != null) {
-                    return session.list(problems, new Predicate() {
-                        @Override
-                        public boolean matches(Stage stage) throws ModeException {
-                            return stage.technicalOwner().equals(allOwner);
-                        }
-                    });
-                } else if (allState != null) {
-                    s = Stage.State.valueOf(allState.toUpperCase());
-                    return session.list(problems, new Predicate() {
-                        @Override
-                        public boolean matches(Stage stage) throws IOException {
-                            return s.equals(stage.state());
-                        }
-                    });
-                } else if (stageNames != null) {
-                    return explicit(stageNames);
+                } else if (stageClause != null) {
+                    return session.list(problems, or(stageClause));
                 } else {
                     throw new IllegalStateException();
                 }
@@ -201,23 +179,6 @@ public abstract class StageCommand extends SessionCommand {
         }
     }
 
-    private List<Stage> explicit(String names) throws IOException {
-        FileNode wrapper;
-        List<Stage> result;
-
-        result = new ArrayList<>();
-        for (String name : Separator.COMMA.split(names)) {
-            wrapper = session.wrappers.join(name);
-            if (!wrapper.isDirectory()) {
-                throw new ArgumentException("no such stage: " + name);
-            }
-            result.add(Stage.load(session, wrapper));
-        }
-        if (result.isEmpty()) {
-            throw new ArgumentException("empty stage name: " + names);
-        }
-        return result;
-    }
 
     protected List<Stage> all(EnumerationFailed problems) throws IOException {
         return session.list(problems, new Predicate() {
@@ -266,4 +227,134 @@ public abstract class StageCommand extends SessionCommand {
         NORMAL, AFTER, NEVER
     }
 
+
+    //--
+
+    private static Predicate or(String string) {
+        final List<Predicate> ops;
+
+        ops = new ArrayList<>();
+        for (String op : Separator.COMMA.split(string)) {
+            ops.add(and(op));
+        }
+        return new Predicate() {
+            @Override
+            public boolean matches(Stage stage) throws IOException {
+                for (Predicate op : ops) {
+                    if (op.matches(stage)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
+    }
+
+    private static final Separator AND = Separator.on('+');
+
+    private static Predicate and(String string) {
+        final List<Predicate> ops;
+
+        ops = new ArrayList<>();
+        for (String op : AND.split(string)) {
+            ops.add(compare(op));
+        }
+        return new Predicate() {
+            @Override
+            public boolean matches(Stage stage) throws IOException {
+                for (Predicate op : ops) {
+                    if (!op.matches(stage)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        };
+    }
+
+
+    private static Predicate compare(final String string) {
+        int idx;
+        String name;
+        final boolean eq;
+        Status.Field field;
+        final Status.Field constField;
+        String value;
+        String property;
+        final String constProperty;
+        final boolean suffix;
+        final boolean prefix;
+        final String constValue;
+
+        idx = string.indexOf('=');
+        if (idx == -1) {
+            return new Predicate() {
+                @Override
+                public boolean matches(Stage stage) throws IOException {
+                    return stage.getName().equals(string);
+                }
+            };
+        }
+        if (idx > 0 && string.charAt(idx - 1) == '!') {
+            eq = false;
+            name = string.substring(0, idx - 1);
+        } else {
+            eq = true;
+            name = string.substring(0, idx);
+        }
+        try {
+            field = Status.Field.valueOf(name.toUpperCase());
+            property = null;
+        } catch (IllegalArgumentException e) {
+            field = null;
+            property = name;
+        }
+        constField = field;
+        constProperty = property;
+        value = string.substring(idx + 1);
+        if (value.startsWith("*")) {
+            prefix = false;
+            value = value.substring(1);
+        } else {
+            prefix = true;
+        }
+        if (value.endsWith("*")) {
+            suffix = false;
+            value = value.substring(0, value.length() - 1);
+        } else {
+            suffix = true;
+        }
+        constValue = value;
+        return new Predicate() {
+            @Override
+            public boolean matches(Stage stage) throws IOException {
+                Map<Status.Field, Object> status;
+                boolean result;
+                Object obj;
+                String str;
+
+                if (constField != null) {
+                    status = Status.status(stage);
+                    obj = status.get(constField);
+                } else {
+                    obj = stage.config().getProperty(constProperty);
+                }
+                if (obj == null) {
+                    str = "";
+                } else {
+                    str = obj.toString();
+                }
+                if (prefix && suffix) {
+                    result = constValue.equals(str);
+                } else if (prefix) {
+                    result = str.startsWith(constValue);
+                } else if (suffix) {
+                    result = str.endsWith(constValue);
+                } else {
+                    result = str.contains(constValue);
+                }
+                return result == eq;
+            }
+        };
+    }
 }

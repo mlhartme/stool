@@ -31,8 +31,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class Status extends StageCommand {
-    private static enum Field {
-        NAME, DIRECTORY, WRAPPER, URL, TYPE, OWNER, TOMCAT, DEBUGGER, JMX, APPS;
+    public static enum Field {
+        NAME, DIRECTORY, WRAPPER, URL, TYPE, STATE, OWNER, TOMCAT, DEBUGGER, JMX, APPS;
 
         public String toString() {
             return name().toLowerCase();
@@ -98,7 +98,7 @@ public class Status extends StageCommand {
         }
     }
 
-    private Map<Field, Object> status(Stage stage) throws IOException, SAXException {
+    public static Map<Field, Object> status(Stage stage) throws IOException {
         Map<Field, Object> result;
         Ports ports;
         List<String> jmx;
@@ -111,11 +111,12 @@ public class Status extends StageCommand {
         result.put(Field.URL, stage.getUrl());
         result.put(Field.TYPE, stage.getType());
         result.put(Field.OWNER, stage.technicalOwner());
+        result.put(Field.STATE, stage.state().toString());
         ports = tomcatStatus(stage, result);
         result.put(Field.APPS, stage.namedUrls());
         jmx = new ArrayList<>();
         if (ports != null) {
-            url = session.configuration.hostname + ":" + ports.jmx();
+            url = stage.session.configuration.hostname + ":" + ports.jmx();
             jmx.add("jconsole " + url);
             jmx.add("jvisualvm --openjmx " + url);
         }
@@ -123,41 +124,29 @@ public class Status extends StageCommand {
         return result;
     }
 
-    private Ports tomcatStatus(Stage stage, Map<Field, Object> result) throws IOException {
+    private static Ports tomcatStatus(Stage stage, Map<Field, Object> result) throws IOException {
         String tomcatPid;
         String debug;
         Ports ports;
 
         tomcatPid = stage.runningTomcat();
-        result.put(Field.TOMCAT, daemonStatus(tomcatPid, stage.state()));
+        result.put(Field.TOMCAT, tomcatPid);
         if (tomcatPid != null) {
             ports = stage.loadPortsOpt();
             if (ports == null) {
-                debug = "off";
+                debug = null;
             } else {
-                try {
-                    if (stage.shared().join("conf/service-wrapper.conf").readString().contains("=-Xdebug\n")) {
-                        debug = "on (port " + ports.debug() + ")";
-                    } else {
-                        debug = "off";
-                    }
-                } catch (IOException e) {
-                    debug = "unknown";
+                if (stage.shared().join("conf/service-wrapper.conf").readString().contains("=-Xdebug\n")) {
+                    debug = Integer.toString(ports.debug());
+                } else {
+                    debug = null;
                 }
             }
         } else {
             ports = null;
-            debug = "off";
+            debug = null;
         }
         result.put(Field.DEBUGGER, debug);
         return ports;
-    }
-
-    private String daemonStatus(String pid, Stage.State state) {
-        if (state == Stage.State.UP) {
-            return "up (pid " + pid + ")";
-        } else {
-            return String.valueOf(state);
-        }
     }
 }
