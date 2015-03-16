@@ -52,6 +52,7 @@ public class Users {
         this.users = new HashMap<>();
     }
 
+    /** @return never null */
     public User byLogin(String login) throws UserNotFound, NamingException {
         User user;
 

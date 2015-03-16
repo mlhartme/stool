@@ -27,22 +27,28 @@ public class Change {
     private final Date date;
 
     public Change(long revision, User user, String message, long timestamp) {
+        if (user == null) {
+            throw new IllegalArgumentException();
+        }
         this.revision = revision;
         this.user = user;
         this.message = message;
         this.date = new Date(timestamp);
     }
+
     public long getRevision() {
         return revision;
     }
+
     public User getUser() {
         return user;
     }
+
     public String getMessage() {
         return message;
     }
+
     public Date getDate() {
         return new Date(date.getTime());
     }
-
 }

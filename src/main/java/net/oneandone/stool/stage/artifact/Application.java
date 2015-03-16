@@ -17,6 +17,7 @@ package net.oneandone.stool.stage.artifact;
 
 import com.google.gson.Gson;
 import net.oneandone.maven.embedded.Maven;
+import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.MkdirException;
@@ -157,7 +158,7 @@ public class Application {
 
         } catch (NoChangesAvailableException e) {
             changes = new Changes();
-            changes.add(new Change(0L, null, e.getMessage(), 0L));
+            changes.add(new Change(0L, new User("todo", "todo", "todo@1und1.de"), e.getMessage(), 0L));
             changes.setException(true);
         }
         changesFile.writeString(new Gson().toJson(changes));

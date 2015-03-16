@@ -225,6 +225,8 @@ public class Create extends SessionCommand {
         Stage stage;
 
         directory.mkdir();
+        // CAUTION: create wrapper before running possible prepare commands -- e.g. pws already populates the local repository of the stage
+        wrapper.mkdir();
         stage = stage(wrapper, url);
         directory.link(stage.anchor());
         stage.tuneConfiguration();
@@ -261,7 +263,6 @@ public class Create extends SessionCommand {
                 }
             }
         }
-        wrapper.mkdir();
         return stage;
     }
 }

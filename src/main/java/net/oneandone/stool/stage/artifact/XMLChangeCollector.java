@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.stage.artifact;
 
+import net.oneandone.stool.users.User;
+
 import java.io.IOException;
 public class XMLChangeCollector {
 
@@ -27,6 +29,7 @@ public class XMLChangeCollector {
         this.current = current;
         this.future = future;
     }
+
     //TODO
     public Changes collect() throws IOException {
         StringBuilder message;
@@ -35,7 +38,7 @@ public class XMLChangeCollector {
         message = new StringBuilder();
         message.append("New Version available\n").append(current.version()).append(" -> ").append(future.version());
         changes = new Changes();
-        changes.add(new Change(0, null, message.toString(), System.currentTimeMillis()));
+        changes.add(new Change(0, new User("todo", "todo", "todo@1und1.de"), message.toString(), System.currentTimeMillis()));
         return changes;
     }
 

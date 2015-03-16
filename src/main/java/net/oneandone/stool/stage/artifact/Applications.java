@@ -58,10 +58,7 @@ public class Applications {
                 for (Application app : apps) {
                     mergedChanges.merge(app.changes(users, readonly));
                 }
-
-
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }

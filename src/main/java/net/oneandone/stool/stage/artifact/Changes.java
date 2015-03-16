@@ -46,8 +46,8 @@ public class Changes {
         if (others.isException()) {
             setException(true);
         }
-
     }
+
     public boolean isException() {
         return exception;
     }
@@ -60,12 +60,13 @@ public class Changes {
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder;
-        stringBuilder = new StringBuilder();
+        StringBuilder result;
+
+        result = new StringBuilder();
         for (Change change : changes) {
-            stringBuilder.append(change.getUser().name).append(": \n").append(change.getMessage()).append("\n\n");
+            result.append(change.getUser().name).append(": \n").append(change.getMessage()).append("\n\n");
         }
 
-        return stringBuilder.toString();
+        return result.toString();
     }
 }

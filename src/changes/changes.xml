@@ -2,6 +2,12 @@
   <body>
     <release version="3.0.0-beta-3" date="2015-02-23">
       <action date="2015-03-16" dev="mlhartme" type="fix">
+        Fixed NPE in changes file.
+      </action>
+      <action date="2015-03-16" dev="mlhartme" type="fix">
+        Fix create wrapper problem when creating a workspace.
+      </action>
+      <action date="2015-03-16" dev="mlhartme" type="fix">
         Fix missing default tomcat opts in stage overview.
       </action>
       <action date="2015-03-13" dev="mlhartme" type="update">
