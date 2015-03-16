@@ -94,6 +94,9 @@ public class Status extends StageCommand {
                     }
                     console.info.println(item);
                 }
+                if (first) {
+                    console.info.println();
+                }
             }
         }
     }
