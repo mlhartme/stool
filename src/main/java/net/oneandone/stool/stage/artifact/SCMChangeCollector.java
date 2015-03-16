@@ -54,7 +54,7 @@ public class SCMChangeCollector {
                 if (entry instanceof SVNLogEntry) {
                     SVNLogEntry logEntry = (SVNLogEntry) entry;
                     Change change;
-                    change = new Change(logEntry.getRevision(), users.byLogin(logEntry.getAuthor()),
+                    change = new Change(logEntry.getRevision(), users.byLogin(logEntry.getAuthor()).name,
                       logEntry.getMessage(), logEntry.getDate().getTime());
                     changes.add(change);
                 }

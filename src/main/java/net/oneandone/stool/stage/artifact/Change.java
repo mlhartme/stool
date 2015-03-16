@@ -15,21 +15,15 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import net.oneandone.stool.users.User;
-
 import java.util.Date;
-
 
 public class Change {
     private final long revision;
-    private final User user;
+    private final String user;
     private final String message;
     private final Date date;
 
-    public Change(long revision, User user, String message, long timestamp) {
-        if (user == null) {
-            throw new IllegalArgumentException();
-        }
+    public Change(long revision, String user, String message, long timestamp) {
         this.revision = revision;
         this.user = user;
         this.message = message;
@@ -40,7 +34,7 @@ public class Change {
         return revision;
     }
 
-    public User getUser() {
+    public String getUser() {
         return user;
     }
 

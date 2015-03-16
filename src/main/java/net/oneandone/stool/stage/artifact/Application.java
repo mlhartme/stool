@@ -158,7 +158,7 @@ public class Application {
 
         } catch (NoChangesAvailableException e) {
             changes = new Changes();
-            changes.add(new Change(0L, new User("todo", "todo", "todo@1und1.de"), e.getMessage(), 0L));
+            changes.add(new Change(0L, "Error Users", e.getMessage(), 0L));
             changes.setException(true);
         }
         changesFile.writeString(new Gson().toJson(changes));

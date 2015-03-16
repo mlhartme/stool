@@ -194,10 +194,7 @@ public class ArtifactStage extends Stage {
         console.verbose.println("Update for " + application.artifactId() + " prepared.");
         for (Change change : changes.getChanges()) {
             output = new StringBuilder();
-            if (change.getUser() != null) {
-                output.append(change.getUser().name).append(" : ");
-            }
-
+            output.append(change.getUser()).append(" : ");
             output.append(change.getMessage());
             console.info.println(output.toString());
         }
