@@ -67,7 +67,14 @@ public class StageInfo {
         }
         stageInfo.updateAvailable = stage.updateAvailable();
         stageInfo.until = stage.config().until;
-        Changes changes = stage.changes();
+        Changes changes;
+
+        try {
+            changes = stage.changes();
+        } catch (IOException e) {
+            LOG.error("cannot get changes", e);
+            changes = null;
+        }
         if (changes != null && changes.size() > 0) {
             stageInfo.changes = changes;
         }

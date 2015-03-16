@@ -51,18 +51,13 @@ public class Applications {
         return Collections.unmodifiableList(artifacts);
     }
 
-    public Changes changes(Users users, boolean readonly) {
-        try {
-            if (mergedChanges == null) {
-                mergedChanges = Changes.none();
-                for (Application app : apps) {
-                    mergedChanges.merge(app.changes(users, readonly));
-                }
+    public Changes changes(Users users, boolean readonly) throws IOException {
+        if (mergedChanges == null) {
+            mergedChanges = Changes.none();
+            for (Application app : apps) {
+                mergedChanges.merge(app.changes(users, readonly));
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
-
         return mergedChanges;
     }
 }
