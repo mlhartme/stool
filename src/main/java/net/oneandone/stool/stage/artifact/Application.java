@@ -17,7 +17,6 @@ package net.oneandone.stool.stage.artifact;
 
 import com.google.gson.Gson;
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.MkdirException;

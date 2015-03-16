@@ -19,7 +19,6 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.LineFormat;
 import net.oneandone.sushi.fs.LineReader;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.io.Reader;

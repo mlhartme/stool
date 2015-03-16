@@ -18,7 +18,6 @@ package net.oneandone.stool.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-import com.google.gson.stream.MalformedJsonException;
 import net.oneandone.sushi.fs.Node;
 
 import java.io.IOException;

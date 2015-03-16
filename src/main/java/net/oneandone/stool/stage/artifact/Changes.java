@@ -18,6 +18,7 @@ package net.oneandone.stool.stage.artifact;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+
 public class Changes {
 
     private Collection<Change> changes;

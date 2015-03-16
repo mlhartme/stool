@@ -21,7 +21,6 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.util.Strings;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;

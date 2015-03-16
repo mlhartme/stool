@@ -16,11 +16,9 @@
 
 package net.oneandone.stool.util;
 
-import net.oneandone.sushi.fs.LineReader;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
