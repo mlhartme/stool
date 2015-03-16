@@ -178,7 +178,6 @@ public class ArtifactStage extends Stage {
     private void refreshWar(Console console, Application application) throws IOException {
         WarFile candidate;
         Changes changes;
-        StringBuilder output;
 
         candidate = sourceFor(application).resolve();
         if (candidate.equals(application.currentWarFile())) {
@@ -193,10 +192,9 @@ public class ArtifactStage extends Stage {
         changes = application.changes(session.users, false);
         console.verbose.println("Update for " + application.artifactId() + " prepared.");
         for (Change change : changes.getChanges()) {
-            output = new StringBuilder();
-            output.append(change.getUser()).append(" : ");
-            output.append(change.getMessage());
-            console.info.println(output.toString());
+            console.info.print(change.getUser());
+            console.info.print(" : ");
+            console.info.println(change.getMessage());
         }
     }
 
@@ -228,7 +226,7 @@ public class ArtifactStage extends Stage {
     }
 
     @Override
-    public Changes changes(boolean readonly) {
-        return applications.changes(session.users, readonly);
+    public Changes changes() {
+        return applications.changes(session.users, true);
     }
 }

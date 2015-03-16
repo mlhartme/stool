@@ -154,7 +154,6 @@ public class Application {
             } else {
                 changes = changeCollector.withSCM(svnurl);
             }
-
         } catch (NoChangesAvailableException e) {
             changes = new Changes();
             changes.add(new Change(0L, "Error Users", e.getMessage(), 0L));

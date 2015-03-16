@@ -67,7 +67,7 @@ public class StageInfo {
         }
         stageInfo.updateAvailable = stage.updateAvailable();
         stageInfo.until = stage.config().until;
-        Changes changes = stage.changes(true);
+        Changes changes = stage.changes();
         if (changes != null && changes.size() > 0) {
             stageInfo.changes = changes;
         }

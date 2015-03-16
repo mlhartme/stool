@@ -669,7 +669,7 @@ public abstract class Stage {
         return false;
     }
 
-    public Changes changes(boolean readonly) {
+    public Changes changes() {
         return Changes.none();
     }
     public FileNode localRepository() {
