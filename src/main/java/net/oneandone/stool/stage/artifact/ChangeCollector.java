@@ -31,27 +31,24 @@ public class ChangeCollector {
         this.future = future;
         this.users = users;
     }
-    public Changes withSCM(String svnurl) throws NoChangesAvailableException {
+
+    public Changes withSCM(String svnurl) throws IOException {
         SCMChangeCollector changeCollector;
         long futureRev;
         long currentRev;
 
-        try {
-            currentRev = current.revision();
-            futureRev = future.revision();
+        currentRev = current.revision();
+        futureRev = future.revision();
 
-            changeCollector = new SCMChangeCollector(svnurl, currentRev + 1, futureRev, users);
+        changeCollector = new SCMChangeCollector(svnurl, currentRev + 1, futureRev, users);
+        try {
             return changeCollector.collect();
-        } catch (IOException | UserNotFound | NamingException e) {
-            throw new NoChangesAvailableException(e);
+        } catch (UserNotFound | NamingException e) {
+            throw new IOException("error collecting changelog: " + e.getMessage(), e);
         }
     }
 
-    public Changes withXMLChanges() throws NoChangesAvailableException {
-        try {
-            return new XMLChangeCollector(current, future).collect();
-        } catch (IOException e) {
-            throw new NoChangesAvailableException(e);
-        }
+    public Changes withXMLChanges() throws IOException {
+        return new XMLChangeCollector(current, future).collect();
     }
 }

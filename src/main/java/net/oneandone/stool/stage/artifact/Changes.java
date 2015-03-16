@@ -34,9 +34,6 @@ public class Changes implements Iterable<Change> {
 
     public void addAll(Changes others) {
         changes.addAll(others.changes);
-        if (others.isException()) {
-            setException(true);
-        }
     }
 
     public boolean isException() {

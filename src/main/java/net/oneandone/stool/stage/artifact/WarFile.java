@@ -77,12 +77,12 @@ public class WarFile {
         // TODO - pominfo plugin is not publically available
         pominfo = file.openZip().join("WEB-INF", "classes", "META-INF", "pominfo.properties");
         if (!pominfo.exists()) {
-            throw new NoChangesAvailableException("No pominfo.properties available. Parent Pom is too old. Please update.");
+            throw new IOException("No pominfo.properties available. Parent Pom is too old. Please update.");
         }
         Properties properties;
         properties = pominfo.readProperties();
         if (properties.get("scmConnection") == null || properties.get("build.revision") == null) {
-            throw new NoChangesAvailableException("Parent Pom is too old to assemble Changes. Please update.");
+            throw new IOException("Parent Pom is too old to assemble Changes. Please update.");
         }
         svnurl = String.valueOf(properties.get("scmConnection"));
         version = String.valueOf(properties.get("version"));

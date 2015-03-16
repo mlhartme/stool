@@ -17,6 +17,7 @@ package net.oneandone.stool.stage.artifact;
 
 import com.google.gson.Gson;
 import net.oneandone.maven.embedded.Maven;
+import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.MkdirException;
@@ -28,6 +29,7 @@ import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 
+import javax.naming.NamingException;
 import java.io.IOException;
 
 public class Application {
@@ -146,18 +148,12 @@ public class Application {
         if (readonly) {
             return new Changes();
         }
-        try {
-            changeCollector = new ChangeCollector(currentWarFile(), futureWarFile(), users);
-            svnurl = pom().getScm().getUrl();
-            if (svnurl.contains("tags")) {
-                changes = changeCollector.withXMLChanges();
-            } else {
-                changes = changeCollector.withSCM(svnurl);
-            }
-        } catch (NoChangesAvailableException e) {
-            changes = new Changes();
-            changes.add(new Change(0L, "Error Users", e.getMessage(), 0L));
-            changes.setException(true);
+        changeCollector = new ChangeCollector(currentWarFile(), futureWarFile(), users);
+        svnurl = pom().getScm().getUrl();
+        if (svnurl.contains("tags")) {
+            changes = changeCollector.withXMLChanges();
+        } else {
+            changes = changeCollector.withSCM(svnurl);
         }
         changesFile.writeString(new Gson().toJson(changes));
         return changes;
