@@ -196,10 +196,8 @@ public abstract class Stage {
             if (config().sslUrl != null && !config().sslUrl.isEmpty()) {
                 keyStore.download(session.configuration.certificates, config().sslUrl);
             } else if (session.configuration.vhosts) {
-                for (Host host : hosts) {
-                    hostname = host.vhost + "." + session.configuration.hostname;
-                    keyStore.download(session.configuration.certificates, hostname);
-                }
+                hostname = "*." + getName() + "." + session.configuration.hostname;
+                keyStore.download(session.configuration.certificates, hostname);
             } else {
                 keyStore.download(session.configuration.certificates, session.configuration.hostname);
             }
