@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
@@ -42,13 +41,19 @@ public class Overview {
 
     public static void createOverview(Session session) throws IOException {
         Create create;
+        String url;
+        String tomcatOpts;
         StageConfiguration stageConfiguration;
 
         stageConfiguration = session.createStageConfiguration("");
-        create = new Create(session, true, OVERVIEW_NAME, "gav:overview:overview:@overview",
-                overviewDirectory(session), stageConfiguration);
-        create.remaining("tomcat.opts=-Doverview.stool.home=" + session.home.getAbsolute()
-                + " -Doverview.user.name=" + session.user);
+        url = "gav:overview:overview:@overview";
+        create = new Create(session, true, OVERVIEW_NAME, url, overviewDirectory(session), stageConfiguration);
+        tomcatOpts = session.createStageConfiguration(url).tomcatOpts;
+        if (!tomcatOpts.isEmpty()) {
+            tomcatOpts += " ";
+        }
+        tomcatOpts += "-Doverview.stool.home=" + session.home.getAbsolute() + " -Doverview.user.name=" + session.user;
+        create.remaining("tomcat.opts=" + tomcatOpts);
         try {
             create.doInvoke();
         } catch (Exception e) {
