@@ -16,6 +16,7 @@
 package net.oneandone.stool.stage.artifact;
 
 import net.oneandone.stool.users.Users;
+import net.oneandone.sushi.fs.file.FileNode;
 import org.eclipse.aether.artifact.DefaultArtifact;
 
 import java.io.IOException;
@@ -51,11 +52,11 @@ public class Applications {
         return Collections.unmodifiableList(artifacts);
     }
 
-    public Changes changes(Users users, boolean readonly) throws IOException {
+    public Changes changes(FileNode shared, Users users) throws IOException {
         if (mergedChanges == null) {
             mergedChanges = new Changes();
             for (Application app : apps) {
-                mergedChanges.addAll(app.changes(users, readonly));
+                mergedChanges.addAll(app.changes(shared, users));
             }
         }
         return mergedChanges;

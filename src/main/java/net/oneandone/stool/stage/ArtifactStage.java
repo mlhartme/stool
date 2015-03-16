@@ -189,7 +189,7 @@ public class ArtifactStage extends Stage {
         }
 
         application.replaceFutureWarFile(candidate);
-        changes = application.changes(session.users, false);
+        changes = application.changes(shared(), session.users);
         console.verbose.println("Update for " + application.artifactId() + " prepared.");
         for (Change change : changes) {
             console.info.print(change.getUser());
@@ -227,6 +227,6 @@ public class ArtifactStage extends Stage {
 
     @Override
     public Changes changes() throws IOException {
-        return applications.changes(session.users, true);
+        return applications.changes(shared(), session.users);
     }
 }

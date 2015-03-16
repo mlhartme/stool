@@ -28,6 +28,22 @@ import java.io.IOException;
 import java.util.Collection;
 
 public class SCMChangeCollector {
+    public static Changes run(WarFile current, WarFile future, Users users, String svnurl) throws IOException {
+        SCMChangeCollector changeCollector;
+        long futureRev;
+        long currentRev;
+
+        currentRev = current.revision();
+        futureRev = future.revision();
+
+        changeCollector = new SCMChangeCollector(svnurl, currentRev + 1, futureRev, users);
+        try {
+            return changeCollector.collect();
+        } catch (UserNotFound | NamingException e) {
+            throw new IOException("error collecting changelog: " + e.getMessage(), e);
+        }
+    }
+
     private final long revisionA;
     private final long revisionB;
     private final String url;

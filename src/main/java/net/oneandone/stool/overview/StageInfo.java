@@ -19,6 +19,7 @@ package net.oneandone.stool.overview;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.artifact.Change;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
@@ -74,6 +75,7 @@ public class StageInfo {
         } catch (IOException e) {
             LOG.error("cannot get changes", e);
             changes = new Changes();
+            changes.add(new Change(0, "error", e.getMessage(), System.currentTimeMillis()));
             changes.setException(true);
         }
         if (changes.size() > 0) {

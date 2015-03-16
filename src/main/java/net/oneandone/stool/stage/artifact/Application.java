@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
+import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
@@ -31,6 +32,7 @@ import org.eclipse.aether.resolution.VersionRangeResolutionException;
 
 import javax.naming.NamingException;
 import java.io.IOException;
+import java.io.Reader;
 
 public class Application {
     private final FileNode stageDirectory;
@@ -128,10 +130,9 @@ public class Application {
     }
 
 
-    public Changes changes(Users users, boolean readonly) throws IOException {
-        Node changesFile;
+    public Changes changes(FileNode shared, Users users) throws IOException {
+        Node file;
         String svnurl;
-        ChangeCollector changeCollector;
         Changes changes;
 
         if (artifact.getVersion().equals("@overview")) {
@@ -140,22 +141,21 @@ public class Application {
         if (!futureWarFile().exists() || !currentWarFile().exists()) {
             return new Changes();
         }
-        changesFile = stageDirectory.join(".refresh").join(futureFile().md5() + ".changes");
-        if (changesFile.exists()) {
-            return new Gson().fromJson(changesFile.readString(), Changes.class);
+        file = shared.join("changes").join(futureFile().md5() + ".changes");
+        if (file.exists()) {
+            try (Reader src = file.createReader()) {
+                return new Gson().fromJson(src, Changes.class);
+            }
         }
-
-        if (readonly) {
-            return new Changes();
-        }
-        changeCollector = new ChangeCollector(currentWarFile(), futureWarFile(), users);
         svnurl = pom().getScm().getUrl();
         if (svnurl.contains("tags")) {
-            changes = changeCollector.withXMLChanges();
+            changes = new XMLChangeCollector(currentWarFile(), futureWarFile()).collect();
         } else {
-            changes = changeCollector.withSCM(svnurl);
+            changes = SCMChangeCollector.run(currentWarFile(), futureWarFile(), users, svnurl);
         }
-        changesFile.writeString(new Gson().toJson(changes));
+        Files.stoolDirectory(file.getParent().mkdirsOpt());
+        file.writeString(new Gson().toJson(changes));
+        Files.stoolFile(file);
         return changes;
     }
 
