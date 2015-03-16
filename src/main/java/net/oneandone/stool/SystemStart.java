@@ -54,8 +54,6 @@ public class SystemStart extends SessionCommand {
         overview = Overview.initiate(session);
         if (overview.stage().state().equals(Stage.State.DOWN)) {
             overview.start();
-        } else if (overview.stage().state().equals(Stage.State.CRASHED)) {
-            session.console.info.println("Overview is crashed.");
         }
     }
 }

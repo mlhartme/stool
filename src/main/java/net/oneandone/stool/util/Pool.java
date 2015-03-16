@@ -64,6 +64,7 @@ public class Pool {
         do {
             if (!used().contains(current)) {
                 checkFree(current);
+                checkFree(current + 1);
                 return current;
             }
             current += 2;

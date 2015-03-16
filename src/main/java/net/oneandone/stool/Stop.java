@@ -25,25 +25,12 @@ public class Stop extends StageCommand {
     @Option("sleep")
     private boolean sleep;
 
-    @Option("crashed")
-    private boolean crashed;
-
-
     public Stop(Session session) throws IOException {
         super(session);
     }
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
-        if (crashed) {
-            invokeStale(stage);
-            return;
-        }
-
-        if (stage.state() == Stage.State.CRASHED) {
-            console.error.println("Stage is crashed. Consider to run stool stop -crashed");
-            return;
-        }
         timeStart();
         invokeNormal(stage);
         stage.buildStats().stop(executionTime());
@@ -76,14 +63,4 @@ public class Stop extends StageCommand {
             console.info.println("state: down");
         }
     }
-
-    public void invokeStale(Stage stage) throws Exception {
-        if (stage.state().equals(Stage.State.CRASHED)) {
-            stage.tomcatPidFile().deleteFile();
-            console.info.println("PID-file deleted");
-        } else {
-            throw new IOException("Cannot invoke -crashed on a stage which is not crashed!");
-        }
-    }
-
 }

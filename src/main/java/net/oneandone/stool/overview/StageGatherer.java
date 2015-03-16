@@ -37,7 +37,6 @@ public abstract class StageGatherer {
 
         infos = new ArrayList<>();
         session.wipeStaleWrappers();
-        session.getProcesses(true);
         stages = getStages(session);
 
         for (Stage stage : stages) {
@@ -58,7 +57,6 @@ public abstract class StageGatherer {
     public static StageInfo get(String name, Session session, Users users)
             throws IOException, SAXException, NamingException, UserNotFound, EnumerationFailed {
         List<Stage> stages = getStages(name, session);
-        session.getProcesses(true);
         return StageInfo.fromStage(stages.get(0), users);
     }
 

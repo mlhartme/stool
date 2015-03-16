@@ -57,11 +57,14 @@ public class Validate extends StageCommand {
 
         filePid = stage.runningTomcat();
         psPid = processes.tomcatPid(stage.getWrapper());
-        if (filePid == null && psPid == null) {
-            return;
+        if (filePid == null) {
+            filePid = "";
         }
-        if (stage.state() == Stage.State.CRASHED) {
-            problems.add("Stage crashed! Hint: stool stop -crashed could fix this problem");
+        if (psPid == null) {
+            psPid = "";
+        }
+        if (!filePid.equals(psPid)) {
+            problems.add("Tomcat process mismatch: " + filePid + " vs " + psPid);
         }
     }
 
@@ -69,7 +72,7 @@ public class Validate extends StageCommand {
     public void doInvoke() throws Exception {
         hostname = session.configuration.hostname;
         header("validate " + hostname);
-        processes = session.getProcesses(false);
+        processes = Processes.create(console.world);
         if (email) {
             mailer = new Mailer(session.configuration.mailHost,
                     session.configuration.mailUsername, session.configuration.mailPassword);

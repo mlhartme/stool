@@ -257,8 +257,6 @@ public abstract class Stage {
     public State state() throws IOException {
         if (session.bedroom.stages().contains(getName())) {
             return State.SLEEPING;
-        } else if (runningTomcat() != null && session.getProcesses(false).tomcatPid(getWrapper()) == null) {
-            return State.CRASHED;
         } else if (runningTomcat() != null) {
             return State.UP;
         } else {
@@ -352,7 +350,6 @@ public abstract class Stage {
     public void start(Console console, Ports ports) throws Exception {
         ServerXml serverXml;
         String pidFile;
-        String pidPs;
         KeyStore keystore;
 
         checkMemory();
@@ -382,10 +379,6 @@ public abstract class Stage {
         pidFile = runningTomcat();
         if (pidFile == null) {
             throw new IOException("tomcat startup failed - no pid file found");
-        }
-        pidPs = session.getProcesses(true).tomcatPid(getWrapper());
-        if (!pidFile.equals(pidPs)) {
-            throw new IOException("tomcat pid file does not match tomcat process: " + pidFile + " vs " + pidPs);
         }
         console.info.println("Applications available:");
         for (String app : namedUrls()) {
@@ -710,7 +703,7 @@ public abstract class Stage {
     }
 
     public static enum State {
-        DOWN, SLEEPING, UP, CRASHED, WORKING;
+        DOWN, SLEEPING, UP, WORKING;
 
         public String toString() {
             return name().toLowerCase();

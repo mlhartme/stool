@@ -49,9 +49,6 @@ public class SystemStop extends SessionCommand {
         overview = Overview.initiate(session);
         if (overview.stage().state().equals(Stage.State.UP)) {
             overview.stop();
-        } else if (overview.stage().state().equals(Stage.State.CRASHED)) {
-            session.console.info.println("Overview is crashed.");
         }
     }
-
 }

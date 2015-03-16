@@ -15,12 +15,19 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Failure;
+import net.oneandone.sushi.launcher.Launcher;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Processes {
+    public static Processes create(World world) throws Failure {
+        return new Processes(new Launcher((FileNode) world.getWorking(), "ps", "aux").exec());
+    }
+
     // group 1: user
     // group 2: prozess id
     // group 3: der rest der Zeile

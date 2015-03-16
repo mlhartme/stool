@@ -120,7 +120,7 @@ public class Session {
     private final Subversion subversion;
 
     private String selectedStageName;
-    private Processes processes;
+    private Processes lazyProcesses;
     public final Users users;
 
     public Session(Logging logging, String user, String command, FileNode home, Console console, Environment environment, StoolConfiguration configuration,
@@ -404,13 +404,6 @@ public class Session {
             backup.copyFile(script);
         }
 
-    }
-
-    public Processes getProcesses(boolean everytimeNew) throws Failure {
-        if (null == this.processes || everytimeNew) {
-            this.processes = new Processes(new Launcher((FileNode) home.getWorld().getWorking(), "ps", "aux").exec());
-        }
-        return this.processes;
     }
 
     //-- stage properties

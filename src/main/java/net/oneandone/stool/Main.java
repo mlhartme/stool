@@ -297,7 +297,7 @@ public class Main extends Cli implements Command {
         console.info.println("  refresh [-build|-stop|-own|-debug] ..  update the stage, with optional building;");
         console.info.println("  .....................................  restart and chowning when necessary");
         console.info.println("  start [-debug|-suspend|-tail] .......  starts the stage, and optionally tails catalina.out");
-        console.info.println("  stop [-sleep|-crashed]...............  stops the stage");
+        console.info.println("  stop [-sleep] .......................  stops the stage");
         console.info.println("  restart [-debug] ....................  restarts the stage");
         console.info.println("  move <dest> .........................  changes the stage directory; the stage name is not changed");
         console.info.println("  rename <name> .......................  changes the stage name; the stage directory is not changed");
