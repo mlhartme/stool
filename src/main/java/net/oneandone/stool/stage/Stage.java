@@ -23,6 +23,7 @@ import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.util.BuildStats;
 import net.oneandone.stool.util.Files;
+import net.oneandone.stool.util.Host;
 import net.oneandone.stool.util.KeyStore;
 import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.OwnershipException;
@@ -181,7 +182,7 @@ public abstract class Stage {
         return getClass().getSimpleName().toLowerCase();
     }
 
-    private KeyStore keystore() throws IOException {
+    private KeyStore keystore(List<Host> hosts) throws IOException {
         KeyStore keyStore;
         FileNode sslDir;
         String hostname;
@@ -192,15 +193,18 @@ public abstract class Stage {
         sslDir = shared().join("ssl");
         keyStore = new KeyStore(sslDir);
         if (!keyStore.exists()) {
-            if (config().sslUrl == null || config().sslUrl.equals("")) {
-                hostname = getName() + "." + session.configuration.hostname;
+            if (config().sslUrl != null && !config().sslUrl.isEmpty()) {
+                keyStore.download(session.configuration.certificates, config().sslUrl);
+            } else if (session.configuration.vhosts) {
+                for (Host host : hosts) {
+                    hostname = host.vhost + "." + session.configuration.hostname;
+                    keyStore.download(session.configuration.certificates, hostname);
+                }
             } else {
-                hostname = config().sslUrl;
+                keyStore.download(session.configuration.certificates, session.configuration.hostname);
             }
-            keyStore.download(session.configuration.certificates, hostname);
         }
         return keyStore;
-
     }
 
     public abstract boolean updateAvailable();
@@ -364,7 +368,7 @@ public abstract class Stage {
         // }
 
         serverXml = ServerXml.load(serverXmlTemplate());
-        keystore = keystore();
+        keystore = keystore(ports.hosts());
         serverXml.configure(ports, keystore, config().mode, config().cookies, session.configuration.vhosts);
         serverXml.save(serverXml());
         if (config().pustefixEditor) {

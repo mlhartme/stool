@@ -2,6 +2,9 @@
   <body>
     <release version="3.0.0-beta-3" date="2015-02-23">
       <action date="2015-03-16" dev="mlhartme" type="fix">
+        Fixed hostname in generated certificates.
+      </action>
+      <action date="2015-03-16" dev="mlhartme" type="fix">
         Fixed status output for empty lists.
       </action>
       <action date="2015-03-16" dev="mlhartme" type="fix">
@@ -40,7 +43,7 @@
         Moved overview logs from $HOME/logs/overview to the wrapper/shared/log to fix permission problems when chowning the overview stage.
       </action>
       <action date="2015-02-27" dev="mlhartme" type="update">
-        Improved import: the name is configurabe now. And if import fails, you can retry, possibly with a different name.
+        Improved import: the name is configurable now. And if import fails, you can retry, possibly with a different name.
       </action>
       <action date="2015-02-27" dev="mlhartme" type="fix">
         Fixed update-check to respect proxy settings.
