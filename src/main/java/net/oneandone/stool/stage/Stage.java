@@ -670,7 +670,7 @@ public abstract class Stage {
     }
 
     public Changes changes() throws IOException {
-        return Changes.none();
+        return new Changes();
     }
     public FileNode localRepository() {
         return session.configuration.security.isLocal()

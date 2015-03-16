@@ -191,7 +191,7 @@ public class ArtifactStage extends Stage {
         application.replaceFutureWarFile(candidate);
         changes = application.changes(session.users, false);
         console.verbose.println("Update for " + application.artifactId() + " prepared.");
-        for (Change change : changes.getChanges()) {
+        for (Change change : changes) {
             console.info.print(change.getUser());
             console.info.print(" : ");
             console.info.println(change.getMessage());

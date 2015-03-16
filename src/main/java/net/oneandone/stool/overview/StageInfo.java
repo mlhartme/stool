@@ -73,9 +73,10 @@ public class StageInfo {
             changes = stage.changes();
         } catch (IOException e) {
             LOG.error("cannot get changes", e);
-            changes = null;
+            changes = new Changes();
+            changes.setException(true);
         }
-        if (changes != null && changes.size() > 0) {
+        if (changes.size() > 0) {
             stageInfo.changes = changes;
         }
         stageInfo.stats = stage.buildStats();

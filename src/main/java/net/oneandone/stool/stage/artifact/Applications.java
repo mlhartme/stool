@@ -53,9 +53,9 @@ public class Applications {
 
     public Changes changes(Users users, boolean readonly) throws IOException {
         if (mergedChanges == null) {
-            mergedChanges = Changes.none();
+            mergedChanges = new Changes();
             for (Application app : apps) {
-                mergedChanges.merge(app.changes(users, readonly));
+                mergedChanges.addAll(app.changes(users, readonly));
             }
         }
         return mergedChanges;

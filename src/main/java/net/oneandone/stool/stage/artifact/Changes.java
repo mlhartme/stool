@@ -15,35 +15,25 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-public class Changes {
+public class Changes implements Iterable<Change> {
 
-    private Collection<Change> changes;
+    private final List<Change> changes;
     private boolean exception;
+
     public Changes() {
-        this.changes = new HashSet<>();
+        this.changes = new ArrayList<>();
     }
-    public static Changes none() {
-        return new Changes();
-    }
+
     public void add(Change change) {
         changes.add(change);
     }
 
-    public Collection<Change> getChanges() {
-        return Collections.unmodifiableCollection(changes);
-    }
-
-    public void merge(Changes others) {
-        for (Change othersChange : others.changes) {
-            if (!changes.contains(othersChange)) {
-                changes.add(othersChange);
-            }
-        }
-
+    public void addAll(Changes others) {
+        changes.addAll(others.changes);
         if (others.isException()) {
             setException(true);
         }
@@ -52,11 +42,18 @@ public class Changes {
     public boolean isException() {
         return exception;
     }
+
     public void setException(boolean exception) {
         this.exception = exception;
     }
+
     public int size() {
         return changes.size();
+    }
+
+    @Override
+    public Iterator<Change> iterator() {
+        return changes.iterator();
     }
 
     @Override

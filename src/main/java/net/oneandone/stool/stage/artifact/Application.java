@@ -133,10 +133,10 @@ public class Application {
         Changes changes;
 
         if (artifact.getVersion().equals("@overview")) {
-            return Changes.none();
+            return new Changes();
         }
         if (!futureWarFile().exists() || !currentWarFile().exists()) {
-            return Changes.none();
+            return new Changes();
         }
         changesFile = stageDirectory.join(".refresh").join(futureFile().md5() + ".changes");
         if (changesFile.exists()) {
@@ -144,7 +144,7 @@ public class Application {
         }
 
         if (readonly) {
-            return Changes.none();
+            return new Changes();
         }
         try {
             changeCollector = new ChangeCollector(currentWarFile(), futureWarFile(), users);
