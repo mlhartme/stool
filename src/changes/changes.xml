@@ -2,6 +2,9 @@
   <body>
     <release version="3.0.0-beta-3" date="2015-02-23">
       <action date="2015-03-17" dev="mlhartme" type="fix">
+        Fix userdata configuration for pustefix editor.
+      </action>
+      <action date="2015-03-17" dev="mlhartme" type="fix">
         Wrapper was always started with Stool's java version. Now, it's started with the Java version specified for the stage.
       </action>
       <action date="2015-03-16" dev="mlhartme" type="update">

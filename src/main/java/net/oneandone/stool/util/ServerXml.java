@@ -26,7 +26,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +55,7 @@ public class ServerXml {
         Files.stoolFile(file);
     }
 
-    public void configure(Ports ports, KeyStore keystore, String mode, boolean cookies, boolean vhosts) throws XmlException {
+    public void configure(Ports ports, KeyStore keystore, String mode, boolean cookies, boolean vhosts, FileNode editorUserdata) throws XmlException {
         Element template;
         Element service;
         String editorLocation;
@@ -73,7 +75,7 @@ public class ServerXml {
             document.getDocumentElement().appendChild(service);
             service(service, host);
             connectors(service, host, keystore);
-            contexts(service, mode, cookies, editorLocation);
+            contexts(service, mode, cookies, editorLocation, editorUserdata, host.docroot.join("WEB-INF"));
         }
         template.getParentNode().removeChild(template);
     }
@@ -173,7 +175,7 @@ public class ServerXml {
 
     }
 
-    public void contexts(Element service, String mode, boolean cookies, String editorLocation) throws XmlException {
+    public void contexts(Element service, String mode, boolean cookies, String editorLocation, FileNode editorUserdata, FileNode webinf) throws XmlException {
         Element context;
         Element manager;
 
@@ -186,7 +188,10 @@ public class ServerXml {
                 manager.setAttribute("pathname", "");
                 context.appendChild(manager);
             }
-            if (!host.getAttribute("name").startsWith(EDITOR_PREFIX)) {
+            if (host.getAttribute("name").startsWith(EDITOR_PREFIX)) {
+                parameter(context, "editor.userdata").setAttribute("value", editorUserdata.getURI().toString());
+                parameter(context, "editor.locations").setAttribute("value", webinf.join("editor-locations.xml").getURI().toString());
+            } else {
                 parameter(context, "mode").setAttribute("value", mode);
                 if (editorLocation != null) {
                     parameter(context, "editor.enabled").setAttribute("value", "true");

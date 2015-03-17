@@ -37,7 +37,7 @@ public class Ports {
         String vhost;
         int even;
         Host host;
-        Map<String, String> hosts;
+        Map<String, FileNode> hosts;
 
         previous = loadOpt(stage);
         pool = stage.session.createPool();
@@ -49,9 +49,9 @@ public class Ports {
         }
         hosts = stage.selectedHosts();
         if (stage.config().pustefixEditor) {
-            hosts.put(ServerXml.EDITOR_PREFIX + stage.getName(), stage.editorDocroot().getAbsolute());
+            hosts.put(ServerXml.EDITOR_PREFIX + stage.getName(), stage.editorDocroot());
         }
-        for (Map.Entry<String, String> entry : hosts.entrySet()) {
+        for (Map.Entry<String, FileNode> entry : hosts.entrySet()) {
             vhost = entry.getKey();
             if (stage.isOverview()) {
                 if (hosts.size() != 1) {
@@ -92,7 +92,7 @@ public class Ports {
                     if (line == null) {
                         break;
                     }
-                    result.hosts.add(Host.forLine(line));
+                    result.hosts.add(Host.forLine(stage.session.console.world, line));
                 }
                 return result;
             }

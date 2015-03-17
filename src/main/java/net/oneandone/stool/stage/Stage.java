@@ -287,11 +287,11 @@ public abstract class Stage {
     }
 
     /** @return vhost to docroot mapping, where vhost is artifactId + "." + stageName, to uniquely identify the host */
-    protected abstract Map<String, String> hosts() throws IOException;
+    protected abstract Map<String, FileNode> hosts() throws IOException;
 
-    public Map<String, String> selectedHosts() throws IOException {
-        Map<String, String> hosts;
-        Iterator<Map.Entry<String, String>> iter;
+    public Map<String, FileNode> selectedHosts() throws IOException {
+        Map<String, FileNode> hosts;
+        Iterator<Map.Entry<String, FileNode>> iter;
         List<String> selected;
         String hostname;
 
@@ -366,10 +366,11 @@ public abstract class Stage {
 
         serverXml = ServerXml.load(serverXmlTemplate());
         keystore = keystore(ports.hosts());
-        serverXml.configure(ports, keystore, config().mode, config().cookies, session.configuration.vhosts);
+        serverXml.configure(ports, keystore, config().mode, config().cookies, session.configuration.vhosts,
+                shared().join("editor/userdata/userdata.xml"));
         serverXml.save(serverXml());
         if (config().pustefixEditor) {
-            userdataDirectory(console);
+            userdata(console);
             editorDirectory(ports.urlMap(keystore != null, session.configuration.vhosts, configuration.suffix).values());
         }
         if (session.configuration.security.isLocal()) {
@@ -829,7 +830,7 @@ public abstract class Stage {
         dest.join("WEB-INF/editor-locations.xml").writeLines(lines);
     }
 
-    public void userdataDirectory(Console console) throws IOException {
+    public void userdata(Console console) throws IOException {
         FileNode dest;
         FileNode parent;
         String url;

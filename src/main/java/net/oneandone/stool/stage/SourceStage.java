@@ -77,13 +77,12 @@ public class SourceStage extends Stage {
     }
 
     @Override
-    protected Map<String, String> hosts() throws IOException {
-        Map<String, String> applications;
+    protected Map<String, FileNode> hosts() throws IOException {
+        Map<String, FileNode> applications;
 
         applications = new LinkedHashMap<>();
         for (MavenProject project : wars()) {
-            applications.put(project.getArtifactId() + "." + getName(),
-              docroot(session.console.world, project).getAbsolute());
+            applications.put(project.getArtifactId() + "." + getName(), docroot(session.console.world, project));
         }
         return applications;
     }

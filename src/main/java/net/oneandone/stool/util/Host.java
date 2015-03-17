@@ -16,28 +16,30 @@
 
 package net.oneandone.stool.util;
 
+import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.util.List;
 
 public class Host {
-    public static Host forLine(String line) throws IOException {
+    public static Host forLine(World world, String line) throws IOException {
         List<String> parts;
 
         parts = Separator.SPACE.split(line);
         if (parts.size() != 4) {
             throw new IOException("invalid host line: " + line);
         }
-        return new Host(Integer.parseInt(parts.get(0)), parts.get(1), parts.get(2), parts.get(3));
+        return new Host(Integer.parseInt(parts.get(0)), parts.get(1), parts.get(2), world.file(parts.get(3)));
     }
 
     public final int even;
     public final String vhost;
     private final String hostname;
-    private final String docroot;
+    public final FileNode docroot;
 
-    public Host(int even, String vhost, String hostname, String docroot) {
+    public Host(int even, String vhost, String hostname, FileNode docroot) {
         this.even = even;
         this.vhost = vhost;
         this.hostname = hostname;
@@ -45,8 +47,8 @@ public class Host {
     }
 
     public String appBase() {
-        if (docroot.endsWith("/ROOT")) {
-            return docroot.substring(0, docroot.length() - 5);
+        if (docroot.getName().equals("ROOT")) {
+            return docroot.getParent().getAbsolute();
         } else {
             // to force tomcat 6 not to load catalina base and its subdirectory
             return "noSuchDirectory";
@@ -54,10 +56,10 @@ public class Host {
     }
 
     public String docBase() {
-        if (docroot.endsWith("/ROOT")) {
+        if (docroot.getName().equals("ROOT")) {
             return "ROOT";
         } else {
-            return docroot;
+            return docroot.getAbsolute();
         }
     }
 
