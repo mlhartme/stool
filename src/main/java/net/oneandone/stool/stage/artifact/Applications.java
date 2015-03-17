@@ -23,10 +23,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-public class Applications {
 
+public class Applications {
     private final List<Application> apps;
-    private Changes mergedChanges;
+    private Changes lazyChanges;
 
 
     public Applications() {
@@ -53,12 +53,12 @@ public class Applications {
     }
 
     public Changes changes(FileNode shared, Users users) throws IOException {
-        if (mergedChanges == null) {
-            mergedChanges = new Changes();
+        if (lazyChanges == null) {
+            lazyChanges = new Changes();
             for (Application app : apps) {
-                mergedChanges.addAll(app.changes(shared, users));
+                lazyChanges.merge(app.changes(shared, users));
             }
         }
-        return mergedChanges;
+        return lazyChanges;
     }
 }

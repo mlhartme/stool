@@ -20,7 +20,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Changes implements Iterable<Change> {
-
     private final List<Change> changes;
     private boolean exception;
 
@@ -32,8 +31,13 @@ public class Changes implements Iterable<Change> {
         changes.add(change);
     }
 
-    public void addAll(Changes others) {
-        changes.addAll(others.changes);
+    public void merge(Changes others) {
+        // merge (not addAll), because multi-module projects might contains the same changes
+        for (Change c : others) {
+            if (!changes.contains(c)) {
+                changes.add(c);
+            }
+        }
     }
 
     public boolean isException() {

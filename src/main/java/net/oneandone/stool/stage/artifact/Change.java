@@ -45,4 +45,29 @@ public class Change {
     public Date getDate() {
         return new Date(date.getTime());
     }
+
+    @Override
+    public boolean equals(Object o) {
+        Change change;
+
+        if (o instanceof Change) {
+            change = (Change) o;
+            return (revision == change.revision && date.equals(change.date)
+              && eq(message, change.message) && eq(user, change.user));
+        }
+        return true;
+    }
+
+    private static boolean eq(String left, String right) {
+        if (left == null) {
+            return right == null;
+        } else {
+            return left.equals(right);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) revision;
+    }
 }
