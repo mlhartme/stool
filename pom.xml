@@ -91,6 +91,19 @@
       <artifactId>embedded</artifactId>
       <version>3.11.0</version>
     </dependency>
+    <!-- TODO: override 0.3.0.M1 that comes with maven 3.2.5 -->
+    <dependency>
+      <groupId>org.eclipse.sisu</groupId>
+      <artifactId>org.eclipse.sisu.plexus</artifactId>
+      <version>0.3.0</version>
+    </dependency>
+    <!-- TODO: override 3.2.3 that comes with maven 3.2.5 -->
+    <dependency>
+      <groupId>org.sonatype.sisu</groupId>
+      <artifactId>sisu-guice</artifactId>
+      <version>3.2.5</version>
+      <classifier>no_aop</classifier>
+    </dependency>
     <dependency>
       <groupId>net.oneandone</groupId>
       <artifactId>pommes</artifactId>
