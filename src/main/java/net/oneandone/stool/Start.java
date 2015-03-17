@@ -295,7 +295,7 @@ public class Start extends StageCommand {
         Map<String, String> result;
 
         result = new HashMap<>();
-        result.put("java.home", Session.jdkHome());
+        result.put("java.home", stage.config().javaHome);
         result.put("wrapper.port", Integer.toString(ports.wrapper()));
         result.put("wrapper.java.additional", wrapperJavaAdditional(ports, stage));
         return result;

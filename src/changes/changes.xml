@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.0.0-beta-3" date="2015-02-23">
+      <action date="2015-03-17" dev="mlhartme" type="fix">
+        Wrapper was always started with Stool's java version. Now, it's started with the Java version specified for the stage.
+      </action>
       <action date="2015-03-16" dev="mlhartme" type="update">
         Dumped state "crashed", it's no longer useful since service wrapper is very stale. And allows for some nice
         optimizations because I can move "ps aux" calls into the validate command.

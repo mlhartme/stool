@@ -28,6 +28,9 @@ public class Changes implements Iterable<Change> {
     }
 
     public void add(Change change) {
+        if (change == null) {
+            throw new IllegalArgumentException();
+        }
         changes.add(change);
     }
 
