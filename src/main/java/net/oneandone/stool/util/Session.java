@@ -33,6 +33,7 @@ import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
+import org.codehaus.plexus.DefaultPlexusContainer;
 
 import javax.naming.NamingException;
 import java.io.IOException;
@@ -450,5 +451,14 @@ public class Session {
         }
         result = Strings.removeRightOpt(result, "/");
         return result;
+    }
+
+    private DefaultPlexusContainer lazyPlexus;
+
+    public DefaultPlexusContainer plexus() {
+        if (lazyPlexus == null) {
+            lazyPlexus = Maven.container();
+        }
+        return lazyPlexus;
     }
 }

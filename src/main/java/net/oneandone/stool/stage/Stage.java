@@ -45,9 +45,11 @@ import org.apache.maven.model.Build;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
+import org.eclipse.aether.RepositoryListener;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.repository.RepositoryPolicy;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.eclipse.aether.transfer.TransferListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -567,7 +569,9 @@ public abstract class Stage {
 
         if (maven == null) {
             world = session.console.world;
-            maven = Maven.withSettings(world, localRepository(), world.file(config().mavenHome).join("conf/settings.xml"), null);
+            // CAUTION: shared plexus - otherwise, Maven components are created over and over again
+            maven = Maven.withSettings(world, localRepository(), world.file(config().mavenHome).join("conf/settings.xml"), null,
+                    session.plexus(), null, null);
             // always get the latest snapshots
             maven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
         }
