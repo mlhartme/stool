@@ -35,7 +35,7 @@
       </action>
       <action date="2015-03-12" dev="mlhartme" type="add">
         Status improvements: added 'state' field; change field 'tomcat' and 'debug' to be port numbers or null;
-        renamed status field 'jconsole' to 'jmx', it containts full jconsole and jvisualvm commands now.
+        renamed status field 'jconsole' to 'jmx', it contains full jconsole and jvisualvm commands now.
       </action>
       <action date="2015-03-12" dev="mlhartme" type="add">
         Added maven.home property to configure maven. 
