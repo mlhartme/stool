@@ -15,12 +15,13 @@
  */
 package net.oneandone.stool.configuration;
 
-import net.oneandone.stool.util.parser.DateTimeParser;
+import net.oneandone.sushi.cli.ArgumentException;
 import org.joda.time.DateTime;
-import org.joda.time.Days;
 import org.joda.time.Period;
-public class Until {
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 
+public class Until {
     public static Until reserved() {
         return new Until(null);
     }
@@ -34,30 +35,25 @@ public class Until {
     }
 
     public static Until fromString(String input) {
-        Until until;
-
-        until = Until.withDefaultOffset();
-        if (null == input || input.equals("null") || input.equals("") || input.equals("reserved") || input.equals("expired")) {
-            Until.reserved();
+        if (input.equals("reserved")) {
+            return Until.reserved();
         } else {
-            new Until(DateTimeParser.create().parse(input));
+            return new Until(parse(input));
         }
-        return until;
     }
 
     public static Until fromHuman(String input) {
         Until until;
 
         until = Until.withDefaultOffset();
-        if (null == input || input.equals("null") || input.equals("")) {
-            throw new IllegalArgumentException("Please provide a valid date. For example "
-              + new DateTime().plus(Days.days(10)).toString("yyyy-MM-dd"));
-        } else if (input.equals("reserved")) {
+        if (null == input) {
+            throw new IllegalArgumentException();
+        }
+        if (input.equals("reserved")) {
             until.date = null;
         } else {
-            until.date = DateTimeParser.create().parse(input);
+            until.date = parse(input);
         }
-
         return until;
     }
 
@@ -88,7 +84,29 @@ public class Until {
     public String toString() {
         if (isReserved()) {
             return "reserved";
+        } else {
+            return date.toString(LONG_FORMAT);
         }
-        return date.toString("yyyy-MM-dd HH:mm");
+    }
+
+    //--
+
+    private static final String SHORT_PATTERN = "yyyy-MM-dd";
+    private static final String LONG_PATTERN = "yyyy-MM-dd H:mm";
+    private static final DateTimeFormatter SHORT_FORMAT =  DateTimeFormat.forPattern(SHORT_PATTERN);
+    private static final DateTimeFormatter LONG_FORMAT = DateTimeFormat.forPattern(LONG_PATTERN);
+
+    private static synchronized DateTime parse(String input) {
+        try {
+            return DateTime.parse(input, LONG_FORMAT);
+        } catch (IllegalArgumentException e) {
+            // fall-through
+        }
+        try {
+            return DateTime.parse(input, SHORT_FORMAT);
+        } catch (IllegalArgumentException e) {
+            // fall-through
+        }
+        throw new ArgumentException("invalid date. Expected format: " + LONG_PATTERN + " or " + SHORT_PATTERN + ", got " + input);
     }
 }
