@@ -1,5 +1,6 @@
 package net.oneandone.stool.extensions;
 
+import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.xml.XmlException;
 
@@ -32,9 +33,9 @@ public class Extensions implements Iterable<Extension> {
         return result;
     }
 
-    public void beforeStart(Collection<String> apps) throws IOException {
+    public void beforeStart(Console console, Collection<String> apps) throws IOException {
         for (Extension extension : extensions) {
-            extension.beforeStart(apps);
+            extension.beforeStart(console, apps);
         }
     }
 

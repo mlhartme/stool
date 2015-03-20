@@ -369,7 +369,7 @@ public abstract class Stage {
         extensions = extensions();
         serverXml.configure(ports, keystore, config().mode, config().cookies, extensions);
         serverXml.save(serverXml());
-        extensions.beforeStart(ports.urlMap(keystore != null, session.configuration.vhosts, config().suffix).values());
+        extensions.beforeStart(console, ports.urlMap(keystore != null, session.configuration.vhosts, config().suffix).values());
         if (session.configuration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
             // else: will be deleted by stool-catalina.sh -- with proper permissions

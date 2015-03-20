@@ -45,14 +45,14 @@ public class PustefixEditor implements Extension {
 
         result = new HashMap<>();
         if (enabled) {
-            result.put(PREFIX + stage.getName(), editorDocroot(stage));
+            result.put(PREFIX + stage.getName(), editorDocroot());
         }
         return result;
     }
 
-    public void beforeStart(Collection<String> apps) throws IOException {
+    public void beforeStart(Console console, Collection<String> apps) throws IOException {
         if (enabled) {
-            userdata(stage.session.console);
+            userdata(console);
             editorDirectory(apps);
         }
     }
@@ -114,7 +114,7 @@ public class PustefixEditor implements Extension {
         FileNode dest;
         List<String> lines;
 
-        dest = editorDocroot(stage);
+        dest = editorDocroot();
         if (dest.exists() && dest.getLastModified() < StageConfiguration.configurationFile(stage.wrapper).getLastModified()) {
             stage.session.console.verbose.println("config change detected - rebuilding editor war");
             dest.deleteTree();
@@ -142,7 +142,7 @@ public class PustefixEditor implements Extension {
         dest.join("WEB-INF/editor-locations.xml").writeLines(lines);
     }
 
-    private FileNode editorDocroot(Stage stage) {
+    private FileNode editorDocroot() {
         return stage.shared().join("editor/webapp");
     }
 
