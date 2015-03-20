@@ -16,6 +16,7 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.stool.extensions.Extensions;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.xml.Selector;
@@ -53,7 +54,7 @@ public class ServerXml {
         Files.stoolFile(file);
     }
 
-    public void configure(Ports ports, KeyStore keystore, String mode, boolean cookies, Extensions extensions) throws XmlException {
+    public void configure(Ports ports, KeyStore keystore, String mode, boolean cookies, Stage stage) throws XmlException {
         Element template;
         Element service;
         List<Host> hosts;
@@ -66,7 +67,7 @@ public class ServerXml {
             document.getDocumentElement().appendChild(service);
             service(service, host);
             connectors(service, host, keystore);
-            contexts(host.httpPort(), service, mode, cookies, extensions, host.docroot.join("WEB-INF"));
+            contexts(stage, host.httpPort(), service, mode, cookies, host.docroot.join("WEB-INF"));
         }
         template.getParentNode().removeChild(template);
     }
@@ -166,7 +167,7 @@ public class ServerXml {
 
     }
 
-    public void contexts(int httpPort, Element service, String mode, boolean cookies, Extensions extensions, FileNode webinf) throws XmlException {
+    public void contexts(Stage stage, int httpPort, Element service, String mode, boolean cookies, FileNode webinf) throws XmlException {
         Element context;
         Element manager;
         Map<String, String> map;
@@ -180,7 +181,7 @@ public class ServerXml {
                 manager.setAttribute("pathname", "");
                 context.appendChild(manager);
             }
-            map = extensions.contextParameter(host.getAttribute("name"), httpPort, webinf);
+            map = stage.extensions().contextParameter(stage, host.getAttribute("name"), httpPort, webinf);
             map.put("mode", mode);
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 parameter(context, entry.getKey()).setAttribute("value", entry.getValue());

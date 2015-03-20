@@ -2,7 +2,6 @@ package net.oneandone.stool.extensions;
 
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.util.Strings;
@@ -19,8 +18,6 @@ import java.util.Map;
 public class PustefixEditor implements Extension {
     private static final String PREFIX = "cms.";
 
-    private final Stage stage;
-
     private final boolean enabled;
     
     private final String version;
@@ -28,40 +25,38 @@ public class PustefixEditor implements Extension {
     private final String userdata;
 
     public PustefixEditor() {
-        // TODO
-        this(null, false, "", "");
+        this(false, "0.18.75", "https://svn.1and1.org/svn/sales/workspaces/editor/userdata.xml");
     }
 
-    public PustefixEditor(Stage stage, boolean enabled, String version, String userdata) {
-        this.stage = stage;
+    public PustefixEditor(boolean enabled, String version, String userdata) {
         this.enabled = enabled;
         this.version = version;
         this.userdata = userdata;
     }
 
-    public Map<String, FileNode> vhosts() {
+    public Map<String, FileNode> vhosts(Stage stage) {
         Map<String, FileNode> result;
 
         result = new HashMap<>();
         if (enabled) {
-            result.put(PREFIX + stage.getName(), editorDocroot());
+            result.put(PREFIX + stage.getName(), editorDocroot(stage));
         }
         return result;
     }
 
-    public void beforeStart(Console console, Collection<String> apps) throws IOException {
+    public void beforeStart(Stage stage, Collection<String> apps) throws IOException {
         if (enabled) {
-            userdata(console);
-            editorDirectory(apps);
+            userdata(stage);
+            editorDirectory(stage, apps);
         }
     }
 
-    public void contextParameter(String host, int httpPort, FileNode webinf, Map<String, String> result) throws XmlException {
+    public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) throws XmlException {
         String editorLocation;
         FileNode userdata;
 
         if (enabled) {
-            editorLocation = "http://" + fqdn() + ":" + httpPort;
+            editorLocation = "http://" + fqdn(stage) + ":" + httpPort;
             userdata = stage.shared().join("editor/userdata/userdata.xml");
             if (host.startsWith(PustefixEditor.PREFIX)) {
                 result.put("editor.userdata", userdata.getURI().toString());
@@ -76,7 +71,7 @@ public class PustefixEditor implements Extension {
 
     //--
 
-    private void userdata(Console console) throws IOException {
+    private void userdata(Stage stage) throws IOException {
         FileNode dest;
         FileNode parent;
         String url;
@@ -86,7 +81,7 @@ public class PustefixEditor implements Extension {
         dest = stage.shared().join("editor/userdata");
         if (dest.exists() && dest.getLastModified() < StageConfiguration.configurationFile(stage.wrapper).getLastModified()) {
             if (!url.equals(stage.session.subversion().checkoutUrl(dest))) {
-                console.verbose.println("config change detected - reloading userdata");
+                stage.session.console.verbose.println("config change detected - reloading userdata");
                 status = stage.session.subversion().status(dest).trim();
                 if (!status.isEmpty()) {
                     throw new IOException("cannot reload userdata: checkout has modifications");
@@ -99,7 +94,7 @@ public class PustefixEditor implements Extension {
             parent.mkdirsOpt();
             try {
                 // file name has to be userdata.xml, other names are currently not supported
-                stage.session.subversion().checkout(parent, url, dest.getName(), console.verbose);
+                stage.session.subversion().checkout(parent, url, dest.getName(), stage.session.console.verbose);
             } catch (Failure e) {
                 throw new IOException("cannot checkout editor userdata: " + e.getMessage(), e);
             }
@@ -108,12 +103,12 @@ public class PustefixEditor implements Extension {
         }
     }
 
-    private void editorDirectory(Collection<String> apps) throws IOException {
+    private void editorDirectory(Stage stage, Collection<String> apps) throws IOException {
         FileNode war;
         FileNode dest;
         List<String> lines;
 
-        dest = editorDocroot();
+        dest = editorDocroot(stage);
         if (dest.exists() && dest.getLastModified() < StageConfiguration.configurationFile(stage.wrapper).getLastModified()) {
             stage.session.console.verbose.println("config change detected - rebuilding editor war");
             dest.deleteTree();
@@ -141,11 +136,11 @@ public class PustefixEditor implements Extension {
         dest.join("WEB-INF/editor-locations.xml").writeLines(lines);
     }
 
-    private FileNode editorDocroot() {
+    private FileNode editorDocroot(Stage stage) {
         return stage.shared().join("editor/webapp");
     }
 
-    private String fqdn() {
+    private String fqdn(Stage stage) {
         String result;
 
         result = stage.session.configuration.hostname;

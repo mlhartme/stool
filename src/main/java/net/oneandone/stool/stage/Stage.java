@@ -20,9 +20,7 @@ import net.oneandone.stool.Chown;
 import net.oneandone.stool.Start;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Until;
-import net.oneandone.stool.extensions.Extension;
 import net.oneandone.stool.extensions.Extensions;
-import net.oneandone.stool.extensions.PustefixEditor;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.util.BuildStats;
 import net.oneandone.stool.util.Files;
@@ -367,9 +365,9 @@ public abstract class Stage {
         serverXml = ServerXml.load(serverXmlTemplate());
         keystore = keystore(ports.hosts());
         extensions = extensions();
-        serverXml.configure(ports, keystore, config().mode, config().cookies, extensions);
+        serverXml.configure(ports, keystore, config().mode, config().cookies, this);
         serverXml.save(serverXml());
-        extensions.beforeStart(console, ports.urlMap(keystore != null, session.configuration.vhosts, config().suffix).values());
+        extensions.beforeStart(this, ports.urlMap(keystore != null, session.configuration.vhosts, config().suffix).values());
         if (session.configuration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
             // else: will be deleted by stool-catalina.sh -- with proper permissions

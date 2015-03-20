@@ -1,6 +1,6 @@
 package net.oneandone.stool.extensions;
 
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.xml.XmlException;
 
@@ -16,35 +16,35 @@ public class Extensions implements Iterable<Extension> {
     private final List<Extension> extensions;
 
     public Extensions() {
-        extensions = new ArrayList<>();
+        this.extensions = new ArrayList<>();
     }
 
     public void add(Extension extension) {
         extensions.add(extension);
     }
 
-    public Map<String, FileNode> vhosts() {
+    public Map<String, FileNode> vhosts(Stage stage) {
         Map<String, FileNode> result;
 
         result = new HashMap<>();
         for (Extension extension : extensions) {
-            result.putAll(extension.vhosts());
+            result.putAll(extension.vhosts(stage));
         }
         return result;
     }
 
-    public void beforeStart(Console console, Collection<String> apps) throws IOException {
+    public void beforeStart(Stage stage, Collection<String> apps) throws IOException {
         for (Extension extension : extensions) {
-            extension.beforeStart(console, apps);
+            extension.beforeStart(stage, apps);
         }
     }
 
-    public Map<String, String> contextParameter(String host, int httpPort, FileNode webinf) throws XmlException {
+    public Map<String, String> contextParameter(Stage stage, String host, int httpPort, FileNode webinf) throws XmlException {
         Map<String, String> result;
 
         result = new HashMap<>();
         for (Extension extension : extensions) {
-            extension.contextParameter(host, httpPort, webinf, result);
+            extension.contextParameter(stage, host, httpPort, webinf, result);
         }
         return result;
     }
