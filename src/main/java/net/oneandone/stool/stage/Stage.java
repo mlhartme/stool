@@ -20,6 +20,7 @@ import net.oneandone.stool.Chown;
 import net.oneandone.stool.Start;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Until;
+import net.oneandone.stool.extensions.PustefixEditor;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.util.BuildStats;
 import net.oneandone.stool.util.Files;
@@ -369,7 +370,7 @@ public abstract class Stage {
         serverXml.configure(ports, keystore, config().mode, config().cookies, session.configuration.vhosts,
                 shared().join("editor/userdata/userdata.xml"));
         serverXml.save(serverXml());
-        if (config().pustefixEditor) {
+        if (pustefixEditor().isEnabled()) {
             userdata(console);
             editorDirectory(ports.urlMap(keystore != null, session.configuration.vhosts, configuration.suffix).values());
         }
@@ -387,6 +388,10 @@ public abstract class Stage {
         for (String app : namedUrls()) {
             console.info.println("  " + app);
         }
+    }
+
+    public PustefixEditor pustefixEditor() {
+        return PustefixEditor.create(config());
     }
 
     /** Fails if Tomcat is not running */
@@ -810,7 +815,7 @@ public abstract class Stage {
         if (!dest.exists()) {
             dest.mkdirs();
             try {
-                war = maven().resolve("org.pustefixframework.editor", "pustefix-editor-webui", "war", config().pustefixEditorVersion);
+                war = maven().resolve("org.pustefixframework.editor", "pustefix-editor-webui", "war", pustefixEditor().getVersion());
             } catch (ArtifactResolutionException e) {
                 throw new IOException("Cannot download editor: " + e.getMessage(), e);
             }
@@ -836,7 +841,7 @@ public abstract class Stage {
         String url;
         String status;
 
-        url = Strings.removeRight(config().pustefixEditorUserdata, "/userdata.xml");
+        url = Strings.removeRight(pustefixEditor().getUserdata(), "/userdata.xml");
         dest = shared().join("editor/userdata");
         if (dest.exists() && dest.getLastModified() < StageConfiguration.configurationFile(wrapper).getLastModified()) {
             if (!url.equals(session.subversion().checkoutUrl(dest))) {
