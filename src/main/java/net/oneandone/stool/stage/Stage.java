@@ -20,6 +20,7 @@ import net.oneandone.stool.Chown;
 import net.oneandone.stool.Start;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Until;
+import net.oneandone.stool.extensions.Extension;
 import net.oneandone.stool.extensions.PustefixEditor;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.util.BuildStats;
@@ -350,7 +351,7 @@ public abstract class Stage {
         ServerXml serverXml;
         String pidFile;
         KeyStore keystore;
-        PustefixEditor pustefixEditor;
+        Extension extension;
 
         checkMemory();
         console.info.println("starting tomcat ...");
@@ -364,10 +365,10 @@ public abstract class Stage {
 
         serverXml = ServerXml.load(serverXmlTemplate());
         keystore = keystore(ports.hosts());
-        pustefixEditor = PustefixEditor.create(this);
-        serverXml.configure(ports, keystore, config().mode, config().cookies, pustefixEditor);
+        extension = extension();
+        serverXml.configure(ports, keystore, config().mode, config().cookies, extension);
         serverXml.save(serverXml());
-        pustefixEditor.beforeStart(ports.urlMap(keystore != null, session.configuration.vhosts, config().suffix).values());
+        extension.beforeStart(ports.urlMap(keystore != null, session.configuration.vhosts, config().suffix).values());
         if (session.configuration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
             // else: will be deleted by stool-catalina.sh -- with proper permissions
@@ -785,4 +786,12 @@ public abstract class Stage {
         result = result.substring(idx + 1); // ok for -1
         return result.isEmpty() ? "stage" : result;
     }
+
+    //--
+
+    public Extension extension() {
+        return new PustefixEditor(this, configuration.pustefixEditor, configuration.pustefixEditorVersion,
+                configuration.pustefixEditorUserdata);
+    }
+
 }

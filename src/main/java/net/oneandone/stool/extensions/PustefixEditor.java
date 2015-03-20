@@ -20,13 +20,6 @@ import java.util.Map;
 public class PustefixEditor implements Extension {
     private static final java.lang.String PREFIX = "cms.";
 
-    public static PustefixEditor create(Stage stage) {
-        return new PustefixEditor(stage, stage.config().pustefixEditor, stage.config().pustefixEditorVersion,
-                stage.config().pustefixEditorUserdata);
-    }
-
-    //--
-
     private final Stage stage;
 
     private final boolean enabled;

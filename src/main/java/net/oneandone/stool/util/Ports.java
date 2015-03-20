@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.extensions.PustefixEditor;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.LineFormat;
 import net.oneandone.sushi.fs.LineReader;
@@ -49,7 +48,7 @@ public class Ports {
             result = new Ports(pool.allocate(".stop.wrapper." + name), pool.allocate(".jmx.debug." + name));
         }
         hosts = stage.selectedHosts();
-        hosts.putAll(PustefixEditor.create(stage).vhosts());
+        hosts.putAll(stage.extension().vhosts());
         for (Map.Entry<String, FileNode> entry : hosts.entrySet()) {
             vhost = entry.getKey();
             if (stage.isOverview()) {
