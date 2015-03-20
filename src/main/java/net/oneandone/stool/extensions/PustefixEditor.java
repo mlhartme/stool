@@ -8,7 +8,6 @@ import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.xml.XmlException;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.w3c.dom.Element;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -154,22 +153,5 @@ public class PustefixEditor implements Extension {
             result = PREFIX + stage.getName() + result;
         }
         return result;
-    }
-
-    private Element parameterOpt(Element context, String name) throws XmlException {
-        return stage.getDirectory().getWorld().getXml().getSelector().elementOpt(context, "Parameter[@name='" + name + "']");
-    }
-
-    private Element parameter(Element context, String name) throws XmlException {
-        Element parameter;
-
-        parameter = parameterOpt(context, name);
-        if (parameter == null) {
-            parameter = context.getOwnerDocument().createElement("Parameter");
-            parameter.setAttribute("name", name);
-            parameter.setAttribute("override", "false");
-            context.appendChild(parameter);
-        }
-        return parameter;
     }
 }
