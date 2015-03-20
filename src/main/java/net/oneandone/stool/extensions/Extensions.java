@@ -2,7 +2,6 @@ package net.oneandone.stool.extensions;
 
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.xml.XmlException;
-import org.w3c.dom.Element;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,10 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CompountExtension implements Extension {
+public class Extensions implements Extension {
     private final List<Extension> extensions;
 
-    public CompountExtension() {
+    public Extensions() {
         extensions = new ArrayList<>();
     }
 
