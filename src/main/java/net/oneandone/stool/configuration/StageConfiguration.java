@@ -17,6 +17,9 @@ package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.util.Role;
@@ -24,9 +27,11 @@ import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.Node;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class StageConfiguration extends BaseConfiguration {
     @Expose
@@ -169,11 +174,14 @@ public class StageConfiguration extends BaseConfiguration {
     }
 
     public static StageConfiguration load(Node wrapper) throws IOException {
-        try {
-            return gson().fromJson(configurationFile(wrapper).readString(), StageConfiguration.class);
-        } catch (IOException e) {
-            throw new IOException(e);
+        JsonParser parser;
+        JsonElement config;
+
+        parser = new JsonParser();
+        try (Reader reader = configurationFile(wrapper).createReader()) {
+            config = parser.parse(reader);
         }
+        return gson().fromJson(config, StageConfiguration.class);
     }
 
     public static Node configurationFile(Node wrapper) throws ExistsException {

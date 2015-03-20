@@ -48,7 +48,7 @@ public class Ports {
             result = new Ports(pool.allocate(".stop.wrapper." + name), pool.allocate(".jmx.debug." + name));
         }
         hosts = stage.selectedHosts();
-        hosts.putAll(stage.extension().vhosts());
+        hosts.putAll(stage.extensions().vhosts());
         for (Map.Entry<String, FileNode> entry : hosts.entrySet()) {
             vhost = entry.getKey();
             if (stage.isOverview()) {

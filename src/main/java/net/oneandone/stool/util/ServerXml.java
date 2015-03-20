@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.extensions.Extension;
+import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.xml.Selector;
@@ -29,7 +29,6 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,7 +53,7 @@ public class ServerXml {
         Files.stoolFile(file);
     }
 
-    public void configure(Ports ports, KeyStore keystore, String mode, boolean cookies, Extension extension) throws XmlException {
+    public void configure(Ports ports, KeyStore keystore, String mode, boolean cookies, Extensions extensions) throws XmlException {
         Element template;
         Element service;
         List<Host> hosts;
@@ -67,7 +66,7 @@ public class ServerXml {
             document.getDocumentElement().appendChild(service);
             service(service, host);
             connectors(service, host, keystore);
-            contexts(host.httpPort(), service, mode, cookies, extension, host.docroot.join("WEB-INF"));
+            contexts(host.httpPort(), service, mode, cookies, extensions, host.docroot.join("WEB-INF"));
         }
         template.getParentNode().removeChild(template);
     }
@@ -167,7 +166,7 @@ public class ServerXml {
 
     }
 
-    public void contexts(int httpPort, Element service, String mode, boolean cookies, Extension extension, FileNode webinf) throws XmlException {
+    public void contexts(int httpPort, Element service, String mode, boolean cookies, Extensions extensions, FileNode webinf) throws XmlException {
         Element context;
         Element manager;
         Map<String, String> map;
@@ -181,9 +180,8 @@ public class ServerXml {
                 manager.setAttribute("pathname", "");
                 context.appendChild(manager);
             }
-            map = new HashMap<>();
+            map = extensions.contextParameter(host.getAttribute("name"), httpPort, webinf);
             map.put("mode", mode);
-            extension.contextParameter(host.getAttribute("name"), httpPort, webinf, map);
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 parameter(context, entry.getKey()).setAttribute("value", entry.getValue());
             }

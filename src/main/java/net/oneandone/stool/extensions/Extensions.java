@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Extensions implements Extension {
+public class Extensions {
     private final List<Extension> extensions;
 
     public Extensions() {
@@ -21,7 +21,6 @@ public class Extensions implements Extension {
         extensions.add(extension);
     }
 
-    @Override
     public Map<String, FileNode> vhosts() {
         Map<String, FileNode> result;
 
@@ -32,17 +31,19 @@ public class Extensions implements Extension {
         return result;
     }
 
-    @Override
     public void beforeStart(Collection<String> apps) throws IOException {
         for (Extension extension : extensions) {
             extension.beforeStart(apps);
         }
     }
 
-    @Override
-    public void contextParameter(String host, int httpPort, FileNode webinf, Map<String, String> result) throws XmlException {
+    public Map<String, String> contextParameter(String host, int httpPort, FileNode webinf) throws XmlException {
+        Map<String, String> result;
+
+        result = new HashMap<>();
         for (Extension extension : extensions) {
             extension.contextParameter(host, httpPort, webinf, result);
         }
+        return result;
     }
 }
