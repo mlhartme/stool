@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PustefixEditor {
-    public static final java.lang.String PREFIX = "cms.";
+    private static final java.lang.String PREFIX = "cms.";
 
     public static PustefixEditor create(Stage stage) {
         return new PustefixEditor(stage, stage.config().pustefixEditor, stage.config().pustefixEditorVersion,
@@ -41,20 +41,40 @@ public class PustefixEditor {
         this.userdata = userdata;
     }
 
-    public void vhosts(Stage stage, Map<String, FileNode> hosts) {
+    public void vhosts(Map<String, FileNode> hosts) {
         if (enabled) {
             hosts.put(PREFIX + stage.getName(), editorDocroot(stage));
         }
     }
 
-    public void beforeStart(Stage stage, Collection<String> apps) throws IOException {
-        userdata(stage, stage.session.console);
-        editorDirectory(stage, apps);
+    public void beforeStart(Collection<String> apps) throws IOException {
+        if (enabled) {
+            userdata(stage.session.console);
+            editorDirectory(apps);
+        }
+    }
+
+    public void contextParameter(int httpPort, String name, Element context, FileNode webinf) throws XmlException {
+        String editorLocation;
+        FileNode userdata;
+
+        if (enabled) {
+            editorLocation = "http://" + fqdn() + ":" + httpPort;
+            userdata = stage.shared().join("editor/userdata/userdata.xml");
+            if (name.startsWith(PustefixEditor.PREFIX)) {
+                parameter(context, "editor.userdata").setAttribute("value", userdata.getURI().toString());
+                parameter(context, "editor.locations").setAttribute("value", webinf.join("editor-locations.xml").getURI().toString());
+            } else {
+                parameter(context, "editor.enabled").setAttribute("value", "true");
+                parameter(context, "editor.location").setAttribute("value", editorLocation);
+                parameter(context, "editor.secret").setAttribute("value", "foobar");
+            }
+        }
     }
 
     //--
 
-    public void userdata(Stage stage, Console console) throws IOException {
+    private void userdata(Console console) throws IOException {
         FileNode dest;
         FileNode parent;
         String url;
@@ -86,7 +106,7 @@ public class PustefixEditor {
         }
     }
 
-    private void editorDirectory(Stage stage, Collection<String> apps) throws IOException {
+    private void editorDirectory(Collection<String> apps) throws IOException {
         FileNode war;
         FileNode dest;
         List<String> lines;
@@ -123,20 +143,14 @@ public class PustefixEditor {
         return stage.shared().join("editor/webapp");
     }
 
-    public void contextParameter(String name, Element context, FileNode webinf) throws XmlException {
-        FileNode userdata;
+    private String fqdn() {
+        String result;
 
-        if (enabled) {
-            userdata = stage.shared().join("editor/userdata/userdata.xml");
-            if (name.startsWith(PustefixEditor.PREFIX)) {
-                parameter(context, "editor.userdata").setAttribute("value", userdata.getURI().toString());
-                parameter(context, "editor.locations").setAttribute("value", webinf.join("editor-locations.xml").getURI().toString());
-            } else {
-                parameter(context, "editor.enabled").setAttribute("value", "true");
-                parameter(context, "editor.location").setAttribute("value", userdata.getAbsolute());
-                parameter(context, "editor.secret").setAttribute("value", "foobar");
-            }
+        result = stage.session.configuration.hostname;
+        if (stage.session.configuration.vhosts) {
+            result = PREFIX + stage.getName() + result;
         }
+        return result;
     }
 
     private Element parameterOpt(Element context, String name) throws XmlException {
@@ -155,5 +169,4 @@ public class PustefixEditor {
         }
         return parameter;
     }
-
 }

@@ -52,7 +52,7 @@ public class ServerXml {
         Files.stoolFile(file);
     }
 
-    public void configure(Ports ports, KeyStore keystore, String mode, boolean cookies, boolean vhosts, PustefixEditor pustefixEditor) throws XmlException {
+    public void configure(Ports ports, KeyStore keystore, String mode, boolean cookies, PustefixEditor pustefixEditor) throws XmlException {
         Element template;
         Element service;
         List<Host> hosts;
@@ -65,7 +65,7 @@ public class ServerXml {
             document.getDocumentElement().appendChild(service);
             service(service, host);
             connectors(service, host, keystore);
-            contexts(service, mode, cookies, pustefixEditor, host.docroot.join("WEB-INF"));
+            contexts(host.httpPort(), service, mode, cookies, pustefixEditor, host.docroot.join("WEB-INF"));
         }
         template.getParentNode().removeChild(template);
     }
@@ -165,7 +165,7 @@ public class ServerXml {
 
     }
 
-    public void contexts(Element service, String mode, boolean cookies, PustefixEditor pustefixEditor, FileNode webinf) throws XmlException {
+    public void contexts(int httpPort, Element service, String mode, boolean cookies, PustefixEditor pustefixEditor, FileNode webinf) throws XmlException {
         Element context;
         Element manager;
 
@@ -179,7 +179,7 @@ public class ServerXml {
                 context.appendChild(manager);
             }
             parameter(context, "mode").setAttribute("value", mode);
-            pustefixEditor.contextParameter(host.getAttribute("name"), context, webinf);
+            pustefixEditor.contextParameter(httpPort, host.getAttribute("name"), context, webinf);
         }
     }
 

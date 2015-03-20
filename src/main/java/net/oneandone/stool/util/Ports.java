@@ -49,7 +49,7 @@ public class Ports {
             result = new Ports(pool.allocate(".stop.wrapper." + name), pool.allocate(".jmx.debug." + name));
         }
         hosts = stage.selectedHosts();
-        PustefixEditor.create(stage).vhosts(stage, hosts);
+        PustefixEditor.create(stage).vhosts(hosts);
         for (Map.Entry<String, FileNode> entry : hosts.entrySet()) {
             vhost = entry.getKey();
             if (stage.isOverview()) {

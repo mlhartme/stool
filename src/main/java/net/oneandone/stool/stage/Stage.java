@@ -46,15 +46,11 @@ import org.apache.maven.model.Build;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
-import org.eclipse.aether.RepositoryListener;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.repository.RepositoryPolicy;
-import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.eclipse.aether.transfer.TransferListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -369,9 +365,9 @@ public abstract class Stage {
         serverXml = ServerXml.load(serverXmlTemplate());
         keystore = keystore(ports.hosts());
         pustefixEditor = PustefixEditor.create(this);
-        serverXml.configure(ports, keystore, config().mode, config().cookies, session.configuration.vhosts, pustefixEditor);
+        serverXml.configure(ports, keystore, config().mode, config().cookies, pustefixEditor);
         serverXml.save(serverXml());
-        pustefixEditor.beforeStart(this, ports.urlMap(keystore != null, session.configuration.vhosts, config().suffix).values());
+        pustefixEditor.beforeStart(ports.urlMap(keystore != null, session.configuration.vhosts, config().suffix).values());
         if (session.configuration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
             // else: will be deleted by stool-catalina.sh -- with proper permissions
