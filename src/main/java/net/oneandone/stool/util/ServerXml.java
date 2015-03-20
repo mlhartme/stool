@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.stool.extensions.PustefixEditor;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.xml.Selector;
@@ -33,8 +34,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ServerXml {
-    public static final String EDITOR_PREFIX = "cms.";
-
     private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";
     private static final String HTTPS_PATH = "Connector[starts-with(@secure,'true')]";
 
@@ -188,7 +187,7 @@ public class ServerXml {
                 manager.setAttribute("pathname", "");
                 context.appendChild(manager);
             }
-            if (host.getAttribute("name").startsWith(EDITOR_PREFIX)) {
+            if (host.getAttribute("name").startsWith(PustefixEditor.PREFIX)) {
                 parameter(context, "editor.userdata").setAttribute("value", editorUserdata.getURI().toString());
                 parameter(context, "editor.locations").setAttribute("value", webinf.join("editor-locations.xml").getURI().toString());
             } else {

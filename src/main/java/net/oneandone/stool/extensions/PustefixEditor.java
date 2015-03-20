@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 
 public class PustefixEditor {
+    public static final java.lang.String PREFIX = "cms.";
+
     public static PustefixEditor create(StageConfiguration config) {
         return new PustefixEditor(config.pustefixEditor, config.pustefixEditorVersion, config.pustefixEditorUserdata);
     }
@@ -36,7 +38,7 @@ public class PustefixEditor {
 
     public void vhosts(Stage stage, Map<String, FileNode> hosts) {
         if (enabled) {
-            hosts.put(ServerXml.EDITOR_PREFIX + stage.getName(), editorDocroot(stage));
+            hosts.put(PREFIX + stage.getName(), editorDocroot(stage));
         }
     }
 

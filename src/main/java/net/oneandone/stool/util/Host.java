@@ -16,6 +16,7 @@
 
 package net.oneandone.stool.util;
 
+import net.oneandone.stool.extensions.PustefixEditor;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -80,7 +81,7 @@ public class Host {
     }
 
     public boolean isCms() {
-        return vhost.startsWith(ServerXml.EDITOR_PREFIX);
+        return vhost.startsWith(PustefixEditor.PREFIX);
     }
 
     public String fqdn(boolean vhosts) {
