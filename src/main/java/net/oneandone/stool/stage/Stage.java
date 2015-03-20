@@ -354,6 +354,7 @@ public abstract class Stage {
         ServerXml serverXml;
         String pidFile;
         KeyStore keystore;
+        PustefixEditor pustefixEditor;
 
         checkMemory();
         console.info.println("starting tomcat ...");
@@ -370,10 +371,8 @@ public abstract class Stage {
         serverXml.configure(ports, keystore, config().mode, config().cookies, session.configuration.vhosts,
                 shared().join("editor/userdata/userdata.xml"));
         serverXml.save(serverXml());
-        if (pustefixEditor().isEnabled()) {
-            userdata(console);
-            editorDirectory(ports.urlMap(keystore != null, session.configuration.vhosts, configuration.suffix).values());
-        }
+        pustefixEditor = pustefixEditor();
+        pustefixEditor.beforeStart(this, ports.urlMap(keystore != null, session.configuration.vhosts, config().suffix).values());
         if (session.configuration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
             // else: will be deleted by stool-catalina.sh -- with proper permissions
@@ -794,76 +793,5 @@ public abstract class Stage {
         idx = result.lastIndexOf('/');
         result = result.substring(idx + 1); // ok for -1
         return result.isEmpty() ? "stage" : result;
-    }
-
-    //-- Pustefix Editor ...
-
-    public FileNode editorDocroot() throws IOException {
-        return shared().join("editor/webapp");
-    }
-
-    private void editorDirectory(Collection<String> apps) throws IOException {
-        FileNode war;
-        FileNode dest;
-        List<String> lines;
-
-        dest = editorDocroot();
-        if (dest.exists() && dest.getLastModified() < StageConfiguration.configurationFile(wrapper).getLastModified()) {
-            session.console.verbose.println("config change detected - rebuilding editor war");
-            dest.deleteTree();
-        }
-        if (!dest.exists()) {
-            dest.mkdirs();
-            try {
-                war = maven().resolve("org.pustefixframework.editor", "pustefix-editor-webui", "war", pustefixEditor().getVersion());
-            } catch (ArtifactResolutionException e) {
-                throw new IOException("Cannot download editor: " + e.getMessage(), e);
-            }
-            war.unjar(dest);
-        }
-        // always update application list
-        lines = new ArrayList<>();
-        lines.add("<?xml version='1.0' encoding='utf-8' ?>");
-        lines.add("<projects>");
-        for (String app : apps) {
-            lines.add("  <project>");
-            lines.add("    <location>" + app + "</location>");
-            lines.add("    <secret>foobar</secret>");
-            lines.add("  </project>");
-        }
-        lines.add("</projects>");
-        dest.join("WEB-INF/editor-locations.xml").writeLines(lines);
-    }
-
-    public void userdata(Console console) throws IOException {
-        FileNode dest;
-        FileNode parent;
-        String url;
-        String status;
-
-        url = Strings.removeRight(pustefixEditor().getUserdata(), "/userdata.xml");
-        dest = shared().join("editor/userdata");
-        if (dest.exists() && dest.getLastModified() < StageConfiguration.configurationFile(wrapper).getLastModified()) {
-            if (!url.equals(session.subversion().checkoutUrl(dest))) {
-                session.console.verbose.println("config change detected - reloading userdata");
-                status = session.subversion().status(dest).trim();
-                if (!status.isEmpty()) {
-                    throw new IOException("cannot reload userdata: checkout has modifications");
-                }
-                dest.deleteTree();
-            }
-        }
-        if (!dest.exists()) {
-            parent = dest.getParent();
-            parent.mkdirsOpt();
-            try {
-                // file name has to be userdata.xml, other names are currently not supported
-                session.subversion().checkout(parent, url, dest.getName(), console.verbose);
-            } catch (Failure e) {
-                throw new IOException("cannot checkout editor userdata: " + e.getMessage(), e);
-            }
-        } else {
-            // TODO: check url changes
-        }
     }
 }

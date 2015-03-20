@@ -48,9 +48,7 @@ public class Ports {
             result = new Ports(pool.allocate(".stop.wrapper." + name), pool.allocate(".jmx.debug." + name));
         }
         hosts = stage.selectedHosts();
-        if (stage.pustefixEditor().isEnabled()) {
-            hosts.put(ServerXml.EDITOR_PREFIX + stage.getName(), stage.editorDocroot());
-        }
+        stage.pustefixEditor().vhosts(stage, hosts);
         for (Map.Entry<String, FileNode> entry : hosts.entrySet()) {
             vhost = entry.getKey();
             if (stage.isOverview()) {
