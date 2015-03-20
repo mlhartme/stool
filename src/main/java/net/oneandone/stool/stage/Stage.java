@@ -791,11 +791,6 @@ public abstract class Stage {
     //--
 
     public Extensions extensions() {
-        Extensions extensions;
-
-        extensions = new Extensions();
-        extensions.add(new PustefixEditor(this, configuration.pustefixEditor, configuration.pustefixEditorVersion,
-                configuration.pustefixEditorUserdata));
-        return extensions;
+        return configuration.extensions;
     }
 }

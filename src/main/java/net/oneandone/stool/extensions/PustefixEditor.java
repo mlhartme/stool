@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class PustefixEditor implements Extension {
-    private static final java.lang.String PREFIX = "cms.";
+    private static final String PREFIX = "cms.";
 
     private final Stage stage;
 
@@ -27,6 +27,11 @@ public class PustefixEditor implements Extension {
     private final String version;
 
     private final String userdata;
+
+    public PustefixEditor() {
+        // TODO
+        this(null, false, "", "");
+    }
 
     public PustefixEditor(Stage stage, boolean enabled, String version, String userdata) {
         this.stage = stage;

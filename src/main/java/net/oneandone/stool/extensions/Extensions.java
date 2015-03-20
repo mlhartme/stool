@@ -7,10 +7,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class Extensions {
+public class Extensions implements Iterable<Extension> {
     private final List<Extension> extensions;
 
     public Extensions() {
@@ -45,5 +46,14 @@ public class Extensions {
             extension.contextParameter(host, httpPort, webinf, result);
         }
         return result;
+    }
+
+    public void addAll(Extensions op) {
+        extensions.addAll(op.extensions);
+    }
+
+    @Override
+    public Iterator<Extension> iterator() {
+        return extensions.iterator();
     }
 }

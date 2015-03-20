@@ -22,6 +22,9 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
+import net.oneandone.stool.extensions.Extension;
+import net.oneandone.stool.extensions.Extensions;
+import net.oneandone.stool.extensions.PustefixEditor;
 import net.oneandone.stool.util.Role;
 import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.Node;
@@ -30,6 +33,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -115,17 +119,7 @@ public class StageConfiguration extends BaseConfiguration {
     @Option(key = "comment", description = "a comment")
     public String comment;
 
-    @Expose
-    @Option(key = "pustefix.editor", description = "enable or disable Pustefix editor")
-    public boolean pustefixEditor;
-
-    @Expose
-    @Option(key = "pustefix.editor.version", description = "version of the editor artifacts")
-    public String pustefixEditorVersion;
-
-    @Expose
-    @Option(key = "pustefix.editor.userdata", description = "svn url for the editor's user data; has to end with userdata.xml")
-    public String pustefixEditorUserdata;
+    public final Extensions extensions;
 
     public StageConfiguration(String javaHome, String mavenHome) {
         this.mode = "test";
@@ -148,9 +142,8 @@ public class StageConfiguration extends BaseConfiguration {
         this.sslUrl = "";
         this.comment = "";
         this.autoRefresh = false;
-        this.pustefixEditor = false;
-        this.pustefixEditorVersion = "";
-        this.pustefixEditorUserdata = "";
+        this.extensions = new Extensions();
+        extensions.add(new PustefixEditor());
     }
 
     public static boolean isConfigurable(String key, Role role) {
@@ -175,13 +168,47 @@ public class StageConfiguration extends BaseConfiguration {
 
     public static StageConfiguration load(Node wrapper) throws IOException {
         JsonParser parser;
-        JsonElement config;
+        JsonObject config;
+        Extensions extensions;
+        StageConfiguration result;
 
         parser = new JsonParser();
         try (Reader reader = configurationFile(wrapper).createReader()) {
-            config = parser.parse(reader);
+            config = (JsonObject) parser.parse(reader);
         }
-        return gson().fromJson(config, StageConfiguration.class);
+        extensions = eatExtensions(config);
+        result = gson().fromJson(config, StageConfiguration.class);
+        result.extensions.addAll(extensions);
+        return result;
+    }
+
+    private static Extensions eatExtensions(JsonObject config) {
+        Extensions result;
+
+        result = new Extensions();
+        result.add(eatExtension("pustefix.editor.", PustefixEditor.class, config));
+        return result;
+    }
+
+    private static Extension eatExtension(String prefix, Class<? extends Extension> clazz, JsonObject config) {
+        JsonObject part;
+        String name;
+        Gson gson;
+        Iterator<Map.Entry<String, JsonElement>> iter;
+        Map.Entry<String, JsonElement> entry;
+
+        part = new JsonObject();
+        iter = config.entrySet().iterator();
+        while (iter.hasNext()) {
+            entry = iter.next();
+            name = entry.getKey();
+            if (name.startsWith(prefix)) {
+                part.add(name.substring(prefix.length()), entry.getValue());
+                iter.remove();
+            }
+        }
+        gson = new GsonBuilder().setPrettyPrinting().create();
+        return gson.fromJson(part, clazz);
     }
 
     public static Node configurationFile(Node wrapper) throws ExistsException {
@@ -196,7 +223,22 @@ public class StageConfiguration extends BaseConfiguration {
     }
 
     public void save(Node wrapper) throws IOException {
-        configurationFile(wrapper).writeString(gson().toJson(this));
+        JsonObject config;
+
+        config = (JsonObject) gson().toJsonTree(this);
+        for (Extension extension : extensions) {
+            addExtension(config, "pustefix.editor" /* TODO */, extension);
+        }
+        configurationFile(wrapper).writeString(config.toString());
+    }
+
+    private void addExtension(JsonObject config, String prefix, Extension extension) {
+        JsonObject part;
+
+        part = (JsonObject) gson().toJsonTree(extension);
+        for (Map.Entry<String, JsonElement> entry : part.entrySet()) {
+            config.add(prefix + entry.getKey(), entry.getValue());
+        }
     }
 }
 
