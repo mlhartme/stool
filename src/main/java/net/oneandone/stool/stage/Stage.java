@@ -368,10 +368,9 @@ public abstract class Stage {
 
         serverXml = ServerXml.load(serverXmlTemplate());
         keystore = keystore(ports.hosts());
-        serverXml.configure(ports, keystore, config().mode, config().cookies, session.configuration.vhosts,
-                shared().join("editor/userdata/userdata.xml"));
+        pustefixEditor = PustefixEditor.create(this);
+        serverXml.configure(ports, keystore, config().mode, config().cookies, session.configuration.vhosts, pustefixEditor);
         serverXml.save(serverXml());
-        pustefixEditor = pustefixEditor();
         pustefixEditor.beforeStart(this, ports.urlMap(keystore != null, session.configuration.vhosts, config().suffix).values());
         if (session.configuration.security.isLocal()) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
@@ -387,10 +386,6 @@ public abstract class Stage {
         for (String app : namedUrls()) {
             console.info.println("  " + app);
         }
-    }
-
-    public PustefixEditor pustefixEditor() {
-        return PustefixEditor.create(config());
     }
 
     /** Fails if Tomcat is not running */

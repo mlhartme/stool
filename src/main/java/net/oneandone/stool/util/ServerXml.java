@@ -27,9 +27,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,27 +52,20 @@ public class ServerXml {
         Files.stoolFile(file);
     }
 
-    public void configure(Ports ports, KeyStore keystore, String mode, boolean cookies, boolean vhosts, FileNode editorUserdata) throws XmlException {
+    public void configure(Ports ports, KeyStore keystore, String mode, boolean cookies, boolean vhosts, PustefixEditor pustefixEditor) throws XmlException {
         Element template;
         Element service;
-        String editorLocation;
         List<Host> hosts;
 
         document.getDocumentElement().setAttribute("port", Integer.toString(ports.stop()));
         template = selector.element(document, "Server/Service");
         hosts = ports.hosts();
-        editorLocation = null;
-        for (Host host : hosts) {
-            if (host.isCms()) {
-                editorLocation = host.httpUrl(vhosts);
-            }
-        }
         for (Host host : hosts) {
             service = (Element) template.cloneNode(true);
             document.getDocumentElement().appendChild(service);
             service(service, host);
             connectors(service, host, keystore);
-            contexts(service, mode, cookies, editorLocation, editorUserdata, host.docroot.join("WEB-INF"));
+            contexts(service, mode, cookies, pustefixEditor, host.docroot.join("WEB-INF"));
         }
         template.getParentNode().removeChild(template);
     }
@@ -174,7 +165,7 @@ public class ServerXml {
 
     }
 
-    public void contexts(Element service, String mode, boolean cookies, String editorLocation, FileNode editorUserdata, FileNode webinf) throws XmlException {
+    public void contexts(Element service, String mode, boolean cookies, PustefixEditor pustefixEditor, FileNode webinf) throws XmlException {
         Element context;
         Element manager;
 
@@ -187,17 +178,8 @@ public class ServerXml {
                 manager.setAttribute("pathname", "");
                 context.appendChild(manager);
             }
-            if (host.getAttribute("name").startsWith(PustefixEditor.PREFIX)) {
-                parameter(context, "editor.userdata").setAttribute("value", editorUserdata.getURI().toString());
-                parameter(context, "editor.locations").setAttribute("value", webinf.join("editor-locations.xml").getURI().toString());
-            } else {
-                parameter(context, "mode").setAttribute("value", mode);
-                if (editorLocation != null) {
-                    parameter(context, "editor.enabled").setAttribute("value", "true");
-                    parameter(context, "editor.location").setAttribute("value", editorLocation);
-                    parameter(context, "editor.secret").setAttribute("value", "foobar");
-                }
-            }
+            parameter(context, "mode").setAttribute("value", mode);
+            pustefixEditor.contextParameter(host.getAttribute("name"), context, webinf);
         }
     }
 

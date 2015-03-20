@@ -16,7 +16,6 @@
 
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.extensions.PustefixEditor;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -78,10 +77,6 @@ public class Host {
 
     public String httpsUrl(boolean vhosts) {
         return "https://" + fqdn(vhosts) + ":" + httpsPort();
-    }
-
-    public boolean isCms() {
-        return vhost.startsWith(PustefixEditor.PREFIX);
     }
 
     public String fqdn(boolean vhosts) {

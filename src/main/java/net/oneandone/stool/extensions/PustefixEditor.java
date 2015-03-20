@@ -2,12 +2,13 @@ package net.oneandone.stool.extensions;
 
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.ServerXml;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.util.Strings;
+import net.oneandone.sushi.xml.XmlException;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
+import org.w3c.dom.Element;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,11 +19,14 @@ import java.util.Map;
 public class PustefixEditor {
     public static final java.lang.String PREFIX = "cms.";
 
-    public static PustefixEditor create(StageConfiguration config) {
-        return new PustefixEditor(config.pustefixEditor, config.pustefixEditorVersion, config.pustefixEditorUserdata);
+    public static PustefixEditor create(Stage stage) {
+        return new PustefixEditor(stage, stage.config().pustefixEditor, stage.config().pustefixEditorVersion,
+                stage.config().pustefixEditorUserdata);
     }
 
     //--
+
+    private final Stage stage;
 
     private final boolean enabled;
     
@@ -30,7 +34,8 @@ public class PustefixEditor {
 
     private final String userdata;
 
-    public PustefixEditor(boolean enabled, String version, String userdata) {
+    public PustefixEditor(Stage stage, boolean enabled, String version, String userdata) {
+        this.stage = stage;
         this.enabled = enabled;
         this.version = version;
         this.userdata = userdata;
@@ -117,4 +122,38 @@ public class PustefixEditor {
     private FileNode editorDocroot(Stage stage) {
         return stage.shared().join("editor/webapp");
     }
+
+    public void contextParameter(String name, Element context, FileNode webinf) throws XmlException {
+        FileNode userdata;
+
+        if (enabled) {
+            userdata = stage.shared().join("editor/userdata/userdata.xml");
+            if (name.startsWith(PustefixEditor.PREFIX)) {
+                parameter(context, "editor.userdata").setAttribute("value", userdata.getURI().toString());
+                parameter(context, "editor.locations").setAttribute("value", webinf.join("editor-locations.xml").getURI().toString());
+            } else {
+                parameter(context, "editor.enabled").setAttribute("value", "true");
+                parameter(context, "editor.location").setAttribute("value", userdata.getAbsolute());
+                parameter(context, "editor.secret").setAttribute("value", "foobar");
+            }
+        }
+    }
+
+    private Element parameterOpt(Element context, String name) throws XmlException {
+        return stage.getDirectory().getWorld().getXml().getSelector().elementOpt(context, "Parameter[@name='" + name + "']");
+    }
+
+    private Element parameter(Element context, String name) throws XmlException {
+        Element parameter;
+
+        parameter = parameterOpt(context, name);
+        if (parameter == null) {
+            parameter = context.getOwnerDocument().createElement("Parameter");
+            parameter.setAttribute("name", name);
+            parameter.setAttribute("override", "false");
+            context.appendChild(parameter);
+        }
+        return parameter;
+    }
+
 }
