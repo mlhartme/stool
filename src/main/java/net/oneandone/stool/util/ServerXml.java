@@ -29,7 +29,9 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServerXml {
     private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";
@@ -168,6 +170,7 @@ public class ServerXml {
     public void contexts(int httpPort, Element service, String mode, boolean cookies, Extension extension, FileNode webinf) throws XmlException {
         Element context;
         Element manager;
+        Map<String, String> map;
 
         for (Element host : selector.elements(service, "Engine/Host")) {
             context = selector.element(host, "Context");
@@ -178,8 +181,12 @@ public class ServerXml {
                 manager.setAttribute("pathname", "");
                 context.appendChild(manager);
             }
-            parameter(context, "mode").setAttribute("value", mode);
-            extension.contextParameter(host.getAttribute("name"), httpPort, context, webinf);
+            map = new HashMap<>();
+            map.put("mode", mode);
+            extension.contextParameter(host.getAttribute("name"), httpPort, webinf, map);
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                parameter(context, entry.getKey()).setAttribute("value", entry.getValue());
+            }
         }
     }
 

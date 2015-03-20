@@ -52,7 +52,7 @@ public class PustefixEditor implements Extension {
         }
     }
 
-    public void contextParameter(String host, int httpPort, Element context, FileNode webinf) throws XmlException {
+    public void contextParameter(String host, int httpPort, FileNode webinf, Map<String, String> result) throws XmlException {
         String editorLocation;
         FileNode userdata;
 
@@ -60,12 +60,12 @@ public class PustefixEditor implements Extension {
             editorLocation = "http://" + fqdn() + ":" + httpPort;
             userdata = stage.shared().join("editor/userdata/userdata.xml");
             if (host.startsWith(PustefixEditor.PREFIX)) {
-                parameter(context, "editor.userdata").setAttribute("value", userdata.getURI().toString());
-                parameter(context, "editor.locations").setAttribute("value", webinf.join("editor-locations.xml").getURI().toString());
+                result.put("editor.userdata", userdata.getURI().toString());
+                result.put("editor.locations", webinf.join("editor-locations.xml").getURI().toString());
             } else {
-                parameter(context, "editor.enabled").setAttribute("value", "true");
-                parameter(context, "editor.location").setAttribute("value", editorLocation);
-                parameter(context, "editor.secret").setAttribute("value", "foobar");
+                result.put("editor.enabled", "true");
+                result.put("editor.location", editorLocation);
+                result.put("editor.secret", "foobar");
             }
         }
     }

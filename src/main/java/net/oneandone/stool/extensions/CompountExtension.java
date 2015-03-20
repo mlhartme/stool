@@ -41,9 +41,9 @@ public class CompountExtension implements Extension {
     }
 
     @Override
-    public void contextParameter(String host, int httpPort, Element context, FileNode webinf) throws XmlException {
+    public void contextParameter(String host, int httpPort, FileNode webinf, Map<String, String> result) throws XmlException {
         for (Extension extension : extensions) {
-            extension.contextParameter(host, httpPort, context, webinf);
+            extension.contextParameter(host, httpPort, webinf, result);
         }
     }
 }
