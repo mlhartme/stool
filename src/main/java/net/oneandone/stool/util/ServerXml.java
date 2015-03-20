@@ -179,7 +179,7 @@ public class ServerXml {
                 context.appendChild(manager);
             }
             parameter(context, "mode").setAttribute("value", mode);
-            extension.contextParameter(httpPort, host.getAttribute("name"), context, webinf);
+            extension.contextParameter(host.getAttribute("name"), httpPort, context, webinf);
         }
     }
 

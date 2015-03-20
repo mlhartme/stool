@@ -13,5 +13,5 @@ public interface Extension {
 
     void beforeStart(Collection<String> apps) throws IOException;
 
-    void contextParameter(int httpPort, String name, Element context, FileNode webinf) throws XmlException;
+    void contextParameter(String host, int httpPort, Element context, FileNode webinf) throws XmlException;
 }
