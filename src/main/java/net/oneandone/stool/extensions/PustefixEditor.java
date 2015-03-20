@@ -13,10 +13,11 @@ import org.w3c.dom.Element;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PustefixEditor {
+public class PustefixEditor implements Extension {
     private static final java.lang.String PREFIX = "cms.";
 
     public static PustefixEditor create(Stage stage) {
@@ -41,10 +42,14 @@ public class PustefixEditor {
         this.userdata = userdata;
     }
 
-    public void vhosts(Map<String, FileNode> hosts) {
+    public Map<String, FileNode> vhosts() {
+        Map<String, FileNode> result;
+
+        result = new HashMap<>();
         if (enabled) {
-            hosts.put(PREFIX + stage.getName(), editorDocroot(stage));
+            result.put(PREFIX + stage.getName(), editorDocroot(stage));
         }
+        return result;
     }
 
     public void beforeStart(Collection<String> apps) throws IOException {
