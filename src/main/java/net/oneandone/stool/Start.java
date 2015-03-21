@@ -89,7 +89,7 @@ public class Start extends StageCommand {
         stage.start(console, ports);
         ping(stage);
         stage.buildStats().start(executionTime());
-        stage.buildStats().save();
+        stage.buildStats().save(session.gson);
         if (tail) {
             doTail(stage);
         }

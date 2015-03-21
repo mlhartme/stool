@@ -3,22 +3,15 @@ package net.oneandone.stool.extensions;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.oneandone.stool.configuration.Until;
-import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.sushi.fs.Node;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.xml.XmlException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 public class Extensions implements Iterable<Extension> {
     private final Map<String, Extension> extensions;

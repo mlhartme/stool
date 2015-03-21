@@ -657,7 +657,7 @@ public abstract class Stage {
 
             file = shared().join("buildstats.json");
             if (file.exists()) {
-                lazyBuildstats = BuildStats.load(file);
+                lazyBuildstats = BuildStats.load(session.gson, file);
             } else {
                 lazyBuildstats = new BuildStats(file);
             }

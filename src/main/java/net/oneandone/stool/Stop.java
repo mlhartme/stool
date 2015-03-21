@@ -34,7 +34,7 @@ public class Stop extends StageCommand {
         timeStart();
         invokeNormal(stage);
         stage.buildStats().stop(executionTime());
-        stage.buildStats().save();
+        stage.buildStats().save(session.gson);
 
     }
 

@@ -33,23 +33,19 @@ public class BuildStats {
     private long build;
     @Expose
     private long refresh;
+
     private Node file;
 
     public BuildStats(Node file) {
         this.file = file;
     }
-    public static BuildStats load(Node file) throws IOException {
+
+    public static BuildStats load(Gson gson, Node file) throws IOException {
         BuildStats result;
 
-        result = gson().fromJson(file.readString(), BuildStats.class);
+        result = gson.fromJson(file.readString(), BuildStats.class);
         result.file = file;
         return result;
-    }
-
-    public static Gson gson() {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.excludeFieldsWithoutExposeAnnotation();
-        return gsonBuilder.create();
     }
 
     public long getAvgStart() {
@@ -95,8 +91,8 @@ public class BuildStats {
             refresh = (refresh + refreshTime) / 2;
         }
     }
-    public void save() throws IOException {
-        Files.stoolFile(file.writeString(gson().toJson(this)));
+    public void save(Gson gson) throws IOException {
+        Files.stoolFile(file.writeString(gson.toJson(this)));
     }
 
 }

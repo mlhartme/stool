@@ -112,7 +112,7 @@ public class Session {
     //--
 
     public final ExtensionsFactory extensionsFactory;
-    private final Gson gson;
+    public final Gson gson;
     public final Logging logging;
     public final String user;
     public final String command;

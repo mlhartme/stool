@@ -69,7 +69,7 @@ public class Refresh extends StageCommand {
             timeStart();
             invokeNormal(stage);
             stage.buildStats().refresh(executionTime());
-            stage.buildStats().save();
+            stage.buildStats().save(session.gson);
         }
     }
 

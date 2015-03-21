@@ -51,7 +51,7 @@ public class Build extends StageCommand {
 
         build(stage);
         stage.buildStats().build(executionTime());
-        stage.buildStats().save();
+        stage.buildStats().save(session.gson);
     }
     protected void build(Stage stage) throws IOException {
         String command;
