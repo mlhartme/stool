@@ -46,7 +46,12 @@ stool() {
         return
       fi
     fi
-
+    for jar in $home/extensions/*.jar; do
+      # caution: if the extensions directory is empty, $jar is the pattern ...
+      if [ -f $jar ] ; then
+        cp="$cp:$jar"
+      fi
+    done
     STOOL_HOME=$home ${{java.home}}/bin/java $STOOL_OPTS -cp $cp net.oneandone.stool.Main -invocation $STOOL_INVOCATION "$@"
     result=$?
     if [ -f $STOOL_INVOCATION ] ; then
