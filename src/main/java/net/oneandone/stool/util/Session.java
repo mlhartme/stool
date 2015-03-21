@@ -20,6 +20,7 @@ import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
+import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
@@ -102,6 +103,7 @@ public class Session {
 
     //--
 
+    public final ExtensionsFactory extensionsFactory;
     public final Logging logging;
     public final String user;
     public final String command;
@@ -121,11 +123,11 @@ public class Session {
     private final Subversion subversion;
 
     private String selectedStageName;
-    private Processes lazyProcesses;
     public final Users users;
 
     public Session(Logging logging, String user, String command, FileNode home, Console console, Environment environment, StoolConfiguration configuration,
                    Bedroom bedroom, FileNode invocationFile) {
+        this.extensionsFactory = ExtensionsFactory.create(home.getWorld());
         this.logging = logging;
         this.user = user;
         this.command = command;
@@ -415,7 +417,7 @@ public class Session {
     }
 
     public StageConfiguration loadStageConfiguration(Node wrapper) throws IOException {
-        return StageConfiguration.load(wrapper);
+        return StageConfiguration.load(wrapper, extensionsFactory);
     }
 
     //-- stool properties
@@ -437,7 +439,7 @@ public class Session {
     public StageConfiguration createStageConfiguration(String url) throws IOException {
         StageConfiguration stage;
 
-        stage = new StageConfiguration(javaHome(), Maven.locateMaven(console.world).getAbsolute());
+        stage = new StageConfiguration(javaHome(), Maven.locateMaven(console.world).getAbsolute(), extensionsFactory.newInstance());
         configuration.setDefaults(stage, url);
         return stage;
     }

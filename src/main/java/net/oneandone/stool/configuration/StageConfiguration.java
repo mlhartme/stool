@@ -24,7 +24,7 @@ import com.google.gson.annotations.Expose;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.extensions.Extension;
 import net.oneandone.stool.extensions.Extensions;
-import net.oneandone.stool.extensions.PustefixEditor;
+import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Role;
 import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.Node;
@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -121,7 +120,7 @@ public class StageConfiguration extends BaseConfiguration {
 
     public final Extensions extensions;
 
-    public StageConfiguration(String javaHome, String mavenHome) {
+    public StageConfiguration(String javaHome, String mavenHome, Extensions extensions) {
         this.mode = "test";
         this.cookies = true;
         this.prepare = "";
@@ -142,8 +141,7 @@ public class StageConfiguration extends BaseConfiguration {
         this.sslUrl = "";
         this.comment = "";
         this.autoRefresh = false;
-        this.extensions = new Extensions();
-        extensions.add(new PustefixEditor());
+        this.extensions = extensions;
     }
 
     public static boolean isConfigurable(String key, Role role) {
@@ -166,7 +164,7 @@ public class StageConfiguration extends BaseConfiguration {
         }
     }
 
-    public static StageConfiguration load(Node wrapper) throws IOException {
+    public static StageConfiguration load(Node wrapper, ExtensionsFactory factory) throws IOException {
         JsonParser parser;
         JsonObject config;
         Extensions extensions;
@@ -176,39 +174,10 @@ public class StageConfiguration extends BaseConfiguration {
         try (Reader reader = configurationFile(wrapper).createReader()) {
             config = (JsonObject) parser.parse(reader);
         }
-        extensions = eatExtensions(config);
+        extensions = factory.eatExtensions(config);
         result = gson().fromJson(config, StageConfiguration.class);
         result.extensions.addAll(extensions);
         return result;
-    }
-
-    private static Extensions eatExtensions(JsonObject config) {
-        Extensions result;
-
-        result = new Extensions();
-        result.add(eatExtension("pustefix.editor.", PustefixEditor.class, config));
-        return result;
-    }
-
-    private static Extension eatExtension(String prefix, Class<? extends Extension> clazz, JsonObject config) {
-        JsonObject part;
-        String name;
-        Gson gson;
-        Iterator<Map.Entry<String, JsonElement>> iter;
-        Map.Entry<String, JsonElement> entry;
-
-        part = new JsonObject();
-        iter = config.entrySet().iterator();
-        while (iter.hasNext()) {
-            entry = iter.next();
-            name = entry.getKey();
-            if (name.startsWith(prefix)) {
-                part.add(name.substring(prefix.length()), entry.getValue());
-                iter.remove();
-            }
-        }
-        gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.fromJson(part, clazz);
     }
 
     public static Node configurationFile(Node wrapper) throws ExistsException {
@@ -226,19 +195,8 @@ public class StageConfiguration extends BaseConfiguration {
         JsonObject config;
 
         config = (JsonObject) gson().toJsonTree(this);
-        for (Extension extension : extensions) {
-            addExtension(config, "pustefix.editor" /* TODO */, extension);
-        }
+        extensions.addConfig(config);
         configurationFile(wrapper).writeString(config.toString());
-    }
-
-    private void addExtension(JsonObject config, String prefix, Extension extension) {
-        JsonObject part;
-
-        part = (JsonObject) gson().toJsonTree(extension);
-        for (Map.Entry<String, JsonElement> entry : part.entrySet()) {
-            config.add(prefix + entry.getKey(), entry.getValue());
-        }
     }
 }
 
