@@ -162,7 +162,7 @@ public class StageConfiguration extends BaseConfiguration {
         }
     }
 
-    public static StageConfiguration load(Node wrapper, ExtensionsFactory factory) throws IOException {
+    public static StageConfiguration load(Gson gson, Node wrapper, ExtensionsFactory factory) throws IOException {
         JsonParser parser;
         JsonObject config;
         Extensions extensions;
@@ -173,7 +173,7 @@ public class StageConfiguration extends BaseConfiguration {
             config = (JsonObject) parser.parse(reader);
         }
         extensions = factory.eatExtensions(config);
-        result = GSON.fromJson(config, StageConfiguration.class);
+        result = gson.fromJson(config, StageConfiguration.class);
         result.extensions = extensions;
         return result;
     }
@@ -182,13 +182,10 @@ public class StageConfiguration extends BaseConfiguration {
         return wrapper.isDirectory() ? wrapper.join("config.json") : wrapper;
     }
 
-    public static final Gson GSON = new GsonBuilder()
-          .registerTypeAdapter(Until.class, new UntilTypeAdapter()).excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
-
-    public void save(Node wrapper) throws IOException {
+    public void save(Gson gson, Node wrapper) throws IOException {
         JsonObject config;
 
-        config = (JsonObject) GSON.toJsonTree(this);
+        config = (JsonObject) gson.toJsonTree(this);
         extensions.addConfig(config);
         configurationFile(wrapper).writeString(config.toString());
     }
