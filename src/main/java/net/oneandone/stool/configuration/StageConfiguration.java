@@ -17,12 +17,10 @@ package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
-import net.oneandone.stool.extensions.Extension;
 import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Role;
@@ -34,7 +32,6 @@ import java.io.Reader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class StageConfiguration extends BaseConfiguration {
     @Expose
@@ -118,7 +115,8 @@ public class StageConfiguration extends BaseConfiguration {
     @Option(key = "comment", description = "a comment")
     public String comment;
 
-    public final Extensions extensions;
+    // TODO: final
+    public Extensions extensions;
 
     public StageConfiguration(String javaHome, String mavenHome, Extensions extensions) {
         this.mode = "test";
@@ -176,7 +174,7 @@ public class StageConfiguration extends BaseConfiguration {
         }
         extensions = factory.eatExtensions(config);
         result = gson().fromJson(config, StageConfiguration.class);
-        result.extensions.addAll(extensions);
+        result.extensions = extensions;
         return result;
     }
 
@@ -186,9 +184,7 @@ public class StageConfiguration extends BaseConfiguration {
 
     public static Gson gson() {
         return new GsonBuilder()
-          .registerTypeAdapter(Until.class, new UntilTypeAdapter())
-          .setPrettyPrinting()
-          .create();
+          .registerTypeAdapter(Until.class, new UntilTypeAdapter()).excludeFieldsWithoutExposeAnnotation().setPrettyPrinting().create();
     }
 
     public void save(Node wrapper) throws IOException {
