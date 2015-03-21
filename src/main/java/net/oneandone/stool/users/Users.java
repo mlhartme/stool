@@ -24,16 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Users {
-    public static void main(String[] args) throws IOException, UserNotFound, NamingException {
-        Users users;
-        StoolConfiguration config;
-
-        config = StoolConfiguration.load(new World().file("/Users/mhm/Packages/stool-3.0"));
-        users = Users.fromLdap(config.ldapUrl, config.ldapPrincipal, config.ldapCredentials);
-        System.out.println(users.byLogin("mhm"));
-        System.out.println("ok");
-    }
-
     public static Users fromLdap(String url, String principal, String credentials) {
         return new Users(Ldap.create(url, principal, credentials));
     }

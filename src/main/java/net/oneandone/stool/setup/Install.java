@@ -77,7 +77,7 @@ public class Install {
         tuneHostname(conf);
         tuneExplicit(conf);
         copyResources(variables(Session.javaHome()));
-        conf.save(home);
+        conf.save(Session.gson(home.getWorld()), home);
 
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);

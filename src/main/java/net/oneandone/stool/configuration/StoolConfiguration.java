@@ -15,14 +15,8 @@
  */
 package net.oneandone.stool.configuration;
 
-import com.github.zafarkhaja.semver.Version;
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
-import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
-import net.oneandone.stool.configuration.adapter.VersionTypeAdapter;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 
@@ -180,22 +174,12 @@ public class StoolConfiguration extends BaseConfiguration {
         return home.isDirectory() ? home.join("config.json") : home;
     }
 
-    public static StoolConfiguration load(FileNode home) throws IOException {
-        return gson(home.getWorld()).fromJson(configurationFile(home).readString(), StoolConfiguration.class);
-    }
-    private static Gson gson(World world) {
-        return new GsonBuilder()
-          .registerTypeAdapter(FileNode.class, new FileNodeTypeAdapter(world))
-          .registerTypeAdapter(Version.class, new VersionTypeAdapter())
-          .registerTypeAdapter(Until.class, new UntilTypeAdapter())
-          .excludeFieldsWithoutExposeAnnotation()
-          .disableHtmlEscaping()
-          .setPrettyPrinting()
-          .create();
+    public static StoolConfiguration load(Gson gson, FileNode home) throws IOException {
+        return gson.fromJson(configurationFile(home).readString(), StoolConfiguration.class);
     }
 
-    public void save(FileNode home) throws IOException {
-        configurationFile(home).writeString(gson(home.getWorld()).toJson(this, StoolConfiguration.class));
+    public void save(Gson gson, FileNode home) throws IOException {
+        configurationFile(home).writeString(gson.toJson(this, StoolConfiguration.class));
     }
 
     /**

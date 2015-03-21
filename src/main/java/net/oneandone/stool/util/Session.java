@@ -15,11 +15,16 @@
  */
 package net.oneandone.stool.util;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
+import net.oneandone.stool.configuration.Until;
+import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
+import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
@@ -29,6 +34,7 @@ import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
@@ -89,12 +95,14 @@ public class Session {
     }
 
     private static Session loadWithoutWipe(Logging logging, String user, String command, Environment environment, Console console, FileNode invocationFile) throws IOException {
+        Gson gson;
         FileNode home;
         Session result;
 
+        gson = gson(console.world);
         home = environment.stoolHome(console.world);
         home.checkDirectory();
-        result = new Session(logging, user, command, home, console, environment, StoolConfiguration.load(home), Bedroom.loadOrCreate(home), invocationFile);
+        result = new Session(gson, logging, user, command, home, console, environment, StoolConfiguration.load(gson, home), Bedroom.loadOrCreate(home), invocationFile);
         result.selectedStageName = environment.get(Environment.STOOL_SELECTED);
         return result;
     }
@@ -104,6 +112,7 @@ public class Session {
     //--
 
     public final ExtensionsFactory extensionsFactory;
+    private final Gson gson;
     public final Logging logging;
     public final String user;
     public final String command;
@@ -125,9 +134,10 @@ public class Session {
     private String selectedStageName;
     public final Users users;
 
-    public Session(Logging logging, String user, String command, FileNode home, Console console, Environment environment, StoolConfiguration configuration,
+    public Session(Gson gson, Logging logging, String user, String command, FileNode home, Console console, Environment environment, StoolConfiguration configuration,
                    Bedroom bedroom, FileNode invocationFile) {
         this.extensionsFactory = ExtensionsFactory.create(home.getWorld());
+        this.gson = gson;
         this.logging = logging;
         this.user = user;
         this.command = command;
@@ -150,7 +160,7 @@ public class Session {
     //--
 
     public void saveConfiguration() throws IOException {
-        configuration.save(home);
+        configuration.save(gson, home);
     }
 
 
@@ -462,5 +472,15 @@ public class Session {
             lazyPlexus = Maven.container();
         }
         return lazyPlexus;
+    }
+
+    public static Gson gson(World world) {
+        return new GsonBuilder()
+                .registerTypeAdapter(FileNode.class, new FileNodeTypeAdapter(world))
+                .registerTypeAdapter(Until.class, new UntilTypeAdapter())
+                .excludeFieldsWithoutExposeAnnotation()
+                .disableHtmlEscaping()
+                .setPrettyPrinting()
+                .create();
     }
 }
