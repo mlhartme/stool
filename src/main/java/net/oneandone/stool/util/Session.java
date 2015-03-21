@@ -478,7 +478,6 @@ public class Session {
         return new GsonBuilder()
                 .registerTypeAdapter(FileNode.class, new FileNodeTypeAdapter(world))
                 .registerTypeAdapter(Until.class, new UntilTypeAdapter())
-                .excludeFieldsWithoutExposeAnnotation()
                 .disableHtmlEscaping()
                 .setPrettyPrinting()
                 .create();

@@ -16,8 +16,6 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.Expose;
 import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -46,10 +44,9 @@ public class Bedroom {
 
     //--
 
-    @Expose
     public List<String> sleep;
 
-    private FileNode file;
+    private transient FileNode file;
 
     public Bedroom(FileNode file) {
         this.file = file;

@@ -16,25 +16,17 @@
 package net.oneandone.stool.util;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.Expose;
 import net.oneandone.sushi.fs.Node;
 
 import java.io.IOException;
 
 public class BuildStats {
-
-
-    @Expose
     private long start;
-    @Expose
     private long stop;
-    @Expose
     private long build;
-    @Expose
     private long refresh;
 
-    private Node file;
+    private transient Node file;
 
     public BuildStats(Node file) {
         this.file = file;

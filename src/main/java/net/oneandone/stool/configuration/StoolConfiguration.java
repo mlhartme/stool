@@ -16,7 +16,6 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
-import com.google.gson.annotations.Expose;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 
@@ -26,118 +25,93 @@ import java.util.Map;
 
 public class StoolConfiguration extends BaseConfiguration {
     /** may be separate port or part of the portFirst ... portLast range; has to end with 2 to use single-sign-on */
-    @Expose
     public int portOverview;
 
-    @Expose
     public int portFirst;
 
-    @Expose
     public int portLast;
 
     /**
      * ps1 shell string
      */
-    @Expose
     public String prompt;
 
     /**
      * used for output and application urls
      */
-    @Expose
     public String hostname;
 
     /**
      * Use vhosts
      */
-    @Expose
     public boolean vhosts;
 
     /**
      * in megabyte
      */
-    @Expose
     public int diskMin;
 
     /**
      * Name + email
      */
-    @Expose
     public String contactAdmin;
 
     /**
      * group which defines administrative rights
      */
-    @Expose
     public String adminGroup;
 
     /**
      * security level [local|pearl|gem|waterloo]
      */
-    @Expose
     public SecurityLevel security;
 
     /**
      * For additional "system-wide" shortcuts.
      */
-    @Expose
     public Map<String, String> macros;
 
     // preserve order!
-    @Expose
     public LinkedHashMap<String, Map<String, String>> defaults = new LinkedHashMap<>();
 
     /**
      * Base value to calculate ram per application
      */
-    @Expose
     public int basePerm;
 
     /**
      * Base value to calculate ram per application
      */
-    @Expose
     public int baseHeap;
 
-    @Expose
     public String mailHost;
 
-    @Expose
     public String mailUsername;
 
-    @Expose
     public String mailPassword;
 
     // URL to generate certificates
-    @Expose
     public String certificates;
 
-    @Expose
     public String ldapUrl;
 
-    @Expose
     public String ldapPrincipal;
 
-    @Expose
     public String ldapCredentials;
 
-    @Expose
     public String ldapSso;
 
-    // numer of days between up-to-data checks
-    @Expose
+    // number of days between up-to-data checks
     public int updateInterval;
 
     /**
      * Number of days to wait before removing an expired stage.
      */
-    @Expose
     public int autoRemove;
 
     /**
      * url or null
      */
-    @Expose
     public String errorTool;
 
     public StoolConfiguration() {

@@ -18,7 +18,6 @@ package net.oneandone.stool.configuration;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.gson.annotations.Expose;
 import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Role;
@@ -32,89 +31,69 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StageConfiguration extends BaseConfiguration {
-    @Expose
     @Option(key = "mode", description = "mode to run applications with")
     public String mode;
 
-    @Expose
     @Option(key = "cookies", description = "use cookies for tomcat", role = Role.USER)
     public Boolean cookies;
 
-    @Expose
     @Option(key = "prepare", description = "execute this after checkout", role = Role.USER)
     public String prepare;
 
-    @Expose
     @Option(key = "build", description = "arbitrary build command line. Supported variables: @directory@", role = Role.USER)
     public String build;
 
-    @Expose
     @Option(key = "refresh", description = "execute this for refresh", role = Role.USER)
     public String refresh;
 
-    @Expose
     @Option(key = "pom", description = "pom file name", role = Role.USER)
     public String pom;
 
-    @Expose
     @Option(key = "tomcat.opts", description = "CATALINE_OPTS without heap/perm settings")
     public String tomcatOpts;
 
-    @Expose
     @Option(key = "tomcat.version", description = "Tomcat version to use.")
     public String tomcatVersion;
 
-    @Expose
     @Option(key = "tomcat.service", description = "Java Service Wrapper version to use around Tomcat.")
     public String tomcatService;
 
-    @Expose
     @Option(key = "tomcat.heap", description = "memory in mb")
     public Integer tomcatHeap;
 
-    @Expose
     @Option(key = "tomcat.perm", description = "memory in mb")
     public Integer tomcatPerm;
 
-    @Expose
     @Option(key = "tomcat.select", description = "hostnames to start - empty for all", role = Role.USER)
     public List<String> tomcatSelect;
 
-    @Expose
     @Option(key = "java.home", description = "jdk or jre directory")
     public String javaHome;
 
-    @Expose
     @Option(key = "maven.home", description = "Maven home")
     public String mavenHome;
 
-    @Expose
     @Option(key = "maven.opts",
       description = "MAVEN_OPTS when building this stage. Supported variables: @trustStore@, @proxyOpts@ and @localRepository@")
     public String mavenOpts;
 
-    @Expose
     @Option(key = "until", description = "YYYY-MM-DD and optional time")
     public Until until;
 
-    @Expose
     @Option(key = "suffix", description = "suffix for the link eg. http://1and1.com/{suffix}", role = Role.USER)
     public String suffix;
 
-    @Expose
     @Option(key = "sslUrl", description = "overrides the default url for certificate creation")
     public String sslUrl;
 
-    @Expose
     @Option(key = "autoRefresh", description = "true if a stage should care about refreshing by itself")
     public Boolean autoRefresh;
 
-    @Expose
     @Option(key = "comment", description = "a comment")
     public String comment;
 
     // TODO: final
-    public Extensions extensions;
+    public transient Extensions extensions;
 
     public StageConfiguration(String javaHome, String mavenHome, Extensions extensions) {
         this.mode = "test";
