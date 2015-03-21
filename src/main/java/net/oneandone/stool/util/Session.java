@@ -23,8 +23,10 @@ import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.configuration.Until;
+import net.oneandone.stool.configuration.adapter.ExtensionsAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
+import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
@@ -95,14 +97,16 @@ public class Session {
     }
 
     private static Session loadWithoutWipe(Logging logging, String user, String command, Environment environment, Console console, FileNode invocationFile) throws IOException {
+        ExtensionsFactory factory;
         Gson gson;
         FileNode home;
         Session result;
 
-        gson = gson(console.world);
+        factory = ExtensionsFactory.create(console.world);
+        gson = gson(console.world, factory);
         home = environment.stoolHome(console.world);
         home.checkDirectory();
-        result = new Session(gson, logging, user, command, home, console, environment, StoolConfiguration.load(gson, home), Bedroom.loadOrCreate(gson, home), invocationFile);
+        result = new Session(factory, gson, logging, user, command, home, console, environment, StoolConfiguration.load(gson, home), Bedroom.loadOrCreate(gson, home), invocationFile);
         result.selectedStageName = environment.get(Environment.STOOL_SELECTED);
         return result;
     }
@@ -134,9 +138,9 @@ public class Session {
     private String selectedStageName;
     public final Users users;
 
-    public Session(Gson gson, Logging logging, String user, String command, FileNode home, Console console, Environment environment, StoolConfiguration configuration,
+    public Session(ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command, FileNode home, Console console, Environment environment, StoolConfiguration configuration,
                    Bedroom bedroom, FileNode invocationFile) {
-        this.extensionsFactory = ExtensionsFactory.create(home.getWorld());
+        this.extensionsFactory = extensionsFactory;
         this.gson = gson;
         this.logging = logging;
         this.user = user;
@@ -427,7 +431,7 @@ public class Session {
     }
 
     public StageConfiguration loadStageConfiguration(Node wrapper) throws IOException {
-        return StageConfiguration.load(gson, wrapper, extensionsFactory);
+        return StageConfiguration.load(gson, wrapper);
     }
 
     //-- stool properties
@@ -474,10 +478,11 @@ public class Session {
         return lazyPlexus;
     }
 
-    public static Gson gson(World world) {
+    public static Gson gson(World world, ExtensionsFactory factory) {
         return new GsonBuilder()
                 .registerTypeAdapter(FileNode.class, new FileNodeTypeAdapter(world))
                 .registerTypeAdapter(Until.class, new UntilTypeAdapter())
+                .registerTypeAdapterFactory(ExtensionsAdapter.factory(factory))
                 .disableHtmlEscaping()
                 .setPrettyPrinting()
                 .create();

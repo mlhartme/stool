@@ -16,10 +16,7 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import net.oneandone.stool.extensions.Extensions;
-import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Role;
 import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.Node;
@@ -92,8 +89,7 @@ public class StageConfiguration extends BaseConfiguration {
     @Option(key = "comment", description = "a comment")
     public String comment;
 
-    // TODO: final
-    public transient Extensions extensions;
+    public final Extensions extensions;
 
     public StageConfiguration(String javaHome, String mavenHome, Extensions extensions) {
         this.mode = "test";
@@ -139,20 +135,10 @@ public class StageConfiguration extends BaseConfiguration {
         }
     }
 
-    public static StageConfiguration load(Gson gson, Node wrapper, ExtensionsFactory factory) throws IOException {
-        JsonParser parser;
-        JsonObject config;
-        Extensions extensions;
-        StageConfiguration result;
-
-        parser = new JsonParser();
+    public static StageConfiguration load(Gson gson, Node wrapper) throws IOException {
         try (Reader reader = configurationFile(wrapper).createReader()) {
-            config = (JsonObject) parser.parse(reader);
+            return gson.fromJson(reader, StageConfiguration.class);
         }
-        extensions = factory.eatExtensions(config);
-        result = gson.fromJson(config, StageConfiguration.class);
-        result.extensions = extensions;
-        return result;
     }
 
     public static Node configurationFile(Node wrapper) throws ExistsException {
@@ -160,11 +146,7 @@ public class StageConfiguration extends BaseConfiguration {
     }
 
     public void save(Gson gson, Node wrapper) throws IOException {
-        JsonObject config;
-
-        config = (JsonObject) gson.toJsonTree(this);
-        extensions.addConfig(config);
-        configurationFile(wrapper).writeString(config.toString());
+        configurationFile(wrapper).writeString(gson.toJson(this));
     }
 }
 

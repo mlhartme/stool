@@ -17,6 +17,7 @@ package net.oneandone.stool.setup;
 
 import net.oneandone.stool.Overview;
 import net.oneandone.stool.configuration.StoolConfiguration;
+import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Logging;
@@ -77,7 +78,7 @@ public class Install {
         tuneHostname(conf);
         tuneExplicit(conf);
         copyResources(variables(Session.javaHome()));
-        conf.save(Session.gson(home.getWorld()), home);
+        conf.save(Session.gson(home.getWorld(), ExtensionsFactory.create(home.getWorld())), home);
 
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);

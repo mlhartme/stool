@@ -1,15 +1,10 @@
 package net.oneandone.stool.extensions;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 
@@ -24,7 +19,7 @@ public class ExtensionsFactory {
                 properties = node.readProperties();
                 for (Map.Entry<Object, Object> entry : properties.entrySet()) {
                     try {
-                        factory.put((String) entry.getKey(), (Class) Class.forName((String) properties.get(entry.getValue())));
+                        factory.put((String) entry.getKey(), (Class) Class.forName((String) entry.getValue()));
                     } catch (ClassNotFoundException e) {
                         throw new IllegalArgumentException("extension not found: " + entry.getValue());
                     }
@@ -50,6 +45,10 @@ public class ExtensionsFactory {
         }
     }
 
+    public Class<? extends Extension> type(String name) {
+        return types.get(name);
+    }
+
     public Extensions newInstance() {
         Extensions extensions;
 
@@ -64,38 +63,4 @@ public class ExtensionsFactory {
         }
         return extensions;
     }
-
-    public Extensions eatExtensions(JsonObject config) {
-        Extensions extensions;
-        String name;
-
-        extensions = new Extensions();
-        for (Map.Entry<String, Class<? extends Extension>> entry : types.entrySet()) {
-            name = entry.getKey();
-            extensions.add(name, eatExtension(name + ".", entry.getValue(), config));
-        }
-        return extensions;
-    }
-
-    private static Extension eatExtension(String prefix, Class<? extends Extension> clazz, JsonObject config) {
-        JsonObject part;
-        String name;
-        Gson gson;
-        Iterator<Map.Entry<String, JsonElement>> iter;
-        Map.Entry<String, JsonElement> entry;
-
-        part = new JsonObject();
-        iter = config.entrySet().iterator();
-        while (iter.hasNext()) {
-            entry = iter.next();
-            name = entry.getKey();
-            if (name.startsWith(prefix)) {
-                part.add(name.substring(prefix.length()), entry.getValue());
-                iter.remove();
-            }
-        }
-        gson = new GsonBuilder().setPrettyPrinting().create();
-        return gson.fromJson(part, clazz);
-    }
-
 }

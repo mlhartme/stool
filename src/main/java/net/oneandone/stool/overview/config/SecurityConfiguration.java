@@ -127,5 +127,4 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         result.setUserDetailsMapper(new InetOrgPersonContextMapper());
         return result;
     }
-
 }

@@ -1,8 +1,5 @@
 package net.oneandone.stool.extensions;
 
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.xml.XmlException;
@@ -14,7 +11,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Extensions implements Iterable<Extension> {
-    private final Map<String, Extension> extensions;
+    public final Map<String, Extension> extensions;
 
     public Extensions() {
         this.extensions = new HashMap<>();
@@ -52,28 +49,8 @@ public class Extensions implements Iterable<Extension> {
         return result;
     }
 
-    public void addAll(Extensions op) {
-        extensions.putAll(op.extensions);
-    }
-
     @Override
     public Iterator<Extension> iterator() {
         return extensions.values().iterator();
-    }
-
-
-    public void addConfig(JsonObject config) throws IOException {
-        for (Map.Entry<String, Extension> entry : extensions.entrySet()) {
-            addExtension(config, entry.getKey() + ".", entry.getValue());
-        }
-    }
-
-    private void addExtension(JsonObject config, String prefix, Extension extension) {
-        JsonObject part;
-
-        part = (JsonObject) new GsonBuilder().setPrettyPrinting().create().toJsonTree(extension);
-        for (Map.Entry<String, JsonElement> entry : part.entrySet()) {
-            config.add(prefix + entry.getKey(), entry.getValue());
-        }
     }
 }
