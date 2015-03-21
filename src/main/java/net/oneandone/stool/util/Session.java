@@ -102,7 +102,7 @@ public class Session {
         gson = gson(console.world);
         home = environment.stoolHome(console.world);
         home.checkDirectory();
-        result = new Session(gson, logging, user, command, home, console, environment, StoolConfiguration.load(gson, home), Bedroom.loadOrCreate(home), invocationFile);
+        result = new Session(gson, logging, user, command, home, console, environment, StoolConfiguration.load(gson, home), Bedroom.loadOrCreate(gson, home), invocationFile);
         result.selectedStageName = environment.get(Environment.STOOL_SELECTED);
         return result;
     }

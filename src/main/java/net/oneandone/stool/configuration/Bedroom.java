@@ -30,13 +30,13 @@ import java.util.List;
 public class Bedroom {
     public static final String FILENAME = "sleep.json";
 
-    public static Bedroom loadOrCreate(FileNode home) throws IOException {
+    public static Bedroom loadOrCreate(Gson gson, FileNode home) throws IOException {
         Bedroom bedroom;
         FileNode file;
 
         file = home.join(FILENAME);
         if (file.exists()) {
-            bedroom = gson().fromJson(home.join(FILENAME).readString(), Bedroom.class);
+            bedroom = gson.fromJson(home.join(FILENAME).readString(), Bedroom.class);
             bedroom.file = file;
         } else {
             bedroom = new Bedroom(file);
@@ -56,24 +56,20 @@ public class Bedroom {
         this.sleep = new ArrayList<>();
     }
 
-    public static Gson gson() {
-        return new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-    }
-
-    public void add(String stage) throws IOException {
+    public void add(Gson gson, String stage) throws IOException {
         sleep.add(stage);
-        save();
+        save(gson);
     }
 
-    public void remove(String stage) throws IOException {
+    public void remove(Gson gson, String stage) throws IOException {
         if (sleep.contains(stage)) {
             sleep.remove(stage);
         }
-        save();
+        save(gson);
     }
 
-    public void save() throws IOException {
-        Files.stoolFile(file.writeString(gson().toJson(this)));
+    public void save(Gson gson) throws IOException {
+        Files.stoolFile(file.writeString(gson.toJson(this)));
     }
 
     public int size() {

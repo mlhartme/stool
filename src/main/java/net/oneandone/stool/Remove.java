@@ -104,6 +104,6 @@ public class Remove extends StageCommand {
             session.resetEnvironment();
         }
 
-        session.bedroom.remove(stage.getName());
+        session.bedroom.remove(session.gson, stage.getName());
     }
 }

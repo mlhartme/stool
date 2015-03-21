@@ -55,11 +55,11 @@ public class Stop extends StageCommand {
         }
         if (sleep) {
             if (!alreadySleeping) {
-                session.bedroom.add(name);
+                session.bedroom.add(session.gson, name);
             }
             console.info.println("state: sleeping");
         } else {
-            session.bedroom.remove(name);
+            session.bedroom.remove(session.gson, name);
             console.info.println("state: down");
         }
     }

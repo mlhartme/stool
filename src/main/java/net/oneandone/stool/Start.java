@@ -81,7 +81,7 @@ public class Start extends StageCommand {
         copyTomcatBaseOpt(download, stage.shared(), stage.config().tomcatVersion);
         if (session.bedroom.stages().contains(stage.getName())) {
             console.info.println("leaving sleeping state");
-            session.bedroom.remove(stage.getName());
+            session.bedroom.remove(session.gson, stage.getName());
         }
         if (debug || suspend) {
             console.info.println("debugging enabled on port " + ports.debug());

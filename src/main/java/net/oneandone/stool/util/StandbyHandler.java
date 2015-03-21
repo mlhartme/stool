@@ -46,7 +46,7 @@ public class StandbyHandler {
                     save = true;
                     session.console.info.println("[" + stage.getName() + "]");
                     stage.stop(session.console);
-                    session.bedroom.add(name);
+                    session.bedroom.add(session.gson, name);
                 }
             } catch (IOException e) {
                 problems.add(wrapper, e);
@@ -77,7 +77,7 @@ public class StandbyHandler {
                 stage = Stage.load(session, wrapper);
                 session.console.info.println("[" + stage.getName() + "]");
                 stage.start(session.console, Ports.allocate(stage));
-                session.bedroom.remove(name);
+                session.bedroom.remove(session.gson, name);
                 save = true;
             } catch (IOException e) {
                 problems.add(wrapper, e);

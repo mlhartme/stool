@@ -103,8 +103,8 @@ public class SystemImport extends SessionCommand {
         console.info.println("  * 'defaults' are not migrated");
         console.info.println("  * 'portPrefixes' are gone, your stage will run under a new port");
         console.info.println();
-        oldBedroom = Bedroom.loadOrCreate(oldHome);
-        newBedroom = Bedroom.loadOrCreate(session.home);
+        oldBedroom = Bedroom.loadOrCreate(session.gson, oldHome);
+        newBedroom = Bedroom.loadOrCreate(session.gson, session.home);
         newBedroomOrig = newBedroom.stages().toString();
         patches = new ArrayList<>();
         if (include.withConfig) {
@@ -124,7 +124,7 @@ public class SystemImport extends SessionCommand {
             for (FileNode oldWrapper : oldWrappers) {
                 name = oldWrapper.getName();
                 if (oldBedroom.stages().contains(name)) {
-                    newBedroom.add(name);
+                    newBedroom.add(session.gson, name);
                 }
                 patches.add(stage(oldWrapper));
             }
@@ -132,7 +132,7 @@ public class SystemImport extends SessionCommand {
         patches.add(new Patch("M " + newBedroom.file(), Diff.diff(newBedroomOrig, newBedroom.stages().toString())) {
             @Override
             public void apply() throws IOException {
-                newBedroom.save();
+                newBedroom.save(session.gson);
             }
         });
         iter = patches.iterator();
