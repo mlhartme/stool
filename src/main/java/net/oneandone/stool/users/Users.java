@@ -15,11 +15,7 @@
  */
 package net.oneandone.stool.users;
 
-import net.oneandone.stool.configuration.StoolConfiguration;
-import net.oneandone.sushi.fs.World;
-
 import javax.naming.NamingException;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 

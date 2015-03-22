@@ -26,7 +26,6 @@ import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.configuration.adapter.ExtensionsAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
-import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;

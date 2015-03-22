@@ -75,7 +75,7 @@ public class Config extends StageCommand {
             throw new ArgumentException("duplicate property: " + key);
         }
         if (get && set) {
-            throw new ArgumentException("do not mix set and get arguments");
+            throw new ArgumentException("cannot mix get and set arguments");
         }
         properties.put(key, value);
     }
@@ -84,6 +84,7 @@ public class Config extends StageCommand {
     public void doInvoke(Stage stage) throws Exception {
         StageConfiguration stageConfiguration;
         boolean error;
+        Field field;
 
         stageConfiguration = stage.config();
         if (set) {
@@ -107,17 +108,15 @@ public class Config extends StageCommand {
             }
         } else if (get) {
             for (Map.Entry<String, String> entry : properties.entrySet()) {
-                Field field;
                 field = stage.config().getFieldByAnnotation(entry.getKey());
-
                 console.info.println(entry.getKey() + "=" + field.get(stage.config()));
             }
         } else {
-            printConfigurationOptions(stage);
+            getAll(stage);
         }
-
     }
-    public void printConfigurationOptions(Stage stage) throws IllegalAccessException {
+
+    public void getAll(Stage stage) throws IllegalAccessException {
         for (Field f : StageConfiguration.class.getFields()) {
             if (f.isAnnotationPresent(Option.class)) {
                 console.info.println('#' + f.getAnnotation(Option.class).description());
@@ -126,5 +125,4 @@ public class Config extends StageCommand {
             }
         }
     }
-
 }
