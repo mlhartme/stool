@@ -484,7 +484,8 @@ public class Session {
                 .registerTypeAdapter(Until.class, new UntilTypeAdapter())
                 .registerTypeAdapterFactory(ExtensionsAdapter.factory(factory))
                 .disableHtmlEscaping()
-                .excludeFieldsWithModifiers(Modifier.STATIC)
+                .serializeNulls()
+                .excludeFieldsWithModifiers(Modifier.STATIC, Modifier.TRANSIENT)
                 .setPrettyPrinting()
                 .create();
     }
