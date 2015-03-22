@@ -98,7 +98,9 @@ public class Config extends StageCommand {
         if (get && set) {
             throw new ArgumentException("cannot mix get and set arguments");
         }
-        selected.put(property, value);
+        if (selected.put(property, value) != null) {
+            throw new ArgumentException("duplicate property: " + key);
+        }
     }
 
     @Override

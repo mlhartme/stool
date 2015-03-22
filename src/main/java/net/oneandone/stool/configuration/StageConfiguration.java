@@ -115,16 +115,6 @@ public class StageConfiguration extends BaseConfiguration {
         this.extensions = extensions;
     }
 
-    public static boolean isConfigurable(String key, Role role) {
-        for (Field field : StageConfiguration.class.getDeclaredFields()) {
-            if (field.isAnnotationPresent(Option.class) && field.getAnnotation(Option.class).key().equals(key)) {
-                securityCheck(field, role);
-                return true;
-            }
-        }
-        return false;
-    }
-
     private static void securityCheck(Field field, Role role) {
         if (role == null) {
             return;

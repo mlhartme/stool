@@ -46,6 +46,7 @@ import org.codehaus.plexus.DefaultPlexusContainer;
 import javax.naming.NamingException;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -483,6 +484,7 @@ public class Session {
                 .registerTypeAdapter(Until.class, new UntilTypeAdapter())
                 .registerTypeAdapterFactory(ExtensionsAdapter.factory(factory))
                 .disableHtmlEscaping()
+                .excludeFieldsWithModifiers(Modifier.STATIC)
                 .setPrettyPrinting()
                 .create();
     }

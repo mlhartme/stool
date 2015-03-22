@@ -42,7 +42,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,17 +58,20 @@ public class Create extends SessionCommand {
 
     private FileNode directory;
 
-    private Map<String, String> config = new HashMap<>();
+    private Map<Config.Property, String> config = new LinkedHashMap<>();
 
     private StageConfiguration stageConfiguration;
 
+    private final Map<String, Config.Property> properties;
+
     public Create(Session session) {
         super(session);
+        this.properties = Config.getProperties(session.extensionsFactory);
     }
 
     public Create(Session session, boolean quiet, String name, String urlOrSearch, FileNode directory,
                   StageConfiguration stageConfiguration) {
-        super(session);
+        this(session);
         this.quiet = quiet;
         this.name = name;
         this.urlOrSearch = urlOrSearch;
@@ -81,6 +84,7 @@ public class Create extends SessionCommand {
         int idx;
         String key;
         String value;
+        Config.Property property;
 
         if (directory == null) {
             this.directory = world.file(str);
@@ -91,14 +95,13 @@ public class Create extends SessionCommand {
             }
             key = str.substring(0, idx);
             value = str.substring(idx + 1);
-
-            if (!StageConfiguration.isConfigurable(key, null)) {
+            property = properties.get(key);
+            if (property == null) {
                 throw new ArgumentException("unknown property: " + key);
             }
-            if (config.containsKey(key)) {
+            if (config.put(property, value) != null) {
                 throw new ArgumentException("already configured: " + key);
             }
-            config.put(key, value);
         }
     }
 
@@ -231,8 +234,8 @@ public class Create extends SessionCommand {
         stage = stage(wrapper, url);
         directory.link(stage.anchor());
         stage.tuneConfiguration();
-        for (Map.Entry<String, String> entry : config.entrySet()) {
-            stage.config().configure(entry.getKey(), entry.getValue());
+        for (Map.Entry<Config.Property, String> entry : config.entrySet()) {
+            entry.getKey().set(stage.config(), entry.getValue());
         }
         stage.saveWrapper();
         Files.stoolNode(stage.shared().join("log").mkdirOpt().join("stool.log").mkfile());
