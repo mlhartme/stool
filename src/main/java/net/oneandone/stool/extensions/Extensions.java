@@ -1,10 +1,12 @@
 package net.oneandone.stool.extensions;
 
+import net.oneandone.stool.Config;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.xml.XmlException;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -52,5 +54,9 @@ public class Extensions implements Iterable<Extension> {
     @Override
     public Iterator<Extension> iterator() {
         return extensions.values().iterator();
+    }
+
+    public Object get(String extension) {
+        return extensions.get(extension);
     }
 }

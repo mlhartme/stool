@@ -1,9 +1,11 @@
 package net.oneandone.stool.extensions;
 
+import net.oneandone.stool.Config;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -62,5 +64,20 @@ public class ExtensionsFactory {
             }
         }
         return extensions;
+    }
+
+    public void fields(Map<String, Config.Property> result) {
+        String name;
+        String fullName;
+        Class<? extends Extension> extension;
+
+        for (Map.Entry<String, Class<? extends Extension>> entry : types.entrySet()) {
+            name = entry.getKey();
+            extension = entry.getValue();
+            for (Field field : extension.getDeclaredFields()) {
+                fullName = name + "." + field.getName();
+                result.put(fullName, new Config.Property(fullName, "extension field", field, name));
+            }
+        }
     }
 }

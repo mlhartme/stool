@@ -38,7 +38,7 @@ public class BaseConfiguration {
         }
     }
 
-    public void configure(String key, Object strOrMap) throws NoSuchFieldException {
+    public void configure(String key, Object object) throws NoSuchFieldException {
         Field field;
         Class type;
         Object value;
@@ -51,13 +51,13 @@ public class BaseConfiguration {
         field.setAccessible(true);
         type = field.getType();
         if (type.equals(String.class)) {
-            value = strOrMap;
+            value = object;
         } else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
-            value = Boolean.valueOf((String) strOrMap);
+            value = Boolean.valueOf((String) object);
         } else if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {
-            value = Integer.valueOf((String) strOrMap);
+            value = Integer.valueOf((String) object);
         } else if (type.equals(List.class)) {
-            str = (String) strOrMap;
+            str = (String) object;
             if (str.contains(",")) {
                 value = Arrays.asList(str.split(","));
             } else if (str.contains(" ")) {
@@ -70,9 +70,9 @@ public class BaseConfiguration {
                 value = Collections.emptyList();
             }
         } else if (type.equals(Until.class)) {
-            value = Until.fromHuman((String) strOrMap);
+            value = Until.fromHuman((String) object);
         } else if (Map.class.isAssignableFrom(type)) {
-            value = strOrMap;
+            value = object;
         } else {
             throw new IllegalStateException("Cannot convert String to " + type.getSimpleName());
         }
