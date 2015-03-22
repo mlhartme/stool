@@ -27,7 +27,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StageConfiguration extends BaseConfiguration {
+public class StageConfiguration {
     @Option(key = "mode", description = "mode to run applications with")
     public String mode;
 

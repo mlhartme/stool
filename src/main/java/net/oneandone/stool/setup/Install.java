@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.setup;
 
+import net.oneandone.stool.Config;
 import net.oneandone.stool.Overview;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
@@ -114,15 +115,24 @@ public class Install {
 
     private void tuneExplicit(StoolConfiguration conf) {
         boolean error;
+        Map<String, Config.Property> properties;
+        Config.Property property;
 
+        properties = Config.getStoolProperties();
         error = false;
         for (Map.Entry<String, Object> entry : globalProperties.entrySet()) {
-            try {
-                conf.configure(entry.getKey(), entry.getValue());
-            } catch (Exception e) {
-                console.info.println("invalid value for property " + entry.getKey() + " : " + e.getMessage());
-                e.printStackTrace(console.verbose);
+            property = properties.get(entry.getKey());
+            if (property == null) {
+                console.info.println("property not found: " + entry.getKey());
                 error = true;
+            } else {
+                try {
+                    property.set(conf, entry.getValue());
+                } catch (Exception e) {
+                    console.info.println("invalid value for property " + entry.getKey() + " : " + e.getMessage());
+                    e.printStackTrace(console.verbose);
+                    error = true;
+                }
             }
         }
         if (error) {

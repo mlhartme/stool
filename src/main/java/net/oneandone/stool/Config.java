@@ -17,6 +17,7 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.Option;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.stage.Stage;
@@ -61,6 +62,16 @@ public class Config extends StageCommand {
             }
         }
         extensions.fields(result);
+        return result;
+    }
+
+    public static Map<String, Property> getStoolProperties() {
+        Map<String, Property> result;
+
+        result = new LinkedHashMap<>();
+        for (Field field : StoolConfiguration.class.getFields()) {
+            result.put(field.getName(), new Property(field.getName(), "stool property", field, null));
+        }
         return result;
     }
 
@@ -163,7 +174,7 @@ public class Config extends StageCommand {
             }
         }
 
-        public void set(StageConfiguration configuration, Object strOrMap) throws NoSuchFieldException {
+        public void set(Object configuration, Object strOrMap) throws NoSuchFieldException {
             Object value;
             Class type;
             String str;
@@ -206,13 +217,13 @@ public class Config extends StageCommand {
             // TODO
         }
 
-        private Object object(StageConfiguration configuration) {
+        private Object object(Object configuration) {
             Object object;
 
             if (extension == null) {
                 object = configuration;
             } else {
-                object = configuration.extensions.get(extension);
+                object = ((StageConfiguration) configuration).extensions.get(extension);
                 if (object == null) {
                     throw new IllegalStateException("missing extension: " + extension);
                 }
