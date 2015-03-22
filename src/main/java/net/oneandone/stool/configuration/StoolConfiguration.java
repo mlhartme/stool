@@ -16,12 +16,14 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
+import net.oneandone.stool.Config;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
 public class StoolConfiguration extends BaseConfiguration {
     /** may be separate port or part of the portFirst ... portLast range; has to end with 2 to use single-sign-on */
@@ -156,20 +158,18 @@ public class StoolConfiguration extends BaseConfiguration {
         configurationFile(home).writeString(gson.toJson(this, StoolConfiguration.class));
     }
 
-    /**
-     * the configuration itself should know what has to be cleaned up
-     */
-    public void cleanup() {
-    }
+    public void setDefaults(Map<String, Config.Property> properties, StageConfiguration configuration, String url) throws IOException {
+        Config.Property property;
 
-    //--
-
-    public void setDefaults(StageConfiguration configuration, String url) throws IOException {
         for (Map.Entry<String, Map<String, String>> outer : defaults.entrySet()) {
             if (url.startsWith(outer.getKey())) {
                 for (Map.Entry<String, String> inner : outer.getValue().entrySet()) {
+                    property = properties.get(inner.getKey());
+                    if (property == null) {
+                        throw new IllegalStateException("unknown property: " + inner.getKey());
+                    }
                     try {
-                        configuration.configure(inner.getKey(), inner.getValue());
+                        property.set(configuration, inner.getValue());
                     } catch (NoSuchFieldException e) {
                         throw new IllegalStateException("TODO: " + inner.getKey(), e);
                     }

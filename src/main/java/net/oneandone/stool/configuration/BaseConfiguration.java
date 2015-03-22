@@ -23,21 +23,6 @@ import java.util.List;
 import java.util.Map;
 
 public class BaseConfiguration {
-    public Object getProperty(String name) {
-        Field field;
-
-        field = getFieldByAnnotation(name);
-        if (field == null) {
-            throw new IllegalArgumentException("no such property: " + name);
-        }
-        field.setAccessible(true);
-        try {
-            return field.get(this);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
     public void configure(String key, Object object) throws NoSuchFieldException {
         Field field;
         Class type;

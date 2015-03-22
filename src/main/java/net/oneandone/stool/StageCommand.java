@@ -160,7 +160,6 @@ public abstract class StageCommand extends SessionCommand {
 
     private List<Stage> selected(EnumerationFailed problems) throws IOException {
         int count;
-        final Stage.State s;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
         switch (count) {
@@ -170,7 +169,7 @@ public abstract class StageCommand extends SessionCommand {
                 if (all) {
                     return all(problems);
                 } else if (stageClause != null) {
-                    return session.list(problems, or(stageClause));
+                    return session.list(problems, or(Config.getProperties(session.extensionsFactory), stageClause));
                 } else {
                     throw new IllegalStateException();
                 }
@@ -230,12 +229,12 @@ public abstract class StageCommand extends SessionCommand {
 
     //--
 
-    private static Predicate or(String string) {
+    private static Predicate or(Map<String, Config.Property> properties, String string) {
         final List<Predicate> ops;
 
         ops = new ArrayList<>();
         for (String op : Separator.COMMA.split(string)) {
-            ops.add(and(op));
+            ops.add(and(properties, op));
         }
         return new Predicate() {
             @Override
@@ -252,12 +251,12 @@ public abstract class StageCommand extends SessionCommand {
 
     private static final Separator AND = Separator.on('+');
 
-    private static Predicate and(String string) {
+    private static Predicate and(Map<String, Config.Property> properties, String string) {
         final List<Predicate> ops;
 
         ops = new ArrayList<>();
         for (String op : AND.split(string)) {
-            ops.add(compare(op));
+            ops.add(compare(properties, op));
         }
         return new Predicate() {
             @Override
@@ -273,7 +272,7 @@ public abstract class StageCommand extends SessionCommand {
     }
 
 
-    private static Predicate compare(final String string) {
+    private static Predicate compare(final Map<String, Config.Property> properties, final String string) {
         int idx;
         String name;
         final boolean eq;
@@ -337,7 +336,7 @@ public abstract class StageCommand extends SessionCommand {
                     status = Status.status(stage);
                     obj = status.get(constField);
                 } else {
-                    obj = stage.config().getProperty(constProperty);
+                    obj = properties.get(constProperty).get(stage.config());
                 }
                 if (obj == null) {
                     str = "";
