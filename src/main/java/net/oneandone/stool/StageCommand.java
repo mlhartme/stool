@@ -17,6 +17,7 @@ package net.oneandone.stool;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.core.Appender;
+import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Predicate;
@@ -229,7 +230,7 @@ public abstract class StageCommand extends SessionCommand {
 
     //--
 
-    private static Predicate or(Map<String, Config.Property> properties, String string) {
+    private static Predicate or(Map<String, Property> properties, String string) {
         final List<Predicate> ops;
 
         ops = new ArrayList<>();
@@ -251,7 +252,7 @@ public abstract class StageCommand extends SessionCommand {
 
     private static final Separator AND = Separator.on('+');
 
-    private static Predicate and(Map<String, Config.Property> properties, String string) {
+    private static Predicate and(Map<String, Property> properties, String string) {
         final List<Predicate> ops;
 
         ops = new ArrayList<>();
@@ -272,7 +273,7 @@ public abstract class StageCommand extends SessionCommand {
     }
 
 
-    private static Predicate compare(final Map<String, Config.Property> properties, final String string) {
+    private static Predicate compare(final Map<String, Property> properties, final String string) {
         int idx;
         String name;
         final boolean eq;

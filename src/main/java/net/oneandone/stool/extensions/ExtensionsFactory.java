@@ -1,6 +1,6 @@
 package net.oneandone.stool.extensions;
 
-import net.oneandone.stool.Config;
+import net.oneandone.stool.configuration.Property;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 
@@ -66,7 +66,7 @@ public class ExtensionsFactory {
         return extensions;
     }
 
-    public void fields(Map<String, Config.Property> result) {
+    public void fields(Map<String, Property> result) {
         String name;
         String fullName;
         Class<? extends Extension> extension;
@@ -76,7 +76,7 @@ public class ExtensionsFactory {
             extension = entry.getValue();
             for (Field field : extension.getDeclaredFields()) {
                 fullName = name + "." + field.getName();
-                result.put(fullName, new Config.Property(fullName, "extension field", field, name));
+                result.put(fullName, new Property(fullName, "extension field", field, name));
             }
         }
     }

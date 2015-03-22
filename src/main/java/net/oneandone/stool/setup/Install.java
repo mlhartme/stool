@@ -17,6 +17,7 @@ package net.oneandone.stool.setup;
 
 import net.oneandone.stool.Config;
 import net.oneandone.stool.Overview;
+import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Environment;
@@ -115,8 +116,8 @@ public class Install {
 
     private void tuneExplicit(StoolConfiguration conf) {
         boolean error;
-        Map<String, Config.Property> properties;
-        Config.Property property;
+        Map<String, Property> properties;
+        Property property;
 
         properties = Config.getStoolProperties();
         error = false;

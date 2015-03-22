@@ -18,6 +18,7 @@ package net.oneandone.stool;
 import net.oneandone.pommes.cli.Environment;
 import net.oneandone.pommes.model.Database;
 import net.oneandone.pommes.model.Pom;
+import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.SourceStage;
@@ -58,11 +59,11 @@ public class Create extends SessionCommand {
 
     private FileNode directory;
 
-    private Map<Config.Property, String> config = new LinkedHashMap<>();
+    private Map<Property, String> config = new LinkedHashMap<>();
 
     private StageConfiguration stageConfiguration;
 
-    private final Map<String, Config.Property> properties;
+    private final Map<String, Property> properties;
 
     public Create(Session session) {
         super(session);
@@ -84,7 +85,7 @@ public class Create extends SessionCommand {
         int idx;
         String key;
         String value;
-        Config.Property property;
+        Property property;
 
         if (directory == null) {
             this.directory = world.file(str);
@@ -234,7 +235,7 @@ public class Create extends SessionCommand {
         stage = stage(wrapper, url);
         directory.link(stage.anchor());
         stage.tuneConfiguration();
-        for (Map.Entry<Config.Property, String> entry : config.entrySet()) {
+        for (Map.Entry<Property, String> entry : config.entrySet()) {
             entry.getKey().set(stage.config(), entry.getValue());
         }
         stage.saveWrapper();

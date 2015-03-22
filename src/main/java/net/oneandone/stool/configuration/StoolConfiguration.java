@@ -16,14 +16,12 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
-import net.oneandone.stool.Config;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Properties;
 
 public class StoolConfiguration {
     /** may be separate port or part of the portFirst ... portLast range; has to end with 2 to use single-sign-on */
@@ -158,8 +156,8 @@ public class StoolConfiguration {
         configurationFile(home).writeString(gson.toJson(this, StoolConfiguration.class));
     }
 
-    public void setDefaults(Map<String, Config.Property> properties, StageConfiguration configuration, String url) throws IOException {
-        Config.Property property;
+    public void setDefaults(Map<String, Property> properties, StageConfiguration configuration, String url) throws IOException {
+        Property property;
 
         for (Map.Entry<String, Map<String, String>> outer : defaults.entrySet()) {
             if (url.startsWith(outer.getKey())) {
