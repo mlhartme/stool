@@ -67,7 +67,7 @@ public class Create extends SessionCommand {
 
     public Create(Session session) {
         super(session);
-        this.properties = Config.getProperties(session.extensionsFactory);
+        this.properties = StageConfiguration.properties(session.extensionsFactory);
     }
 
     public Create(Session session, boolean quiet, String name, String urlOrSearch, FileNode directory,

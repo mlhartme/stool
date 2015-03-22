@@ -18,6 +18,7 @@ package net.oneandone.stool;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.core.Appender;
 import net.oneandone.stool.configuration.Property;
+import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Predicate;
@@ -170,7 +171,7 @@ public abstract class StageCommand extends SessionCommand {
                 if (all) {
                     return all(problems);
                 } else if (stageClause != null) {
-                    return session.list(problems, or(Config.getProperties(session.extensionsFactory), stageClause));
+                    return session.list(problems, or(StageConfiguration.properties(session.extensionsFactory), stageClause));
                 } else {
                     throw new IllegalStateException();
                 }

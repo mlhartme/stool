@@ -71,8 +71,12 @@ public class Property {
     }
 
     public void securityCheck(Role role) {
-        // TODO
+        Option option = field.getAnnotation(Option.class);
+        if (option != null && option.role().compareTo(role) < 0) {
+            throw new SecurityException(Role.ERROR);
+        }
     }
+
 
     private Object object(Object configuration) {
         Object object;

@@ -15,11 +15,8 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.configuration.Option;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.configuration.StoolConfiguration;
-import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Role;
 import net.oneandone.stool.util.Session;
@@ -28,9 +25,7 @@ import net.oneandone.sushi.cli.Remaining;
 
 import javax.naming.NoPermissionException;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Config extends StageCommand {
@@ -42,33 +37,8 @@ public class Config extends StageCommand {
 
     public Config(Session session) throws IOException {
         super(session);
-        all = getProperties(session.extensionsFactory);
+        all = StageConfiguration.properties(session.extensionsFactory);
         selected = new HashMap<>();
-    }
-
-    public static Map<String, Property> getProperties(ExtensionsFactory extensions) {
-        Map<String, Property> result;
-        Option option;
-
-        result = new LinkedHashMap<>();
-        for (Field field : StageConfiguration.class.getFields()) {
-            option = field.getAnnotation(Option.class);
-            if (option != null) {
-                result.put(option.key(), new Property(option.key(), option.description(), field, null));
-            }
-        }
-        extensions.fields(result);
-        return result;
-    }
-
-    public static Map<String, Property> getStoolProperties() {
-        Map<String, Property> result;
-
-        result = new LinkedHashMap<>();
-        for (Field field : StoolConfiguration.class.getFields()) {
-            result.put(field.getName(), new Property(field.getName(), "stool property", field, null));
-        }
-        return result;
     }
 
     @Remaining

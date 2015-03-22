@@ -20,10 +20,23 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class StoolConfiguration {
+    public static Map<String, Property> properties() {
+        Map<String, Property> result;
+
+        result = new LinkedHashMap<>();
+        for (Field field : StoolConfiguration.class.getFields()) {
+            result.put(field.getName(), new Property(field.getName(), "stool property", field, null));
+        }
+        return result;
+    }
+
+    //--
+
     /** may be separate port or part of the portFirst ... portLast range; has to end with 2 to use single-sign-on */
     public int portOverview;
 

@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.setup;
 
-import net.oneandone.stool.Config;
 import net.oneandone.stool.Overview;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StoolConfiguration;
@@ -119,7 +118,7 @@ public class Install {
         Map<String, Property> properties;
         Property property;
 
-        properties = Config.getStoolProperties();
+        properties = StoolConfiguration.properties();
         error = false;
         for (Map.Entry<String, Object> entry : globalProperties.entrySet()) {
             property = properties.get(entry.getKey());

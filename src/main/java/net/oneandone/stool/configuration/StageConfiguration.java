@@ -17,6 +17,7 @@ package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
 import net.oneandone.stool.extensions.Extensions;
+import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Role;
 import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.Node;
@@ -25,9 +26,28 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StageConfiguration {
+    public static Map<String, Property> properties(ExtensionsFactory extensions) {
+        Map<String, Property> result;
+        Option option;
+
+        result = new LinkedHashMap<>();
+        for (Field field : StageConfiguration.class.getFields()) {
+            option = field.getAnnotation(Option.class);
+            if (option != null) {
+                result.put(option.key(), new Property(option.key(), option.description(), field, null));
+            }
+        }
+        extensions.fields(result);
+        return result;
+    }
+
+    //--
+
     @Option(key = "mode", description = "mode to run applications with")
     public String mode;
 
@@ -113,16 +133,6 @@ public class StageConfiguration {
         this.comment = "";
         this.autoRefresh = false;
         this.extensions = extensions;
-    }
-
-    private static void securityCheck(Field field, Role role) {
-        if (role == null) {
-            return;
-        }
-        Option option = field.getAnnotation(Option.class);
-        if (option.role().compareTo(role) < 0) {
-            throw new SecurityException(Role.ERROR);
-        }
     }
 
     public static StageConfiguration load(Gson gson, Node wrapper) throws IOException {

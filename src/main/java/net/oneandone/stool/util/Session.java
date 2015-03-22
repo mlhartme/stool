@@ -18,7 +18,6 @@ package net.oneandone.stool.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.stool.Config;
 import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StageConfiguration;
@@ -455,7 +454,7 @@ public class Session {
         StageConfiguration stage;
 
         stage = new StageConfiguration(javaHome(), Maven.locateMaven(console.world).getAbsolute(), extensionsFactory.newInstance());
-        configuration.setDefaults(Config.getProperties(extensionsFactory), stage, url);
+        configuration.setDefaults(StageConfiguration.properties(extensionsFactory), stage, url);
         return stage;
     }
 
