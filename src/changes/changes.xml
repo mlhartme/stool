@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
+    <release version="3.0.1" date="2015-03-19">
+      <action date="2015-03-23" dev="mlhartme" type="fix">
+        Fix missing group-write permission of $stage/log.
+      </action>
+    </release>
     <release version="3.0.0" date="2015-03-19">
       <action date="2015-03-17" dev="mlhartme" type="fix">
         Fix userdata configuration for pustefix editor.
