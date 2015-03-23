@@ -56,12 +56,10 @@ public class ServerXml {
     public void configure(Ports ports, KeyStore keystore, String mode, boolean cookies, Stage stage) throws XmlException {
         Element template;
         Element service;
-        List<Host> hosts;
 
         document.getDocumentElement().setAttribute("port", Integer.toString(ports.stop()));
         template = selector.element(document, "Server/Service");
-        hosts = ports.hosts();
-        for (Host host : hosts) {
+        for (Host host : ports.hosts()) {
             service = (Element) template.cloneNode(true);
             document.getDocumentElement().appendChild(service);
             service(service, host);
