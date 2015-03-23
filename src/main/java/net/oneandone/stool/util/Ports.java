@@ -44,8 +44,8 @@ public class Ports {
         result = new Ports();
         hosts = new LinkedHashMap<>();
         name = stage.getName();
-        hosts.put(".stop.wrapper." + name, null);
-        hosts.put(".jmx.debug." + name, null);
+        hosts.put("stop+wrapper." + name, null);
+        hosts.put("jmx+debug." + name, null);
         hosts.putAll(stage.selectedHosts());
         hosts.putAll(stage.extensions().vhosts(stage));
         for (Map.Entry<String, FileNode> entry : hosts.entrySet()) {
