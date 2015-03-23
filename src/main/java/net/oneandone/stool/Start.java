@@ -190,7 +190,8 @@ public class Start extends StageCommand {
         shared = stage.shared();
         Files.template(world.resource("templates/stage"), shared, variables(stage, ports));
         // manually create empty subdirectories, because git doesn't know them
-        for (String dir : new String[] {"ssl", "run", "log"}) {
+        // CAUTION: the log directory is created by "stool create" (because it contains log files)
+        for (String dir : new String[] {"ssl", "run" }) {
             Files.stoolDirectory(shared.join(dir).mkdirOpt());
         }
     }
