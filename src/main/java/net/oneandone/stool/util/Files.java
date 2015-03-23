@@ -52,8 +52,13 @@ public final class Files {
     }
 
     public static void stoolTree(FileNode dir) throws IOException {
-        for (Node node : dir.find("**/*")) {
-            Files.stoolNode(node);
+        Files.stoolDirectory(dir);
+        for (FileNode child : dir.list()) {
+            if (child.isDirectory()) {
+                stoolTree(child);
+            } else {
+                stoolFile(child);
+            }
         }
     }
 
