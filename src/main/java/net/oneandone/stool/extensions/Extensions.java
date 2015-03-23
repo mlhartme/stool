@@ -39,6 +39,12 @@ public class Extensions implements Iterable<Extension> {
         }
     }
 
+    public void beforeStop(Stage stage) throws IOException {
+        for (Extension extension : extensions.values()) {
+            extension.beforeStop(stage);
+        }
+    }
+
     public Map<String, String> contextParameter(Stage stage, String host, int httpPort, FileNode webinf) throws XmlException {
         Map<String, String> result;
 

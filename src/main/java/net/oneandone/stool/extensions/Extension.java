@@ -12,6 +12,7 @@ public interface Extension {
     Map<String, FileNode> vhosts(Stage stage);
 
     void beforeStart(Stage stage, Collection<String> apps) throws IOException;
+    void beforeStop(Stage stage) throws IOException;
 
     void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) throws XmlException;
 }

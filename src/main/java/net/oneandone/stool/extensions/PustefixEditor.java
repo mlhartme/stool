@@ -34,6 +34,7 @@ public class PustefixEditor implements Extension {
         this.userdata = userdata;
     }
 
+    @Override
     public Map<String, FileNode> vhosts(Stage stage) {
         Map<String, FileNode> result;
 
@@ -44,6 +45,7 @@ public class PustefixEditor implements Extension {
         return result;
     }
 
+    @Override
     public void beforeStart(Stage stage, Collection<String> apps) throws IOException {
         if (enabled) {
             userdata(stage);
@@ -51,6 +53,11 @@ public class PustefixEditor implements Extension {
         }
     }
 
+    @Override
+    public void beforeStop(Stage stage) throws IOException {
+    }
+
+    @Override
     public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) throws XmlException {
         String editorLocation;
         FileNode userdata;

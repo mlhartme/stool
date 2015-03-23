@@ -392,6 +392,7 @@ public abstract class Stage {
         if (runningTomcat() == null) {
             throw new IOException("tomcat is not running.");
         }
+        extensions().beforeStop(this);
         catalina("stop", "-force").exec(console.verbose);
         if (configuration.tomcatVersion.startsWith("6.")) {
             file = catalinaPid();
