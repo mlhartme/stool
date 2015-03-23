@@ -41,13 +41,12 @@ public class Ports {
 
         previous = loadOpt(stage);
         pool = stage.session.createPool();
-        if (previous != null) {
-            result = new Ports(previous.stopWrapper, previous.jmxDebug);
-        } else {
-            name = stage.getName();
-            result = new Ports(pool.allocate(".stop.wrapper." + name), pool.allocate(".jmx.debug." + name));
-        }
-        hosts = stage.selectedHosts();
+        result = new Ports();
+        hosts = new LinkedHashMap<>();
+        name = stage.getName();
+        hosts.put(".stop.wrapper." + name, null);
+        hosts.put(".jmx.debug." + name, null);
+        hosts.putAll(stage.selectedHosts());
         hosts.putAll(stage.extensions().vhosts(stage));
         for (Map.Entry<String, FileNode> entry : hosts.entrySet()) {
             vhost = entry.getKey();
@@ -83,8 +82,8 @@ public class Ports {
 
         file = file(stage.wrapper);
         if (file.isFile()) {
+            result = new Ports();
             try (Reader in = file.createReader(); LineReader src = new LineReader(in, FMT)) {
-                result = new Ports(Integer.parseInt(src.next()), Integer.parseInt(src.next()));
                 while (true) {
                     line = src.next();
                     if (line == null) {
@@ -105,30 +104,26 @@ public class Ports {
 
     //--
 
-    private final int stopWrapper;
-    private final int jmxDebug;
     private final List<Host> hosts;
 
-    public Ports(int stopWrapper, int jmxDebug) {
-        this.stopWrapper = stopWrapper;
-        this.jmxDebug = jmxDebug;
+    public Ports() {
         this.hosts = new ArrayList<>();
     }
 
     public int stop() {
-        return stopWrapper;
+        return hosts.get(0).even;
     }
 
     public int wrapper() {
-        return stopWrapper + 1;
+        return hosts.get(0).even + 1;
     }
 
     public int jmx() {
-        return jmxDebug;
+        return hosts.get(1).even;
     }
 
     public int debug() {
-        return jmxDebug + 1;
+        return hosts.get(1).even + 1;
     }
 
     public List<Host> hosts() {
@@ -154,8 +149,6 @@ public class Ports {
         List<String> lines;
 
         lines = new ArrayList<>();
-        lines.add(Integer.toString(stopWrapper));
-        lines.add(Integer.toString(jmxDebug));
         for (Host host : hosts) {
             lines.add(host.toLine());
         }

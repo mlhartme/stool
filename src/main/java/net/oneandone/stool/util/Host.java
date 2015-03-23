@@ -35,8 +35,12 @@ public class Host {
     }
 
     public final int even;
+
     public final String vhost;
+
     private final String hostname;
+
+    /** null for ports that have no domain */
     public final FileNode docroot;
 
     public Host(int even, String vhost, String hostname, FileNode docroot) {
@@ -44,6 +48,10 @@ public class Host {
         this.vhost = vhost;
         this.hostname = hostname;
         this.docroot = docroot;
+    }
+
+    public boolean isWebapp() {
+        return docroot != null;
     }
 
     public String appBase() {
