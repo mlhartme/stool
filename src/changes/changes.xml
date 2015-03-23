@@ -2,6 +2,9 @@
   <body>
     <release version="3.0.1" date="2015-03-19">
       <action date="2015-03-23" dev="mlhartme" type="fix">
+        Fix stool create: refuse create a stage under wrappers.
+      </action>
+      <action date="2015-03-23" dev="mlhartme" type="fix">
         Fix missing group-write permission of $stage/log and $stage/tomcat.
       </action>
     </release>
