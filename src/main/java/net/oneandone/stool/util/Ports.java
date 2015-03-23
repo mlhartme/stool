@@ -50,10 +50,7 @@ public class Ports {
         hosts.putAll(stage.extensions().vhosts(stage));
         for (Map.Entry<String, FileNode> entry : hosts.entrySet()) {
             vhost = entry.getKey();
-            if (stage.isOverview()) {
-                if (hosts.size() != 1) {
-                    throw new IllegalStateException(hosts.toString());
-                }
+            if (stage.isOverview() && vhost.equals("overview.overview")) {
                 even = stage.session.configuration.portOverview;
             } else {
                 even = 0;
@@ -131,7 +128,12 @@ public class Ports {
     }
 
     public Host mainHost() {
-        return hosts().get(0);
+        for (Host host : hosts()) {
+            if (host.isWebapp()) {
+                return host;
+            }
+        }
+        throw new IllegalStateException();
     }
 
     public Host lookup(String vhost) {
@@ -164,14 +166,16 @@ public class Ports {
 
         result = new LinkedHashMap<>();
         for (Host host : hosts()) {
-            name = host.vhost;
-            idx = host.vhost.indexOf('.');
-            if (idx != -1) {
-                name = name.substring(0, idx);
-            }
-            result.put(name, host.httpUrl(vhosts) + suffix);
-            if (https) {
-                result.put(name + " SSL", host.httpsUrl(vhosts) + suffix);
+            if (host.isWebapp()) {
+                name = host.vhost;
+                idx = host.vhost.indexOf('.');
+                if (idx != -1) {
+                    name = name.substring(0, idx);
+                }
+                result.put(name, host.httpUrl(vhosts) + suffix);
+                if (https) {
+                    result.put(name + " SSL", host.httpsUrl(vhosts) + suffix);
+                }
             }
         }
         return result;

@@ -26,12 +26,20 @@ import java.util.List;
 public class Host {
     public static Host forLine(World world, String line) throws IOException {
         List<String> parts;
+        FileNode docroot;
 
         parts = Separator.SPACE.split(line);
-        if (parts.size() != 4) {
-            throw new IOException("invalid host line: " + line);
+        switch (parts.size()) {
+            case 3:
+                docroot = null;
+                break;
+            case 4:
+                docroot = world.file(parts.get(3));
+                break;
+            default:
+                throw new IOException("invalid host line: " + line);
         }
-        return new Host(Integer.parseInt(parts.get(0)), parts.get(1), parts.get(2), world.file(parts.get(3)));
+        return new Host(Integer.parseInt(parts.get(0)), parts.get(1), parts.get(2), docroot);
     }
 
     public final int even;
@@ -99,7 +107,7 @@ public class Host {
         // CAUTION: just
         //    even + ' '
         // results in am integer!
-        return Integer.toString(even) + ' ' + vhost + ' ' + hostname + ' ' + docroot;
+        return Integer.toString(even) + ' ' + vhost + ' ' + hostname + (docroot == null ? "" : " " + docroot);
     }
 
     public String toString() {

@@ -181,7 +181,7 @@ public abstract class Stage {
         return getClass().getSimpleName().toLowerCase();
     }
 
-    private KeyStore keystore(List<Host> hosts) throws IOException {
+    private KeyStore keystore() throws IOException {
         KeyStore keyStore;
         FileNode sslDir;
         String hostname;
@@ -363,7 +363,7 @@ public abstract class Stage {
         // }
 
         serverXml = ServerXml.load(serverXmlTemplate());
-        keystore = keystore(ports.hosts());
+        keystore = keystore();
         extensions = extensions();
         serverXml.configure(ports, keystore, config().mode, config().cookies, this);
         serverXml.save(serverXml());

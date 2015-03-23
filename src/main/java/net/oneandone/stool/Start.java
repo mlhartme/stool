@@ -102,7 +102,7 @@ public class Start extends StageCommand {
 
         logs = stage.shared().find("tomcat/logs/catalina*.log");
         if (logs.size() == 0) {
-            throw new IOException("no log filesfound");
+            throw new IOException("no log files found");
         }
         Collections.sort(logs, new Comparator<Node>() {
             @Override

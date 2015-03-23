@@ -60,11 +60,13 @@ public class ServerXml {
         document.getDocumentElement().setAttribute("port", Integer.toString(ports.stop()));
         template = selector.element(document, "Server/Service");
         for (Host host : ports.hosts()) {
-            service = (Element) template.cloneNode(true);
-            document.getDocumentElement().appendChild(service);
-            service(service, host);
-            connectors(service, host, keystore);
-            contexts(stage, host.httpPort(), service, mode, cookies, host.docroot.join("WEB-INF"));
+            if (host.isWebapp()) {
+                service = (Element) template.cloneNode(true);
+                document.getDocumentElement().appendChild(service);
+                service(service, host);
+                connectors(service, host, keystore);
+                contexts(stage, host.httpPort(), service, mode, cookies, host.docroot.join("WEB-INF"));
+            }
         }
         template.getParentNode().removeChild(template);
     }
