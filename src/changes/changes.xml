@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.0.1" date="2015-03-19">
+      <action date="2015-03-24" dev="mlhartme" type="update">
+        Updating with setup-stool no longer updates the overview war.
+        Instead it prints how to refresh the overview.
+      </action>
+      <action date="2015-03-24" dev="mlhartme" type="update">
+        Added "batch" option for setup-stool.
+      </action>
       <action date="2015-03-24" dev="mlhartme" type="fix">
         Overview stage has to be "reserved".
       </action>
