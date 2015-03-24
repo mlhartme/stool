@@ -63,6 +63,7 @@ public class Pool {
             if (!used().contains(current)) {
                 checkFree(current);
                 checkFree(current + 1);
+                lazyUsed.add(current);
                 return current;
             }
             current += 2;
