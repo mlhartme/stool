@@ -5,7 +5,7 @@
         Fixed port allocation: it was possible to get the same port twice for on stage.
       </action>
       <action date="2015-03-24" dev="mlhartme" type="update">
-        Updating with setup-stool no longer updates the overview war.
+        Updating with setup-stool no longer updates the overview war. Because it only updated the war file but never the unpacked ROOT directory was never replaced.
         Instead it prints how to refresh the overview.
       </action>
       <action date="2015-03-24" dev="mlhartme" type="update">
