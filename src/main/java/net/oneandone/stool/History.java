@@ -28,7 +28,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class History extends StageCommand {
-
     public History(Session session) {
         super(session);
     }

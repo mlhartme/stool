@@ -52,8 +52,13 @@ public final class Files {
     }
 
     public static void stoolTree(FileNode dir) throws IOException {
-        for (Node node : dir.find("**/*")) {
-            Files.stoolNode(node);
+        Files.stoolDirectory(dir);
+        for (FileNode child : dir.list()) {
+            if (child.isDirectory()) {
+                stoolTree(child);
+            } else {
+                stoolFile(child);
+            }
         }
     }
 
@@ -107,7 +112,7 @@ public final class Files {
     //   another user who may use stool; he can modify stool files e.g. to start a stage, but he cannot modify source
     //   files or application files.
     //
-    public static void stoolNode(Node node) throws IOException {
+    public static Node stoolNode(Node node) throws IOException {
         if (node.isDirectory()) {
             stoolDirectory(node);
         } else if (node.getName().endsWith(".sh")) {
@@ -115,19 +120,23 @@ public final class Files {
         } else {
             stoolFile(node);
         }
+        return node;
     }
 
     /** set permissions of a file that may be modified by any user */
-    public static void stoolFile(Node file) throws IOException {
+    public static Node stoolFile(Node file) throws IOException {
         permissions(file, "rw-rw-rw-");
+        return file;
     }
 
-    public static void stoolExecutable(Node file) throws IOException {
+    public static Node stoolExecutable(Node file) throws IOException {
         permissions(file, "rwxrwxr-x");
+        return file;
     }
 
-    public static void stoolDirectory(Node file) throws IOException {
-        permissions(file, "rwxrwxr-x");
+    public static Node stoolDirectory(Node directory) throws IOException {
+        permissions(directory, "rwxrwxr-x");
+        return directory;
     }
 
     public static void waterlooFile(Node file, final GroupPrincipal group) throws IOException {

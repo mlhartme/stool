@@ -50,6 +50,4 @@ public class LogEntryTest {
         assertEquals("IN", entry.logger);
         assertEquals("tomcat is no running.", entry.message);
     }
-
-
 }

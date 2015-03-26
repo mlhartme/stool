@@ -22,7 +22,6 @@ import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
@@ -36,6 +35,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -167,8 +167,8 @@ public class Start extends StageCommand {
 
     //TODO: work-around for sushi http problem with proxies
     // TODO: race condition for simultaneous downloads
-    public static void downloadFile(Console console, String url, FileNode dest) throws IOException {
-        console.info.print("downloading " + dest + " from " + url + " ...");
+    public static void downloadFile(PrintWriter log, String url, FileNode dest) throws IOException {
+        log.print("downloading " + dest + " from " + url + " ...");
         try {
         if (OS.CURRENT != OS.MAC) {
             // don't use sushi, it's not proxy-aware
@@ -181,7 +181,7 @@ public class Start extends StageCommand {
             throw new IOException(url + ": download failed: " + e.getMessage(), e);
         }
 
-        console.info.println(" done");
+        log.println(" done");
     }
 
     public void copyTemplate(Stage stage, Ports ports) throws Exception {
@@ -190,7 +190,8 @@ public class Start extends StageCommand {
         shared = stage.shared();
         Files.template(world.resource("templates/stage"), shared, variables(stage, ports));
         // manually create empty subdirectories, because git doesn't know them
-        for (String dir : new String[] {"ssl", "run"}) {
+        // CAUTION: the log directory is created by "stool create" (because it contains log files)
+        for (String dir : new String[] {"ssl", "run" }) {
             Files.stoolDirectory(shared.join(dir).mkdirOpt());
         }
     }
@@ -206,7 +207,7 @@ public class Start extends StageCommand {
         if (!download.exists()) {
             console.info.println("downloading tomcat ...");
             try {
-                downloadFile(console, "http://archive.apache.org/dist/tomcat/tomcat-7/v" + version + "/bin/" + name + ".tar.gz", download);
+                downloadFile(console.info, "http://archive.apache.org/dist/tomcat/tomcat-7/v" + version + "/bin/" + name + ".tar.gz", download);
             } catch (IOException e) {
                 failed = new IOException("Cannot download Tomcat " + version + ". Please provide it manually at " + download);
                 failed.addSuppressed(e);
@@ -230,7 +231,7 @@ public class Start extends StageCommand {
         name = serviceWrapperName(version);
         download = session.home.join("downloads", name + ".tar.gz");
         if (!download.exists()) {
-            downloadFile(console, "http://wrapper.tanukisoftware.com/download/" + version + "/" + name + ".tar.gz", download);
+            downloadFile(console.info, "http://wrapper.tanukisoftware.com/download/" + version + "/" + name + ".tar.gz", download);
             download.checkFile();
         }
         base = session.home.join("service-wrapper/" + name);

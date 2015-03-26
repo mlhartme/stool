@@ -27,6 +27,7 @@ import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -55,7 +56,7 @@ import java.util.concurrent.ExecutorService;
 @RestController
 @RequestMapping("/stages")
 public class StageController {
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(StageController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StageController.class);
 
     @Autowired
     private Users users;
@@ -119,8 +120,9 @@ public class StageController {
     @RequestMapping(value = "/{name}/logs/", method = RequestMethod.GET)
     public ResponseEntity logs(@PathVariable(value = "name") String stageName) throws Exception {
         Stage stage;
-        stage = resolveStage(stageName);
         Logs logs;
+
+        stage = resolveStage(stageName);
         logs = new Logs();
         logs.addAll(stage.logs().list(), stageName);
         return new ResponseEntity<>(logs, HttpStatus.OK);

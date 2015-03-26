@@ -187,6 +187,9 @@ public class Create extends SessionCommand {
             directory = parent.getParent().join(directory.getName());
             console.verbose.println("warning: cannot create a stage within a stage. Changing directory to " + directory.getAbsolute());
         }
+        if (directory.hasDifferentAnchestor(session.wrappers)) {
+            throw new ArgumentException("you cannot create a stage in the wrappers directory");
+        }
         if (directory.isDirectory()) {
             throw new ArgumentException("stage directory already exists: " + directory);
         }
@@ -239,7 +242,7 @@ public class Create extends SessionCommand {
             entry.getKey().set(stage.config(), entry.getValue());
         }
         stage.saveWrapper();
-        Files.stoolNode(stage.shared().join("log").mkdirOpt().join("stool.log").mkfile());
+        Files.stoolFile(Files.stoolDirectory(stage.shared().join("log").mkdirOpt()).join("stool.log").mkfile());
         return stage;
     }
 

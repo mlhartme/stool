@@ -54,6 +54,7 @@ public class Overview {
         }
         tomcatOpts += "-Doverview.stool.home=" + session.home.getAbsolute() + " -Doverview.user.name=" + session.user;
         create.remaining("tomcat.opts=" + tomcatOpts);
+        create.remaining("until=reserved");
         try {
             create.doInvoke();
         } catch (Exception e) {

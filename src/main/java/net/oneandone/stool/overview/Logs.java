@@ -21,13 +21,11 @@ import java.util.Collection;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-public class Logs extends ResourceSupport {
 
+public class Logs extends ResourceSupport {
     public void addAll(Collection<String> logs, String stagename) throws Exception {
         for (String log : logs) {
             this.add(linkTo(methodOn(StageController.class).log(stagename, log)).withSelfRel());
         }
-
     }
-
 }

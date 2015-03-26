@@ -92,7 +92,7 @@ public class Update {
 
         result = new ArrayList<>();
         tmp = console.world.getTemp().createTempFile();
-        Start.downloadFile(console, "https://api.github.com/repos/mlhartme/stool/releases", tmp);
+        Start.downloadFile(console.verbose, "https://api.github.com/repos/mlhartme/stool/releases", tmp);
         releases = (JsonArray) new JsonParser().parse(tmp.readString());
         for (JsonElement element : releases) {
             release = (JsonObject) element;

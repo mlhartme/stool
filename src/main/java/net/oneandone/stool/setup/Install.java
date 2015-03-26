@@ -31,13 +31,15 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 
 public class Install {
     // false in tests, when stool.jar is not in classpath
-    private final boolean withJar;
+    private final boolean fromJar;
 
     private final Console console;
 
@@ -47,8 +49,8 @@ public class Install {
 
     private final Map<String, Object> globalProperties;
 
-    public Install(boolean withJar, Console console, Environment environment, Map<String, Object> globalProperties) {
-        this.withJar = withJar;
+    public Install(boolean fromJar, Console console, Environment environment, Map<String, Object> globalProperties) {
+        this.fromJar = fromJar;
         this.console = console;
         this.environment = environment;
         this.home = environment.stoolHome(console.world);
@@ -85,10 +87,16 @@ public class Install {
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
 
+    public static final SimpleDateFormat FMT = new SimpleDateFormat("yyMMdd-hhmmss");
+
     private void copyResources(Map<String, String> variables) throws IOException {
+        String jar;
+
+        jar = "stool-" + FMT.format(new Date()) + ".jar";
         Files.template(home.getWorld().resource("templates/stool"), home, variables);
-        if (withJar) {
-            console.world.locateClasspathItem(getClass()).copyFile(home.join("bin/stool.jar"));
+        if (fromJar) {
+            console.world.locateClasspathItem(getClass()).copyFile(home.join("bin", jar));
+            home.join("bin/stool.jar").mklink(jar);
         }
         // manually create empty subdirectories, because git doesn't know them
         for (String dir : new String[] {"extensions", "wrappers", "inbox", "logs", "service-wrapper", "sessions", "tomcat"}) {

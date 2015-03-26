@@ -21,19 +21,20 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.SystemImport;
 import net.oneandone.stool.configuration.StoolConfiguration;
-import net.oneandone.stool.stage.artifact.Overview;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Cli;
 import net.oneandone.sushi.cli.Command;
+import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -52,6 +53,9 @@ public class Main extends Cli implements Command {
 
     private FileNode home;
     private FileNode oldHome;
+
+    @Option("batch")
+    private boolean batch;
 
     private final Environment environment;
 
@@ -142,7 +146,9 @@ public class Main extends Cli implements Command {
             }
         } else {
             console.info.println("Ready to install Stool " + version + " to " + home.getAbsolute());
-            console.pressReturn();
+            if (!batch) {
+                console.pressReturn();
+            }
             new Install(true, console, environment, config).invoke(user);
             console.info.println("Done. To complete the installation:");
             console.info.println("1. add");
@@ -172,19 +178,21 @@ public class Main extends Cli implements Command {
     }
 
     private void incrementalUpgrade(Version old, Version version) throws IOException {
-        FileNode jar;
-        FileNode overview;
+        FileNode timestamp;
+        FileNode link;
 
-        jar = home.join("bin/stool.jar");
-        overview = home.join("overview/overview/ROOT.war");
+        timestamp = home.join("bin/stool-" + Install.FMT.format(new Date()) + ".jar");
+        link = home.join("bin/stool.jar");
         console.info.println("Ready for incremental upgrade of " + home.getAbsolute() + " from version " + old + " to " + version);
-        console.info.println("M " + jar);
-        console.info.println("M " + overview);
-        console.pressReturn();
-        console.world.locateClasspathItem(getClass()).copyFile(jar);
-
-        new Overview(Session.jdkHome(), jar.getWorld()).resolve().relocateTo(overview);
-        console.info.println("done");
+        console.info.println("A " + timestamp);
+        console.info.println("M " + link);
+        if (!batch) {
+            console.pressReturn();
+        }
+        link.deleteFile();
+        link.mklink(timestamp.getName());
+        console.world.locateClasspathItem(getClass()).copyFile(timestamp);
+        console.info.println("Done. Consider 'stool -stage overview refresh' now.");
     }
 
     private Version oldVersion() throws IOException {

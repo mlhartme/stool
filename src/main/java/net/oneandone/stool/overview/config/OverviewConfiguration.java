@@ -110,9 +110,7 @@ public class OverviewConfiguration {
         Timer timer;
 
         timer = new Timer("Refresh");
-
-        timer.schedule(new PrepareRefresh(session()), 20000, 60000);
+        timer.schedule(new PrepareRefresh(session(), logs()), 20000, 60000);
         return timer;
     }
-
 }

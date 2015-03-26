@@ -22,6 +22,7 @@ import net.oneandone.stool.overview.StoolCallable;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Slf4jOutputStream;
+import net.oneandone.sushi.fs.file.FileNode;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
@@ -31,9 +32,12 @@ import java.util.UUID;
 
 public class PrepareRefresh extends TimerTask {
     private final Session session;
+    private final FileNode logs;
     private final PrintWriter printWriter;
-    public PrepareRefresh(Session session) {
+
+    public PrepareRefresh(Session session, FileNode logs) {
         this.session = session;
+        this.logs = logs;
         this.printWriter = new PrintWriter(new Slf4jOutputStream(LoggerFactory.getLogger(PrepareRefresh.class), false));
     }
 
@@ -65,8 +69,6 @@ public class PrepareRefresh extends TimerTask {
     public void executeUpdate(Stage stage) throws Exception {
         boolean own;
         own = !stage.technicalOwner().equals(session.user);
-        new StoolCallable("refresh", "-usePrepared", stage.getName(), "daemon", UUID.randomUUID().toString(),
-          session.home.join("logs", "overview"), own).call();
+        new StoolCallable("refresh", "-usePrepared", stage.getName(), "daemon", UUID.randomUUID().toString(), logs, own).call();
     }
-
 }
