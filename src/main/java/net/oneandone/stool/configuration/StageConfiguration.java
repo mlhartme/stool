@@ -48,9 +48,6 @@ public class StageConfiguration {
 
     //--
 
-    @Option(key = "mode", description = "mode to run applications with")
-    public String mode;
-
     @Option(key = "cookies", description = "use cookies for tomcat", role = Role.USER)
     public Boolean cookies;
 
@@ -112,7 +109,6 @@ public class StageConfiguration {
     public final Extensions extensions;
 
     public StageConfiguration(String javaHome, String mavenHome, Extensions extensions) {
-        this.mode = "test";
         this.cookies = true;
         this.prepare = "";
         this.build = "false";

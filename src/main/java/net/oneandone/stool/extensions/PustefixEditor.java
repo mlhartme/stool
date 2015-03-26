@@ -20,6 +20,8 @@ import java.util.Map;
 public class PustefixEditor implements Extension {
     private static final String PREFIX = "cms.";
 
+    private final String mode;
+
     private final boolean enabled;
     
     private final String version;
@@ -27,10 +29,11 @@ public class PustefixEditor implements Extension {
     private final String userdata;
 
     public PustefixEditor() {
-        this(false, "0.18.75", "https://svn.1and1.org/svn/sales/workspaces/editor/userdata.xml");
+        this("test", false, "0.18.75", "https://svn.1and1.org/svn/sales/workspaces/editor/userdata.xml");
     }
 
-    public PustefixEditor(boolean enabled, String version, String userdata) {
+    public PustefixEditor(String mode, boolean enabled, String version, String userdata) {
+        this.mode = mode;
         this.enabled = enabled;
         this.version = version;
         this.userdata = userdata;
@@ -69,6 +72,7 @@ public class PustefixEditor implements Extension {
         FileNode userdata;
 
         app = host.substring(0, host.indexOf('.'));
+        result.put("mode", mode);
         result.put("logroot", stage.shared().join(APPLOGS, app).getAbsolute());
         if (enabled) {
             editorLocation = "http://" + fqdn(stage) + ":" + httpPort;

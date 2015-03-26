@@ -365,7 +365,7 @@ public abstract class Stage {
         serverXml = ServerXml.load(serverXmlTemplate());
         keystore = keystore();
         extensions = extensions();
-        serverXml.configure(ports, keystore, config().mode, config().cookies, this);
+        serverXml.configure(ports, keystore, config().cookies, this);
         serverXml.save(serverXml());
         extensions.beforeStart(this, ports.urlMap(keystore != null, session.configuration.vhosts, config().suffix).values());
         if (session.configuration.security.isLocal()) {

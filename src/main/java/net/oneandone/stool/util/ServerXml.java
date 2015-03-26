@@ -53,7 +53,7 @@ public class ServerXml {
         Files.stoolFile(file);
     }
 
-    public void configure(Ports ports, KeyStore keystore, String mode, boolean cookies, Stage stage) throws XmlException {
+    public void configure(Ports ports, KeyStore keystore, boolean cookies, Stage stage) throws XmlException {
         Element template;
         Element service;
 
@@ -65,7 +65,7 @@ public class ServerXml {
                 document.getDocumentElement().appendChild(service);
                 service(service, host);
                 connectors(service, host, keystore);
-                contexts(stage, host.httpPort(), service, mode, cookies, host.docroot.join("WEB-INF"));
+                contexts(stage, host.httpPort(), service, cookies, host.docroot.join("WEB-INF"));
             }
         }
         template.getParentNode().removeChild(template);
@@ -166,7 +166,7 @@ public class ServerXml {
 
     }
 
-    public void contexts(Stage stage, int httpPort, Element service, String mode, boolean cookies, FileNode webinf) throws XmlException {
+    public void contexts(Stage stage, int httpPort, Element service, boolean cookies, FileNode webinf) throws XmlException {
         Element context;
         Element manager;
         Map<String, String> map;
@@ -181,7 +181,6 @@ public class ServerXml {
                 context.appendChild(manager);
             }
             map = stage.extensions().contextParameter(stage, host.getAttribute("name"), httpPort, webinf);
-            map.put("mode", mode);
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 parameter(context, entry.getKey()).setAttribute("value", entry.getValue());
             }
