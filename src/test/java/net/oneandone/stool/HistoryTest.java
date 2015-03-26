@@ -15,25 +15,23 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.util.LogEntry;
 import net.oneandone.sushi.fs.World;
 import org.junit.Test;
-
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
 
 public class HistoryTest {
     @Test
     public void testReadLog() throws Exception {
         World world;
+        History.LogReader reader;
+        int count;
+
         world = new World();
-        List<LogEntry> entries = History.readLog(world.resource("stage.history.log"));
-
-        assertNotNull(entries);
-        assertEquals(10, entries.size());
+        reader = History.LogReader.create(null /* TODO */);
+        count = 0;
+        while (reader.next() != null) {
+            count++;
+        }
+        assertEquals(10, count);
     }
-
 }

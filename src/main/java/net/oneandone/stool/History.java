@@ -20,12 +20,19 @@ import net.oneandone.stool.util.LogEntry;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
-import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.LineFormat;
+import net.oneandone.sushi.fs.LineReader;
+import net.oneandone.sushi.fs.file.FileNode;
 import org.joda.time.format.DateTimeFormat;
 
 import java.io.IOException;
-import java.util.LinkedList;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 public class History extends StageCommand {
     public History(Session session) {
@@ -46,41 +53,118 @@ public class History extends StageCommand {
 
     @Override
     public void doInvoke(Stage s) throws Exception {
-        List<LogEntry> logEntries;
+        String stageId;
+        LogEntry entry;
         int counter ;
         String id;
 
-        logEntries = readLog(s.shared().join("log/stool.log"));
-        counter = 1;
-        id = null;
-        for (LogEntry entry : logEntries) {
-            if (entry.logger.equals("IN")) {
-                if (detail == -1 || detail == counter) {
-                    console.info.println("[" + counter + "] " + entry.dateTime.toString(DateTimeFormat.shortDateTime())
-                        + " " + entry.user + ": " + entry.message);
+        stageId = s.config().id;
+        try (LogReader reader = LogReader.create(session.home.join("logs"))) {
+            counter = 1;
+            id = null;
+            while (true) {
+                entry = reader.next();
+                if (entry == null) {
+                    break;
                 }
-                if (detail == counter) {
-                    id = entry.id;
-                }
-                counter++;
-            }
-            if (entry.id.equals(id)) {
-                console.info.println("     " + entry.message);
-            }
+                if (entry.id.equals(stageId)) {
+                    if (entry.logger.equals("IN")) {
+                        if (detail == -1 || detail == counter) {
+                            console.info.println("[" + counter + "] " + entry.dateTime.toString(DateTimeFormat.shortDateTime())
+                                    + " " + entry.user + ": " + entry.message);
+                        }
+                        if (detail == counter) {
+                            id = entry.id;
+                        }
+                        counter++;
+                    }
+                    if (entry.id.equals(id)) {
+                        console.info.println("     " + entry.message);
+                    }
 
-            if (counter > max) {
-                break;
+                    if (counter > max) {
+                        break;
+                    }
+                }
             }
         }
     }
 
-    public static List<LogEntry> readLog(Node logfile) throws IOException {
-        List<LogEntry> result;
+    public static class LogReader implements AutoCloseable {
+        public static LogReader create(FileNode directory) throws IOException {
+            List<FileNode> files;
+            Iterator<FileNode> iter;
+            FileNode file;
 
-        result = new LinkedList<>();
-        for (String line : logfile.readLines()) {
-            result.add(LogEntry.parse(line));
+            files = directory.list();
+            iter = files.iterator();
+            while (iter.hasNext()) {
+                file = iter.next();
+                if (file.isDirectory()) {
+                    iter.remove();
+                } else if (!current(file) && !file.getName().endsWith(".log.gz")) {
+                    iter.remove();
+                }
+            }
+            Collections.sort(files, new Comparator<FileNode>() {
+                @Override
+                public int compare(FileNode left, FileNode right) {
+                    if (current(left)) {
+                        return -1;
+                    } else if (current(right)) {
+                        return 1;
+                    } else {
+                        return left.getName().compareTo(right.getName());
+                    }
+                }
+            });
+            System.out.println("sorted: " + files);
+            return new LogReader(files);
         }
-        return result;
+
+        private static boolean current(FileNode log) {
+            return log.getName().equals(log);
+        }
+
+        private final List<FileNode> files;
+        private LineReader reader;
+
+        public LogReader(List<FileNode> files)  {
+            this.files = files;
+            this.reader = null;
+        }
+
+        public LogEntry next() throws IOException {
+            FileNode file;
+            String line;
+            InputStream src;
+
+            while (true) {
+                if (reader == null) {
+                    if (files.isEmpty()) {
+                        return null;
+                    }
+                    file = files.remove(0);
+                    src = file.createInputStream();
+                    if (file.getName().endsWith(".gz")) {
+                        src = new GZIPInputStream(src);
+                    }
+                    reader = new LineReader(new InputStreamReader(src, "utf8"), LineFormat.RAW_FORMAT);
+                }
+                line = reader.next();
+                if (line != null) {
+                    return LogEntry.parse(line);
+                }
+                reader.close();
+                reader = null;
+            }
+        }
+
+        @Override
+        public void close() throws Exception {
+            if (reader != null) {
+                reader.close();
+            }
+        }
     }
 }
