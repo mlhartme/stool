@@ -24,10 +24,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Applogs {
+public class Logs {
     private final FileNode dir;
 
-    public Applogs(FileNode dir) {
+    public Logs(FileNode dir) {
         this.dir = dir;
     }
 

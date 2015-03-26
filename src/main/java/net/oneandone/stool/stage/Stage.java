@@ -24,7 +24,6 @@ import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.util.BuildStats;
 import net.oneandone.stool.util.Files;
-import net.oneandone.stool.util.Host;
 import net.oneandone.stool.util.KeyStore;
 import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.OwnershipException;
@@ -690,8 +689,8 @@ public abstract class Stage {
         return shared().join(".hijacked").readString();
     }
 
-    public Applogs logs() {
-        return new Applogs(shared().join("tomcat/logs"));
+    public Logs logs() {
+        return new Logs(shared().join("tomcat/logs"));
     }
 
     public static enum State {
