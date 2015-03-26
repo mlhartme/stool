@@ -17,7 +17,6 @@ package net.oneandone.stool.stage.artifact;
 
 import com.google.gson.Gson;
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.cli.Console;
@@ -30,7 +29,6 @@ import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 
-import javax.naming.NamingException;
 import java.io.IOException;
 import java.io.Reader;
 

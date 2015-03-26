@@ -45,11 +45,9 @@ import org.apache.maven.model.Build;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
-import org.eclipse.aether.RepositoryListener;
 import org.eclipse.aether.artifact.DefaultArtifact;
 import org.eclipse.aether.repository.RepositoryPolicy;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.eclipse.aether.transfer.TransferListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
