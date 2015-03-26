@@ -689,8 +689,9 @@ public abstract class Stage {
     public String ownerBeforeHijacking() throws IOException {
         return shared().join(".hijacked").readString();
     }
+
     public Applogs logs() {
-        return new Applogs(shared().join("applogs"));
+        return new Applogs(shared().join("tomcat/logs"));
     }
 
     public static enum State {

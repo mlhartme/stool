@@ -2,6 +2,9 @@
   <body>
     <release version="3.1.0" date="2015-03-21">
       <action date="2015-03-26" dev="mlhartme" type="update">
+        Moved shared/applogs to shared/tomcat/logs/applogs
+      </action>
+      <action date="2015-03-26" dev="mlhartme" type="update">
         Added logroot context parameter to Pustefix extension.
       </action>
       <action date="2015-03-21" dev="mlhartme" type="update">

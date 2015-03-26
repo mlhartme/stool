@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class Applogs {
-
     private final FileNode dir;
 
     public Applogs(FileNode dir) {
@@ -56,6 +55,4 @@ public class Applogs {
 
         return node.getAbsolute();
     }
-
-
 }

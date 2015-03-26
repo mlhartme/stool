@@ -47,9 +47,11 @@ public class PustefixEditor implements Extension {
         return result;
     }
 
+    private static final String APPLOGS = "tomcat/logs/applogs";
+
     @Override
     public void beforeStart(Stage stage, Collection<String> apps) throws IOException {
-        Files.stoolDirectory(stage.shared().join("applogs").mkdirOpt());
+        Files.stoolDirectory(stage.shared().join(APPLOGS).mkdirOpt());
         if (enabled) {
             userdata(stage);
             editorDirectory(stage, apps);
@@ -67,7 +69,7 @@ public class PustefixEditor implements Extension {
         FileNode userdata;
 
         app = host.substring(0, host.indexOf('.'));
-        result.put("logroot", stage.shared().join("applogs", app).getAbsolute());
+        result.put("logroot", stage.shared().join(APPLOGS, app).getAbsolute());
         if (enabled) {
             editorLocation = "http://" + fqdn(stage) + ":" + httpPort;
             userdata = stage.shared().join("editor/userdata/userdata.xml");
