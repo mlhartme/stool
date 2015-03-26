@@ -31,7 +31,7 @@ import java.util.TreeMap;
 
 public class Status extends StageCommand {
     public static enum Field {
-        NAME, DIRECTORY, WRAPPER, URL, TYPE, STATE, OWNER, TOMCAT, DEBUGGER, JMX, APPS;
+        ID, NAME, DIRECTORY, WRAPPER, URL, TYPE, STATE, OWNER, TOMCAT, DEBUGGER, JMX, APPS;
 
         public String toString() {
             return name().toLowerCase();
@@ -107,6 +107,7 @@ public class Status extends StageCommand {
         String url;
 
         result = new TreeMap<>();
+        result.put(Field.ID, stage.config().id);
         result.put(Field.NAME, stage.getName());
         result.put(Field.DIRECTORY, stage.getDirectory().getAbsolute());
         result.put(Field.WRAPPER, stage.wrapper.getAbsolute());

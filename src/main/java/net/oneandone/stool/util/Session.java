@@ -47,9 +47,11 @@ import javax.naming.NamingException;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Modifier;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 /** Mostly a representation of $STOOL_HOME */
@@ -136,7 +138,11 @@ public class Session {
     private final Subversion subversion;
 
     private String selectedStageName;
+    private String stageIdPrefix;
+    private int nextStageId;
     public final Users users;
+
+    private static final SimpleDateFormat FMT = new SimpleDateFormat("yyMMdd");
 
     public Session(ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command, FileNode home, Console console, Environment environment, StoolConfiguration configuration,
                    Bedroom bedroom, FileNode invocationFile) {
@@ -154,6 +160,8 @@ public class Session {
         this.selectedStageName = null;
         this.invocationFile = invocationFile;
         this.subversion = new Subversion(null, null);
+        this.stageIdPrefix = FMT.format(new Date()) + "." + logging.id + ".";
+        this.nextStageId = 0;
         if (configuration.ldapUrl.isEmpty()) {
             this.users = Users.fromLogin();
         } else {
@@ -453,9 +461,14 @@ public class Session {
     public StageConfiguration createStageConfiguration(String url) throws IOException {
         StageConfiguration stage;
 
-        stage = new StageConfiguration(javaHome(), Maven.locateMaven(console.world).getAbsolute(), extensionsFactory.newInstance());
+        stage = new StageConfiguration(nextStageId(), javaHome(), Maven.locateMaven(console.world).getAbsolute(), extensionsFactory.newInstance());
         configuration.setDefaults(StageConfiguration.properties(extensionsFactory), stage, url);
         return stage;
+    }
+
+    private String nextStageId() {
+        nextStageId++;
+        return stageIdPrefix + "." + nextStageId;
     }
 
     public static String javaHome() {

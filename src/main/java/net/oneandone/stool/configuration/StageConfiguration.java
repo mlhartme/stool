@@ -38,7 +38,7 @@ public class StageConfiguration {
         result = new LinkedHashMap<>();
         for (Field field : StageConfiguration.class.getFields()) {
             option = field.getAnnotation(Option.class);
-            if (option != null) {
+            if (option != null && !option.readOnly()) {
                 result.put(option.key(), new Property(option.key(), option.description(), field, null));
             }
         }
@@ -47,6 +47,9 @@ public class StageConfiguration {
     }
 
     //--
+
+    @Option(key = "id", description = "unique identifier for this stage", role = Role.USER, readOnly = true)
+    public final String id;
 
     @Option(key = "cookies", description = "use cookies for tomcat", role = Role.USER)
     public Boolean cookies;
@@ -108,7 +111,8 @@ public class StageConfiguration {
 
     public final Extensions extensions;
 
-    public StageConfiguration(String javaHome, String mavenHome, Extensions extensions) {
+    public StageConfiguration(String id, String javaHome, String mavenHome, Extensions extensions) {
+        this.id = id;
         this.cookies = true;
         this.prepare = "";
         this.build = "false";

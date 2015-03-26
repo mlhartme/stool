@@ -30,4 +30,6 @@ public @interface Option {
     String description();
 
     Role role() default Role.ADMIN;
+
+    boolean readOnly() default false;
 }

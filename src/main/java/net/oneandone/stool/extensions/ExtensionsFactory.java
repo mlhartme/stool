@@ -70,11 +70,14 @@ public class ExtensionsFactory {
         String name;
         String fullName;
         Class<? extends Extension> extension;
+        int modifiers;
 
         for (Map.Entry<String, Class<? extends Extension>> entry : types.entrySet()) {
             name = entry.getKey();
             extension = entry.getValue();
             for (Field field : extension.getDeclaredFields()) {
+                modifiers = field.getModifiers();
+
                 fullName = name + "." + field.getName();
                 result.put(fullName, new Property(fullName, "extension field", field, name));
             }

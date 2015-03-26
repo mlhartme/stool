@@ -47,7 +47,7 @@ public class Logging {
         return result;
     }
 
-    private final String id;
+    public final String id;
     private final LoggerContext context;
     private final FileNode stool;
     private final String user;
