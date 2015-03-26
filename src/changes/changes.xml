@@ -2,6 +2,9 @@
   <body>
     <release version="3.0.1" date="2015-03-19">
       <action date="2015-03-24" dev="mlhartme" type="fix">
+        Fixed autoRefresh: the timer task's log directory was wrong.
+      </action>
+      <action date="2015-03-24" dev="mlhartme" type="fix">
         Fixed port allocation: it was possible to get the same port twice for on stage.
       </action>
       <action date="2015-03-24" dev="mlhartme" type="update">
