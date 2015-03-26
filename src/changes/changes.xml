@@ -2,6 +2,9 @@
   <body>
     <release version="3.0.1" date="2015-03-19">
       <action date="2015-03-24" dev="mlhartme" type="fix">
+        Fixed incremental upgrade to add a new stool jar and modify a symlink.
+      </action>
+      <action date="2015-03-24" dev="mlhartme" type="fix">
         Fixed autoRefresh: the timer task's log directory was wrong.
       </action>
       <action date="2015-03-24" dev="mlhartme" type="fix">

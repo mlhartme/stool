@@ -34,6 +34,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -177,15 +178,20 @@ public class Main extends Cli implements Command {
     }
 
     private void incrementalUpgrade(Version old, Version version) throws IOException {
-        FileNode jar;
+        FileNode timestamp;
+        FileNode link;
 
-        jar = home.join("bin/stool.jar");
+        timestamp = home.join("bin/stool-" + Install.FMT.format(new Date()) + ".jar");
+        link = home.join("bin/stool.jar");
         console.info.println("Ready for incremental upgrade of " + home.getAbsolute() + " from version " + old + " to " + version);
-        console.info.println("M " + jar);
+        console.info.println("A " + timestamp);
+        console.info.println("M " + link);
         if (!batch) {
             console.pressReturn();
         }
-        console.world.locateClasspathItem(getClass()).copyFile(jar);
+        link.deleteFile();
+        link.mklink(timestamp.getName());
+        console.world.locateClasspathItem(getClass()).copyFile(timestamp);
         console.info.println("Done. Consider 'stool -stage overview refresh' now.");
     }
 
