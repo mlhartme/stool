@@ -16,25 +16,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** TODO: rename? also handles logroot parameter */
-public class PustefixEditor implements Extension {
+public class Pustefix implements Extension {
     private static final String PREFIX = "cms.";
 
     private final String mode;
 
-    private final boolean enabled;
+    private final boolean editor;
     
     private final String version;
 
     private final String userdata;
 
-    public PustefixEditor() {
+    public Pustefix() {
         this("test", false, "0.18.75", "https://svn.1and1.org/svn/sales/workspaces/editor/userdata.xml");
     }
 
-    public PustefixEditor(String mode, boolean enabled, String version, String userdata) {
+    public Pustefix(String mode, boolean editor, String version, String userdata) {
         this.mode = mode;
-        this.enabled = enabled;
+        this.editor = editor;
         this.version = version;
         this.userdata = userdata;
     }
@@ -44,7 +43,7 @@ public class PustefixEditor implements Extension {
         Map<String, FileNode> result;
 
         result = new HashMap<>();
-        if (enabled) {
+        if (editor) {
             result.put(PREFIX + stage.getName(), editorDocroot(stage));
         }
         return result;
@@ -55,7 +54,7 @@ public class PustefixEditor implements Extension {
     @Override
     public void beforeStart(Stage stage, Collection<String> apps) throws IOException {
         Files.stoolDirectory(stage.shared().join(APPLOGS).mkdirOpt());
-        if (enabled) {
+        if (editor) {
             userdata(stage);
             editorDirectory(stage, apps);
         }
@@ -74,10 +73,10 @@ public class PustefixEditor implements Extension {
         app = host.substring(0, host.indexOf('.'));
         result.put("mode", mode);
         result.put("logroot", stage.shared().join(APPLOGS, app).getAbsolute());
-        if (enabled) {
+        if (editor) {
             editorLocation = "http://" + fqdn(stage) + ":" + httpPort;
             userdata = stage.shared().join("editor/userdata/userdata.xml");
-            if (host.startsWith(PustefixEditor.PREFIX)) {
+            if (host.startsWith(Pustefix.PREFIX)) {
                 result.put("editor.userdata", userdata.getURI().toString());
                 result.put("editor.locations", webinf.join("editor-locations.xml").getURI().toString());
             } else {

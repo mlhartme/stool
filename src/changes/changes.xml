@@ -5,13 +5,13 @@
         Moved shared/applogs to shared/tomcat/logs/applogs
       </action>
       <action date="2015-03-26" dev="mlhartme" type="update">
-        Added logroot context parameter to Pustefix extension.
+        Added mode and logroot context parameter to Pustefix extension.
       </action>
       <action date="2015-03-21" dev="mlhartme" type="update">
         Moved Pustefix Editor into a new Pustefix extension.
       </action>
       <action date="2015-03-21" dev="mlhartme" type="add">
-        Added extensions. Moved  Pustefix Editor is an extension now.
+        Added extensions.
       </action>
     </release>
     <release version="3.0.0" date="2015-03-19">
