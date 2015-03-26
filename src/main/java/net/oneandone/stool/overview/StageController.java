@@ -117,16 +117,17 @@ public class StageController {
         return modelAndView;
     }
 
-
     @RequestMapping(value = "/{name}/logs/", method = RequestMethod.GET)
     public ResponseEntity logs(@PathVariable(value = "name") String stageName) throws Exception {
         Stage stage;
-        stage = resolveStage(stageName);
         Logs logs;
+
+        stage = resolveStage(stageName);
         logs = new Logs();
         logs.addAll(stage.logs().list(), stageName);
         return new ResponseEntity<>(logs, HttpStatus.OK);
     }
+
     @RequestMapping(value = "/{name}/logs/{log}", method = RequestMethod.GET)
     public ResponseEntity<Resource> log(@PathVariable(value = "name") String stageName,
       @PathVariable(value = "log") String log) throws Exception {

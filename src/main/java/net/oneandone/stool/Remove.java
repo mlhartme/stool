@@ -91,8 +91,6 @@ public class Remove extends StageCommand {
               .join(stage.getName() + "-" + DateTime.now().toString(DateTimeFormat.forPattern("y-M-d_H-m")) + ".log");
             log.copy(newLogFile);
         }
-
-        // CAUTION: first delete the wrappen, then the stage. Otherwise, we would interfere with WrapperGuard.
         stage.wrapper.deleteTree();
         if (wrappersOnly) {
             console.info.println("Removed wrapper for " + stage.getDirectory().getAbsolute());
