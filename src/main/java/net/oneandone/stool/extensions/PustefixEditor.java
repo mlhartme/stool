@@ -2,6 +2,7 @@ package net.oneandone.stool.extensions;
 
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.util.Strings;
@@ -15,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/** TODO: rename? also handles logroot parameter */
 public class PustefixEditor implements Extension {
     private static final String PREFIX = "cms.";
 
@@ -47,6 +49,7 @@ public class PustefixEditor implements Extension {
 
     @Override
     public void beforeStart(Stage stage, Collection<String> apps) throws IOException {
+        Files.stoolDirectory(stage.shared().join("applogs").mkdirOpt());
         if (enabled) {
             userdata(stage);
             editorDirectory(stage, apps);
@@ -59,9 +62,12 @@ public class PustefixEditor implements Extension {
 
     @Override
     public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) throws XmlException {
+        String app;
         String editorLocation;
         FileNode userdata;
 
+        app = host.substring(0, host.indexOf('.'));
+        result.put("logroot", stage.shared().join("applogs", app).getAbsolute());
         if (enabled) {
             editorLocation = "http://" + fqdn(stage) + ":" + httpPort;
             userdata = stage.shared().join("editor/userdata/userdata.xml");

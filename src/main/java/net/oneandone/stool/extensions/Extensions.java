@@ -45,6 +45,7 @@ public class Extensions implements Iterable<Extension> {
         }
     }
 
+    /** @param host  the vhost name, even if global vhosts config is false */
     public Map<String, String> contextParameter(Stage stage, String host, int httpPort, FileNode webinf) throws XmlException {
         Map<String, String> result;
 
