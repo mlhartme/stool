@@ -6,6 +6,7 @@ import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -77,9 +78,10 @@ public class ExtensionsFactory {
             extension = entry.getValue();
             for (Field field : extension.getDeclaredFields()) {
                 modifiers = field.getModifiers();
-
-                fullName = name + "." + field.getName();
-                result.put(fullName, new Property(fullName, "extension field", field, name));
+                if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {
+                    fullName = name + "." + field.getName();
+                    result.put(fullName, new Property(fullName, "extension field", field, name));
+                }
             }
         }
     }
