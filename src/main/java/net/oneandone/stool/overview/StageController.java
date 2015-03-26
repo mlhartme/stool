@@ -27,6 +27,7 @@ import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -55,7 +56,7 @@ import java.util.concurrent.ExecutorService;
 @RestController
 @RequestMapping("/stages")
 public class StageController {
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(StageController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StageController.class);
 
     @Autowired
     private Users users;

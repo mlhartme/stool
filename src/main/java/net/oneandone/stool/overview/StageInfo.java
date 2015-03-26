@@ -24,6 +24,7 @@ import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.BuildStats;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
@@ -34,7 +35,8 @@ import java.net.URLEncoder;
 import java.util.Map;
 
 public class StageInfo {
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(StageInfo.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StageInfo.class);
+
     public String name;
     public StageConfiguration configuration;
     public String extractionUrl;
