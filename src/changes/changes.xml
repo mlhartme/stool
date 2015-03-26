@@ -22,7 +22,7 @@
         Wrapper was always started with Stool's java version. Now, it's started with the Java version specified for the stage.
       </action>
       <action date="2015-03-16" dev="mlhartme" type="update">
-        Dumped state "crashed", it's no longer useful since service wrapper is very stale. And allows for some nice
+        Dumped state "crashed", it's no longer useful since service wrapper is very robust. And allows for some nice
         optimizations because I can move "ps aux" calls into the validate command.
       </action>
       <action date="2015-03-16" dev="mlhartme" type="fix">

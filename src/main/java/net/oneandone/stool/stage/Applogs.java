@@ -33,6 +33,7 @@ public class Applogs {
 
     public List<String> list() throws IOException {
         List<String> files;
+
         if (!dir.exists()) {
             files = Collections.emptyList();
         } else {
@@ -41,13 +42,13 @@ public class Applogs {
         for (Node node : dir.find("**/*.log")) {
             files.add(Strings.replace(node.getRelative(dir), "/", "::"));
         }
-
         return files;
     }
 
     public String file(String filename) throws IOException {
         FileNode node;
         String file;
+
         file = Strings.replace(filename, "::", "/");
         file = Strings.replace(file, "..", "");
         node = dir.join(file);
