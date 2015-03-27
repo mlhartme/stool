@@ -185,9 +185,9 @@ public class StageController {
 
     public String execute(String stage, String command, String options) throws IOException {
         String id;
+
         id = UUID.randomUUID().toString();
-        executorService.submit(new StoolCallable(command, options, stage, SecurityContextHolder.getContext().getAuthentication().getName(),
-          id, logs, !session.configuration.security.isLocal()));
+        executorService.submit(new StoolCallable(command, options, stage, SecurityContextHolder.getContext().getAuthentication().getName(), id, logs, session.user));
         return id;
     }
 

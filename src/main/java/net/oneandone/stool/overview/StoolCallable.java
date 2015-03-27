@@ -26,17 +26,18 @@ public class StoolCallable implements Callable<StoolProcess> {
     private final String id;
     private final String stage;
     private final FileNode logDir;
-    private final boolean own;
     private String user;
 
-    public StoolCallable(String command, String options, String stage, String user, String id, FileNode logDir, boolean own) {
+    private final String runAs;
+
+    public StoolCallable(String command, String options, String stage, String user, String id, FileNode logDir, String runAs) {
         this.command = command;
         this.options = options;
         this.user = user;
         this.id = id;
         this.stage = stage;
         this.logDir = logDir;
-        this.own = own;
+        this.runAs = runAs;
     }
 
     @Override
@@ -54,9 +55,7 @@ public class StoolCallable implements Callable<StoolProcess> {
         long endTime = 0;
         stat = logDir.join(id + ".stat").mkfile();
         builder.append("#!/bin/sh\n").append("#User:").append(user).append("\n");
-        if (own) {
-            builder.append("bash --login -c \"stool chown -stage ").append(stage).append("\"\n");
-        }
+        /* TODO: runAs */
         builder.append("bash --login -c \"stool ").append(command).append(" -stage ").append(stage);
         if (options != null && !options.equals("")) {
             builder.append(" ").append(options);

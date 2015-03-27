@@ -69,8 +69,6 @@ public class PrepareRefresh extends TimerTask {
     }
 
     public void executeUpdate(Stage stage) throws Exception {
-        boolean own;
-        own = !stage.technicalOwner().equals(session.user);
-        new StoolCallable("refresh", "-usePrepared", stage.getName(), "daemon", UUID.randomUUID().toString(), logs, own).call();
+        new StoolCallable("refresh", "-usePrepared", stage.getName(), "daemon", UUID.randomUUID().toString(), logs, stage.technicalOwner()).call();
     }
 }
