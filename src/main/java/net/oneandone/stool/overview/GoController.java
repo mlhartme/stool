@@ -16,8 +16,10 @@
 package net.oneandone.stool.overview;
 
 import net.oneandone.stool.EnumerationFailed;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
+import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,7 @@ import org.xml.sax.SAXException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.List;
 
 @Controller
 @RequestMapping("/go")
@@ -45,7 +48,7 @@ public class GoController {
     @RequestMapping(value = "/**", method = RequestMethod.GET)
     public ModelAndView goToStage(HttpServletRequest httpServletRequest)
             throws IOException, SAXException, NamingException, UserNotFound, EnumerationFailed {
-        String requestetStage = httpServletRequest.getServletPath().replace("/go/", "");
+        final String requestetStage = httpServletRequest.getServletPath().replace("/go/", "");
         String baseurl = httpServletRequest.getRequestURL().toString();
         baseurl = baseurl.substring(0, baseurl.indexOf('/', 8));
 
@@ -53,7 +56,13 @@ public class GoController {
             return new ModelAndView("redirect:" + baseurl + "/#!404:" + requestetStage);
         }
 
-        StageInfo stage = StageGatherer.get(requestetStage, session, users);
+        List<Stage> stages = StageGatherer.doList(session, new Predicate() {
+            @Override
+            public boolean matches(Stage stage1) {
+                return stage1.getName().equals(requestetStage);
+            }
+        });
+        StageInfo stage = StageInfo.fromStage(stages.get(0), users);
 
         switch (stage.getRunning()) {
             case "up":

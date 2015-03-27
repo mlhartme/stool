@@ -52,7 +52,7 @@ public class StageInfo {
     public String state;
 
 
-    public static StageInfo fromStage(Stage stage, Users users) throws IOException, SAXException {
+    public static StageInfo fromStage(Stage stage, Users users) throws IOException {
         StageInfo stageInfo;
         stageInfo = new StageInfo();
         stageInfo.name = stage.getName();

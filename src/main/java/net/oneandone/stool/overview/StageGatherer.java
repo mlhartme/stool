@@ -30,43 +30,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class StageGatherer {
-    public static List<StageInfo> get(Session session, Users users)
-            throws IOException, SAXException, NamingException, UserNotFound, EnumerationFailed {
+    public static List<StageInfo> get(Session session, Users users) throws IOException, NamingException, UserNotFound, EnumerationFailed {
         List<StageInfo> infos;
         List<Stage> stages;
 
         infos = new ArrayList<>();
         session.wipeStaleWrappers();
-        stages = getStages(session);
-
+        stages = getAllStages(session);
         for (Stage stage : stages) {
             infos.add(StageInfo.fromStage(stage, users));
         }
         return infos;
-    }
-
-    private static List<Stage> getStages(Session session) throws IOException, EnumerationFailed {
-        return doList(session, new Predicate() {
-            @Override
-            public boolean matches(Stage stage) {
-                return !stage.getName().equals(Overview.OVERVIEW_NAME);
-            }
-        });
-    }
-
-    public static StageInfo get(String name, Session session, Users users)
-            throws IOException, SAXException, NamingException, UserNotFound, EnumerationFailed {
-        List<Stage> stages = getStages(name, session);
-        return StageInfo.fromStage(stages.get(0), users);
-    }
-
-    public static List<Stage> getStages(final String name, Session session) throws IOException, EnumerationFailed {
-        return doList(session, new Predicate() {
-            @Override
-            public boolean matches(Stage stage) {
-                return stage.getName().equals(name);
-            }
-        });
     }
 
     public static List<Stage> getAllStages(Session session) throws IOException, EnumerationFailed {
@@ -78,7 +52,7 @@ public abstract class StageGatherer {
         });
     }
 
-    private static List<Stage> doList(Session session, Predicate predicate) throws IOException, EnumerationFailed {
+    public static List<Stage> doList(Session session, Predicate predicate) throws IOException, EnumerationFailed {
         List<Stage> result;
         EnumerationFailed problems;
 
