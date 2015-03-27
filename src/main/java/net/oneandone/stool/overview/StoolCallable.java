@@ -20,20 +20,20 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 
 import java.util.concurrent.Callable;
-public class StoolCallable implements Callable<StoolProcess> {
+
+public class StoolCallable implements Callable<StoolCallable.StoolProcess> {
+    private final Gson gson;
     private final String command;
     private final String options;
     private final String id;
     private final String stage;
     private final FileNode logDir;
-    private String user;
-
     private final String runAs;
 
-    public StoolCallable(String command, String options, String stage, String user, String id, FileNode logDir, String runAs) {
+    public StoolCallable(Gson gson, String command, String options, String stage, String id, FileNode logDir, String runAs) {
+        this.gson = gson;
         this.command = command;
         this.options = options;
-        this.user = user;
         this.id = id;
         this.stage = stage;
         this.logDir = logDir;
@@ -54,7 +54,7 @@ public class StoolCallable implements Callable<StoolProcess> {
         startTime = 0L;
         long endTime = 0;
         stat = logDir.join(id + ".stat").mkfile();
-        builder.append("#!/bin/sh\n").append("#User:").append(user).append("\n");
+        builder.append("#!/bin/sh\n").append("#runAs:").append(runAs).append("\n");
         /* TODO: runAs */
         builder.append("bash --login -c \"stool ").append(command).append(" -stage ").append(stage);
         if (options != null && !options.equals("")) {
@@ -64,17 +64,57 @@ public class StoolCallable implements Callable<StoolProcess> {
         script = logDir.join(id + ".sh").mkfile();
         script.writeString(builder.toString()).setPermissions("rwx------");
         try {
-            stoolProcess = new StoolProcess(command, id, stage, user, startTime, endTime, failure);
-            stat.writeString(new Gson().toJson(stoolProcess));
+            stat.writeString(gson.toJson(new StoolProcess(command, id, stage, runAs, startTime, endTime, failure)));
             startTime = System.currentTimeMillis();
             script.launcher("sh", script.getAbsolute()).dir(script.getParent()).exec();
             endTime = System.currentTimeMillis();
         } catch (Failure e) {
             failure = e;
-
         }
-        stoolProcess = new StoolProcess(command, id, stage, user, startTime, endTime, failure);
-        stat.writeString(new Gson().toJson(stoolProcess));
+        stoolProcess = new StoolProcess(command, id, stage, runAs, startTime, endTime, failure);
+        stat.writeString(gson.toJson(stoolProcess));
         return stoolProcess;
+    }
+
+    public static class StoolProcess {
+        private final String command;
+        private final String id;
+        private final String stage;
+        private final long endTime;
+        private final String user;
+        private final long startTime;
+        private final Failure failure;
+
+        public StoolProcess(String command, String id, String stage, String user, long startTime, long endTime, Failure failure) {
+            this.command = command;
+            this.id = id;
+            this.stage = stage;
+            this.user = user;
+            this.startTime = startTime;
+            this.endTime = endTime;
+            this.failure = failure;
+        }
+
+        public String getCommand() {
+            return command;
+        }
+        public String getId() {
+            return id;
+        }
+        public String getStage() {
+            return stage;
+        }
+        public long getEndTime() {
+            return endTime;
+        }
+        public long getStartTime() {
+            return startTime;
+        }
+        public String getFailure() {
+            return failure.getMessage();
+        }
+        public String getUser() {
+            return user;
+        }
     }
 }

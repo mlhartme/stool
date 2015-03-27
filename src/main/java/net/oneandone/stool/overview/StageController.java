@@ -187,7 +187,7 @@ public class StageController {
         String id;
 
         id = UUID.randomUUID().toString();
-        executorService.submit(new StoolCallable(command, options, stage, SecurityContextHolder.getContext().getAuthentication().getName(), id, logs, session.user));
+        executorService.submit(new StoolCallable(session.gson, command, options, stage, id, logs, session.user));
         return id;
     }
 
