@@ -43,12 +43,14 @@ public class PrepareRefresh extends TimerTask {
 
     @Override
     public void run() {
+        List<Stage> allStages;
         Refresh refresh;
         Chown chown;
+
         try {
-            List<Stage> allStages = StageGatherer.getAllStages(session);
+            allStages = StageGatherer.getAllStages(session);
             refresh = new Refresh(session, true, true, false);
-            chown = new Chown(session, true, true);
+            chown = new Chown(session, true);
             for (Stage stage : allStages) {
                 if (stage.config().autoRefresh) {
                     if (!stage.technicalOwner().equals(session.user)) {
@@ -61,8 +63,8 @@ public class PrepareRefresh extends TimerTask {
                 }
             }
         } catch (Exception e) {
-            printWriter.println("Error while preparing refresh " + e.getCause());
-            e.printStackTrace();
+            printWriter.println("Error while preparing refresh: " + e.getCause());
+            e.printStackTrace(printWriter);
         }
     }
 

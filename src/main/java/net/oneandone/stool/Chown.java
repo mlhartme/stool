@@ -30,10 +30,8 @@ public class Chown extends StageCommand {
     @Option("stop")
     private boolean stop;
 
-    @Option("overview")
-    private boolean overview;
-
-    private boolean force;
+    @Option("batch")
+    private boolean batch;
 
     /**
      * Chown is a BaseCommand because it doesn't operate on the selected stage, but
@@ -44,15 +42,9 @@ public class Chown extends StageCommand {
         super(session);
     }
 
-    public Chown(Session session, boolean force) throws IOException {
+    public Chown(Session session, boolean batch) throws IOException {
         super(session);
-        this.force = force;
-    }
-
-    public Chown(Session session, boolean force, boolean overview) throws IOException {
-        super(session);
-        this.force = force;
-        this.overview = overview;
+        this.batch = batch;
     }
 
     @Remaining
@@ -88,7 +80,7 @@ public class Chown extends StageCommand {
             message(stage.getName() + ": checkout has modifications");
             newline();
             console.info.println("Those files will stay uncommitted and " + user + " will be the new owner of them.");
-            if (!(force || overview)) {
+            if (!batch) {
                 console.pressReturn();
             }
         }
@@ -106,13 +98,6 @@ public class Chown extends StageCommand {
             startAgain = false;
         }
 
-        if (overview) {
-            console.info.println("Stage has now a hijacked state.");
-            stage.shared().join(".hijacked").writeString(stage.shared().getOwner().getName());
-        } else {
-            stage.shared().join(".hijacked").deleteFileOpt();
-        }
-        // chown stage
         session.chown(stage, user);
         console.info.println("... " + user + " is now owner of " + stage.getName() + ".");
 

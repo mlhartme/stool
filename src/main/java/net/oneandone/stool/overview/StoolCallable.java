@@ -55,14 +55,13 @@ public class StoolCallable implements Callable<StoolProcess> {
         stat = logDir.join(id + ".stat").mkfile();
         builder.append("#!/bin/sh\n").append("#User:").append(user).append("\n");
         if (own) {
-            builder.append("bash --login -c \"stool chown -stage ").append(stage).append(" -overview\"\n");
+            builder.append("bash --login -c \"stool chown -stage ").append(stage).append("\"\n");
         }
         builder.append("bash --login -c \"stool ").append(command).append(" -stage ").append(stage);
         if (options != null && !options.equals("")) {
             builder.append(" ").append(options);
         }
-        builder.append(" >> ").append(logDir.getAbsolute()).append("/")
-          .append(id).append(".log").append("\"\n");
+        builder.append(" >> ").append(logDir.getAbsolute()).append("/").append(id).append(".log").append("\"\n");
         script = logDir.join(id + ".sh").mkfile();
         script.writeString(builder.toString()).setPermissions("rwx------");
         try {

@@ -16,7 +16,6 @@
 package net.oneandone.stool.stage;
 
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.stool.Chown;
 import net.oneandone.stool.Start;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Until;
@@ -232,9 +231,6 @@ public abstract class Stage {
      */
     //TODO rename
     public String ownerOverview() throws IOException {
-        if (hijackedByOverview()) {
-            return ownerBeforeHijacking();
-        }
         return technicalOwner();
     }
 
@@ -242,9 +238,6 @@ public abstract class Stage {
      * external state
      */
     public String owner() throws IOException {
-        if (hijackedByOverview()) {
-            return ownerBeforeHijacking() + " *";
-        }
         return technicalOwner();
     }
 
@@ -475,10 +468,6 @@ public abstract class Stage {
     }
 
     public void checkOwnership() throws IOException, OwnershipException {
-        if (hijackedByOverview() && owner().equals(session.user)) {
-            session.console.info.println("The stage is currently owned by the overview. Going to own it to you back.");
-            new Chown(session, true);
-        }
         if (!technicalOwner().equals(session.user)) {
             throw new OwnershipException("Only the owner of the stage is allowed to to do this.\n"
               + "Just own the stage via 'stool chown' and try again.");
@@ -681,12 +670,6 @@ public abstract class Stage {
 
         build = project.getBuild();
         return session.console.world.file(build.getDirectory()).join(build.getFinalName() + ".war");
-    }
-    public boolean hijackedByOverview() {
-        return shared().join(".hijacked").exists();
-    }
-    public String ownerBeforeHijacking() throws IOException {
-        return shared().join(".hijacked").readString();
     }
 
     public Logs logs() {

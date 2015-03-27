@@ -125,7 +125,6 @@ public class StoolIT {
         stool("list");
         stool("validate");
         stool("history");
-        stool("chown", "-overview");
         stool("chown");
         stool("rename", "renamed");
         stool("move", home.getParent().join("movedStages").getAbsolute());
