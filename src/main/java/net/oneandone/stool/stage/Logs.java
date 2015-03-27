@@ -31,18 +31,22 @@ public class Logs {
         this.dir = dir;
     }
 
-    public List<String> list() throws IOException {
-        List<String> files;
+    public String list(String prefix) throws IOException {
+        StringBuilder builder;
+        String relative;
 
-        if (!dir.exists()) {
-            files = Collections.emptyList();
-        } else {
-            files = new ArrayList<>();
+        builder = new StringBuilder();
+        builder.append("<html>\n");
+        builder.append("<body>\n");
+        if (dir.exists()) {
+            for (Node node : dir.find("**/*.log")) {
+                relative = node.getRelative(dir);
+                builder.append("<a href='" + prefix + relative.replace("/", "::") + "'>" + relative + "</a><br/>");
+            }
         }
-        for (Node node : dir.find("**/*.log")) {
-            files.add(Strings.replace(node.getRelative(dir), "/", "::"));
-        }
-        return files;
+        builder.append("</body>\n");
+        builder.append("</html>\n");
+        return builder.toString();
     }
 
     public String file(String filename) throws IOException {
@@ -50,7 +54,6 @@ public class Logs {
         String file;
 
         file = Strings.replace(filename, "::", "/");
-        file = Strings.replace(file, "..", "");
         node = dir.join(file);
         node.checkFile();
 

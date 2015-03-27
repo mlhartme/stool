@@ -118,8 +118,10 @@ public class StageController {
 
     @RequestMapping(value = "/{name}/logs/", method = RequestMethod.GET)
     public ResponseEntity logs(@PathVariable(value = "name") String stageName) throws Exception {
-        // TODO: logs.addAll(stage.logs().list(), stageName);
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        Stage stage;
+
+        stage = resolveStage(stageName);
+        return new ResponseEntity<>(stage.logs().list("https://walter.websales.united.domain:9993/" + stageName + "/logs/"), HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{name}/logs/{log}", method = RequestMethod.GET)
@@ -127,6 +129,7 @@ public class StageController {
       @PathVariable(value = "log") String log) throws Exception {
         Stage stage;
         String logfile;
+
         stage = resolveStage(stageName);
         if (log.endsWith(".log")) {
             logfile = log;
@@ -163,12 +166,14 @@ public class StageController {
         return new ResponseEntity<>(new ExceptionExport(e), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    //TODO
-    private Stage resolveStage(String stageName) throws IOException {
-        if (!session.stageNames().contains(stageName)) {
+    private Stage resolveStage(String stageName) throws ResourceNotFoundException {
+        Stage stage;
+
+        try {
+            stage = session.load(stageName);
+        } catch (IOException e) {
             throw new ResourceNotFoundException();
         }
-        Stage stage = session.load(stageName);
         stage.setMaven(maven);
         return stage;
     }
