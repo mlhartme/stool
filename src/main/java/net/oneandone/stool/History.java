@@ -36,7 +36,7 @@ public class History extends StageCommand {
     @Remaining
     public void remaining(String str) {
         detail = Integer.parseInt(str);
-        max = detail+1;
+        max = detail + 1;
     }
 
 

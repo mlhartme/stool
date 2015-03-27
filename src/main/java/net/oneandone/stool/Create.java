@@ -23,7 +23,6 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Role;
 import net.oneandone.stool.util.Session;
@@ -242,7 +241,6 @@ public class Create extends SessionCommand {
             entry.getKey().set(stage.config(), entry.getValue());
         }
         stage.saveWrapper();
-        Files.stoolFile(Files.stoolDirectory(stage.shared().join("log").mkdirOpt()).join("stool.log").mkfile());
         return stage;
     }
 

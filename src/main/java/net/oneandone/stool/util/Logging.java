@@ -129,7 +129,8 @@ public class Logging {
 
         encoder = new PatternLayoutEncoder();
         encoder.setContext(context);
-        encoder.setPattern("%date | " + id + " | " + logger + " | " + user + " | %property{stageId} | %property{stageName} | %msg%n");
+        // note that msg is not excaped, it may contain | characters
+        encoder.setPattern("%date|" + id + "|" + logger + "|" + user + "|%property{stageId}|%property{stageName}|%msg%n");
         encoder.start();
         return encoder;
     }

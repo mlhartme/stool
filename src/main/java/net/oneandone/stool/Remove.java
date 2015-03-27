@@ -16,14 +16,10 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Role;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Option;
-import net.oneandone.sushi.fs.Node;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 
 import javax.naming.NoPermissionException;
 import java.io.IOException;
@@ -60,10 +56,6 @@ public class Remove extends StageCommand {
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
-        Node log;
-        Node newLogFile;
-
-
         if (!Role.isAdmin(session.configuration)
           && !session.configuration.security.isLocal() && stage.getName().equals(Overview.OVERVIEW_NAME)) {
             throw new NoPermissionException("You don't have the permissions to do that. This incident will be reported.");
@@ -82,15 +74,6 @@ public class Remove extends StageCommand {
             console.pressReturn();
         }
 
-        log = stage.shared().join("log", "stool.log");
-        if (!session.home.join("logs").join("deleted-stages").exists()) {
-            Files.stoolDirectory(session.home.join("logs").join("deleted-stages").mkdir());
-        }
-        if (log.exists()) {
-            newLogFile = session.home.join("logs").join("deleted-stages")
-              .join(stage.getName() + "-" + DateTime.now().toString(DateTimeFormat.forPattern("y-M-d_H-m")) + ".log");
-            log.copy(newLogFile);
-        }
         stage.wrapper.deleteTree();
         if (wrappersOnly) {
             console.info.println("Removed wrapper for " + stage.getDirectory().getAbsolute());

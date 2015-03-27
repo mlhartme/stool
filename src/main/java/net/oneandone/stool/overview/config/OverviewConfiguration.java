@@ -76,9 +76,10 @@ public class OverviewConfiguration {
     public Stage self() throws IOException {
         return session().load("overview");
     }
+
     @Bean
     public FileNode logs() throws IOException {
-        return self().shared().join("log");
+        return self().shared().join("tomcat/logs");
     }
 
     @Bean

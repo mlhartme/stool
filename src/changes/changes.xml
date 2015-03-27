@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
-    <release version="3.1.0" date="2015-03-21">
+    <release version="3.1.0" date="2015-03-27">
+      <action date="2015-03-27" dev="mlhartme" type="fix">
+        Fixed history to include archived logs.
+      </action>
+      <action date="2015-03-27" dev="mlhartme" type="update">
+        Added a unique id to the stage status.
+      </action>
+      <action date="2015-03-26" dev="mlhartme" type="update">
+        Dump stage specific stool logs. Instead the global stool log contains stage info now.
+      </action>
       <action date="2015-03-26" dev="mlhartme" type="update">
         Moved shared/applogs to shared/tomcat/logs/applogs
       </action>

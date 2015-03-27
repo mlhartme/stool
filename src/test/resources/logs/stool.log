@@ -1,10 +1,10 @@
-2013-11-28 10:12:09,617 | 1 | net.oneandone.sushi.cli.Command | mabraun | stageId | stageName | Invoking Start
-2013-11-28 10:12:11,538 | 1 | OUT | mabraun | stageId | stageName | starting tomcat ...
-2013-11-28 10:12:11,632 | 1 | OUT | mabraun | stageId | stageName | Applications available:
-2013-11-28 10:12:11,634 | 1 | OUT | mabraun | stageId | stageName |   http://hellowar.ac1-hello1.maxpower.websales.united.domain:9760
-2013-11-28 10:12:12,948 | 2 | net.oneandone.sushi.cli.Command | mabraun | stageId | stageName | Invoking Stop
-2013-11-28 10:12:13,892 | 3 | OUT | mabraun | stageId | stageName | stopping tomcat ...
-2013-11-28 10:12:15,217 | 3 | OUT | mabraun | stageId | stageName | state: down
-2013-11-28 10:12:16,278 | 4 | net.oneandone.sushi.cli.Command | mabraun | stageId | stageName | Invoking Restart
-2013-11-28 10:12:17,054 | 4 | OUT | mabraun | stageId | stageName | stopping tomcat ...
-2013-11-28 10:12:17,055 | 4 | ERR | mabraun | stageId | stageName | tomcat is no running.
+2013-11-28 10:12:09,617|1|net.oneandone.sushi.cli.Command|mabraun|stageId|stageName|Invoking Start
+2013-11-28 10:12:11,538|1|OUT|mabraun|stageId|stageName|starting tomcat ...
+2013-11-28 10:12:11,632|1|OUT|mabraun|stageId|stageName|Applications available:
+2013-11-28 10:12:11,634|1|OUT|mabraun|stageId|stageName|  http://hellowar.ac1-hello1.maxpower.websales.united.domain:9760
+2013-11-28 10:12:12,948|2|net.oneandone.sushi.cli.Command|mabraun|stageId|stageName|Invoking Stop
+2013-11-28 10:12:13,892|3|OUT|mabraun|stageId|stageName|stopping tomcat ...
+2013-11-28 10:12:15,217|3|OUT|mabraun|stageId|stageName|state: down
+2013-11-28 10:12:16,278|4|net.oneandone.sushi.cli.Command|mabraun|stageId|stageName|Invoking Restart
+2013-11-28 10:12:17,054|4|OUT|mabraun|stageId|stageName|stopping tomcat ...
+2013-11-28 10:12:17,055|4|ERR|mabraun|stageId|stageName|tomcat is no running.

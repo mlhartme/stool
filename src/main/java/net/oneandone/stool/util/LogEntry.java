@@ -15,25 +15,37 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.sushi.util.Separator;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
-import java.util.List;
-
 public class LogEntry {
-    private static final Separator SEP = Separator.on('|').trim();
     private static final DateTimeFormatter FMT = DateTimeFormat.forPattern("Y-M-d H:m:s,SSS");
 
     public static LogEntry parse(String line) {
-        List<String> fields;
+        int date;
+        int id;
+        int logger;
+        int user;
+        int stageId;
+        int stageName;
 
-        fields = SEP.split(line);
-        if (fields.size() != 7) {
+        date = line.indexOf('|');
+        id = line.indexOf('|', date + 1);
+        logger = line.indexOf('|', id + 1);
+        user = line.indexOf('|', logger + 1);
+        stageId = line.indexOf('|', user + 1);
+        stageName = line.indexOf('|', stageId + 1);
+        if (stageName == -1) {
             throw new IllegalArgumentException(line);
         }
-        return new LogEntry(DateTime.parse(fields.get(0), FMT), fields.get(1), fields.get(2), fields.get(3), fields.get(4), fields.get(5), fields.get(6));
+        return new LogEntry(DateTime.parse(line.substring(0, date), FMT),
+                line.substring(date + 1, id),
+                line.substring(id + 1, logger),
+                line.substring(logger + 1, user),
+                line.substring(user + 1, stageId),
+                line.substring(stageId + 1, stageName),
+                line.substring(stageName + 1));
     }
 
     //--

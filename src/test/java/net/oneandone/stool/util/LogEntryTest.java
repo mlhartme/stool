@@ -25,16 +25,15 @@ import static org.junit.Assert.assertEquals;
 public class LogEntryTest {
     @Test
     public void testLogEntry() throws Exception {
-        String log;
         LogEntry entry;
 
-        entry = LogEntry.parse("2013-11-28 10:12:12,948 | 32 | net.oneandone.sushi.cli.Command | mabraun | stageId | stageName | Invoking Stop");
+        entry = LogEntry.parse("2013-11-28 10:12:12,948|32|net.oneandone.sushi.cli.Command|mabraun|stageId|stageName|message with | separator ");
         assertEquals(DateTime.parse("2013-11-28 10:12:12,948", DateTimeFormat.forPattern("Y-M-d h:m:s,SSS")), entry.dateTime);
         assertEquals("32", entry.id);
         assertEquals("mabraun", entry.user);
         assertEquals("net.oneandone.sushi.cli.Command", entry.logger);
         assertEquals("stageId", entry.stageId);
         assertEquals("stageName", entry.stageName);
-        assertEquals("Invoking Stop", entry.message);
+        assertEquals("message with | separator ", entry.message);
     }
 }
