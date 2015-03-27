@@ -37,6 +37,8 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.URL;
 import java.util.Arrays;
 
@@ -63,8 +65,7 @@ public class Main extends Cli implements Command {
         logging = Logging.forHome(home, user);
         command = "stool " + command(args);
         logging.logger("COMMAND").info(command);
-        console = new Console(world, logging.writer(System.out, "OUT"), logging.writer(System.err, "ERR"),
-                new InputLogStream(System.in, new Slf4jOutputStream(logging.logger("IN"), true)));
+        console = console(world, logging, System.out, System.err);
         main = new Main(logging, user, command, environment, console);
 
         try {
@@ -84,6 +85,11 @@ public class Main extends Cli implements Command {
             }
             throw e;
         }
+    }
+
+    public static Console console(World world, Logging logging, OutputStream out, OutputStream err) throws IOException {
+        return new Console(world, logging.writer(out, "OUT"), logging.writer(err, "ERR"),
+                new InputLogStream(System.in, new Slf4jOutputStream(logging.logger("IN"), true)));
     }
 
     private static String command(String[] args) {
