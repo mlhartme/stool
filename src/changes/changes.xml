@@ -2,6 +2,9 @@
   <body>
     <release version="3.1.0" date="2015-03-27">
       <action date="2015-03-27" dev="mlhartme" type="update">
+        overview/go can address individual apps of one stage now.
+      </action>
+      <action date="2015-03-27" dev="mlhartme" type="update">
         Dumped hijacked owner.
       </action>
       <action date="2015-03-27" dev="mlhartme" type="fix">
