@@ -21,13 +21,12 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-
 public class LogEntryTest {
     @Test
-    public void testLogEntry() throws Exception {
+    public void normal() throws Exception {
         LogEntry entry;
 
-        entry = LogEntry.parse("2013-11-28 10:12:12,948|32|net.oneandone.sushi.cli.Command|mabraun|stageId|stageName|message with | separator ");
+        entry = LogEntry.parse("2013-11-28 10:12:12,948|32|net.oneandone.sushi.cli.Command|mabraun|stageId|stageName|message with | separator \n");
         assertEquals(DateTime.parse("2013-11-28 10:12:12,948", DateTimeFormat.forPattern("Y-M-d h:m:s,SSS")), entry.dateTime);
         assertEquals("32", entry.id);
         assertEquals("mabraun", entry.user);

@@ -23,6 +23,7 @@ public class LogEntry {
     private static final DateTimeFormatter FMT = DateTimeFormat.forPattern("Y-M-d H:m:s,SSS");
 
     public static LogEntry parse(String line) {
+        int len;
         int date;
         int id;
         int logger;
@@ -30,6 +31,9 @@ public class LogEntry {
         int stageId;
         int stageName;
 
+        len = line.length();
+
+        // CAUTION: do not use split, because
         date = line.indexOf('|');
         id = line.indexOf('|', date + 1);
         logger = line.indexOf('|', id + 1);
@@ -39,13 +43,16 @@ public class LogEntry {
         if (stageName == -1) {
             throw new IllegalArgumentException(line);
         }
+        if (line.charAt(len - 1) != '\n') {
+            throw new IllegalArgumentException(line);
+        }
         return new LogEntry(DateTime.parse(line.substring(0, date), FMT),
                 line.substring(date + 1, id),
                 line.substring(id + 1, logger),
                 line.substring(logger + 1, user),
                 line.substring(user + 1, stageId),
                 line.substring(stageId + 1, stageName),
-                line.substring(stageName + 1));
+                line.substring(stageName + 1, len - 1));
     }
 
     //--
@@ -66,5 +73,9 @@ public class LogEntry {
         this.stageId = stageId;
         this.stageName = stageName;
         this.message = message;
+    }
+
+    public String toString() {
+        return message;
     }
 }

@@ -31,6 +31,7 @@ public class History extends StageCommand {
     @Option("max")
     private int max = 999;
 
+    /** history entry to show details for */
     private int detail = -1;
 
     @Remaining
@@ -46,31 +47,31 @@ public class History extends StageCommand {
         LogEntry entry;
         int counter ;
         String id;
+        LogEntry header;
 
+        header = null;
         stageId = s.config().id;
         try (LogReader reader = LogReader.create(session.home.join("logs"))) {
-            counter = 1;
+            counter = 0;
             id = null;
             while (true) {
                 entry = reader.next();
                 if (entry == null) {
                     break;
                 }
+                if (entry.logger.equals("IN")) {
+                    header = entry;
+                }
                 if (entry.stageId.equals(stageId)) {
-                    if (entry.logger.equals("IN")) {
-                        if (detail == -1 || detail == counter) {
-                            console.info.println("[" + counter + "] " + entry.dateTime.toString(DateTimeFormat.shortDateTime())
-                                    + " " + entry.user + ": " + entry.message);
-                        }
-                        if (detail == counter) {
-                            id = entry.id;
-                        }
+                    if (header != null) {
                         counter++;
+                        console.info.println("[" + counter + "] " + header.dateTime.toString(DateTimeFormat.shortDateTime()) + " " + header.user + ": " + header.message);
+                        id = header.id;
+                        header = null;
                     }
-                    if (entry.id.equals(id)) {
+                    if (detail == counter && entry.id.equals(id)) {
                         console.info.println("     " + entry.message);
                     }
-
                     if (counter > max) {
                         break;
                     }
