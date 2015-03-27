@@ -17,7 +17,6 @@ package net.oneandone.stool.overview.config;
 
 import net.oneandone.stool.Chown;
 import net.oneandone.stool.Refresh;
-import net.oneandone.stool.overview.StageGatherer;
 import net.oneandone.stool.overview.StoolCallable;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
@@ -26,7 +25,6 @@ import net.oneandone.sushi.fs.file.FileNode;
 import org.slf4j.LoggerFactory;
 
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.TimerTask;
 import java.util.UUID;
 
@@ -43,19 +41,17 @@ public class PrepareRefresh extends TimerTask {
 
     @Override
     public void run() {
-        List<Stage> allStages;
         Refresh refresh;
         Chown chown;
 
         try {
-            allStages = StageGatherer.getAllStages(session);
-            refresh = new Refresh(session, true, true, false);
-            chown = new Chown(session, true);
-            for (Stage stage : allStages) {
+            for (Stage stage : session.listWithoutOverview()) {
                 if (stage.config().autoRefresh) {
                     if (!stage.technicalOwner().equals(session.user)) {
+                        chown = new Chown(session, true);
                         chown.doInvoke(stage);
                     }
+                    refresh = new Refresh(session, true, true, false);
                     refresh.prepare(stage);
                     if (stage.updateAvailable()) {
                         executeUpdate(stage);

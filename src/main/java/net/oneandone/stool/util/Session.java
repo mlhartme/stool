@@ -219,6 +219,24 @@ public class Session {
         return result;
     }
 
+    public List<Stage> listWithoutOverview() throws IOException, EnumerationFailed {
+        List<Stage> result;
+        EnumerationFailed problems;
+
+        problems = new EnumerationFailed();
+        result = list(problems, new Predicate() {
+            @Override
+            public boolean matches(Stage stage) {
+                return !stage.isOverview();
+            }
+        });
+        if (!problems.empty()) {
+            throw problems;
+        }
+        return result;
+    }
+
+
     public void select(Stage selected) throws ModeException {
         if (selected == null) {
             throw new IllegalArgumentException();
