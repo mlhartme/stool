@@ -26,7 +26,6 @@ import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.BuildStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
 
 import javax.naming.NamingException;
 import java.io.IOException;

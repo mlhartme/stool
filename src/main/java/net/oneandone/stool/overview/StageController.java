@@ -39,17 +39,18 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 import org.xml.sax.SAXException;
 
 import javax.naming.NamingException;
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 
@@ -98,8 +99,8 @@ public class StageController {
     @RequestMapping(value = "{name}", method = RequestMethod.GET)
     public ResponseEntity stage(@PathVariable(value = "name") String stageName) throws Exception {
         Stage stage;
-        stage = resolveStage(stageName);
 
+        stage = resolveStage(stageName);
         return new ResponseEntity<>(StageInfo.fromStage(stage, users), HttpStatus.OK);
     }
 
@@ -117,13 +118,15 @@ public class StageController {
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{name}/logs/", method = RequestMethod.GET)
-    @ResponseBody
-    public String logs(@PathVariable(value = "name") String stageName) throws Exception {
+    @RequestMapping(value = "/{name}/logs", method = RequestMethod.GET)
+    public Map<String, String> logs(HttpServletRequest httpServletRequest, @PathVariable(value = "name") String stageName) throws Exception {
         Stage stage;
+        String baseUrl;
 
         stage = resolveStage(stageName);
-        return stage.logs().list("https://walter.websales.united.domain:9993/" + stageName + "/logs/");
+        baseUrl = httpServletRequest.getRequestURL().toString();
+        baseUrl = baseUrl.substring(0, baseUrl.indexOf('/', 8) + 1);
+        return stage.logs().list(baseUrl + "stages/" + stageName + "/logs/");
     }
 
     @RequestMapping(value = "/{name}/logs/{log}", method = RequestMethod.GET)

@@ -42,7 +42,6 @@ import java.util.Map;
 @Scope(WebApplicationContext.SCOPE_REQUEST)
 @RequestMapping("/")
 public class IndexController {
-
     @Autowired
     private Session session;
 

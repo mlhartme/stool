@@ -60,8 +60,7 @@ public class ProcessesController {
 
     @RequestMapping(value = "{id}/log", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity log(@PathVariable(value = "id") String id,
-      @RequestParam(defaultValue = "0") Integer index)
+    public ResponseEntity log(@PathVariable(value = "id") String id, @RequestParam(defaultValue = "0") Integer index)
       throws IOException, InterruptedException {
         Node logfile;
         StringBuilder output;

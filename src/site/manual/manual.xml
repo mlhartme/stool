@@ -613,15 +613,32 @@ http://docbook.org/ns/docbook ">
       <programlisting>
         (stage directory) (normal application files)
         (stool home)
-        :- wrappers
+        |- config.json
+        |- downloads
+        |- bin
+        |- inbox
+        |- extensions
+        |- logs
+        |- overview (stage directory of the overview stage)
+        |- service-wrapper
+        |- sessions
+        |- tomcat
+        |- stool-function
+        |- wrappers
             |- (stage name)
-                |- config.json
+                |- config.json (properties and some status fields)
                 |- anchor (symlink to stage directory)
+                |- ports (ports allocated for this stage -- created when stage is first started)
                 |- shared
-                   |- log
+                   |- buildstats.json
+                   |- conf
+                       `- service-wrapper.conf
+                   |- ssl
                    |- run
                    |- tomcat (tomcat for this stage)
                        |- conf
+                       |- temp
+                       |- work
                        |- logs
                            |- applogs (application log files for pustefix apps)
                    :

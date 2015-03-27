@@ -22,7 +22,9 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Logs {
     private final FileNode dir;
@@ -31,22 +33,18 @@ public class Logs {
         this.dir = dir;
     }
 
-    public String list(String prefix) throws IOException {
-        StringBuilder builder;
+    public Map<String, String> list(String prefix) throws IOException {
+        Map<String, String> result;
         String relative;
 
-        builder = new StringBuilder();
-        builder.append("<html>\n");
-        builder.append("<body>\n");
+        result = new LinkedHashMap<>();
         if (dir.exists()) {
             for (Node node : dir.find("**/*.log")) {
                 relative = node.getRelative(dir);
-                builder.append("<a href='" + prefix + relative.replace("/", "::") + "'>" + relative + "</a><br/>");
+                result.put(relative, prefix + relative.replace("/", "::"));
             }
         }
-        builder.append("</body>\n");
-        builder.append("</html>\n");
-        return builder.toString();
+        return result;
     }
 
     public String file(String filename) throws IOException {
