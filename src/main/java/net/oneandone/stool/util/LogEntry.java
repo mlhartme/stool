@@ -30,10 +30,10 @@ public class LogEntry {
         List<String> fields;
 
         fields = SEP.split(line);
-        if (fields.size() != 5) {
+        if (fields.size() != 7) {
             throw new IllegalArgumentException(line);
         }
-        return new LogEntry(DateTime.parse(fields.get(0), FMT), fields.get(1), fields.get(2), fields.get(3), fields.get(4));
+        return new LogEntry(DateTime.parse(fields.get(0), FMT), fields.get(1), fields.get(2), fields.get(3), fields.get(4), fields.get(5), fields.get(6));
     }
 
     //--
@@ -42,13 +42,17 @@ public class LogEntry {
     public final String id;
     public final String logger;
     public final String user;
+    public final String stageId;
+    public final String stageName;
     public final String message;
 
-    public LogEntry(DateTime dateTime, String id, String logger, String user, String message) {
+    public LogEntry(DateTime dateTime, String id, String logger, String user, String stageId, String stageName, String message) {
         this.dateTime = dateTime;
         this.id = id;
         this.logger = logger;
         this.user = user;
+        this.stageId = stageId;
+        this.stageName = stageName;
         this.message = message;
     }
 }

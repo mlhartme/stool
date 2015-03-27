@@ -57,6 +57,12 @@ public class Logging {
         this.context = (LoggerContext) LoggerFactory.getILoggerFactory();
         this.stool = stool;
         this.user = user;
+        setStage("", "");
+    }
+
+    public void setStage(String id, String name) {
+        context.putProperty("stageId", id);
+        context.putProperty("stageName", name);
     }
 
     public void configureRootLogger() throws IOException {
@@ -91,51 +97,41 @@ public class Logging {
     }
 
     private RollingFileAppender stoolAppender(String logger) throws IOException {
-        return fileAppender("stoolAppender", stool, logger, stool.getParent().getAbsolute() + "/stool-%d{yyyy-MM-dd}.log.gz");
-    }
-
-    public RollingFileAppender stageAppender(FileNode file, String encoderName) throws IOException {
-        return fileAppender("stageAppender", file, encoderName, file.getParent().getAbsolute() + "/stool-%d{yyyy-MM-dd}.log.gz");
-    }
-
-    private RollingFileAppender fileAppender(String name, FileNode file, String encoderName, String pattern) throws IOException {
         RollingFileAppender result;
         TimeBasedRollingPolicy policy;
 
         result = new RollingFileAppender();
         result.setContext(context);
-        result.setName(name);
-        result.setEncoder(encoder(encoderName));
+        result.setName("stoolAppender");
+        result.setEncoder(encoder(logger));
         result.setAppend(true);
-        result.setFile(file.getAbsolute());
+        result.setFile(stool.getAbsolute());
 
         policy = new TimeBasedRollingPolicy();
         policy.setContext(context);
         policy.setParent(result);
-        policy.setFileNamePattern(pattern);
+        policy.setFileNamePattern(stool.getParent().getAbsolute() + "/stool-%d{yyyy-MM-dd}.log.gz");
         policy.setMaxHistory(7);
         policy.start();
 
         result.setRollingPolicy(policy);
         result.start();
 
-        if (!file.exists()) {
-            file.writeBytes();
-            Files.stoolFile(file);
+        if (!stool.exists()) {
+            stool.writeBytes();
+            Files.stoolFile(stool);
         }
         return result;
     }
 
     private PatternLayoutEncoder encoder(String logger) {
-        PatternLayoutEncoder logEncoder = new PatternLayoutEncoder();
-        logEncoder.setContext(context);
-        logEncoder.setPattern("%date | " + id + " | " + logger + " | " + user + " | %msg%n");
-        logEncoder.start();
-        return logEncoder;
-    }
+        PatternLayoutEncoder encoder;
 
-    public Logger lookup(String name) {
-        return context.getLogger(name);
+        encoder = new PatternLayoutEncoder();
+        encoder.setContext(context);
+        encoder.setPattern("%date | " + id + " | " + logger + " | " + user + " | %property{stageId} | %property{stageName} | %msg%n");
+        encoder.start();
+        return encoder;
     }
 
 

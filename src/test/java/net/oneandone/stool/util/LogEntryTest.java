@@ -28,26 +28,13 @@ public class LogEntryTest {
         String log;
         LogEntry entry;
 
-        entry = LogEntry.parse("2013-11-28 10:12:12,948 | 32 | net.oneandone.sushi.cli.Command | mabraun | Invoking Stop");
+        entry = LogEntry.parse("2013-11-28 10:12:12,948 | 32 | net.oneandone.sushi.cli.Command | mabraun | stageId | stageName | Invoking Stop");
         assertEquals(DateTime.parse("2013-11-28 10:12:12,948", DateTimeFormat.forPattern("Y-M-d h:m:s,SSS")), entry.dateTime);
         assertEquals("32", entry.id);
         assertEquals("mabraun", entry.user);
         assertEquals("net.oneandone.sushi.cli.Command", entry.logger);
+        assertEquals("stageId", entry.stageId);
+        assertEquals("stageName", entry.stageName);
         assertEquals("Invoking Stop", entry.message);
-
-        log = "2013-11-28 10:12:11,632 | 19 | OUT | mabraun | Applications available:";
-        entry = LogEntry.parse(log);
-        assertEquals("OUT", entry.logger);
-        assertEquals("Applications available:", entry.message);
-
-        log = "2013-11-28 10:12:17,055 | 2 | ERR | mabraun | tomcat is no running.";
-        entry = LogEntry.parse(log);
-        assertEquals("ERR", entry.logger);
-        assertEquals("tomcat is no running.", entry.message);
-
-        log = "2013-11-28 10:12:17,055 | 9 | IN | mabraun | tomcat is no running.";
-        entry = LogEntry.parse(log);
-        assertEquals("IN", entry.logger);
-        assertEquals("tomcat is no running.", entry.message);
     }
 }

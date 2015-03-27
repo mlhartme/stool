@@ -1,6 +1,5 @@
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.History;
 import net.oneandone.sushi.fs.LineFormat;
 import net.oneandone.sushi.fs.LineReader;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -14,9 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-/**
- * Created by mhm on 27.03.15.
- */
 public class LogReader implements AutoCloseable {
     public static LogReader create(FileNode directory) throws IOException {
         List<FileNode> files;

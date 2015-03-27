@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool;
 
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.core.Appender;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
@@ -96,7 +94,7 @@ public abstract class StageCommand extends SessionCommand {
                 if (withPrefix) {
                     ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
                 }
-                addStageAppenders(stage);
+                session.logging.setStage(stage.config().id, stage.getName());
                 doInvoke(stage);
             } catch (Error | RuntimeException e) {
                 console.error.println(stage.getName() + ": " + e.getMessage());
@@ -107,7 +105,7 @@ public abstract class StageCommand extends SessionCommand {
                 }
                 failures.add(stage.getWrapper(), e);
             } finally {
-                removeStageAppenders();
+                session.logging.setStage("", "");
                 if (console.info instanceof PrefixWriter) {
                     ((PrefixWriter) console.info).setPrefix("");
                 }
@@ -129,35 +127,6 @@ public abstract class StageCommand extends SessionCommand {
                     throw new IllegalStateException(fail.toString());
             }
         }
-    }
-    private void addStageAppenders(Stage stage) throws IOException {
-        addStageAppender(stage, "IN").info(session.command);
-        addStageAppender(stage, "OUT");
-        addStageAppender(stage, "ERR");
-    }
-
-    private Logger addStageAppender(Stage stage, String name) throws IOException {
-        Logger logger;
-
-        logger = session.logging.lookup(name);
-        logger.addAppender(session.logging.stageAppender(stage.shared().join("log/stool.log"), name));
-        return logger;
-    }
-
-    private void removeStageAppenders() {
-        removeStageAppender("IN");
-        removeStageAppender("OUT");
-        removeStageAppender("ERR");
-    }
-
-    private void removeStageAppender(String name) {
-        Logger logger;
-        Appender appender;
-
-        logger = session.logging.lookup(name);
-        appender = logger.getAppender("stageAppender");
-        logger.detachAppender(appender);
-        appender.stop();
     }
 
     private List<Stage> selected(EnumerationFailed problems) throws IOException {

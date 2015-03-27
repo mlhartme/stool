@@ -468,7 +468,7 @@ public class Session {
 
     private String nextStageId() {
         nextStageId++;
-        return stageIdPrefix + "." + nextStageId;
+        return stageIdPrefix + nextStageId;
     }
 
     public static String javaHome() {

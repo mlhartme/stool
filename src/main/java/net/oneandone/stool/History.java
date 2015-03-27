@@ -56,7 +56,7 @@ public class History extends StageCommand {
                 if (entry == null) {
                     break;
                 }
-                if (entry.id.equals(stageId)) {
+                if (entry.stageId.equals(stageId)) {
                     if (entry.logger.equals("IN")) {
                         if (detail == -1 || detail == counter) {
                             console.info.println("[" + counter + "] " + entry.dateTime.toString(DateTimeFormat.shortDateTime())
@@ -78,5 +78,4 @@ public class History extends StageCommand {
             }
         }
     }
-
 }
