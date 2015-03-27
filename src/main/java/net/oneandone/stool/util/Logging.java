@@ -18,7 +18,9 @@ package net.oneandone.stool.util;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.encoder.Encoder;
+import ch.qos.logback.core.encoder.EncoderBase;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -52,6 +54,9 @@ public class Logging {
     private final FileNode stool;
     private final String user;
 
+    private String stageId;
+    private String stageName;
+
     public Logging(String id, FileNode stool, String user) {
         this.id = id;
         this.context = (LoggerContext) LoggerFactory.getILoggerFactory();
@@ -61,8 +66,8 @@ public class Logging {
     }
 
     public void setStage(String id, String name) {
-        context.putProperty("stageId", id);
-        context.putProperty("stageName", name);
+        stageId = id;
+        stageName = name;
     }
 
     public void configureRootLogger() throws IOException {
@@ -124,15 +129,54 @@ public class Logging {
         return result;
     }
 
-    private PatternLayoutEncoder encoder(String logger) {
-        PatternLayoutEncoder encoder;
+    private Encoder<ILoggingEvent> encoder(final String logger) {
+        return new EncoderBase<ILoggingEvent>() {
+            private PrintWriter writer;
 
-        encoder = new PatternLayoutEncoder();
-        encoder.setContext(context);
-        // note that msg is not excaped, it may contain | characters
-        encoder.setPattern("%date|" + id + "|" + logger + "|" + user + "|%property{stageId}|%property{stageName}|%msg%n");
-        encoder.start();
-        return encoder;
+            @Override
+            public void init(OutputStream out) {
+                writer = new PrintWriter(out);
+            }
+
+            @Override
+            public void doEncode(ILoggingEvent event) throws IOException {
+                String message;
+                char c;
+
+                // TODO: thread safe?
+                writer.append(LogEntry.FMT.print(event.getTimeStamp())).append('|');
+                writer.append(id).append('|');
+                writer.append(logger).append('|');
+                writer.append(user).append('|');
+                writer.append(stageId).append('|');
+                writer.append(stageName).append('|');
+                message = event.getFormattedMessage();
+                for (int i = 0, max = message.length(); i < max; i++) {
+                    c = message.charAt(i);
+                    switch (c) {
+                        case '\n':
+                            writer.append('\\');
+                            writer.append('\n');
+                            break;
+                        case '\\':
+                            writer.append('\\');
+                            writer.append('\\');
+                            break;
+                        default:
+                            writer.append(c);
+                            break;
+                    }
+                }
+                writer.append('\n');
+            }
+
+            @Override
+            public void close() throws IOException {
+                if (writer != null) {
+                    writer.close();
+                }
+            }
+        };
     }
 
 

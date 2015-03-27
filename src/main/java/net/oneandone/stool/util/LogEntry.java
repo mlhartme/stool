@@ -20,7 +20,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
 public class LogEntry {
-    private static final DateTimeFormatter FMT = DateTimeFormat.forPattern("Y-M-d H:m:s,SSS");
+    public static final DateTimeFormatter FMT = DateTimeFormat.forPattern("Y-M-d H:m:s,SSS");
 
     public static LogEntry parse(String line) {
         int len;
@@ -33,7 +33,7 @@ public class LogEntry {
 
         len = line.length();
 
-        // CAUTION: do not use split, because
+        // CAUTION: do not use split, because messages may contain separators
         date = line.indexOf('|');
         id = line.indexOf('|', date + 1);
         logger = line.indexOf('|', id + 1);
@@ -52,7 +52,27 @@ public class LogEntry {
                 line.substring(logger + 1, user),
                 line.substring(user + 1, stageId),
                 line.substring(stageId + 1, stageName),
-                line.substring(stageName + 1, len - 1));
+                unescape(line.substring(stageName + 1, len -1)));
+    }
+
+    private static String unescape(String message) {
+        StringBuilder builder;
+        char c;
+        int max;
+
+        if (message.indexOf('\\') == -1) {
+            return message;
+        } else {
+            max = message.length();
+            builder = new StringBuilder(max);
+            for (int i = 0; i < max; i++) {
+                c = message.charAt(i);
+                if (c != '\\') {
+                    builder.append(c);
+                }
+            }
+            return builder.toString();
+        }
     }
 
     //--
