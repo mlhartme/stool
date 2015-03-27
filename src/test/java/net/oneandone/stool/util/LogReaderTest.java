@@ -13,25 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool;
+package net.oneandone.stool.util;
 
 import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
-public class HistoryTest {
+public class LogReaderTest {
     @Test
     public void testReadLog() throws Exception {
         World world;
-        History.LogReader reader;
+        LogReader reader;
         int count;
+        LogEntry entry;
 
         world = new World();
-        reader = History.LogReader.create(null /* TODO */);
+        reader = LogReader.create((FileNode) world.resource("logs/stool.log").getParent());
         count = 0;
-        while (reader.next() != null) {
+        while (true) {
+            entry = reader.next();
+            if (entry == null) {
+                break;
+            }
             count++;
         }
-        assertEquals(10, count);
+        assertEquals(20, count);
     }
 }
