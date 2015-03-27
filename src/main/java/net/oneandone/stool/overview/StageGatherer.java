@@ -30,18 +30,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class StageGatherer {
-    public static List<StageInfo> get(Session session, Users users) throws IOException, NamingException, UserNotFound, EnumerationFailed {
-        List<StageInfo> infos;
-        List<Stage> stages;
-
-        infos = new ArrayList<>();
-        session.wipeStaleWrappers();
-        stages = getAllStages(session);
-        for (Stage stage : stages) {
-            infos.add(StageInfo.fromStage(stage, users));
-        }
-        return infos;
-    }
 
     public static List<Stage> getAllStages(Session session) throws IOException, EnumerationFailed {
         return doList(session, new Predicate() {

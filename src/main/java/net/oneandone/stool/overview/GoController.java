@@ -15,39 +15,25 @@
  */
 package net.oneandone.stool.overview;
 
-import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.users.UserNotFound;
-import net.oneandone.stool.users.Users;
-import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.World;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import org.xml.sax.SAXException;
 
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.List;
 
 @Controller
 @RequestMapping("/go")
 public class GoController {
     @Autowired
-    private World world;
-    @Autowired
-    private Users users;
-
-    @Autowired
     private Session session;
 
     @RequestMapping(value = "/**", method = RequestMethod.GET)
-    public ModelAndView goToStage(HttpServletRequest httpServletRequest)
-            throws IOException, SAXException, NamingException, UserNotFound, EnumerationFailed {
+    public ModelAndView goToStage(HttpServletRequest httpServletRequest) throws IOException {
         final String requestetStage = httpServletRequest.getServletPath().replace("/go/", "");
         String baseurl = httpServletRequest.getRequestURL().toString();
         baseurl = baseurl.substring(0, baseurl.indexOf('/', 8));
@@ -55,20 +41,12 @@ public class GoController {
         if (!session.wrappers.join(requestetStage).exists()) {
             return new ModelAndView("redirect:" + baseurl + "/#!404:" + requestetStage);
         }
-
-        List<Stage> stages = StageGatherer.doList(session, new Predicate() {
-            @Override
-            public boolean matches(Stage stage1) {
-                return stage1.getName().equals(requestetStage);
-            }
-        });
-        StageInfo stage = StageInfo.fromStage(stages.get(0), users);
-
-        switch (stage.getRunning()) {
-            case "up":
-                return new ModelAndView("redirect:" + stage.getUrls().values().toArray()[0]);
+        Stage stage = session.load(requestetStage);
+        switch (stage.state()) {
+            case UP:
+                return new ModelAndView("redirect:" + stage.urlMap().values().iterator().next());
             default:
-                return new ModelAndView("redirect:" + baseurl + "/#!500!" + stage.getName() + "!" + stage.getRunning());
+                return new ModelAndView("redirect:" + baseurl + "/#!500!" + requestetStage + "!" + stage.state());
         }
     }
 }

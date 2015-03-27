@@ -16,6 +16,7 @@
 package net.oneandone.stool.overview;
 
 import net.oneandone.stool.EnumerationFailed;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Session;
@@ -23,11 +24,12 @@ import org.xml.sax.SAXException;
 
 import javax.naming.NamingException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class Stages {
-
-    private Collection<StageInfo> stages;
+    private final Collection<StageInfo> stages = new ArrayList<>();
     private long lastCacheRenew;
 
     public Stages() {
@@ -36,8 +38,12 @@ public class Stages {
 
     public Collection<StageInfo> load(Session session, Users users)
             throws IOException, SAXException, NamingException, UserNotFound, EnumerationFailed {
-        if (System.currentTimeMillis() - lastCacheRenew > 4000) {
-            stages = StageGatherer.get(session, users);
+        if (stages == null || System.currentTimeMillis() - lastCacheRenew > 4000) {
+            stages.clear();
+            session.wipeStaleWrappers();
+            for (Stage stage : StageGatherer.getAllStages(session)) {
+                stages.add(StageInfo.fromStage(stage, users));
+            }
             lastCacheRenew = System.currentTimeMillis();
         }
         return stages;
