@@ -77,8 +77,7 @@ public class ArtifactStage extends Stage {
                 throw new ArgumentException("duplicate name: " + name + "\nTry groupId:artifactId=othername:version in your url.");
             }
             artifact = new DefaultArtifact(coords[0], artifactId, "war", coords[2]);
-
-            applications.add(new Application((DefaultArtifact) artifact.setFile(directory.join(name, "ROOT.war").toPath().toFile()),
+            applications.add(new Application(session.gson, (DefaultArtifact) artifact.setFile(directory.join(name, "ROOT.war").toPath().toFile()),
               directory, maven(), session.console));
         }
 

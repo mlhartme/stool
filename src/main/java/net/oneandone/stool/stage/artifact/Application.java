@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.Reader;
 
 public class Application {
+    private final Gson gson;
     private final FileNode stageDirectory;
     private DefaultArtifact artifact;
     private Maven maven;
@@ -41,7 +42,8 @@ public class Application {
     private WarFile futureWarFile;
     private WarFile backupWarFile;
 
-    public Application(DefaultArtifact artifact, FileNode stageDirectory, Maven maven, Console console) {
+    public Application(Gson gson, DefaultArtifact artifact, FileNode stageDirectory, Maven maven, Console console) {
+        this.gson = gson;
         this.artifact = artifact;
         this.stageDirectory = stageDirectory;
         this.maven = maven;
@@ -142,7 +144,7 @@ public class Application {
         file = shared.join("changes").join(futureFile().md5() + ".changes");
         if (file.exists()) {
             try (Reader src = file.createReader()) {
-                return new Gson().fromJson(src, Changes.class);
+                return gson.fromJson(src, Changes.class);
             }
         }
         svnurl = pom().getScm().getUrl();
@@ -152,7 +154,7 @@ public class Application {
             changes = SCMChangeCollector.run(currentWarFile(), futureWarFile(), users, svnurl);
         }
         Files.stoolDirectory(file.getParent().mkdirsOpt());
-        file.writeString(new Gson().toJson(changes));
+        file.writeString(gson.toJson(changes));
         Files.stoolFile(file);
         return changes;
     }
