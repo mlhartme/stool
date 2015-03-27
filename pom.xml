@@ -208,12 +208,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.springframework.hateoas</groupId>
-      <artifactId>spring-hateoas</artifactId>
-      <version>0.16.0.RELEASE</version>
-    </dependency>
-
-    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-test</artifactId>
       <version>${spring.version}</version>
@@ -226,23 +220,6 @@
       <!-- that's the version we have on the live machines -->
       <version>3.0.1</version>
       <scope>provided</scope>
-    </dependency>
-
-    <!-- JSON - used by spring for serialization. TODO: switch to gson instead ... -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-core</artifactId>
-      <version>2.4.1</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-annotations</artifactId>
-      <version>2.4.1</version>
-    </dependency>
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>2.4.1</version>
     </dependency>
 
     <dependency>

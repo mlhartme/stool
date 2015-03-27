@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.overview.config;
 
+package net.oneandone.stool.overview.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
-import org.springframework.http.converter.ResourceHttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.GsonHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
@@ -28,6 +27,7 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
 import java.util.List;
+
 @EnableWebMvc
 @Configuration
 class WebMvcConfiguration extends WebMvcConfigurerAdapter {
@@ -40,6 +40,7 @@ class WebMvcConfiguration extends WebMvcConfigurerAdapter {
         internalResourceViewResolver.setSuffix(".jsp");
         return internalResourceViewResolver;
     }
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/resources/**").addResourceLocations("/resources/");
@@ -47,9 +48,6 @@ class WebMvcConfiguration extends WebMvcConfigurerAdapter {
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
-        MappingJackson2HttpMessageConverter json = new MappingJackson2HttpMessageConverter();
-        json.setPrettyPrint(true);
-        converters.add(json);
-        converters.add(new ResourceHttpMessageConverter());
+        converters.add(new GsonHttpMessageConverter());
     }
 }

@@ -35,7 +35,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -119,13 +118,8 @@ public class StageController {
 
     @RequestMapping(value = "/{name}/logs/", method = RequestMethod.GET)
     public ResponseEntity logs(@PathVariable(value = "name") String stageName) throws Exception {
-        Stage stage;
-        Logs logs;
-
-        stage = resolveStage(stageName);
-        logs = new Logs();
-        logs.addAll(stage.logs().list(), stageName);
-        return new ResponseEntity<>(logs, HttpStatus.OK);
+        // TODO: logs.addAll(stage.logs().list(), stageName);
+        return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/{name}/logs/{log}", method = RequestMethod.GET)
