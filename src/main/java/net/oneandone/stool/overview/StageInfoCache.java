@@ -24,15 +24,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class Stages {
+public class StageInfoCache {
     private final Collection<StageInfo> stages = new ArrayList<>();
     private long lastCacheRenew;
 
-    public Stages() {
+    public StageInfoCache() {
         lastCacheRenew = 0L;
     }
 
-    public Collection<StageInfo> load(Session session, Users users) throws IOException, EnumerationFailed {
+    public Collection<StageInfo> get(Session session, Users users) throws IOException, EnumerationFailed {
         if (stages == null || System.currentTimeMillis() - lastCacheRenew > 4000) {
             stages.clear();
             session.wipeStaleWrappers();

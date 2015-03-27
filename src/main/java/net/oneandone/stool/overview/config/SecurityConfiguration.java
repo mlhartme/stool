@@ -103,8 +103,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public DefaultSpringSecurityContextSource contextSource() {
         DefaultSpringSecurityContextSource contextSource;
+        String url;
 
-        contextSource = new DefaultSpringSecurityContextSource(session.configuration.ldapUrl);
+        url = session.configuration.ldapUrl;
+        if (url.isEmpty()) {
+            // will never be used - this is just to satisfy parameter checks in the constructor
+            url = "ldap://localhost";
+        }
+        contextSource = new DefaultSpringSecurityContextSource(url);
         contextSource.setUserDn(session.configuration.ldapPrincipal);
         contextSource.setPassword(session.configuration.ldapCredentials);
         return contextSource;

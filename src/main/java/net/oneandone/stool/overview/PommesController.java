@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
+
 @RestController
 @RequestMapping("/pommes")
 public class PommesController {
@@ -43,6 +44,7 @@ public class PommesController {
     public static Query or(String querystring) {
         return new WildcardQuery(new Term("origin", querystring));
     }
+
     @RequestMapping("all")
     public List<Pom> allApplications() throws IOException, QueryNodeException, URISyntaxException {
         return database().query("", new Environment(world));

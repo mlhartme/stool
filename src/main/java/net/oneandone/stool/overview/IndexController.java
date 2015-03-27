@@ -15,9 +15,10 @@
  */
 package net.oneandone.stool.overview;
 
+import net.oneandone.stool.configuration.Property;
+import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.World;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,6 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.mail.MessagingException;
 import javax.servlet.ServletRequest;
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,10 +45,6 @@ public class IndexController {
 
     @Autowired
     private Session session;
-
-    @Autowired
-    private World world;
-
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ModelAndView index(ModelAndView modelAndView) {
@@ -75,12 +71,8 @@ public class IndexController {
         Map<String, String> model;
 
         model = new HashMap<>();
-        for (Field field : session.configuration.getClass().getDeclaredFields()) {
-            try {
-                model.put(field.getName(), String.valueOf(field.get(session.configuration)));
-            } catch (IllegalAccessException ignored) {
-                //we're goin to ignore this. Because we change the format of the configuration. we wont need any private fields
-            }
+        for (Map.Entry<String, Property> entry : StoolConfiguration.properties().entrySet()) {
+            model.put(entry.getKey(), String.valueOf(entry.getValue().get(session.configuration)));
         }
         return model;
     }

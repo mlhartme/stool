@@ -23,7 +23,13 @@ public class Property {
         field.setAccessible(true);
     }
 
+    public Object get(StoolConfiguration configuration) {
+        return doGet(configuration);
+    }
     public Object get(StageConfiguration configuration) {
+        return doGet(configuration);
+    }
+    public Object doGet(Object configuration) {
         try {
             return field.get(object(configuration));
         } catch (IllegalAccessException e) {
