@@ -152,7 +152,7 @@ public class Main extends Cli implements Command {
             new Install(true, console, environment, config).invoke(user);
             console.info.println("Done. To complete the installation:");
             console.info.println("1. add");
-            console.info.println("       source " + home.join("stool-function").getAbsolute());
+            console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
             console.info.println("   to your ~/.bashrc");
             console.info.println("2. restart your shell");
         }
@@ -173,7 +173,7 @@ public class Main extends Cli implements Command {
         Runtime.getRuntime().removeShutdownHook(cleanup);
         console.info.println("Done. To complete the installation:");
         console.info.println("1. change your ~/.bashrc to");
-        console.info.println("       source " + home.join("stool-function").getAbsolute());
+        console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
         console.info.println("2. restart your shell");
     }
 

@@ -539,7 +539,7 @@ http://docbook.org/ns/docbook ">
           specified location. It's good practice home make major and minor version part of this path. </para>
         </listitem>
         <listitem>
-          <para>Add the lines 'source STOOL/HOME/PATH/stool-function' to your $HOME/.bashrc file. This defines the shell
+          <para>Add the lines 'source STOOL/HOME/PATH/bin/stool-function' to your $HOME/.bashrc file. This defines the shell
             function 'stool' that operates on the $STOOL_HOME directory.
           </para>
         </listitem>
@@ -611,37 +611,42 @@ http://docbook.org/ns/docbook ">
       ... of a source stage
 
       <programlisting>
-        (stage directory) (normal application files)
-        (stool home)
-        |- config.json
+      (stage directory) (normal application files)
+      (stool home)
+        |- config.json (Stool configuration)
         |- downloads
         |- bin
-        |- inbox
-        |- extensions
-        |- logs
+        |   |- stool-function
+        |   |- service-wrapper.sh
+        |   |- stool.jar
+        |   |- stool-(timestamp).jar  (optional incremental updates)
+        |   |- stool-apache.sh
+        |   |- stool-catalina.sh
+        |   '- stool-chown.sh
+        |- inbox (to push jars into artifact stages with an inbox urls)
+        |- extensions (for jars with Stool extensions)
+        |- logs (log files written by stool)
         |- overview (stage directory of the overview stage)
         |- service-wrapper
         |- sessions
         |- tomcat
-        |- stool-function
-        |- wrappers
-            |- (stage name)
-                |- config.json (properties and some status fields)
+        '- wrappers
+            '- (stage name)
+                |- config.json (stage properties and some status fields)
                 |- anchor (symlink to stage directory)
                 |- ports (ports allocated for this stage -- created when stage is first started)
-                |- shared
+                '- shared
                    |- buildstats.json
+                   |- ssl (generated certs, if any)
+                   |- run (pid stuff for service wrapper)
                    |- conf
-                       `- service-wrapper.conf
-                   |- ssl
-                   |- run
-                   |- tomcat (tomcat for this stage)
-                       |- conf
-                       |- temp
-                       |- work
-                       |- logs
-                           |- applogs (application log files for pustefix apps)
-                   :
+                   |   '- service-wrapper.conf
+                   '- tomcat (tomcat for this stage)
+                       |- conf (standard tomcat directory with generated server.xml)
+                       |- temp (standart tomcat)
+                       |- work (standard tomcat)
+                       '- logs
+                           '- applogs (application log files for pustefix apps)
       </programlisting>
     </para>
   </chapter>
