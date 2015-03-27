@@ -59,7 +59,7 @@ public class History extends StageCommand {
                 if (entry == null) {
                     break;
                 }
-                if (entry.logger.equals("IN")) {
+                if (entry.logger.equals("COMMAND")) {
                     header = entry;
                 }
                 if (entry.stageId.equals(stageId)) {

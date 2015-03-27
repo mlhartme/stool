@@ -52,8 +52,6 @@ public class Main extends Cli implements Command {
         FileNode home;
         Logging logging;
         String command;
-        Logger inputLogger;
-        InputStream input;
         Console console;
         Main main;
 
@@ -64,10 +62,9 @@ public class Main extends Cli implements Command {
         home.checkDirectory();
         logging = Logging.forHome(home, user);
         command = "stool " + command(args);
-        inputLogger = logging.logger("IN");
-        input = new InputLogStream(System.in, new Slf4jOutputStream(inputLogger, true));
-        inputLogger.info(command);
-        console = new Console(world, logging.writer(System.out, "OUT"), logging.writer(System.err, "ERR"), input);
+        logging.logger("COMMAND").info(command);
+        console = new Console(world, logging.writer(System.out, "OUT"), logging.writer(System.err, "ERR"),
+                new InputLogStream(System.in, new Slf4jOutputStream(logging.logger("IN"), true)));
         main = new Main(logging, user, command, environment, console);
 
         try {
