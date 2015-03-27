@@ -76,7 +76,7 @@ public class Logging {
         // adjust the default configuration
         root = context.getLogger("ROOT");
         root.detachAndStopAllAppenders();
-        root.addAppender(stoolAppender("OTHER"));
+        root.addAppender(appender("OTHER"));
         root.setLevel(Level.INFO);
     }
 
@@ -97,15 +97,30 @@ public class Logging {
         result.detachAndStopAllAppenders();
         result.setAdditive(false);
         result.setLevel(Level.INFO);
-        result.addAppender(stoolAppender(name));
+        result.addAppender(appender(name));
         return result;
     }
 
-    private RollingFileAppender stoolAppender(String logger) throws IOException {
+    private RollingFileAppender appender(String logger) throws IOException {
         RollingFileAppender result;
         TimeBasedRollingPolicy policy;
 
-        result = new RollingFileAppender();
+        result = new RollingFileAppender() {
+            @Deprecated
+            public void rollover() {
+                super.rollover();
+                try {
+                    if (!stool.exists()) {
+                        stool.mkfile();
+                    }
+                    // Make sure stool.log is always group-writable, because all users share the same log file
+                    // (The archived log is not a problems, because it's written exactly one, all later access is reading)
+                    Files.stoolFile(stool);
+                } catch (IOException e) {
+                    throw new RuntimeException("TODO", e);
+                }
+            }
+        };
         result.setContext(context);
         result.setName("stoolAppender");
         result.setEncoder(encoder(logger));
@@ -116,7 +131,7 @@ public class Logging {
         policy.setContext(context);
         policy.setParent(result);
         policy.setFileNamePattern(stool.getParent().getAbsolute() + "/stool-%d{yyyy-MM-dd}.log.gz");
-        policy.setMaxHistory(7);
+        policy.setMaxHistory(180);
         policy.start();
 
         result.setRollingPolicy(policy);

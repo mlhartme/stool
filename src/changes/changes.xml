@@ -2,6 +2,9 @@
   <body>
     <release version="3.1.0" date="2015-03-27">
       <action date="2015-03-27" dev="mlhartme" type="fix">
+        Fixed log file permissions after roll-over.
+      </action>
+      <action date="2015-03-27" dev="mlhartme" type="fix">
         Fixed history to include archived logs.
       </action>
       <action date="2015-03-27" dev="mlhartme" type="update">
