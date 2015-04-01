@@ -10,13 +10,7 @@ if [ -z "$NEWUSER" ]; then
     exit 1
 fi
 
-if [[ $NEWUSER == *":"* ]]
-then
-  echo "$SCRIPT: colon is not allowed in newUser argument: $NEWUSER" 1>&2
-  exit 1
-fi
-
-if [[ $NEWUSER == "root" ]]
+if [ "$NEWUSER" = "root" ]
 then
   echo "$SCRIPT: chown to root is not allowed" 1>&2
   exit 1
@@ -30,10 +24,10 @@ fi
 
 while true ; do
     DIR=$1
-    shift
     if [ -z $DIR ] ; then
         exit
     fi
+    shift
     chown -R "$NEWUSER" "$DIR"
     RET=$?
     if [ ! $RET -eq 0 ]; then

@@ -70,7 +70,7 @@ public class Chown extends StageCommand {
         }
 
         if (stage.owner().contains(user)) {
-            console.info.println("nothing to do: stage " + stage.getName() + " already owned by " + user);
+            console.info.println("Nothing to do: stage " + stage.getName() + " already owned by " + user);
             return;
         }
 
