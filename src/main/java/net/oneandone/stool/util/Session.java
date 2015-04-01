@@ -411,8 +411,7 @@ public class Session {
 
 
     public void chown(Stage stage, String newOwner) throws Failure {
-        new Launcher(home, "sudo", bin("stool-chown.sh").getAbsolute(),
-          stage.wrapper.getName(), newOwner).exec(console.info);
+        new Launcher(home, "sudo", bin("chowntree.sh").getAbsolute(), newOwner, stage.wrapper.getAbsolute(), stage.getDirectory().getAbsolute()).exec(console.info);
     }
 
     /** session lock */

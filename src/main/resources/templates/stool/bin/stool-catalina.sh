@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/sh
 #
 # Argument: same as service-wrapper.sh
 
