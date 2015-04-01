@@ -62,10 +62,10 @@ public class StageInfo {
             stageInfo.urls = stage.urlMap();
         }
         try {
-            stageInfo.owner = users.byLogin(stage.ownerOverview()).name;
+            stageInfo.owner = users.byLogin(stage.owner()).name;
         } catch (NamingException | UserNotFound e) {
             stageInfo.owner = "Unknown";
-            LOG.error("Cannot lookup User " + stage.ownerOverview(), e);
+            LOG.error("Cannot lookup User " + stage.owner(), e);
         }
         stageInfo.updateAvailable = stage.updateAvailable();
         stageInfo.until = stage.config().until;

@@ -16,27 +16,42 @@
 package net.oneandone.stool.overview;
 
 import com.google.gson.Gson;
+import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 
+import java.io.IOException;
 import java.util.concurrent.Callable;
 
 public class StoolCallable implements Callable<StoolCallable.StoolProcess> {
+    public static StoolCallable create(Stage stage, String command, String options, String id, FileNode logs) throws IOException {
+        Session session;
+
+        session = stage.session;
+        return new StoolCallable(session.home, session.gson, command, options, stage.getName(), id, logs,
+                session.configuration.security.isShared(), stage.owner());
+    }
+
+    private final FileNode home;
     private final Gson gson;
     private final String command;
     private final String options;
     private final String id;
     private final String stage;
     private final FileNode logDir;
+    private final boolean su;
     private final String runAs;
 
-    public StoolCallable(Gson gson, String command, String options, String stage, String id, FileNode logDir, String runAs) {
+    public StoolCallable(FileNode home, Gson gson, String command, String options, String stage, String id, FileNode logDir, boolean su, String runAs) {
+        this.home = home;
         this.gson = gson;
         this.command = command;
         this.options = options;
         this.id = id;
         this.stage = stage;
         this.logDir = logDir;
+        this.su = su;
         this.runAs = runAs;
     }
 
@@ -55,8 +70,10 @@ public class StoolCallable implements Callable<StoolCallable.StoolProcess> {
         long endTime = 0;
         stat = logDir.join(id + ".stat").mkfile();
         builder.append("#!/bin/sh\n").append("#runAs:").append(runAs).append("\n");
-        /* TODO: runAs */
-        builder.append("bash --login -c \"stool ").append(command).append(" -stage ").append(stage);
+        if (su) {
+            builder.append("sudo -u ").append(runAs).append(" -E ");
+       }
+        builder.append(home.join("bin/stool-raw.sh").getAbsolute()).append(' ').append(command).append(" -stage ").append(stage);
         if (options != null && !options.equals("")) {
             builder.append(" ").append(options);
         }

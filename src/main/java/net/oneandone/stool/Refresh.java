@@ -89,8 +89,8 @@ public class Refresh extends StageCommand {
         } else {
             stopped = false;
         }
-        if (!stage.technicalOwner().equals(me)) {
-            chowned = stage.technicalOwner();
+        if (!stage.owner().equals(me)) {
+            chowned = stage.owner();
             session.chown(stage, me);
         } else {
             chowned = null;

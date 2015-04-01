@@ -47,7 +47,7 @@ public class PrepareRefresh extends TimerTask {
         try {
             for (Stage stage : session.listWithoutOverview()) {
                 if (stage.config().autoRefresh) {
-                    if (!stage.technicalOwner().equals(session.user)) {
+                    if (!stage.owner().equals(session.user)) {
                         chown = new Chown(session, true);
                         chown.doInvoke(stage);
                     }
@@ -65,6 +65,6 @@ public class PrepareRefresh extends TimerTask {
     }
 
     public void executeUpdate(Stage stage) throws Exception {
-        new StoolCallable(session.gson, "refresh", "-usePrepared", stage.getName(), UUID.randomUUID().toString(), logs, stage.technicalOwner()).call();
+        StoolCallable.create(stage, "refresh", "-usePrepared", UUID.randomUUID().toString(), logs).call();
     }
 }

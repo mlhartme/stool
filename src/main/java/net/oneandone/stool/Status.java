@@ -113,7 +113,7 @@ public class Status extends StageCommand {
         result.put(Field.WRAPPER, stage.wrapper.getAbsolute());
         result.put(Field.URL, stage.getUrl());
         result.put(Field.TYPE, stage.getType());
-        result.put(Field.OWNER, stage.technicalOwner());
+        result.put(Field.OWNER, stage.owner());
         result.put(Field.STATE, stage.state().toString());
         ports = tomcatStatus(stage, result);
         result.put(Field.APPS, stage.namedUrls());

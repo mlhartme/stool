@@ -191,10 +191,9 @@ public class StageController {
         String id;
 
         id = UUID.randomUUID().toString();
-        executorService.submit(new StoolCallable(session.gson, command, options, stage, id, logs, session.user));
+        executorService.submit(StoolCallable.create(resolveStage(stage), command, options, id, logs));
         return id;
     }
-
 
     private static class ExceptionExport {
         private final String message;

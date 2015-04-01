@@ -110,7 +110,7 @@ public class Validate extends StageCommand {
                 if (stage.state() == Stage.State.UP) {
                     new Stop(session).doInvoke(stage);
                 }
-                if (!stage.technicalOwner().equals(session.user)) {
+                if (!stage.owner().equals(session.user)) {
                     new Chown(session, true).doInvoke(stage);
                 }
                 new Remove(session, true, true).doInvoke(stage);
@@ -162,7 +162,7 @@ public class Validate extends StageCommand {
         String owner;
         User user;
 
-        owner = stage.ownerOverview();
+        owner = stage.owner();
         try {
             user = session.lookupUser(owner);
         } catch (UserNotFound e) {

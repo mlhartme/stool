@@ -218,33 +218,16 @@ public abstract class Stage {
         }
         return getName() + "." + machine;
     }
-    /**
-     * technical state
-     */
-    public String technicalOwner() throws ModeException {
 
-        return directory.getOwner().getName();
-    }
-
-    /**
-     * external state - without *
-     */
-    //TODO rename
-    public String ownerOverview() throws IOException {
-        return technicalOwner();
-    }
-
-    /**
-     * external state
-     */
     public String owner() throws IOException {
-        return technicalOwner();
+        return directory.getOwner().getName();
     }
 
     //-- pid file handling
     public boolean isWorking() {
         return isLocked();
     }
+
     public State state() throws IOException {
         if (session.bedroom.stages().contains(getName())) {
             return State.SLEEPING;
@@ -468,7 +451,7 @@ public abstract class Stage {
     }
 
     public void checkOwnership() throws IOException, OwnershipException {
-        if (!technicalOwner().equals(session.user)) {
+        if (!owner().equals(session.user)) {
             throw new OwnershipException("Only the owner of the stage is allowed to to do this.\n"
               + "Just own the stage via 'stool chown' and try again.");
         }

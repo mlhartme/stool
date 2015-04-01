@@ -69,7 +69,7 @@ public class Chown extends StageCommand {
             console.info.println("You're not allowed to do this. This incident will be reported.");
         }
 
-        if (stage.technicalOwner().contains(user)) {
+        if (stage.owner().contains(user)) {
             console.info.println("nothing to do: stage " + stage.getName() + " already owned by " + user);
             return;
         }
