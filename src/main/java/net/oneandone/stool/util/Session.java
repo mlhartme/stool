@@ -39,7 +39,6 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
-import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.codehaus.plexus.DefaultPlexusContainer;
 
@@ -423,30 +422,6 @@ public class Session {
 
     public boolean isSelected(Stage stage) {
         return stage.getName().equals(selectedStageName);
-    }
-
-    //--
-
-    public void sudo(String... cmd) throws IOException {
-        FileNode script;
-        FileNode backup;
-
-        script = console.world.file("/opt/ui/opt/stages/.stool/bin/stool-apache.sh");
-        backup = home.getWorld().getTemp().createTempFile();
-        script.copyFile(backup);
-        script.writeLines(
-          "#!/bin/sh",
-          Separator.SPACE.join(cmd));
-        try {
-            // NOTES
-            // * sudo calls are usually logged in /var/log/auth.log, including the arguments
-            // * why can I run sudo on the apache script - even without specifying a user?
-            new Launcher((FileNode) home.getWorld().getWorking(), "sudo", script.getAbsolute(),
-              "stop", "/opt/ui/opt/stages/admin/conf/httpd.conf").exec(console.info);
-        } finally {
-            backup.copyFile(script);
-        }
-
     }
 
     //-- stage properties

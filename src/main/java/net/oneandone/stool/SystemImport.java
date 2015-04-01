@@ -239,8 +239,8 @@ public class SystemImport extends SessionCommand {
             public void apply() throws IOException {
                 tmpWrapper.move(destWrapper);
                 if (session.configuration.security.isShared()) {
-                    // TODO: I cannot use the chown command because sudo is not allowed for new home
-                    session.sudo("chown", "-R", stage.owner(), destWrapper.getAbsolute());
+                    // TODO: half of the command is a noop because the stage directory is already owned
+                    session.chown(stage, stage.owner());
                 }
             }
         };

@@ -620,7 +620,6 @@ http://docbook.org/ns/docbook ">
         |   |- service-wrapper.sh
         |   |- stool.jar
         |   |- stool-(timestamp).jar  (optional incremental updates)
-        |   |- stool-apache.sh
         |   |- stool-catalina.sh
         |   '- stool-chown.sh
         |- inbox (to push jars into artifact stages with an inbox urls)
