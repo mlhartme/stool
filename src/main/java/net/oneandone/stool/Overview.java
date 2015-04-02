@@ -19,8 +19,12 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Overview {
     public static final String OVERVIEW_NAME = "overview";
@@ -55,11 +59,21 @@ public class Overview {
         tomcatOpts += "-Doverview.stool.home=" + session.home.getAbsolute() + " -Doverview.user.name=" + session.user;
         create.remaining("tomcat.opts=" + tomcatOpts);
         create.remaining("until=reserved");
+        create.remaining("tomcat.env=" + environment());
         try {
             create.doInvoke();
         } catch (Exception e) {
             throw new IOException(e);
         }
+    }
+
+    // make sure the overview sees all environment variables, because the build command expects this environment
+    private static String environment() {
+        List<String> keys;
+
+        keys = new ArrayList<>(System.getenv().keySet());
+        Collections.sort(keys);
+        return Separator.COMMA.join(keys);
     }
 
     public Stage stage() {

@@ -84,6 +84,9 @@ public class StageConfiguration {
     @Option(key = "tomcat.select", description = "hostnames to start - empty for all", role = Role.USER)
     public List<String> tomcatSelect;
 
+    @Option(key = "tomcat.env", description = "white list of environment variables visible for running applications")
+    public List<String> tomcatEnv;
+
     @Option(key = "java.home", description = "jdk or jre directory")
     public String javaHome;
 
@@ -124,6 +127,7 @@ public class StageConfiguration {
         this.tomcatHeap = 200;
         this.tomcatPerm = 64;
         this.tomcatSelect = new ArrayList<>();
+        this.tomcatEnv = new ArrayList<>();
         this.javaHome = javaHome;
         this.mavenHome = mavenHome;
         this.mavenOpts = "";
