@@ -22,6 +22,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.util.concurrent.Callable;
 
 public class StoolCallable implements Callable<StoolCallable.StoolProcess> {
@@ -77,13 +78,13 @@ public class StoolCallable implements Callable<StoolCallable.StoolProcess> {
         if (options != null && !options.equals("")) {
             builder.append(" ").append(options);
         }
-        builder.append(" >").append(logDir.getAbsolute()).append("/").append(id).append(".log 2>&1").append("\n");
+        builder.append("\n");
         script = logDir.join(id + ".sh").mkfile();
         script.writeString(builder.toString()).setPermissions("rwx------");
-        try {
+        try (Writer writer = logDir.join(id + ".log").createWriter()) {
             stat.writeString(gson.toJson(new StoolProcess(command, id, stage, runAs, startTime, endTime, failure)));
             startTime = System.currentTimeMillis();
-            script.launcher("sh", script.getAbsolute()).dir(script.getParent()).exec();
+            script.launcher(script.getAbsolute()).dir(script.getParent()).exec(writer);
             endTime = System.currentTimeMillis();
         } catch (Failure e) {
             failure = e;
