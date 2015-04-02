@@ -69,15 +69,15 @@ public class StoolCallable implements Callable<StoolCallable.StoolProcess> {
         startTime = 0L;
         long endTime = 0;
         stat = logDir.join(id + ".stat").mkfile();
-        builder.append("#!/bin/sh\n").append("#runAs:").append(runAs).append("\n");
+        builder.append("#! /bin/sh\n").append("#runAs:").append(runAs).append("\n");
         if (su) {
             builder.append("sudo -u ").append(runAs).append(" -E ");
-       }
+        }
         builder.append(home.join("bin/stool-raw.sh").getAbsolute()).append(' ').append(command).append(" -stage ").append(stage);
         if (options != null && !options.equals("")) {
             builder.append(" ").append(options);
         }
-        builder.append(" >> ").append(logDir.getAbsolute()).append("/").append(id).append(".log").append("\"\n");
+        builder.append(" >").append(logDir.getAbsolute()).append("/").append(id).append(".log 2>&1").append("\n");
         script = logDir.join(id + ".sh").mkfile();
         script.writeString(builder.toString()).setPermissions("rwx------");
         try {
