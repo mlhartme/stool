@@ -65,6 +65,6 @@ public class PrepareRefresh extends TimerTask {
     }
 
     public void executeUpdate(Stage stage) throws Exception {
-        StoolCallable.create(stage, "refresh", "-usePrepared", UUID.randomUUID().toString(), logs).call();
+        StoolCallable.create(UUID.randomUUID().toString(), logs, stage, "refresh", "-usePrepared").call();
     }
 }

@@ -20,13 +20,14 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
+import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.util.concurrent.Callable;
 
 public class StoolCallable implements Callable<StoolCallable.StoolProcess> {
-    public static StoolCallable create(Stage stage, String command, String options, String id, FileNode logs) throws IOException {
+    public static StoolCallable create(String id, FileNode logs, Stage stage, String command, String ... options) throws IOException {
         Session session;
 
         session = stage.session;
@@ -37,14 +38,14 @@ public class StoolCallable implements Callable<StoolCallable.StoolProcess> {
     private final FileNode home;
     private final Gson gson;
     private final String command;
-    private final String options;
+    private final String[] options;
     private final String id;
     private final String stage;
     private final FileNode logDir;
     private final boolean su;
     private final String runAs;
 
-    public StoolCallable(FileNode home, Gson gson, String command, String options, String stage, String id, FileNode logDir, boolean su, String runAs) {
+    public StoolCallable(FileNode home, Gson gson, String command, String[] options, String stage, String id, FileNode logDir, boolean su, String runAs) {
         this.home = home;
         this.gson = gson;
         this.command = command;
@@ -58,36 +59,31 @@ public class StoolCallable implements Callable<StoolCallable.StoolProcess> {
 
     @Override
     public StoolProcess call() throws Exception {
+        Launcher launcher;
         StoolProcess stoolProcess;
-        StringBuilder builder;
-        FileNode script;
         FileNode stat;
         Failure failure;
         long startTime;
+        long endTime;
 
-        builder = new StringBuilder();
         failure = null;
         startTime = 0L;
-        long endTime = 0;
+        endTime = 0;
         stat = logDir.join(id + ".stat").mkfile();
-        builder.append("#! /bin/sh\n").append("#runAs:").append(runAs).append("\n");
+        launcher = new Launcher(logDir);
         if (su) {
-            builder.append("sudo -u ").append(runAs).append(" -E ");
+            launcher.arg("sudo", "-u", runAs, "-E");
         }
-        builder.append(home.join("bin/stool-raw.sh").getAbsolute()).append(' ').append(command).append(" -stage ").append(stage);
-        if (options != null && !options.equals("")) {
-            builder.append(" ").append(options);
-        }
-        builder.append("\n");
-        script = logDir.join(id + ".sh").mkfile();
-        script.writeString(builder.toString()).setPermissions("rwx------");
+        launcher.arg(home.join("bin/stool-raw.sh").getAbsolute(), command, "-stage", stage);
+        launcher.arg(options);
         try (Writer writer = logDir.join(id + ".log").createWriter()) {
             stat.writeString(gson.toJson(new StoolProcess(command, id, stage, runAs, startTime, endTime, failure)));
             startTime = System.currentTimeMillis();
-            script.launcher(script.getAbsolute()).dir(script.getParent()).exec(writer);
-            endTime = System.currentTimeMillis();
+            launcher.exec(writer);
         } catch (Failure e) {
             failure = e;
+        } finally {
+            endTime = System.currentTimeMillis();
         }
         stoolProcess = new StoolProcess(command, id, stage, runAs, startTime, endTime, failure);
         stat.writeString(gson.toJson(stoolProcess));

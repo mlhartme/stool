@@ -154,15 +154,15 @@ public class StageController {
     }
 
     @RequestMapping(value = "{name}/{action}", method = RequestMethod.POST)
-    public String execute(@PathVariable(value = "name") String stageName, @PathVariable(value = "action") String action)
+    public String action(@PathVariable(value = "name") String stageName, @PathVariable(value = "action") String action)
       throws Exception {
-        return execute(stageName, action, null);
+        return execute(stageName, action);
     }
 
-    @RequestMapping(value = "{name}/{action}/{options}", method = RequestMethod.POST)
-    public String start(@PathVariable(value = "name") String stageName, @PathVariable(value = "action") String action,
-      @PathVariable(value = "options") String options) throws Exception {
-        return execute(stageName, action, options);
+    @RequestMapping(value = "{name}/{action}/{option1}", method = RequestMethod.POST)
+    public String action(@PathVariable(value = "name") String stageName, @PathVariable(value = "action") String action,
+        @PathVariable(value = "option1") String option1) throws Exception {
+           return execute(stageName, action, option1);
     }
 
     @ExceptionHandler(Exception.class)
@@ -187,11 +187,11 @@ public class StageController {
         return Console.create(world);
     }
 
-    public String execute(String stage, String command, String options) throws IOException {
+    public String execute(String stage, String command, String ... options) throws IOException {
         String id;
 
         id = UUID.randomUUID().toString();
-        executorService.submit(StoolCallable.create(resolveStage(stage), command, options, id, logs));
+        executorService.submit(StoolCallable.create(id, logs, resolveStage(stage), command, options));
         return id;
     }
 
