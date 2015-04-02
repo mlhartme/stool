@@ -85,7 +85,7 @@ public class StoolIT {
 
     @Test
     public void turnaroundArtifact() throws IOException, InterruptedException {
-        turnaround("gav:net.oneandone:hellowar:1.0.0");
+        turnaround("gav:net.oneandone:hellowar:1.0.1");
     }
 
     @Test

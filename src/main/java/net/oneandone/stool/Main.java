@@ -342,7 +342,7 @@ public class Main extends Cli implements Command {
         console.info.println("  PROPERTY  # configuration property");
         console.info.println();
         console.info.println("example urls: ");
-        console.info.println("  gav:net.oneandone:hellowar:1.0.0  (artifact stage)");
+        console.info.println("  gav:net.oneandone:hellowar:1.0.1  (artifact stage)");
         console.info.println("  https://github.com/mlhartme/hellowar/trunk (source stage)");
         console.info.println();
         console.info.println("documentation:");

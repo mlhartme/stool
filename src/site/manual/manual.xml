@@ -125,7 +125,7 @@ http://docbook.org/ns/docbook ">
               <para>Specifies where the web applications come from: A Subversion URL or Maven Coordinates.</para>
               <programlisting>Examples
                 https://github.com/mlhartme/hellowar/trunk
-                gav:net.oneandone:hellowar:1.0.0
+                gav:net.oneandone:hellowar:1.0.1
               </programlisting>
             </formalpara>
           </listitem>
