@@ -27,6 +27,7 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.io.OS;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -38,6 +39,8 @@ import java.util.Map;
 
 
 public class Install {
+    public static final String STOOL_UPDATE_CHECKED = ".stool.update.checked";
+
     // false in tests, when stool.jar is not in classpath
     private final boolean fromJar;
 
@@ -77,14 +80,27 @@ public class Install {
         Runtime.getRuntime().addShutdownHook(cleanup);
 
         Files.stoolDirectory(home.mkdirs());
-        conf = new StoolConfiguration();
+        conf = new StoolConfiguration(downloads(home));
         tuneHostname(conf);
         tuneExplicit(conf);
         copyResources(variables(Session.javaHome()));
+        conf.downloads.join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
         conf.save(Session.gson(home.getWorld(), ExtensionsFactory.create(home.getWorld())), home);
 
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
+    }
+
+    private FileNode downloads(FileNode home) {
+        FileNode directory;
+
+        if (OS.CURRENT == OS.MAC) {
+            directory = (FileNode) console.world.getHome().join("Downloads");
+            if (directory.isDirectory()) {
+                return directory;
+            }
+        }
+        return home.join("downloads");
     }
 
     public static final SimpleDateFormat FMT = new SimpleDateFormat("yyMMdd-hhmmss");

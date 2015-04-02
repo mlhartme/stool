@@ -494,4 +494,8 @@ public class Session {
                 .setPrettyPrinting()
                 .create();
     }
+
+    public FileNode downloads() {
+        return configuration.downloads;
+    }
 }

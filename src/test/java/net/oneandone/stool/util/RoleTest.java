@@ -26,16 +26,16 @@ public class RoleTest {
 
     @Test
     public void isAdmin() throws Exception {
-        assertTrue(Role.isAdmin(new StoolConfiguration()));
+        assertTrue(Role.isAdmin(new StoolConfiguration(null)));
     }
 
     @Test
     public void isNotAnAdmin() throws Exception {
         StoolConfiguration stoolConfiguration;
-        stoolConfiguration = new StoolConfiguration();
+
+        stoolConfiguration = new StoolConfiguration(null);
         stoolConfiguration.adminGroup = "HopefullyNotTrueElseIThinkYourGroupSystemIsCrazy";
         stoolConfiguration.security = SecurityLevel.GEM;
-
         assertFalse(Role.isAdmin(stoolConfiguration));
     }
 }

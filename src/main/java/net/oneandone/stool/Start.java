@@ -203,7 +203,7 @@ public class Start extends StageCommand {
         FileNode base;
 
         name = tomcatName(version);
-        download = session.home.join("downloads", name + ".tar.gz");
+        download = session.downloads().join(name + ".tar.gz");
         if (!download.exists()) {
             console.info.println("downloading tomcat ...");
             try {
@@ -229,7 +229,7 @@ public class Start extends StageCommand {
         FileNode base;
 
         name = serviceWrapperName(version);
-        download = session.home.join("downloads", name + ".tar.gz");
+        download = session.downloads().join(name + ".tar.gz");
         if (!download.exists()) {
             downloadFile(console.info, "http://wrapper.tanukisoftware.com/download/" + version + "/" + name + ".tar.gz", download);
             download.checkFile();

@@ -38,8 +38,7 @@ public class Update {
         System.out.println("releases " + list(Console.create(new World())));
     }
 
-    public static List<FileNode> check(Console console, Version current, FileNode home) throws IOException {
-        FileNode dest;
+    public static List<FileNode> check(Console console, Version current, FileNode home, FileNode downloads) throws IOException {
         String version;
         Version next;
         FileNode script;
@@ -47,7 +46,6 @@ public class Update {
         String args;
         List<FileNode> result;
 
-        dest = home.join("downloads");
         result = new ArrayList<>();
         for (Release release : list(console)) {
             version = release.name;
@@ -55,9 +53,9 @@ public class Update {
             version = Strings.removeRight(version, ".sh");
             next = Version.valueOf(version);
             if (next.greaterThan(current)) {
-                script = dest.join("update-stool-" + version + ".sh");
+                script = downloads.join("update-stool-" + version + ".sh");
                 if (!script.isFile()) {
-                    download = dest.join("setup-stool-" + version + ".sh");
+                    download = downloads.join("setup-stool-" + version + ".sh");
                     if (current.getMajorVersion() == next.getMajorVersion() && current.getMinorVersion() == next.getMinorVersion()) {
                         args = home.getAbsolute();
                     } else {

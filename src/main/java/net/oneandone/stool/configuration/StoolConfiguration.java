@@ -127,7 +127,9 @@ public class StoolConfiguration {
      */
     public String errorTool;
 
-    public StoolConfiguration() {
+    public FileNode downloads;
+
+    public StoolConfiguration(FileNode downloads) {
         portFirst = 9000;
         portLast = 9999;
         portOverview = portFirst;
@@ -155,6 +157,7 @@ public class StoolConfiguration {
         mailPassword = "";
         certificates = "";
         updateInterval = 0;
+        this.downloads = downloads;
     }
 
     public static FileNode configurationFile(FileNode home) {
