@@ -2,7 +2,7 @@
   <body>
     <release version="3.1.0" date="2015-03-27">
       <action date="2015-04-01" dev="mlhartme" type="update">
-        Cleanup sudo stuff, and also fix known security problems.
+        Cleanup sudo stuff to simplify sudoers and fix known security problems.
       </action>
       <action date="2015-03-27" dev="mlhartme" type="update">
         Moved stool-function into bin directory.
