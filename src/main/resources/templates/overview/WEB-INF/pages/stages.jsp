@@ -47,6 +47,7 @@
                 <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">Actions <span
                         class="caret"></span></button>
                 <ul class="dropdown-menu">
+                    <li><a href="#dashboard" data-action="chown" data-stage="${stage.name}">Chown</a></li>
                     <li><a href="#dashboard" data-estimate="${stage.stats.avgStart}" data-action="start"
                            data-stage="${stage.name}">Start</a>
                     </li>
