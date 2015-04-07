@@ -44,7 +44,7 @@
         Added extensions.
       </action>
     </release>
-    <release version="3.0.1" date="2015-03-19">
+    <release version="3.0.1" date="2015-04-07">
       <action date="2015-03-24" dev="mlhartme" type="fix">
         Fixed incremental upgrade to add a new stool jar and modify a symlink.
       </action>
