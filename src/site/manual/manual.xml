@@ -362,6 +362,9 @@ http://docbook.org/ns/docbook ">
         has exactly the same effect if you invoke the build command yourself, without Stool. 'stool build' is only for
         your convenience, you do not have to use it to build you project properly.
       </para>
+      <para>The build command execute in the same environment (i.e. with the same environment variablens) as Stool is
+        executed. If you invoke 'build' from the overview application, the build command executes in the environment
+        of the user who started the overview. </para>
     </sect1>
 
     <sect1>
@@ -406,6 +409,9 @@ http://docbook.org/ns/docbook ">
       <para>Start generates a Tomcat base directory if it does not yet exist. If it exists, only the server.xml is updated by taking
         server.xml.template and adding all apps to it.
       </para>
+      <para>The environemnt of the started application is the current environment restricted to the variables listed in the 'tomcat.env'
+        property; variables listed there are pass to the application, all others are removed. If you invoke 'start' from the overview
+        application, the user who startet the application defines the basic environment.</para>
     </sect1>
 
     <sect1>

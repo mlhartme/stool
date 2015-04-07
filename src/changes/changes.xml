@@ -2,6 +2,9 @@
   <body>
     <release version="3.1.0" date="2015-03-27">
       <action date="2015-04-02" dev="mlhartme" type="update">
+        Added tomcat.env property to explicitly define the environment for running apps.
+      </action>
+      <action date="2015-04-02" dev="mlhartme" type="update">
         Configurable downloads.
       </action>
       <action date="2015-04-01" dev="mlhartme" type="update">
