@@ -49,6 +49,8 @@ public class Property {
             value = Boolean.valueOf((String) strOrMap);
         } else if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {
             value = Integer.valueOf((String) strOrMap);
+        } else if (Enum.class.isAssignableFrom(type)) {
+            value = Enum.valueOf(type, (String) strOrMap);
         } else if (type.equals(List.class)) {
             str = (String) strOrMap;
             if (str.contains(",")) {
