@@ -4,6 +4,9 @@
       <action date="2015-04-09" dev="mlhartme" type="remove">
         Removed role handling, we no longer need it.
       </action>
+      <action date="2015-04-09" dev="mlhartme" type="fix">
+        Fixed stool-function for none-bash shells.
+      </action>
       <action date="2015-04-08" dev="mlhartme" type="fix">
         Fixed install "security" config parameter.
       </action>

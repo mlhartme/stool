@@ -88,103 +88,105 @@ stoolIndicatorColor() {
     fi
 }
 
-if [ "x$BASH" != "x" ] ; then
-    _stool_complete() {
-          local home=${{stool.home}}
-          local cur prev cmd
-          local select_opts general_opts
-          COMPREPLY=()
-          cur="${COMP_WORDS[COMP_CWORD]}"
-          prev="${COMP_WORDS[COMP_CWORD-1]}"
-          cmd="stop remove chown rename build run validate version help system-start system-upgrade config import system-stop refresh move restart status select system-install duso list create history start cd"
-          general_opts="-v -e"
-          select_opts="-stage -all -all-state -all-owner"
-          fail_opts="before after never"
-
-          case "${prev}" in
-            create)
-                if [[ ${cur} == -* ]] ; then
-                    local option="-quiet -prefix -name "
-                    COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
-                    return 0
-                fi
-                # url
-                return 0
-                ;;
-            import)
-                if [[ ${cur} == -* ]] ; then
-                    local option="-max"
-                    COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
-                    return 0
-                else
-                    COMPREPLY=( $(compgen -f "$2" ) )
-                    return 0
-                fi
-                ;;
-            select)
-                local stages=$(for dir in `ls -1 $home/wrappers/`; do echo ${dir}; done; echo 'none')
-                COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
-                return 0
-                ;;
-            status)
-                local stages=$(for dir in `ls -1 $home/wrappers/`; do echo ${dir}; done)
-                COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
-                return 0
-                ;;
-            run)
-                if [[ ${cur} == -* ]] ; then
-                    local option="-debug"
-                    COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
-                fi
-                ;;
-            stop)
-                if [[ ${cur} == -* ]] ; then
-                    local option="-sleep -stail"
-                    COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
-                fi
-                ;;
-            config)
-                compopt +o nospace &>/dev/null
-                local option="suffix until maven.opts sslUrl java.home tomcat.select tomcat.perm tomcat.heap tomcat.version tomcat.opts port.prefix build cookies mode autoRefresh comment"
-                COMPREPLY=( $(compgen -o nospace -W "${option}" -- ${cur}) )
-                return 0
-                ;;
-            restart)
-                if [[ ${cur} == -* ]] ; then
-                    local option="-debug"
-                    COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
-                fi
-                ;;
-            chown)
-                COMPREPLY=( $(compgen -W "$USER" -- ${cur}) )
-                return 0
-                ;;
-            rename)
-                if [[ ${cur} == -* ]] ; then
-                    local option="-force -batch"
-                COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
-                    return 0
-                fi
-                ;;
-            remove)
-                if [[ ${cur} == -* ]] ; then
-                    local option="-force -batch"
-                    COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
-                    return 0
-                fi
-                ;;
-               cd)
-                local stages="wrapper conf java jmx log run tomcat conf logs temp work  "
-                COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
-                return 0
-                ;;
-            *)
-                ;;
-          esac
-
-          COMPREPLY=( $(compgen -W "${cmd}" -- ${cur}) )
-          return 0
-    }
-
-    complete -F _stool_complete stool
+if [ "x$BASH" = "x" ] ; then
+  exit
 fi
+
+_stool_complete() {
+      local home=${{stool.home}}
+      local cur prev cmd
+      local select_opts general_opts
+      COMPREPLY=()
+      cur="${COMP_WORDS[COMP_CWORD]}"
+      prev="${COMP_WORDS[COMP_CWORD-1]}"
+      cmd="stop remove chown rename build run validate version help system-start system-upgrade config import system-stop refresh move restart status select system-install duso list create history start cd"
+      general_opts="-v -e"
+      select_opts="-stage -all -all-state -all-owner"
+      fail_opts="before after never"
+
+      case "${prev}" in
+        create)
+            if [[ ${cur} == -* ]] ; then
+                local option="-quiet -prefix -name "
+                COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
+                return 0
+            fi
+            # url
+            return 0
+            ;;
+        import)
+            if [[ ${cur} == -* ]] ; then
+                local option="-max"
+                COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
+                return 0
+            else
+                COMPREPLY=( $(compgen -f "$2" ) )
+                return 0
+            fi
+            ;;
+        select)
+            local stages=$(for dir in `ls -1 $home/wrappers/`; do echo ${dir}; done; echo 'none')
+            COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
+            return 0
+            ;;
+        status)
+            local stages=$(for dir in `ls -1 $home/wrappers/`; do echo ${dir}; done)
+            COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
+            return 0
+            ;;
+        run)
+            if [[ ${cur} == -* ]] ; then
+                local option="-debug"
+                COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
+            fi
+            ;;
+        stop)
+            if [[ ${cur} == -* ]] ; then
+                local option="-sleep -stail"
+                COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
+            fi
+            ;;
+        config)
+            compopt +o nospace &>/dev/null
+            local option="suffix until maven.opts sslUrl java.home tomcat.select tomcat.perm tomcat.heap tomcat.version tomcat.opts port.prefix build cookies mode autoRefresh comment"
+            COMPREPLY=( $(compgen -o nospace -W "${option}" -- ${cur}) )
+            return 0
+            ;;
+        restart)
+            if [[ ${cur} == -* ]] ; then
+                local option="-debug"
+                COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
+            fi
+            ;;
+        chown)
+            COMPREPLY=( $(compgen -W "$USER" -- ${cur}) )
+            return 0
+            ;;
+        rename)
+            if [[ ${cur} == -* ]] ; then
+                local option="-force -batch"
+            COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
+                return 0
+            fi
+            ;;
+        remove)
+            if [[ ${cur} == -* ]] ; then
+                local option="-force -batch"
+                COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
+                return 0
+            fi
+            ;;
+           cd)
+            local stages="wrapper conf java jmx log run tomcat conf logs temp work  "
+            COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
+            return 0
+            ;;
+        *)
+            ;;
+      esac
+
+      COMPREPLY=( $(compgen -W "${cmd}" -- ${cur}) )
+      return 0
+}
+
+complete -F _stool_complete stool
