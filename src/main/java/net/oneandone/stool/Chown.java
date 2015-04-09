@@ -16,7 +16,6 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Role;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
@@ -64,11 +63,6 @@ public class Chown extends StageCommand {
         boolean startAgain;
 
         user = userArgument != null ? userArgument : session.user;
-        if (!session.configuration.security.isLocal()
-          && stage.getName().equals(Overview.OVERVIEW_NAME) && Role.isAdmin(session.configuration)) {
-            console.info.println("You're not allowed to do this. This incident will be reported.");
-        }
-
         if (stage.owner().contains(user)) {
             console.info.println("Nothing to do: stage " + stage.getName() + " already owned by " + user);
             return;

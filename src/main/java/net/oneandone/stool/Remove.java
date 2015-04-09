@@ -17,7 +17,6 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Lock;
-import net.oneandone.stool.util.Role;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Option;
 
@@ -56,11 +55,6 @@ public class Remove extends StageCommand {
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
-        if (!Role.isAdmin(session.configuration)
-          && !session.configuration.security.isLocal() && stage.getName().equals(Overview.OVERVIEW_NAME)) {
-            throw new NoPermissionException("You don't have the permissions to do that. This incident will be reported.");
-        }
-
         stage.checkOwnership();
 
         if (!force) {

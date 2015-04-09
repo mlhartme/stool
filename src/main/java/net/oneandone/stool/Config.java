@@ -18,7 +18,6 @@ package net.oneandone.stool;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Role;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Remaining;
@@ -46,10 +45,8 @@ public class Config extends StageCommand {
         int idx;
         String key;
         String value;
-        Role role;
         Property property;
 
-        role = session.configuration.security.isWaterloo()? Role.detect(session.configuration) : Role.ADMIN;
         idx = str.indexOf('=');
         if (idx == -1) {
             key = str;
@@ -65,7 +62,6 @@ public class Config extends StageCommand {
             if (property == null) {
                 throw new ArgumentException("unknown property: " + key);
             }
-            property.securityCheck(role);
         } catch (SecurityException e) {
             throw new ArgumentException(e.getMessage());
         }

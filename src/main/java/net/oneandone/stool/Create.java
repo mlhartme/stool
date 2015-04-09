@@ -24,7 +24,6 @@ import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.RmRfThread;
-import net.oneandone.stool.util.Role;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
@@ -111,10 +110,6 @@ public class Create extends SessionCommand {
         Stage stage;
         String url;
         RmRfThread cleanup;
-
-        if (!Role.isAdmin(session.configuration) && session.configuration.security.isWaterloo()) {
-            throw new IOException("You don't have the permissions to do that. This incident will be reported.");
-        }
 
         url = url();
         defaults(url);

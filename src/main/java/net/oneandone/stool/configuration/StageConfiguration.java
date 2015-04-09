@@ -18,7 +18,6 @@ package net.oneandone.stool.configuration;
 import com.google.gson.Gson;
 import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.extensions.ExtensionsFactory;
-import net.oneandone.stool.util.Role;
 import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.Node;
 
@@ -48,22 +47,22 @@ public class StageConfiguration {
 
     //--
 
-    @Option(key = "id", description = "unique identifier for this stage", role = Role.USER, readOnly = true)
+    @Option(key = "id", description = "unique identifier for this stage", readOnly = true)
     public final String id;
 
-    @Option(key = "cookies", description = "use cookies for tomcat", role = Role.USER)
+    @Option(key = "cookies", description = "use cookies for tomcat")
     public Boolean cookies;
 
-    @Option(key = "prepare", description = "execute this after checkout", role = Role.USER)
+    @Option(key = "prepare", description = "execute this after checkout")
     public String prepare;
 
-    @Option(key = "build", description = "arbitrary build command line. Supported variables: @directory@", role = Role.USER)
+    @Option(key = "build", description = "arbitrary build command line. Supported variables: @directory@")
     public String build;
 
-    @Option(key = "refresh", description = "execute this for refresh", role = Role.USER)
+    @Option(key = "refresh", description = "execute this for refresh")
     public String refresh;
 
-    @Option(key = "pom", description = "pom file name", role = Role.USER)
+    @Option(key = "pom", description = "pom file name")
     public String pom;
 
     @Option(key = "tomcat.opts", description = "CATALINE_OPTS without heap/perm settings")
@@ -81,7 +80,7 @@ public class StageConfiguration {
     @Option(key = "tomcat.perm", description = "memory in mb")
     public Integer tomcatPerm;
 
-    @Option(key = "tomcat.select", description = "hostnames to start - empty for all", role = Role.USER)
+    @Option(key = "tomcat.select", description = "hostnames to start - empty for all")
     public List<String> tomcatSelect;
 
     @Option(key = "tomcat.env", description = "white list of environment variables visible for running applications")
@@ -100,7 +99,7 @@ public class StageConfiguration {
     @Option(key = "until", description = "YYYY-MM-DD and optional time")
     public Until until;
 
-    @Option(key = "suffix", description = "suffix for the link eg. http://1and1.com/{suffix}", role = Role.USER)
+    @Option(key = "suffix", description = "suffix for the link eg. http://1and1.com/{suffix}")
     public String suffix;
 
     @Option(key = "sslUrl", description = "overrides the default url for certificate creation")

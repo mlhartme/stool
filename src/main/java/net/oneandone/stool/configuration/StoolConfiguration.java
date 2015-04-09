@@ -17,7 +17,6 @@ package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.io.OS;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -68,11 +67,6 @@ public class StoolConfiguration {
      * Name + email
      */
     public String contactAdmin;
-
-    /**
-     * group which defines administrative rights
-     */
-    public String adminGroup;
 
     /**
      * security level [local|pearl|gem|waterloo]
@@ -142,12 +136,6 @@ public class StoolConfiguration {
         autoRemove = -1;
         security = SecurityLevel.LOCAL;
         macros = new LinkedHashMap<>();
-
-        if (OS.CURRENT == OS.MAC) {
-            adminGroup = "everyone";
-        } else {
-            adminGroup = "users";
-        }
         ldapUrl = "";
         ldapPrincipal = "";
         ldapCredentials = "";

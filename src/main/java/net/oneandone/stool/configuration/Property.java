@@ -1,7 +1,5 @@
 package net.oneandone.stool.configuration;
 
-import net.oneandone.stool.util.Role;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -77,14 +75,6 @@ public class Property {
             throw new IllegalStateException(e);
         }
     }
-
-    public void securityCheck(Role role) {
-        Option option = field.getAnnotation(Option.class);
-        if (option != null && option.role().compareTo(role) < 0) {
-            throw new SecurityException(Role.ERROR);
-        }
-    }
-
 
     private Object object(Object configuration) {
         Object object;

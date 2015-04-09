@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.configuration;
 
-import net.oneandone.stool.util.Role;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -28,8 +26,6 @@ public @interface Option {
     String key();
 
     String description();
-
-    Role role() default Role.ADMIN;
 
     boolean readOnly() default false;
 }
