@@ -20,7 +20,6 @@ import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Option;
 
-import javax.naming.NoPermissionException;
 import java.io.IOException;
 
 public class Remove extends StageCommand {

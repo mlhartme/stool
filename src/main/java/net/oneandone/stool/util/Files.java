@@ -23,7 +23,6 @@ import net.oneandone.sushi.fs.filter.Filter;
 import net.oneandone.sushi.util.Substitution;
 
 import java.io.IOException;
-import java.nio.file.attribute.GroupPrincipal;
 import java.util.Map;
 
 public final class Files {

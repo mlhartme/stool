@@ -33,12 +33,9 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.InputLogStream;
 import net.oneandone.sushi.util.Separator;
-import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.net.URL;
 import java.util.Arrays;
 
