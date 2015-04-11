@@ -74,7 +74,7 @@ public class StoolConfiguration {
     public boolean shared;
 
     /**
-     * true if only committed stages may be started
+     * true if users have to commit all source changes before stool allows them to start the stage.
      */
     public boolean committed;
 
