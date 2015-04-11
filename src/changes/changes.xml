@@ -2,6 +2,9 @@
   <body>
     <release version="3.1.0" date="2015-03-27">
       <action date="2015-04-10" dev="mlhartme" type="update">
+        Compile Stool for Java 8.
+      </action>
+      <action date="2015-04-10" dev="mlhartme" type="update">
         Update spring-security dependencies from 4.0.0.RC to 4.0.0.RELEASE.
       </action>
       <action date="2015-04-10" dev="mlhartme" type="update">

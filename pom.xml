@@ -18,6 +18,10 @@
   <packaging>jar</packaging>
 
   <properties>
+    <oneandone.java.source>1.8</oneandone.java.source>
+    <oneandone.java.target>1.8</oneandone.java.target>
+    <oneandone.java.docversion>8</oneandone.java.docversion>
+
     <aetherVersion>1.0.0.v20140518</aetherVersion>
     <guava.version>14.0.1</guava.version>
     <mavenVersion>3.2.5</mavenVersion>
