@@ -43,7 +43,7 @@ public class Change {
     }
 
     public Date getDate() {
-        return new Date(date.getTime());
+        return date;
     }
 
     @Override
