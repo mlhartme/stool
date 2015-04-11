@@ -190,7 +190,7 @@ public class Create extends SessionCommand {
         if (!parent.isDirectory()) {
             throw new ArgumentException("parent directory for new stage does not exist: " + directory.getParent());
         }
-        if (session.configuration.security.isShared()) {
+        if (session.configuration.shared) {
             checkPermissions(directory.getParent());
         }
         session.checkDiskFree();

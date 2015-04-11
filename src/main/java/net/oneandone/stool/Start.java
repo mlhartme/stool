@@ -356,7 +356,7 @@ public class Start extends StageCommand {
 
     @Override
     protected void checkCommitted(Stage stage) throws IOException {
-        if (session.configuration.security.isPearl()) {
+        if (session.configuration.committed) {
             try {
                 super.checkCommitted(stage);
             } catch (IOException e) {

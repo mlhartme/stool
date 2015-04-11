@@ -32,7 +32,7 @@ public class StoolCallable implements Callable<StoolCallable.StoolProcess> {
 
         session = stage.session;
         return new StoolCallable(session.home, session.gson, command, options, stage.getName(), id, logs,
-                session.configuration.security.isShared(), stage.owner());
+                session.configuration.shared, stage.owner());
     }
 
     private final FileNode home;

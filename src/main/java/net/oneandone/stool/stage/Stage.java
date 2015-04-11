@@ -343,7 +343,7 @@ public abstract class Stage {
         serverXml.configure(ports, keystore, config().cookies, this);
         serverXml.save(serverXml());
         extensions.beforeStart(this, ports.urlMap(keystore != null, session.configuration.vhosts, config().suffix).values());
-        if (session.configuration.security.isLocal()) {
+        if (!session.configuration.shared) {
             catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
             // else: will be deleted by stool-catalina.sh -- with proper permissions
         }
@@ -391,7 +391,7 @@ public abstract class Stage {
                 iter.remove();
             }
         }
-        if (session.configuration.security.isShared()) {
+        if (session.configuration.shared) {
             launcher.arg("sudo", "-E", session.bin("stool-catalina.sh").getAbsolute());
         } else {
             launcher.arg(session.bin("service-wrapper.sh").getAbsolute());
@@ -519,10 +519,10 @@ public abstract class Stage {
             configuration.build = getDefaultBuildCommand();
         }
 
-        if (session.configuration.security.isLocal()) {
-            configuration.until = Until.reserved();
-        } else {
+        if (session.configuration.shared) {
             configuration.until = Until.withOffset(8);
+        } else {
+            configuration.until = Until.reserved();
         }
 
     }
@@ -652,8 +652,7 @@ public abstract class Stage {
         return new Changes();
     }
     public FileNode localRepository() {
-        return session.configuration.security.isLocal()
-          ? (FileNode) session.console.world.getHome().join(".m2/repository") : wrapper.join(".m2");
+        return session.configuration.shared ? wrapper.join(".m2") : (FileNode) session.console.world.getHome().join(".m2/repository");
     }
     protected FileNode warFile(MavenProject project) {
         Build build;

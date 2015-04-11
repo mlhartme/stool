@@ -402,7 +402,7 @@ public class Session {
     }
 
     public User lookupUser(String login) throws NamingException, UserNotFound {
-        if (!configuration.security.isLocal()) {
+        if (configuration.shared) {
             return users.byLogin(login);
         } else {
             return null;

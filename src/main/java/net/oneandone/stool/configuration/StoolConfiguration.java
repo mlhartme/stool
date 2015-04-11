@@ -69,9 +69,14 @@ public class StoolConfiguration {
     public String contactAdmin;
 
     /**
-     * security level [local|pearl|gem]
+     * true if multiple users work on stages
      */
-    public SecurityLevel security;
+    public boolean shared;
+
+    /**
+     * true if only committed stages may be started
+     */
+    public boolean committed;
 
     /**
      * For additional "system-wide" shortcuts.
@@ -134,7 +139,8 @@ public class StoolConfiguration {
         diskMin = 2000;
         contactAdmin = "";
         autoRemove = -1;
-        security = SecurityLevel.LOCAL;
+        shared = false;
+        committed = false;
         macros = new LinkedHashMap<>();
         ldapUrl = "";
         ldapPrincipal = "";

@@ -4,8 +4,8 @@
       <action date="2015-04-10" dev="mlhartme" type="update">
         Update spring-security dependencies from 4.0.0.RC to 4.0.0.RELEASE.
       </action>
-      <action date="2015-04-10" dev="mlhartme" type="remove">
-        Removed 'waterloo' security, because 'pearl' has the same behavior.
+      <action date="2015-04-10" dev="mlhartme" type="update">
+        Replaced 'security' property by 'shared' and 'committed' properties.
       </action>
       <action date="2015-04-09" dev="mlhartme" type="remove">
         Removed role handling, we no longer need it.
