@@ -343,11 +343,6 @@ public abstract class Stage {
         serverXml.configure(ports, keystore, config().cookies, this);
         serverXml.save(serverXml());
         extensions.beforeStart(this, ports.urlMap(keystore != null, session.configuration.vhosts, config().suffix).values());
-        if (!session.configuration.shared) {
-            catalinaBase().join("conf/Catalina").deleteTreeOpt().mkdir();
-            // else: will be deleted by stool-catalina.sh -- with proper permissions
-        }
-
         catalina("start").exec(console.verbose);
         pidFile = runningTomcat();
         if (pidFile == null) {
