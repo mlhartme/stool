@@ -69,7 +69,7 @@ public class StoolConfiguration {
     public String contactAdmin;
 
     /**
-     * security level [local|pearl|gem|waterloo]
+     * security level [local|pearl|gem]
      */
     public SecurityLevel security;
 

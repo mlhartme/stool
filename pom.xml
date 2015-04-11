@@ -41,7 +41,7 @@
     <surefire.forkCount>0</surefire.forkCount>
 
     <spring.version>4.1.3.RELEASE</spring.version>
-    <spring.security.version>4.0.0.RC1</spring.security.version>
+    <spring.security.version>4.0.0.RELEASE</spring.security.version>
     <javax.net.ssl.trustStore />
   </properties>
 

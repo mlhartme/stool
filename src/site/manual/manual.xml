@@ -208,10 +208,10 @@ http://docbook.org/ns/docbook ">
     <sect1>
       <title>Stage owner</title>
 
-      <para>To comply with company security rules, Stool distinguishes four security levels: local, gem, pearl,
-        and waterloo. If you run Stool on your own machine and you are the only user, you'll run stool in local mode -
+      <para>To comply with company security rules, Stool distinguishes three security levels: local, gem and pearl.
+        If you run Stool on your own machine and you are the only user, you'll run stool with local security -
         you can skip the rest of this section. On this other hand, if Stool is running in one of the shared security
-        levels (gem, pearl or waterloo), Stool supports different owners for different stages. This is explained below.
+        levels (gem or pearl), Stool supports different owners for different stages. This is explained below.
       </para>
 
       <para>If you create a new stage, you become the owner of this stage. You own the files in the stage directory

@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.1.0" date="2015-03-27">
+      <action date="2015-04-10" dev="mlhartme" type="update">
+        Update spring-security dependencies from 4.0.0.RC to 4.0.0.RELEASE.
+      </action>
+      <action date="2015-04-10" dev="mlhartme" type="remove">
+        Removed 'waterloo' security, because 'pearl' has the same behavior.
+      </action>
       <action date="2015-04-09" dev="mlhartme" type="remove">
         Removed role handling, we no longer need it.
       </action>

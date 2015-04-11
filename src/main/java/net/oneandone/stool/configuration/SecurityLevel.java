@@ -19,11 +19,7 @@ package net.oneandone.stool.configuration;
  * A Security level describes if a user can run a specified command
  */
 public enum SecurityLevel {
-    LOCAL, PEARL, GEM, WATERLOO;
-
-    public boolean isWaterloo() {
-        return this == WATERLOO;
-    }
+    LOCAL, GEM, PEARL;
 
     public boolean isGem() {
         return this == GEM;

@@ -139,12 +139,6 @@ public final class Files {
         return directory;
     }
 
-    public static void waterlooFile(Node file, final GroupPrincipal group) throws IOException {
-        stoolFile(file);
-        permissions(file, "r--rwxr--");
-        file.setGroup(group);
-    }
-
 
     private static void permissions(Node file, String str) throws IOException {
         String existing;
