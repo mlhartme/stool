@@ -86,7 +86,7 @@ public class Import extends SessionCommand {
             case 1:
                 stage = found.get(0);
                 console.info.println("Importing " + stage.getDirectory());
-                stage = doImport(session, stage, null);
+                stage = doImport(stage, null);
                 new Select(session).stageToSelect(stage.getName()).invoke();
                 break;
             default:
@@ -144,7 +144,7 @@ public class Import extends SessionCommand {
         Stage stage;
 
         try {
-            stage = doImport(session, candidate, forceName);
+            stage = doImport(candidate, forceName);
             candidates.remove(candidate);
             console.info.println("imported: " + stage.getName());
         } catch (IOException e) {
@@ -198,20 +198,28 @@ public class Import extends SessionCommand {
         }
     }
 
-    private Stage doImport(Session session, Stage candidate, String forceName) throws IOException {
-        FileNode wrapper;
-        String url;
+    private Stage doImport(Stage candidate, String forceName) throws IOException {
         FileNode directory;
-        Stage stage;
+        FileNode wrapper;
 
-        url = candidate.getUrl();
         directory = candidate.getDirectory();
         wrapper = session.wrappers.join(forceName != null ? forceName : name(directory));
+        return create(session, candidate.getUrl(), directory, wrapper);
+    }
+
+    /**
+     * @param directory existing directory
+     * @param wrapper not existing directory
+     */
+    private static Stage create(Session session, String url, FileNode directory, FileNode wrapper) throws IOException {
+        Stage stage;
+
+        directory.checkDirectory();
+        Files.stoolDirectory(wrapper.mkdir());
         stage = Stage.createOpt(session, url, session.createStageConfiguration(url), wrapper, directory);
         stage.tuneConfiguration();
-        Files.stoolDirectory(stage.wrapper.mkdir());
         stage.saveProperties();
-        stage.getDirectory().link(stage.anchor());
+        directory.link(stage.anchor());
         return stage;
     }
 
