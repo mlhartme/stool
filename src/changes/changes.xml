@@ -2,6 +2,10 @@
   <body>
     <release version="3.1.0" date="2015-03-27">
       <action date="2015-04-10" dev="mlhartme" type="update">
+        Moved home/stool.aquire and home/sleep.json to home/session/stool.lock and home/session/sleep.json to fix security problem:
+        the home directory cannot be group writeable, userwise, every group member can move away the bin directory an create his own bin.
+      </action>
+      <action date="2015-04-10" dev="mlhartme" type="update">
         Compile Stool for Java 8.
       </action>
       <action date="2015-04-10" dev="mlhartme" type="update">

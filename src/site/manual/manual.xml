@@ -629,11 +629,18 @@ http://docbook.org/ns/docbook ">
         |   '- stool-chown.sh
         |- inbox (to push jars into artifact stages with an inbox urls)
         |- extensions (for jars with Stool extensions)
-        |- logs (log files written by stool)
+        |- logs
+        |   |- stool.log
+        |   |- (archived stool logs)
         |- overview (stage directory of the overview stage)
         |- service-wrapper
         |- sessions
+        |   |- stool.lock
+        |   |- sleep.json
+        |   |- (user)           one file per user session
         |- tomcat
+        |   |- apache-tomcat-7.0.59
+        |   :
         '- wrappers
             '- (stage name)
                 |- config.json (stage properties and some status fields)

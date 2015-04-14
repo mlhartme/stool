@@ -32,9 +32,9 @@ public class Bedroom {
         Bedroom bedroom;
         FileNode file;
 
-        file = home.join(FILENAME);
+        file = home.join("sessions", FILENAME);
         if (file.exists()) {
-            bedroom = gson.fromJson(home.join(FILENAME).readString(), Bedroom.class);
+            bedroom = gson.fromJson(file.readString(), Bedroom.class);
             bedroom.file = file;
         } else {
             bedroom = new Bedroom(file);
