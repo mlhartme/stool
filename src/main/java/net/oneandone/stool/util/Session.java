@@ -416,7 +416,7 @@ public class Session {
 
     /** session lock */
     public Lock lock() {
-        return new Lock(user, home.join("sessions/stool.lock"));
+        return new Lock(user, home.join("conf/stool.lock"));
     }
 
     public boolean isSelected(Stage stage) {

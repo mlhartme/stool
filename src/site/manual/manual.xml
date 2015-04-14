@@ -634,10 +634,12 @@ http://docbook.org/ns/docbook ">
         |   |- (archived stool logs)
         |- overview (stage directory of the overview stage)
         |- service-wrapper
-        |- sessions
+        |- conf
         |   |- stool.lock
         |   |- sleep.json
-        |   |- (user)           one file per user session
+        |   '- users
+        |       |- (one file per user session)
+        |       :
         |- tomcat
         |   |- apache-tomcat-7.0.59
         |   :

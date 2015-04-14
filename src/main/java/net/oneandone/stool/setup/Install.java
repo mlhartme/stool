@@ -115,7 +115,7 @@ public class Install {
             home.join("bin/stool.jar").mklink(jar);
         }
         // manually create empty subdirectories, because git doesn't know them
-        for (String dir : new String[] {"extensions", "wrappers", "inbox", "logs", "service-wrapper", "sessions", "tomcat"}) {
+        for (String dir : new String[] {"extensions", "wrappers", "inbox", "logs", "service-wrapper", "conf", "conf/users", "tomcat"}) {
             Files.stoolDirectory(home.join(dir).mkdir());
         }
     }

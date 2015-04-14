@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.1.0" date="2015-03-27">
-      <action date="2015-04-10" dev="mlhartme" type="update">
-        Moved home/stool.aquire and home/sleep.json to home/session/stool.lock and home/session/sleep.json to fix security problem:
+      <action date="2015-04-14" dev="mlhartme" type="update">
+        Moved home/sessions to home/conf/users
+      </action>
+      <action date="2015-04-14" dev="mlhartme" type="update">
+        Moved home/stool.aquire and home/sleep.json to home/conf/stool.lock and home/conf/sleep.json to fix security problem:
         the home directory cannot be group writeable, userwise, every group member can move away the bin directory an create his own bin.
       </action>
       <action date="2015-04-10" dev="mlhartme" type="update">

@@ -32,7 +32,7 @@ public class Bedroom {
         Bedroom bedroom;
         FileNode file;
 
-        file = home.join("sessions", FILENAME);
+        file = home.join("conf", FILENAME);
         if (file.exists()) {
             bedroom = gson.fromJson(file.readString(), Bedroom.class);
             bedroom.file = file;
