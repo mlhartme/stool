@@ -219,7 +219,7 @@ public class SystemImport extends SessionCommand {
         Files.stoolDirectory(tmpWrapper);
         stage = Stage.createOpt(session, url, session.createStageConfiguration(url), tmpWrapper, directory);
         stage.tuneConfiguration();
-        stage.saveWrapper();
+        stage.saveProperties();
         stage.getDirectory().link(stage.anchor());
         tmpConfig = tmpWrapper.join("config.json");
         tmp = tmpConfig.readString();

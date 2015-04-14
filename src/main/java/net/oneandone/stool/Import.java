@@ -86,7 +86,7 @@ public class Import extends SessionCommand {
             case 1:
                 stage = found.get(0);
                 console.info.println("Importing " + stage.getDirectory());
-                stage = doImport(stage, null);
+                stage = doImport(session, stage, null);
                 new Select(session).stageToSelect(stage.getName()).invoke();
                 break;
             default:
@@ -144,7 +144,7 @@ public class Import extends SessionCommand {
         Stage stage;
 
         try {
-            stage = doImport(candidate, forceName);
+            stage = doImport(session, candidate, forceName);
             candidates.remove(candidate);
             console.info.println("imported: " + stage.getName());
         } catch (IOException e) {
@@ -198,7 +198,7 @@ public class Import extends SessionCommand {
         }
     }
 
-    private Stage doImport(Stage candidate, String forceName) throws IOException {
+    private Stage doImport(Session session, Stage candidate, String forceName) throws IOException {
         FileNode wrapper;
         String url;
         FileNode directory;
@@ -210,7 +210,7 @@ public class Import extends SessionCommand {
         stage = Stage.createOpt(session, url, session.createStageConfiguration(url), wrapper, directory);
         stage.tuneConfiguration();
         Files.stoolDirectory(stage.wrapper.mkdir());
-        stage.saveWrapper();
+        stage.saveProperties();
         stage.getDirectory().link(stage.anchor());
         return stage;
     }

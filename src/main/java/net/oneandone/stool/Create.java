@@ -23,6 +23,7 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -228,14 +229,14 @@ public class Create extends SessionCommand {
 
         directory.mkdir();
         // CAUTION: create wrapper before running possible prepare commands -- e.g. pws already populates the local repository of the stage
-        wrapper.mkdir();
+        Files.stoolDirectory(wrapper.mkdir());
         stage = stage(wrapper, url);
         directory.link(stage.anchor());
         stage.tuneConfiguration();
         for (Map.Entry<Property, String> entry : config.entrySet()) {
             entry.getKey().set(stage.config(), entry.getValue());
         }
-        stage.saveWrapper();
+        stage.saveProperties();
         return stage;
     }
 

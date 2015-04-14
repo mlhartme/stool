@@ -522,8 +522,7 @@ public abstract class Stage {
 
     }
 
-    public void saveWrapper() throws IOException {
-        Files.stoolDirectory(shared(wrapper).mkdirsOpt());
+    public void saveProperties() throws IOException {
         session.saveStageProperties(configuration, wrapper);
     }
 
