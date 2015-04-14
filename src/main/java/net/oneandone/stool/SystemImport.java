@@ -219,8 +219,7 @@ public class SystemImport extends SessionCommand {
         Files.stoolDirectory(tmpWrapper);
         stage = Stage.createOpt(session, url, session.createStageConfiguration(url), tmpWrapper, directory);
         stage.tuneConfiguration();
-        stage.saveProperties();
-        stage.getDirectory().link(stage.anchor());
+        stage.initialize();
         tmpConfig = tmpWrapper.join("config.json");
         tmp = tmpConfig.readString();
         tmp = mergeConfig(oldWrapper.join("config.json").readString(), tmp,
@@ -239,7 +238,7 @@ public class SystemImport extends SessionCommand {
             public void apply() throws IOException {
                 tmpWrapper.move(destWrapper);
                 if (session.configuration.shared) {
-                    // TODO: half of the command is a noop because the stage directory is already owned
+                    // TODO: half of the command is a no-op because the stage directory is already owned
                     session.chown(stage, stage.owner());
                 }
             }

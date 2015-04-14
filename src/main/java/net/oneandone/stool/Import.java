@@ -218,8 +218,7 @@ public class Import extends SessionCommand {
         Files.stoolDirectory(wrapper.mkdir());
         stage = Stage.createOpt(session, url, session.createStageConfiguration(url), wrapper, directory);
         stage.tuneConfiguration();
-        stage.saveProperties();
-        directory.link(stage.anchor());
+        stage.initialize();
         return stage;
     }
 

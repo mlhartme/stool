@@ -231,12 +231,11 @@ public class Create extends SessionCommand {
         // CAUTION: create wrapper before running possible prepare commands -- e.g. pws already populates the local repository of the stage
         Files.stoolDirectory(wrapper.mkdir());
         stage = stage(wrapper, url);
-        directory.link(stage.anchor());
         stage.tuneConfiguration();
         for (Map.Entry<Property, String> entry : config.entrySet()) {
             entry.getKey().set(stage.config(), entry.getValue());
         }
-        stage.saveProperties();
+        stage.initialize();
         return stage;
     }
 
