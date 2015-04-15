@@ -14,17 +14,17 @@ stool() {
   local verbose=false
   local command="empty"
   for arg in $* ; do
-    if [ ${arg:0:1} == "-" ] ; then
-      if [ $arg == "-v" ] ; then
-        verbose=true
-      fi
-    else
-      if [ $command == "empty" ] ; then
-        command=$arg
-      fi
-    fi
+    case "$arg" in
+      -v) verbose=true ;;
+      -*) true ;;
+      *)
+        if [ $command = "empty" ] ; then
+          command=$arg
+        fi
+        ;;
+    esac
   done
-  if [ $command == "reselect" ]; then
+  if [ $command = "reselect" ]; then
     if [ -f $home/conf/users/$USER ]; then
       if $verbose ; then
         echo "reselect"
@@ -75,12 +75,12 @@ stoolIndicatorColor() {
     if [ ! -e $DIR ] ; then
       echo -e "$BLUE_BACKGROUND"
     else
-      if [ `uname` == Darwin ] ; then
+      if [ `uname` = Darwin ] ; then
         local fmt=-f
       else
         local fmt=--format
       fi
-      if [ $(id -u) == $(stat -L $fmt %u $DIR) ] ; then
+      if [ $(id -u) = $(stat -L $fmt %u $DIR) ] ; then
         echo -e ""
       else
         echo -e "$RED"
