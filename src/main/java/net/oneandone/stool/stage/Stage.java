@@ -387,10 +387,9 @@ public abstract class Stage {
             }
         }
         if (session.configuration.shared) {
-            launcher.arg("sudo", "-E", session.bin("stool-catalina.sh").getAbsolute());
-        } else {
-            launcher.arg(session.bin("service-wrapper.sh").getAbsolute());
+            launcher.arg("sudo", "-u", owner(), "-E");
         }
+        launcher.arg(session.bin("service-wrapper.sh").getAbsolute());
         launcher.arg(catalinaHome().getAbsolute());
         launcher.arg(catalinaBase().getAbsolute());
         launcher.arg(session.home.join("service-wrapper", Start.serviceWrapperName(config().tomcatService)).getAbsolute());
