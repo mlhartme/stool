@@ -16,6 +16,7 @@
 package net.oneandone.stool.setup;
 
 import com.github.zafarkhaja.semver.Version;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -83,19 +84,6 @@ public class Main extends Cli implements Command {
             home = console.world.file(str);
         } else {
             throw new ArgumentException("too many directories");
-        }
-    }
-
-    private void defaultsFile(String file) throws IOException {
-        Object value;
-
-        for (Map.Entry<String, JsonElement> entry : loadJson(console.world.file(file)).entrySet()) {
-            if (entry.getValue() instanceof JsonObject) {
-                value = toMap((JsonObject) entry.getValue());
-            } else {
-                value = environment.substitute(entry.getValue().getAsString());
-            }
-            config.put(entry.getKey(), value);
         }
     }
 
@@ -211,6 +199,19 @@ public class Main extends Cli implements Command {
 
     //--
 
+    private void defaultsFile(String file) throws IOException {
+        Object value;
+
+        for (Map.Entry<String, JsonElement> entry : loadJson(console.world.file(file)).entrySet()) {
+            if (entry.getValue() instanceof JsonObject) {
+                value = toMap((JsonObject) entry.getValue());
+            } else {
+                value = toString(entry.getValue());
+            }
+            config.put(entry.getKey(), value);
+        }
+    }
+
     private Map<String, Object> toMap(JsonObject object) {
         Map<String, Object> result;
         JsonElement value;
@@ -218,13 +219,32 @@ public class Main extends Cli implements Command {
         result = new LinkedHashMap<>();
         for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
             value = entry.getValue();
-            if (value instanceof JsonObject) {
+            if (value instanceof JsonArray) {
+                result.put(entry.getKey(), toListString((JsonArray) value));
+            } else if (value instanceof JsonObject) {
                 result.put(entry.getKey(), toMap((JsonObject) value));
             } else {
-                result.put(entry.getKey(), environment.substitute(value.getAsString()));
+                result.put(entry.getKey(), toString(value));
             }
         }
         return result;
+    }
+
+    private String toListString(JsonArray array) {
+        StringBuilder result;
+
+        result = new StringBuilder();
+        for (JsonElement element : array) {
+            if (result.length() > 0) {
+                result.append(",");
+            }
+            result.append(toString(element));
+        }
+        return result.toString();
+    }
+
+    private String toString(JsonElement value) {
+        return environment.substitute(value.getAsString());
     }
 
     private static JsonObject loadJson(FileNode file) throws IOException {
