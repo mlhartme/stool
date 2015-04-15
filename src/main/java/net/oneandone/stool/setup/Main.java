@@ -74,7 +74,7 @@ public class Main extends Cli implements Command {
 
         idx = str.indexOf('=');
         if (idx != -1) {
-            config.put(str.substring(0, idx).trim(), str.substring(idx + 1).trim());
+            config.put(str.substring(0, idx), str.substring(idx + 1));
         } else if (str.startsWith("@")) {
             defaultsFile(str.substring(1));
         } else if (home == null) {
