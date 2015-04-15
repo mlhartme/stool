@@ -409,8 +409,8 @@ http://docbook.org/ns/docbook ">
         server.xml.template and adding all apps to it.
       </para>
       <para>The environemnt of the started application is the current environment restricted to the variables listed in the 'tomcat.env'
-        property; variables listed there are pass to the application, all others are removed. If you invoke 'start' from the overview
-        application, the user who startet the application defines the basic environment.</para>
+        property; variables listed there are passed to the application, all others are removed. If you invoke 'start' from the overview
+        application, the user who started the application defines the basic environment.</para>
     </sect1>
 
     <sect1>
