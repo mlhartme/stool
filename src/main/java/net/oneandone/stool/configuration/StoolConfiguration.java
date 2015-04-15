@@ -44,7 +44,9 @@ public class StoolConfiguration {
     public int portLast;
 
     /**
-     * ps1 shell string
+     * ps1 shell string with extra variables:
+     *   \\+ for stage indicator
+     *   \\= for original prompt
      */
     public String prompt;
 
@@ -134,7 +136,7 @@ public class StoolConfiguration {
         portOverview = portFirst;
         baseHeap = 200;
         basePerm = 60;
-        prompt = "{\\+} \\u@\\h:\\w$ ";
+        prompt = "{\\+} \\=";
         hostname = "localhost";
         diskMin = 2000;
         contactAdmin = "";

@@ -320,6 +320,7 @@ public class Session {
         Environment env;
         String stoolIndicator;
         String mavenOpts;
+        String prompt;
 
         if (stage == null) {
             mavenOpts = "";
@@ -344,7 +345,10 @@ public class Session {
         } else {
             stoolIndicator = "\\[$(stoolIndicatorColor)\\]" + stage.getName() + "\\[\\e[m\\]";
         }
-        env.set(Environment.PS1, Strings.replace(configuration.prompt, "\\+", stoolIndicator));
+        prompt = configuration.prompt;
+        prompt = Strings.replace(prompt, "\\+", stoolIndicator);
+        prompt = Strings.replace(prompt, "\\=", this.environment.get(Environment.backupKey(Environment.PS1)));
+        env.set(Environment.PS1, prompt);
         env.set(Environment.PWD, (stage == null ? ((FileNode) console.world.getWorking()) : stage.getDirectory()).getAbsolute());
         return env;
     }
