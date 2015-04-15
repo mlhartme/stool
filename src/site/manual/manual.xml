@@ -410,7 +410,7 @@ http://docbook.org/ns/docbook ">
       </para>
       <para>The environemnt of the started application is the current environment restricted to the variables listed in the 'tomcat.env'
         property; variables listed there are passed to the application, all others are removed. If you invoke 'start' from the overview
-        application, the user who started the application defines the basic environment.</para>
+        application, the user who started the overview defines the basic environment, not the owner of the stage.</para>
     </sect1>
 
     <sect1>
