@@ -34,7 +34,6 @@ public class Build extends StageCommand {
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
-        timeStart();
         stage.checkOwnership();
         try {
             stage.checkStopped();
@@ -50,9 +49,8 @@ public class Build extends StageCommand {
         }
 
         build(stage);
-        stage.buildStats().build(executionTime());
-        stage.buildStats().save(session.gson);
     }
+
     protected void build(Stage stage) throws IOException {
         String command;
         Launcher launcher;

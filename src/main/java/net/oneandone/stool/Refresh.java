@@ -66,10 +66,7 @@ public class Refresh extends StageCommand {
         } else if (restore) {
             stage.restoreFromBackup(console);
         } else {
-            timeStart();
             invokeNormal(stage);
-            stage.buildStats().refresh(executionTime());
-            stage.buildStats().save(session.gson);
         }
     }
 

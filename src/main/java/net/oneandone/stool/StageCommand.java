@@ -34,8 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class StageCommand extends SessionCommand {
-    protected long start;
-
     @Option("stage")
     private String stageClause;
 
@@ -172,14 +170,6 @@ public abstract class StageCommand extends SessionCommand {
     /** override this to change the default */
     protected List<Stage> defaultSelected(EnumerationFailed notUsed) throws IOException {
         return Collections.singletonList(selected());
-    }
-
-    protected void timeStart() {
-        start = System.currentTimeMillis();
-    }
-
-    protected long executionTime() {
-        return System.currentTimeMillis() - start;
     }
 
     /* @return true to use prefix stream */

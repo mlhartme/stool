@@ -72,7 +72,6 @@ public class Start extends StageCommand {
 
         serviceWrapperOpt(stage.config().tomcatService);
         download = tomcatOpt(stage.config().tomcatVersion);
-        timeStart();
         checkUntil(stage.config().until);
         checkCommitted(stage);
         checkNotStarted(stage);
@@ -88,8 +87,6 @@ public class Start extends StageCommand {
         }
         stage.start(console, ports);
         ping(stage);
-        stage.buildStats().start(executionTime());
-        stage.buildStats().save(session.gson);
         if (tail) {
             doTail(stage);
         }

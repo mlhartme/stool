@@ -19,6 +19,7 @@ import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -32,12 +33,12 @@ public class StageInfoCache {
         lastCacheRenew = 0L;
     }
 
-    public Collection<StageInfo> get(Session session, Users users) throws IOException, EnumerationFailed {
+    public Collection<StageInfo> get(FileNode logs, Session session, Users users) throws IOException, EnumerationFailed {
         if (stages == null || System.currentTimeMillis() - lastCacheRenew > 4000) {
             stages.clear();
             session.wipeStaleWrappers();
             for (Stage stage : session.listWithoutOverview()) {
-                stages.add(StageInfo.fromStage(stage, users));
+                stages.add(StageInfo.fromStage(logs, stage, users));
             }
             lastCacheRenew = System.currentTimeMillis();
         }

@@ -31,13 +31,6 @@ public class Stop extends StageCommand {
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
-        timeStart();
-        invokeNormal(stage);
-        stage.buildStats().stop(executionTime());
-        stage.buildStats().save(session.gson);
-    }
-
-    public void invokeNormal(Stage stage) throws Exception {
         boolean alreadySleeping;
         String name;
 

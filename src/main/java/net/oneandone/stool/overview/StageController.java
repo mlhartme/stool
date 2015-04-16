@@ -83,14 +83,14 @@ public class StageController {
     @RequestMapping(method = RequestMethod.GET)
     public Collection<StageInfo> stages()
             throws IOException, URISyntaxException, SAXException, NamingException, UserNotFound, EnumerationFailed {
-        return stages.get(session, users);
+        return stages.get(logs, session, users);
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
     public ModelAndView stagesAsHtml(ModelAndView modelAndView)
             throws SAXException, NamingException, UserNotFound, IOException, EnumerationFailed {
         modelAndView.setViewName("stages");
-        modelAndView.addObject("stages", stages.get(session, users));
+        modelAndView.addObject("stages", stages.get(logs, session, users));
 
         return modelAndView;
     }
@@ -101,14 +101,14 @@ public class StageController {
         Stage stage;
 
         stage = resolveStage(stageName);
-        return new ResponseEntity<>(StageInfo.fromStage(stage, users), HttpStatus.OK);
+        return new ResponseEntity<>(StageInfo.fromStage(logs, stage, users), HttpStatus.OK);
     }
 
     @RequestMapping(value = "{name}", method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
     public ModelAndView stageAsHtml(@PathVariable(value = "name") String stageName, ModelAndView modelAndView) throws Exception {
         List<StageInfo> stageInfos = new ArrayList<>();
         modelAndView.setViewName("stages");
-        for (StageInfo stageInfo : stages.get(session, users)) {
+        for (StageInfo stageInfo : stages.get(logs, session, users)) {
             if (stageName.equals(stageInfo.name)) {
                 stageInfos.add(stageInfo);
             }

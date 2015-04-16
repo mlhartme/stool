@@ -23,7 +23,7 @@ import net.oneandone.stool.stage.artifact.Change;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
-import net.oneandone.stool.util.BuildStats;
+import net.oneandone.sushi.fs.file.FileNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,7 +51,7 @@ public class StageInfo {
     public String state;
 
 
-    public static StageInfo fromStage(Stage stage, Users users) throws IOException {
+    public static StageInfo fromStage(FileNode logDir, Stage stage, Users users) throws IOException {
         StageInfo stageInfo;
         stageInfo = new StageInfo();
         stageInfo.name = stage.getName();
@@ -82,7 +82,7 @@ public class StageInfo {
         if (changes.size() > 0) {
             stageInfo.changes = changes;
         }
-        stageInfo.stats = stage.buildStats();
+        stageInfo.stats = BuildStats.load(logDir, stage);
         if (stageInfo.extractionUrl.contains("/trunk")) {
             stageInfo.category = "trunk";
         } else if (stageInfo.extractionUrl.contains("/branches")) {

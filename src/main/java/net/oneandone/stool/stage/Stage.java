@@ -21,7 +21,6 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.stage.artifact.Changes;
-import net.oneandone.stool.util.BuildStats;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.KeyStore;
 import net.oneandone.stool.util.Macros;
@@ -139,8 +138,6 @@ public abstract class Stage {
     /** user visible directory */
     protected FileNode directory;
     protected final StageConfiguration configuration;
-    /** lazy loading*/
-    private BuildStats lazyBuildstats;
     private Maven maven;
 
     //--
@@ -624,19 +621,6 @@ public abstract class Stage {
                 warProjects(modulePom, userProperties, profiles, result);
             }
         }
-    }
-    public BuildStats buildStats() throws IOException {
-        if (lazyBuildstats == null) {
-            FileNode file;
-
-            file = shared().join("buildstats.json");
-            if (file.exists()) {
-                lazyBuildstats = BuildStats.load(session.gson, file);
-            } else {
-                lazyBuildstats = new BuildStats(file);
-            }
-        }
-        return lazyBuildstats;
     }
 
     public boolean isOverview() {
