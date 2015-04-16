@@ -31,7 +31,11 @@ public class BuildStats {
         BuildStats result;
 
         file = logDir.join(stage.getName() + ".stats");
-        result = stage.session.gson.fromJson(file.readString(), BuildStats.class);
+        if (file.exists()) {
+            result = stage.session.gson.fromJson(file.readString(), BuildStats.class);
+        } else {
+            result = new BuildStats();
+        }
         result.file = file;
         result.gson = stage.session.gson;
         return result;
@@ -45,6 +49,29 @@ public class BuildStats {
         this.stats = new HashMap<>();
         this.file = null;
         this.gson = null;
+    }
+
+    public long getAvgStart() {
+        return get("start");
+    }
+    public long getAvgStop() {
+        return get("stop");
+    }
+    public long getAvgBuild() {
+        return get("build");
+    }
+    public long getAvgRefresh() {
+        return get("refresh");
+    }
+    public long getAvgRestart() {
+        return get("restart");
+    }
+
+    private long get(String command) {
+        Long result;
+
+        result = stats.get(command);
+        return result == null ? 0 : result;
     }
 
     public void save() throws IOException {
