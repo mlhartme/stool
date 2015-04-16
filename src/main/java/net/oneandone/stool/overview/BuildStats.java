@@ -32,7 +32,11 @@ public class BuildStats {
 
         file = logDir.join(stage.getName() + ".stats");
         if (file.exists()) {
-            result = stage.session.gson.fromJson(file.readString(), BuildStats.class);
+            try {
+                result = stage.session.gson.fromJson(file.readString(), BuildStats.class);
+            } catch (IOException e) {
+                throw new IOException(file + ": cannot read build stats: " + e.getMessage(), e);
+            }
         } else {
             result = new BuildStats();
         }
