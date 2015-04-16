@@ -17,6 +17,7 @@ package net.oneandone.stool.util;
 
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
+import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -105,15 +106,17 @@ public class KeyStore {
 
     private FileNode doDownload(String getUrl) throws IOException {
         StringWriter output;
+        FileNode tmp;
+        Launcher launcher;
         output = new StringWriter();
+
+        tmp = workDir.getWorld().getTemp().createTempDirectory();
+        launcher = tmp.launcher("wget", "--no-check-certificate", getUrl, "-O", tmp.join("cert.zip").getAbsolute());
         try {
-            FileNode tmp;
-            tmp = workDir.getWorld().getTemp().createTempDirectory();
-            tmp.launcher("wget", "--no-check-certificate", getUrl, "-O", tmp.join("cert.zip")
-                    .getAbsolute()).exec(output);
+            launcher.exec(output);
             return tmp.join("cert.zip");
         } catch (Failure e) {
-            throw new IOException(e.getMessage() + output.toString(), e.getCause());
+            throw new IOException(launcher.toString() + " failed:\n" + e.getMessage() + output.toString(), e.getCause());
         }
     }
 
