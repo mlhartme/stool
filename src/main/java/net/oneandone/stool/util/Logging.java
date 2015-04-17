@@ -123,7 +123,7 @@ public class Logging {
             }
         };
         result.setContext(context);
-        result.setName("stoolAppender");
+        result.setName(logger + "-appender");
         result.setEncoder(encoder(logger));
         result.setAppend(true);
         result.setFile(stool.getAbsolute());
@@ -169,13 +169,14 @@ public class Logging {
                 for (int i = 0, max = message.length(); i < max; i++) {
                     c = message.charAt(i);
                     switch (c) {
+                        case '\r':
+                            writer.append("\\r");
+                            break;
                         case '\n':
-                            writer.append('\\');
-                            writer.append('\n');
+                            writer.append("\\n");
                             break;
                         case '\\':
-                            writer.append('\\');
-                            writer.append('\\');
+                            writer.append("\\\\");
                             break;
                         default:
                             writer.append(c);
@@ -183,6 +184,7 @@ public class Logging {
                     }
                 }
                 writer.append('\n');
+                writer.flush();
             }
 
             @Override
