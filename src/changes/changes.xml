@@ -69,7 +69,7 @@
         Added mode and logroot context parameter to Pustefix extension.
       </action>
       <action date="2015-03-21" dev="mlhartme" type="update">
-        Moved Pustefix Editor into a new Pustefix extension.
+        Moved Pustefix Editor code into a new PustefixEditor extension.
       </action>
       <action date="2015-03-21" dev="mlhartme" type="add">
         Added extensions.
