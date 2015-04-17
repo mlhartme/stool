@@ -27,10 +27,10 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class Update {
@@ -77,7 +77,7 @@ public class Update {
         return result;
     }
 
-    private static final SimpleDateFormat FMT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
 
     private static List<Release> list(Console console) throws IOException {
         JsonArray releases;
@@ -86,7 +86,7 @@ public class Update {
         JsonObject release;
         JsonArray assets;
         JsonObject asset;
-        Date date;
+        LocalDateTime date;
 
         result = new ArrayList<>();
         tmp = console.world.getTemp().createTempFile();
@@ -100,8 +100,8 @@ public class Update {
             }
             asset = (JsonObject) assets.get(0);
             try {
-                date = FMT.parse(asset.get("created_at").getAsString());
-            } catch (ParseException e) {
+                date = LocalDateTime.parse(asset.get("created_at").getAsString(), FMT);
+            } catch (DateTimeParseException e) {
                 throw new IOException("invalid date: " + e.getMessage(), e);
             }
             result.add(new Release(asset.get("name").getAsString(), date, asset.get("browser_download_url").getAsString()));
@@ -111,10 +111,10 @@ public class Update {
 
     public static class Release {
         public final String name;
-        public final Date date;
+        public final LocalDateTime date;
         public final String url;
 
-        public Release(String name, Date date, String url) {
+        public Release(String name, LocalDateTime date, String url) {
             this.name = name;
             this.date = date;
             this.url = url;

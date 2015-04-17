@@ -31,19 +31,19 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.time.format.DateTimeFormatter;
 
 public class Logging {
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyMMdd-");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-");
 
     public static Logging forHome(FileNode home, String user) throws IOException {
         String today;
         String id;
         Logging result;
 
-        today = DATE_FORMAT.format(new Date());
+        today = DATE_FORMAT.format(LocalDate.now());
         id = Integer.toString(id(home.join("logs"), today));
         result = new Logging(id, home.join("logs/stool.log"), user);
         result.configureRootLogger();

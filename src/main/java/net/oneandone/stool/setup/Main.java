@@ -35,7 +35,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -169,7 +169,7 @@ public class Main extends Cli implements Command {
         FileNode timestamp;
         FileNode link;
 
-        timestamp = home.join("bin/stool-" + Install.FMT.format(new Date()) + ".jar");
+        timestamp = home.join("bin/stool-" + Install.FMT.format(LocalDateTime.now()) + ".jar");
         link = home.join("bin/stool.jar");
         console.info.println("Ready for incremental upgrade of " + home.getAbsolute() + " from version " + old + " to " + version);
         console.info.println("A " + timestamp);

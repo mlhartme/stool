@@ -32,8 +32,8 @@ import net.oneandone.sushi.io.OS;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -103,12 +103,12 @@ public class Install {
         return home.join("downloads");
     }
 
-    public static final SimpleDateFormat FMT = new SimpleDateFormat("yyMMdd-hhmmss");
+    public static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd-hhmmss");
 
     private void copyResources(Map<String, String> variables) throws IOException {
         String jar;
 
-        jar = "stool-" + FMT.format(new Date()) + ".jar";
+        jar = "stool-" + FMT.format(LocalDateTime.now()) + ".jar";
         Files.template(home.getWorld().resource("templates/stool"), home, variables);
         if (fromJar) {
             console.world.locateClasspathItem(getClass()).copyFile(home.join("bin", jar));

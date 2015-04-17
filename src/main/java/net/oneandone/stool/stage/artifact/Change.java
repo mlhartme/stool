@@ -15,19 +15,19 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class Change {
     private final long revision;
     private final String user;
     private final String message;
-    private final Date date;
+    private final long timestamp;
 
     public Change(long revision, String user, String message, long timestamp) {
         this.revision = revision;
         this.user = user;
         this.message = message;
-        this.date = new Date(timestamp);
+        this.timestamp = timestamp;
     }
 
     public long getRevision() {
@@ -42,8 +42,8 @@ public class Change {
         return message;
     }
 
-    public Date getDate() {
-        return date;
+    public long getTimestamp() {
+        return timestamp;
     }
 
     @Override
@@ -52,8 +52,7 @@ public class Change {
 
         if (o instanceof Change) {
             change = (Change) o;
-            return (revision == change.revision && date.equals(change.date)
-              && eq(message, change.message) && eq(user, change.user));
+            return (revision == change.revision && timestamp == change.timestamp) && eq(message, change.message) && eq(user, change.user);
         }
         return true;
     }
