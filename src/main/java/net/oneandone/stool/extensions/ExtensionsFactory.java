@@ -58,7 +58,7 @@ public class ExtensionsFactory {
         extensions = new Extensions();
         for (Map.Entry<String, Class<? extends Extension>> entry : types.entrySet()) {
             try {
-                extensions.add(entry.getKey(), entry.getValue().newInstance());
+                extensions.add(entry.getKey(), false, entry.getValue().newInstance());
             } catch (InstantiationException | IllegalAccessException e) {
                 throw new IllegalArgumentException("cannot instantiate extension " + entry.getValue().getName()
                         + ": " + e.getMessage(), e);
@@ -76,6 +76,7 @@ public class ExtensionsFactory {
         for (Map.Entry<String, Class<? extends Extension>> entry : types.entrySet()) {
             name = entry.getKey();
             extension = entry.getValue();
+            result.put(name, new Property(name, "enable extension", Switch.FIELD, name));
             for (Field field : extension.getDeclaredFields()) {
                 modifiers = field.getModifiers();
                 if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {

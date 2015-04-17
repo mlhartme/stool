@@ -1,5 +1,7 @@
 package net.oneandone.stool.configuration;
 
+import net.oneandone.stool.extensions.Switch;
+
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +29,7 @@ public class Property {
     public Object get(StageConfiguration configuration) {
         return doGet(configuration);
     }
-    public Object doGet(Object configuration) {
+    private Object doGet(Object configuration) {
         try {
             return field.get(object(configuration));
         } catch (IllegalAccessException e) {
@@ -77,16 +79,20 @@ public class Property {
     }
 
     private Object object(Object configuration) {
-        Object object;
+        Switch s;
 
         if (extension == null) {
-            object = configuration;
+            return configuration;
         } else {
-            object = ((StageConfiguration) configuration).extensions.get(extension);
-            if (object == null) {
+            s = ((StageConfiguration) configuration).extensions.get(extension);
+            if (s == null) {
                 throw new IllegalStateException("missing extension: " + extension);
             }
+            if (name.equals(extension)) {
+                return s;
+            } else {
+                return s.extension;
+            }
         }
-        return object;
     }
 }

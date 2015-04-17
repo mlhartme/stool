@@ -14,16 +14,12 @@ import java.util.Map;
 public class Fitnesse implements Extension {
     private static final String FITNESSSE = "fitnesse";
 
-    private boolean enabled;
-
     @Override
     public Map<String, FileNode> vhosts(Stage stage) {
         Map<String, FileNode> result;
 
         result = new HashMap<>();
-        if (enabled) {
-            result.put(FITNESSSE, null);
-        }
+        result.put(FITNESSSE, null);
         return result;
     }
 
@@ -33,12 +29,10 @@ public class Fitnesse implements Extension {
         Ports ports;
         int port;
 
-        if (enabled) {
-            console = stage.session.console;
-            ports = stage.loadPortsOpt();
-            port = ports.lookup(FITNESSSE).httpPort();
-            console.info.println("start port " + port);
-        }
+        console = stage.session.console;
+        ports = stage.loadPortsOpt();
+        port = ports.lookup(FITNESSSE).httpPort();
+        console.info.println("start port " + port);
     }
 
     @Override
@@ -47,12 +41,10 @@ public class Fitnesse implements Extension {
         Ports ports;
         int port;
 
-        if (enabled) {
-            console = stage.session.console;
-            ports = stage.loadPortsOpt();
-            port = ports.lookup(FITNESSSE).httpPort();
-            console.info.println("stop port " + port);
-        }
+        console = stage.session.console;
+        ports = stage.loadPortsOpt();
+        port = ports.lookup(FITNESSSE).httpPort();
+        console.info.println("stop port " + port);
     }
 
     @Override

@@ -26,6 +26,7 @@ import com.google.gson.stream.JsonWriter;
 import net.oneandone.stool.extensions.Extension;
 import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.extensions.ExtensionsFactory;
+import net.oneandone.stool.extensions.Switch;
 
 import java.io.IOException;
 import java.util.Map;
@@ -50,12 +51,16 @@ public class ExtensionsAdapter extends TypeAdapter<Extensions> {
         this.gson = gson;
         this.factory = factory;
     }
+
     @Override
     public void write(JsonWriter out, Extensions value) throws IOException {
+        Switch s;
+
         out.beginObject();
-        for (Map.Entry<String, Extension> entry : value.extensions.entrySet()) {
-            out.name(entry.getKey());
-            Streams.write(gson.toJsonTree(entry.getValue()), out);
+        for (Map.Entry<String, Switch> entry : value.extensions.entrySet()) {
+            s = entry.getValue();
+            out.name(s.marker() + entry.getKey());
+            Streams.write(gson.toJsonTree(s.extension), out);
         }
         out.endObject();
     }
@@ -63,15 +68,17 @@ public class ExtensionsAdapter extends TypeAdapter<Extensions> {
     @Override
     public Extensions read(JsonReader in) throws IOException {
         Extensions extensions;
+        String str;
         String name;
         Extension extension;
 
         extensions = new Extensions();
         in.beginObject();
         while (in.peek() == JsonToken.NAME) {
-            name = in.nextName();
+            str = in.nextName();
+            name = str.substring(1);
             extension = gson.fromJson(in, factory.type(name));
-            extensions.add(name, extension);
+            extensions.add(name, str.startsWith("+"), extension);
         }
         in.endObject();
         return extensions;

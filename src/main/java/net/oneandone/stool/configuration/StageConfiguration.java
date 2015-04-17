@@ -23,6 +23,7 @@ import net.oneandone.sushi.fs.Node;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -149,7 +150,9 @@ public class StageConfiguration {
     }
 
     public void save(Gson gson, Node wrapper) throws IOException {
-        configurationFile(wrapper).writeString(gson.toJson(this));
+        try (Writer writer = configurationFile(wrapper).createWriter()) {
+            gson.toJson(this, writer);
+        }
     }
 }
 

@@ -7,18 +7,20 @@ import net.oneandone.sushi.xml.XmlException;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
-public class Extensions implements Iterable<Extension> {
-    public final Map<String, Extension> extensions;
+public class Extensions {
+    public final Map<String, Switch> extensions;
 
     public Extensions() {
         this.extensions = new HashMap<>();
     }
 
-    public void add(String name, Extension extension) {
-        if (extensions.put(name, extension) != null) {
+    public void add(String name, boolean enabled, Extension extension) {
+        if (extension == null) {
+            throw new IllegalArgumentException();
+        }
+        if (extensions.put(name, new Switch(enabled, extension)) != null) {
             throw new IllegalArgumentException("duplicate extension: " + name);
         }
     }
@@ -27,21 +29,27 @@ public class Extensions implements Iterable<Extension> {
         Map<String, FileNode> result;
 
         result = new HashMap<>();
-        for (Extension extension : extensions.values()) {
-            result.putAll(extension.vhosts(stage));
+        for (Switch s : extensions.values()) {
+            if (s.enabled) {
+                result.putAll(s.extension.vhosts(stage));
+            }
         }
         return result;
     }
 
     public void beforeStart(Stage stage, Collection<String> apps) throws IOException {
-        for (Extension extension : extensions.values()) {
-            extension.beforeStart(stage, apps);
+        for (Switch s : extensions.values()) {
+            if (s.enabled) {
+                s.extension.beforeStart(stage, apps);
+            }
         }
     }
 
     public void beforeStop(Stage stage) throws IOException {
-        for (Extension extension : extensions.values()) {
-            extension.beforeStop(stage);
+        for (Switch s : extensions.values()) {
+            if (s.enabled) {
+                s.extension.beforeStop(stage);
+            }
         }
     }
 
@@ -50,18 +58,15 @@ public class Extensions implements Iterable<Extension> {
         Map<String, String> result;
 
         result = new HashMap<>();
-        for (Extension extension : extensions.values()) {
-            extension.contextParameter(stage, host, httpPort, webinf, result);
+        for (Switch s : extensions.values()) {
+            if (s.enabled) {
+                s.extension.contextParameter(stage, host, httpPort, webinf, result);
+            }
         }
         return result;
     }
 
-    @Override
-    public Iterator<Extension> iterator() {
-        return extensions.values().iterator();
-    }
-
-    public Object get(String extension) {
+    public Switch get(String extension) {
         return extensions.get(extension);
     }
 }
