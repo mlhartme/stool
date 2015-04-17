@@ -16,10 +16,10 @@
 package net.oneandone.stool.configuration;
 
 import net.oneandone.sushi.cli.ArgumentException;
-import org.joda.time.DateTime;
-import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class Until {
     public static Until reserved() {
@@ -31,7 +31,7 @@ public class Until {
     }
 
     public static Until withOffset(int days) {
-        return new Until(DateTime.now().plusDays(days));
+        return new Until(LocalDate.now().plusDays(days));
     }
 
     public static Until fromString(String input) {
@@ -43,41 +43,35 @@ public class Until {
     }
 
     public static Until fromHuman(String input) {
-        Until until;
-
-        until = Until.withDefaultOffset();
         if (null == input) {
             throw new IllegalArgumentException();
         }
         if (input.equals("reserved")) {
-            until.date = null;
+            return new Until(null);
         } else {
-            until.date = parse(input);
+            return new Until(parse(input));
         }
-        return until;
     }
 
     //--
 
     /** null stands for 'reserved' */
-    private DateTime date;
+    private final LocalDate date;
 
-    public Until(DateTime date) {
+    public Until(LocalDate date) {
         this.date = date;
-    }
-
-    public boolean expired() {
-        return date != null && DateTime.now().isAfter(date);
     }
 
     public boolean isReserved() {
         return date == null;
     }
 
+    public boolean expired() {
+        return isBefore(0);
+    }
 
     public boolean isBefore(int days) {
-        return date != null && date.isBefore(DateTime.now().minus(Period.days(days)));
-
+        return date != null && date.isBefore(LocalDate.now().minusDays(days));
     }
 
     @Override
@@ -85,28 +79,19 @@ public class Until {
         if (isReserved()) {
             return "reserved";
         } else {
-            return date.toString(LONG_FORMAT);
+            return FORMAT.format(date);
         }
     }
 
     //--
 
-    private static final String SHORT_PATTERN = "yyyy-MM-dd";
-    private static final String LONG_PATTERN = "yyyy-MM-dd H:mm";
-    private static final DateTimeFormatter SHORT_FORMAT =  DateTimeFormat.forPattern(SHORT_PATTERN);
-    private static final DateTimeFormatter LONG_FORMAT = DateTimeFormat.forPattern(LONG_PATTERN);
+    private static final DateTimeFormatter FORMAT =  DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    private static synchronized DateTime parse(String input) {
+    private static LocalDate parse(String input) {
         try {
-            return DateTime.parse(input, LONG_FORMAT);
-        } catch (IllegalArgumentException e) {
-            // fall-through
+            return LocalDate.parse(input, FORMAT);
+        } catch (DateTimeParseException e) {
+            throw new ArgumentException("invalid date. Expected format: " + FORMAT.toString() + ", got " + input);
         }
-        try {
-            return DateTime.parse(input, SHORT_FORMAT);
-        } catch (IllegalArgumentException e) {
-            // fall-through
-        }
-        throw new ArgumentException("invalid date. Expected format: " + LONG_PATTERN + " or " + SHORT_PATTERN + ", got " + input);
     }
 }

@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class Logging {
@@ -158,8 +159,7 @@ public class Logging {
                 String message;
                 char c;
 
-                // TODO: thread safe?
-                writer.append(LogEntry.FMT.print(event.getTimeStamp())).append('|');
+                writer.append(LogEntry.FMT.format(LocalDateTime.now())).append('|');
                 writer.append(id).append('|');
                 writer.append(logger).append('|');
                 writer.append(user).append('|');

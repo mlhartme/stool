@@ -22,9 +22,11 @@ import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.NodeNotFoundException;
 import net.oneandone.sushi.fs.file.FileNode;
-import org.joda.time.DateTime;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class Cleanup extends StageCommand {
 
     public Cleanup(Session session) {
@@ -60,7 +62,9 @@ public class Cleanup extends StageCommand {
         }
     }
 
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
+
     public Node archiveDirectory(Node node) throws MkdirException {
-        return node.getParent().join("archive", new DateTime().toString("yyyy-MM-dd_HH-mm-ss")).mkdirsOpt();
+        return node.getParent().join("archive", FMT.format(LocalDateTime.now())).mkdirsOpt();
     }
 }

@@ -21,7 +21,8 @@ import net.oneandone.stool.util.LogReader;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
-import org.joda.time.format.DateTimeFormat;
+
+import java.time.format.DateTimeFormatter;
 
 public class History extends StageCommand {
     public History(Session session) {
@@ -65,7 +66,7 @@ public class History extends StageCommand {
                 if (entry.stageId.equals(stageId)) {
                     if (header != null) {
                         counter++;
-                        console.info.println("[" + counter + "] " + header.dateTime.toString(DateTimeFormat.shortDateTime()) + " " + header.user + ": " + header.message);
+                        console.info.println("[" + counter + "] " + LogEntry.FMT.format(header.dateTime) + " " + header.user + ": " + header.message);
                         id = header.id;
                         header = null;
                     }
