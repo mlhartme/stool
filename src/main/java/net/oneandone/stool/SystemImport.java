@@ -182,32 +182,7 @@ public class SystemImport extends SessionCommand {
 
         dest = session.home.join(path);
         current = dest.readString();
-        result = mergeConfig(oldHome.join(path).readString(), current,
-                new Object() {
-                    void sharedBinRemove() {}
-                    void versionRemove() {}
-                    void stagesRemove() {}
-                    // because values are all-strings no (e.g. in tomcat.select)
-                    void defaultsRemove() {}
-
-                    String portPrefixFirstRename() {
-                        return "portFirst";
-                    }
-                    JsonElement portPrefixFirstTransform(JsonElement orig) {
-                        return new JsonPrimitive(orig.getAsInt() * 10);
-                    }
-
-                    String portPrefixLastRename() {
-                        return "portLast";
-                    }
-                    JsonElement portPrefixLastTransform(JsonElement orig) {
-                        return new JsonPrimitive(orig.getAsInt() * 10 + 9);
-                    }
-
-                    String autoremoveRename() {
-                        return "autoRemove";
-                    }
-                });
+        result = mergeConfig(oldHome.join(path).readString(), current, stool30_31());
         diff = Diff.diff(current, result);
         return new Patch("M " + dest.getAbsolute(), diff) {
             public void apply() throws IOException {
@@ -240,11 +215,7 @@ public class SystemImport extends SessionCommand {
         stage.initialize();
         tmpConfig = tmpWrapper.join("config.json");
         tmp = tmpConfig.readString();
-        tmp = mergeConfig(oldWrapper.join("config.json").readString(), tmp,
-                // 2.13 -> 3.0 changes
-                new Object() {
-                    void portPrefixRemove() {}
-                });
+        tmp = mergeConfig(oldWrapper.join("config.json").readString(), tmp, stage30_31());
         tmpConfig.writeString(tmp);
         explicit(tmpConfig);
         msg = Diff.diff(oldWrapper.join("config.json").readString(), tmp);
@@ -374,4 +345,53 @@ public class SystemImport extends SessionCommand {
 
         public abstract void apply() throws IOException;
     }
+
+    //-- Mapper Code
+
+    private static Object stage30_31() {
+        return new Object() {
+        };
+    }
+
+    private static Object stool30_31() {
+        return new Object() {
+        };
+    }
+
+    // TODO: unused
+    private static Object stage23_30() {
+        return new Object() {
+            void portPrefixRemove() {}
+        };
+    }
+
+    // TODO: unused
+    private static Object stool23_30() {
+        return new Object() {
+            void sharedBinRemove() {}
+            void versionRemove() {}
+            void stagesRemove() {}
+            // because values are all-strings no (e.g. in tomcat.select)
+            void defaultsRemove() {}
+
+            String portPrefixFirstRename() {
+                return "portFirst";
+            }
+            JsonElement portPrefixFirstTransform(JsonElement orig) {
+                return new JsonPrimitive(orig.getAsInt() * 10);
+            }
+
+            String portPrefixLastRename() {
+                return "portLast";
+            }
+            JsonElement portPrefixLastTransform(JsonElement orig) {
+                return new JsonPrimitive(orig.getAsInt() * 10 + 9);
+            }
+
+            String autoremoveRename() {
+                return "autoRemove";
+            }
+        };
+    }
+
 }
