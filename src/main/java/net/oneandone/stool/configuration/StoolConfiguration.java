@@ -178,11 +178,7 @@ public class StoolConfiguration {
                     if (property == null) {
                         throw new IllegalStateException("unknown property: " + inner.getKey());
                     }
-                    try {
-                        property.set(configuration, inner.getValue());
-                    } catch (NoSuchFieldException e) {
-                        throw new IllegalStateException("TODO: " + inner.getKey(), e);
-                    }
+                    property.set(configuration, inner.getValue());
                 }
             }
         }

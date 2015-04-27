@@ -37,7 +37,7 @@ public class Property {
         }
     }
 
-    public void set(Object configuration, Object strOrMap) throws NoSuchFieldException {
+    public void set(Object configuration, Object strOrMap) {
         Object value;
         Class type;
         String str;

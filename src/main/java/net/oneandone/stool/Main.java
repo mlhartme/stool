@@ -309,7 +309,7 @@ public class Main extends Cli implements Command {
         console.info.println("  system-stop [-sleep] ................  stops the overviews and sends stages to sleep.");
         console.info.println("  system-start [-awake] ...............  starts the overview and awakes stages");
         console.info.println("  system-validate ..... ...............  checks for inconsistencies and new stool versions");
-        console.info.println("  system-import [-include all|config|stages] <old-home> {name}");
+        console.info.println("  system-import [-include all|config|stages] <old-home> {name|key=value}");
         console.info.println("                                         imports global config and the specified stages (default: all)");
         console.info.println();
         console.info.println("select options for stage commands");

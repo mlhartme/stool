@@ -22,6 +22,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
 import net.oneandone.stool.configuration.Bedroom;
+import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
@@ -75,22 +76,29 @@ public class SystemImport extends SessionCommand {
 
     private final List<FileNode> oldWrappers = new ArrayList<>();
 
-    private final Map<String, String> explicitProperties = new HashMap<>();
+    private final Map<Property, String> explicitProperties = new HashMap<>();
 
     @Remaining
-    public void select(String name) {
+    public void stageOrExplicitProperty(String str) {
         int idx;
         FileNode wrapper;
+        String key;
+        Property property;
 
-        idx = name.indexOf('=');
+        idx = str.indexOf('=');
         if (idx == -1) {
-            wrapper = oldHome.join("wrappers", name);
+            wrapper = oldHome.join("wrappers", str);
             if (!wrapper.isDirectory()) {
                 throw new ArgumentException("old stage not found: " + wrapper.getAbsolute());
             }
             oldWrappers.add(wrapper);
         } else {
-            explicitProperties.put(name.substring(0, idx), name.substring(idx + 1));
+            key = str.substring(0, idx);
+            property = StageConfiguration.properties(session.extensionsFactory).get(key);
+            if (property == null) {
+                throw new ArgumentException("property not found: " + key);
+            }
+            explicitProperties.put(property, str.substring(idx + 1));
         }
     }
 
@@ -256,12 +264,16 @@ public class SystemImport extends SessionCommand {
         };
     }
 
-    private static void explicit(FileNode file) throws IOException {
+    private void explicit(FileNode file) throws IOException {
         StageConfiguration config;
 
-        // TODO
-        config = StageConfiguration.load(null, file);
+        config = StageConfiguration.load(session.gson, file);
+        for (Map.Entry<Property, String> entry : explicitProperties.entrySet()) {
+            entry.getKey().set(config, entry.getValue());
+        }
+        config.save(session.gson, file);
     }
+
     public static String mergeConfig(String srcString, String destString, Object mapper) throws IOException {
         JsonParser parser;
         JsonObject src;
