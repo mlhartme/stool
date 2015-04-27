@@ -63,7 +63,7 @@
         Added a unique id to the stage status.
       </action>
       <action date="2015-03-26" dev="mlhartme" type="update">
-        Dump stage specific stool logs. Instead the global stool log contains stage info now.
+        Dumped stage specific stool logs. Instead the global stool log contains stage info now.
       </action>
       <action date="2015-03-26" dev="mlhartme" type="update">
         Moved shared/applogs to shared/tomcat/logs/applogs
