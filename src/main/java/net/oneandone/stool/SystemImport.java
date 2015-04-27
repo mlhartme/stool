@@ -22,6 +22,7 @@ import com.google.gson.JsonPrimitive;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
 import net.oneandone.stool.configuration.Bedroom;
+import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Session;
@@ -39,6 +40,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -73,15 +75,23 @@ public class SystemImport extends SessionCommand {
 
     private final List<FileNode> oldWrappers = new ArrayList<>();
 
+    private final Map<String, String> explicitProperties = new HashMap<>();
+
     @Remaining
     public void select(String name) {
+        int idx;
         FileNode wrapper;
 
-        wrapper = oldHome.join("wrappers", name);
-        if (!wrapper.isDirectory()) {
-            throw new ArgumentException("old stage not found: " + wrapper.getAbsolute());
+        idx = name.indexOf('=');
+        if (idx == -1) {
+            wrapper = oldHome.join("wrappers", name);
+            if (!wrapper.isDirectory()) {
+                throw new ArgumentException("old stage not found: " + wrapper.getAbsolute());
+            }
+            oldWrappers.add(wrapper);
+        } else {
+            explicitProperties.put(name.substring(0, idx), name.substring(idx + 1));
         }
-        oldWrappers.add(wrapper);
     }
 
     @Override
@@ -228,6 +238,7 @@ public class SystemImport extends SessionCommand {
                     void portPrefixRemove() {}
                 });
         tmpConfig.writeString(tmp);
+        explicit(tmpConfig);
         msg = Diff.diff(oldWrapper.join("config.json").readString(), tmp);
         if (msg.isEmpty()) {
             // make sure the message is not empty, because we have to move the file
@@ -245,6 +256,12 @@ public class SystemImport extends SessionCommand {
         };
     }
 
+    private static void explicit(FileNode file) throws IOException {
+        StageConfiguration config;
+
+        // TODO
+        config = StageConfiguration.load(null, file);
+    }
     public static String mergeConfig(String srcString, String destString, Object mapper) throws IOException {
         JsonParser parser;
         JsonObject src;

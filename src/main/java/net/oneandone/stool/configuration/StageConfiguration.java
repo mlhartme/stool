@@ -31,6 +31,16 @@ import java.util.List;
 import java.util.Map;
 
 public class StageConfiguration {
+    public static Node file(Node wrapper) throws ExistsException {
+        return wrapper.isDirectory() ? wrapper.join("config.json") : wrapper;
+    }
+
+    public static StageConfiguration load(Gson gson, Node file) throws IOException {
+        try (Reader reader = file.createReader()) {
+            return gson.fromJson(reader, StageConfiguration.class);
+        }
+    }
+
     public static Map<String, Property> properties(ExtensionsFactory extensions) {
         Map<String, Property> result;
         Option option;
@@ -139,18 +149,8 @@ public class StageConfiguration {
         this.extensions = extensions;
     }
 
-    public static StageConfiguration load(Gson gson, Node wrapper) throws IOException {
-        try (Reader reader = configurationFile(wrapper).createReader()) {
-            return gson.fromJson(reader, StageConfiguration.class);
-        }
-    }
-
-    public static Node configurationFile(Node wrapper) throws ExistsException {
-        return wrapper.isDirectory() ? wrapper.join("config.json") : wrapper;
-    }
-
-    public void save(Gson gson, Node wrapper) throws IOException {
-        try (Writer writer = configurationFile(wrapper).createWriter()) {
+    public void save(Gson gson, Node file) throws IOException {
+        try (Writer writer = file.createWriter()) {
             gson.toJson(this, writer);
         }
     }

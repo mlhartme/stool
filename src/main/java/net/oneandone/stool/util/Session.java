@@ -432,11 +432,11 @@ public class Session {
 
 
     public void saveStageProperties(StageConfiguration stageConfiguration, Node wrapper) throws IOException {
-        stageConfiguration.save(gson, wrapper);
+        stageConfiguration.save(gson, StageConfiguration.file(wrapper));
     }
 
     public StageConfiguration loadStageConfiguration(Node wrapper) throws IOException {
-        return StageConfiguration.load(gson, wrapper);
+        return StageConfiguration.load(gson, StageConfiguration.file(wrapper));
     }
 
     //-- stool properties

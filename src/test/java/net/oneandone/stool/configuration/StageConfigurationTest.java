@@ -22,7 +22,7 @@ public class StageConfigurationTest {
         factory = ExtensionsFactory.create(world);
         gson = Session.gson(world, factory);
         configuration = new StageConfiguration("a", "b", "c", factory.newInstance());
-        tmp = world.getTemp().createTempDirectory();
+        tmp = world.getTemp().createTempFile();
         configuration.save(gson, tmp);
         StageConfiguration.load(gson, tmp);
     }
