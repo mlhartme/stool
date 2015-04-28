@@ -416,7 +416,17 @@ public class Session {
 
 
     public void chown(Stage stage, String newOwner) throws Failure {
-        new Launcher(home, "sudo", bin("chowntree.sh").getAbsolute(), newOwner, stage.wrapper.getAbsolute(), stage.getDirectory().getAbsolute()).exec(console.info);
+        chown(newOwner, stage.wrapper, stage.getDirectory());
+    }
+
+    public void chown(String newOwner, FileNode ... dirs) throws Failure {
+        Launcher launcher;
+
+        launcher = new Launcher(home, "sudo", bin("chowntree.sh").getAbsolute(), newOwner);
+        for (FileNode dir : dirs) {
+            launcher.arg(dir.getAbsolute();
+        }
+        launcher.exec(console.info);
     }
 
     /** session lock */

@@ -228,8 +228,7 @@ public class SystemImport extends SessionCommand {
             public void apply() throws IOException {
                 tmpWrapper.move(destWrapper);
                 if (session.configuration.shared) {
-                    // TODO: half of the command is a no-op because the stage directory is already owned
-                    session.chown(stage, stage.owner());
+                    session.chown(stage.owner(), destWrapper);
                 }
             }
         };
