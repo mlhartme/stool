@@ -424,7 +424,7 @@ public class Session {
 
         launcher = new Launcher(home, "sudo", bin("chowntree.sh").getAbsolute(), newOwner);
         for (FileNode dir : dirs) {
-            launcher.arg(dir.getAbsolute();
+            launcher.arg(dir.getAbsolute());
         }
         launcher.exec(console.info);
     }
