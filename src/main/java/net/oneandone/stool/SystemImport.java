@@ -351,8 +351,20 @@ public class SystemImport extends SessionCommand {
     private static Object stage30_31() {
         return new Object() {
             JsonElement untilTransform(JsonElement orig) {
-                return new JsonPrimitive(orig.getAsInt() * 10);
+                String str;
+                int idx;
+
+                str = orig.getAsString();
+                idx = str.indexOf(' ');
+                if (idx != -1) {
+                    str = str.substring(0, idx);
+                } else {
+                    // reserved
+                }
+                return new JsonPrimitive(str);
             }
+            // TODO
+            void modeRemove() {}
         };
     }
 
