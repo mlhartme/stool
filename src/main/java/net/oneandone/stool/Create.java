@@ -15,9 +15,6 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.pommes.cli.Environment;
-import net.oneandone.pommes.model.Database;
-import net.oneandone.pommes.model.Pom;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.ArtifactStage;
@@ -30,11 +27,11 @@ import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.cli.Value;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
-import org.apache.lucene.queryparser.flexible.core.QueryNodeException;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -132,30 +129,20 @@ public class Create extends SessionCommand {
         session.select(stage);
     }
 
-    private String url() throws IOException, URISyntaxException, QueryNodeException {
-        Database database;
+    private String url() throws IOException {
         String substring;
         List<String> urls;
         String input;
         int no;
-        String url;
 
         if (!urlOrSearch.startsWith("%")) {
             return Strings.removeRightOpt(urlOrSearch, "/");
         }
         console.info.println("Searching pommes ...");
         substring = urlOrSearch.substring(1);
-        database = Database.load(console.world).downloadOpt();
-        urls = new ArrayList<>();
-        for (Pom pom : database.query(substring, new Environment(console.world))) {
-            url = pom.projectUrl();
-            if (url != null) {
-                url = Strings.removeRight(url, "/");
-                urls.add(url);
-            }
-        }
+        urls = pommes(console.world, substring);
         if (urls.size() == 0) {
-            throw new ArgumentException("search not found: " + substring);
+            throw new ArgumentException("not found: " + substring);
         }
         for (int i = urls.size(); i > 0; --i) {
             console.info.println("[" + i + "] " + urls.get(i - 1));
@@ -171,7 +158,7 @@ public class Create extends SessionCommand {
         }
     }
 
-    private void defaults(String url) throws IOException, URISyntaxException, QueryNodeException {
+    private void defaults(String url) throws IOException {
         FileNode parent;
 
         if (directory == null) {
@@ -265,5 +252,20 @@ public class Create extends SessionCommand {
             }
         }
         return stage;
+    }
+
+    public static List<String> pommes(World world, String search) throws IOException {
+        FileNode working;
+        List<String> result;
+
+        working = (FileNode) world.getWorking();
+        result = new ArrayList<>();
+        for (String line : Separator.RAW_LINE.split(working.exec("bash", "--login", "-c", "pommes find -format %o " + search))) {
+            line = line.trim();
+            line = Strings.removeRightOpt(line.trim(), "/pom.xml");
+            line = Strings.removeLeftOpt(line, "svn:");
+            result.add(line);
+        }
+        return result;
     }
 }
