@@ -256,7 +256,7 @@ public abstract class Stage {
     }
 
     /** @return vhost to docroot mapping, where vhost is artifactId + "." + stageName, to uniquely identify the host */
-    protected abstract Map<String, FileNode> hosts() throws IOException;
+    public abstract Map<String, FileNode> hosts() throws IOException;
 
     public Map<String, FileNode> selectedHosts() throws IOException {
         Map<String, FileNode> hosts;

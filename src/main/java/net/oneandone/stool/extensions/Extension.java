@@ -9,7 +9,11 @@ import java.util.Collection;
 import java.util.Map;
 
 public interface Extension {
-    Map<String, FileNode> vhosts(Stage stage);
+    /**
+     * @return vhost names mapped to a docroot. Docroot may be null which indicates that this vhost must not be added
+     * to the tomcat configration (this is useful to only allocate ports)
+     */
+    Map<String, FileNode> vhosts(Stage stage) throws IOException;
 
     /**
      *  @param apps urls of all applications (http and - if cert generation is configured - https)

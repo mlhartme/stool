@@ -27,6 +27,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+/** Manage ports used for one stage */
 public class Ports {
     // TODO: ugly reference to stage ...
     public static Ports allocate(Stage stage) throws IOException {

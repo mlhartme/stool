@@ -161,7 +161,7 @@ public class ArtifactStage extends Stage {
     }
 
     @Override
-    protected Map<String, FileNode> hosts() {
+    public Map<String, FileNode> hosts() {
         Map<String, FileNode> result;
         FileNode dir;
 

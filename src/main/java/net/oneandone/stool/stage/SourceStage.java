@@ -77,7 +77,7 @@ public class SourceStage extends Stage {
     }
 
     @Override
-    protected Map<String, FileNode> hosts() throws IOException {
+    public Map<String, FileNode> hosts() throws IOException {
         Map<String, FileNode> applications;
 
         applications = new LinkedHashMap<>();

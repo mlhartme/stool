@@ -25,7 +25,7 @@ public class Extensions {
         }
     }
 
-    public Map<String, FileNode> vhosts(Stage stage) {
+    public Map<String, FileNode> vhosts(Stage stage) throws IOException {
         Map<String, FileNode> result;
 
         result = new HashMap<>();
