@@ -72,7 +72,7 @@ public class Fitnesse implements Extension {
             port = host.httpPort();
             String url = findUrl(host);
             String projectDir = findProjectDir(ports, host);
-            stage.launcher("sh",projectDir + "/src/test/resources/fitnesse-stop.sh", url, String.valueOf(port), projectDir).exec(console.info,console.error);
+            stage.launcher("sh", projectDir + "/src/test/resources/fitnesse-stop.sh", url, String.valueOf(port), projectDir).exec(console.info,console.error);
             console.info.println("fitnesse stop: " + url.concat(":" + port));
         }
     }
