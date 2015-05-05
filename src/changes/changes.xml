@@ -2,7 +2,7 @@
   <body>
     <release version="3.1.0" date="2015-03-27">
       <action date="2015-05-05" dev="mlhartme" type="update">
-        Shrink application file by calling pommes as an external executable.
+        Shrink application file by 1) calling pommes as an external executable, and 2) dumping svnkit,
       </action>
       <action date="2015-04-17" dev="mlhartme" type="add">
         Added explicit properties for system-import.

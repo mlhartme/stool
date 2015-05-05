@@ -226,12 +226,6 @@
       <version>14.0.1</version>
     </dependency>
 
-    <dependency>
-      <groupId>org.tmatesoft.svnkit</groupId>
-      <artifactId>svnkit</artifactId>
-      <version>1.8.5</version>
-    </dependency>
-
     <!-- test -->
     <dependency>
       <groupId>junit</groupId>

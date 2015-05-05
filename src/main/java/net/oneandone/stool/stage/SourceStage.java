@@ -21,7 +21,6 @@ import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
-import net.oneandone.sushi.fs.svn.SvnNode;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.aether.artifact.DefaultArtifact;
 
@@ -39,7 +38,7 @@ public class SourceStage extends Stage {
     }
     public static SourceStage forLocal(Session session, FileNode wrapper, FileNode stage, StageConfiguration configuration)
             throws IOException {
-        return forUrl(session, wrapper, stage, SvnNode.urlFromWorkspace(stage), configuration);
+        return forUrl(session, wrapper, stage, session.subversion().checkoutUrl(stage), configuration);
     }
 
     //--

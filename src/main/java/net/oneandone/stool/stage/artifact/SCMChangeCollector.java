@@ -17,11 +17,6 @@ package net.oneandone.stool.stage.artifact;
 
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
-import org.tmatesoft.svn.core.SVNException;
-import org.tmatesoft.svn.core.SVNLogEntry;
-import org.tmatesoft.svn.core.SVNURL;
-import org.tmatesoft.svn.core.io.SVNRepository;
-import org.tmatesoft.svn.core.wc.SVNClientManager;
 
 import javax.naming.NamingException;
 import java.io.IOException;
@@ -57,34 +52,11 @@ public class SCMChangeCollector {
     }
 
     public Changes collect() throws IOException, NamingException, UserNotFound {
+        Changes changes;
 
-        SVNClientManager clientManager = SVNClientManager.newInstance();
-        SVNRepository repository = null;
-
-        try {
-            Changes changes;
-            repository = clientManager.createRepository(SVNURL.parseURIEncoded(url), true);
-            changes = new Changes();
-            Collection log = repository.log(new String[]{""}, null, revisionA, revisionB, true, true);
-            for (Object entry : log) {
-                if (entry instanceof SVNLogEntry) {
-                    SVNLogEntry logEntry = (SVNLogEntry) entry;
-                    Change change;
-                    change = new Change(logEntry.getRevision(), users.byLogin(logEntry.getAuthor()).name,
-                      logEntry.getMessage(), logEntry.getDate().getTime());
-                    changes.add(change);
-                }
-            }
-            return changes;
-        } catch (SVNException e) {
-            throw new IOException(e);
-        } finally {
-            if (repository != null) {
-                repository.closeSession();
-            }
-            clientManager.dispose();
-        }
-
+        // TODO
+        changes = new Changes();
+        return changes;
     }
 
 }
