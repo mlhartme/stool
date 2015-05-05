@@ -2,6 +2,8 @@ package net.oneandone.stool.extensions;
 
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Ports;
+import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.util.Strings;
@@ -41,9 +43,14 @@ public class PustefixEditor implements Extension {
     }
 
     @Override
-    public void beforeStart(Stage stage, Collection<String> apps) throws IOException {
+    public void beforeStart(Stage stage) throws IOException {
+        Ports ports;
+        Session session;
+
+        ports = stage.loadPortsOpt();
         userdata(stage);
-        editorDirectory(stage, apps);
+        session = stage.session;
+        editorDirectory(stage, ports.urlMap(!session.configuration.certificates.isEmpty(), session.configuration.vhosts, stage.config().suffix).values());
     }
 
     @Override

@@ -10,7 +10,6 @@ import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.xml.XmlException;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,7 +31,7 @@ public class Fitnesse implements Extension {
     }
 
     @Override
-    public void beforeStart(Stage stage, Collection<String> apps) throws IOException {
+    public void beforeStart(Stage stage) throws IOException {
         Console console;
         Ports ports;
         Host host;

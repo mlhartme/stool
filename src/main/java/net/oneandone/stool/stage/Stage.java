@@ -339,7 +339,7 @@ public abstract class Stage {
         extensions = extensions();
         serverXml.configure(ports, keystore, config().cookies, this);
         serverXml.save(serverXml());
-        extensions.beforeStart(this, ports.urlMap(keystore != null, session.configuration.vhosts, config().suffix).values());
+        extensions.beforeStart(this);
         catalina("start").exec(console.verbose);
         pidFile = runningTomcat();
         if (pidFile == null) {

@@ -29,7 +29,7 @@ public class Pustefix implements Extension {
     private static final String APPLOGS = "tomcat/logs/applogs";
 
     @Override
-    public void beforeStart(Stage stage, Collection<String> apps) throws IOException {
+    public void beforeStart(Stage stage) throws IOException {
         Files.stoolDirectory(stage.shared().join(APPLOGS).mkdirOpt());
     }
 

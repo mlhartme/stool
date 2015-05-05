@@ -37,10 +37,10 @@ public class Extensions {
         return result;
     }
 
-    public void beforeStart(Stage stage, Collection<String> apps) throws IOException {
+    public void beforeStart(Stage stage) throws IOException {
         for (Switch s : extensions.values()) {
             if (s.enabled) {
-                s.extension.beforeStart(stage, apps);
+                s.extension.beforeStart(stage);
             }
         }
     }

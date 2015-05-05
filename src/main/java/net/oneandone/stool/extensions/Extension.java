@@ -15,10 +15,7 @@ public interface Extension {
      */
     Map<String, FileNode> vhosts(Stage stage) throws IOException;
 
-    /**
-     *  @param apps urls of all applications (http and - if cert generation is configured - https)
-     */
-    void beforeStart(Stage stage, Collection<String> apps) throws IOException;
+    void beforeStart(Stage stage) throws IOException;
 
     void beforeStop(Stage stage) throws IOException;
 
