@@ -152,7 +152,7 @@ public class StoolConfiguration {
         mailUsername = "";
         mailPassword = "";
         certificates = "";
-        updateInterval = 0;
+        updateInterval = 10;
         this.downloads = downloads;
     }
 

@@ -26,7 +26,12 @@ public class Stop extends StageCommand {
     private boolean sleep;
 
     public Stop(Session session) throws IOException {
+        this(session, false);
+    }
+
+    public Stop(Session session, boolean sleep) throws IOException {
         super(session);
+        this.sleep = sleep;
     }
 
     @Override

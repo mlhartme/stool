@@ -17,43 +17,36 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.StandbyHandler;
-import net.oneandone.sushi.cli.Option;
 
 import java.io.IOException;
+import java.util.List;
 
-public class SystemStart extends SessionCommand {
-
+public class SystemStartStop extends StageCommand {
     private final Session session;
-    @Option("awake")
-    private boolean awake;
+    private final boolean start;
 
-    public SystemStart(Session session) {
+    public SystemStartStop(Session session, boolean start) {
         super(session);
         this.session = session;
+        this.start = start;
+    }
+
+    protected List<Stage> defaultSelected(EnumerationFailed problems) throws IOException {
+        return all(problems);
     }
 
     @Override
-    public void doInvoke() throws Exception {
-        overview();
-        if (awake) {
-            awake();
-        }
-    }
-    private void awake() throws IOException {
-        StandbyHandler standbyHandler;
-
-        standbyHandler = StandbyHandler.with(session);
-        standbyHandler.awake();
-    }
-
-
-    private void overview() throws IOException {
-        Overview overview;
-
-        overview = Overview.initiate(session);
-        if (overview.stage().state().equals(Stage.State.DOWN)) {
-            overview.start();
+    public void doInvoke(Stage stage) throws Exception {
+        if (start) {
+            if (stage.isOverview() || stage.state() == Stage.State.SLEEPING) {
+                session.console.info.println("[" + stage.getName() + "]");
+                new Start(stage.session, false, false).doInvoke(stage);
+            }
+        } else {
+            if (stage.state() == Stage.State.UP) {
+                session.console.info.println("[" + stage.getName() + "]");
+                new Stop(stage.session, true).doInvoke(stage);
+            }
         }
     }
 }

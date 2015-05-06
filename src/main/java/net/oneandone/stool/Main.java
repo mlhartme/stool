@@ -242,14 +242,13 @@ public class Main extends Cli implements Command {
     }
 
     @Child("system-start")
-    public SystemStart systemStart() throws IOException {
-        return new SystemStart(session());
+    public SystemStartStop systemStart() throws IOException {
+        return new SystemStartStop(session(), true);
     }
 
-
     @Child("system-stop")
-    public SystemStop systemStop() throws IOException {
-        return new SystemStop(session());
+    public SystemStartStop systemStop() throws IOException {
+        return new SystemStartStop(session(), false);
     }
 
     @Child("system-validate")
@@ -306,7 +305,7 @@ public class Main extends Cli implements Command {
         console.info.println(
           "  list  ...............................  prints a short status of the selected stages; default selection is -all");
         console.info.println("admin commands:");
-        console.info.println("  system-stop [-sleep] ................  stops the overviews and sends stages to sleep.");
+        console.info.println("  system-stop [-sleep] ................  stops the overviews and sends all stages to sleep.");
         console.info.println("  system-start [-awake] ...............  starts the overview and awakes stages");
         console.info.println("  system-validate ..... ...............  checks for inconsistencies and new stool versions");
         console.info.println("  system-import [-include all|config|stages] <old-home> {name|key=value}");
