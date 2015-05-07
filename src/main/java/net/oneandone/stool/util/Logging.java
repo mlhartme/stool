@@ -58,12 +58,16 @@ public class Logging {
     private String stageId;
     private String stageName;
 
-    public Logging(String id, FileNode stool, String user) {
+    public Logging(String id, FileNode stool, String user) throws IOException {
         this.id = id;
         this.context = (LoggerContext) LoggerFactory.getILoggerFactory();
         this.stool = stool;
         this.user = user;
         setStage("", "");
+        if (!stool.exists()) {
+            stool.writeBytes();
+            Files.stoolFile(stool);
+        }
     }
 
     public void setStage(String id, String name) {
@@ -102,7 +106,7 @@ public class Logging {
         return result;
     }
 
-    private RollingFileAppender appender(String logger) throws IOException {
+    private RollingFileAppender appender(String logger) {
         RollingFileAppender result;
         TimeBasedRollingPolicy policy;
 
@@ -138,10 +142,6 @@ public class Logging {
         result.setRollingPolicy(policy);
         result.start();
 
-        if (!stool.exists()) {
-            stool.writeBytes();
-            Files.stoolFile(stool);
-        }
         return result;
     }
 

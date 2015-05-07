@@ -117,9 +117,8 @@ public class SystemImport extends SessionCommand {
             throw new ArgumentException("cannot import from myself");
         }
         console.info.println();
-        console.info.println("CAUTION: import has the following limitations:");
+        console.info.println("CAUTION: import has the following known limitations:");
         console.info.println("  * 'defaults' are not migrated");
-        console.info.println("  * 'portPrefixes' are gone, your stage will run under a new port");
         console.info.println();
         oldBedroom = Bedroom.loadOrCreate(session.gson, oldHome);
         newBedroom = Bedroom.loadOrCreate(session.gson, session.home);
