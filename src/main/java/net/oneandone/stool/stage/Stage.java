@@ -470,9 +470,7 @@ public abstract class Stage {
         return launcher;
     }
 
-    //TODO: Maybe rename
-    public void prepareRefresh(Console console) throws IOException {
-    }
+    public abstract boolean refreshAvailable(Console console) throws IOException;
 
     public void restoreFromBackup(Console console) throws IOException {
         console.info.println("Nothing to restore.");
@@ -483,8 +481,9 @@ public abstract class Stage {
     }
 
     public void refresh(Console console) throws IOException {
-        prepareRefresh(console);
-        executeRefresh(console);
+        if (refreshAvailable(console)) {
+            executeRefresh(console);
+        }
     }
 
     //--
