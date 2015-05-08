@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.overview.config;
 
-import net.oneandone.stool.Chown;
-import net.oneandone.stool.Refresh;
 import net.oneandone.stool.overview.StoolCallable;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
@@ -41,30 +39,15 @@ public class PrepareRefresh extends TimerTask {
 
     @Override
     public void run() {
-        Refresh refresh;
-        Chown chown;
-
         try {
             for (Stage stage : session.listWithoutOverview()) {
                 if (stage.config().autoRefresh) {
-                    if (!stage.owner().equals(session.user)) {
-                        chown = new Chown(session, true);
-                        chown.doInvoke(stage);
-                    }
-                    refresh = new Refresh(session, true, true, false);
-                    refresh.prepare(stage);
-                    if (stage.updateAvailable()) {
-                        executeUpdate(stage);
-                    }
+                    StoolCallable.create(UUID.randomUUID().toString(), logs, stage, "refresh", "-soft").call();
                 }
             }
         } catch (Exception e) {
             printWriter.println("Error while preparing refresh: " + e.getCause());
             e.printStackTrace(printWriter);
         }
-    }
-
-    public void executeUpdate(Stage stage) throws Exception {
-        StoolCallable.create(UUID.randomUUID().toString(), logs, stage, "refresh", "-usePrepared").call();
     }
 }

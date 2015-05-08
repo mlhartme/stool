@@ -112,7 +112,7 @@ public class ArtifactStage extends Stage {
         for (Application application : applications.applications()) {
             application.currentFile().getParent().mkdir();
         }
-        refresh(console, true);
+        refresh(console);
     }
 
     @Override

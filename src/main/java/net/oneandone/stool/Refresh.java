@@ -37,26 +37,11 @@ public class Refresh extends StageCommand {
     @Option("prepare")
     private boolean prepare;
 
-    @Option("usePrepared")
-    private boolean usePrepare;
-
     @Option("restore")
     private boolean restore;
 
     public Refresh(Session session) throws IOException {
         super(session);
-    }
-
-    public Refresh(Session session, boolean build, boolean usePrepare, boolean restore) throws IOException {
-        super(session);
-        this.build = build;
-        this.usePrepare = usePrepare;
-        this.restore = restore;
-    }
-
-    public Refresh(Session session, boolean prepare) throws IOException {
-        super(session);
-        this.prepare = prepare;
     }
 
     @Override
@@ -93,11 +78,7 @@ public class Refresh extends StageCommand {
             chowned = null;
         }
         console.info.println("updating " + stage.getDirectory());
-        if (usePrepare) {
-            stage.executeRefresh(console);
-        } else {
-            stage.refresh(console, !usePrepare);
-        }
+        stage.refresh(console);
         if (build) {
             new Build(session).doInvoke(stage);
         }

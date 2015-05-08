@@ -482,13 +482,10 @@ public abstract class Stage {
         launcher(Strings.toArray(Separator.SPACE.split(config().refresh))).exec(console.info);
     }
 
-    public void refresh(Console console, boolean forcePrepare) throws IOException {
-        if (forcePrepare) {
-            prepareRefresh(console);
-        }
+    public void refresh(Console console) throws IOException {
+        prepareRefresh(console);
         executeRefresh(console);
     }
-
 
     //--
 
