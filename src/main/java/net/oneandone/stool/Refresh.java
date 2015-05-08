@@ -34,9 +34,6 @@ public class Refresh extends StageCommand {
     @Option("debug")
     private boolean debug;
 
-    @Option("prepare")
-    private boolean prepare;
-
     @Option("restore")
     private boolean restore;
 
@@ -46,17 +43,11 @@ public class Refresh extends StageCommand {
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
-        if (prepare) {
-            prepare(stage);
-        } else if (restore) {
+        if (restore) {
             stage.restoreFromBackup(console);
         } else {
             invokeNormal(stage);
         }
-    }
-
-    public void prepare(Stage stage) throws IOException {
-        stage.prepareRefresh(console);
     }
 
     public void invokeNormal(Stage stage) throws Exception {
