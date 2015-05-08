@@ -16,7 +16,6 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -29,18 +28,9 @@ import java.util.List;
 public class Overview {
     public static final String OVERVIEW_NAME = "overview";
     private final Session session;
-    private Stage stage;
 
     public Overview(Session session) {
         this.session = session;
-    }
-
-    public static Overview initiate(Session session) throws IOException {
-        Overview overview;
-
-        overview = new Overview(session);
-        overview.stage = overview.loadOverview();
-        return overview;
     }
 
     public static void createOverview(Session session) throws IOException {
@@ -76,45 +66,8 @@ public class Overview {
         return Separator.COMMA.join(keys);
     }
 
-    public Stage stage() {
-        return stage;
-    }
-
-    /**
-     * Starts the overview
-     */
-    public void start() throws IOException {
-        try {
-            if (stage.state() == Stage.State.DOWN) {
-                new Start(session, false, false).doInvoke(stage);
-            }
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
-    }
-
-    public void refresh() throws Exception {
-        session.console.verbose.println("Refreshing " + OVERVIEW_NAME);
-        new Refresh(session).doInvoke(stage);
-    }
-
-    private Stage loadOverview() throws IOException {
-        return Stage.load(session, overviewWrapper(session), overviewDirectory(session));
-    }
-
-    private static FileNode overviewWrapper(Session session) {
-        return session.wrappers.join(OVERVIEW_NAME);
-    }
-
     private static FileNode overviewDirectory(Session session) {
         return session.home.join(OVERVIEW_NAME);
     }
 
-    public void stop() throws IOException {
-        try {
-            new Stop(session).doInvoke(stage);
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
-    }
 }
