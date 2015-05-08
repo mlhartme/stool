@@ -60,12 +60,12 @@ public class Install {
         this.globalProperties = globalProperties;
     }
 
-    public Session invoke(String user) throws Exception {
+    public Session invoke(String user, String overviewUser) throws Exception {
         Session session;
 
         createHome();
         session = Session.load(Logging.forHome(home, user), user, "setup-stool", environment, console, null);
-        Overview.createOverview(session);
+        Overview.createOverview(session, overviewUser);
         return session;
     }
 

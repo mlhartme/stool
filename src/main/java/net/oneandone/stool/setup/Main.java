@@ -58,6 +58,9 @@ public class Main extends Cli implements Command {
     @Option("batch")
     private boolean batch;
 
+    @Option("overviewUser")
+    private String overviewUser;
+
     private final Environment environment;
 
     /** maps to String or Map<String, String> */
@@ -105,6 +108,9 @@ public class Main extends Cli implements Command {
         Version old;
 
         user = System.getProperty("user.name");
+        if (overviewUser == null) {
+            overviewUser = user;
+        }
         version = versionObject();
         if (home == null) {
             printHelp();
@@ -130,14 +136,14 @@ public class Main extends Cli implements Command {
                 }
                 incrementalUpgrade(old, version);
             } else {
-                fullUpgrade(user, old, version, environment);
+                fullUpgrade(user, overviewUser, old, version, environment);
             }
         } else {
             console.info.println("Ready to install Stool " + version + " to " + home.getAbsolute());
             if (!batch) {
                 console.pressReturn();
             }
-            new Install(true, console, environment, config).invoke(user);
+            new Install(true, console, environment, config).invoke(user, overviewUser);
             console.info.println("Done. To complete the installation:");
             console.info.println("1. add");
             console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
@@ -146,7 +152,7 @@ public class Main extends Cli implements Command {
         }
     }
 
-    private void fullUpgrade(String user, Version old, Version version, Environment environment) throws Exception {
+    private void fullUpgrade(String user, String overviewUser, Version old, Version version, Environment environment) throws Exception {
         RmRfThread cleanup;
         Session session;
 
@@ -155,7 +161,7 @@ public class Main extends Cli implements Command {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
-        session = new Install(true, console, environment, config).invoke(user);
+        session = new Install(true, console, environment, config).invoke(user, overviewUser);
         new SystemImport(session, oldHome).invoke();
 
         Runtime.getRuntime().removeShutdownHook(cleanup);

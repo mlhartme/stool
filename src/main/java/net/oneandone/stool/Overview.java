@@ -33,7 +33,8 @@ public class Overview {
         this.session = session;
     }
 
-    public static void createOverview(Session session) throws IOException {
+    /** @param user is intentionally not session.user */
+    public static void createOverview(Session session, String user) throws IOException {
         Create create;
         String url;
         String tomcatOpts;
@@ -46,7 +47,7 @@ public class Overview {
         if (!tomcatOpts.isEmpty()) {
             tomcatOpts += " ";
         }
-        tomcatOpts += "-Doverview.stool.home=" + session.home.getAbsolute() + " -Doverview.user.name=" + session.user;
+        tomcatOpts += "-Doverview.stool.home=" + session.home.getAbsolute() + " -Doverview.user.name=" + user;
         create.remaining("tomcat.opts=" + tomcatOpts);
         create.remaining("until=reserved");
         create.remaining("tomcat.env=" + environment());
