@@ -26,15 +26,15 @@ import java.io.PrintWriter;
 import java.util.TimerTask;
 import java.util.UUID;
 
-public class PrepareRefresh extends TimerTask {
+public class RefreshTask extends TimerTask {
     private final Session session;
     private final FileNode logs;
     private final PrintWriter printWriter;
 
-    public PrepareRefresh(Session session, FileNode logs) {
+    public RefreshTask(Session session, FileNode logs) {
         this.session = session;
         this.logs = logs;
-        this.printWriter = new PrintWriter(new Slf4jOutputStream(LoggerFactory.getLogger(PrepareRefresh.class), false));
+        this.printWriter = new PrintWriter(new Slf4jOutputStream(LoggerFactory.getLogger(RefreshTask.class), false));
     }
 
     @Override
@@ -42,7 +42,7 @@ public class PrepareRefresh extends TimerTask {
         try {
             for (Stage stage : session.listWithoutOverview()) {
                 if (stage.config().autoRefresh) {
-                    StoolCallable.create(UUID.randomUUID().toString(), logs, stage, "refresh", "-soft").call();
+                    StoolCallable.create(UUID.randomUUID().toString(), logs, stage, "refresh").call();
                 }
             }
         } catch (Exception e) {
