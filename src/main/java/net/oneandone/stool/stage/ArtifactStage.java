@@ -112,13 +112,12 @@ public class ArtifactStage extends Stage {
         for (Application application : applications.applications()) {
             application.currentFile().getParent().mkdir();
         }
-        if (refreshAvailable(console)) {
-            executeRefresh(console);
-        }
+        refreshPending(console);
+        executeRefresh(console);
     }
 
     @Override
-    public boolean refreshAvailable(Console console) throws IOException {
+    public boolean refreshPending(Console console) throws IOException {
         boolean result;
 
         result = false;
@@ -146,9 +145,7 @@ public class ArtifactStage extends Stage {
 
     @Override
     public void executeRefresh(Console console) throws IOException {
-
         for (Application application : applications.applications()) {
-
             if (application.updateAvalable()) {
                 application.update();
             }

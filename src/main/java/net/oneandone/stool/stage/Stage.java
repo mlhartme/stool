@@ -470,7 +470,7 @@ public abstract class Stage {
         return launcher;
     }
 
-    public abstract boolean refreshAvailable(Console console) throws IOException;
+    public abstract boolean refreshPending(Console console) throws IOException;
 
     public void restoreFromBackup(Console console) throws IOException {
         console.info.println("Nothing to restore.");

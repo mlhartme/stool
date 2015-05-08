@@ -62,7 +62,7 @@ public class SourceStage extends Stage {
         return false;
     }
 
-    public boolean refreshAvailable(Console console) {
+    public boolean refreshPending(Console console) {
         return false;
     }
 

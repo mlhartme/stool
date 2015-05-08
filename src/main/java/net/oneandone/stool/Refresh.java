@@ -56,12 +56,14 @@ public class Refresh extends StageCommand {
         String chowned;
 
         me = session.user;
-        if (!stage.owner().equals(me)) {
-            chowned = stage.owner();
-            session.chown(stage, me);
-        } else {
-            chowned = null;
+
+        // Performance hack -- avoid restart without stanges
+        // Note that refreshAvailable needs to be owner, so this tweak is unavailable for not-owned stages
+        if (!build && !stop && stage.owner().equals(me) && !stage.refreshPending(console)) {
+            console.info.println("nothing to do");
+            return;
         }
+
 
         if (stage.state() == Stage.State.UP) {
             new Stop(session).doInvoke(stage);
@@ -69,8 +71,15 @@ public class Refresh extends StageCommand {
         } else {
             stopped = false;
         }
+        if (stage.owner().equals(me)) {
+            chowned = null;
+        } else {
+            chowned = stage.owner();
+            session.chown(stage, me);
+        }
+
         console.info.println("updating " + stage.getDirectory());
-        if (stage.refreshAvailable(console)) {
+        if (stage.refreshPending(console)) {
             stage.executeRefresh(console);
         }
         if (build) {
