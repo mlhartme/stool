@@ -15,10 +15,12 @@
  */
 package net.oneandone.stool.setup;
 
-import net.oneandone.stool.Overview;
+import net.oneandone.stool.Create;
 import net.oneandone.stool.configuration.Property;
+import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Logging;
@@ -28,13 +30,17 @@ import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -65,7 +71,7 @@ public class Install {
 
         createHome();
         session = Session.load(Logging.forHome(home, user), user, "setup-stool", environment, console, null);
-        Overview.createOverview(session, overviewUser);
+        createOverview(session, overviewUser);
         return session;
     }
 
@@ -163,4 +169,45 @@ public class Install {
             throw new ArgumentException("invalid configuration");
         }
     }
+
+    //--
+
+    /** @param user is intentionally not session.user */
+    public static void createOverview(Session session, String user) throws IOException {
+        Create create;
+        String url;
+        String tomcatOpts;
+        StageConfiguration stageConfiguration;
+
+        stageConfiguration = session.createStageConfiguration("");
+        url = "gav:overview:overview:@overview";
+        create = new Create(session, true, Stage.OVERVIEW_NAME, url, overviewDirectory(session), stageConfiguration);
+        tomcatOpts = session.createStageConfiguration(url).tomcatOpts;
+        if (!tomcatOpts.isEmpty()) {
+            tomcatOpts += " ";
+        }
+        tomcatOpts += "-Doverview.stool.home=" + session.home.getAbsolute() + " -Doverview.user.name=" + user;
+        create.remaining("tomcat.opts=" + tomcatOpts);
+        create.remaining("until=reserved");
+        create.remaining("tomcat.env=" + environment());
+        try {
+            create.doInvoke();
+        } catch (Exception e) {
+            throw new IOException(e);
+        }
+    }
+
+    // make sure the overview sees all environment variables, because the build command expects this environment
+    private static String environment() {
+        List<String> keys;
+
+        keys = new ArrayList<>(System.getenv().keySet());
+        Collections.sort(keys);
+        return Separator.COMMA.join(keys);
+    }
+
+    private static FileNode overviewDirectory(Session session) {
+        return session.home.join(Stage.OVERVIEW_NAME);
+    }
+
 }

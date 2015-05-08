@@ -58,6 +58,8 @@ import java.util.Properties;
  * Concrete implementations are SourceStage or ArtifactStage.
  */
 public abstract class Stage {
+    public static final String OVERVIEW_NAME = "overview";
+
     public static Stage load(Session session, FileNode wrapper) throws IOException {
         return load(session, session.loadStageConfiguration(wrapper), wrapper, (FileNode) Stage.anchor(wrapper).resolveLink());
     }
