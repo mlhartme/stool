@@ -56,20 +56,23 @@ public class Refresh extends StageCommand {
         String chowned;
 
         me = session.user;
-        if (stage.state() == Stage.State.UP) {
-            new Stop(session).doInvoke(stage);
-            stopped = true;
-        } else {
-            stopped = false;
-        }
         if (!stage.owner().equals(me)) {
             chowned = stage.owner();
             session.chown(stage, me);
         } else {
             chowned = null;
         }
+
+        if (stage.state() == Stage.State.UP) {
+            new Stop(session).doInvoke(stage);
+            stopped = true;
+        } else {
+            stopped = false;
+        }
         console.info.println("updating " + stage.getDirectory());
-        stage.refresh(console);
+        if (stage.refreshAvailable(console)) {
+            stage.executeRefresh(console);
+        }
         if (build) {
             new Build(session).doInvoke(stage);
         }

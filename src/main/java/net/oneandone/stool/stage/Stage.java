@@ -480,12 +480,6 @@ public abstract class Stage {
         launcher(Strings.toArray(Separator.SPACE.split(config().refresh))).exec(console.info);
     }
 
-    public void refresh(Console console) throws IOException {
-        if (refreshAvailable(console)) {
-            executeRefresh(console);
-        }
-    }
-
     //--
 
     public void tuneConfiguration() throws IOException {
