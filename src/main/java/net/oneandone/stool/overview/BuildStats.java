@@ -37,6 +37,9 @@ public class BuildStats {
             } catch (IOException e) {
                 throw new IOException(file + ": cannot read build stats: " + e.getMessage(), e);
             }
+            if (result == null) {
+                throw new IllegalStateException("empty build stats: " + file);
+            }
         } else {
             result = new BuildStats();
         }
