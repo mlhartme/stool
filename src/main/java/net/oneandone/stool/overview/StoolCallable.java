@@ -64,7 +64,7 @@ public class StoolCallable implements Callable<Failure> {
         time = System.currentTimeMillis();
         launcher = new Launcher(logDir);
         if (su) {
-            launcher.arg("sudo", "-u", runAs, "-E");
+            launcher.arg("sudo", "-u", runAs);
         }
         launcher.arg(home.join("bin/stool-raw.sh").getAbsolute(), command, "-stage", stage.getName());
         launcher.arg(options);
