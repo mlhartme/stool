@@ -46,7 +46,7 @@ public class RefreshTask extends TimerTask {
                 }
             }
         } catch (Exception e) {
-            printWriter.println("Error while preparing refresh: " + e.getCause());
+            printWriter.println("Error refreshing: " + e.getCause());
             e.printStackTrace(printWriter);
         }
     }

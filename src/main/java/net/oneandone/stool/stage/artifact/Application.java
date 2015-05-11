@@ -59,13 +59,9 @@ public class Application {
     }
 
     public DefaultArtifact artifact() throws IOException {
-        updateArtifactVersion();
-        return artifact;
-    }
+        String version;
 
-    public void updateArtifactVersion() throws IOException {
         try {
-            String version;
             if (artifact.getVersion().equals("@latest")) {
                 version = maven.latestRelease(artifact);
                 artifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "war", version);
@@ -73,6 +69,7 @@ public class Application {
         } catch (VersionRangeResolutionException e) {
             throw new IOException(e);
         }
+        return artifact;
     }
 
     public WarFile currentWarFile() throws IOException {
