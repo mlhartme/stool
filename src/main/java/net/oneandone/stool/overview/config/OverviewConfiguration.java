@@ -51,7 +51,7 @@ public class OverviewConfiguration {
 
     @Bean
     public String user() {
-        return System.getProperty("overview.user.name");
+        return System.getProperty("user.name");
     }
 
     @Bean

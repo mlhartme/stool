@@ -33,10 +33,9 @@ public class XMLChangeCollector {
         Changes changes;
 
         message = new StringBuilder();
-        message.append("dummy change\n").append(current.version()).append(" -> ").append(future.version());
+        message.append(current.version()).append(" -> ").append(future.version());
         changes = new Changes();
         changes.add(new Change(0, "Changes", message.toString(), System.currentTimeMillis()));
         return changes;
     }
-
 }

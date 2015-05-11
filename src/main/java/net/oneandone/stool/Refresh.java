@@ -60,7 +60,7 @@ public class Refresh extends StageCommand {
         // Performance hack -- avoid restart without stanges
         // Note that refreshAvailable needs to be owner, so this tweak is unavailable for not-owned stages
         if (!build && !stop && stage.owner().equals(me) && !stage.refreshPending(console)) {
-            console.info.println("nothing to do");
+            console.info.println("nothing to refresh");
             return;
         }
 

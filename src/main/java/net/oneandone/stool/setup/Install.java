@@ -66,12 +66,12 @@ public class Install {
         this.globalProperties = globalProperties;
     }
 
-    public Session invoke(String user, String overviewUser) throws Exception {
+    public Session invoke(String user) throws Exception {
         Session session;
 
         createHome();
         session = Session.load(Logging.forHome(home, user), user, "setup-stool", environment, console, null);
-        createOverview(session, overviewUser);
+        createOverview(session);
         return session;
     }
 
@@ -172,8 +172,7 @@ public class Install {
 
     //--
 
-    /** @param user is intentionally not session.user */
-    public static void createOverview(Session session, String user) throws IOException {
+    public static void createOverview(Session session) throws IOException {
         Create create;
         String url;
         String tomcatOpts;
@@ -186,7 +185,7 @@ public class Install {
         if (!tomcatOpts.isEmpty()) {
             tomcatOpts += " ";
         }
-        tomcatOpts += "-Doverview.stool.home=" + session.home.getAbsolute() + " -Doverview.user.name=" + user;
+        tomcatOpts += "-Doverview.stool.home=" + session.home.getAbsolute();
         create.remaining("tomcat.opts=" + tomcatOpts);
         create.remaining("until=reserved");
         create.remaining("tomcat.env=" + environment());

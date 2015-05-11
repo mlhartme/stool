@@ -69,6 +69,7 @@ public class StoolCallable implements Callable<Failure> {
         launcher.arg(home.join("bin/stool-raw.sh").getAbsolute(), command, "-stage", stage.getName());
         launcher.arg(options);
         try (PrintWriter writer = new PrintWriter(logDir.join(id + ".log").createWriter())) {
+            writer.println(launcher.toString());
             try {
                 launcher.exec(writer);
             } catch (Failure e) {

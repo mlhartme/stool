@@ -98,7 +98,7 @@ public class ArtifactStage extends Stage {
 
     @Override
     public String getDefaultBuildCommand() {
-        return "echo nothing to do";
+        return "echo nothing to build";
     }
 
     public void populateDirectory(Console console) throws IOException {

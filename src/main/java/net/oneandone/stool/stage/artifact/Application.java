@@ -169,8 +169,6 @@ public class Application {
             currentFile().copy(backupFile());
             console.info.println("Backup for " + artifactId() + " created.");
         }
-
-
     }
 
     public boolean updateAvalable() throws IOException {
