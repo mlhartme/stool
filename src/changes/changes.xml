@@ -23,8 +23,9 @@
         Moved home/sessions to home/conf/users
       </action>
       <action date="2015-04-14" dev="mlhartme" type="update">
-        Moved home/stool.aquire and home/sleep.json to home/conf/stool.lock and home/conf/sleep.json to fix security problem:
-        the home directory cannot be group writeable, userwise, every group member can move away the bin directory an create his own bin.
+        Moved home/stool.aquire and home/sleep.json to home/conf/stool.lock and home/conf/sleep.json to fix security problems:
+        the home directory cannot be group writeable, otherwise, every group member can move away the bin directory an replace it with his
+        own.
       </action>
       <action date="2015-04-10" dev="mlhartme" type="update">
         Compile Stool for Java 8.
