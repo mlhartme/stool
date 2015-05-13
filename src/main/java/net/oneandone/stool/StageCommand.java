@@ -94,6 +94,11 @@ public abstract class StageCommand extends SessionCommand {
                 }
                 session.logging.setStage(stage.config().id, stage.getName());
                 doInvoke(stage);
+            } catch (ArgumentException e) {
+                if (fail == Fail.NORMAL) {
+                    throw e;
+                }
+                failures.add(stage.getWrapper(), e);
             } catch (Error | RuntimeException e) {
                 console.error.println(stage.getName() + ": " + e.getMessage());
                 throw e;
