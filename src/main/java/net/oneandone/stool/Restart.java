@@ -25,6 +25,9 @@ public class Restart extends StageCommand {
     @Option("debug")
     private boolean debug = false;
 
+    @Option("suspend")
+    private boolean suspend = false;
+
     public Restart(Session session) throws IOException {
         super(session);
     }
@@ -39,7 +42,7 @@ public class Restart extends StageCommand {
         // tomcat may take some time
         Thread.sleep(5000);
 
-        new Start(session, debug, false).doInvoke(stage);
+        new Start(session, debug, suspend).doInvoke(stage);
         if (session.bedroom.stages().contains(stage.getName())) {
             console.info.println("stopped sleeping");
         }

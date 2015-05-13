@@ -34,6 +34,9 @@ public class Refresh extends StageCommand {
     @Option("debug")
     private boolean debug;
 
+    @Option("suspend")
+    private boolean suspend;
+
     @Option("restore")
     private boolean restore;
 
@@ -96,7 +99,7 @@ public class Refresh extends StageCommand {
             if (stop) {
                 console.info.println("stage is *not* re-started");
             } else {
-                new Start(session, debug, false).doInvoke(stage);
+                new Start(session, debug, suspend).doInvoke(stage);
             }
         }
     }

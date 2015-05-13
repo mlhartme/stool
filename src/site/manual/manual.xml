@@ -414,6 +414,22 @@ http://docbook.org/ns/docbook ">
     </sect1>
 
     <sect1>
+      <title>Restart</title>
+
+      <programlisting><![CDATA[stool restart [-debug|-suspend]]]></programlisting>
+
+      <para>First stops, den starts the stage.</para>
+    </sect1>
+
+    <sect1>
+      <title>Refresht</title>
+
+      <programlisting><![CDATA[stool refresh [-debug|-suspend]]]></programlisting>
+
+      <para>Updates artifact stages. Then stops and starts the stage.</para>
+    </sect1>
+
+    <sect1>
       <title>Select</title>
 
       <programlisting><![CDATA[stool select [<stage>|none]]]></programlisting>

@@ -287,7 +287,7 @@ public class Main extends Cli implements Command {
         console.info.println(
           "  .....................................  your application as you normally do, stool configure the necessary");
         console.info.println("  .....................................  environment variables");
-        console.info.println("  refresh [-build|-stop|-own|-debug] ..  update the stage, with optional building;");
+        console.info.println("  refresh [-build|-stop|-own|-debug|-suspend] ..  update the stage, with optional building;");
         console.info.println("  .....................................  restart and chowning when necessary");
         console.info.println("  start [-debug|-suspend|-tail] .......  starts the stage, and optionally tails catalina.out");
         console.info.println("  stop [-sleep] .......................  stops the stage");

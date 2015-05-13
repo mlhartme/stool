@@ -29,16 +29,13 @@ public class LogReader implements AutoCloseable {
                 iter.remove();
             }
         }
-        Collections.sort(files, new Comparator<FileNode>() {
-            @Override
-            public int compare(FileNode left, FileNode right) {
-                if (current(left)) {
-                    return -1;
-                } else if (current(right)) {
-                    return 1;
-                } else {
-                    return left.getName().compareTo(right.getName());
-                }
+        Collections.sort(files, (left, right) -> {
+            if (current(left)) {
+                return -1;
+            } else if (current(right)) {
+                return 1;
+            } else {
+                return left.getName().compareTo(right.getName());
             }
         });
         return new LogReader(files);
