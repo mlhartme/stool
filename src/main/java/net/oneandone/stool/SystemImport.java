@@ -118,7 +118,8 @@ public class SystemImport extends SessionCommand {
         }
         console.info.println();
         console.info.println("CAUTION: import has the following known limitations:");
-        console.info.println("  * 'defaults' are not migrated");
+        console.info.println("  * global 'defaults' are not migrated");
+        console.info.println("  * global 'security' are not migrated");
         console.info.println();
         // CAUTION: stool 3.1 moved bedroom from home to home/conf
         oldBedroom = Bedroom.loadOrCreateDir(session.gson, oldHome);
@@ -248,7 +249,11 @@ public class SystemImport extends SessionCommand {
         JsonParser parser;
         JsonObject src;
         JsonObject dest;
+        JsonObject target;
         Object[] mapped;
+        String name;
+        int idx;
+        String extension;
 
         parser = new JsonParser();
         src = (JsonObject) parser.parse(srcString);
@@ -256,10 +261,37 @@ public class SystemImport extends SessionCommand {
         for (Map.Entry<String, JsonElement> entry : src.entrySet()) {
             mapped = map(mapper, entry.getKey(), entry.getValue());
             if (mapped != null) {
-                dest.add((String) mapped[0], (JsonElement) mapped[1]);
+                name = (String) mapped[0];
+                idx = name.indexOf('+');
+                if (idx != -1) {
+                    extension = name.substring(0, idx);
+                    name = name.substring(idx + 1);
+                    target = dest.getAsJsonObject().get("extensions").getAsJsonObject();
+                    target = target.get((target.has("+" + extension) ? "+" : "-") + extension).getAsJsonObject();
+                } else {
+                    target = dest;
+
+                }
+                target.add(name, (JsonElement) mapped[1]);
             }
         }
+        mapGlobal(mapper, src, dest);
         return toString(dest);
+    }
+
+    private static void mapGlobal(Object mapper, JsonElement left, JsonElement right) {
+        Method m;
+
+        try {
+            m = mapper.getClass().getDeclaredMethod("global", JsonElement.class, JsonElement.class);
+        } catch (NoSuchMethodException e) {
+            return;
+        }
+        try {
+            m.invoke(mapper, left, right);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private static Object[] map(Object mapper, String name, JsonElement value) {
@@ -363,12 +395,14 @@ public class SystemImport extends SessionCommand {
                 return new JsonPrimitive(str);
             }
             // TODO
-            void modeRemove() {}
+            String modeRename() { return "pustefix+mode"; }
         };
     }
 
     private static Object stool30_31() {
         return new Object() {
+            void securityRemove() {}
+            void adminGroupRemove() {}
         };
     }
 }
