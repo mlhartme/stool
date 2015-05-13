@@ -120,7 +120,8 @@ public class SystemImport extends SessionCommand {
         console.info.println("CAUTION: import has the following known limitations:");
         console.info.println("  * 'defaults' are not migrated");
         console.info.println();
-        oldBedroom = Bedroom.loadOrCreate(session.gson, oldHome);
+        // CAUTION: load from old home directory, that's where stool 3.0 places the bedroom
+        oldBedroom = Bedroom.loadOrCreateDir(session.gson, oldHome);
         newBedroom = Bedroom.loadOrCreate(session.gson, session.home);
         newBedroomOrig = newBedroom.stages().toString();
         patches = new ArrayList<>();

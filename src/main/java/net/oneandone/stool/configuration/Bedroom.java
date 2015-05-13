@@ -29,10 +29,14 @@ public class Bedroom {
     public static final String FILENAME = "sleep.json";
 
     public static Bedroom loadOrCreate(Gson gson, FileNode home) throws IOException {
+        return loadOrCreateDir(gson, home.join("conf"));
+    }
+
+    public static Bedroom loadOrCreateDir(Gson gson, FileNode dir) throws IOException {
         Bedroom bedroom;
         FileNode file;
 
-        file = home.join("conf", FILENAME);
+        file = dir.join(FILENAME);
         if (file.exists()) {
             bedroom = gson.fromJson(file.readString(), Bedroom.class);
             bedroom.file = file;
