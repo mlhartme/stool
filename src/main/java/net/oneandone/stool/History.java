@@ -22,8 +22,6 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 
-import java.time.format.DateTimeFormatter;
-
 public class History extends StageCommand {
     public History(Session session) {
         super(session);

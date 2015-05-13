@@ -120,7 +120,7 @@ public class SystemImport extends SessionCommand {
         console.info.println("CAUTION: import has the following known limitations:");
         console.info.println("  * 'defaults' are not migrated");
         console.info.println();
-        // CAUTION: load from old home directory, that's where stool 3.0 places the bedroom
+        // CAUTION: stool 3.1 moved bedroom from home to home/conf
         oldBedroom = Bedroom.loadOrCreateDir(session.gson, oldHome);
         newBedroom = Bedroom.loadOrCreate(session.gson, session.home);
         newBedroomOrig = newBedroom.stages().toString();
@@ -371,41 +371,4 @@ public class SystemImport extends SessionCommand {
         return new Object() {
         };
     }
-
-    // TODO: unused
-    private static Object stage23_30() {
-        return new Object() {
-            void portPrefixRemove() {}
-        };
-    }
-
-    // TODO: unused
-    private static Object stool23_30() {
-        return new Object() {
-            void sharedBinRemove() {}
-            void versionRemove() {}
-            void stagesRemove() {}
-            // because values are all-strings no (e.g. in tomcat.select)
-            void defaultsRemove() {}
-
-            String portPrefixFirstRename() {
-                return "portFirst";
-            }
-            JsonElement portPrefixFirstTransform(JsonElement orig) {
-                return new JsonPrimitive(orig.getAsInt() * 10);
-            }
-
-            String portPrefixLastRename() {
-                return "portLast";
-            }
-            JsonElement portPrefixLastTransform(JsonElement orig) {
-                return new JsonPrimitive(orig.getAsInt() * 10 + 9);
-            }
-
-            String autoremoveRename() {
-                return "autoRemove";
-            }
-        };
-    }
-
 }

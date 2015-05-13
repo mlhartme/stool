@@ -20,7 +20,6 @@ import net.oneandone.stool.users.Users;
 
 import javax.naming.NamingException;
 import java.io.IOException;
-import java.util.Collection;
 
 public class SCMChangeCollector {
     public static Changes run(WarFile current, WarFile future, Users users, String svnurl) throws IOException {

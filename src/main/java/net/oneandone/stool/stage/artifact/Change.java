@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import java.time.LocalDateTime;
-
 public class Change {
     private final long revision;
     private final String user;
