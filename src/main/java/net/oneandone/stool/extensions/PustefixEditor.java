@@ -2,6 +2,7 @@ package net.oneandone.stool.extensions;
 
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -126,6 +127,7 @@ public class PustefixEditor implements Extension {
                 throw new IOException("Cannot download editor: " + e.getMessage(), e);
             }
             war.unjar(dest);
+            Files.stoolDirectory(dest.join("WEB-INF"));
         }
         // always update application list
         lines = new ArrayList<>();

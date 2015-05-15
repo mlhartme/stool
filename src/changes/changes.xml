@@ -2,6 +2,9 @@
   <body>
     <release version="3.1.0" date="2015-03-27">
       <action date="2015-05-13" dev="mlhartme" type="update">
+        Fix foreign start problem with enabled editor.
+      </action>
+      <action date="2015-05-13" dev="mlhartme" type="update">
         Fix "-fail after" to properly handle ArgumentExceptions.
       </action>
       <action date="2015-05-13" dev="mlhartme" type="update">
