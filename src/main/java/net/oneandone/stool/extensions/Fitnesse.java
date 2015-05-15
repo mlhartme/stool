@@ -6,9 +6,11 @@ import net.oneandone.stool.util.Host;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.xml.XmlException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -36,26 +38,22 @@ public class Fitnesse implements Extension {
         Ports ports;
         Host host;
         int port;
-        String projectDir;
         String url;
+        Launcher launcher;
+        Process process;
 
         console = stage.session.console;
         ports = stage.loadPortsOpt();
         for (String vhost : stage.hosts().keySet()) {
             host = ports.lookup(FITNESSSE_PREFIX + vhost);
-            projectDir = findProjectDir(ports, host);
             port = host.httpPort();
-            stage.launcher("sh", projectDir + "/src/test/resources/fitnesse-start.sh", String.valueOf(port), projectDir).exec(console.info, console.error);
             url = findUrl(host);
-            console.info.println("fitnesse start: " + url.concat(":" + port));
+            launcher = stage.launcher("mvn", "-P", "fitnesse uk.co.javahelp.fitnesse:fitnesse-launcher-maven-plugin:wiki", "-Dfitnesse.port=" + port);
+            launcher.getBuilder().redirectOutput(new File("target/fitness-" + port + ".out"));
+            launcher.getBuilder().redirectError(new File("target/fitness-" + port + ".err"));
+            process = launcher.getBuilder().start();
+            console.info.println("fitnesse started (" + process + "): " + url.concat(":" + port));
         }
-    }
-
-    private String findProjectDir(Ports ports, Host fitnesseHost) {
-        String path;
-
-        path = ports.lookup(Strings.removeLeft(fitnesseHost.vhost, FITNESSSE_PREFIX)).docBase();
-        return path.substring(0, path.indexOf("/target"));
     }
 
     @Override
@@ -63,17 +61,12 @@ public class Fitnesse implements Extension {
         Console console;
         Ports ports;
         Host host;
-        int port;
 
         console = stage.session.console;
         ports = stage.loadPortsOpt();
         for (String vhost : stage.hosts().keySet()) {
             host = ports.lookup(FITNESSSE_PREFIX + vhost);
-            port = host.httpPort();
-            String url = findUrl(host);
-            String projectDir = findProjectDir(ports, host);
-            stage.launcher("sh", projectDir + "/src/test/resources/fitnesse-stop.sh", url, String.valueOf(port), projectDir).exec(console.info,console.error);
-            console.info.println("fitnesse stop: " + url.concat(":" + port));
+            stage.launcher("curl " + findUrl(host) + ":" + host.httpPort() + "?responder=shutdown").exec(console.verbose);
         }
     }
 
