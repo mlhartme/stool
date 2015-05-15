@@ -98,9 +98,11 @@ public class PustefixEditor implements Extension {
         if (!dest.exists()) {
             parent = dest.getParent();
             parent.mkdirsOpt();
+            stage.session.console.info.println("checking out user pustefix.editor user data from " + url);
             try {
                 // file name has to be userdata.xml, other names are currently not supported
-                stage.session.subversion().checkout(parent, url, dest.getName(), stage.session.console.verbose);
+                // CAUTION: info output is mandatory, because the user might be prompted for his password
+                stage.session.subversion().checkout(parent, url, dest.getName(), stage.session.console.info);
             } catch (Failure e) {
                 throw new IOException("cannot checkout editor userdata: " + e.getMessage(), e);
             }
@@ -140,7 +142,7 @@ public class PustefixEditor implements Extension {
             lines.add("  </project>");
         }
         lines.add("</projects>");
-        dest.join("WEB-INF/editor-locations.xml").writeLines(lines);
+        Files.stoolDirectory(dest.join("WEB-INF/editor-locations.xml").writeLines(lines));
     }
 
     private FileNode editorDocroot(Stage stage) {
