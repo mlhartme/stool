@@ -16,6 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Host;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -31,7 +32,7 @@ import java.util.TreeMap;
 
 public class Status extends StageCommand {
     public static enum Field {
-        ID, NAME, DIRECTORY, WRAPPER, URL, TYPE, STATE, OWNER, TOMCAT, DEBUGGER, JMX, APPS;
+        ID, NAME, DIRECTORY, WRAPPER, URL, TYPE, STATE, OWNER, TOMCAT, DEBUGGER, JMX, APPS, OTHER;
 
         public String toString() {
             return name().toLowerCase();
@@ -117,6 +118,7 @@ public class Status extends StageCommand {
         result.put(Field.STATE, stage.state().toString());
         ports = tomcatStatus(stage, result);
         result.put(Field.APPS, stage.namedUrls());
+        result.put(Field.OTHER, other(stage, ports));
         jmx = new ArrayList<>();
         if (ports != null) {
             url = stage.session.configuration.hostname + ":" + ports.jmx();
@@ -124,6 +126,25 @@ public class Status extends StageCommand {
             jmx.add("jvisualvm --openjmx " + url);
         }
         result.put(Field.JMX, jmx);
+        return result;
+    }
+
+    /** TODO: we need this field to list fitnesse urls ...*/
+    private static List<String> other(Stage stage, Ports ports) {
+        List<String> result;
+
+        result = new ArrayList<>();
+        if (ports != null) {
+            for (Host host : ports.hosts()) {
+                if (host.isWebapp()) {
+                    continue;
+                }
+                if (host.vhost.contains("+")) {
+                    continue;
+                }
+                result.add(host.httpUrl(stage.session.configuration.vhosts));
+            }
+        }
         return result;
     }
 

@@ -301,7 +301,7 @@ public abstract class Stage {
         Ports ports;
 
         ports = loadPortsOpt();
-        return ports == null ? new HashMap<String, String>()
+        return ports == null ? new HashMap<>()
                 : ports.urlMap(!session.configuration.certificates.isEmpty(), session.configuration.vhosts, config().suffix);
     }
 

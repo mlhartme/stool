@@ -11,6 +11,8 @@ import net.oneandone.sushi.xml.XmlException;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,7 +50,7 @@ public class Fitnesse implements Extension {
         for (String vhost : stage.hosts().keySet()) {
             host = ports.lookup(FITNESSSE_PREFIX + vhost);
             port = host.httpPort();
-            url = findUrl(host);
+            url = findUrl(stage, host);
             String projectDir = findProjectDir(ports, host);
             launcher = stage.launcher("mvn",
                     "uk.co.javahelp.fitnesse:fitnesse-launcher-maven-plugin:wiki",
@@ -84,14 +86,34 @@ public class Fitnesse implements Extension {
 
         console = stage.session.console;
         ports = stage.loadPortsOpt();
+
         for (String vhost : stage.hosts().keySet()) {
             host = ports.lookup(FITNESSSE_PREFIX + vhost);
-            stage.launcher("curl", findUrl(host) + "?responder=shutdown").exec(console.verbose);
+            String url = findUrl(stage, host);
+            if (isFitnesseServerUp(url, console)) {
+                stage.launcher("curl", url + "?responder=shutdown").exec(console.verbose);
+            }
         }
     }
 
-    private String findUrl(Host host) {
-        return host.httpUrl(false);
+    public boolean isFitnesseServerUp(String urlPrm, Console console) throws IOException {
+        URL url = new URL(urlPrm);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        try {
+            int responseCode = conn.getResponseCode();
+            if (responseCode == 200) {
+                return true;
+            }
+        } catch (Exception e) {
+           //do nothing
+        }
+        console.info.println("fitnesse server is already down");
+        return false;
+    }
+
+    private String findUrl(Stage stage, Host host) {
+        return host.httpUrl(stage.session.configuration.vhosts);
     }
 
     @Override
