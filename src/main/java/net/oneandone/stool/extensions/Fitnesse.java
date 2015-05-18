@@ -7,13 +7,14 @@ import net.oneandone.stool.util.Ports;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
-import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.xml.XmlException;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
+import static net.oneandone.sushi.util.Strings.removeLeft;
 
 public class Fitnesse implements Extension {
     private static final String FITNESSSE_PREFIX = "fitnesse.";
@@ -48,12 +49,31 @@ public class Fitnesse implements Extension {
             host = ports.lookup(FITNESSSE_PREFIX + vhost);
             port = host.httpPort();
             url = findUrl(host);
-            launcher = stage.launcher("mvn", "-P", "fitnesse uk.co.javahelp.fitnesse:fitnesse-launcher-maven-plugin:wiki", "-Dfitnesse.port=" + port);
-            launcher.getBuilder().redirectOutput(new File("target/fitness-" + port + ".out"));
-            launcher.getBuilder().redirectError(new File("target/fitness-" + port + ".err"));
+            String projectDir = findProjectDir(ports, host);
+            launcher = stage.launcher("mvn",
+                    "uk.co.javahelp.fitnesse:fitnesse-launcher-maven-plugin:wiki",
+                    "-Dfitnesse.port=" + port);
+            launcher.dir(console.world.file(findProjectDir(ports, host)));
+
+            File output = new File(projectDir + "/target/fitness-" + port + ".out");
+            File error = new File(projectDir + "/target/fitness-" + port + ".err");
+            if (!output.exists()) {
+                output.createNewFile();
+                error.createNewFile();
+            }
+
+            launcher.getBuilder().redirectOutput(output);
+            launcher.getBuilder().redirectError(error);
             process = launcher.getBuilder().start();
-            console.info.println("fitnesse started (" + process + "): " + url.concat(":" + port));
+            console.info.println(vhost + " fitnesse started (" + process + "): " + url);
         }
+    }
+
+    private String findProjectDir(Ports ports, Host fitnesseHost) {
+        String path;
+
+        path = ports.lookup(removeLeft(fitnesseHost.vhost, FITNESSSE_PREFIX)).docBase();
+        return path.substring(0, path.indexOf("/target"));
     }
 
     @Override
@@ -66,7 +86,7 @@ public class Fitnesse implements Extension {
         ports = stage.loadPortsOpt();
         for (String vhost : stage.hosts().keySet()) {
             host = ports.lookup(FITNESSSE_PREFIX + vhost);
-            stage.launcher("curl " + findUrl(host) + ":" + host.httpPort() + "?responder=shutdown").exec(console.verbose);
+            stage.launcher("curl", findUrl(host) + "?responder=shutdown").exec(console.verbose);
         }
     }
 
@@ -75,6 +95,7 @@ public class Fitnesse implements Extension {
     }
 
     @Override
-    public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) throws XmlException {
+    public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result)
+            throws XmlException {
     }
 }
