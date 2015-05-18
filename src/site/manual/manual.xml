@@ -552,20 +552,26 @@ http://docbook.org/ns/docbook ">
           <para>Make the download executable: 'chmod a+x /YOUR/DOWNLOADS/setup-stool'.</para>
         </listitem>
         <listitem>
-          <para>Option: Stool will be configured to use 'java' as found in your $PATH when 'stool-setup' is executed.
+          <para>Optional: Stool will be configured to use 'java' as found in your $PATH when 'stool-setup' is executed.
             If you want to use a different Java version, make sure to adjust your $PATH accordingly. </para>
         </listitem>
         <listitem>
           <para>Actually install Stool: run '/YOUR/DOWNLOADS/setup-stool /PATH/TO/STOOL/HOME'. This will create Stool's home directory at the
-          specified location. It's good practice home make major and minor version part of this path. </para>
+          specified location. </para>
         </listitem>
         <listitem>
-          <para>Add the lines 'source STOOL/HOME/PATH/bin/stool-function' to your $HOME/.bashrc file. This defines the shell
-            function 'stool' that operates on the $STOOL_HOME directory.
+          <para>Adjust Stool configuration file '$STOOL_HOME/config.json' to your needs. If you enabled "shared" mode, you also need the
+          following sudo rules:<programlisting>
+%users ALL = (%users) NOPASSWD: /PATH/TO/STOOL/HOME/bin/stool-raw.sh
+%users ALL = (%users) NOPASSWD:SETENV: /PATH/TO/STOOL/HOME/bin/service-wrapper.sh
+%users ALL = (root) NOPASSWD: /PATH/TO/STOOL/HOME/bin/chowntree.sh
+            </programlisting>
           </para>
         </listitem>
         <listitem>
-          <para>Adjust Stool configuration file '$STOOL_HOME/config.json' to your needs.</para>
+          <para>Add the lines 'source /PATH/TO/STOOL/HOME/bin/stool-function' to your $HOME/.bashrc file. This defines the shell
+            function 'stool' that operates on the $STOOL_HOME directory.
+          </para>
         </listitem>
         <listitem>
           <para>Open a new shell window to make sure that your modified bashrc is loaded.</para>
