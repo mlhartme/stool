@@ -43,7 +43,6 @@ public class Fitnesse implements Extension {
         int port;
         String url;
         Launcher launcher;
-        Process process;
 
         console = stage.session.console;
         ports = stage.loadPortsOpt();
@@ -66,8 +65,8 @@ public class Fitnesse implements Extension {
 
             launcher.getBuilder().redirectOutput(output);
             launcher.getBuilder().redirectError(error);
-            process = launcher.getBuilder().start();
-            console.info.println(vhost + " fitnesse started (" + process + "): " + url);
+            launcher.getBuilder().start();
+            console.info.println(vhost + " fitnesse started: " + url);
         }
     }
 
