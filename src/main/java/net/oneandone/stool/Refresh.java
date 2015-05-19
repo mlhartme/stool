@@ -81,7 +81,7 @@ public class Refresh extends StageCommand {
             session.chown(stage, me);
         }
 
-        console.info.println("updating " + stage.getDirectory());
+        console.info.println("refreshing " + stage.getDirectory());
         if (stage.refreshPending(console)) {
             stage.executeRefresh(console);
         }

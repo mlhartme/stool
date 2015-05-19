@@ -63,7 +63,9 @@ public class SourceStage extends Stage {
     }
 
     public boolean refreshPending(Console console) {
-        return false;
+        // we can always try svn up
+        // Not that I cannot check for the latest revision because this might be interactive, and I'd need user interaction ...
+        return true;
     }
 
     @Override

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.1.0" date="2015-03-27">
+      <action date="2015-05-19" dev="mlhartme" type="fix">
+        Fix missing svn update when refreshing a source stage.
+      </action>
       <action date="2015-05-13" dev="mlhartme" type="fix">
         Fix foreign start problem with enabled editor.
       </action>
