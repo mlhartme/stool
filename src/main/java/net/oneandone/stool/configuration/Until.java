@@ -66,12 +66,16 @@ public class Until {
         return date == null;
     }
 
-    public boolean expired() {
-        return isBefore(0);
+    public boolean isExpired() {
+        return expiredDays() > 0;
     }
 
-    public boolean isBefore(int days) {
-        return date != null && date.isBefore(LocalDate.now().minusDays(days));
+    /** @return negative for not expired, 0 last day */
+    public int expiredDays() {
+        if (date == null) {
+            return Integer.MIN_VALUE;
+        }
+        return date.until(LocalDate.now()).getDays();
     }
 
     @Override

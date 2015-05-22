@@ -106,7 +106,7 @@ public class Validate extends StageCommand {
                 }
             }
             if (session.configuration.autoRemove > -1
-              && stage.config().until.isBefore(session.configuration.autoRemove)) {
+              && stage.config().until.expiredDays() >= session.configuration.autoRemove) {
                 if (stage.state() == Stage.State.UP) {
                     new Stop(session).doInvoke(stage);
                 }
@@ -144,15 +144,15 @@ public class Validate extends StageCommand {
         body.append(stopped).append("\n");
         return body.toString();
     }
-    /** @return days overdue */
+
     public void until(Until until, List<String> problems) {
         StringBuilder problem;
-        if (until.expired()) {
+
+        if (until.isExpired()) {
             problem = new StringBuilder();
-            problem.append("'until' date has expired: ").append(until).append("\n");
+            problem.append("stage has expired ").append(until).append(". Adjust the 'until' date or remove it:\n");
             if (session.configuration.autoRemove > -1) {
-                problem.append("Stages will be removed ").append(session.configuration.autoRemove);
-                problem.append("days a after an expired until date.");
+                problem.append("CAUTION: This stage will be removed automatically in " + (session.configuration.autoRemove - until.expiredDays()) + " day(s)");
             }
             problems.add(problem.toString());
         }

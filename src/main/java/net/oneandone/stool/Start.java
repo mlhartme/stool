@@ -346,8 +346,8 @@ public class Start extends StageCommand {
     }
 
     private void checkUntil(Until until) {
-        if (until.expired()) {
-            throw new ArgumentException("'until' date has expired: " + until);
+        if (until.isExpired()) {
+            throw new ArgumentException("Stage expired " + until + ". To start it, you have to adjust the 'until' date.");
         }
     }
 
@@ -358,8 +358,8 @@ public class Start extends StageCommand {
                 super.checkCommitted(stage);
             } catch (IOException e) {
                 throw new IOException(
-                  "Due to AC1-restrictions it's only allowed to run/build committed states on this machine. \n"
-                    + "Please commit your modified files in order to start/build the stage.");
+                  "It's not allowed to start stages with local modifications.\n"
+                    + "Please commit your modified files in order to start the stage.");
             }
         }
     }

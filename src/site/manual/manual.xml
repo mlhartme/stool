@@ -271,10 +271,10 @@ http://docbook.org/ns/docbook ">
     <sect1>
       <title>Stage expiring</title>
       <para>Every stage has an 'until' property that specifies how long the stage is needed. You can see the until date
-        with 'stool config until'. If this date has passed, the stage is automatically stopped and you cannot start it
-        unless you specify a new date with 'stool config until=yyyy-mm-dd'. The stage owner gets an email notification
-        if his stage expired. And after 5 notifications, the ovners team lead is CCed in this mail. This mechanism
-        helps to detect and remove unused stages, which is crucial for shared machines. If you receive an email
+        with 'stool config until'. If this date has passed, the stage is called expired, it is automatically stopped, the
+        owner gets an email notification and you cannot start it unless you specify a new date with 'stool config until=yyyy-mm-dd'.
+        Depending on Stool autoRemove configuration, the stage will automatically removed after the configured number of days.
+        This mechanism helps to detect and remove unused stages, which is crucial for shared machines. If you receive an email
         notification that you stage has expired, please check if your stage is still needed. If so, adjust the
         until data, otherwise remove the stage.
       </para>
