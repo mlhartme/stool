@@ -546,21 +546,22 @@ http://docbook.org/ns/docbook ">
       <para>To install Stool on your system (skip this if your working on a stage - Stool is readily installed there):</para>
       <itemizedlist>
         <listitem>
-          <para>Download Stool's application file and store it at '/YOUR/DOWNLOADS/setup-stool'.</para>
+          <para>Download Stool's setup script from https://github.com/mlhartme/stool/releases and store it -e.g. - as '/YOUR/DOWNLOADS/setup-stool'.</para>
         </listitem>
         <listitem>
           <para>Make the download executable: 'chmod a+x /YOUR/DOWNLOADS/setup-stool'.</para>
         </listitem>
         <listitem>
-          <para>Optional: Stool will be configured to use 'java' as found in your $PATH when 'stool-setup' is executed.
-            If you want to use a different Java version, make sure to adjust your $PATH accordingly. </para>
+          <para>Make sure to have Java 8 installed on your system and its 'java' is in your path. 'java' is used by the setup script and it becomes
+            the default java version for new stages. (If you want a different java version for new stages, define it under "defaults" in Stool's
+            configuration file - see below). </para>
         </listitem>
         <listitem>
           <para>Actually install Stool: run '/YOUR/DOWNLOADS/setup-stool /PATH/TO/STOOL/HOME'. This will create Stool's home directory at the
           specified location. </para>
         </listitem>
         <listitem>
-          <para>Adjust Stool configuration file '$STOOL_HOME/config.json' to your needs. If you enabled "shared" mode, you also need the
+          <para>Adjust Stool's configuration file '$STOOL_HOME/config.json' to your needs. If you enabled "shared" mode, you also need the
           following sudo rules:<programlisting>
 %users ALL = (%users) NOPASSWD: /PATH/TO/STOOL/HOME/bin/stool-raw.sh
 %users ALL = (%users) NOPASSWD:SETENV: /PATH/TO/STOOL/HOME/bin/service-wrapper.sh
