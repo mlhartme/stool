@@ -325,7 +325,7 @@
                   </mapper>
                 </data>
                 <data>
-                  <src>${basedir}/src/deb/profile.inc</src>
+                  <src>${basedir}/src/deb/profile</src>
                   <dst>/opt/ui/etc/profile.d/50stool.sh</dst>
                   <type>file</type>
                   <mapper>
@@ -336,7 +336,7 @@
                   </mapper>
                 </data>
                 <data>
-                  <src>${basedir}/src/deb/sudoers.inc</src>
+                  <src>${basedir}/src/deb/sudoers</src>
                   <dst>/etc/sudoers.d/stool</dst>
                   <conffile>true</conffile>
                   <type>file</type>
@@ -348,7 +348,7 @@
                   </mapper>
                 </data>
                 <data>
-                  <src>${basedir}/src/deb/cron.inc</src>
+                  <src>${basedir}/src/deb/cron</src>
                   <dst>/etc/cron.d/stool</dst>
                   <type>file</type>
                   <conffile>true</conffile>
