@@ -14,7 +14,7 @@
 
   <groupId>net.oneandone</groupId>
   <artifactId>stool</artifactId>
-  <version>3.1.1-SNAPSHOT</version>
+  <version>3.1.2-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -313,6 +313,7 @@
             </goals>
             <configuration>
               <name>stool</name>
+              <snapshotExpand>true</snapshotExpand>
               <dataSet>
                 <data>
                   <src>${project.build.directory}/setup-stool</src>
