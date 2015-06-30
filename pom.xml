@@ -328,7 +328,7 @@
                 </data>
                 <data>
                   <src>${basedir}/src/deb/profile.inc</src>
-                  <dst>/opt/ui/etc/profile.d/50stool-${stool.number}.sh</dst>
+                  <dst>/opt/ui/etc/profile.d/50stool.sh</dst>
                   <type>file</type>
                   <mapper>
                     <type>perm</type>
@@ -340,8 +340,18 @@
                 <data>
                   <src>${basedir}/src/deb/sudoers.inc</src>
                   <!-- CAUTION: sudo doesn't see this file if I append -${stool.number}} :( -->
-                  <!-- CAUTION: just stool collides with old package-less install -->
-                  <dst>/etc/sudoers.d/stool31</dst>
+                  <dst>/etc/sudoers.d/stool</dst>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>440</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/src/deb/cron.inc</src>
+                  <dst>/etc/cron.d/stool</dst>
                   <type>file</type>
                   <mapper>
                     <type>perm</type>
