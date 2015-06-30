@@ -312,9 +312,7 @@
               <goal>jdeb</goal>
             </goals>
             <configuration>
-              <name>stool</name><!-- overview pom.name because debian packages need lower case -->
-              <changesIn>${basedir}/src/changes/CHANGES.txt</changesIn>
-              <changesSave>${project.build.directory}/CHANGES.txt</changesSave>
+              <name>stool</name>
               <dataSet>
                 <data>
                   <src>${project.build.directory}/setup-stool</src>
