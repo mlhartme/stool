@@ -357,7 +357,7 @@
                     <type>perm</type>
                     <user>root</user>
                     <group>root</group>
-                    <filemode>440</filemode>
+                    <filemode>644</filemode>
                   </mapper>
                 </data>
               </dataSet>
