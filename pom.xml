@@ -338,13 +338,13 @@
                 </data>
                 <data>
                   <src>${basedir}/src/deb/sudoers.inc</src>
-                  <dst>/etc/sudoers.d/stool-${stool.number}</dst>
+                  <dst>/etc/sudoers.d/stool</dst><!-- CAUTION: sudo doesn't see this file if I append -${stool.number}} :( -->
                   <type>file</type>
                   <mapper>
                     <type>perm</type>
                     <user>root</user>
                     <group>root</group>
-                    <filemode>644</filemode>
+                    <filemode>440</filemode>
                   </mapper>
                 </data>
               </dataSet>
