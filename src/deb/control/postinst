@@ -1,6 +1,6 @@
 #!/bin/sh
 set -e
-dir=/opt/ui/opt/tools/stool-[[stool.number]]
+dir=/opt/ui/opt/tools/stool
 # TODO: there's no package dependency for this ...
 export MAVEN_HOME=/opt/ui/opt/tools/wsdtools/maven/current
 /opt/ui/bin/setup-stool -v -batch ${dir}

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # What is this?
-STOOL=/opt/ui/opt/tools/stool-3.1/bin/stool-raw.sh
+STOOL=/opt/ui/opt/tools/stool/bin/stool-raw.sh
 . /lib/lsb/init-functions
 
 case "$1" in
