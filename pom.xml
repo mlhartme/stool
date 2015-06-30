@@ -339,7 +339,9 @@
                 </data>
                 <data>
                   <src>${basedir}/src/deb/sudoers.inc</src>
-                  <dst>/etc/sudoers.d/stool</dst><!-- CAUTION: sudo doesn't see this file if I append -${stool.number}} :( -->
+                  <!-- CAUTION: sudo doesn't see this file if I append -${stool.number}} :( -->
+                  <!-- CAUTION: just stool collides with old package-less install -->
+                  <dst>/etc/sudoers.d/stool31</dst>
                   <type>file</type>
                   <mapper>
                     <type>perm</type>
