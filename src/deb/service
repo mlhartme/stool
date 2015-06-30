@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# What is this?
+STOOL=/opt/ui/opt/tools/stool-3.1/bin/stool-raw.sh
+. /lib/lsb/init-functions
+
+case "$1" in
+        start)
+                log_daemon_msg "Starting stages" "stool"
+                sudo -u servlet $STOOL system-start
+                result=$?
+                log_end_msg $result
+                exit $result
+        ;;
+        
+        stop)
+                log_daemon_msg "Stopping stages" "stool"
+                sudo -u servlet $STOOL system-stop
+                result=$?
+                log_end_msg $result
+                exit $result
+        ;;
+        
+        *)
+                echo "Usage: /opt/ui/etc/init.d/stool {start|stop}"
+                exit 1
+        ;;
+esac
