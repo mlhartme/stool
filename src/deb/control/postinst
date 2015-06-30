@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+dir=/opt/ui/opt/tools/stool-[[stool.number]]
+export MAVEN_HOME=/opt/ui/opt/tools/wsdtools/maven/current
+/opt/ui/bin/setup-stool -v -batch ${dir}
+chown -R root:users ${dir}/downloads ${dir}/inbox ${dir}/logs ${dir}/service-wrapper ${dir}/conf ${dir}/tomcat ${dir}/wrappers
+sudo -u servlet ${dir}/bin/stool-raw.sh chown -stage overview

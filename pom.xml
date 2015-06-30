@@ -18,6 +18,8 @@
   <packaging>jar</packaging>
 
   <properties>
+    <stool.number>3.1</stool.number>
+
     <oneandone.java.source>1.8</oneandone.java.source>
     <oneandone.java.target>1.8</oneandone.java.target>
     <oneandone.java.docversion>8</oneandone.java.docversion>
@@ -303,100 +305,54 @@
         <artifactId>jdeb</artifactId>
         <groupId>org.vafer</groupId>
         <version>1.4</version>
-        <configuration>
-          <name>stool</name><!-- overview pom.name because debian packages need lower case -->
-          <changesIn>${basedir}/src/changes/CHANGES.txt</changesIn>
-          <changesSave>${project.build.directory}/CHANGES.txt</changesSave>
-          <dataSet>
-            <data>
-              <src>${project.build.directory}/deb</src>
-              <type>directory</type>
-              <excludes>config.json, bin, bin/**/*, overview, overview/**/*, wrappers/overview, wrappers/overview/**/*</excludes>
-              <mapper>
-                <prefix>/opt/ui/opt/tools/stool-3.1</prefix>
-                <type>perm</type>
-                <user>root</user>
-                <group>users</group>
-                <filemode>644</filemode>
-              </mapper>
-            </data>
-            <data>
-              <src>${project.build.directory}/deb</src>
-              <type>directory</type>
-              <includes>bin, bin/**/*</includes>
-              <mapper>
-                <prefix>/opt/ui/opt/tools/stool-3.1</prefix>
-                <type>perm</type>
-                <user>root</user>
-                <group>root</group>
-                <filemode>755</filemode>
-              </mapper>
-            </data>
-            <data>
-              <src>${project.build.directory}/deb</src>
-              <type>directory</type>
-              <includes>config.json</includes>
-              <conffile>true</conffile>
-              <mapper>
-                <prefix>/opt/ui/opt/tools/stool-3.1</prefix>
-                <type>perm</type>
-                <user>root</user>
-                <group>users</group>
-                <filemode>644</filemode>
-              </mapper>
-            </data>
-
-            <!-- overview -->
-            <data>
-              <src>${project.build.directory}/deb</src>
-              <type>directory</type>
-              <includes>overview, overview/**/*, wrappers/overview, wrappers/overview/**/*</includes>
-              <excludes>wrappers/overview/anchor, wrappers/overview/anchor/**/*</excludes>
-              <mapper>
-                <prefix>/opt/ui/opt/tools/stool-3.1</prefix>
-                <type>perm</type>
-                <user>servlet</user>
-                <group>users</group>
-                <filemode>644</filemode>
-              </mapper>
-            </data>
-            <data>
-              <src>${project.build.directory}/deb/wrappers/overview</src>
-              <type>link</type>
-              <linkName>/opt/ui/opt/tools/stool-3.1/wrappers/overview/anchor</linkName>
-              <linkTarget>/opt/ui/opt/tools/stool-3.1/overview</linkTarget>
-              <mapper>
-                <type>perm</type>
-                <user>servlet</user>
-                <group>users</group>
-                <filemode>644</filemode>
-              </mapper>
-            </data>
-
-            <data>
-              <src>${basedir}/src/deb/profile.inc</src>
-              <dst>/opt/ui/etc/profile.d/50stool-3.1.sh</dst>
-              <type>file</type>
-              <mapper>
-                <type>perm</type>
-                <user>root</user>
-                <group>root</group>
-                <filemode>644</filemode>
-              </mapper>
-            </data>
-            <data>
-              <src>${basedir}/src/deb/sudoers.inc</src>
-              <dst>/etc/sudoers.d/stool-3.1</dst>
-              <type>file</type>
-              <mapper>
-                <type>perm</type>
-                <user>root</user>
-                <group>root</group>
-                <filemode>644</filemode>
-              </mapper>
-            </data>
-          </dataSet>
-        </configuration>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jdeb</goal>
+            </goals>
+            <configuration>
+              <name>stool</name><!-- overview pom.name because debian packages need lower case -->
+              <changesIn>${basedir}/src/changes/CHANGES.txt</changesIn>
+              <changesSave>${project.build.directory}/CHANGES.txt</changesSave>
+              <dataSet>
+                <data>
+                  <src>${project.build.directory}/setup-stool</src>
+                  <dst>/opt/ui/bin/setup-stool</dst>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>755</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/src/deb/profile.inc</src>
+                  <dst>/opt/ui/etc/profile.d/50stool-${stool.number}.sh</dst>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>644</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/src/deb/sudoers.inc</src>
+                  <dst>/etc/sudoers.d/stool-${stool.number}</dst>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>644</filemode>
+                  </mapper>
+                </data>
+              </dataSet>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
