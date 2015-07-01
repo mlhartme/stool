@@ -8,7 +8,7 @@
         Added global -svnuser and -svnpassword options.
       </action>
       <action date="2015-07-01" dev="mlhartme" type="add">
-        Added @svnCredentials@ macro and added it to the default refresh command.
+        Added @svnCredentials@ and @stoolSvnCredentials@ macros to properly configure refresh commands.
       </action>
       <action date="2015-06-29" dev="mlhartme" type="update">
         Incremental upgrade refreshes overview now.

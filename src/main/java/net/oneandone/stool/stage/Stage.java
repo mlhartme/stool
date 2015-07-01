@@ -570,8 +570,16 @@ public abstract class Stage {
             lazyMacros.add("localRepository", localRepository().getAbsolute());
             lazyMacros.add("proxyOpts", session.environment.proxyOpts(false));
             lazyMacros.add("svnCredentials", Separator.SPACE.join(session.subversion().svnCredentials()));
+            lazyMacros.add("stoolSvnCredentials", stoolSvnCredentials());
         }
         return lazyMacros;
+    }
+
+    private String stoolSvnCredentials() {
+        Subversion subversion;
+
+        subversion = session.subversion();
+        return subversion.username == null ? "" : "-svnuser " + subversion.username + " -svnpassword " + subversion.password;
     }
 
     private void addProfilesAndProperties(Properties userProperties, List<String> profiles, String args) {

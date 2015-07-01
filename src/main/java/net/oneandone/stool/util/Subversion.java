@@ -72,11 +72,11 @@ public class Subversion {
 
     public String[] svnCredentials() {
         return username == null ? Strings.NONE : new String[] {
-                "--no-auth-cache",
-                "--non-interactive", // to avoid password question if svnpassword is wrong
-                "--username", username,
-                "--password", password,
-        };
+                        "--no-auth-cache",
+                        "--non-interactive", // to avoid password question if svnpassword is wrong
+                        "--username", username,
+                        "--password", password,
+                };
     }
 }
 
