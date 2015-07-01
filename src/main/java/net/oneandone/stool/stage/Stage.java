@@ -477,7 +477,7 @@ public abstract class Stage {
     }
 
     public void executeRefresh(Console console) throws IOException {
-        launcher(Strings.toArray(Separator.SPACE.split(config().refresh))).exec(console.info);
+        launcher(Strings.toArray(Separator.SPACE.split(macros().replace(config().refresh)))).exec(console.info);
     }
 
     //--
@@ -569,6 +569,7 @@ public abstract class Stage {
             lazyMacros.add("directory", getDirectory().getAbsolute());
             lazyMacros.add("localRepository", localRepository().getAbsolute());
             lazyMacros.add("proxyOpts", session.environment.proxyOpts(false));
+            lazyMacros.add("svnCredentials", Separator.SPACE.join(session.subversion().svnCredentials()));
         }
         return lazyMacros;
     }

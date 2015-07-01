@@ -129,7 +129,7 @@ public class StageConfiguration {
         this.cookies = true;
         this.prepare = "";
         this.build = "false";
-        this.refresh = "svn up";
+        this.refresh = "svn @svnCredentials@ up";
         this.pom = "pom.xml";
         this.tomcatOpts = "";
         this.tomcatVersion = "7.0.57";

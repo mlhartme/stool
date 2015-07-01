@@ -18,6 +18,7 @@ package net.oneandone.stool.util;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.Writer;
 
@@ -64,14 +65,18 @@ public class Subversion {
         Launcher launcher;
 
         launcher = new Launcher(cwd, "svn");
-        if (username != null) {
-            launcher.arg("--no-auth-cache");
-            launcher.arg("--username", username);
-            launcher.arg("--password", password);
-            launcher.arg("--non-interactive"); // to avoid password question if svnpassword is wrong
-        }
+        launcher.arg(svnCredentials());
         launcher.arg(args);
         return launcher;
+    }
+
+    public String[] svnCredentials() {
+        return username == null ? Strings.NONE : new String[] {
+                "--no-auth-cache",
+                "--non-interactive", // to avoid password question if svnpassword is wrong
+                "--username", username,
+                "--password", password,
+        };
     }
 }
 
