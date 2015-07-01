@@ -17,6 +17,7 @@ package net.oneandone.stool.overview;
 
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Subversion;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
@@ -59,6 +60,7 @@ public class StoolCallable implements Callable<Failure> {
         Failure failure;
         long time;
         BuildStats buildStats;
+        Subversion subversion;
 
         failure = null;
         time = System.currentTimeMillis();
@@ -66,10 +68,16 @@ public class StoolCallable implements Callable<Failure> {
         if (su) {
             launcher.arg("sudo", "-u", runAs);
         }
-        launcher.arg(home.join("bin/stool-raw.sh").getAbsolute(), command, "-stage", stage.getName());
+        launcher.arg(home.join("bin/stool-raw.sh").getAbsolute());
+        subversion = stage.session.subversion();
+        if (subversion.username != null) {
+            launcher.arg("-svnuser", subversion.username);
+            launcher.arg("-svnpassword", subversion.password);
+        }
+        launcher.arg(command, "-stage", stage.getName());
         launcher.arg(options);
         try (PrintWriter writer = new PrintWriter(logDir.join(id + ".log").createWriter())) {
-            writer.println(launcher.toString());
+            writer.println(hide(launcher.toString(), subversion.password));
             try {
                 launcher.exec(writer);
             } catch (Failure e) {
@@ -83,5 +91,9 @@ public class StoolCallable implements Callable<Failure> {
         buildStats.add(command, time);
         buildStats.save();
         return failure;
+    }
+
+    private static String hide(String str, String hide) {
+        return hide == null ? str : str.replace(hide, "********");
     }
 }

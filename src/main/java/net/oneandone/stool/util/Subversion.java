@@ -22,8 +22,8 @@ import net.oneandone.sushi.launcher.Launcher;
 import java.io.Writer;
 
 public class Subversion {
-    private final String username;
-    private final String password;
+    public final String username;
+    public final String password;
 
     public Subversion(String username, String password) {
         this.username = username;

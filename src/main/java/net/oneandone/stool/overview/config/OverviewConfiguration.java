@@ -32,6 +32,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
+import java.util.Properties;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -64,12 +65,25 @@ public class OverviewConfiguration {
         Environment system;
         FileNode home;
         String user;
+        FileNode props;
+        Properties p;
+        String svnuser;
+        String svnpassword;
 
         system = Environment.loadSystem();
         home = home();
+        props = home.join("wrappers/overview/properties");
+        if (props.exists()) {
+            p = props.readProperties();
+            svnuser = p.getProperty("svnuser");
+            svnpassword = p.getProperty("svnpassword");
+        } else {
+            svnuser = null;
+            svnpassword = null;
+        }
         user = user();
         system.setStoolHome(home);
-        return Session.load(Logging.forHome(home, user), user, "overview", system, console(), null);
+        return Session.load(Logging.forHome(home, user), user, "overview", system, console(), null, svnuser, svnpassword);
     }
 
     @Bean

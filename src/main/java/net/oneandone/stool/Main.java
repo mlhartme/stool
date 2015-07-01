@@ -104,6 +104,12 @@ public class Main extends Cli implements Command {
     private final Environment environment;
     private Session session;
 
+    @Option("svnuser")
+    private String svnuser;
+
+    @Option("svnpassword")
+    private String svnpassword;
+
     @Option("invocation")
     private FileNode invocationFile;
 
@@ -324,6 +330,8 @@ public class Main extends Cli implements Command {
         console.info.println("global options");
         console.info.println("  -v  verbose output");
         console.info.println("  -e  print stacktrace for all errors");
+        console.info.println("  -svnuser      user name for svn");
+        console.info.println("  -svnpassword  password for svn");
         console.info.println();
         console.info.println("home directory: " + stoolhome);
         console.info.println();
@@ -347,7 +355,7 @@ public class Main extends Cli implements Command {
 
     private Session session() throws IOException {
         if (session == null) {
-            session = Session.load(logging, user, command, environment, console, invocationFile);
+            session = Session.load(logging, user, command, environment, console, invocationFile, svnuser, svnpassword);
         }
         return session;
     }

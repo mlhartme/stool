@@ -55,10 +55,11 @@ import java.util.List;
 
 /** Mostly a representation of $STOOL_HOME */
 public class Session {
-    public static Session load(Logging logging, String user, String command, Environment environment, Console console, FileNode invocationFile) throws IOException {
+    public static Session load(Logging logging, String user, String command, Environment environment, Console console,
+                               FileNode invocationFile, String svnuser, String svnpassword) throws IOException {
         Session session;
 
-        session = loadWithoutWipe(logging, user, command, environment, console, invocationFile);
+        session = loadWithoutWrapperWipe(logging, user, command, environment, console, invocationFile, svnuser, svnpassword);
 
         // my first thought was to watch for filesystem events to trigger wrapper wiping.
         // But there's quite a big delay and rmdif+mkdir is reported as modification. Plus the code is quite complex and
@@ -97,7 +98,8 @@ public class Session {
         console.verbose.println("wipeStaleWrappers done, ms=" + ((System.currentTimeMillis() - s)));
     }
 
-    private static Session loadWithoutWipe(Logging logging, String user, String command, Environment environment, Console console, FileNode invocationFile) throws IOException {
+    private static Session loadWithoutWrapperWipe(Logging logging, String user, String command, Environment environment, Console console,
+                                                  FileNode invocationFile, String svnuser, String svnpassword) throws IOException {
         ExtensionsFactory factory;
         Gson gson;
         FileNode home;
@@ -107,7 +109,8 @@ public class Session {
         gson = gson(console.world, factory);
         home = environment.stoolHome(console.world);
         home.checkDirectory();
-        result = new Session(factory, gson, logging, user, command, home, console, environment, StoolConfiguration.load(gson, home), Bedroom.loadOrCreate(gson, home), invocationFile);
+        result = new Session(factory, gson, logging, user, command, home, console, environment, StoolConfiguration.load(gson, home),
+                Bedroom.loadOrCreate(gson, home), invocationFile, svnuser, svnpassword);
         result.selectedStageName = environment.get(Environment.STOOL_SELECTED);
         return result;
     }
@@ -144,7 +147,7 @@ public class Session {
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd");
 
     public Session(ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command, FileNode home, Console console, Environment environment, StoolConfiguration configuration,
-                   Bedroom bedroom, FileNode invocationFile) {
+                   Bedroom bedroom, FileNode invocationFile, String svnuser, String svnpassword) {
         this.extensionsFactory = extensionsFactory;
         this.gson = gson;
         this.logging = logging;
@@ -158,7 +161,7 @@ public class Session {
         this.wrappers = home.join("wrappers");
         this.selectedStageName = null;
         this.invocationFile = invocationFile;
-        this.subversion = new Subversion(null, null);
+        this.subversion = new Subversion(svnuser, svnpassword);
         this.stageIdPrefix = FMT.format(LocalDate.now()) + "." + logging.id + ".";
         this.nextStageId = 0;
         if (configuration.ldapUrl.isEmpty()) {
