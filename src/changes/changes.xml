@@ -8,13 +8,13 @@
         Added global -svnuser and -svnpassword options.
       </action>
       <action date="2015-07-01" dev="mlhartme" type="add">
-        Added @svnCredentials@ macro added it to the default refresh command.
-      </action>
-      <action date="2015-06-29" dev="mlhartme" type="update">
-        Build Debian packages.
+        Added @svnCredentials@ macro and added it to the default refresh command.
       </action>
       <action date="2015-06-29" dev="mlhartme" type="update">
         Incremental upgrade refreshes overview now.
+      </action>
+      <action date="2015-06-29" dev="mlhartme" type="update">
+        Build Debian packages.
       </action>
     </release>
     <release version="3.1.1"><!-- was never released -->
