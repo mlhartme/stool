@@ -20,9 +20,11 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.oneandone.stool.Refresh;
 import net.oneandone.stool.SystemImport;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Environment;
+import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -32,6 +34,7 @@ import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -168,6 +171,7 @@ public class Main extends Cli implements Command {
     private void incrementalUpgrade(Version old, Version version) throws IOException {
         FileNode timestamp;
         FileNode link;
+        Launcher launcher;
 
         timestamp = home.join("bin/stool-" + Install.FMT.format(LocalDateTime.now()) + ".jar");
         link = home.join("bin/stool.jar");
@@ -180,7 +184,14 @@ public class Main extends Cli implements Command {
         link.deleteFile();
         link.mklink(timestamp.getName());
         console.world.locateClasspathItem(getClass()).copyFile(timestamp);
-        console.info.println("Done. Consider 'stool -stage overview refresh' now.");
+
+        launcher = new Launcher(home);
+        if ("root".equals(System.getProperty("user.name"))) {
+            launcher.arg("sudo", "-u", "servlet");
+        }
+        launcher.arg(home.join("bin/stool-raw.sh").getAbsolute(), "refresh", "-stage", "overview");
+        console.info.println(launcher.toString());
+        launcher.exec(console.info);
     }
 
     private Version oldVersion() throws IOException {

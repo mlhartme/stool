@@ -4,6 +4,9 @@
       <action date="2015-06-29" dev="mlhartme" type="update">
         Build Debian packages.
       </action>
+      <action date="2015-06-29" dev="mlhartme" type="update">
+        Incremental upgrade refreshes overview now.
+      </action>
     </release>
     <release version="3.1.1"><!-- was never released -->
       <action date="2015-05-22" dev="mlhartme" type="update">
