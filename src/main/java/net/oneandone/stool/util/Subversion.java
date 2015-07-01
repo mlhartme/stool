@@ -31,17 +31,17 @@ public class Subversion {
     }
 
     public void checkout(FileNode cwd, String url, String name, Writer dest) throws Failure {
-        interactive(cwd, "co", url, name).exec(dest);
+        launcher(cwd, "co", url, name).exec(dest);
     }
 
     public void update(FileNode cwd, Writer output) throws Failure {
-        interactive(cwd, "up").exec(output);
+        launcher(cwd, "up").exec(output);
     }
 
     public String status(FileNode cwd) throws Failure {
         Launcher launcher;
 
-        launcher = launcher(false, cwd, "status");
+        launcher = launcher(cwd, "status");
         launcher.env("LC_ALL", "C");
         return launcher.exec();
     }
@@ -51,35 +51,24 @@ public class Subversion {
         String str;
         int idx;
 
-        launcher = launcher(false, cwd, "info");
+        launcher = launcher(cwd, "info");
         launcher.env("LC_ALL", "C");
         str = launcher.exec();
         idx = str.indexOf("URL:") + 4;
         return str.substring(idx, str.indexOf("\n", idx)).trim();
     }
 
-    public String ls(FileNode cwd, String url) throws Failure {
-        return launcher(false, cwd, "ls", url).exec();
-    }
-
     //--
 
-    private Launcher interactive(FileNode cwd, String... args) {
-        return launcher(true, cwd, args);
-    }
-
-    private Launcher launcher(boolean interactive, FileNode cwd, String... args) {
+    private Launcher launcher(FileNode cwd, String... args) {
         Launcher launcher;
 
         launcher = new Launcher(cwd, "svn");
-        if (!interactive) {
-            launcher.arg("--non-interactive");
-            launcher.arg("--trust-server-cert"); // needs svn >= 1.6
-        }
         if (username != null) {
             launcher.arg("--no-auth-cache");
             launcher.arg("--username", username);
             launcher.arg("--password", password);
+            launcher.arg("--non-interactive"); // to avoid password question if svnpassword is wrong
         }
         launcher.arg(args);
         return launcher;
