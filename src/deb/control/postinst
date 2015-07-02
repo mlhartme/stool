@@ -4,6 +4,6 @@ dir=/opt/ui/opt/tools/stool
 # TODO: there's no package dependency for this ...
 export MAVEN_HOME=/opt/ui/opt/tools/wsdtools/maven/current
 /opt/ui/bin/setup-stool -v -batch ${dir}
-# make sure that every user can add to downloads, inbox etc
+# make sure that every user can add to downloads, inbox etc:
 chgrp users ${dir}/downloads ${dir}/inbox ${dir}/logs ${dir}/service-wrapper ${dir}/conf ${dir}/conf/users ${dir}/tomcat ${dir}/wrappers
 sudo -u servlet ${dir}/bin/stool-raw.sh chown -stage overview
