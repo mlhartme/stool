@@ -13,6 +13,5 @@ if test $exists -eq 1; then
 fi
 
 if [ -x "/etc/init.d/stool" ]; then
-        update-rc.d stool start 23 2 3 4 5 . >/dev/null
-        # invoke-rc.d stool start || installinit_error
+        update-rc.d stool start 22 2 3 4 5 . stop 22 0 1 6 . >/dev/null  || installinit_error
 fi

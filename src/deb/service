@@ -2,10 +2,10 @@
 
 ### BEGIN INIT INFO
 # Provides:        stool
-# Required-Start:  $network
-# Required-Stop:   $network
+# Required-Start:  $local_fs $remote_fs $network $syslog $named
+# Required-Stop:   $local_fs $remote_fs $network $syslog $named
 # Default-Start:   2 3 4 5
-# Default-Stop:
+# Default-Stop:    0 1 6
 # Short-Description: Start Stool stages
 ### END INIT INFO
 
