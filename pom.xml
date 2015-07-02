@@ -367,7 +367,7 @@
                     <type>perm</type>
                     <user>root</user>
                     <group>root</group>
-                    <filemode>644</filemode>
+                    <filemode>755</filemode>
                   </mapper>
                 </data>
                 <data>
@@ -380,7 +380,6 @@
                     <type>perm</type>
                     <user>root</user>
                     <group>root</group>
-                    <filemode>755</filemode>
                   </mapper>
                 </data>
                 <data>
@@ -393,7 +392,6 @@
                     <type>perm</type>
                     <user>root</user>
                     <group>root</group>
-                    <filemode>644</filemode>
                   </mapper>
                 </data>
               </dataSet>
