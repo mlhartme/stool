@@ -11,3 +11,8 @@ if test $exists -eq 1; then
   chown -R root:users ${dir}/downloads ${dir}/inbox ${dir}/logs ${dir}/service-wrapper ${dir}/conf ${dir}/tomcat ${dir}/wrappers
   sudo -u servlet ${dir}/bin/stool-raw.sh chown -stage overview
 fi
+
+if [ -x "/etc/init.d/stool" ]; then
+        update-rc.d stool start 23 2 3 4 5 . >/dev/null
+        # invoke-rc.d stool start || installinit_error
+fi

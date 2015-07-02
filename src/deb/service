@@ -1,6 +1,14 @@
 #!/bin/sh
 
-# What is this?
+### BEGIN INIT INFO
+# Provides:        stool
+# Required-Start:  $network
+# Required-Stop:   $network
+# Default-Start:   2 3 4 5
+# Default-Stop:
+# Short-Description: Start Stool stages
+### END INIT INFO
+
 STOOL=/opt/ui/opt/tools/stool/bin/stool-raw.sh
 . /lib/lsb/init-functions
 
