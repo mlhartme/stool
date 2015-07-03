@@ -99,20 +99,30 @@ public class Environment {
     }
 
     public String get(String key) {
+        String value;
+
+        value = properties.get(key);
+        if (value == null) {
+            throw new IllegalStateException("property not found: " + key);
+        }
+        return value;
+    }
+
+    public String getOpt(String key) {
         return properties.get(key);
     }
 
     public String code(String key) {
         String value;
 
-        value = get(key);
         if (key.equals(PWD)) {
-            return "cd '" + value + "'";
+            return "cd '" + get(key) + "'";
         } else {
-            if (value != null) {
-                return "export " + key + "='" + value + "'";
-            } else {
+            value = getOpt(key);
+            if (value == null) {
                 return "unset " + key;
+            } else {
+                return "export " + key + "='" + value + "'";
             }
         }
     }
@@ -139,7 +149,7 @@ public class Environment {
 
         result = new Environment();
         for (String key : keys) {
-            result.set(key, get(key));
+            result.set(key, getOpt(key));
         }
         return result;
     }
@@ -168,13 +178,7 @@ public class Environment {
     //-- home handling. CAUTION: not part of the session
 
     public FileNode stoolHome(World world) {
-        String str;
-
-        str = get(STOOL_HOME);
-        if (str == null) {
-            throw new IllegalStateException();
-        }
-        return world.file(str);
+        return world.file(get(STOOL_HOME));
     }
 
     public void setStoolHome(FileNode home) {
@@ -184,7 +188,7 @@ public class Environment {
     //-- proxyOpts
 
     public String proxyOpts(boolean quote) {
-        return proxyOpts(quote, get("http_proxy"), get("https_proxy"), get("no_proxy"));
+        return proxyOpts(quote, getOpt("http_proxy"), getOpt("https_proxy"), getOpt("no_proxy"));
     }
 
     /**
@@ -267,11 +271,7 @@ public class Environment {
                 } else {
                     behind = behind(str, i + 1);
                     key = str.substring(i + 1, behind);
-                    value = get(key);
-                    if (value == null) {
-                        throw new IllegalArgumentException("variable not found: " + key);
-                    }
-                    builder.append(value);
+                    builder.append(get(key));
                     i = behind - 1;
                 }
             } else {

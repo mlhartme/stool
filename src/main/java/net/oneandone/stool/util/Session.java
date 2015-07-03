@@ -111,7 +111,7 @@ public class Session {
         home.checkDirectory();
         result = new Session(factory, gson, logging, user, command, home, console, environment, StoolConfiguration.load(gson, home),
                 Bedroom.loadOrCreate(gson, home), invocationFile, svnuser, svnpassword);
-        result.selectedStageName = environment.get(Environment.STOOL_SELECTED);
+        result.selectedStageName = environment.getOpt(Environment.STOOL_SELECTED);
         return result;
     }
 
@@ -253,11 +253,11 @@ public class Session {
 
         for (String key : environment(null).keys()) {
             backupKey = Environment.backupKey(key);
-            backupValue = environment.get(backupKey);
+            backupValue = environment.getOpt(backupKey);
             if (backupValue != null) {
                 throw new ArgumentException("session already opened (environment variable already defined: " + backupKey + ")");
             }
-            environment.set(backupKey, environment.get(key));
+            environment.set(backupKey, environment.getOpt(key));
         }
     }
 
@@ -269,7 +269,7 @@ public class Session {
         reset = environment(null);
         for (String key : reset.keys()) {
             backupKey = Environment.backupKey(key);
-            backupValue = environment.get(backupKey);
+            backupValue = environment.getOpt(backupKey);
             environment.set(key, backupValue);
             environment.set(backupKey, null);
         }
@@ -350,7 +350,7 @@ public class Session {
         }
         prompt = configuration.prompt;
         prompt = Strings.replace(prompt, "\\+", stoolIndicator);
-        prompt = Strings.replace(prompt, "\\=", this.environment.get(Environment.backupKey(Environment.PS1)));
+        prompt = Strings.replace(prompt, "\\=", this.environment.getOpt(Environment.backupKey(Environment.PS1)));
         env.set(Environment.PS1, prompt);
         env.set(Environment.PWD, (stage == null ? ((FileNode) console.world.getWorking()) : stage.getDirectory()).getAbsolute());
         return env;
