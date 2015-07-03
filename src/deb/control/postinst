@@ -4,6 +4,12 @@ test -d $dir
 exists=$?
 set -e
 
+if [ "$1" = "configure" ]; then
+    # TODO --no-create-home
+    adduser --system --quiet --ingroup users servlet
+fi
+
+
 # TODO: there's no package dependency for this ...
 export MAVEN_HOME=/opt/ui/opt/tools/wsdtools/maven/current
 /opt/ui/bin/setup-stool -v -batch ${dir}
@@ -13,5 +19,5 @@ if test $exists -eq 1; then
 fi
 
 if [ -x "/etc/init.d/stool" ]; then
-        update-rc.d stool start 22 2 3 4 5 . stop 22 0 1 6 . >/dev/null  || installinit_error
+  update-rc.d stool defaults >/dev/null
 fi
