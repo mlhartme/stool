@@ -24,45 +24,45 @@ import java.util.List;
 public class SystemStartStop extends StageCommand {
     private final Session session;
     private final boolean start;
-    private Stage delayedOverviewStart;
 
     public SystemStartStop(Session session, boolean start) {
         super(session);
         this.session = session;
         this.start = start;
-        this.delayedOverviewStart = null;
     }
 
     protected List<Stage> defaultSelected(EnumerationFailed problems) throws IOException {
-        return all(problems);
+        List<Stage> result;
+        Stage overview;
+
+        result = all(problems);
+
+        // put overview at the end -- work-around for overview problem: sleep state is not updated properly
+        overview = null;
+        for (Stage stage : result) {
+            if (stage.isOverview()) {
+                overview = stage;
+            }
+        }
+        if (overview != null) {
+            result.remove(overview);
+            result.add(overview);
+        }
+        return result;
     }
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
         if (start) {
-            if (stage.isOverview()) {
-                // TODO: work-around because overview does not properly refresh sleep state
-                delayedOverviewStart = stage;
-            } else if (stage.state() == Stage.State.SLEEPING) {
-                start(stage);
+            if (stage.isOverview() || stage.state() == Stage.State.SLEEPING) {
+                session.console.info.println("[" + stage.getName() + "]");
+                new Start(stage.session, false, false).doInvoke(stage);
             }
         } else {
             if (stage.state() == Stage.State.UP) {
                 session.console.info.println("[" + stage.getName() + "]");
                 new Stop(stage.session, true).doInvoke(stage);
             }
-        }
-    }
-
-    private void start(Stage stage) throws Exception {
-        session.console.info.println("[" + stage.getName() + "]");
-        new Start(stage.session, false, false).doInvoke(stage);
-    }
-
-    @Override
-    public void doAfter() throws Exception {
-        if (delayedOverviewStart != null) {
-            start(delayedOverviewStart);
         }
     }
 }
