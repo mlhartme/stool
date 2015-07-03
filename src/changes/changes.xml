@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.1.2">
+      <action date="2015-07-03" dev="mlhartme" type="add">
+        Added stool properties downloadTomcat and downloadServiceWrapper to configure download urls.
+        Also improved console output for downloads and error messages.
+      </action>
       <action date="2015-07-01" dev="mlhartme" type="add">
         Added optional $home/conf/overview.properties file to configure svn credentials for overview when it invokes Stool.
       </action>

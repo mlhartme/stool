@@ -17,6 +17,7 @@ package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.io.OS;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -115,6 +116,10 @@ public class StoolConfiguration {
 
     public String ldapSso;
 
+    public String downloadTomcat;
+
+    public String downloadServiceWrapper;
+
     // number of days between up-to-data checks
     public int updateInterval;
 
@@ -153,6 +158,9 @@ public class StoolConfiguration {
         mailPassword = "";
         certificates = "";
         updateInterval = 10;
+        downloadTomcat =  "http://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz";
+        downloadServiceWrapper = "http://wrapper.tanukisoftware.com/download/${version}/wrapper-"
+                + (OS.CURRENT == OS.LINUX ? "linux-x86-64" : "macosx-universal-64") + "-${version}.tar.gz";
         this.downloads = downloads;
     }
 

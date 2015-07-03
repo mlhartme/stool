@@ -29,6 +29,8 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
+import net.oneandone.sushi.util.Substitution;
+import net.oneandone.sushi.util.SubstitutionException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.xml.sax.SAXException;
@@ -40,7 +42,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -101,14 +102,11 @@ public class Start extends StageCommand {
         if (logs.size() == 0) {
             throw new IOException("no log files found");
         }
-        Collections.sort(logs, new Comparator<Node>() {
-            @Override
-            public int compare(Node left, Node right) {
-                try {
-                    return (int) (right.getLastModified() - left.getLastModified());
-                } catch (GetLastModifiedException e) {
-                    throw new IllegalStateException(e);
-                }
+        Collections.sort(logs, (left, right) -> {
+            try {
+                return (int) (right.getLastModified() - left.getLastModified());
+            } catch (GetLastModifiedException e) {
+                throw new IllegalStateException(e);
             }
         });
         log = logs.get(0);
@@ -165,20 +163,20 @@ public class Start extends StageCommand {
     //TODO: work-around for sushi http problem with proxies
     // TODO: race condition for simultaneous downloads
     public static void downloadFile(PrintWriter log, String url, FileNode dest) throws IOException {
-        log.print("downloading " + dest + " from " + url + " ...");
+        log.println("downloading " + url + " ...");
         try {
-        if (OS.CURRENT != OS.MAC) {
-            // don't use sushi, it's not proxy-aware
-            dest.getParent().exec("wget", "--tries=1", "--connect-timeout=5", "-q", "-O", dest.getName(), url);
-        } else {
-            // wget not available on Mac, but Mac usually have no proxy
-            dest.getWorld().validNode(url).copyFile(dest);
-        }
+            if (OS.CURRENT != OS.MAC) {
+                // don't use sushi, it's not proxy-aware
+                dest.getParent().exec("wget", "--tries=1", "--connect-timeout=5", "-q", "-O", dest.getName(), url);
+            } else {
+                // wget not available on Mac, but Mac usually have no proxy
+                dest.getWorld().validNode(url).copyFile(dest);
+            }
         } catch (IOException e) {
-            throw new IOException(url + ": download failed: " + e.getMessage(), e);
+            throw new IOException("download failed: " + url
+                    + "\nAs a work-around, you can download it manually an place it at " + dest.getAbsolute()
+                    + "\nDetails: " + e.getMessage(), e);
         }
-
-        log.println(" done");
     }
 
     public void copyTemplate(Stage stage, Ports ports) throws Exception {
@@ -202,14 +200,7 @@ public class Start extends StageCommand {
         name = tomcatName(version);
         download = session.downloads().join(name + ".tar.gz");
         if (!download.exists()) {
-            console.info.println("downloading tomcat ...");
-            try {
-                downloadFile(console.info, "http://archive.apache.org/dist/tomcat/tomcat-7/v" + version + "/bin/" + name + ".tar.gz", download);
-            } catch (IOException e) {
-                failed = new IOException("Cannot download Tomcat " + version + ". Please provide it manually at " + download);
-                failed.addSuppressed(e);
-                throw failed;
-            }
+            downloadFile(console.info, subst(session.configuration.downloadTomcat, version), download);
             download.checkFile();
         }
         base = session.home.join("tomcat/" + name);
@@ -220,6 +211,19 @@ public class Start extends StageCommand {
         return download;
     }
 
+    private static String subst(String pattern, String version) {
+        Map<String, String> variables;
+
+        variables = new HashMap<>();
+        variables.put("version", version);
+        variables.put("major", version.substring(0, version.indexOf('.')));
+        try {
+            return Substitution.ant().apply(pattern, variables);
+        } catch (SubstitutionException e) {
+            throw new ArgumentException("invalid url pattern: " + pattern, e);
+        }
+    }
+
     public void serviceWrapperOpt(String version) throws IOException {
         FileNode download;
         String name;
@@ -228,7 +232,7 @@ public class Start extends StageCommand {
         name = serviceWrapperName(version);
         download = session.downloads().join(name + ".tar.gz");
         if (!download.exists()) {
-            downloadFile(console.info, "http://wrapper.tanukisoftware.com/download/" + version + "/" + name + ".tar.gz", download);
+            downloadFile(console.info, subst(session.configuration.downloadServiceWrapper, version), download);
             download.checkFile();
         }
         base = session.home.join("service-wrapper/" + name);
