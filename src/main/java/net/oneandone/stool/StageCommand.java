@@ -185,7 +185,7 @@ public abstract class StageCommand extends SessionCommand {
     public abstract void doInvoke(Stage stage) throws Exception;
 
     //--
-    public void doAfter() throws IOException {
+    public void doAfter() throws Exception {
     }
 
     public static enum Fail {
