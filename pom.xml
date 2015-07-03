@@ -362,6 +362,7 @@
                 <data>
                   <src>${basedir}/src/deb/service</src>
                   <dst>/etc/init.d/stool</dst>
+                  <conffile>true</conffile>
                   <type>file</type>
                   <mapper>
                     <type>perm</type>
