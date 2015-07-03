@@ -512,7 +512,7 @@ public class Session {
                 .create();
     }
 
-    public FileNode downloads() {
-        return configuration.downloads;
+    public FileNode downloadCache() {
+        return configuration.downloadCache;
     }
 }

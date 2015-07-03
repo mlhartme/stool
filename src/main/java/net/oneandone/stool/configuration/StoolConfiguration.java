@@ -116,10 +116,6 @@ public class StoolConfiguration {
 
     public String ldapSso;
 
-    public String downloadTomcat;
-
-    public String downloadServiceWrapper;
-
     // number of days between up-to-data checks
     public int updateInterval;
 
@@ -133,9 +129,13 @@ public class StoolConfiguration {
      */
     public String errorTool;
 
-    public FileNode downloads;
+    public String downloadTomcat;
 
-    public StoolConfiguration(FileNode downloads) {
+    public String downloadServiceWrapper;
+
+    public FileNode downloadCache;
+
+    public StoolConfiguration(FileNode downloadCache) {
         portFirst = 9000;
         portLast = 9999;
         portOverview = portFirst;
@@ -161,7 +161,7 @@ public class StoolConfiguration {
         downloadTomcat =  "http://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz";
         downloadServiceWrapper = "http://wrapper.tanukisoftware.com/download/${version}/wrapper-"
                 + (OS.CURRENT == OS.LINUX ? "linux-x86-64" : "macosx-universal-64") + "-${version}.tar.gz";
-        this.downloads = downloads;
+        this.downloadCache = downloadCache;
     }
 
     public static FileNode configurationFile(FileNode home) {

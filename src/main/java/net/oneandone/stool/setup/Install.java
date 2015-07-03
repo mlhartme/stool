@@ -90,7 +90,7 @@ public class Install {
         tuneHostname(conf);
         tuneExplicit(conf);
         copyResources(variables(Session.javaHome()));
-        Files.stoolDirectory(conf.downloads.mkdirOpt()).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
+        Files.stoolDirectory(conf.downloadCache.mkdirOpt()).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
         conf.save(Session.gson(home.getWorld(), ExtensionsFactory.create(home.getWorld())), home);
 
         // ok, no exceptions - we have a proper install directory: no cleanup

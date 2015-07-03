@@ -192,13 +192,12 @@ public class Start extends StageCommand {
     }
 
     public FileNode tomcatOpt(String version) throws IOException {
-        IOException failed;
         FileNode download;
         String name;
         FileNode base;
 
         name = tomcatName(version);
-        download = session.downloads().join(name + ".tar.gz");
+        download = session.downloadCache().join(name + ".tar.gz");
         if (!download.exists()) {
             downloadFile(console.info, subst(session.configuration.downloadTomcat, version), download);
             download.checkFile();
@@ -230,7 +229,7 @@ public class Start extends StageCommand {
         FileNode base;
 
         name = serviceWrapperName(version);
-        download = session.downloads().join(name + ".tar.gz");
+        download = session.downloadCache().join(name + ".tar.gz");
         if (!download.exists()) {
             downloadFile(console.info, subst(session.configuration.downloadServiceWrapper, version), download);
             download.checkFile();
