@@ -4,6 +4,7 @@ set -e
 
 case "$1" in
     remove)
+        service stool stop
         rm -rf /opt/ui/opt/tools/stool
     ;;
     upgrade|deconfigure|failed-upgrade)
