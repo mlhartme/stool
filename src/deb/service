@@ -21,6 +21,15 @@ case "$1" in
                 exit $result
         ;;
         
+        force-load|restart)
+                log_daemon_msg "Restarting stages" "stool"
+                sudo -u servlet $STOOL system-stop
+                sudo -u servlet $STOOL system-start
+                result=$?
+                log_end_msg $result
+                exit $result
+        ;;
+
         stop)
                 log_daemon_msg "Stopping stages" "stool"
                 sudo -u servlet $STOOL system-stop

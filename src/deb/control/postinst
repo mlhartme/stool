@@ -6,7 +6,7 @@ set -e
 
 if [ "$1" = "configure" ]; then
     # TODO --no-create-home
-    adduser --system --quiet --ingroup users servlet
+    adduser --system --quiet --ingroup users --home /home/servlet servlet
 fi
 
 
