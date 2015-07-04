@@ -246,7 +246,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
             },
 
             action: function () {
-                var stage, action, option, timeout, estimate, p, i, url;
+                var stage, action, option, estimate, p, i, url;
                 if ($(this).parent().hasClass('disabled') && $(this).attr('data-stage') === null) {
                     return false;
                 }
@@ -254,7 +254,6 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                 stage = $(this).attr('data-stage');
                 action = $(this).attr('data-action');
                 option = $(this).attr('data-option');
-                timeout = $(this).attr('data-timeout');
                 estimate = $(this).attr('data-estimate');
                 p = $(this).parent().parent();
                 i = $(p).find('.info');
@@ -272,9 +271,6 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                     url = url + "/-" + option;
                 }
 
-                if (timeout === undefined) {
-                    timeout = 10;
-                }
                 $('.modal-title').text("Console output");
                 $('.modal').modal();
                 $.post(url).fail(function (r) {

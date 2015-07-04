@@ -56,7 +56,7 @@
                     <li><a href="#dashboard" data-estimate="${stage.stats.avgRestart}" data-action="restart" data-stage="${stage.name}">Restart</a>
                     </li>
                     <li><a href="#dashboard" data-option="restart" data-estimate="${stage.stats.avgBuild}" data-action="build"
-                           data-timeout="100" data-stage="${stage.name}">Build</a></li>
+                           data-stage="${stage.name}">Build</a></li>
                     <li><a href="#dashboard" data-action="refresh" data-option="restore" data-stage="${stage.name}">Rollback</a></li>
                 </ul>
             </div>
