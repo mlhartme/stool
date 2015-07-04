@@ -66,25 +66,23 @@ public class ProcessesController {
         StringBuilder output;
         MultiValueMap<String, String> headers;
         output = new StringBuilder();
-        List<String> strings;
-        ListIterator<String> iterator;
-
-        headers = new HttpHeaders();
+        long size;
+        boolean exists;
 
         try {
             logfile = logFile(id);
         } catch (ResourceNotFoundException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-
-        strings = logfile.readLines();
-        iterator = strings.listIterator(index);
-        while (iterator.hasNext()) {
-            output.append(iterator.next()).append("<br />");
+        size = 0;
+        exists = logs.join(id + ".running").exists();
+        for (String line : logfile.readLines()) {
+            output.append(line).append("<br />");
+            size += line.length();
         }
-        if (logs.join(id + ".running").exists()) {
-            headers.set("X-Running", "true");
-        }
+        headers = new HttpHeaders();
+        headers.set("X-Running", Boolean.toString(exists));
+        headers.set("X-Size", Long.toString(size));
         return new ResponseEntity<>(output.toString(), headers, HttpStatus.OK);
     }
 
