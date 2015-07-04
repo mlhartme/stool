@@ -82,7 +82,6 @@ public class ProcessesController {
         while (iterator.hasNext()) {
             output.append(iterator.next()).append("<br />");
         }
-        headers.set("X-index", "" + strings.size());
         if (logs.join(id + ".running").exists()) {
             headers.set("X-Running", "true");
         }

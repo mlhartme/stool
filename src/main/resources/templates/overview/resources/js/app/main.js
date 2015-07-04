@@ -334,6 +334,8 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
             },
             fetchLog: function (element, id, index, spinner, parent) {
                 $.get("/processes/" + id + "/log", {"index": index}).done(function (data, status, response) {
+                    $(element).append(data);
+                    $(parent).animate({scrollTop: $(element).height()}, 'fast');
                     if (response.getResponseHeader("X-running") === null) {
                         $(spinner).hide();
                     } else {
