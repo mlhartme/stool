@@ -298,7 +298,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
 
             },
             showLog: function (element, id, index, spinner, parent, estimate) {
-                overview.stages.fetchLog(element, id, index, 0, spinner, parent);
+                overview.stages.fetchLog(element, id, index, spinner, 0, parent);
 
                 //overview.stages.progressbar.updater(".modal-footer", estimate, new Date())
             },
@@ -340,7 +340,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                         $(element).append(data);
                         $(parent).animate({scrollTop: $(element).height()}, 'fast');
                     }
-                    if (response.getResponseHeader("X-Running")) {
+                    if ("true" == response.getResponseHeader("X-Running")) {
                         setTimeout(function () {
                             overview.stages.fetchLog(element, id, index, spinner, lastSize, parent);
                         }, 1000);
