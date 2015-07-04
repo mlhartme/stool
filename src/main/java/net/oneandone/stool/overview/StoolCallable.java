@@ -61,6 +61,7 @@ public class StoolCallable implements Callable<Failure> {
         long time;
         BuildStats buildStats;
         Subversion subversion;
+        FileNode running;
 
         failure = null;
         time = System.currentTimeMillis();
@@ -78,11 +79,14 @@ public class StoolCallable implements Callable<Failure> {
         launcher.arg(options);
         try (PrintWriter writer = new PrintWriter(logDir.join(id + ".log").createWriter())) {
             writer.println(hide(launcher.toString(), subversion.password));
+            running = logDir.join(id + ".running").mkfile();
             try {
                 launcher.exec(writer);
             } catch (Failure e) {
                 failure = e;
                 e.printStackTrace(writer);
+            } finally {
+                running.deleteFile();
             }
             time = System.currentTimeMillis() - time;
             writer.println((failure == null ? "OK" : "FAILED") + " (ms= " + time + ")");

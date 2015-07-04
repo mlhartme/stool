@@ -289,7 +289,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                     $('.modal-body .shell').html("").show();
                     spinner = '.fa-spinner';
                     $(spinner).show();
-                    overview.stages.showLog('.modal-body .shell', r, 0, 0, spinner, timeout, '.modal', estimate);
+                    overview.stages.showLog('.modal-body .shell', r, 0, spinner, '.modal', estimate);
 
                 });
 
@@ -297,8 +297,8 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                 return false;
 
             },
-            showLog: function (element, id, index, unchanged, spinner, timeout, parent, estimate) {
-                overview.stages.fetchLog(element, id, index, unchanged, spinner, timeout, parent);
+            showLog: function (element, id, index, spinner, parent, estimate) {
+                overview.stages.fetchLog(element, id, index, spinner, parent);
 
                 //overview.stages.progressbar.updater(".modal-footer", estimate, new Date())
             },
@@ -332,26 +332,14 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                     }
                 },
             },
-            fetchLog: function (element, id, index, unchanged, spinner, timeout, parent) {
+            fetchLog: function (element, id, index, spinner, parent) {
                 $.get("/processes/" + id + "/log", {"index": index}).done(function (data, status, response) {
-                    if (response.getResponseHeader("X-index") === null) {
-                        Driftwood.error("X-index head is null", {"answer": data}, {"response": response});
-                    }
-                    if (index == response.getResponseHeader("X-index")) {
-                        unchanged++;
-                    } else {
-                        index = response.getResponseHeader("X-index");
-                        $(element).append(data);
-                        $(parent).animate({scrollTop: $(element).height()}, 'fast');
-                    }
-
-                    if (unchanged !== timeout) {
-                        setTimeout(function () {
-                            overview.stages.fetchLog(element, id, index, unchanged, spinner, timeout, parent);
-                            unchanged = 0;
-                        }, 1000);
-                    } else {
+                    if (response.getResponseHeader("X-running") === null) {
                         $(spinner).hide();
+                    } else {
+                        setTimeout(function () {
+                            overview.stages.fetchLog(element, id, index, spinner, parent);
+                        }, 1000);
                     }
                 });
 

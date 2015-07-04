@@ -83,9 +83,11 @@ public class ProcessesController {
             output.append(iterator.next()).append("<br />");
         }
         headers.set("X-index", "" + strings.size());
+        if (logs.join(id + ".running").exists()) {
+            headers.set("X-Running", "true");
+        }
         return new ResponseEntity<>(output.toString(), headers, HttpStatus.OK);
     }
-
 
     public Node logFile(String id) throws InterruptedException, ExistsException, MkdirException {
         Node logfile;
