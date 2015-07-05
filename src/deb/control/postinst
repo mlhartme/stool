@@ -5,8 +5,12 @@ exists=$?
 set -e
 
 if [ "$1" = "configure" ]; then
-    # TODO --no-create-home
-    adduser --system --quiet --ingroup users --home /home/servlet servlet
+    if id -u servlet >/dev/null 2>&1; then
+        echo "servlet user already exists"
+    else
+        # TODO --no-create-home
+        adduser --system --quiet --ingroup users --home /home/servlet servlet
+    fi
 fi
 
 
