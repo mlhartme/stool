@@ -212,6 +212,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                 $.ajax('/stages', {
                     dataType: "html",
                     success: function (data) {
+                        // TODO: handle removed stages. They currently remain in the overview until the user presses refresh.
 
                         var wrapper;
                         wrapper = $('#all-stages');
@@ -230,13 +231,15 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
 
                             if (oldTr.length === 0) {
                                 wrapper.append(tr);
-                                actions = $('[data-action]');
-                                actions.off('click', overview.stages.action)
-                                actions.on('click', overview.stages.action);
                             } else if (oldTr.attr("data-hash") !== $(tr).attr("data-hash")) {
                                 oldTr.replaceWith(tr);
+                            } else {
+                                // no changes
                             }
                         });
+                        actions = $('[data-action]');
+                        actions.on('click', overview.stages.action);
+                        actions.off('click', overview.stages.action)
                         $('[data-toggle="popover"]').popover();
                         overview.stages.recountTabs(wrapper);
                         overview.navigation.checkLocationHash();
