@@ -10,7 +10,7 @@
 
   <name>Stool</name>
   <url>https://github.com/mlhartme/stool</url>
-  <description>Stage tool - runs multiple web applications in multiple tomcats on a single machine.
+  <description>Runs multiple web applications in multiple tomcats on a single machine.
  Stool is a command line tool that provides a lifecycle for stages:
  create, configure, build, run and remove. A stage contains web applications,
  that may come in different flavors: Maven war projects or artifacts

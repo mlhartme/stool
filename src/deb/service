@@ -38,6 +38,14 @@ case "$1" in
                 exit $result
         ;;
         
+        status)
+                log_daemon_msg "Listing stages" "stool"
+                sudo -u servlet $STOOL list
+                result=$?
+                log_end_msg $result
+                exit $result
+        ;;
+
         *)
                 echo "Usage: /opt/ui/etc/init.d/stool {start|stop}"
                 exit 1
