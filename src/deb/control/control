@@ -3,7 +3,7 @@ Version: [[version]]
 Section: misc
 Priority: optional
 Architecture: all
-Depends: java8-jdk, adduser
+Depends: java8-jdk, adduser, sssd
 Maintainer: CISO Operating <ciso-ops@1und1.de>
 Description: [[description]]
 Distribution: wheezy
