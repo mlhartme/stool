@@ -1,6 +1,6 @@
 #! /bin/sh
-# Arguments
-#   newUser dir*
+# usage
+#   chowntree newUser dir*
 
 SCRIPT=$(basename $0)
 NEWUSER=$1; shift
@@ -16,7 +16,6 @@ then
   exit 1
 fi
 
-# check if user exists
 if ! id "$NEWUSER" > /dev/null 2>&1; then
     echo "$SCRIPT: $NEWUSER: no such user" 1>&2
     exit 1
