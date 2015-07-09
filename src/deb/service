@@ -9,6 +9,8 @@
 # Short-Description: Start Stool stages
 ### END INIT INFO
 
+# we need sssd to stop the stool service, otherwise sudo rejects unknwon users
+
 STOOL=/opt/ui/opt/tools/stool/bin/stool-raw.sh
 . /lib/lsb/init-functions
 
