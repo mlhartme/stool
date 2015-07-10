@@ -46,6 +46,7 @@ public class Lock {
                 }
                 userAndOpInProgress = getLockDescription();
                 if (seconds % 10 == 0) {
+                    console.verbose.println("trying to acquire " + lockfile.getAbsolutePath());
                     console.info.println("Waiting for " + userAndOpInProgress[0]
                       + " (who runs 'stool " + userAndOpInProgress[1] + "'): " + seconds + "s" + " (Ctrl-C to abort)");
                 }
