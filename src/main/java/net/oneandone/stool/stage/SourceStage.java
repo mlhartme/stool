@@ -19,9 +19,11 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.ModeException;
+import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
+import net.oneandone.sushi.fs.filter.Predicate;
 import org.apache.maven.project.MavenProject;
 import org.eclipse.aether.artifact.DefaultArtifact;
 
@@ -107,15 +109,15 @@ public class SourceStage extends Stage {
 
         directory = world.file(project.getBasedir());
         filter = directory.getWorld().filter();
-        // TODO: support web.xml-less apps that use annotations instead ...
-        filter.include("target/*/WEB-INF/web.xml");
+        filter.include("target/*/WEB-INF");
+        filter.predicate((node, b) -> node.isDirectory() && (node.join("lib").isDirectory() || node.join("classes").isDirectory()));
         filter.exclude("target/test-classes/**/*");
         result = (List) directory.find(filter);
         switch (result.size()) {
             case 0:
-                throw new FileNotFoundException("No web.xml found. Did you build the project?");
+                throw new FileNotFoundException("No web application found. Did you build the project?");
             case 1:
-                return result.get(0).getParent().getParent();
+                return result.get(0).getParent();
             default:
                 throw new FileNotFoundException("web.xml ambiguous: " + result);
         }
