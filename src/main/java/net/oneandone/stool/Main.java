@@ -67,6 +67,8 @@ public class Main extends Cli implements Command {
 
         try {
             return main.run(args);
+        } catch (ArgumentException e) {
+            throw e;
         } catch (RuntimeException e) {
             try {
                 Session session;
@@ -109,6 +111,9 @@ public class Main extends Cli implements Command {
 
     @Option("svnpassword")
     private String svnpassword;
+
+    @Option("exception")
+    private boolean exception;
 
     @Option("invocation")
     private FileNode invocationFile;
@@ -271,6 +276,9 @@ public class Main extends Cli implements Command {
     public void printHelp() {
         String stoolhome;
 
+        if (exception) {
+            throw new RuntimeException("intentional exception");
+        }
         stoolhome = environment.stoolHome(console.world).getAbsolute();
         console.info.println("Stool usage:");
         console.info.println("  stool <global-options> <command>");
