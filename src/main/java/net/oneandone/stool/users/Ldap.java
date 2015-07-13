@@ -48,17 +48,15 @@ public class Ldap {
             env.put(Context.SECURITY_PRINCIPAL, principal);
             env.put(Context.SECURITY_CREDENTIALS, credentials);
         }
-        try {
-            return new Ldap(new InitialLdapContext(env, null));
-        } catch (NamingException e) {
-            throw new IllegalStateException(e);
-        }
+        return new Ldap(env);
     }
 
-    private final DirContext context;
+    private final Hashtable environment;
+    private DirContext lazyContext;
 
-    private Ldap(DirContext context) {
-        this.context = context;
+    private Ldap(Hashtable environment) {
+        this.environment = environment;
+        this.lazyContext = null;
     }
 
     //-- lookup users
@@ -133,6 +131,10 @@ public class Ldap {
     }
 
     private NamingEnumeration<SearchResult> search(String name, Attributes matchAttrs) throws NamingException {
-        return context.search(name, matchAttrs);
+        if (lazyContext == null) {
+            // caution: creating this context is expensive
+            lazyContext = new InitialLdapContext(environment, null);
+        }
+        return lazyContext.search(name, matchAttrs);
     }
 }
