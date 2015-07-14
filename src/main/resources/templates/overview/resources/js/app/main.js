@@ -238,8 +238,8 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                             }
                         });
                         actions = $('[data-action]');
-                        actions.on('click', overview.stages.action);
                         actions.off('click', overview.stages.action)
+                        actions.on('click', overview.stages.action);
                         $('[data-toggle="popover"]').popover();
                         overview.stages.recountTabs(wrapper);
                         overview.navigation.checkLocationHash();
