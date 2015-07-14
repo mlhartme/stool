@@ -23,10 +23,7 @@ import net.oneandone.sushi.launcher.Launcher;
 
 
 public class SystemValidate extends SessionCommand {
-
     private final Session session;
-    @Option("awake")
-    private boolean awake;
 
     public SystemValidate(Session session) {
         super(session);

@@ -318,7 +318,7 @@ public class Main extends Cli implements Command {
         console.info.println("  cleanup .............................  removes the maven repository and rotates *.log into an archive");
         console.info.println(
           "  list  ...............................  prints a short status of the selected stages; default selection is -all");
-        console.info.println("admin commands:");
+        console.info.println("system commands:");
         console.info.println("  system-stop [-sleep] ................  stops the overviews and sends all stages to sleep.");
         console.info.println("  system-start [-awake] ...............  starts the overview and awakes stages");
         console.info.println("  system-validate ..... ...............  checks for inconsistencies and new stool versions");
