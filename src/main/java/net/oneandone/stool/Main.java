@@ -91,11 +91,38 @@ public class Main extends Cli implements Command {
                 new InputLogStream(System.in, new Slf4jOutputStream(logging.logger("IN"), true)));
     }
 
+    /** hide invocation and svn arguments */
     private static String command(String[] args) {
-        if (args.length >= 2 && args[0].equals("-invocation")) {
-            args = Arrays.copyOfRange(args, 2 /* skip invocation file */, args.length);
+        StringBuilder result;
+        boolean options;
+        String arg;
+
+        result = new StringBuilder();
+        options = true;
+        for (int i = 0; i < args.length; i++) {
+            arg = args[i];
+            if (options) {
+                switch (arg) {
+                    case "-invocation":
+                        i++;
+                        continue;
+                    case "-svnuser":
+                    case "-svnpassword":
+                        arg = arg + " ********";
+                        i++;
+                        break;
+                    default:
+                        if (!arg.startsWith("-")) {
+                            options = false;
+                        }
+                }
+            }
+            if (result.length() > 0) {
+                result.append(' ');
+            }
+            result.append(arg);
         }
-        return Separator.SPACE.join(args);
+        return result.toString();
     }
 
     public static final String INBOX = "inbox";
