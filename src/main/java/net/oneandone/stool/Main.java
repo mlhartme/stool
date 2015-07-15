@@ -286,20 +286,22 @@ public class Main extends Cli implements Command {
         console.info.println("general commands:");
         console.info.println("  help            print this message");
         console.info.println("  version         print stool version information");
-        console.info.println("  create [-quiet|-prefix <n>] <url> [<name>] [<directory>] {<key>=<val>}");
-        console.info.println("  .....................................  creates a new stage named <name> from <url>");
+        console.info.println("  create [-quiet|-prefix <n>] <url> [-name <name>] [<directory>] {<key>=<val>}");
+        console.info.println("                                         creates a new stage from <url>");
+        console.info.println("                                         directory default to the cwd/lastUrlSegment ");
+        console.info.println("                                         name defaults the directory name");
         console.info.println("  import [-max <n>] [-name <template>] <directory>* ......");
         console.info.println("                                         turns existing applications into a stage; template is a string");
         console.info.println("                                         if it contains %d, it will be replaced by the directory name");
         console.info.println("                                         it defaults to just %d");
-        console.info.println("  select [<stage>|none]  ..............  use <stage> for stage commands");
+        console.info.println("  select [<stage>|none]  ..............  use <stage> for stage commands and cd into its directory ");
         console.info.println("stage commands");
         console.info.println("  config {<key>[=<val>]}  .............  get/set stage properties;");
         console.info.println("  .....................................  invoke without arguments to get a list of available keys");
         console.info.println("  status {<field>} ....................  prints selected status fields (default: all)");
         console.info.println("  build  ..............................  builds the stage; for convenience only -- you're free to build ");
         console.info.println(
-          "  .....................................  your application as you normally do, stool configure the necessary");
+          "                                         your application as you normally do, stool configure the necessary");
         console.info.println("  .....................................  environment variables");
         console.info.println("  refresh [-build|-stop|-own|-debug|-suspend] ..  update the stage, with optional building;");
         console.info.println("  .....................................  restart and chowning when necessary");
