@@ -50,7 +50,7 @@ public class Logging {
         Logging result;
 
         today = DATE_FORMAT.format(LocalDate.now());
-        id = Integer.toString(id(dir, today));
+        id = today + Integer.toString(id(dir, today));
         result = new Logging(id, dir.join(name + EXTENSION), user);
         result.configureRootLogger();
         return result;

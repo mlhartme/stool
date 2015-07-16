@@ -15,11 +15,11 @@
  */
 package net.oneandone.stool.util;
 
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 public class LogEntry {
-    public static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("y-MM-dd HH:mm:ss,SSS");
+    public static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("HH:mm:ss,SSS");
 
     public static LogEntry parse(String line) {
         int len;
@@ -45,7 +45,7 @@ public class LogEntry {
         if (line.charAt(len - 1) != '\n') {
             throw new IllegalArgumentException(line);
         }
-        return new LogEntry(LocalDateTime.parse(line.substring(0, date), FMT),
+        return new LogEntry(LocalTime.parse(line.substring(0, date), FMT),
                 line.substring(date + 1, id),
                 line.substring(id + 1, logger),
                 line.substring(logger + 1, user),
@@ -76,7 +76,7 @@ public class LogEntry {
 
     //--
 
-    public final LocalDateTime dateTime;
+    public final LocalTime dateTime;
     public final String id;
     public final String logger;
     public final String user;
@@ -84,7 +84,7 @@ public class LogEntry {
     public final String stageName;
     public final String message;
 
-    public LogEntry(LocalDateTime dateTime, String id, String logger, String user, String stageId, String stageName, String message) {
+    public LogEntry(LocalTime dateTime, String id, String logger, String user, String stageId, String stageName, String message) {
         this.dateTime = dateTime;
         this.id = id;
         this.logger = logger;
