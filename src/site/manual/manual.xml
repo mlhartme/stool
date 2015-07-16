@@ -433,8 +433,21 @@ http://docbook.org/ns/docbook ">
 
       <programlisting><![CDATA[stool refresh [-debug|-suspend]]]></programlisting>
 
-      <para>First stops the stage if it is stated. Then updates artifact stages or invokes the refresh command on source stages.
+      <para>First stops the stage if it is started. Then updates artifact stages or invokes the refresh command on source stages.
         And finally, if the stage was initially started, starts the stage again.</para>
+    </sect1>
+
+    <sect1>
+      <title>Chown</title>
+
+      <programlisting><![CDATA[stool chown [-stop] [-batch] [<user>]]]></programlisting>
+
+      <para>Changes the stage owner, i.e. the owner of all files and directories in the stage directory and the wrapper directory.</para>
+      <para>Before executing, chown checks if the stage has modified source files. If so, it asks for confirmation before changing ownership.
+        You can skip confirmation by specifying the '-batch' option.</para>
+      <para>Reports an error if the stage is running. In this case, you can use the '-stop' option to stop the stage before
+        changing ownership and also start it afterwards.</para>
+      <para>&lt;user> defaults to the current user.</para>
     </sect1>
 
     <sect1>

@@ -8,7 +8,7 @@
         stool -exception throws an intentional now. To test error tool.
       </action>
       <action date="2015-07-10" dev="mlhartme" type="fix">
-        Source stages: properly detect built web application even if they have now web.xml.
+        Source stages: properly detect web application directory even if they have now web.xml.
       </action>
       <action date="2015-07-10" dev="mlhartme" type="update">
         Improved verbose output when acquiring locks.
@@ -20,7 +20,7 @@
         Overview: Fix console window spinner to properly detect finished commands.
       </action>
       <action date="2015-07-03" dev="mlhartme" type="update">
-        Renamed 'downloads' property to 'downloadCache'.
+        stool.properties: Renamed 'downloads' property to 'downloadCache'.
         Added stool properties downloadTomcat and downloadServiceWrapper to configure download urls.
         As a side effect, Stool can now properly download Tomcat 8.
         Also improved console output for downloads and error messages.

@@ -207,8 +207,6 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
             },
 
             reload: function () {
-
-
                 $.ajax('/stages', {
                     dataType: "html",
                     success: function (data) {
@@ -230,21 +228,23 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                             oldTr = wrapper.find('#' + id);
 
                             if (oldTr.length === 0) {
+                                // new stage
+                                $(tr).find('[data-action]').off('click', overview.stages.action);
                                 wrapper.append(tr);
+                                $(tr).find('[data-action]').on('click', overview.stages.action);
                             } else if (oldTr.attr("data-hash") !== $(tr).attr("data-hash")) {
+                                // updated stage
+                                $(tr).find('[data-action]').off('click', overview.stages.action);
                                 oldTr.replaceWith(tr);
+                                $(tr).find('[data-action]').on('click', overview.stages.action);
                             } else {
                                 // no changes
                             }
                         });
-                        actions = $('[data-action]');
-                        actions.off('click', overview.stages.action)
-                        actions.on('click', overview.stages.action);
                         $('[data-toggle="popover"]').popover();
                         overview.stages.recountTabs(wrapper);
                         overview.navigation.checkLocationHash();
                     }
-
                 });
             },
 
