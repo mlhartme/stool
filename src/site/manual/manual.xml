@@ -545,6 +545,8 @@ http://docbook.org/ns/docbook ">
         with the specified name. This is the same behavior as the unix 'mv' command, but it also adjusts Stool's wrapper
         directory.
       </para>
+      <para>You might have to re-build your application after moving the stage if you have development tools that store
+        absolute paths (e.g. Lavender ...).</para>
     </sect1>
 
     <sect1>

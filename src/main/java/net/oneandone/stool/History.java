@@ -46,9 +46,9 @@ public class History extends StageCommand {
         LogEntry entry;
         int counter ;
         String id;
-        LogEntry header;
+        LogEntry command;
 
-        header = null;
+        command = null;
         stageId = s.config().id;
         try (LogReader reader = LogReader.create(session.home.join("logs"))) {
             counter = 0;
@@ -59,14 +59,14 @@ public class History extends StageCommand {
                     break;
                 }
                 if (entry.logger.equals("COMMAND")) {
-                    header = entry;
+                    command = entry;
                 }
                 if (entry.stageId.equals(stageId)) {
-                    if (header != null) {
+                    if (command != null) {
                         counter++;
-                        console.info.println("[" + counter + "] " + LogEntry.FMT.format(header.dateTime) + " " + header.user + ": " + header.message);
-                        id = header.id;
-                        header = null;
+                        console.info.println("[" + counter + "] " + LogEntry.FMT.format(command.dateTime) + " " + command.user + ": " + command.message);
+                        id = command.id;
+                        command = null;
                     }
                     if (detail == counter && entry.id.equals(id)) {
                         console.info.println("     " + entry.message);
