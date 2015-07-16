@@ -331,16 +331,20 @@ http://docbook.org/ns/docbook ">
 
       <programlisting><![CDATA[stool create [-quiet|-name <str>] <url> [<directory>] {<key>=<value>}]]></programlisting>
 
-      <para>Creates a new wrapper directory, a stage directory from the specified url, enters the directory and selects the stage.
+      <para>Creates a new stage and wrapper directory, enters the stage directory and selects the stage.
         In most cases, you invoke 'stool create' similar to 'svn checkout': with an url and a directory.
       </para>
-      <para>In many cases, the url is a subversion url and Stool performs a checkout. Output of the checkout command is
-        printed to the console unless the quiet option is specified.
+      <para>&lt;url> specifies the application you want to run in your stage. In many cases, the url is a subversion url and
+        Stool performs a checkout. Output of the checkout command is printed to the console unless the quiet option is specified.
+      </para>
+      <para>&lt;directory> specifies the stage directory to holding your application. If not specified, the current directory with the last
+        usable segment of the url (i.e. the last segment that is not trunk, tags, or branches) is used. You can specify an arbitrary directory,
+        as long as it does not exist yet and the parent directory exists and is writable for all users of the current group. Otherwise,
+        create reports an error.
       </para>
       <para>The new stage is configured with default stage properties. You can specify key-value pairs to override the
         defaults, or you can change the configuration later with 'stool config'.
       </para>
-      <para>If directory is not specified, that current directory with last segment of the url (without /trunk or /branches) is used.</para>
       <para>Unless specified with the '-name' option, the stage name is the directory name.</para>
       <para>Instead of a &lt;url,&gt; you can specify '% &lt;searchstring&gt;'. This will search Pommes for the specified
         search string, show all corresponding svn urls (including branches), and ask you to select one.
