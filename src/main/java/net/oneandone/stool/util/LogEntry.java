@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class LogEntry {
-    public static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("y-M-d H:m:s,SSS");
+    public static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("y-MM-dd HH:mm:ss,SSS");
 
     public static LogEntry parse(String line) {
         int len;
