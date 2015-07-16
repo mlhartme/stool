@@ -59,7 +59,7 @@ public class Main extends Cli implements Command {
         environment = Environment.loadSystem();
         home = environment.stoolHome(world);
         home.checkDirectory();
-        logging = Logging.forHome(home, user);
+        logging = Logging.forStool(home, user);
         command = "stool " + command(args);
         logging.logger("COMMAND").info(command);
         console = console(world, logging, System.out, System.err);

@@ -73,7 +73,7 @@ public class StoolIT {
         stages.deleteTreeOpt();
         stages.mkdir();
         world.setWorking(stages);
-        logging = Logging.forHome(home, TESTUSER);
+        logging = Logging.forStool(home, TESTUSER);
         stool("system-start");
     }
 

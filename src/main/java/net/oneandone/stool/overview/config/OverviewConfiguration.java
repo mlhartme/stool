@@ -83,7 +83,7 @@ public class OverviewConfiguration {
         }
         user = user();
         system.setStoolHome(home);
-        return Session.load(Logging.forHome(home, user), user, "overview", system, console(), null, svnuser, svnpassword);
+        return Session.load(Logging.create(logs(), "overview", user), user, "overview", system, console(), null, svnuser, svnpassword);
     }
 
     @Bean
@@ -93,7 +93,7 @@ public class OverviewConfiguration {
 
     @Bean
     public FileNode logs() throws IOException {
-        return self().shared().join("tomcat/logs");
+        return world().file(System.getProperty("catalina.base")).join("logs");
     }
 
     @Bean

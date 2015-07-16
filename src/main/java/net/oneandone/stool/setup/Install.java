@@ -70,7 +70,7 @@ public class Install {
         Session session;
 
         createHome();
-        session = Session.load(Logging.forHome(home, user), user, "setup-stool", environment, console, null, null, null);
+        session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
         createOverview(session);
         return session;
     }

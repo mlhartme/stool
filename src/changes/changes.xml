@@ -2,6 +2,9 @@
   <body>
     <release version="3.1.2">
       <action date="2015-07-16" dev="mlhartme" type="update">
+        Moved overview log output into tomcat/logs/overview.log.
+      </action>
+      <action date="2015-07-16" dev="mlhartme" type="update">
         Improved date format in stool.log
       </action>
       <action date="2015-07-10" dev="mlhartme" type="add">

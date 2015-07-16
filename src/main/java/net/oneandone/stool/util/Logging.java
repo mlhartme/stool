@@ -26,6 +26,7 @@ import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiOutputStream;
 import net.oneandone.sushi.io.PrefixWriter;
+import net.oneandone.sushi.util.Strings;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -36,37 +37,42 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Logging {
+    private static final String EXTENSION = ".log";
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-");
 
-    public static Logging forHome(FileNode home, String user) throws IOException {
+    public static Logging forStool(FileNode home, String user) throws IOException {
+        return create(home.join("logs"), "stool", user);
+    }
+
+    public static Logging create(FileNode dir, String name, String user) throws IOException {
         String today;
         String id;
         Logging result;
 
         today = DATE_FORMAT.format(LocalDate.now());
-        id = Integer.toString(id(home.join("logs"), today));
-        result = new Logging(id, home.join("logs/stool.log"), user);
+        id = Integer.toString(id(dir, today));
+        result = new Logging(id, dir.join(name + EXTENSION), user);
         result.configureRootLogger();
         return result;
     }
 
     public final String id;
     private final LoggerContext context;
-    private final FileNode stool;
+    private final FileNode file;
     private final String user;
 
     private String stageId;
     private String stageName;
 
-    public Logging(String id, FileNode stool, String user) throws IOException {
+    public Logging(String id, FileNode file, String user) throws IOException {
         this.id = id;
         this.context = (LoggerContext) LoggerFactory.getILoggerFactory();
-        this.stool = stool;
+        this.file = file;
         this.user = user;
         setStage("", "");
-        if (!stool.exists()) {
-            stool.writeBytes();
-            Files.stoolFile(stool);
+        if (!file.exists()) {
+            file.writeBytes();
+            Files.stoolFile(file);
         }
     }
 
@@ -115,12 +121,12 @@ public class Logging {
             public void rollover() {
                 super.rollover();
                 try {
-                    if (!stool.exists()) {
-                        stool.mkfile();
+                    if (!file.exists()) {
+                        file.mkfile();
                     }
-                    // Make sure stool.log is always group-writable, because all users share the same log file
+                    // Make sure the file is always group-writable, because all users share the same log file
                     // (The archived log is not a problems, because it's written exactly one, all later access is reading)
-                    Files.stoolFile(stool);
+                    Files.stoolFile(file);
                 } catch (IOException e) {
                     throw new RuntimeException("TODO", e);
                 }
@@ -130,12 +136,13 @@ public class Logging {
         result.setName(logger + "-appender");
         result.setEncoder(encoder(logger));
         result.setAppend(true);
-        result.setFile(stool.getAbsolute());
+        result.setFile(file.getAbsolute());
 
         policy = new TimeBasedRollingPolicy();
         policy.setContext(context);
         policy.setParent(result);
-        policy.setFileNamePattern(stool.getParent().getAbsolute() + "/stool-%d{yyyy-MM-dd}.log.gz");
+        policy.setFileNamePattern(file.getParent().getAbsolute() + "/" + Strings.removeRightOpt(file.getName(), EXTENSION)
+                + "-%d{yyyy-MM-dd}.log.gz");
         policy.setMaxHistory(180);
         policy.start();
 
@@ -253,5 +260,9 @@ public class Logging {
             file.setPermissions("rw-rw----");
         }
         return file;
+    }
+
+    public FileNode directory() {
+        return file.getParent();
     }
 }
