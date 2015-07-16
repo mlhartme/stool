@@ -22,16 +22,26 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 
 public class ErrorTool {
-    public static void send(URL url, Level level, String hostname, String subject, Exception e) throws IOException {
+    public static void send(URL url, Level level, String hostname, String subject, Throwable e) throws IOException {
         StringWriter dest;
+        PrintWriter writer;
 
         dest = new StringWriter();
-        e.printStackTrace(new PrintWriter(dest));
+        writer = new PrintWriter(dest);
+        while (true) {
+            e.printStackTrace(writer);
+            e = e.getCause();
+            if (e == null) {
+                break;
+            }
+            dest.append("Caused by:\n");
+        }
         send(url, level, hostname, subject, dest.getBuffer().toString());
     }
 
