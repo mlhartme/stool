@@ -22,6 +22,9 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class History extends StageCommand {
     public History(Session session) {
         super(session);
@@ -44,12 +47,13 @@ public class History extends StageCommand {
     public void doInvoke(Stage s) throws Exception {
         String stageId;
         LogEntry entry;
-        int counter ;
+        int counter;
         String id;
+        Map<String, LogEntry> commands;
         LogEntry command;
 
-        command = null;
         stageId = s.config().id;
+        commands = new HashMap<>();
         try (LogReader reader = LogReader.create(session.home.join("logs"))) {
             counter = 0;
             id = null;
@@ -59,14 +63,16 @@ public class History extends StageCommand {
                     break;
                 }
                 if (entry.logger.equals("COMMAND")) {
-                    command = entry;
+                    if (commands.put(entry.id, entry) != null) {
+                        throw new IllegalStateException("duplicate id: " + entry.id);
+                    }
                 }
                 if (entry.stageId.equals(stageId)) {
+                    command = commands.remove(entry.id);
                     if (command != null) {
                         counter++;
                         console.info.println("[" + counter + "] " + LogEntry.FMT.format(command.dateTime) + " " + command.user + ": " + command.message);
                         id = command.id;
-                        command = null;
                     }
                     if (detail == counter && entry.id.equals(id)) {
                         console.info.println("     " + entry.message);
@@ -77,5 +83,6 @@ public class History extends StageCommand {
                 }
             }
         }
+        console.verbose.println("stored commands: " + commands.size());
     }
 }
