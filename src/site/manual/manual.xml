@@ -22,45 +22,11 @@ http://docbook.org/ns/docbook ">
     </copyright>
 
     <releaseinfo>
-      <remark>This document was generated
-        <xi:include href="../../../target/now.txt" parse="text"/>
-        (Stool <?eval ${project.version}?>)
-      </remark>
+      <remark>Stool <?eval ${project.version}?>, <xi:include href="../../../target/now.txt" parse="text"/></remark>
     </releaseinfo>
   </info>
 
   <chapter>
-    <refentry>
-      <refmeta>
-        <refentrytitle>create</refentrytitle>
-        <manvolnum>1</manvolnum>
-      </refmeta>
-
-      <refnamediv>
-        <refname>create</refname>
-        <refpurpose>creates a new stage</refpurpose>
-      </refnamediv>
-
-      <refsynopsisdiv>
-        <cmdsynopsis>
-          <command>stool create url</command>
-          <arg choice="opt">
-            <option>aAbcCdfFgilLmnopqrRstux1</option>
-          </arg>
-          <arg choice="opt" rep="repeat">file</arg>
-        </cmdsynopsis>
-      </refsynopsisdiv>
-
-      <refsect1><title>Description</title>
-        <para>
-          For each file that is a directory, <command>ls</command> lists the contents of
-          the directory; for each file that is an ordinary file, <command>ls</command>
-          repeats its name and any other information requested.
-        </para>
-      </refsect1>
-
-    </refentry>
-
     <title>Introduction</title>
 
     <para>Stool is a command line tool that provides a lifecycle for stages: create, configure, build, run and remove.
@@ -332,271 +298,598 @@ http://docbook.org/ns/docbook ">
       <para>Commands that do not deal with individual stages.</para>
 
       <sect2>
-        <title>system-start</title>
+        <title>System Start</title>
+        <refentry>
+          <refmeta>
+            <refentrytitle>stool-system-start</refentrytitle>
+            <manvolnum>1</manvolnum>
+          </refmeta>
 
-        <programlisting><![CDATA[stool system-start]]></programlisting>
+          <refnamediv>
+            <refname>stool-system-start</refname>
+            <refpurpose>startup stages</refpurpose>
+          </refnamediv>
 
-        <para>Starts the stage overview and all sleeping stages.</para>
+          <refsynopsisdiv>
+            <cmdsynopsis>
+              <command>stool system-start</command>
+            </cmdsynopsis>
+          </refsynopsisdiv>
+
+          <refsect1><title>Description</title>
+            <para>
+              Starts the stage overview and all sleeping stages.
+            </para>
+          </refsect1>
+
+        </refentry>
       </sect2>
 
       <sect2>
-        <title>system-stop</title>
+        <title>System Stop</title>
+        <refentry>
+          <refmeta>
+            <refentrytitle>stool-system-stop</refentrytitle>
+            <manvolnum>1</manvolnum>
+          </refmeta>
 
-        <programlisting><![CDATA[stool system-stop]]></programlisting>
+          <refnamediv>
+            <refname>stool-system-stop</refname>
+            <refpurpose>shutdown stages</refpurpose>
+          </refnamediv>
 
-        <para>Stops the overview and sends all running stages to sleep.</para>
+          <refsynopsisdiv>
+            <cmdsynopsis>
+              <command>stool system-stop</command>
+            </cmdsynopsis>
+          </refsynopsisdiv>
+
+          <refsect1><title>Description</title>
+            <para>
+              Stops the overview and sends all running stages to sleep.
+            </para>
+          </refsect1>
+        </refentry>
       </sect2>
 
       <sect2>
-        <title>system-validate</title>
+        <title>System Validate</title>
+        <refentry>
+          <refmeta>
+            <refentrytitle>stool-system-validate</refentrytitle>
+            <manvolnum>1</manvolnum>
+          </refmeta>
+          <refnamediv>
+            <refname>stool-system-validate</refname>
+            <refpurpose>check system configuration</refpurpose>
+          </refnamediv>
 
-        <programlisting><![CDATA[stool system-validate]]></programlisting>
-
-        <para>Checks the system configuration like DNS settings.</para>
+          <refsynopsisdiv>
+            <cmdsynopsis>
+              <command>stool system-validate</command>
+            </cmdsynopsis>
+          </refsynopsisdiv>
+          <refsect1><title>Description</title>
+            <para>
+              Checks system stuff like DNS settings.
+            </para>
+          </refsect1>
+        </refentry>
       </sect2>
-
     </sect1>
 
     <sect1>
       <title>Create</title>
 
-      <programlisting><![CDATA[stool create [-quiet|-name <str>] <url> [<directory>] {<key>=<value>}]]></programlisting>
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-create</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-create</refname>
+          <refpurpose>creates a new stage</refpurpose>
+        </refnamediv>
 
-      <para>Creates a new stage and wrapper directory, enters the stage directory and selects the stage.
-        In most cases, you invoke 'stool create' similar to 'svn checkout': with an url and a directory.
-      </para>
-      <para>&lt;url> specifies the application you want to run in your stage. In many cases, the url is a subversion url and
-        Stool performs a checkout. Output of the checkout command is printed to the console unless the quiet option is specified.
-      </para>
-      <para>&lt;directory> specifies the stage directory to holding your application. If not specified, the current directory with the last
-        usable segment of the url (i.e. the last segment that is not trunk, tags, or branches) is used. You can specify an arbitrary directory,
-        as long as it does not exist yet and the parent directory exists and is writable for all users of the current group. Otherwise,
-        create reports an error.
-      </para>
-      <para>The new stage is configured with default stage properties. You can specify key-value pairs to override the
-        defaults, or you can change the configuration later with 'stool config'.
-      </para>
-      <para>Unless specified with the '-name' option, the stage name is the directory name.</para>
-      <para>Instead of a &lt;url,&gt; you can specify '% &lt;searchstring&gt;'. This will search Pommes for the specified
-        search string, show all corresponding svn urls (including branches), and ask you to select one.
-      </para>
-      <para>Create reports an error if the available free disk space is low (the threshold is specified in the Stool
-        configuration.</para>
-    </sect1>
-
-    <sect1>
-      <title>Build</title>
-
-      <programlisting><![CDATA[stool build]]></programlisting>
-
-      <para>Enters the stage directory and executes the build command specified in the 'build' property.</para>
-      <para>You can see the build command with 'stool config build', and you can change it with
-        'stool config "build=command to build"' (the quotes are mandatory if your command contains spaces).
-      </para>
-
-      <para>'stool build' does no extra magic besides entering the stage directory. Thus, it has exactly the same effect
-        if you manually enter the stage directory and invoke the build command yourself, without Stool. 'stool build' is only for
-        your convenience, you do not have to use it to build you project properly.
-      </para>
-      <para>The build command execute in the same environment (i.e. with the same environment variablens) as Stool is
-        executed. If you invoke 'build' from the overview application, the build command executes in the environment
-        of the user who started the overview. </para>
-    </sect1>
-
-    <sect1>
-      <title>Remove</title>
-
-      <programlisting><![CDATA[stool remove [-force|-batch|-wrapper]]]></programlisting>
-
-      <para>Removes the stage, i.e. deletes the stage directory and the wrapper directory.</para>
-      <para>Before deleting anything, this command checks if there are uncommitted changes or if the stage is started.
-        If so, the command is aborted with an error. In this case, stop the stage and inspect the uncommitted changes; either
-        commit them or revert them. Alternatively, you can disable this check with the -force option.
-      </para>
-      <para>Also, before removing anything, this command asks if you really want to remove the stage.
-        You can disable this check with the '-batch' option.
-      </para>
-      <para>If you specify the '-wrapper' option, only the wrapper directory will be deleted. This is useful to "unimport" a stage,
-        i.e. revert the effect of 'stool import'.
-      </para>
-    </sect1>
-
-    <sect1>
-      <title>Start</title>
-
-      <programlisting><![CDATA[stool start [-debug|-suspend|-tail]]]></programlisting>
-
-      <para>Creates the necessary configuration and starts Tomcat. If the stage is an artifact stage,
-        you can start it right away; otherwise, you have to build it first. Depending on your application,
-        startup may take a while; you can check catalina.out to check for startup problems:
-        'stool cd logs &amp;&amp; tail -f catalina.out'
-      </para>
-      <para>Startup is refused if your stage has expired. In this case, use 'stool config until=newdata' to configure
-        a new 'until' date.
-      </para>
-      <para>'-debug' and '-suspend' enable the debugger. The difference is that suspend waits for the debugger to connect before
-        starting any application code.</para>
-      <para>Use the '-tail' option to start tomcat and get catalina.out printed to the console. Press ctrl-c to stop watching
-        catalina.out, the application will continue to run.</para>
-      <para>The Tomcat version is configurable with 'stool config tomcat.version=&lt;version>'. You have to restart the stage
-        when you change the version. The respective Tomcat will be downloaded automatically to the directory specified by the downloadCache
-        property (default is '$STOOL_HOME/downloads'). Alternatively, you can place customized Tomcats into this directory, provided they
-        unpack to a directory that matches the base file name of the tar.gz file.
-      </para>
-      <para>Start generates a Tomcat base directory if it does not yet exist. If it exists, only the server.xml is updated by taking
-        server.xml.template and adding all apps to it.
-      </para>
-      <para>The environment of the started application is the current environment restricted to the variables listed in the 'tomcat.env'
-        property; variables listed there are passed to the application, all others are removed. If you invoke 'start' from the overview
-        application, the login environment of the stage owner defines the basic environment.</para>
-    </sect1>
-
-    <sect1>
-      <title>Restart</title>
-
-      <programlisting><![CDATA[stool restart [-debug|-suspend]]]></programlisting>
-
-      <para>First stops, den starts the stage.</para>
-    </sect1>
-
-    <sect1>
-      <title>Refresh</title>
-
-      <programlisting><![CDATA[stool refresh [-debug|-suspend]]]></programlisting>
-
-      <para>First stops the stage if it is started. Then updates artifact stages or invokes the refresh command on source stages.
-        And finally, if the stage was initially started, starts the stage again.</para>
-    </sect1>
-
-    <sect1>
-      <title>Chown</title>
-
-      <programlisting><![CDATA[stool chown [-stop] [-batch] [<user>]]]></programlisting>
-
-      <para>Changes the stage owner, i.e. the owner of all files and directories in the stage directory and the wrapper directory.</para>
-      <para>Before executing, chown checks if the stage has modified source files. If so, it asks for confirmation before changing ownership.
-        You can skip confirmation by specifying the '-batch' option.</para>
-      <para>Reports an error if the stage is running. In this case, you can use the '-stop' option to stop the stage before
-        changing ownership and also start it afterwards.</para>
-      <para>&lt;user> defaults to the current user.</para>
-    </sect1>
-
-    <sect1>
-      <title>History</title>
-
-      <programlisting><![CDATA[stool history [-max <n>] <detail>*]]></programlisting>
-
-      <para>Prints the command history of the stage.</para>
-    </sect1>
-
-    <sect1>
-      <title>Select</title>
-
-      <programlisting><![CDATA[stool select [<stage>|none]]]></programlisting>
-
-      <para>Switches between stages, marks the current stage and updates environment variables.
-        Note that you cannot properly switch to a different stage with 'cd' because the environment
-        (e.g. JAVA_HOME, MAVEN_OPTS) will not be updated for the new stage.</para>
-      <para>Prints the current stage when called without argument.</para>
-      <para>Changes the selected stage when called with a stage name:
-        <itemizedlist>
-          <listitem>
-            Adjusts the environment variables for the selected stage (e.g. MAVEN_OPTS, JAVA_HOME).
-          </listitem>
-          <listitem>
-            Changes the current working directory to the stage directory.
-          </listitem>
-          <listitem>
-            Adjusts the selected stage indicator. If it's red, you're not the owner.
-          </listitem>
-        </itemizedlist>
-      </para>
-      <para>When called with 'none': resets environment variables and removes the stage indicator.</para>
-      <para>If the specified stage is not found, the command prints an error message and lists stages that
-        you could have meant.
-      </para>
-    </sect1>
-
-    <sect1>
-      <title>Cd</title>
-
-      <programlisting><![CDATA[stool cd [<target>]]></programlisting>
-
-      <para>Changes the current working directory to the specified target:
-        <itemizedlist>
-          <listitem>
-            (empty): the stage directory
-          </listitem>
-          <listitem>
-            wrapper: the stage's wrapper directory.
-          </listitem>
-          <listitem>
-            (otherwise): the specified direct or indirect sub-directory of the wrapper directory.
-          </listitem>
-        </itemizedlist>
-      </para>
-
-      <para>Example: 'stool cd logs' will change to shared/tomcat/logs inside your wrapper.</para>
-    </sect1>
-
-    <sect1>
-      <title>Config</title>
-
-      <programlisting><![CDATA[stool config {<key>[=<val>]}]]></programlisting>
-
-      <para>Gets or sets stage properties. A property is a key-value pair that configures the respective stage.</para>
-
-      <para>When invoked without arguments, all properties are printed with documentation.</para>
-      <para>When invoked with one or more keys, the respective properties are printed.
-        Example: 'stool config tomcat.heap' prints the current value for the tomcat.heap property.
-      </para>
-      <para>When invoked with one or more assignments, the respective properties are changed.
-        Example: 'stool config tomcat.heap=1000' sets the tomcat heap size to 1000 mb.
-      </para>
-      <para>If you want to set a property to a value with spaces, you have to use quotes around the key-value pair.
-        Otherwise, the shell does not see what belongs to your value. Example: 'stool config "build=mvn clean package"'
-      </para>
-      <para>If you change a property, you have to invoke the necessary re-builds or re-starts to make the changes
-        effective.</para>
-      <para>Date properties have the form 'yyyy-mm-dd', so a valid value for until is - e.g. - 2013-12-31.</para>
-      <para>Values in list properties (e.g. 'tomcat.select') are separated by commas. Example:
-        'stool config tomcat.select=foo,bar'. Do not used spaces around the comma because the shell would
-        consider this as a new key-value argument -- unless you also quote the arguments.
-      </para>
-    </sect1>
-
-    <sect1>
-      <title>Rename</title>
-
-      <programlisting><![CDATA[stool rename <name>]]></programlisting>
-
-      <para>Changes the stage name without touching anything else. If the stage is up, you have to restart it to reflect
-        this change in your application url(s).
-      </para>
-    </sect1>
-
-    <sect1>
-      <title>Move</title>
-
-      <programlisting><![CDATA[stool move <dest>]]></programlisting>
-
-      <para>Moves the stage directory. If dest exists, it is moved into it. Otherwise it is moved into the parent of dest
-        with the specified name. This is the same behavior as the unix 'mv' command, but it also adjusts Stool's wrapper
-        directory.
-      </para>
-      <para>You might have to re-build your application after moving the stage if you have development tools that store
-        absolute paths (e.g. Lavender ...).</para>
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool create</command>
+            <group>
+              <arg>-quiet</arg>
+              <arg>-name <replaceable>str</replaceable></arg>
+            </group>
+            <arg choice="plain"><replaceable>url</replaceable></arg>
+            <arg><replaceable>directory</replaceable></arg>
+            <arg rep="repeat"><replaceable>key=value</replaceable></arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Creates a new stage and wrapper directory, enters the stage directory and selects the stage.
+            In most cases, you invoke 'stool create' similar to 'svn checkout': with an url and a directory.
+          </para>
+          <para>&lt;url> specifies the application you want to run in your stage. In many cases, the url is a subversion url and
+            Stool performs a checkout. Output of the checkout command is printed to the console unless the quiet option is specified.
+          </para>
+          <para>&lt;directory> specifies the stage directory to holding your application. If not specified, the current directory with the last
+            usable segment of the url (i.e. the last segment that is not trunk, tags, or branches) is used. You can specify an arbitrary directory,
+            as long as it does not exist yet and the parent directory exists and is writable for all users of the current group. Otherwise,
+            create reports an error.
+          </para>
+          <para>The new stage is configured with default stage properties. You can specify key-value pairs to override the
+            defaults, or you can change the configuration later with 'stool config'.
+          </para>
+          <para>Unless specified with the '-name' option, the stage name is the directory name.</para>
+          <para>Instead of a &lt;url,&gt; you can specify '% &lt;searchstring&gt;'. This will search Pommes for the specified
+            search string, show all corresponding svn urls (including branches), and ask you to select one.
+          </para>
+          <para>Create reports an error if the available free disk space is low (the threshold is specified in the Stool
+            configuration.</para>
+        </refsect1>
+      </refentry>
     </sect1>
 
     <sect1>
       <title>Import</title>
 
-      <programlisting><![CDATA[stool import <directory+>]]></programlisting>
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-import</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-import</refname>
+          <refpurpose>creates stages for existing directories</refpurpose>
+        </refnamediv>
 
-    <para>Scans the specified directories (recursively) for new stages and offers to import them. If the scan only
-      yields a single candidate, it will be imported and selected without additional interaction. Importing means that
-      a wrapper directory for the stage directory is created. </para>
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool import</command>
+            <arg rep="repeat"><replaceable>directory</replaceable></arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Scans the specified directories (recursively) for new stages and offers to import them. If the scan only
+            yields a single candidate, it will be imported and selected without additional interaction. Importing means that
+            a wrapper directory for the stage directory is created. </para>
+        </refsect1>
+      </refentry>
     </sect1>
+
+    <sect1>
+      <title>Build</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-build</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-build</refname>
+          <refpurpose>builds a stage</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool build</command>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Enters the stage directory and executes the build command specified in the 'build' property.</para>
+          <para>You can see the configured build command with 'stool config build', and you can change it with
+            'stool config "build=command to build"' (the quotes are mandatory if your command contains spaces).
+          </para>
+
+          <para><command>stool build</command> does no extra magic besides entering the stage directory. Thus, it has exactly the same effect
+            if you manually enter the stage directory and invoke the build command yourself, without Stool. <command>stool build</command>
+            is only for your convenience, you do not have to use it to build you project properly.
+          </para>
+          <para>The build command executes in the same environment (i.e. with the same environment variablens) as Stool is
+            executed. If you invoke <command>build</command> from the overview application, the build command executes in the environment
+            of the user who started the overview. </para>
+        </refsect1>
+      </refentry>
+    </sect1>
+
+    <sect1>
+      <title>Remove</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-remove</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-remove</refname>
+          <refpurpose>removes a stage</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool remove</command>
+            <arg>-force</arg>
+            <arg>-batch</arg>
+            <arg>-wrapper</arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Removes the stage, i.e. deletes the stage directory and the wrapper directory.</para>
+          <para>Before deleting anything, this command checks if there are uncommitted changes or if the stage is started.
+            If so, the command is aborted with an error. In this case, stop the stage and inspect the uncommitted changes; either
+            commit them or revert them. Alternatively, you can disable this check with the -force option.
+          </para>
+          <para>Also, before removing anything, this command asks if you really want to remove the stage.
+            You can disable this check with the '-batch' option.
+          </para>
+          <para>If you specify the '-wrapper' option, only the wrapper directory will be deleted. This is useful to "unimport" a stage,
+            i.e. revert the effect of 'stool import'.
+          </para>
+        </refsect1>
+      </refentry>
+    </sect1>
+
+    <sect1>
+      <title>Start</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-start</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-start</refname>
+          <refpurpose>starts a stage</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool start</command>
+            <group>
+              <arg>-debug</arg>
+              <arg>-suspend</arg>
+            </group>
+            <arg>-tail</arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Creates the necessary configuration and starts Tomcat. If the stage is an artifact stage,
+            you can start it right away; otherwise, you have to build it first. Depending on your application,
+            startup may take a while; you can check catalina.out to check for startup problems:
+            'stool cd logs &amp;&amp; tail -f catalina.out'
+          </para>
+          <para>Startup is refused if your stage has expired. In this case, use 'stool config until=newdata' to configure
+            a new 'until' date.
+          </para>
+          <para>'-debug' and '-suspend' enable the debugger. The difference is that suspend waits for the debugger to connect before
+            starting any application code.</para>
+          <para>Use the '-tail' option to start tomcat and get catalina.out printed to the console. Press ctrl-c to stop watching
+            catalina.out, the application will continue to run.</para>
+          <para>The Tomcat version is configurable with 'stool config tomcat.version=&lt;version>'. You have to restart the stage
+            when you change the version. The respective Tomcat will be downloaded automatically to the directory specified by the downloadCache
+            property (default is '$STOOL_HOME/downloads'). Alternatively, you can place customized Tomcats into this directory, provided they
+            unpack to a directory that matches the base file name of the tar.gz file.
+          </para>
+          <para>Start generates a Tomcat base directory if it does not yet exist. If it exists, only the server.xml is updated by taking
+            server.xml.template and adding all apps to it.
+          </para>
+          <para>The environment of the started application is the current environment restricted to the variables listed in the 'tomcat.env'
+            property; variables listed there are passed to the application, all others are removed. If you invoke 'start' from the overview
+            application, the login environment of the stage owner defines the basic environment.</para>
+        </refsect1>
+      </refentry>
+
+    </sect1>
+
+    <sect1>
+      <title>Restart</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-restart</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-restart</refname>
+          <refpurpose>restarts a stage</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool restart</command>
+            <group>
+              <arg>-debug</arg>
+              <arg>-suspend</arg>
+            </group>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>
+            Shorthand for <command>stool stop</command> and <command>stool start</command> with the specified options.
+          </para>
+        </refsect1>
+      </refentry>
+    </sect1>
+
+    <sect1>
+      <title>Refresh</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-refresh</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-refresh</refname>
+          <refpurpose>refreshes a stage</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool refresh</command>
+            <group>
+              <arg>-debug</arg>
+              <arg>-suspend</arg>
+              <arg>-build</arg>
+            </group>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>First stops the stage if it is started. Then updates artifact stages or - if <command>-build</command> is specified -
+            invokes the command specified by the refresh property on source stages. And finally, if the stage was initially started,
+            starts the stage again.</para>
+        </refsect1>
+      </refentry>
+    </sect1>
+
+    <sect1>
+      <title>Chown</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-chown</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-chown</refname>
+          <refpurpose>changes the stage owner</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool chown</command>
+            <group>
+              <arg>-stop</arg>
+              <arg>-batch</arg>
+              <arg><replaceable>user</replaceable></arg>
+            </group>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Changes the stage owner, i.e. the owner of all files and directories in the stage directory and the wrapper directory.</para>
+          <para>Before executing, chown checks if the stage has modified source files. If so, it asks for confirmation before changing ownership.
+            You can skip confirmation by specifying the '-batch' option.</para>
+          <para>Reports an error if the stage is running. In this case, you can use the '-stop' option to stop the stage before
+            changing ownership and also start it afterwards.</para>
+          <para>&lt;user> defaults to the current user.</para>
+        </refsect1>
+      </refentry>
+
+    </sect1>
+
+    <sect1>
+      <title>History</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-history</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-history</refname>
+          <refpurpose>prints the command history</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool history</command>
+            <group>
+              <arg>-max <replaceable>n</replaceable></arg>
+              <arg rep="repeat"><replaceable>detail</replaceable></arg>
+            </group>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Prints the command history of the stage.</para>
+        </refsect1>
+      </refentry>
+    </sect1>
+
+    <sect1>
+      <title>Select</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-select</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-select</refname>
+          <refpurpose>switches between stages</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool select</command>
+            <group>
+              <arg><replaceable>stage</replaceable></arg>
+              <arg>none</arg>
+            </group>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Prints the current stage when called without argument.</para>
+          <para>Changes the selected stage when called with a stage name:
+            <itemizedlist>
+              <listitem>
+                Adjusts the environment variables for the selected stage (e.g. MAVEN_OPTS, JAVA_HOME).
+              </listitem>
+              <listitem>
+                Changes the current working directory to the stage directory.
+              </listitem>
+              <listitem>
+                Adjusts the selected stage indicator. If it's red, you're not the owner.
+              </listitem>
+            </itemizedlist>
+          </para>
+          <para>When called with 'none': resets environment variables and removes the stage indicator.</para>
+          <para>If the specified stage is not found, the command prints an error message and lists stages that
+            you could have meant.
+          </para>
+        </refsect1>
+      </refentry>
+    </sect1>
+
+    <sect1>
+      <title>Cd</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-cd</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-cd</refname>
+          <refpurpose>jump to directories</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool cd</command>
+            <arg><replaceable>target</replaceable></arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Changes the current working directory to the specified target:
+            <itemizedlist>
+              <listitem>
+                (empty): the stage directory
+              </listitem>
+              <listitem>
+                wrapper: the stage's wrapper directory.
+              </listitem>
+              <listitem>
+                (otherwise): the specified direct or indirect sub-directory of the wrapper directory.
+              </listitem>
+            </itemizedlist>
+          </para>
+        </refsect1>
+        <refsect1><title>Example</title>
+          <para><command>stool cd logs</command> will jumps to shared/tomcat/logs inside your wrapper.</para>
+        </refsect1>
+      </refentry>
+    </sect1>
+
+    <sect1>
+      <title>Config</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-config</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-config</refname>
+          <refpurpose>manages stage properties</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool config</command>
+            <group rep="repeat">
+              <arg><replaceable>key</replaceable></arg>
+              <arg><replaceable>key</replaceable>=<replaceable>value</replaceable></arg>
+            </group>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Gets or sets stage properties. A property is a key-value pair that configures the respective stage.</para>
+          <para>When invoked without arguments, all properties are printed with documentation.</para>
+          <para>When invoked with one or more keys, the respective properties are printed.
+            Example: 'stool config tomcat.heap' prints the current value for the tomcat.heap property.
+          </para>
+          <para>When invoked with one or more assignments, the respective properties are changed.
+            Example: 'stool config tomcat.heap=1000' sets the tomcat heap size to 1000 mb.
+          </para>
+          <para>If you want to set a property to a value with spaces, you have to use quotes around the key-value pair.
+            Otherwise, the shell does not see what belongs to your value. Example: 'stool config "build=mvn clean package"'
+          </para>
+          <para>If you change a property, you have to invoke the necessary re-builds or re-starts to make the changes
+            effective.</para>
+          <para>Date properties have the form 'yyyy-mm-dd', so a valid value for until is - e.g. - 2013-12-31.</para>
+          <para>Values in list properties (e.g. 'tomcat.select') are separated by commas. Example:
+            'stool config tomcat.select=foo,bar'. Do not used spaces around the comma because the shell would
+            consider this as a new key-value argument -- unless you also quote the arguments.
+          </para>
+        </refsect1>
+      </refentry>
+   </sect1>
+
+    <sect1>
+      <title>Rename</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-rename</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-rename</refname>
+          <refpurpose>changes the stage name</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool rename</command>
+            <arg rep="plain"><replaceable>name</replaceable></arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Changes the stage name without touching anything else. If the stage is up, you have to restart it to reflect
+            this change in your application url(s).
+          </para>
+        </refsect1>
+      </refentry>
+    </sect1>
+
+    <sect1>
+      <title>Move</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-move</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-move</refname>
+          <refpurpose>moves the stage directory</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool move</command>
+            <arg rep="plain"><replaceable>dest</replaceable></arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Moves the stage directory. If <command>dest</command> exists, it is moved into it. Otherwise it is moved into the
+            parent of dest with the specified name. This is the same behavior as the unix 'mv' command, but it also adjusts Stool's wrapper
+            directory.
+          </para>
+          <para>You might have to re-build your application after moving the stage if you have development tools that store
+            absolute paths (e.g. Lavender ...).</para>
+        </refsect1>
+      </refentry>
+    </sect1>
+
   </chapter>
 
   <chapter>
