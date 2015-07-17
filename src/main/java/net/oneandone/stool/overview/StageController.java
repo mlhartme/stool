@@ -27,8 +27,6 @@ import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -57,8 +55,6 @@ import java.util.concurrent.ExecutorService;
 @RestController
 @RequestMapping("/stages")
 public class StageController {
-    private static final Logger LOG = LoggerFactory.getLogger(StageController.class);
-
     @Autowired
     private Users users;
 
@@ -167,7 +163,8 @@ public class StageController {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionExport> handleApiException(Throwable e) {
-        LOG.error("Exception in stageoverview", e);
+        // TODO: really report this? maybe it's just a 404 ...
+        session.reportException("StageController.handleApiException", e);
         return new ResponseEntity<>(new ExceptionExport(e), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

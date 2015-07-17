@@ -15,10 +15,7 @@
  */
 package net.oneandone.stool;
 
-import ch.qos.logback.classic.Level;
-import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Environment;
-import net.oneandone.stool.util.ErrorTool;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Slf4jOutputStream;
@@ -32,11 +29,9 @@ import net.oneandone.sushi.cli.Parser;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.InputLogStream;
-import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.Arrays;
 
 public class Main extends Cli implements Command {
@@ -70,18 +65,8 @@ public class Main extends Cli implements Command {
         } catch (ArgumentException e) {
             throw e;
         } catch (RuntimeException e) {
-            try {
-                Session session;
-                StoolConfiguration config;
-
-                session = main.session();
-                config = session.configuration;
-                if (config.errorTool != null) {
-                    ErrorTool.send(new URL(config.errorTool), Level.ERROR, session.user + "@" + config.hostname, session.command, e);
-                }
-            } catch (Exception nested) {
-                e.addSuppressed(nested);
-            }
+            // this is a bug
+            main.session().reportException("RuntimeException", e);
             throw e;
         }
     }

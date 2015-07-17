@@ -45,7 +45,7 @@ public class ErrorTool {
         send(url, level, hostname, subject, dest.getBuffer().toString());
     }
 
-    public static void send(URL url, Level level, String hostname, String subject, String body) throws IOException {
+    private static void send(URL url, Level level, String hostname, String subject, String body) throws IOException {
         StringBuilder dest;
         HttpURLConnection con;
 

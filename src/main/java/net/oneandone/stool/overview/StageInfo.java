@@ -19,13 +19,10 @@ package net.oneandone.stool.overview;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.stage.artifact.Change;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.file.FileNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.io.IOException;
@@ -34,8 +31,6 @@ import java.net.URLEncoder;
 import java.util.Map;
 
 public class StageInfo {
-    private static final Logger LOG = LoggerFactory.getLogger(StageInfo.class);
-
     public String name;
     public StageConfiguration configuration;
     public String extractionUrl;
@@ -51,8 +46,10 @@ public class StageInfo {
     public String state;
 
 
-    public static StageInfo fromStage(FileNode logDir, Stage stage, Users users) throws IOException {
+    public static StageInfo fromStage(FileNode logDir, Stage stage, Users users) throws IOException, UserNotFound, NamingException {
         StageInfo stageInfo;
+        Changes changes;
+
         stageInfo = new StageInfo();
         stageInfo.name = stage.getName();
         stageInfo.configuration = stage.config();
@@ -61,24 +58,11 @@ public class StageInfo {
         if (stageInfo.running == Stage.State.UP) {
             stageInfo.urls = stage.urlMap();
         }
-        try {
-            stageInfo.owner = users.byLogin(stage.owner()).name;
-        } catch (NamingException | UserNotFound e) {
-            stageInfo.owner = "Unknown";
-            LOG.error("Cannot lookup User " + stage.owner(), e);
-        }
+        stageInfo.owner = users.byLogin(stage.owner()).name;
         stageInfo.updateAvailable = stage.updateAvailable();
         stageInfo.until = stage.config().until;
-        Changes changes;
 
-        try {
-            changes = stage.changes();
-        } catch (IOException e) {
-            LOG.error("cannot get changes", e);
-            changes = new Changes();
-            changes.add(new Change(0, "error", e.getMessage(), System.currentTimeMillis()));
-            changes.setException(true);
-        }
+        changes = stage.changes();
         if (changes.size() > 0) {
             stageInfo.changes = changes;
         }

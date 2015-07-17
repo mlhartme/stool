@@ -15,12 +15,13 @@
  */
 package net.oneandone.stool.overview;
 
-import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
+import javax.naming.NamingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,12 +34,16 @@ public class StageInfoCache {
         lastCacheRenew = 0L;
     }
 
-    public Collection<StageInfo> get(FileNode logs, Session session, Users users) throws IOException, EnumerationFailed {
+    public Collection<StageInfo> get(FileNode logs, Session session, Users users) throws IOException {
         if (stages == null || System.currentTimeMillis() - lastCacheRenew > 4000) {
             stages.clear();
             session.wipeStaleWrappers();
             for (Stage stage : session.listWithoutOverview()) {
-                stages.add(StageInfo.fromStage(logs, stage, users));
+                try {
+                    stages.add(StageInfo.fromStage(logs, stage, users));
+                } catch (UserNotFound | NamingException e) {
+                    session.reportException("StageInfo.fromStage", e);
+                }
             }
             lastCacheRenew = System.currentTimeMillis();
         }

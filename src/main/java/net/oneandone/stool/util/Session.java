@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.util;
 
+import ch.qos.logback.classic.Level;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.oneandone.maven.embedded.Maven;
@@ -41,11 +42,14 @@ import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 import org.codehaus.plexus.DefaultPlexusContainer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.naming.NamingException;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Modifier;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -173,6 +177,25 @@ public class Session {
 
     //--
 
+    private static final Logger LOG = LoggerFactory.getLogger(Session.class);
+
+    /** logs an error for administrators, i.e. the user is not expected to understand/fix this problem. */
+    public void reportException(String title, Throwable e) {
+        URL url;
+
+        LOG.error(title, e);
+        if (configuration.errorTool != null) {
+            try {
+                url = new URL(configuration.errorTool);
+                ErrorTool.send(url, Level.ERROR, user + "@" + configuration.hostname, command, e);
+            } catch (IOException suppressed) {
+                LOG.error("suppressed: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    //--
+
     public void saveConfiguration() throws IOException {
         configuration.save(gson, home);
     }
@@ -209,7 +232,6 @@ public class Session {
         for (FileNode wrapper : wrappers.list()) {
             try {
                 stage = Stage.load(this, wrapper);
-
             } catch (IOException e) {
                 problems.add(wrapper, e);
                 continue;
@@ -221,7 +243,7 @@ public class Session {
         return result;
     }
 
-    public List<Stage> listWithoutOverview() throws IOException, EnumerationFailed {
+    public List<Stage> listWithoutOverview() throws IOException {
         List<Stage> result;
         EnumerationFailed problems;
 
@@ -233,7 +255,7 @@ public class Session {
             }
         });
         if (!problems.empty()) {
-            throw problems;
+            reportException("Session.listWithoutOverview", problems);
         }
         return result;
     }

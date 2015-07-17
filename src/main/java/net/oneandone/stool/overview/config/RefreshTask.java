@@ -18,23 +18,18 @@ package net.oneandone.stool.overview.config;
 import net.oneandone.stool.overview.StoolCallable;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.Slf4jOutputStream;
 import net.oneandone.sushi.fs.file.FileNode;
-import org.slf4j.LoggerFactory;
 
-import java.io.PrintWriter;
 import java.util.TimerTask;
 import java.util.UUID;
 
 public class RefreshTask extends TimerTask {
     private final Session session;
     private final FileNode logs;
-    private final PrintWriter printWriter;
 
     public RefreshTask(Session session, FileNode logs) {
         this.session = session;
         this.logs = logs;
-        this.printWriter = new PrintWriter(new Slf4jOutputStream(LoggerFactory.getLogger(RefreshTask.class), false));
     }
 
     @Override
@@ -46,8 +41,7 @@ public class RefreshTask extends TimerTask {
                 }
             }
         } catch (Exception e) {
-            printWriter.println("Error refreshing: " + e.getCause());
-            e.printStackTrace(printWriter);
+            session.reportException("RefreshTask", e);
         }
     }
 }
