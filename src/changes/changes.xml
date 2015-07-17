@@ -5,10 +5,14 @@
         import: Fixed error message when argument is not a directory.
       </action>
       <action date="2015-07-16" dev="mlhartme" type="update">
-        Moved overview log output into tomcat/logs/overview.log.
+        Overview: Moved log output into tomcat/logs/overview.log.
+      </action>
+      <action date="2015-07-17" dev="mlhartme" type="update">
+        History command: support multiple details argument with ranges.
       </action>
       <action date="2015-07-16" dev="mlhartme" type="fix">
-        Fixed log file format: id is unique accross file now, because a command started before midnight may finish the next day.
+        History command: properly handle overlapping commands. To implement this i had to fix the log file format: id is unique
+        accross file now, because a command started before midnight may finish the next day.
       </action>
       <action date="2015-07-10" dev="mlhartme" type="add">
         stool -exception throws an intentional now. To test error tool.

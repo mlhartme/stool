@@ -19,10 +19,13 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.LogEntry;
 import net.oneandone.stool.util.LogReader;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class History extends StageCommand {
@@ -34,55 +37,54 @@ public class History extends StageCommand {
     private int max = 999;
 
     /** history entry to show details for */
-    private int detail = -1;
+    private List<Integer> details = new ArrayList<>();
 
     @Remaining
     public void remaining(String str) {
-        detail = Integer.parseInt(str);
-        max = detail + 1;
-    }
+        int idx;
+        int first;
+        int last;
 
+        idx = str.indexOf('-');
+        if (idx == -1) {
+            details.add(Integer.parseInt(str));
+        } else {
+            first = idx == 0 ? 1 : Integer.parseInt(str.substring(0, idx));
+            last = idx == str.length() - 1 ? max : Integer.parseInt(str.substring(idx + 1));
+            if (first > last) {
+                throw new ArgumentException("invalid range: " + first + "-" + last);
+            }
+            for (int i = first; i <= last; i++) {
+                details.add(i);
+            }
+        }
+    }
 
     @Override
     public void doInvoke(Stage s) throws Exception {
         String stageId;
-        LogEntry entry;
         int counter;
-        String id;
-        Map<String, LogEntry> commands;
-        LogEntry command;
+        int remove;
+        List<LogEntry> commands;
 
         stageId = s.config().id;
-        commands = new HashMap<>();
-        try (LogReader reader = LogReader.create(session.home.join("logs"))) {
-            counter = 0;
-            id = null;
-            while (true) {
-                entry = reader.next();
-                if (entry == null) {
-                    break;
-                }
-                if (entry.logger.equals("COMMAND")) {
-                    if (commands.put(entry.id, entry) != null) {
-                        throw new IllegalStateException("duplicate id: " + entry.id);
-                    }
-                }
-                if (entry.stageId.equals(stageId)) {
-                    command = commands.remove(entry.id);
-                    if (command != null) {
-                        counter++;
-                        console.info.println("[" + counter + "] " + LogEntry.FMT.format(command.dateTime) + " " + command.user + ": " + command.message);
-                        id = command.id;
-                    }
-                    if (detail == counter && entry.id.equals(id)) {
-                        console.info.println("     " + entry.message);
-                    }
-                    if (counter > max) {
-                        break;
-                    }
+        commands = session.logging.stageCommands(stageId);
+        if (commands.size() > max) {
+            remove = commands.size() - max;
+            console.info.println("(max entries reached: " + max + ", ignoring " + remove + " older commands)");
+            while (remove > 0) {
+                commands.remove(0);
+                remove--;
+            }
+        }
+        counter = 0;
+        for (LogEntry command : commands) {
+            console.info.println("[" + ++counter + "] " + LogEntry.FMT.format(command.dateTime) + " " + command.user + ": " + command.message);
+            if (details.contains(counter)) {
+                for (LogEntry entry : session.logging.info(stageId, command.id)) {
+                    console.info.println("     " + entry.message);
                 }
             }
         }
-        console.verbose.println("stored commands: " + commands.size());
     }
 }

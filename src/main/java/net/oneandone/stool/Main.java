@@ -325,7 +325,9 @@ public class Main extends Cli implements Command {
         console.info.println("  remove [-force|-batch|-wrapper] .....  removes the stage after modified file check and confirm");
         console.info.println(
           "  validate [-email|-stop] .............  validates the stage, optionally sends emails and stops + deletes stages.");
-        console.info.println("  history [-max <n>] <n> ..............  shows the command history for a stage");
+        console.info.println("  history [-max <n>] <detail>* ........  shows command history for a stage");
+        console.info.println("                                         prints all command headers and details where specified.");
+        console.info.println("                                         if the max number of command is exceeeded, older commands are ignored");
         console.info.println("  chown [-stop] [<user>] ..............  changes the stage owner by changing file ownership");
         console.info.println("  .....................................  (user defaults to current user)");
         console.info.println("  cd [<target>] .......................  changes to specified directory, e.g. wrapper, tomcat or empty");

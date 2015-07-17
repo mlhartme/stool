@@ -23,6 +23,7 @@ import ch.qos.logback.core.encoder.Encoder;
 import ch.qos.logback.core.encoder.EncoderBase;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiOutputStream;
 import net.oneandone.sushi.io.PrefixWriter;
@@ -35,6 +36,10 @@ import java.io.PrintWriter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Logging {
     private static final String EXTENSION = ".log";
@@ -264,5 +269,54 @@ public class Logging {
 
     public FileNode directory() {
         return file.getParent();
+    }
+
+    /** @return alle COMMAND Log entries operating on the specified stage */
+    public List<LogEntry> stageCommands(String stageId) throws Exception {
+        LogEntry entry;
+        Map<String, LogEntry> commands;
+        LogEntry command;
+        List<LogEntry> result;
+
+        result = new ArrayList<>();
+        commands = new HashMap<>();
+        try (LogReader reader = LogReader.create(directory())) {
+            while (true) {
+                entry = reader.next();
+                if (entry == null) {
+                    break;
+                }
+                if (entry.logger.equals("COMMAND")) {
+                    if (commands.put(entry.id, entry) != null) {
+                        throw new IllegalStateException("duplicate id: " + entry.id);
+                    }
+                }
+                if (entry.stageId.equals(stageId)) {
+                    command = commands.remove(entry.id);
+                    if (command != null) {
+                        result.add(command);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+    public List<LogEntry> info(String stageId, String id) throws Exception {
+        LogEntry entry;
+        List<LogEntry> result;
+
+        result = new ArrayList<>();
+        try (LogReader reader = LogReader.create(directory())) {
+            while (true) {
+                entry = reader.next();
+                if (entry == null) {
+                    break;
+                }
+                if (entry.id.equals(id) && entry.stageId.equals(stageId)) {
+                    result.add(entry);
+                }
+            }
+        }
+        return result;
     }
 }
