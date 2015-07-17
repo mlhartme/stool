@@ -813,21 +813,23 @@ http://docbook.org/ns/docbook ">
         <refsect1><title>Description</title>
           <para>Gets or sets stage properties. A property is a key-value pair that configures the respective stage.</para>
           <para>When invoked without arguments, all properties are printed with documentation.</para>
-          <para>When invoked with one or more keys, the respective properties are printed.
-            Example: 'stool config tomcat.heap' prints the current value for the tomcat.heap property.
-          </para>
+          <para>When invoked with one or more keys, the respective properties are printed.</para>
           <para>When invoked with one or more assignments, the respective properties are changed.
-            Example: 'stool config tomcat.heap=1000' sets the tomcat heap size to 1000 mb.
           </para>
           <para>If you want to set a property to a value with spaces, you have to use quotes around the key-value pair.
-            Otherwise, the shell does not see what belongs to your value. Example: 'stool config "build=mvn clean package"'
-          </para>
+            Otherwise, the shell does not see what belongs to your value.</para>
           <para>If you change a property, you have to invoke the necessary re-builds or re-starts to make the changes
             effective.</para>
           <para>Date properties have the form 'yyyy-mm-dd', so a valid value for until is - e.g. - 2013-12-31.</para>
-          <para>Values in list properties (e.g. 'tomcat.select') are separated by commas. Example:
-            'stool config tomcat.select=foo,bar'. Do not used spaces around the comma because the shell would
-            consider this as a new key-value argument -- unless you also quote the arguments.
+          <para>Values in list properties (e.g. 'tomcat.select') are separated by commas.</para>
+        </refsect1>
+        <refsect1><title>Examples</title>
+          <para><command>stool config tomcat.heap</command> prints the current value for the tomcat.heap property.</para>
+          <para><command>stool config tomcat.heap=1000</command> sets the tomcat heap size to 1000 mb.</para>
+          <para><command>stool config "build=mvn clean package"</command> sets a value with spaces</para>
+          <para><command>stool config tomcat.select=foo,bar</command> configures a list property.
+            Do not used spaces around the comma because the shell would consider this as a new key-value argument -- unless you
+            also quote the arguments.
           </para>
         </refsect1>
       </refentry>
