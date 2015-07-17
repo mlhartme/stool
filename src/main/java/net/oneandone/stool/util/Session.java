@@ -57,7 +57,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-/** Mostly a representation of $STOOL_HOME */
 public class Session {
     public static Session load(Logging logging, String user, String command, Environment environment, Console console,
                                FileNode invocationFile, String svnuser, String svnpassword) throws IOException {
@@ -65,7 +64,9 @@ public class Session {
 
         session = loadWithoutWrapperWipe(logging, user, command, environment, console, invocationFile, svnuser, svnpassword);
 
-        // my first thought was to watch for filesystem events to trigger wrapper wiping.
+        // Stale Wrapper wiping: how to detect wrappers who's stage directory was removed.
+        //
+        // My first thought was to watch for filesystem events to trigger wrapper wiping.
         // But there's quite a big delay and rmdif+mkdir is reported as modification. Plus the code is quite complex and
         // I don't know how to handle overflow events.
         // So I simple wipe thmm whenever I load stool home. That's a well-defined timing and that's before stool might

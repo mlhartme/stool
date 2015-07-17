@@ -309,6 +309,16 @@
               <generateSectionTocLevel>0</generateSectionTocLevel>
             </configuration>
           </execution>
+          <execution>
+            <id>manual-manpages</id>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>generate-manpages</goal>
+            </goals>
+            <configuration>
+              <generateSectionTocLevel>0</generateSectionTocLevel>
+            </configuration>
+          </execution>
         </executions>
       </plugin>
       <plugin>

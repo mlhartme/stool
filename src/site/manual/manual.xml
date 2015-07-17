@@ -30,6 +30,37 @@ http://docbook.org/ns/docbook ">
   </info>
 
   <chapter>
+    <refentry>
+      <refmeta>
+        <refentrytitle>create</refentrytitle>
+        <manvolnum>1</manvolnum>
+      </refmeta>
+
+      <refnamediv>
+        <refname>create</refname>
+        <refpurpose>creates a new stage</refpurpose>
+      </refnamediv>
+
+      <refsynopsisdiv>
+        <cmdsynopsis>
+          <command>stool create url</command>
+          <arg choice="opt">
+            <option>aAbcCdfFgilLmnopqrRstux1</option>
+          </arg>
+          <arg choice="opt" rep="repeat">file</arg>
+        </cmdsynopsis>
+      </refsynopsisdiv>
+
+      <refsect1><title>Description</title>
+        <para>
+          For each file that is a directory, <command>ls</command> lists the contents of
+          the directory; for each file that is an ordinary file, <command>ls</command>
+          repeats its name and any other information requested.
+        </para>
+      </refsect1>
+
+    </refentry>
+
     <title>Introduction</title>
 
     <para>Stool is a command line tool that provides a lifecycle for stages: create, configure, build, run and remove.

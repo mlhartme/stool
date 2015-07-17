@@ -19,6 +19,8 @@ import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
@@ -42,6 +44,8 @@ import java.util.Map;
 @Scope(WebApplicationContext.SCOPE_REQUEST)
 @RequestMapping("/")
 public class IndexController {
+    private static Logger LOG = LoggerFactory.getLogger(IndexController.class);
+
     @Autowired
     private Session session;
 
@@ -55,6 +59,7 @@ public class IndexController {
         }
         modelAndView.setViewName("index");
         modelAndView.addObject("username", username);
+        LOG.info("[" + username + "] GET /");
         return modelAndView;
     }
 
