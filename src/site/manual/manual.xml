@@ -451,11 +451,19 @@ http://docbook.org/ns/docbook ">
     </sect1>
 
     <sect1>
+      <title>History</title>
+
+      <programlisting><![CDATA[stool history [-max <n>] <detail>*]]></programlisting>
+
+      <para>Prints the command history of the stage.</para>
+    </sect1>
+
+    <sect1>
       <title>Select</title>
 
       <programlisting><![CDATA[stool select [<stage>|none]]]></programlisting>
 
-      <para>Jumps between stages, marks the current stage and updates environment variables.
+      <para>Switches between stages, marks the current stage and updates environment variables.
         Note that you cannot properly switch to a different stage with 'cd' because the environment
         (e.g. JAVA_HOME, MAVEN_OPTS) will not be updated for the new stage.</para>
       <para>Prints the current stage when called without argument.</para>

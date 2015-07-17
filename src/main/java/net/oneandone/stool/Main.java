@@ -326,7 +326,8 @@ public class Main extends Cli implements Command {
         console.info.println(
           "  validate [-email|-stop] .............  validates the stage, optionally sends emails and stops + deletes stages.");
         console.info.println("  history [-max <n>] <detail>* ........  shows command history for a stage");
-        console.info.println("                                         prints all command headers and details where specified.");
+        console.info.println("                                         prints all commands and details when specified");
+        console.info.println("                                         select details by the command nummber or a range of numbers");
         console.info.println("                                         if the max number of command is exceeeded, older commands are ignored");
         console.info.println("  chown [-stop] [<user>] ..............  changes the stage owner by changing file ownership");
         console.info.println("  .....................................  (user defaults to current user)");
