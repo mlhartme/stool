@@ -143,7 +143,8 @@ public class StoolIT {
         devNull = MultiOutputStream.createNullStream();
         console = Main.console(world, logging, devNull, devNull);
         command = command(args);
-        logging.logger("COMMAND").info(command);
+        // CAUTION: don't use COMMAND here because history assumes unique ids for COMMAND log entries
+        logging.logger("ITCOMMAND").info(command);
         main = new Main(logging, TESTUSER, command, system, console);
         System.out.print("  Running: " + command);
         post = world.getTemp().createTempFile();
