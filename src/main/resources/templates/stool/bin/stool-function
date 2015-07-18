@@ -2,6 +2,11 @@
 # Source this file in your ~/.bashrc
 
 export STOOL_INVOCATION=${{stool.home}}/conf/users/.stool-invocation-$$-$(date +%N)
+if [ -z $MANPATH ] ; then
+  export MANPATH=${{stool.home}}
+else
+  export MANPATH=${{stool.home}}:$MANPATH
+fi
 
 stool() {
   # Special variable handling: they are private and you cannot export them on Mac OS.

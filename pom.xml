@@ -286,7 +286,6 @@
         <configuration>
           <sourceDirectory>src/site/manual</sourceDirectory>
           <includes>manual.xml</includes>
-          <targetDirectory>${basedir}/target/site</targetDirectory>
           <xincludeSupported>true</xincludeSupported>
           <preProcess>
             <tstamp>
@@ -305,17 +304,19 @@
               <goal>generate-html</goal>
             </goals>
             <configuration>
+              <targetDirectory>${basedir}/target/site</targetDirectory>
               <chunkedOutput>false</chunkedOutput>
               <generateSectionTocLevel>0</generateSectionTocLevel>
             </configuration>
           </execution>
           <execution>
             <id>manual-manpages</id>
-            <phase>pre-site</phase>
+            <phase>process-classes</phase>
             <goals>
               <goal>generate-manpages</goal>
             </goals>
             <configuration>
+              <targetDirectory>${project.build.directory}/classes/templates/stool</targetDirectory>
               <generateSectionTocLevel>0</generateSectionTocLevel>
             </configuration>
           </execution>
