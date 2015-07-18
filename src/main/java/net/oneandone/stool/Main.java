@@ -169,6 +169,11 @@ public class Main extends Cli implements Command {
         return 0;
     }
 
+    @Override
+    public Command help() {
+        return () -> ((FileNode) console.world.getWorking()).exec("man", "stool");
+    }
+
     @Child("build")
     public Build build() throws IOException {
         return new Build(session());

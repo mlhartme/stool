@@ -285,11 +285,31 @@ http://docbook.org/ns/docbook ">
     <title>Commands</title>
 
     <sect1>
-      <title>Overview</title>
+      <title>Stool</title>
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
 
-      <programlisting>
-        <xi:include href="../../../target/stool-help.txt" parse="text"/>
-      </programlisting>
+        <refnamediv>
+          <refname>stool</refname>
+          <refpurpose>stool cli</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool</command>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+
+        <refsect1><title>Description</title>
+          <para>
+          </para>
+        </refsect1>
+
+      </refentry>
+
     </sect1>
 
     <sect1>
