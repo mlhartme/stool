@@ -55,9 +55,10 @@ public class Applications {
     public Changes changes(FileNode shared, Users users) throws IOException {
         if (lazyChanges == null) {
             lazyChanges = new Changes();
+            /* TODO disabled for now ...
             for (Application app : apps) {
                 lazyChanges.merge(app.changes(shared, users));
-            }
+            }*/
         }
         return lazyChanges;
     }

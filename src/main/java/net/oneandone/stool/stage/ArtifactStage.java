@@ -191,7 +191,13 @@ public class ArtifactStage extends Stage {
         }
 
         application.replaceFutureWarFile(candidate);
-        changes = application.changes(shared(), session.users);
+        try {
+            changes = application.changes(shared(), session.users);
+        } catch (IOException e) {
+            // TODO
+            session.reportException("application.changes", e);
+            changes = new Changes();
+        }
         console.verbose.println("Update for " + application.artifactId() + " prepared.");
         for (Change change : changes) {
             console.info.print(change.getUser());
