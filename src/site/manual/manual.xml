@@ -366,7 +366,7 @@ http://docbook.org/ns/docbook ">
 
           <refsect1><title>Description</title>
             <para>
-              Stops the overview and sends all running stages to sleep.
+              Stops the overview stage and sends all running stages to sleep.
             </para>
           </refsect1>
         </refentry>
@@ -391,16 +391,39 @@ http://docbook.org/ns/docbook ">
           </refsynopsisdiv>
           <refsect1><title>Description</title>
             <para>
-              Checks system stuff like DNS settings.
+              Checks DNS settings.
             </para>
           </refsect1>
         </refentry>
       </sect2>
-    </sect1>
+      <sect2>
+        <title>System Import</title>
+        <refentry>
+          <refmeta>
+            <refentrytitle>stool-system-import</refentrytitle>
+            <manvolnum>1</manvolnum>
+          </refmeta>
+          <refnamediv>
+            <refname>stool-system-import</refname>
+            <refpurpose>import from another stool installation</refpurpose>
+          </refnamediv>
 
+          <refsynopsisdiv>
+            <cmdsynopsis>
+              <command>stool system-import</command>
+              <arg>-include <group><arg choice="plain">all</arg><arg choice="plain">config</arg><arg choice="plain">stages</arg></group></arg>
+              <arg choice="plain"><replaceable>other-home</replaceable></arg>
+              <group rep="repeat"><arg choice="plain"><replaceable>name</replaceable></arg><arg choice="plain"><replaceable>key=value</replaceable></arg></group>
+            </cmdsynopsis>
+          </refsynopsisdiv>
+          <refsect1><title>Description</title>
+            <para>Imports configuration and/or stages from a the specified directory.</para>
+          </refsect1>
+        </refentry>
+      </sect2>
+    </sect1>
     <sect1>
       <title>Create</title>
-
       <refentry>
         <refmeta>
           <refentrytitle>stool-create</refentrytitle>
@@ -410,7 +433,6 @@ http://docbook.org/ns/docbook ">
           <refname>stool-create</refname>
           <refpurpose>creates a new stage</refpurpose>
         </refnamediv>
-
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool create</command>
@@ -424,7 +446,7 @@ http://docbook.org/ns/docbook ">
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Creates a new stage and wrapper directory, enters the stage directory and selects the stage.
+          <para>Creates a new stage directory and wrapper directory, enters the stage directory and selects the stage.
             In most cases, you invoke 'stool create' similar to 'svn checkout': with an url and a directory.
           </para>
           <para>&lt;url> specifies the application you want to run in your stage. In many cases, the url is a subversion url and
@@ -464,6 +486,8 @@ http://docbook.org/ns/docbook ">
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool import</command>
+            <arg>-max <replaceable>n</replaceable></arg>
+            <arg>-name <replaceable>template</replaceable></arg>
             <arg rep="repeat"><replaceable>directory</replaceable></arg>
           </cmdsynopsis>
         </refsynopsisdiv>
@@ -471,10 +495,11 @@ http://docbook.org/ns/docbook ">
           <para>Scans the specified directories (recursively) for new stages and offers to import them. If the scan only
             yields a single candidate, it will be imported and selected without additional interaction. Importing means that
             a wrapper directory for the stage directory is created. </para>
+          <para><option>template</option> is a string, and any occurence of %d will be replaced by the current directory name. Default
+            template is %d.</para>
         </refsect1>
       </refentry>
     </sect1>
-
     <sect1>
       <title>Build</title>
 
@@ -546,7 +571,6 @@ http://docbook.org/ns/docbook ">
         </refsect1>
       </refentry>
     </sect1>
-
     <sect1>
       <title>Start</title>
 
@@ -564,8 +588,8 @@ http://docbook.org/ns/docbook ">
           <cmdsynopsis>
             <command>stool start</command>
             <group>
-              <arg>-debug</arg>
-              <arg>-suspend</arg>
+              <arg rep="plain">-debug</arg>
+              <arg rep="plain">-suspend</arg>
             </group>
             <arg>-tail</arg>
           </cmdsynopsis>
@@ -573,16 +597,15 @@ http://docbook.org/ns/docbook ">
         <refsect1><title>Description</title>
           <para>Creates the necessary configuration and starts Tomcat. If the stage is an artifact stage,
             you can start it right away; otherwise, you have to build it first. Depending on your application,
-            startup may take a while; you can check catalina.out to check for startup problems:
-            'stool cd logs &amp;&amp; tail -f catalina.out'
-          </para>
+            startup may take a while.</para>
           <para>Startup is refused if your stage has expired. In this case, use 'stool config until=newdata' to configure
             a new 'until' date.
           </para>
-          <para>'-debug' and '-suspend' enable the debugger. The difference is that suspend waits for the debugger to connect before
-            starting any application code.</para>
+          <para><option>-debug</option> and <option>-suspend</option> enable the debugger. The difference is that suspend waits for the
+            debugger to connect before starting any application code.</para>
           <para>Use the '-tail' option to start tomcat and get catalina.out printed to the console. Press ctrl-c to stop watching
-            catalina.out, the application will continue to run.</para>
+            catalina.out, the application will continue to run. Alternatively, you can tail manually with
+            'stool cd logs &amp;&amp; tail -f catalina.out'</para>
           <para>The Tomcat version is configurable with 'stool config tomcat.version=&lt;version>'. You have to restart the stage
             when you change the version. The respective Tomcat will be downloaded automatically to the directory specified by the downloadCache
             property (default is '$STOOL_HOME/downloads'). Alternatively, you can place customized Tomcats into this directory, provided they
@@ -596,7 +619,31 @@ http://docbook.org/ns/docbook ">
             application, the login environment of the stage owner defines the basic environment.</para>
         </refsect1>
       </refentry>
+    </sect1>
 
+    <sect1>
+      <title>Stop</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-stop</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-stop</refname>
+          <refpurpose>stops a stage</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool stop</command>
+            <arg>-sleep</arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Stops tomcat of the respective stage. If <option>-sleep</option> is specified, the stage is also marked as sleeping.</para>
+        </refsect1>
+      </refentry>
     </sect1>
 
     <sect1>
@@ -616,8 +663,8 @@ http://docbook.org/ns/docbook ">
           <cmdsynopsis>
             <command>stool restart</command>
             <group>
-              <arg>-debug</arg>
-              <arg>-suspend</arg>
+              <arg rep="plain">-debug</arg>
+              <arg rep="plain">-suspend</arg>
             </group>
           </cmdsynopsis>
         </refsynopsisdiv>
@@ -628,7 +675,6 @@ http://docbook.org/ns/docbook ">
         </refsect1>
       </refentry>
     </sect1>
-
     <sect1>
       <title>Refresh</title>
 
@@ -646,20 +692,25 @@ http://docbook.org/ns/docbook ">
           <cmdsynopsis>
             <command>stool refresh</command>
             <group>
-              <arg>-debug</arg>
-              <arg>-suspend</arg>
-              <arg>-build</arg>
+              <arg rep="plain">-debug</arg>
+              <arg rep="plain">-suspend</arg>
             </group>
+            <arg>-build</arg>
+            <arg>-stop</arg>
+            <arg>-own</arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>First stops the stage if it is started. Then updates artifact stages or - if <command>-build</command> is specified -
-            invokes the command specified by the refresh property on source stages. And finally, if the stage was initially started,
-            starts the stage again.</para>
+          <para>First stops the stage if it is started. Then chowns that stage to the current user (unless stage owner and current user
+            are the same). Then updates artifact stages or - if <option>-build</option> is specified -
+            invokes the command specified by the refresh property on source stages.</para>
+          <para>Next, if the owner was changed, the stage is chowned back to the original ower. (Specify <option>-own</option>
+          to skip this step.)</para>
+          <para>And finally, if the stage was initially started starts the stage again. (Specify <option>-stop</option>
+          to skip this step.)</para>
         </refsect1>
       </refentry>
     </sect1>
-
     <sect1>
       <title>Chown</title>
 
@@ -686,10 +737,10 @@ http://docbook.org/ns/docbook ">
         <refsect1><title>Description</title>
           <para>Changes the stage owner, i.e. the owner of all files and directories in the stage directory and the wrapper directory.</para>
           <para>Before executing, chown checks if the stage has modified source files. If so, it asks for confirmation before changing ownership.
-            You can skip confirmation by specifying the '-batch' option.</para>
-          <para>Reports an error if the stage is running. In this case, you can use the '-stop' option to stop the stage before
+            You can skip confirmation by specifying <option>-batch</option>.</para>
+          <para>Reports an error if the stage is running. In this case, you can specify <option>-stop</option> to stop the stage before
             changing ownership and also start it afterwards.</para>
-          <para>&lt;user> defaults to the current user.</para>
+          <para><option>user</option> defaults to the current user.</para>
         </refsect1>
       </refentry>
 
@@ -711,14 +762,13 @@ http://docbook.org/ns/docbook ">
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool history</command>
-            <group>
-              <arg>-max <replaceable>n</replaceable></arg>
-              <arg rep="repeat"><replaceable>detail</replaceable></arg>
-            </group>
+            <arg>-max <replaceable>n</replaceable></arg>
+            <arg rep="repeat"><replaceable>detail</replaceable></arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Prints the command history of the stage.</para>
+          <para>Prints the command history of the stage. Speficy <option>detail</option> to the full command output for the respective
+          command or range of commands. If the max number of commands is exceeded, older commands are ignores (defauls is 999). </para>
         </refsect1>
       </refentry>
     </sect1>
@@ -740,8 +790,8 @@ http://docbook.org/ns/docbook ">
           <cmdsynopsis>
             <command>stool select</command>
             <group>
-              <arg><replaceable>stage</replaceable></arg>
-              <arg>none</arg>
+              <arg rep="plain"><replaceable>stage</replaceable></arg>
+              <arg rep="plain">none</arg>
             </group>
           </cmdsynopsis>
         </refsynopsisdiv>
@@ -753,14 +803,14 @@ http://docbook.org/ns/docbook ">
                 Adjusts the environment variables for the selected stage (e.g. MAVEN_OPTS, JAVA_HOME).
               </listitem>
               <listitem>
-                Changes the current working directory to the stage directory.
+                Adjusts the selected stage indicator. If it's red, you're not the owner.
               </listitem>
               <listitem>
-                Adjusts the selected stage indicator. If it's red, you're not the owner.
+                Changes the current working directory to the stage directory.
               </listitem>
             </itemizedlist>
           </para>
-          <para>When called with 'none': resets environment variables and removes the stage indicator.</para>
+          <para>When called with <option>none</option>: resets environment variables and removes the stage indicator.</para>
           <para>If the specified stage is not found, the command prints an error message and lists stages that
             you could have meant.
           </para>
@@ -853,7 +903,7 @@ http://docbook.org/ns/docbook ">
           </para>
         </refsect1>
       </refentry>
-   </sect1>
+    </sect1>
 
     <sect1>
       <title>Rename</title>
@@ -902,16 +952,113 @@ http://docbook.org/ns/docbook ">
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Moves the stage directory. If <command>dest</command> exists, it is moved into it. Otherwise it is moved into the
-            parent of dest with the specified name. This is the same behavior as the unix 'mv' command, but it also adjusts Stool's wrapper
-            directory.
+          <para>Moves the stage directory without touching the stage name. If <command>dest</command> exists, it is moved into it.
+            Otherwise it is moved into the parent of dest with the specified name. This is the same behavior as the unix 'mv' command,
+            but it also adjusts Stool's wrapper directory.
           </para>
           <para>You might have to re-build your application after moving the stage if you have development tools that store
             absolute paths (e.g. Lavender ...).</para>
         </refsect1>
       </refentry>
     </sect1>
+    <sect1>
+      <title>List</title>
 
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-list</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-list</refname>
+          <refpurpose>lists stages</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool move</command>
+            <arg rep="plain"><replaceable>dest</replaceable></arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Prints a short status of the selected stages; default selection is <option>-all</option></para>
+        </refsect1>
+      </refentry>
+    </sect1>
+    <sect1>
+      <title>Cleanup</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-cleanup</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-cleanup</refname>
+          <refpurpose>cleanup a stage</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool move</command>
+            <arg rep="plain"><replaceable>dest</replaceable></arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Removes the Maven repository and rotages *.log info an archive.</para>
+        </refsect1>
+      </refentry>
+    </sect1>
+    <sect1>
+      <title>Status</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-status</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-status</refname>
+          <refpurpose>prints stage status</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool status</command>
+            <arg rep="plain"><replaceable>field</replaceable></arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Prints status fields of the stage. Default: all fields.</para>
+        </refsect1>
+      </refentry>
+    </sect1>
+    <sect1>
+      <title>Validate</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-validate</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-validate</refname>
+          <refpurpose>validates the stage</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool validate</command>
+            <arg>-stop</arg>
+            <arg>-email</arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Checks if the until date of the stage has expired. If so, and <option>-stop</option> is specified, the stage is stopped.
+            And if <option>-email</option> is specified, a notification mail is sent to the stage owner.</para>
+        </refsect1>
+      </refentry>
+    </sect1>
   </chapter>
 
   <chapter>

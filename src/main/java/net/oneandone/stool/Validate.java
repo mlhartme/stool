@@ -79,6 +79,7 @@ public class Validate extends StageCommand {
         }
         super.doInvoke();
     }
+
     @Override
     public void doInvoke(Stage stage) throws Exception {
         List<String> problems;

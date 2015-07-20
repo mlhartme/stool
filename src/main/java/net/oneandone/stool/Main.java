@@ -169,11 +169,6 @@ public class Main extends Cli implements Command {
         return 0;
     }
 
-    @Override
-    public Command help() {
-        return () -> ((FileNode) console.world.getWorking()).exec("man", "stool");
-    }
-
     @Child("build")
     public Build build() throws IOException {
         return new Build(session());
@@ -301,58 +296,40 @@ public class Main extends Cli implements Command {
         console.info.println("  stool <global-options> <command>");
         console.info.println();
         console.info.println("general commands:");
-        console.info.println("  help            print this message");
-        console.info.println("  version         print stool version information");
-        console.info.println("  create [-quiet|-prefix <n>] <url> [-name <name>] [<directory>] {<key>=<val>}");
-        console.info.println("                                         creates a new stage from <url>");
-        console.info.println("                                         directory default to the cwd/lastUrlSegment ");
-        console.info.println("                                         name defaults the directory name");
-        console.info.println("  import [-max <n>] [-name <template>] <directory>* ......");
-        console.info.println("                                         turns existing applications into a stage; template is a string");
-        console.info.println("                                         if it contains %d, it will be replaced by the directory name");
-        console.info.println("                                         it defaults to just %d");
-        console.info.println("  select [<stage>|none]  ..............  use <stage> for stage commands and cd into its directory ");
+        console.info.println("  help");
+        console.info.println("  version");
+        console.info.println("  create");
+        console.info.println("  import");
+        console.info.println("  select");
         console.info.println("stage commands");
-        console.info.println("  config {<key>[=<val>]}  .............  get/set stage properties;");
-        console.info.println("  .....................................  invoke without arguments to get a list of available keys");
-        console.info.println("  status {<field>} ....................  prints selected status fields (default: all)");
-        console.info.println("  build  ..............................  builds the stage; for convenience only -- you're free to build ");
-        console.info.println(
-          "                                         your application as you normally do, stool configure the necessary");
-        console.info.println("  .....................................  environment variables");
-        console.info.println("  refresh [-build|-stop|-own|-debug|-suspend] ..  update the stage, with optional building;");
-        console.info.println("  .....................................  restart and chowning when necessary");
-        console.info.println("  start [-debug|-suspend|-tail] .......  starts the stage, and optionally tails catalina.out");
-        console.info.println("  stop [-sleep] .......................  stops the stage");
-        console.info.println("  restart [-debug] ....................  restarts the stage");
-        console.info.println("  move <dest> .........................  changes the stage directory; the stage name is not changed");
-        console.info.println("  rename <name> .......................  changes the stage name; the stage directory is not changed");
-        console.info.println("  remove [-force|-batch|-wrapper] .....  removes the stage after modified file check and confirm");
-        console.info.println(
-          "  validate [-email|-stop] .............  validates the stage, optionally sends emails and stops + deletes stages.");
-        console.info.println("  history [-max <n>] <detail>* ........  shows command history for a stage");
-        console.info.println("                                         prints all commands and details when specified");
-        console.info.println("                                         select details by the command nummber or a range of numbers");
-        console.info.println("                                         if the max number of command is exceeeded, older commands are ignored");
-        console.info.println("  chown [-stop] [<user>] ..............  changes the stage owner by changing file ownership");
-        console.info.println("  .....................................  (user defaults to current user)");
-        console.info.println("  cd [<target>] .......................  changes to specified directory, e.g. wrapper, tomcat or empty");
-        console.info.println("  cleanup .............................  removes the maven repository and rotates *.log into an archive");
-        console.info.println(
-          "  list  ...............................  prints a short status of the selected stages; default selection is -all");
+        console.info.println("  config");
+        console.info.println("  status");
+        console.info.println("  build");
+        console.info.println("  refresh");
+        console.info.println("  start");
+        console.info.println("  stop");
+        console.info.println("  restart");
+        console.info.println("  move");
+        console.info.println("  rename");
+        console.info.println("  remove");
+        console.info.println("  validate");
+        console.info.println("  history");
+        console.info.println("  chown");
+        console.info.println("  cd");
+        console.info.println("  cleanup");
+        console.info.println("  list");
         console.info.println("system commands:");
-        console.info.println("  system-stop [-sleep] ................  stops the overviews and sends all stages to sleep.");
-        console.info.println("  system-start [-awake] ...............  starts the overview and awakes stages");
-        console.info.println("  system-validate ..... ...............  checks for inconsistencies and new stool versions");
-        console.info.println("  system-import [-include all|config|stages] <old-home> {name|key=value}");
-        console.info.println("                                         imports global config and the specified stages (default: all)");
+        console.info.println("  system-stop");
+        console.info.println("  system-start");
+        console.info.println("  system-validate");
+        console.info.println("  system-import");
         console.info.println();
         console.info.println("select options for stage commands");
         console.info.println("  (no select option)      operate on the selected stage");
         console.info.println("  -all                    operate on all stages");
         console.info.println("  -stage <predicate>      operate on all stages matching the specified predicate");
         console.info.println();
-        console.info.println("failure mode for stage command");
+        console.info.println("failure mode for stage commands");
         console.info.println("  -fail normal       fail immediately");
         console.info.println("  -fail after        fail after all stages have been tried");
         console.info.println("  -fail never        report errors as warning");
@@ -380,7 +357,8 @@ public class Main extends Cli implements Command {
         console.info.println("  https://github.com/mlhartme/hellowar/trunk (source stage)");
         console.info.println();
         console.info.println("documentation:");
-        console.info.println("  https://github.com/mlhartme/stool");
+        console.info.println("  Homepage: https://github.com/mlhartme/stool");
+        console.info.println("  Invoke 'man stool-<command>' to get documentation for individual commands.");
     }
 
     private Session session() throws IOException {
