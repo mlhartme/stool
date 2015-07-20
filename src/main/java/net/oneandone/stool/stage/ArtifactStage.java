@@ -213,7 +213,7 @@ public class ArtifactStage extends Stage {
         if ("@inbox".equals(application.artifact().getVersion())) {
             source = new Inbox(application.name(), getName(), session.home.join(Main.INBOX));
         } else if ("@overview".equals(application.artifact().getVersion())) {
-            source = new Overview(Session.jdkHome(), session.home.getWorld());
+            source = new Overview(Session.jdkHome(), session.console.world);
         } else {
             source = new Maven(application.artifact(), maven());
         }

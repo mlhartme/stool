@@ -31,10 +31,10 @@ public class StoolCallable implements Callable<Failure> {
         Session session;
 
         session = stage.session;
-        return new StoolCallable(session.home, command, options, stage, id, logs, session.configuration.shared, stage.owner());
+        return new StoolCallable(session.bin("stool-raw.sh"), command, options, stage, id, logs, session.configuration.shared, stage.owner());
     }
 
-    private final FileNode home;
+    private final FileNode stoolRaw;
     private final String command;
     private final String[] options;
     private final String id;
@@ -43,8 +43,8 @@ public class StoolCallable implements Callable<Failure> {
     private final boolean su;
     private final String runAs;
 
-    public StoolCallable(FileNode home, String command, String[] options, Stage stage, String id, FileNode logDir, boolean su, String runAs) {
-        this.home = home;
+    public StoolCallable(FileNode stoolRaw, String command, String[] options, Stage stage, String id, FileNode logDir, boolean su, String runAs) {
+        this.stoolRaw = stoolRaw;
         this.command = command;
         this.options = options;
         this.id = id;
@@ -69,7 +69,7 @@ public class StoolCallable implements Callable<Failure> {
         if (su) {
             launcher.arg("sudo", "-u", runAs);
         }
-        launcher.arg(home.join("bin/stool-raw.sh").getAbsolute());
+        launcher.arg(stoolRaw.getAbsolute());
         subversion = stage.session.subversion();
         if (subversion.username != null) {
             launcher.arg("-svnuser", subversion.username);
