@@ -155,7 +155,7 @@ public class Install {
         result.put("stool.home", home.getAbsolute());
         result.put("stool.bin", bin.getAbsolute());
         result.put("java.home", javaHome);
-        result.put("man.path", man == null ? "" :
+        result.put("man.path", "/usr/share/man".equals(man.getAbsolute()) ? "" :
                 "if [ -z $MANPATH ] ; then\n" +
                 "  export MANPATH=" + man.getAbsolute() + "\n" +
                 "else\n" +
