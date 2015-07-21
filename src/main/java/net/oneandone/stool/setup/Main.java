@@ -20,11 +20,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.oneandone.stool.Refresh;
 import net.oneandone.stool.SystemImport;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Environment;
-import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -57,6 +55,7 @@ public class Main extends Cli implements Command {
 
     private FileNode home;
     private FileNode oldHome;
+
 
     @Option("batch")
     private boolean batch;
@@ -106,6 +105,7 @@ public class Main extends Cli implements Command {
         String user;
         Version version;
         Version old;
+        FileNode debfiles;
 
         user = System.getProperty("user.name");
         version = versionObject();
@@ -141,7 +141,7 @@ public class Main extends Cli implements Command {
             if (!batch) {
                 console.pressReturn();
             }
-            new Install(true, console, environment, config).invoke(user);
+            new Install(console, true, home, environment.stoolBin(console.world), home.join("man"), config).standalone(user, environment);
             console.info.println("Done. To complete the installation:");
             console.info.println("1. add");
             console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
@@ -159,7 +159,7 @@ public class Main extends Cli implements Command {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
-        session = new Install(true, console, environment, config).invoke(user);
+        session = new Install(console, true, home, environment.stoolBin(console.world), home.join("man"), config).standalone(user, environment);
         new SystemImport(session, oldHome).invoke();
 
         Runtime.getRuntime().removeShutdownHook(cleanup);

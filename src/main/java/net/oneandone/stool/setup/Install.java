@@ -47,56 +47,30 @@ import java.util.Map;
 public class Install {
     public static final String STOOL_UPDATE_CHECKED = ".stool.update.checked";
 
-    // false in tests, when stool.jar is not in classpath
-    private final boolean fromJar;
-
     private final Console console;
 
-    private final Environment environment;
+    // to create bin directory with a stool jar. False in tests, when stool.jar is not in classpath
+    private final boolean withJar;
 
+    // configuration when installed on target system
     private final FileNode home;
-
     private final FileNode bin;
-
     private final FileNode man;
-
-    private final boolean withBin;
-
-    private final boolean withMan;
 
     private final Map<String, Object> globalProperties;
 
-    public Install(boolean fromJar, Console console, Environment environment, Map<String, Object> globalProperties) {
-        this(fromJar, console, environment,
-                environment.stoolHome(console.world).join("man"), true, true,
-                globalProperties);
-    }
-
-    public Install(boolean fromJar, Console console, Environment environment, FileNode man, boolean withBin, boolean withMan,
-                   Map<String, Object> globalProperties) {
-        this.fromJar = fromJar;
+    public Install(Console console, boolean withJar, FileNode home, FileNode bin, FileNode man, Map<String, Object> globalProperties) {
         this.console = console;
-        this.environment = environment;
-        this.home = environment.stoolHome(console.world);
-        this.bin = environment.stoolBin(console.world);
+        this.withJar = withJar;
+        this.home = home;
+        this.bin = bin;
         this.man = man;
-        this.withBin = withBin;
-        this.withMan = withMan;
         this.globalProperties = globalProperties;
     }
 
-    public Session invoke(String user) throws Exception {
-        Session session;
-
-        createHome();
-        session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
-        createOverview(session);
-        return session;
-    }
-
-    private void createHome() throws IOException {
-        StoolConfiguration conf;
+    public Session standalone(String user, Environment environment) throws Exception {
         RmRfThread cleanup;
+        Session session;
 
         home.checkNotExists();
 
@@ -104,22 +78,20 @@ public class Install {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
-        Files.stoolDirectory(home.mkdirs());
-        conf = new StoolConfiguration(downloadCache(home));
-        tuneHostname(conf);
-        tuneExplicit(conf);
-        doCreateHome();
-        if (withBin) {
-            doCreateBin(variables(Session.javaHome()));
-        }
-        if (withMan) {
-            doCreateMan();
-        }
-        Files.stoolDirectory(conf.downloadCache.mkdirOpt()).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
-        conf.save(Session.gson(home.getWorld(), ExtensionsFactory.create(home.getWorld())), home);
-
+        doCreateHomeWithoutOverview();
+        doCreateBin(variables(Session.javaHome()), bin);
+        doCreateMan(man);
+        session = doCreateHomeOverview(user, environment);
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
+        return session;
+    }
+
+    public void debianFiles(FileNode dest) throws Exception {
+        home.checkNotExists();
+
+        doCreateBin(variables(Session.javaHome()), dest.join(bin.getName()));
+        doCreateMan(dest.join(man.getName()));
     }
 
     private FileNode downloadCache(FileNode home) {
@@ -136,28 +108,45 @@ public class Install {
 
     public static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd-hhmmss");
 
-    private void doCreateHome() throws IOException {
-        for (String dir : new String[] { "extensions", "wrappers", "inbox", "logs", "service-wrapper", "conf", "conf/users", "tomcat"}) {
+    private void doCreateHomeWithoutOverview() throws IOException {
+        StoolConfiguration conf;
+
+        Files.stoolDirectory(home.mkdirs());
+        conf = new StoolConfiguration(downloadCache(home));
+        tuneHostname(conf);
+        tuneExplicit(conf);
+        Files.stoolDirectory(conf.downloadCache.mkdirOpt()).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
+        conf.save(Session.gson(home.getWorld(), ExtensionsFactory.create(home.getWorld())), home);
+
+        for (String dir : new String[]{"extensions", "wrappers", "inbox", "logs", "service-wrapper", "conf", "conf/users", "tomcat"}) {
             Files.stoolDirectory(home.join(dir).mkdir());
         }
     }
 
-    private void doCreateBin(Map<String, String> variables) throws IOException {
+    private Session doCreateHomeOverview(String user, Environment environment) throws IOException {
+        Session session;
+
+        session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
+        createOverview(session);
+        return session;
+    }
+
+    private void doCreateBin(Map<String, String> variables, FileNode destBin) throws IOException {
         String jar;
 
-        Files.stoolDirectory(bin.mkdir());
-        Files.template(home.getWorld().resource("templates/bin"), bin, variables);
-        if (fromJar) {
+        Files.stoolDirectory(destBin.mkdir());
+        Files.template(home.getWorld().resource("templates/bin"), destBin, variables);
+        if (withJar) {
             jar = "stool-" + FMT.format(LocalDateTime.now()) + ".jar";
-            console.world.locateClasspathItem(getClass()).copyFile(bin.join(jar));
-            bin.join("stool.jar").mklink(jar);
+            console.world.locateClasspathItem(getClass()).copyFile(destBin.join(jar));
+            destBin.join("stool.jar").mklink(jar);
         }
     }
 
-    private void doCreateMan() throws IOException {
-        Files.stoolDirectory(man.mkdir());
-        home.getWorld().resource("templates/man").copyDirectory(man);
-        Files.stoolTree(man);
+    private void doCreateMan(FileNode destMan) throws IOException {
+        Files.stoolDirectory(destMan.mkdir());
+        home.getWorld().resource("templates/man").copyDirectory(destMan);
+        Files.stoolTree(destMan);
     }
 
     private Map<String, String> variables(String javaHome) {

@@ -12,7 +12,7 @@
 # Note: we need sssd to stop the stool service, otherwise sudo rejects unknwon users
 # TODO: replace sssd by a better/less specific dependency ...
 
-STOOL=/opt/ui/opt/tools/stool/bin/stool-raw.sh
+STOOL=/usr/share/stool/stool-raw.sh
 . /lib/lsb/init-functions
 
 case "$1" in
@@ -50,7 +50,7 @@ case "$1" in
         ;;
 
         *)
-                echo "Usage: /opt/ui/etc/init.d/stool {start|stop}"
+                echo "Usage: service stool {start|stop|restart|force-reload|status}"
                 exit 1
         ;;
 esac

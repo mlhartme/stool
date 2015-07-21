@@ -69,7 +69,7 @@ public class StoolIT {
         config.put("portOverview", "1300");
         config.put("portFirst", "1302");
         config.put("portLast", "1319");
-        new Install(false, Console.create(world), system, config).invoke(TESTUSER);
+        new Install(Console.create(world), false, system.stoolHome(world), system.stoolBin(world), home.join("man"), config).standalone(TESTUSER, system);
         stages = home.getParent().join("stages");
         stages.deleteTreeOpt();
         stages.mkdir();
