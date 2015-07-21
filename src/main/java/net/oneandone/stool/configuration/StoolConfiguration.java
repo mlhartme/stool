@@ -165,7 +165,7 @@ public class StoolConfiguration {
     }
 
     public static FileNode configurationFile(FileNode home) {
-        return home.isDirectory() ? home.join("config.json") : home;
+        return home.join("config.json");
     }
 
     public static StoolConfiguration load(Gson gson, FileNode home) throws IOException {

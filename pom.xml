@@ -315,7 +315,7 @@
               <goal>generate-manpages</goal>
             </goals>
             <configuration>
-              <targetDirectory>${project.build.directory}/classes/templates/stool</targetDirectory>
+              <targetDirectory>${project.build.directory}/classes/templates/man</targetDirectory>
               <generateSectionTocLevel>0</generateSectionTocLevel>
             </configuration>
           </execution>

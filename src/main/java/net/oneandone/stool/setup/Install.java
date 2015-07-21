@@ -56,13 +56,29 @@ public class Install {
 
     private final FileNode home;
 
+    /** null to skip bin installation */
+    private final FileNode bin;
+
+    /** null to skip man installation */
+    private final FileNode man;
+
     private final Map<String, Object> globalProperties;
 
     public Install(boolean fromJar, Console console, Environment environment, Map<String, Object> globalProperties) {
+        this(fromJar, console, environment,
+                environment.stoolHome(console.world).join("bin"),
+                environment.stoolHome(console.world).join("man"),
+                globalProperties);
+    }
+
+    public Install(boolean fromJar, Console console, Environment environment, FileNode bin, FileNode man,
+                   Map<String, Object> globalProperties) {
         this.fromJar = fromJar;
         this.console = console;
         this.environment = environment;
         this.home = environment.stoolHome(console.world);
+        this.bin = bin;
+        this.man = man;
         this.globalProperties = globalProperties;
     }
 
@@ -86,10 +102,16 @@ public class Install {
         Runtime.getRuntime().addShutdownHook(cleanup);
 
         Files.stoolDirectory(home.mkdirs());
-        conf = new StoolConfiguration(downloads(home));
+        conf = new StoolConfiguration(downloadCache(home));
         tuneHostname(conf);
         tuneExplicit(conf);
-        copyResources(variables(Session.javaHome()));
+        doCreateHome();
+        if (bin != null) {
+            doCreateBin(variables(Session.javaHome()));
+        }
+        if (man != null) {
+            doCreateMan();
+        }
         Files.stoolDirectory(conf.downloadCache.mkdirOpt()).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
         conf.save(Session.gson(home.getWorld(), ExtensionsFactory.create(home.getWorld())), home);
 
@@ -97,7 +119,7 @@ public class Install {
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
 
-    private FileNode downloads(FileNode home) {
+    private FileNode downloadCache(FileNode home) {
         FileNode directory;
 
         if (OS.CURRENT == OS.MAC) {
@@ -111,19 +133,28 @@ public class Install {
 
     public static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd-hhmmss");
 
-    private void copyResources(Map<String, String> variables) throws IOException {
-        String jar;
-
-        jar = "stool-" + FMT.format(LocalDateTime.now()) + ".jar";
-        Files.template(home.getWorld().resource("templates/stool"), home, variables);
-        if (fromJar) {
-            console.world.locateClasspathItem(getClass()).copyFile(home.join("bin", jar));
-            home.join("bin/stool.jar").mklink(jar);
-        }
-        // manually create empty subdirectories, because git doesn't know them
-        for (String dir : new String[] {"extensions", "wrappers", "inbox", "logs", "service-wrapper", "conf", "conf/users", "tomcat"}) {
+    private void doCreateHome() throws IOException {
+        for (String dir : new String[] { "extensions", "wrappers", "inbox", "logs", "service-wrapper", "conf", "conf/users", "tomcat"}) {
             Files.stoolDirectory(home.join(dir).mkdir());
         }
+    }
+
+    private void doCreateBin(Map<String, String> variables) throws IOException {
+        String jar;
+
+        Files.stoolDirectory(bin.mkdir());
+        Files.template(home.getWorld().resource("templates/bin"), bin, variables);
+        if (fromJar) {
+            jar = "stool-" + FMT.format(LocalDateTime.now()) + ".jar";
+            console.world.locateClasspathItem(getClass()).copyFile(bin.join(jar));
+            bin.join("stool.jar").mklink(jar);
+        }
+    }
+
+    private void doCreateMan() throws IOException {
+        Files.stoolDirectory(man.mkdir());
+        home.getWorld().resource("templates/man").copyDirectory(man);
+        Files.stoolTree(man);
     }
 
     private Map<String, String> variables(String javaHome) {
@@ -132,6 +163,12 @@ public class Install {
         result = new HashMap<>();
         result.put("stool.home", home.getAbsolute());
         result.put("java.home", javaHome);
+        result.put("man.path", man == null ? "" :
+                "if [ -z $MANPATH ] ; then\n" +
+                "  export MANPATH=" + man.getAbsolute() + "\n" +
+                "else\n" +
+                "  export MANPATH=" + man.getAbsolute() + ":$MANPATH\n" +
+                "fi\n");
         return result;
     }
 
