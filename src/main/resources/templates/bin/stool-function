@@ -11,6 +11,7 @@ stool() {
   export EXPORTED_PWD="$PWD"
 
   local home=${{stool.home}}
+  local bin=${{stool.bin}}
   local cp
   local verbose=false
   local command="empty"
@@ -53,7 +54,7 @@ stool() {
         cp="$cp:$jar"
       fi
     done
-    STOOL_HOME=$home ${{java.home}}/bin/java $STOOL_OPTS -cp $cp net.oneandone.stool.Main -invocation $STOOL_INVOCATION "$@"
+    STOOL_HOME=$home STOOL_BIN=$bin ${{java.home}}/bin/java $STOOL_OPTS -cp $cp net.oneandone.stool.Main -invocation $STOOL_INVOCATION "$@"
     result=$?
     if [ -f $STOOL_INVOCATION ] ; then
       . $STOOL_INVOCATION

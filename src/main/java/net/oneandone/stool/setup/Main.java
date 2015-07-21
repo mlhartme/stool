@@ -119,6 +119,7 @@ public class Main extends Cli implements Command {
             oldHome.checkDirectory();
         }
         environment.setStoolHome(home);
+        environment.setStoolBin(home.join("bin"));
         if (oldHome.exists()) {
             try {
                 old = oldVersion();

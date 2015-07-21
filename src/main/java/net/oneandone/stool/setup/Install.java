@@ -56,7 +56,7 @@ public class Install {
 
     private final FileNode home;
 
-    /** null to skip bin installation */
+    /** null to skip bin installation. TODO */
     private final FileNode bin;
 
     /** null to skip man installation */
@@ -66,18 +66,17 @@ public class Install {
 
     public Install(boolean fromJar, Console console, Environment environment, Map<String, Object> globalProperties) {
         this(fromJar, console, environment,
-                environment.stoolHome(console.world).join("bin"),
                 environment.stoolHome(console.world).join("man"),
                 globalProperties);
     }
 
-    public Install(boolean fromJar, Console console, Environment environment, FileNode bin, FileNode man,
+    public Install(boolean fromJar, Console console, Environment environment, FileNode man,
                    Map<String, Object> globalProperties) {
         this.fromJar = fromJar;
         this.console = console;
         this.environment = environment;
         this.home = environment.stoolHome(console.world);
-        this.bin = bin;
+        this.bin = environment.stoolBin(console.world);
         this.man = man;
         this.globalProperties = globalProperties;
     }
@@ -162,6 +161,7 @@ public class Install {
 
         result = new HashMap<>();
         result.put("stool.home", home.getAbsolute());
+        result.put("stool.bin", bin.getAbsolute());
         result.put("java.home", javaHome);
         result.put("man.path", man == null ? "" :
                 "if [ -z $MANPATH ] ; then\n" +
@@ -223,6 +223,7 @@ public class Install {
             tomcatOpts += " ";
         }
         tomcatOpts += "-Doverview.stool.home=" + session.home.getAbsolute();
+        tomcatOpts += " -Doverview.stool.bin=" + session.bin.getAbsolute();
         create.remaining("tomcat.opts=" + tomcatOpts);
         create.remaining("until=reserved");
         create.remaining("tomcat.env=" + environment());

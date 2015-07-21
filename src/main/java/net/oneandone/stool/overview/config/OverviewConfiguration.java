@@ -51,6 +51,11 @@ public class OverviewConfiguration {
     }
 
     @Bean
+    public FileNode bin() {
+        return world().file(System.getProperty("overview.stool.bin"));
+    }
+
+    @Bean
     public String user() {
         return System.getProperty("user.name");
     }
@@ -83,6 +88,7 @@ public class OverviewConfiguration {
         }
         user = user();
         system.setStoolHome(home);
+        system.setStoolBin(bin());
         return Session.load(Logging.create(logs(), "overview", user), user, "overview", system, console(), null, svnuser, svnpassword);
     }
 

@@ -108,13 +108,16 @@ public class Session {
         ExtensionsFactory factory;
         Gson gson;
         FileNode home;
+        FileNode bin;
         Session result;
 
         factory = ExtensionsFactory.create(console.world);
         gson = gson(console.world, factory);
         home = environment.stoolHome(console.world);
         home.checkDirectory();
-        result = new Session(factory, gson, logging, user, command, home, console, environment, StoolConfiguration.load(gson, home),
+        bin = environment.stoolBin(console.world);
+        bin.checkDirectory();
+        result = new Session(factory, gson, logging, user, command, home, bin, console, environment, StoolConfiguration.load(gson, home),
                 Bedroom.loadOrCreate(gson, home), invocationFile, svnuser, svnpassword);
         result.selectedStageName = environment.getOpt(Environment.STOOL_SELECTED);
         return result;
@@ -132,6 +135,7 @@ public class Session {
 
     // TODO: redundant!
     public final FileNode home;
+    public final FileNode bin;
     public final Console console;
     public final Environment environment;
     public final StoolConfiguration configuration;
@@ -151,7 +155,8 @@ public class Session {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd");
 
-    public Session(ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command, FileNode home, Console console, Environment environment, StoolConfiguration configuration,
+    public Session(ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command, FileNode home, FileNode bin,
+                   Console console, Environment environment, StoolConfiguration configuration,
                    Bedroom bedroom, FileNode invocationFile, String svnuser, String svnpassword) {
         this.extensionsFactory = extensionsFactory;
         this.gson = gson;
@@ -159,6 +164,7 @@ public class Session {
         this.user = user;
         this.command = command;
         this.home = home;
+        this.bin = bin;
         this.console = console;
         this.environment = environment;
         this.configuration = configuration;
@@ -197,10 +203,6 @@ public class Session {
 
     //--
 
-    public void saveConfiguration() throws IOException {
-        configuration.save(gson, home);
-    }
-
 
     public static String jdkHome() {
         String result;
@@ -211,7 +213,7 @@ public class Session {
     }
 
     public FileNode bin(String name) {
-        return home.join("bin", name);
+        return bin.join(name);
     }
 
     //-- environment handling

@@ -36,6 +36,7 @@ public class Environment {
     private static final String EXPORTED = "EXPORTED_";
 
     public static final String STOOL_HOME = "STOOL_HOME";
+    public static final String STOOL_BIN = "STOOL_BIN";
     public static final String STOOL_SELECTED = "STOOL_SELECTED";
     // TODO: dump when pws uses stagehost instead
     public static final String MACHINE = "MACHINE";
@@ -183,6 +184,14 @@ public class Environment {
 
     public void setStoolHome(FileNode home) {
         set(STOOL_HOME, home.getAbsolute());
+    }
+
+    public FileNode stoolBin(World world) {
+        return world.file(get(STOOL_BIN));
+    }
+
+    public void setStoolBin(FileNode bin) {
+        set(STOOL_BIN, bin.getAbsolute());
     }
 
     //-- proxyOpts
