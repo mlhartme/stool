@@ -6,9 +6,13 @@ case "$1" in
     remove)
         # may fail if setup did not complete properly
         service stool stop || echo service shutdown failed
-        rm -rf /opt/ui/opt/tools/stool
+        update-rc.d stool remove
     ;;
-    upgrade|deconfigure|failed-upgrade)
+    upgrade)
+        # TODO: reject new stool invocations
+        # TODO: stop stool overview
+    ;;
+    deconfigure|failed-upgrade)
     ;;
     *)
         echo "prerm called with unknown argument: $1"
