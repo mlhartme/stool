@@ -40,17 +40,18 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Main extends Cli implements Command {
+/** Create a standalone stool directory with "bin" and "man" included. */
+public class Standalone extends Cli implements Command {
     public static void main(String[] args) throws Exception {
-        Main main;
+        Standalone standalone;
         String file;
 
-        main = new Main();
+        standalone = new Standalone();
         file = System.getenv("SETUP_STOOL_DEFAULTS");
         if (file != null) {
-            main.defaultsFile(file);
+            standalone.defaultsFile(file);
         }
-        System.exit(main.run(args));
+        System.exit(standalone.run(args));
     }
 
     private FileNode home;
@@ -65,7 +66,7 @@ public class Main extends Cli implements Command {
     /** maps to String or Map<String, String> */
     private final Map<String, Object> config;
 
-    private Main() {
+    private Standalone() {
         environment = Environment.loadSystem();
         config = new LinkedHashMap<>();
     }

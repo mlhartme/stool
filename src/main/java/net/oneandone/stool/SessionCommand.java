@@ -17,6 +17,7 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.setup.Install;
+import net.oneandone.stool.setup.Standalone;
 import net.oneandone.stool.setup.Update;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
@@ -151,7 +152,7 @@ public abstract class SessionCommand implements Command {
 
         checked = session.downloadCache().join(Install.STOOL_UPDATE_CHECKED);
         if (updateCheck || ((session.configuration.updateInterval > 0) && updateCheckPending(checked))) {
-            updates = Update.check(console, net.oneandone.stool.setup.Main.versionObject(), session.home, session.downloadCache());
+            updates = Update.check(console, Standalone.versionObject(), session.home, session.downloadCache());
             for (FileNode file : updates) {
                 console.info.println("UPDATE: Found a new Stool version.");
                 console.info.println("UPDATE: See https://github.com/mlhartme/stool/releases for details");

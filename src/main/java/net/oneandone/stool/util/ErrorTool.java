@@ -16,13 +16,12 @@
 package net.oneandone.stool.util;
 
 import ch.qos.logback.classic.Level;
-import net.oneandone.stool.setup.Main;
+import net.oneandone.stool.setup.Standalone;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -56,7 +55,7 @@ public class ErrorTool {
         add("product", "stool", dest);
         add("category", "default", dest);
         add("container", hostname, dest);
-        add("sessionId", Main.versionObject().toString(), dest);
+        add("sessionId", Standalone.versionObject().toString(), dest);
 
         add("subject", subject, dest);
         add("body", body, dest);
