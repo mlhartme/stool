@@ -88,8 +88,7 @@ public class Install {
     }
 
     public void debianFiles(FileNode dest) throws Exception {
-        home.checkNotExists();
-
+        dest.mkdir();
         doCreateBin(variables(Session.javaHome()), dest.join(bin.getName()));
         doCreateMan(dest.join(man.getName()));
     }
