@@ -56,21 +56,23 @@ public class Install {
 
     private final FileNode home;
 
-    /** null to skip bin installation. TODO */
     private final FileNode bin;
 
-    /** null to skip man installation */
     private final FileNode man;
+
+    private final boolean withBin;
+
+    private final boolean withMan;
 
     private final Map<String, Object> globalProperties;
 
     public Install(boolean fromJar, Console console, Environment environment, Map<String, Object> globalProperties) {
         this(fromJar, console, environment,
-                environment.stoolHome(console.world).join("man"),
+                environment.stoolHome(console.world).join("man"), true, true,
                 globalProperties);
     }
 
-    public Install(boolean fromJar, Console console, Environment environment, FileNode man,
+    public Install(boolean fromJar, Console console, Environment environment, FileNode man, boolean withBin, boolean withMan,
                    Map<String, Object> globalProperties) {
         this.fromJar = fromJar;
         this.console = console;
@@ -78,6 +80,8 @@ public class Install {
         this.home = environment.stoolHome(console.world);
         this.bin = environment.stoolBin(console.world);
         this.man = man;
+        this.withBin = withBin;
+        this.withMan = withMan;
         this.globalProperties = globalProperties;
     }
 
@@ -105,10 +109,10 @@ public class Install {
         tuneHostname(conf);
         tuneExplicit(conf);
         doCreateHome();
-        if (bin != null) {
+        if (withBin) {
             doCreateBin(variables(Session.javaHome()));
         }
-        if (man != null) {
+        if (withMan) {
             doCreateMan();
         }
         Files.stoolDirectory(conf.downloadCache.mkdirOpt()).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
