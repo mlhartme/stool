@@ -32,11 +32,9 @@ import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -106,7 +104,6 @@ public class Standalone extends Cli implements Command {
         String user;
         Version version;
         Version old;
-        FileNode debfiles;
 
         user = System.getProperty("user.name");
         version = versionObject();
@@ -128,15 +125,7 @@ public class Standalone extends Cli implements Command {
                 throw new ArgumentException("Cannot detect Stool version from old Stool home directory " + oldHome + ": "
                     + e.getMessage(), e);
             }
-            if (oldHome.equals(home)) {
-                if (old.getMajorVersion() != version.getMajorVersion() || old.getMinorVersion() != version.getMinorVersion()) {
-                    throw new ArgumentException("incremental upgrade " + old + " -> " + version
-                            + " not possible, specify a new home to perform a full upgrade.");
-                }
-                incrementalUpgrade(old, version);
-            } else {
-                fullUpgrade(user, old, version, environment);
-            }
+            fullUpgrade(user, old, version, environment);
         } else {
             console.info.println("Ready to install Stool " + version + " to " + home.getAbsolute());
             if (!batch) {
@@ -168,32 +157,6 @@ public class Standalone extends Cli implements Command {
         console.info.println("1. change your ~/.bashrc to");
         console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
         console.info.println("2. restart your shell");
-    }
-
-    private void incrementalUpgrade(Version old, Version version) throws IOException {
-        FileNode timestamp;
-        FileNode link;
-        Launcher launcher;
-
-        timestamp = home.join("bin/stool-" + Install.FMT.format(LocalDateTime.now()) + ".jar");
-        link = home.join("bin/stool.jar");
-        console.info.println("Ready for incremental upgrade of " + home.getAbsolute() + " from version " + old + " to " + version);
-        console.info.println("A " + timestamp);
-        console.info.println("M " + link);
-        if (!batch) {
-            console.pressReturn();
-        }
-        link.deleteFile();
-        link.mklink(timestamp.getName());
-        console.world.locateClasspathItem(getClass()).copyFile(timestamp);
-
-        launcher = new Launcher(home);
-        if ("root".equals(System.getProperty("user.name"))) {
-            launcher.arg("sudo", "-u", "servlet");
-        }
-        launcher.arg(home.join("bin/stool-raw.sh").getAbsolute(), "refresh", "-stage", "overview");
-        console.info.println(launcher.toString());
-        launcher.exec(console.info);
     }
 
     private Version oldVersion() throws IOException {

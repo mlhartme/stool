@@ -35,8 +35,6 @@ import net.oneandone.sushi.util.Separator;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -105,8 +103,6 @@ public class Install {
         return home.join("downloads");
     }
 
-    public static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd-hhmmss");
-
     private void doCreateHomeWithoutOverview() throws IOException {
         StoolConfiguration conf;
 
@@ -131,14 +127,10 @@ public class Install {
     }
 
     private void doCreateBin(Map<String, String> variables, FileNode destBin) throws IOException {
-        String jar;
-
         Files.stoolDirectory(destBin.mkdir());
         Files.template(home.getWorld().resource("templates/bin"), destBin, variables);
         if (withJar) {
-            jar = "stool-" + FMT.format(LocalDateTime.now()) + ".jar";
-            console.world.locateClasspathItem(getClass()).copyFile(destBin.join(jar));
-            destBin.join("stool.jar").mklink(jar);
+            console.world.locateClasspathItem(getClass()).copyFile(destBin.join("stool.jar"));
         }
     }
 
