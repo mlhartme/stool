@@ -59,8 +59,8 @@ public class Rename extends StageCommand {
         } catch (NodeAlreadyExistsException e) {
             throw new IOException("A stage with that name already exists. Please choose an other name.");
         }
-        stage.wrapper.move(newWrapper);
-        stage.wrapper = newWrapper;
+        stage.backstage.move(newWrapper);
+        stage.backstage = newWrapper;
         if (selected) {
             session.select(stage);
         }

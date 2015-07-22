@@ -100,7 +100,7 @@ public class PustefixEditor implements Extension {
 
         url = Strings.removeRight(userdata, "/userdata.xml");
         dest = stage.shared().join("editor/userdata");
-        if (dest.exists() && dest.getLastModified() < StageConfiguration.file(stage.wrapper).getLastModified()) {
+        if (dest.exists() && dest.getLastModified() < StageConfiguration.file(stage.backstage).getLastModified()) {
             if (!url.equals(stage.session.subversion().checkoutUrl(dest))) {
                 stage.session.console.verbose.println("config change detected - reloading userdata");
                 status = stage.session.subversion().status(dest).trim();
@@ -132,7 +132,7 @@ public class PustefixEditor implements Extension {
         List<String> lines;
 
         dest = editorDocroot(stage);
-        if (dest.exists() && dest.getLastModified() < StageConfiguration.file(stage.wrapper).getLastModified()) {
+        if (dest.exists() && dest.getLastModified() < StageConfiguration.file(stage.backstage).getLastModified()) {
             stage.session.console.verbose.println("config change detected - rebuilding editor war");
             dest.deleteTree();
         }

@@ -253,17 +253,17 @@ http://docbook.org/ns/docbook ">
     </sect1>
 
     <sect1>
-      <title>Stage wrapper</title>
-      <para>Every stage directory as an associated wrapper - a directory that stores Stool-related data about the stage,
-        e.g. the stage properties, Tomcat configuration and log files. The wrapper is created when you create or import the
-        stage. Wrapper directories are created in '$STOOL_HOME/wrappers' and have the name of the stage; Stool uses this
+      <title>Backstage</title>
+      <para>Every stage directory as an associated backstage - a directory that stores Stool-related data about the stage,
+        e.g. the stage properties, Tomcat configuration and log files. Backstage is created when you create or import the
+        stage. Backstage directories are created in '$STOOL_HOME/backstage' and have the name of the stage; Stool uses this
         directory to iterate all stages.
       </para>
-      <para>Stool removes wrappers either explicitly when you invoke the 'remove' command, or implicitly when it detects
-        a stale wrapper. A wrapper is stale if its corresponding stage directory has been deleted (usually by a user
-        running 'rm -rf' on it. Stool checks for - and cleans - stale wrappers before every command. Cleaning a stale
-        wrapper deletes (kill -9) all processes that have a pid file in the wrapper directory and deletes the wrapper
-        itself.
+      <para>Stool removes backstages either explicitly when you invoke the 'remove' command, or implicitly when it detects
+        a stale backstage. A backstage is stale if its corresponding stage directory has been deleted (usually by a user
+        running 'rm -rf' on it. Stool checks for - and cleans - stale backstages before every command. Cleaning a stale
+        backstage deletes (kill -9) all processes that have a pid file in the backstage directory and deletes the backstage
+        directory itself.
       </para>
     </sect1>
 
@@ -446,7 +446,7 @@ http://docbook.org/ns/docbook ">
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Creates a new stage directory and wrapper directory, enters the stage directory and selects the stage.
+          <para>Creates a new stage- and backstage directory, enters the stage directory and selects the stage.
             In most cases, you invoke 'stool create' similar to 'svn checkout': with an url and a directory.
           </para>
           <para>&lt;url> specifies the application you want to run in your stage. In many cases, the url is a subversion url and
@@ -494,7 +494,7 @@ http://docbook.org/ns/docbook ">
         <refsect1><title>Description</title>
           <para>Scans the specified directories (recursively) for new stages and offers to import them. If the scan only
             yields a single candidate, it will be imported and selected without additional interaction. Importing means that
-            a wrapper directory for the stage directory is created. </para>
+            a backstage directory for the stage directory is created. </para>
           <para><option>template</option> is a string, and any occurence of %d will be replaced by the current directory name. Default
             template is %d.</para>
         </refsect1>
@@ -553,11 +553,11 @@ http://docbook.org/ns/docbook ">
             <command>stool remove</command>
             <arg>-force</arg>
             <arg>-batch</arg>
-            <arg>-wrapper</arg>
+            <arg>-backstage</arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Removes the stage, i.e. deletes the stage directory and the wrapper directory.</para>
+          <para>Removes the stage, i.e. deletes the stage directory and the backstage directory.</para>
           <para>Before deleting anything, this command checks if there are uncommitted changes or if the stage is started.
             If so, the command is aborted with an error. In this case, stop the stage and inspect the uncommitted changes; either
             commit them or revert them. Alternatively, you can disable this check with the -force option.
@@ -565,7 +565,7 @@ http://docbook.org/ns/docbook ">
           <para>Also, before removing anything, this command asks if you really want to remove the stage.
             You can disable this check with the '-batch' option.
           </para>
-          <para>If you specify the '-wrapper' option, only the wrapper directory will be deleted. This is useful to "unimport" a stage,
+          <para>If you specify the '-backstage' option, only the backstage directory will be deleted. This is useful to "unimport" a stage,
             i.e. revert the effect of 'stool import'.
           </para>
         </refsect1>
@@ -735,7 +735,7 @@ http://docbook.org/ns/docbook ">
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Changes the stage owner, i.e. the owner of all files and directories in the stage directory and the wrapper directory.</para>
+          <para>Changes the stage owner, i.e. the owner of all files and directories in the stage directory and the backstage directory.</para>
           <para>Before executing, chown checks if the stage has modified source files. If so, it asks for confirmation before changing ownership.
             You can skip confirmation by specifying <option>-batch</option>.</para>
           <para>Reports an error if the stage is running. In this case, you can specify <option>-stop</option> to stop the stage before
@@ -844,16 +844,16 @@ http://docbook.org/ns/docbook ">
                 (empty): the stage directory
               </listitem>
               <listitem>
-                wrapper: the stage's wrapper directory.
+                backstage: the stage's backstage directory.
               </listitem>
               <listitem>
-                (otherwise): the specified direct or indirect sub-directory of the wrapper directory.
+                (otherwise): the specified direct or indirect sub-directory of the bachstage directory.
               </listitem>
             </itemizedlist>
           </para>
         </refsect1>
         <refsect1><title>Example</title>
-          <para><command>stool cd logs</command> will jumps to shared/tomcat/logs inside your wrapper.</para>
+          <para><command>stool cd logs</command> will jumps to shared/tomcat/logs inside your backstage.</para>
         </refsect1>
       </refentry>
     </sect1>
@@ -954,7 +954,7 @@ http://docbook.org/ns/docbook ">
         <refsect1><title>Description</title>
           <para>Moves the stage directory without touching the stage name. If <command>dest</command> exists, it is moved into it.
             Otherwise it is moved into the parent of dest with the specified name. This is the same behavior as the unix 'mv' command,
-            but it also adjusts Stool's wrapper directory.
+            but it also adjusts Stool's backstage directory.
           </para>
           <para>You might have to re-build your application after moving the stage if you have development tools that store
             absolute paths (e.g. Lavender ...).</para>
@@ -1192,7 +1192,7 @@ http://docbook.org/ns/docbook ">
         |- tomcat
         |   |- apache-tomcat-7.0.59 (installed Tomcat)
         |   :
-        '- wrappers
+        '- backstage
             '- (stage name)
                 |- config.json (stage properties and some status fields)
                 |- anchor (symlink to stage directory)

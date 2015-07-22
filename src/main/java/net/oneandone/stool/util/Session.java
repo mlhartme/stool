@@ -445,7 +445,7 @@ public class Session {
 
 
     public void chown(Stage stage, String newOwner) throws Failure {
-        chown(newOwner, stage.wrapper, stage.getDirectory());
+        chown(newOwner, stage.backstage, stage.getDirectory());
     }
 
     public void chown(String newOwner, FileNode ... dirs) throws Failure {

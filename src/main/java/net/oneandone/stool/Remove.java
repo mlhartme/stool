@@ -67,7 +67,7 @@ public class Remove extends StageCommand {
             console.pressReturn();
         }
 
-        stage.wrapper.deleteTree();
+        stage.backstage.deleteTree();
         if (wrappersOnly) {
             console.info.println("Removed wrapper for " + stage.getDirectory().getAbsolute());
         } else {

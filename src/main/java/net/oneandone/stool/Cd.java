@@ -52,7 +52,7 @@ public class Cd extends StageCommand {
 
         if (target == null) {
             node = stage.getDirectory();
-        } else if ("wrapper".equals(target)) {
+        } else if ("backstage".equals(target)) {
             node = stage.getBackstage();
         } else {
             filter = console.world.filter();
@@ -71,7 +71,7 @@ public class Cd extends StageCommand {
                 message.append(candidate.getName());
             }
             if (node == null) {
-                throw new ArgumentException("unknown target: " + target + ". Choose one of wrapper" + message + " or leave empty.");
+                throw new ArgumentException("unknown target: " + target + ". Choose one of backstage" + message + " or leave empty.");
             }
         }
         session.environment.set(Environment.PWD, node.getAbsolute());
