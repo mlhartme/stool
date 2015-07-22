@@ -1166,8 +1166,8 @@ http://docbook.org/ns/docbook ">
       (stage directory) (normal application files)
       (stool home)
         |- config.json (Stool configuration)
+        |- overview.properties (Overview configuration)
         |- run
-        |   |- overview.properties
         |   |- stool.lock
         |   |- sleep.json
         |   '- users

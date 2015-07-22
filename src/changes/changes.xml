@@ -2,6 +2,9 @@
   <body>
     <release version="3.2.0">
       <action date="2015-07-22" dev="mlhartme" type="update">
+        Moved $STOOL_HOME/conf/overview.properties to $STOOL_HOME/overview.properties.
+      </action>
+      <action date="2015-07-22" dev="mlhartme" type="update">
         Renamed $STOOL_HOME/wrappers to $STOOL_HOME/backstages.
       </action>
       <action date="2015-07-22" dev="mlhartme" type="update">

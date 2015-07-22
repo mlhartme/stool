@@ -57,6 +57,7 @@ public class DebianHome {
     }
 
     private static void migrate_3_1(FileNode home) throws IOException {
+        rename(home.join("conf/overview.properties"), home.join("overview.properties"));
         rename(home.join("conf"), home.join("run"));
         rename(home.join("wrappers"), home.join("backstages"));
         home.join("bin").deleteTreeOpt();
