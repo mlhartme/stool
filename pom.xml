@@ -317,6 +317,15 @@
             <configuration>
               <targetDirectory>${project.build.directory}/classes/templates/man</targetDirectory>
               <generateSectionTocLevel>0</generateSectionTocLevel>
+              <postProcess>
+                <apply executable="gzip">
+                  <fileset dir="${project.build.directory}/classes/templates/man">
+                    <patternset>
+                      <include name="**/*"/>
+                    </patternset>
+                  </fileset>
+                </apply>
+              </postProcess>
             </configuration>
           </execution>
         </executions>
