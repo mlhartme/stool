@@ -1166,7 +1166,7 @@ http://docbook.org/ns/docbook ">
       (stage directory) (normal application files)
       (stool home)
         |- config.json (Stool configuration)
-        |- conf
+        |- run
         |   |- stool.lock
         |   |- sleep.json
         |   '- users

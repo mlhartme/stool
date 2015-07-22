@@ -2,6 +2,9 @@
   <body>
     <release version="3.1.2">
       <action date="2015-07-16" dev="mlhartme" type="update">
+        Renamed $STOOL_HOME/conf to $STOOL_HOME/run.
+      </action>
+      <action date="2015-07-16" dev="mlhartme" type="update">
         Manual pages for all commands. puc help no longer contains command details, use man stool-&lt;command> instead.
       </action>
       <action date="2015-07-16" dev="mlhartme" type="fix">
@@ -39,7 +42,7 @@
         Also improved console output for downloads and error messages.
       </action>
       <action date="2015-07-01" dev="mlhartme" type="add">
-        Added optional $home/conf/overview.properties file to configure svn credentials for overview when it invokes Stool.
+        Added optional $home/run/overview.properties file to configure svn credentials for overview when it invokes Stool.
       </action>
       <action date="2015-07-01" dev="mlhartme" type="add">
         Added global -svnuser and -svnpassword options.

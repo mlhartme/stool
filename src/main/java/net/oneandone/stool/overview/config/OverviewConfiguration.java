@@ -77,7 +77,7 @@ public class OverviewConfiguration {
 
         system = Environment.loadSystem();
         home = home();
-        props = home.join("conf/overview.properties");
+        props = home.join("run/overview.properties");
         if (props.exists()) {
             p = props.readProperties();
             svnuser = p.getProperty("svnuser");

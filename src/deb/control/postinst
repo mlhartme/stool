@@ -20,7 +20,7 @@ export MAVEN_HOME=/opt/ui/opt/tools/wsdtools/maven/current
 if test $exists -eq 1; then
   # make sure the default for files/directory is root:root - i've seen root:seadmin ownership on waterloo4
   chown -R root:root ${dir}
-  chown -R root:users ${dir}/downloads ${dir}/inbox ${dir}/logs ${dir}/service-wrapper ${dir}/conf ${dir}/tomcat ${dir}/wrappers
+  chown -R root:users ${dir}/downloads ${dir}/inbox ${dir}/logs ${dir}/service-wrapper ${dir}/run ${dir}/tomcat ${dir}/wrappers
   sudo -u servlet ${dir}/bin/stool-raw.sh chown -stage overview
 fi
 

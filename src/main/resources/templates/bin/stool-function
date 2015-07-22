@@ -1,7 +1,7 @@
 # Stool shell functions for bash
 # Source this file in your ~/.bashrc
 
-export STOOL_INVOCATION=${{stool.home}}/conf/users/.stool-invocation-$$-$(date +%N)
+export STOOL_INVOCATION=${{stool.home}}/run/users/.stool-invocation-$$-$(date +%N)
 ${{man.path}}
 
 stool() {
@@ -27,11 +27,11 @@ stool() {
     esac
   done
   if [ $command = "reselect" ]; then
-    if [ -f $home/conf/users/$USER ]; then
+    if [ -f $home/run/users/$USER ]; then
       if $verbose ; then
         echo "reselect"
       fi
-      source $home/conf/users/$USER
+      source $home/run/users/$USER
     else
       if $verbose ; then
         echo "reselect none"
@@ -59,7 +59,7 @@ stool() {
     if [ -f $STOOL_INVOCATION ] ; then
       . $STOOL_INVOCATION
       # I've seen an empty $USER when running stool from a cron jobs
-      mv -f $STOOL_INVOCATION $home/conf/users/$USER || echo '$USER variable is not set'
+      mv -f $STOOL_INVOCATION $home/run/users/$USER || echo '$USER variable is not set'
     fi
   fi
 

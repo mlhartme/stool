@@ -29,7 +29,7 @@ public class Bedroom {
     public static final String FILENAME = "sleep.json";
 
     public static Bedroom loadOrCreate(Gson gson, FileNode home) throws IOException {
-        return loadOrCreateDir(gson, home.join("conf"));
+        return loadOrCreateDir(gson, home.join("run"));
     }
 
     public static Bedroom loadOrCreateDir(Gson gson, FileNode dir) throws IOException {
