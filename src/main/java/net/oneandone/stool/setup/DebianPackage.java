@@ -34,7 +34,7 @@ public class DebianPackage {
         world = new World();
         console = Console.create(world);
         target = world.file(args[0]);
-        new Install(console, true, world.file("/usr/shared/stool"), world.file("/usr/shared/man"), new HashMap<>()).debianFiles(target);
+        new Install(console, true, world.file("/usr/share/stool"), world.file("/usr/share/man"), new HashMap<>()).debianFiles(target);
         System.exit(0);
     }
 }

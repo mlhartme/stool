@@ -28,6 +28,7 @@ public class DebianHome {
     public static void main(String[] args) throws Exception {
         World world;
         FileNode home;
+        boolean existing;
 
         if (args.length != 1) {
             throw new IllegalArgumentException();
@@ -36,11 +37,23 @@ public class DebianHome {
         home = world.file(args[0]);
 
         // migrate from 3.1.x
-        if (home.exists()) {
+        existing = home.exists();
+        if (existing) {
             migrate_3_1(home);
         }
-        new Install(Console.create(world), true, world.file("/usr/share/stool"), world.file("/usr/share/man"), new HashMap<>())
-                .debianHome("root", Environment.loadSystem(), home);
+        try {
+            new Install(Console.create(world), true, world.file("/usr/share/stool"), world.file("/usr/share/man"), new HashMap<>())
+                    .debianHome("root", Environment.loadSystem(), home);
+        } catch (Exception e) {
+            if (!existing) {
+                // make sure we don't leave any undefined home directory;
+                try {
+                    home.deleteTreeOpt();
+                } catch (IOException suppressed) {
+                    e.addSuppressed(suppressed);
+                }
+            }
+        }
     }
 
     private static void migrate_3_1(FileNode home) throws IOException {

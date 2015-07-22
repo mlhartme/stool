@@ -30,7 +30,7 @@ stool() {
       if $verbose ; then
         echo "reselect"
       fi
-      source $bin/home/run/users/$USER
+      . $bin/home/run/users/$USER
     else
       if $verbose ; then
         echo "reselect none"
@@ -89,5 +89,5 @@ stoolIndicatorColor() {
 }
 
 if [ "x$BASH" != "x" ] ; then
-  source ${{stool.bin}}/stool-complete
+  . ${{stool.bin}}/stool-complete
 fi

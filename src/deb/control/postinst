@@ -20,7 +20,7 @@ if [ "$1" = "configure" ]; then
 
     # TODO: there's no package dependency for this ...
     export MAVEN_HOME=/opt/ui/opt/tools/wsdtools/maven/current
-    java -cp ${bin}/stool.jar net.oneandone.stool.setup.DebianHome ${home}
+    STOOL_BIN=${bin} java -cp ${bin}/stool.jar net.oneandone.stool.setup.DebianHome ${home}
     if test ${exists} -eq 1; then
       chown -R root:users ${home}
       sudo -u servlet ${bin}/stool-raw.sh chown -stage overview
