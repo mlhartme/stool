@@ -210,14 +210,6 @@ public class Session {
     //--
 
 
-    public static String jdkHome() {
-        String result;
-
-        result = System.getProperty("java.home");
-        result = Strings.removeRightOpt(result, "/");
-        return Strings.removeRightOpt(result, "/jre");
-    }
-
     public FileNode bin(String name) {
         return bin.join(name);
     }
@@ -521,6 +513,11 @@ public class Session {
         result = Strings.removeRightOpt(result, "/");
         return result;
     }
+
+    public static String jdkHome() {
+        return Strings.removeRightOpt(javaHome(), "/jre");
+    }
+
 
     private DefaultPlexusContainer lazyPlexus;
 

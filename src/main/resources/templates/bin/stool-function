@@ -53,7 +53,7 @@ stool() {
         cp="$cp:$jar"
       fi
     done
-    STOOL_BIN=$bin ${{java.home}}/bin/java $STOOL_OPTS -cp $cp net.oneandone.stool.Main -invocation $STOOL_INVOCATION "$@"
+    STOOL_BIN=$bin java $STOOL_OPTS -cp $cp net.oneandone.stool.Main -invocation $STOOL_INVOCATION "$@"
     result=$?
     if [ -f $STOOL_INVOCATION ] ; then
       . $STOOL_INVOCATION

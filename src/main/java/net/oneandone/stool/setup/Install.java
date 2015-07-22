@@ -76,7 +76,7 @@ public class Install {
         Runtime.getRuntime().addShutdownHook(cleanup);
 
         doCreateHomeWithoutOverview(home);
-        doCreateBinWithoutHomeLink(variables(Session.javaHome()), bin);
+        doCreateBinWithoutHomeLink(variables(), bin);
         bin.join("home").mklink(home.getAbsolute());
         doCreateMan(man);
         session = doCreateHomeOverview(user, environment, home);
@@ -87,7 +87,7 @@ public class Install {
 
     public void debianFiles(FileNode dest) throws Exception {
         dest.mkdir();
-        doCreateBinWithoutHomeLink(variables(Session.javaHome()), dest.join(bin.getName()));
+        doCreateBinWithoutHomeLink(variables(), dest.join(bin.getName()));
         doCreateMan(dest.join(man.getName()));
     }
 
@@ -174,12 +174,11 @@ public class Install {
         Files.stoolTree(destMan);
     }
 
-    private Map<String, String> variables(String javaHome) {
+    private Map<String, String> variables() {
         Map<String, String> result;
 
         result = new HashMap<>();
         result.put("stool.bin", bin.getAbsolute());
-        result.put("java.home", javaHome);
         result.put("man.path", "/usr/share/man".equals(man.getAbsolute()) ? "" :
                 "if [ -z $MANPATH ] ; then\n" +
                 "  export MANPATH=" + man.getAbsolute() + "\n" +
