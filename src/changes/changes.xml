@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
-    <release version="3.1.2">
-      <action date="2015-07-16" dev="mlhartme" type="update">
+    <release version="3.2.0">
+      <action date="2015-07-22" dev="mlhartme" type="update">
+        Renamed $STOOL_HOME/wrappers to $STOOL_HOME/backstages.
+      </action>
+      <action date="2015-07-22" dev="mlhartme" type="update">
         Renamed $STOOL_HOME/conf to $STOOL_HOME/run.
       </action>
       <action date="2015-07-16" dev="mlhartme" type="update">

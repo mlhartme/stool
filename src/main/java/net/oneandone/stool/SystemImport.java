@@ -87,7 +87,7 @@ public class SystemImport extends SessionCommand {
 
         idx = str.indexOf('=');
         if (idx == -1) {
-            wrapper = oldHome.join("wrappers", str);
+            wrapper = oldHome.join("backstages", str);
             if (!wrapper.isDirectory()) {
                 throw new ArgumentException("old stage not found: " + wrapper.getAbsolute());
             }
@@ -131,9 +131,9 @@ public class SystemImport extends SessionCommand {
         }
         if (include.withStages) {
             if (oldWrappers.isEmpty()) {
-                for (FileNode oldWrapper : oldHome.join("wrappers").list()) {
+                for (FileNode oldWrapper : oldHome.join("backstages").list()) {
                     name = oldWrapper.getName();
-                    if (session.wrappers.join(name).exists()) {
+                    if (session.backstages.join(name).exists()) {
                         console.info.println("ignoring stage that already exists: " + name);
                     } else {
                         oldWrappers.add(oldWrapper);
@@ -205,11 +205,11 @@ public class SystemImport extends SessionCommand {
         directory = (FileNode) oldWrapper.join("anchor").resolveLink();
         directory.checkDirectory();
         url = Stage.probe(session.subversion(), directory);
-        destWrapper = session.wrappers.join(oldWrapper.getName());
+        destWrapper = session.backstages.join(oldWrapper.getName());
         destWrapper.checkNotExists();
         // Temp Wrapper in wrapper directory, because it fasted to move within the same filesystem.
         // And Sushi has problems to move the anchor symlink across file systems
-        tmpWrapper = session.wrappers.createTempDirectory();
+        tmpWrapper = session.backstages.createTempDirectory();
         Files.stoolDirectory(tmpWrapper);
         stage = Stage.createOpt(session, url, session.createStageConfiguration(url), tmpWrapper, directory);
         stage.tuneConfiguration();

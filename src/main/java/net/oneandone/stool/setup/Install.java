@@ -117,7 +117,7 @@ public class Install {
         Files.stoolDirectory(conf.downloadCache.mkdirOpt()).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
         conf.save(Session.gson(home.getWorld(), ExtensionsFactory.create(home.getWorld())), home);
 
-        for (String dir : new String[]{"extensions", "wrappers", "inbox", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
+        for (String dir : new String[]{"extensions", "backstages", "inbox", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
             Files.stoolDirectory(home.join(dir).mkdir());
         }
     }

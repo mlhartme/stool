@@ -53,7 +53,7 @@ public class Rename extends StageCommand {
         selected = session.isSelected(stage);
         stage.checkOwnership();
         Stage.checkName(name);
-        newWrapper = session.wrappers.join(name);
+        newWrapper = session.backstages.join(name);
         try {
             newWrapper.checkNotExists();
         } catch (NodeAlreadyExistsException e) {

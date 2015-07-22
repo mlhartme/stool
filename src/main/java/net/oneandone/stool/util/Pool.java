@@ -28,10 +28,10 @@ public class Pool {
     private final int last;
     private final int overview;
 
-    private final FileNode wrappers;
+    private final FileNode backstages;
     private List<Integer> lazyUsed;
 
-    public Pool(int first, int last, int overview, FileNode wrappers) {
+    public Pool(int first, int last, int overview, FileNode backstages) {
         if (first % 2 != 0) {
             throw new IllegalArgumentException("even port expected: " + first);
         }
@@ -41,7 +41,7 @@ public class Pool {
         this.first = first;
         this.last = last;
         this.overview = overview;
-        this.wrappers = wrappers;
+        this.backstages = backstages;
         this.lazyUsed = null;
     }
 
@@ -82,7 +82,7 @@ public class Pool {
         if (lazyUsed == null) {
             lazyUsed = new ArrayList<>();
             lazyUsed.add(overview);
-            for (FileNode wrapper : wrappers.list()) {
+            for (FileNode wrapper : backstages.list()) {
                 Ports.addUsed(wrapper, lazyUsed);
             }
         }

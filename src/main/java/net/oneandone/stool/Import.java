@@ -72,7 +72,7 @@ public class Import extends SessionCommand {
         }
         existing = session.stageDirectories();
 
-        tempWrapper = session.wrappers.createTempDirectory();
+        tempWrapper = session.backstages.createTempDirectory();
         try {
             for (FileNode directory : includes) {
                 scan(tempWrapper, directory, found, existing);
@@ -206,7 +206,7 @@ public class Import extends SessionCommand {
         FileNode wrapper;
 
         directory = candidate.getDirectory();
-        wrapper = session.wrappers.join(forceName != null ? forceName : name(directory));
+        wrapper = session.backstages.join(forceName != null ? forceName : name(directory));
         return create(session, candidate.getUrl(), directory, wrapper);
     }
 

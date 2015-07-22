@@ -103,21 +103,21 @@ public class Create extends SessionCommand {
 
     @Override
     public void doInvoke() throws Exception {
-        FileNode wrapper;
+        FileNode backstage;
         Stage stage;
         String url;
         RmRfThread cleanup;
 
         url = url();
         defaults(url);
-        wrapper = session.wrappers.join(name);
+        backstage = session.backstages.join(name);
         cleanup = new RmRfThread(console);
         cleanup.add(directory);
-        cleanup.add(wrapper);
+        cleanup.add(backstage);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
         // if this method fails with an exception or is aborted with ctrl-c, the shutdown hook is used to wipe things
-        stage = create(wrapper, url);
+        stage = create(backstage, url);
 
         Runtime.getRuntime().removeShutdownHook(cleanup);
 
@@ -168,8 +168,8 @@ public class Create extends SessionCommand {
             directory = parent.getParent().join(directory.getName());
             console.verbose.println("warning: cannot create a stage within a stage. Changing directory to " + directory.getAbsolute());
         }
-        if (directory.hasDifferentAnchestor(session.wrappers)) {
-            throw new ArgumentException("you cannot create a stage in the wrappers directory");
+        if (directory.hasDifferentAnchestor(session.backstages)) {
+            throw new ArgumentException("you cannot create a stage in the backstages directory");
         }
         if (directory.isDirectory()) {
             throw new ArgumentException("stage directory already exists: " + directory);
@@ -185,7 +185,7 @@ public class Create extends SessionCommand {
             name = directory.getName();
         }
         Stage.checkName(name);
-        if (session.wrappers.join(name).exists()) {
+        if (session.backstages.join(name).exists()) {
             throw new ArgumentException("stage name already exists: " + name);
         }
         if (stageConfiguration == null) {
@@ -210,13 +210,13 @@ public class Create extends SessionCommand {
         }
     }
 
-    private Stage create(FileNode wrapper, String url) throws Exception {
+    private Stage create(FileNode backstage, String url) throws Exception {
         Stage stage;
 
         directory.mkdir();
-        // CAUTION: create wrapper before running possible prepare commands -- e.g. pws already populates the local repository of the stage
-        Files.stoolDirectory(wrapper.mkdir());
-        stage = stage(wrapper, url);
+        // CAUTION: create backstage before running possible prepare commands -- e.g. pws already populates the local repository of the stage
+        Files.stoolDirectory(backstage.mkdir());
+        stage = stage(backstage, url);
         stage.tuneConfiguration();
         for (Map.Entry<Property, String> entry : config.entrySet()) {
             entry.getKey().set(stage.config(), entry.getValue());

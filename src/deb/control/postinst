@@ -13,7 +13,7 @@ set -e
 #   mv /usr/lib/stool/conf /usr/lib/stool/run
 # fi
 # if [ -d /usr/lib/stool/wrappers ] ; then
-#   mv /usr/lib/stool/wrappers /usr/lib/stool/backstage
+#   mv /usr/lib/stool/wrappers /usr/lib/stool/backstages
 # fi
 
 if [ "$1" = "configure" ]; then

@@ -64,7 +64,7 @@ public class Session {
 
         session = loadWithoutWrapperWipe(logging, user, command, environment, console, invocationFile, svnuser, svnpassword);
 
-        // Stale Wrapper wiping: how to detect wrappers who's stage directory was removed.
+        // Stale Wrapper wiping: how to detect backstages who's stage directory was removed.
         //
         // My first thought was to watch for filesystem events to trigger wrapper wiping.
         // But there's quite a big delay and rmdif+mkdir is reported as modification. Plus the code is quite complex and
@@ -80,7 +80,7 @@ public class Session {
         String pid;
 
         s = System.currentTimeMillis();
-        for (FileNode wrapper : wrappers.list()) {
+        for (FileNode wrapper : backstages.list()) {
             if (wrapper.isDirectory()) {
                 FileNode anchor = wrapper.join("anchor");
                 if (!anchor.isDirectory() && anchor.isLink()) {
@@ -141,7 +141,7 @@ public class Session {
     public final StoolConfiguration configuration;
     public final Bedroom bedroom;
 
-    public final FileNode wrappers;
+    public final FileNode backstages;
 
 
     /** may be null */
@@ -169,7 +169,7 @@ public class Session {
         this.environment = environment;
         this.configuration = configuration;
         this.bedroom = bedroom;
-        this.wrappers = home.join("wrappers");
+        this.backstages = home.join("backstages");
         this.selectedStageName = null;
         this.invocationFile = invocationFile;
         this.subversion = new Subversion(svnuser, svnpassword);
@@ -234,7 +234,7 @@ public class Session {
         Stage stage;
 
         result = new ArrayList<>();
-        for (FileNode wrapper : wrappers.list()) {
+        for (FileNode wrapper : backstages.list()) {
             try {
                 stage = Stage.load(this, wrapper);
             } catch (IOException e) {
@@ -326,14 +326,14 @@ public class Session {
     public Stage load(String stageName) throws IOException {
         FileNode wrapper;
 
-        wrapper = wrappers.join(stageName);
+        wrapper = backstages.join(stageName);
         return Stage.load(this, wrapper);
     }
     public List<String> stageNames() throws IOException {
         List<FileNode> files;
         List<String> result;
 
-        files = wrappers.list();
+        files = backstages.list();
         result = new ArrayList<>(files.size());
         for (FileNode file : files) {
             result.add(file.getName());
@@ -425,7 +425,7 @@ public class Session {
     public List<FileNode> getWrappers() throws IOException {
         List<FileNode> lst;
 
-        lst = wrappers.list();
+        lst = backstages.list();
         Collections.sort(lst, new Comparator<Node>() {
             @Override
             public int compare(Node left, Node right) {
@@ -491,7 +491,7 @@ public class Session {
     }
 
     public Pool createPool() {
-        return new Pool(configuration.portFirst, configuration.portLast, configuration.portOverview, wrappers);
+        return new Pool(configuration.portFirst, configuration.portLast, configuration.portOverview, backstages);
     }
 
     public StageConfiguration createStageConfiguration(String url) throws IOException {

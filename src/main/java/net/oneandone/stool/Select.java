@@ -65,7 +65,7 @@ public class Select extends SessionCommand {
             }
             return;
         }
-        wrapper = session.wrappers.join(stageName);
+        wrapper = session.backstages.join(stageName);
         if (!wrapper.isDirectory()) {
             throw new IOException("No such stage: " + stageName + suggestion());
         }
