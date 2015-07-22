@@ -11,8 +11,7 @@
 # Short-Description: Start Stool stages
 ### END INIT INFO
 
-# Note: we need sssd to stop the stool service, otherwise sudo rejects unknwon users
-# TODO: replace sssd by a better/less specific dependency ...
+# Note: we need sssd to stop the stool service on stagehosts, otherwise sudo rejects unknown users
 
 STOOL=/usr/share/stool/stool-raw.sh
 . /lib/lsb/init-functions
