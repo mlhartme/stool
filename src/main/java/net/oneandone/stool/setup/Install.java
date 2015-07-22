@@ -33,6 +33,7 @@ import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -135,11 +136,36 @@ public class Install {
     }
 
     private void doCreateBinWithoutHomeLink(Map<String, String> variables, FileNode destBin) throws IOException {
+        final byte[] marker = "exit $?\n".getBytes("utf8");
+        byte[] bytes;
+        int ofs;
+
         Files.stoolDirectory(destBin.mkdir());
         Files.template(console.world.resource("templates/bin"), destBin, variables);
         if (withJar) {
-            console.world.locateClasspathItem(getClass()).copyFile(destBin.join("stool.jar"));
+            // strip launcher from application file
+            bytes = console.world.locateClasspathItem(getClass()).readBytes();
+            ofs = indexOf(bytes, marker) + marker.length;
+            try (OutputStream out = destBin.join("stool.jar").createOutputStream()) {
+                out.write(bytes, ofs, bytes.length - ofs);
+            }
         }
+    }
+
+    public static int indexOf(byte[] array, byte[] sub) {
+        int j;
+
+        for (int i = 0; i < array.length - sub.length; i++) {
+            for (j = 0; j < sub.length; j++) {
+                if (sub[j] != array[i + j]) {
+                    break;
+                }
+            }
+            if (j == sub.length) {
+                return i;
+            }
+        }
+        throw new IllegalStateException();
     }
 
     private void doCreateMan(FileNode destMan) throws IOException {
