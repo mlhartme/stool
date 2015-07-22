@@ -31,8 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 public class StageConfiguration {
-    public static Node file(Node wrapper) throws ExistsException {
-        return wrapper.isDirectory() ? wrapper.join("config.json") : wrapper;
+    public static Node file(Node backstage) throws ExistsException {
+        return backstage.isDirectory() ? backstage.join("config.json") : backstage;
     }
 
     public static StageConfiguration load(Gson gson, Node file) throws IOException {

@@ -82,8 +82,8 @@ public class Pool {
         if (lazyUsed == null) {
             lazyUsed = new ArrayList<>();
             lazyUsed.add(overview);
-            for (FileNode wrapper : backstages.list()) {
-                Ports.addUsed(wrapper, lazyUsed);
+            for (FileNode backstage : backstages.list()) {
+                Ports.addUsed(backstage, lazyUsed);
             }
         }
         return lazyUsed;

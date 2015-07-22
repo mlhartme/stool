@@ -47,9 +47,9 @@ import java.util.Set;
 public class ArtifactStage extends Stage {
     private final Applications applications;
 
-    public ArtifactStage(Session session, String url, FileNode wrapper, FileNode directory, StageConfiguration configuration)
+    public ArtifactStage(Session session, String url, FileNode backstage, FileNode directory, StageConfiguration configuration)
       throws IOException {
-        super(session, url, wrapper, directory, configuration);
+        super(session, url, backstage, directory, configuration);
 
         DefaultArtifact artifact;
         Set<String> names;

@@ -62,48 +62,48 @@ public class Session {
                                FileNode invocationFile, String svnuser, String svnpassword) throws IOException {
         Session session;
 
-        session = loadWithoutWrapperWipe(logging, user, command, environment, console, invocationFile, svnuser, svnpassword);
+        session = loadWithoutBackstageWipe(logging, user, command, environment, console, invocationFile, svnuser, svnpassword);
 
-        // Stale Wrapper wiping: how to detect backstages who's stage directory was removed.
+        // Stale backstage wiping: how to detect backstages who's stage directory was removed.
         //
-        // My first thought was to watch for filesystem events to trigger wrapper wiping.
+        // My first thought was to watch for filesystem events to trigger backstage wiping.
         // But there's quite a big delay and rmdif+mkdir is reported as modification. Plus the code is quite complex and
         // I don't know how to handle overflow events.
         // So I simple wipe thmm whenever I load stool home. That's a well-defined timing and that's before stool might
         // use a stale stage.
-        session.wipeStaleWrappers();
+        session.wipeStaleBackstages();
         return session;
     }
 
-    public void wipeStaleWrappers() throws IOException {
+    public void wipeStaleBackstages() throws IOException {
         long s;
         String pid;
 
         s = System.currentTimeMillis();
-        for (FileNode wrapper : backstages.list()) {
-            if (wrapper.isDirectory()) {
-                FileNode anchor = wrapper.join("anchor");
+        for (FileNode backstage : backstages.list()) {
+            if (backstage.isDirectory()) {
+                FileNode anchor = backstage.join("anchor");
                 if (!anchor.isDirectory() && anchor.isLink()) {
-                    for (Node pidfile : wrapper.find("shared/run/*.pid")) {
+                    for (Node pidfile : backstage.find("shared/run/*.pid")) {
                         pid = pidfile.readString().trim();
                         console.verbose.println("killing " + pid);
                         // TODO: sudo ...
-                        new Launcher(wrapper, "kill", "-9", pid).execNoOutput();
+                        new Launcher(backstage, "kill", "-9", pid).execNoOutput();
                     }
-                    console.verbose.println("stale wrapper detected: " + wrapper);
+                    console.verbose.println("stale backstage detected: " + backstage);
                     try {
-                        wrapper.deleteTree();
+                        backstage.deleteTree();
                     } catch (IOException e) {
-                        console.error.println(wrapper + ": cannot delete stale wrapper: " + e.getMessage());
+                        console.error.println(backstage + ": cannot delete stale backstage: " + e.getMessage());
                         e.printStackTrace(console.verbose);
                     }
                 }
             }
         }
-        console.verbose.println("wipeStaleWrappers done, ms=" + ((System.currentTimeMillis() - s)));
+        console.verbose.println("wipeStaleBackstages done, ms=" + ((System.currentTimeMillis() - s)));
     }
 
-    private static Session loadWithoutWrapperWipe(Logging logging, String user, String command, Environment environment, Console console,
+    private static Session loadWithoutBackstageWipe(Logging logging, String user, String command, Environment environment, Console console,
                                                   FileNode invocationFile, String svnuser, String svnpassword) throws IOException {
         ExtensionsFactory factory;
         Gson gson;
@@ -234,11 +234,11 @@ public class Session {
         Stage stage;
 
         result = new ArrayList<>();
-        for (FileNode wrapper : backstages.list()) {
+        for (FileNode backstage : backstages.list()) {
             try {
-                stage = Stage.load(this, wrapper);
+                stage = Stage.load(this, backstage);
             } catch (IOException e) {
-                problems.add(wrapper, e);
+                problems.add(backstage, e);
                 continue;
             }
             if (predicate.matches(stage)) {
@@ -324,10 +324,10 @@ public class Session {
         return subversion;
     }
     public Stage load(String stageName) throws IOException {
-        FileNode wrapper;
+        FileNode backstage;
 
-        wrapper = backstages.join(stageName);
-        return Stage.load(this, wrapper);
+        backstage = backstages.join(stageName);
+        return Stage.load(this, backstage);
     }
     public List<String> stageNames() throws IOException {
         List<FileNode> files;
@@ -396,9 +396,9 @@ public class Session {
         StageConfiguration stage;
 
         reserved = 0;
-        for (FileNode wrapper : getWrappers()) {
-            if (Stage.shared(wrapper).join("run/tomcat.pid").exists()) {
-                stage = loadStageConfiguration(wrapper);
+        for (FileNode backstage : getBackstages()) {
+            if (Stage.shared(backstage).join("run/tomcat.pid").exists()) {
+                stage = loadStageConfiguration(backstage);
                 reserved += stage.tomcatHeap;
                 reserved += stage.tomcatPerm;
             }
@@ -422,7 +422,7 @@ public class Session {
         return (int) (home.toPath().toFile().getUsableSpace() / 1024 / 1024);
     }
 
-    public List<FileNode> getWrappers() throws IOException {
+    public List<FileNode> getBackstages() throws IOException {
         List<FileNode> lst;
 
         lst = backstages.list();
@@ -470,12 +470,12 @@ public class Session {
     //-- stage properties
 
 
-    public void saveStageProperties(StageConfiguration stageConfiguration, Node wrapper) throws IOException {
-        stageConfiguration.save(gson, StageConfiguration.file(wrapper));
+    public void saveStageProperties(StageConfiguration stageConfiguration, Node backstage) throws IOException {
+        stageConfiguration.save(gson, StageConfiguration.file(backstage));
     }
 
-    public StageConfiguration loadStageConfiguration(Node wrapper) throws IOException {
-        return StageConfiguration.load(gson, StageConfiguration.file(wrapper));
+    public StageConfiguration loadStageConfiguration(Node backstage) throws IOException {
+        return StageConfiguration.load(gson, StageConfiguration.file(backstage));
     }
 
     //-- stool properties
@@ -484,8 +484,8 @@ public class Session {
         List<FileNode> result;
 
         result = new ArrayList<>();
-        for (FileNode wrapper : getWrappers()) {
-            result.add((FileNode) Stage.anchor(wrapper).resolveLink());
+        for (FileNode backstage : getBackstages()) {
+            result.add((FileNode) Stage.anchor(backstage).resolveLink());
         }
         return result;
     }

@@ -29,8 +29,8 @@ public class Remove extends StageCommand {
     @Option("force")
     private boolean force;
 
-    @Option("wrapper")
-    private boolean wrappersOnly;
+    @Option("backstage")
+    private boolean backstageOnly;
 
     public Remove(Session session) throws IOException {
         super(session);
@@ -68,8 +68,8 @@ public class Remove extends StageCommand {
         }
 
         stage.backstage.deleteTree();
-        if (wrappersOnly) {
-            console.info.println("Removed wrapper for " + stage.getDirectory().getAbsolute());
+        if (backstageOnly) {
+            console.info.println("Removed backstage for " + stage.getDirectory().getAbsolute());
         } else {
             stage.getDirectory().deleteTree();
             console.info.println("Removed " + stage.getDirectory().getAbsolute());

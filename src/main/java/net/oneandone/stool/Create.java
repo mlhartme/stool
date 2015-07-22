@@ -225,20 +225,20 @@ public class Create extends SessionCommand {
         return stage;
     }
 
-    private Stage stage(FileNode wrapper, String url) throws Exception {
+    private Stage stage(FileNode backstage, String url) throws Exception {
         ArtifactStage artifactStage;
         Stage stage;
         String prepare;
 
         if (ArtifactStage.isArtifact(url)) {
-            artifactStage = new ArtifactStage(session, url, wrapper, directory, stageConfiguration);
+            artifactStage = new ArtifactStage(session, url, backstage, directory, stageConfiguration);
             artifactStage.populateDirectory(console);
             stage = artifactStage;
         } else {
             url = Strings.removeRightOpt(url, "/");
             console.info.println("checking out " + directory);
             session.subversion().checkout(directory.getParent(), url, directory.getName(), quiet ? console.verbose : console.info);
-            stage = SourceStage.forUrl(session, wrapper, directory, url, stageConfiguration);
+            stage = SourceStage.forUrl(session, backstage, directory, url, stageConfiguration);
             // make sure to run in stage environment, e.g. to have proper repository settings
             prepare = stage.config().prepare;
             if (!prepare.isEmpty()) {

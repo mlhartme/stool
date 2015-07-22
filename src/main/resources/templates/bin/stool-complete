@@ -83,7 +83,7 @@ _stool_complete() {
             fi
             ;;
            cd)
-            local stages="wrapper conf java jmx log run tomcat conf logs temp work  "
+            local stages="backstage conf java jmx run tomcat conf logs temp work  "
             COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
             return 0
             ;;

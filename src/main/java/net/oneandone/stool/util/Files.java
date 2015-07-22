@@ -95,13 +95,13 @@ public final class Files {
     //   in the target directory
     // * application files
     //   everything written by the running application, e.g. log files; usually, application files are written under
-    //   the wrapper directory, but also file accidentally written into the target directory are also includes files
+    //   the backstage directory, but also file accidentally written into the target directory are also includes files
     //   are application files; also, when tomcat writes files, they are application files (e.g
     //   tomcat/conf/Catalina). If the application can change source files with an built-in editor, these files
     //   are considered source files, even though they were changed by the application
     // * stool files
     //   everything written by stool - in particular file to configure the application. All stool files reside in
-    //   the wrapper directory, stool does not modify the stage directory. (There is one exception from thus rule:
+    //   the backstage directory, stool does not modify the stage directory. (There is one exception from thus rule:
     //   projects/servletconf/tomcat for directory stages).
     //
     // Its useful to distinguish 2 users:

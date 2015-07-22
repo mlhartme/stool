@@ -31,8 +31,8 @@ public class EnumerationFailed extends Exception {
         return problems.isEmpty();
     }
 
-    public void add(FileNode wrapper, Exception cause) {
-        problems.put(wrapper, cause);
+    public void add(FileNode backstage, Exception cause) {
+        problems.put(backstage, cause);
         addSuppressed(cause);
     }
 

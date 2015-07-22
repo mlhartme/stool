@@ -37,7 +37,7 @@ public class StageInfoCache {
     public Collection<StageInfo> get(FileNode logs, Session session, Users users) throws IOException {
         if (stages == null || System.currentTimeMillis() - lastCacheRenew > 4000) {
             stages.clear();
-            session.wipeStaleWrappers();
+            session.wipeStaleBackstages();
             for (Stage stage : session.listWithoutOverview()) {
                 try {
                     stages.add(StageInfo.fromStage(logs, stage, users));

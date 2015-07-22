@@ -96,8 +96,8 @@ public class Ports {
         }
     }
 
-    private static FileNode file(FileNode wrapper) {
-        return wrapper.join("ports");
+    private static FileNode file(FileNode backstage) {
+        return backstage.join("ports");
     }
 
     //--
@@ -148,14 +148,14 @@ public class Ports {
 
     //--
 
-    private void save(FileNode wrapper) throws IOException {
+    private void save(FileNode backstage) throws IOException {
         List<String> lines;
 
         lines = new ArrayList<>();
         for (Host host : hosts) {
             lines.add(host.toLine());
         }
-        Files.stoolFile(file(wrapper).writeLines(lines));
+        Files.stoolFile(file(backstage).writeLines(lines));
     }
 
     //--
@@ -184,12 +184,12 @@ public class Ports {
 
     //--
 
-    public static void addUsed(FileNode wrapper, List<Integer> lazyUsed) throws IOException {
+    public static void addUsed(FileNode backstage, List<Integer> lazyUsed) throws IOException {
         FileNode file;
         String line;
         int idx;
 
-        file = file(wrapper);
+        file = file(backstage);
         if (file.isFile()) {
             try (Reader in = file.createReader(); LineReader src = new LineReader(in, FMT)) {
                 while (true) {

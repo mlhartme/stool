@@ -60,15 +60,15 @@ import java.util.Properties;
 public abstract class Stage {
     public static final String OVERVIEW_NAME = "overview";
 
-    public static Stage load(Session session, FileNode wrapper) throws IOException {
-        return load(session, session.loadStageConfiguration(wrapper), wrapper, (FileNode) Stage.anchor(wrapper).resolveLink());
+    public static Stage load(Session session, FileNode backstage) throws IOException {
+        return load(session, session.loadStageConfiguration(backstage), backstage, (FileNode) Stage.anchor(backstage).resolveLink());
     }
 
-    public static Stage load(Session session, FileNode wrapper, FileNode directory) throws IOException {
-        return load(session, session.loadStageConfiguration(wrapper), wrapper, directory);
+    public static Stage load(Session session, FileNode backstage, FileNode directory) throws IOException {
+        return load(session, session.loadStageConfiguration(backstage), backstage, directory);
     }
 
-    private static Stage load(Session session, StageConfiguration configuration, FileNode wrapper, FileNode directory) throws IOException {
+    private static Stage load(Session session, StageConfiguration configuration, FileNode backstage, FileNode directory) throws IOException {
         Stage result;
         String url;
 
@@ -76,24 +76,24 @@ public abstract class Stage {
         if (url == null) {
             throw new IOException("cannot determine stage url: " + directory);
         }
-        result = createOpt(session, url, configuration, wrapper, directory);
+        result = createOpt(session, url, configuration, backstage, directory);
         if (result == null) {
             throw new IOException("unknown stage type: " + directory);
         }
         return result;
     }
 
-    public static Stage createOpt(Session session, String url, StageConfiguration configuration, FileNode wrapper,
+    public static Stage createOpt(Session session, String url, StageConfiguration configuration, FileNode backstage,
                                 FileNode directory) throws IOException {
         if (configuration == null) {
             throw new IllegalArgumentException();
         }
         directory.checkDirectory();
         if (url.startsWith("gav:")) {
-            return new ArtifactStage(session, url, wrapper, directory, configuration);
+            return new ArtifactStage(session, url, backstage, directory, configuration);
         }
         if (directory.join(configuration.pom).exists()) {
-            return SourceStage.forLocal(session, wrapper, directory, configuration);
+            return SourceStage.forLocal(session, backstage, directory, configuration);
         }
         return null;
     }
@@ -115,12 +115,12 @@ public abstract class Stage {
         }
     }
 
-    public static FileNode anchor(FileNode wrapper) {
-        return wrapper.join("anchor");
+    public static FileNode anchor(FileNode backstage) {
+        return backstage.join("anchor");
     }
 
-    public static FileNode shared(FileNode wrapper) {
-        return wrapper.join("shared");
+    public static FileNode shared(FileNode backstage) {
+        return backstage.join("shared");
     }
 
     //--
@@ -371,7 +371,6 @@ public abstract class Stage {
     }
 
     /**
-     * Wrapper for catalina.sh XOR stool-catalina.sh by ITOSHA.
      * action: start | stop -force
      */
     private Launcher catalina(String ... action) throws IOException {

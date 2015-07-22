@@ -64,7 +64,7 @@ public class Import extends SessionCommand {
         List<Stage> found;
         List<FileNode> existing;
         Stage stage;
-        FileNode tempWrapper;
+        FileNode tmpBackstage;
 
         found = new ArrayList<>();
         if (includes.size() == 0) {
@@ -72,13 +72,13 @@ public class Import extends SessionCommand {
         }
         existing = session.stageDirectories();
 
-        tempWrapper = session.backstages.createTempDirectory();
+        tmpBackstage = session.backstages.createTempDirectory();
         try {
             for (FileNode directory : includes) {
-                scan(tempWrapper, directory, found, existing);
+                scan(tmpBackstage, directory, found, existing);
             }
         } finally {
-            tempWrapper.deleteDirectory();
+            tmpBackstage.deleteDirectory();
         }
         console.info.print("[" + found.size() + " candidates]\u001b[K\r");
         console.info.println();
@@ -156,8 +156,8 @@ public class Import extends SessionCommand {
         }
     }
 
-    /** @return stages with temporary wrapper directory */
-    private void scan(FileNode tmpWrapper, FileNode parent, List<Stage> result, List<FileNode> existingStages) throws IOException {
+    /** @return stages with temporary backstage directory */
+    private void scan(FileNode tmpBackstage, FileNode parent, List<Stage> result, List<FileNode> existingStages) throws IOException {
         String url;
         Stage stage;
 
@@ -181,7 +181,7 @@ public class Import extends SessionCommand {
         if (url == null) {
             stage = null;
         } else {
-            stage = Stage.createOpt(session, url, session.createStageConfiguration(url), tmpWrapper, parent);
+            stage = Stage.createOpt(session, url, session.createStageConfiguration(url), tmpBackstage, parent);
         }
         if (stage != null) {
             // bingo
@@ -192,7 +192,7 @@ public class Import extends SessionCommand {
         } else {
             if (!parent.join("pom.xml").isFile()) {
                 for (FileNode child : parent.list()) {
-                    scan(tmpWrapper, child, result, existingStages);
+                    scan(tmpBackstage, child, result, existingStages);
                     if (result.size() >= max) {
                         break;
                     }
@@ -203,23 +203,23 @@ public class Import extends SessionCommand {
 
     private Stage doImport(Stage candidate, String forceName) throws IOException {
         FileNode directory;
-        FileNode wrapper;
+        FileNode backstage;
 
         directory = candidate.getDirectory();
-        wrapper = session.backstages.join(forceName != null ? forceName : name(directory));
-        return create(session, candidate.getUrl(), directory, wrapper);
+        backstage = session.backstages.join(forceName != null ? forceName : name(directory));
+        return create(session, candidate.getUrl(), directory, backstage);
     }
 
     /**
      * @param directory existing directory
-     * @param wrapper not existing directory
+     * @param backstage not existing directory
      */
-    private static Stage create(Session session, String url, FileNode directory, FileNode wrapper) throws IOException {
+    private static Stage create(Session session, String url, FileNode directory, FileNode backstage) throws IOException {
         Stage stage;
 
         directory.checkDirectory();
-        Files.stoolDirectory(wrapper.mkdir());
-        stage = Stage.createOpt(session, url, session.createStageConfiguration(url), wrapper, directory);
+        Files.stoolDirectory(backstage.mkdir());
+        stage = Stage.createOpt(session, url, session.createStageConfiguration(url), backstage, directory);
         stage.tuneConfiguration();
         stage.initialize();
         return stage;

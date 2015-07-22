@@ -49,7 +49,7 @@ public class Select extends SessionCommand {
 
     @Override
     public void doInvoke() throws Exception {
-        FileNode wrapper;
+        FileNode backstage;
 
         if (stageName == null) {
             console.info.println("currently selected: "
@@ -65,15 +65,15 @@ public class Select extends SessionCommand {
             }
             return;
         }
-        wrapper = session.backstages.join(stageName);
-        if (!wrapper.isDirectory()) {
+        backstage = session.backstages.join(stageName);
+        if (!backstage.isDirectory()) {
             throw new IOException("No such stage: " + stageName + suggestion());
         }
         console.verbose.println("selecting stage " + stageName);
         if (session.getSelectedStageName() == null) {
             session.backupEnvironment();
         }
-        session.select(Stage.load(session, wrapper));
+        session.select(Stage.load(session, backstage));
     }
 
     private String suggestion() throws IOException {

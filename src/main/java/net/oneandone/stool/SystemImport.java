@@ -81,17 +81,17 @@ public class SystemImport extends SessionCommand {
     @Remaining
     public void stageOrExplicitProperty(String str) {
         int idx;
-        FileNode wrapper;
+        FileNode backstage;
         String key;
         Property property;
 
         idx = str.indexOf('=');
         if (idx == -1) {
-            wrapper = oldHome.join("backstages", str);
-            if (!wrapper.isDirectory()) {
-                throw new ArgumentException("old stage not found: " + wrapper.getAbsolute());
+            backstage = oldHome.join("backstages", str);
+            if (!backstage.isDirectory()) {
+                throw new ArgumentException("old stage not found: " + backstage.getAbsolute());
             }
-            oldWrappers.add(wrapper);
+            oldWrappers.add(backstage);
         } else {
             key = str.substring(0, idx);
             property = StageConfiguration.properties(session.extensionsFactory).get(key);
@@ -207,7 +207,7 @@ public class SystemImport extends SessionCommand {
         url = Stage.probe(session.subversion(), directory);
         destWrapper = session.backstages.join(oldWrapper.getName());
         destWrapper.checkNotExists();
-        // Temp Wrapper in wrapper directory, because it fasted to move within the same filesystem.
+        // Temp backstage in backstage directory, because it fasted to move within the same filesystem.
         // And Sushi has problems to move the anchor symlink across file systems
         tmpWrapper = session.backstages.createTempDirectory();
         Files.stoolDirectory(tmpWrapper);
