@@ -188,13 +188,15 @@ public class Session {
 
     /** logs an error for administrators, i.e. the user is not expected to understand/fix this problem. */
     public void reportException(String title, Throwable e) {
+        String header;
         URL url;
 
-        LOG.error(title, e);
+        header = command + ": " + title + " failed: " + e.getMessage();
+        LOG.error(header, e);
         if (configuration.errorTool != null) {
             try {
                 url = new URL(configuration.errorTool);
-                ErrorTool.send(url, Level.ERROR, user + "@" + configuration.hostname, command, e);
+                ErrorTool.send(url, Level.ERROR, user + "@" + configuration.hostname, header, e);
             } catch (IOException suppressed) {
                 LOG.error("suppressed: " + e.getMessage(), e);
             }
