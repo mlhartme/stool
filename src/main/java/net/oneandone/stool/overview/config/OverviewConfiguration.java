@@ -24,6 +24,7 @@ import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
+import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.eclipse.aether.repository.RepositoryPolicy;
@@ -46,8 +47,8 @@ public class OverviewConfiguration {
     }
 
     @Bean
-    public FileNode home() {
-        return world().file(System.getProperty("overview.stool.home"));
+    public FileNode home() throws ReadLinkException {
+        return Session.locateHome(bin());
     }
 
     @Bean
@@ -87,7 +88,6 @@ public class OverviewConfiguration {
             svnpassword = null;
         }
         user = user();
-        system.setStoolHome(home);
         system.setStoolBin(bin());
         return Session.load(Logging.create(logs(), "overview", user), user, "overview", system, console(), null, svnuser, svnpassword);
     }

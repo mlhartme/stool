@@ -60,7 +60,6 @@ public class StoolIT {
         home.deleteTreeOpt();
 
         system = Environment.loadSystem();
-        system.setStoolHome(home);
         system.setStoolBin(home.join("bin"));
         system.set(Environment.PWD, "pwd");
         system.set(Environment.PS1, "prompt");
@@ -69,7 +68,7 @@ public class StoolIT {
         config.put("portOverview", "1300");
         config.put("portFirst", "1302");
         config.put("portLast", "1319");
-        new Install(Console.create(world), false, system.stoolHome(world), system.stoolBin(world), home.join("man"), config).standalone(TESTUSER, system);
+        new Install(Console.create(world), false, system.stoolBin(world), home.join("man"), config).standalone(TESTUSER, system, home);
         stages = home.getParent().join("stages");
         stages.deleteTreeOpt();
         stages.mkdir();

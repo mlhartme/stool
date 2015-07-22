@@ -36,6 +36,7 @@ import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
@@ -103,6 +104,10 @@ public class Session {
         console.verbose.println("wipeStaleBackstages done, ms=" + ((System.currentTimeMillis() - s)));
     }
 
+    public static FileNode locateHome(FileNode bin) throws ReadLinkException {
+        return (FileNode) bin.join("home").resolveLink();
+    }
+
     private static Session loadWithoutBackstageWipe(Logging logging, String user, String command, Environment environment, Console console,
                                                   FileNode invocationFile, String svnuser, String svnpassword) throws IOException {
         ExtensionsFactory factory;
@@ -113,10 +118,9 @@ public class Session {
 
         factory = ExtensionsFactory.create(console.world);
         gson = gson(console.world, factory);
-        home = environment.stoolHome(console.world);
-        home.checkDirectory();
         bin = environment.stoolBin(console.world);
         bin.checkDirectory();
+        home = locateHome(bin);
         result = new Session(factory, gson, logging, user, command, home, bin, console, environment, StoolConfiguration.load(gson, home),
                 Bedroom.loadOrCreate(gson, home), invocationFile, svnuser, svnpassword);
         result.selectedStageName = environment.getOpt(Environment.STOOL_SELECTED);

@@ -1,5 +1,5 @@
 _stool_complete() {
-      local home=${{stool.home}}
+      local home=${{stool.bin}}/home
       local cur prev cmd
       local select_opts general_opts
       COMPREPLY=()

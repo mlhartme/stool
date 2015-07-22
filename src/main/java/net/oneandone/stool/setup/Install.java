@@ -51,22 +51,20 @@ public class Install {
     private final boolean withJar;
 
     // configuration when installed on target system
-    private final FileNode home;
     private final FileNode bin;
     private final FileNode man;
 
     private final Map<String, Object> globalProperties;
 
-    public Install(Console console, boolean withJar, FileNode home, FileNode bin, FileNode man, Map<String, Object> globalProperties) {
+    public Install(Console console, boolean withJar, FileNode bin, FileNode man, Map<String, Object> globalProperties) {
         this.console = console;
         this.withJar = withJar;
-        this.home = home;
         this.bin = bin;
         this.man = man;
         this.globalProperties = globalProperties;
     }
 
-    public Session standalone(String user, Environment environment) throws Exception {
+    public Session standalone(String user, Environment environment, FileNode home) throws Exception {
         RmRfThread cleanup;
         Session session;
 
@@ -76,10 +74,11 @@ public class Install {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
-        doCreateHomeWithoutOverview();
-        doCreateBin(variables(Session.javaHome()), bin);
+        doCreateHomeWithoutOverview(home);
+        doCreateBinWithoutHomeLink(variables(Session.javaHome()), bin);
+        bin.join("home").mklink(home.getAbsolute());
         doCreateMan(man);
-        session = doCreateHomeOverview(user, environment);
+        session = doCreateHomeOverview(user, environment, home);
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
         return session;
@@ -87,8 +86,17 @@ public class Install {
 
     public void debianFiles(FileNode dest) throws Exception {
         dest.mkdir();
-        doCreateBin(variables(Session.javaHome()), dest.join(bin.getName()));
+        doCreateBinWithoutHomeLink(variables(Session.javaHome()), dest.join(bin.getName()));
         doCreateMan(dest.join(man.getName()));
+    }
+
+    public void debianHome(String user, Environment environment, FileNode home) throws Exception {
+        if (home.exists()) {
+            home.join("overview").deleteTree();
+        } else {
+            doCreateHomeWithoutOverview(home);
+        }
+        doCreateHomeOverview(user, environment, home);
     }
 
     private FileNode downloadCache(FileNode home) {
@@ -103,7 +111,7 @@ public class Install {
         return home.join("downloads");
     }
 
-    private void doCreateHomeWithoutOverview() throws IOException {
+    private void doCreateHomeWithoutOverview(FileNode home) throws IOException {
         StoolConfiguration conf;
 
         Files.stoolDirectory(home.mkdirs());
@@ -118,7 +126,7 @@ public class Install {
         }
     }
 
-    private Session doCreateHomeOverview(String user, Environment environment) throws IOException {
+    private Session doCreateHomeOverview(String user, Environment environment, FileNode home) throws IOException {
         Session session;
 
         session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
@@ -126,7 +134,7 @@ public class Install {
         return session;
     }
 
-    private void doCreateBin(Map<String, String> variables, FileNode destBin) throws IOException {
+    private void doCreateBinWithoutHomeLink(Map<String, String> variables, FileNode destBin) throws IOException {
         Files.stoolDirectory(destBin.mkdir());
         Files.template(console.world.resource("templates/bin"), destBin, variables);
         if (withJar) {
@@ -144,7 +152,6 @@ public class Install {
         Map<String, String> result;
 
         result = new HashMap<>();
-        result.put("stool.home", home.getAbsolute());
         result.put("stool.bin", bin.getAbsolute());
         result.put("java.home", javaHome);
         result.put("man.path", "/usr/share/man".equals(man.getAbsolute()) ? "" :
@@ -206,8 +213,7 @@ public class Install {
         if (!tomcatOpts.isEmpty()) {
             tomcatOpts += " ";
         }
-        tomcatOpts += "-Doverview.stool.home=" + session.home.getAbsolute();
-        tomcatOpts += " -Doverview.stool.bin=" + session.bin.getAbsolute();
+        tomcatOpts += "-Doverview.stool.bin=" + session.bin.getAbsolute();
         create.remaining("tomcat.opts=" + tomcatOpts);
         create.remaining("until=reserved");
         create.remaining("tomcat.env=" + environment());

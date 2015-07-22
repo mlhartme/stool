@@ -26,6 +26,7 @@ import net.oneandone.sushi.cli.Command;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Parser;
+import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.InputLogStream;
@@ -52,7 +53,7 @@ public class Main extends Cli implements Command {
         world = new World();
         user = System.getProperty("user.name");
         environment = Environment.loadSystem();
-        home = environment.stoolHome(world);
+        home = Session.locateHome(environment.stoolBin(world));
         home.checkDirectory();
         logging = Logging.forStool(home, user);
         command = "stool " + command(args);
@@ -286,12 +287,9 @@ public class Main extends Cli implements Command {
 
     @Override
     public void printHelp() {
-        String stoolhome;
-
         if (exception) {
             throw new RuntimeException("intentional exception");
         }
-        stoolhome = environment.stoolHome(console.world).getAbsolute();
         console.info.println("Stool usage:");
         console.info.println("  stool <global-options> <command>");
         console.info.println();
@@ -340,7 +338,11 @@ public class Main extends Cli implements Command {
         console.info.println("  -svnuser      user name for svn");
         console.info.println("  -svnpassword  password for svn");
         console.info.println();
-        console.info.println("home directory: " + stoolhome);
+        try {
+            console.info.println("home directory: " + Session.locateHome(environment.stoolBin(console.world)).getAbsolute());
+        } catch (ReadLinkException e) {
+            throw new IllegalStateException(e);
+        }
         console.info.println();
         console.info.println("selection predicates");
         console.info.println("  or        = and {',' and}");

@@ -2,5 +2,12 @@
 
 set -e
 if [ "$1" = purge ]; then
-    rm -rf /opt/ui/opt/tools/stool
+    # TODO: why does lintian want this call in postrm? It doesn't make sense to have symlinks pointing to none-existing code
+    update-rc.d stool remove
+    if [ -d /opt/ui/opt/tools/stool ] ; then
+        rm -rf /opt/ui/opt/tools/stool
+    fi
+    if [ -d /var/lib/stool ] ; then
+        rm -rf /var/lib/stool
+    fi
 fi

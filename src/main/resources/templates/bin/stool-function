@@ -1,7 +1,7 @@
 # Stool shell functions for bash
 # Source this file in your ~/.bashrc
 
-export STOOL_INVOCATION=${{stool.home}}/run/users/.stool-invocation-$$-$(date +%N)
+export STOOL_INVOCATION=${{stool.bin}}/home/run/users/.stool-invocation-$$-$(date +%N)
 ${{man.path}}
 
 stool() {
@@ -10,7 +10,6 @@ stool() {
   export EXPORTED_PS1="$PS1"
   export EXPORTED_PWD="$PWD"
 
-  local home=${{stool.home}}
   local bin=${{stool.bin}}
   local cp
   local verbose=false
@@ -27,11 +26,11 @@ stool() {
     esac
   done
   if [ $command = "reselect" ]; then
-    if [ -f $home/run/users/$USER ]; then
+    if [ -f $bin/home/run/users/$USER ]; then
       if $verbose ; then
         echo "reselect"
       fi
-      source $home/run/users/$USER
+      source $bin/home/run/users/$USER
     else
       if $verbose ; then
         echo "reselect none"
@@ -39,7 +38,7 @@ stool() {
     fi
   else
     if [ -z $STOOL_SOURCE ] ; then
-      cp="$home/bin/stool.jar"
+      cp="$bin/stool.jar"
     else
       # for stool development
       cp=$STOOL_SOURCE/target/setup-stool
@@ -48,18 +47,18 @@ stool() {
         return
       fi
     fi
-    for jar in $home/extensions/*.jar; do
+    for jar in $bin/home/extensions/*.jar; do
       # caution: if the extensions directory is empty, $jar is the pattern ...
       if [ -f $jar ] ; then
         cp="$cp:$jar"
       fi
     done
-    STOOL_HOME=$home STOOL_BIN=$bin ${{java.home}}/bin/java $STOOL_OPTS -cp $cp net.oneandone.stool.Main -invocation $STOOL_INVOCATION "$@"
+    STOOL_BIN=$bin ${{java.home}}/bin/java $STOOL_OPTS -cp $cp net.oneandone.stool.Main -invocation $STOOL_INVOCATION "$@"
     result=$?
     if [ -f $STOOL_INVOCATION ] ; then
       . $STOOL_INVOCATION
       # I've seen an empty $USER when running stool from a cron jobs
-      mv -f $STOOL_INVOCATION $home/run/users/$USER || echo '$USER variable is not set'
+      mv -f $STOOL_INVOCATION $bin/home/run/users/$USER || echo '$USER variable is not set'
     fi
   fi
 
@@ -70,10 +69,9 @@ stool() {
 }
 
 stoolIndicatorColor() {
-    local home=${{stool.home}}
     local RED="\033[0;31m"
     local BLUE_BACKGROUND="\033[44;1;37m"
-    local DIR=$home/backstages/$STOOL_SELECTED/anchor
+    local DIR=${{stool.bin}}/home/backstages/$STOOL_SELECTED/anchor
     if [ ! -e $DIR ] ; then
       echo -e "$BLUE_BACKGROUND"
     else
@@ -91,5 +89,5 @@ stoolIndicatorColor() {
 }
 
 if [ "x$BASH" != "x" ] ; then
-  source ${{stool.home}}/bin/stool-complete
+  source ${{stool.bin}}/stool-complete
 fi

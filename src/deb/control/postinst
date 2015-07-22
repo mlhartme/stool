@@ -1,20 +1,13 @@
 #!/bin/sh
 
-dir=/opt/ui/opt/tools/stool
-test -d $dir
+bin=/usr/share/stool
+home=/opt/ui/opt/tools/stool
+if [ ! -d ${home} ] ; then
+    home=/var/lib/stool
+fi
+test -d ${home}
 exists=$?
 set -e
-
-# migration from 3.1.x
-# if [ -d $dir/conf ] ; then
-#   mv $dir/conf $dir/run
-# fi
-# if [ -d $dir/wrappers ] ; then
-#   mv $dir/wrappers $dir/backstages
-# fi
-# if [ -d $dir/bin ] ; then
-#   rm -rf $dir/bin
-# fi
 
 if [ "$1" = "configure" ]; then
     if id -u servlet >/dev/null 2>&1; then
@@ -23,19 +16,15 @@ if [ "$1" = "configure" ]; then
         # TODO --no-create-home
         adduser --system --quiet --ingroup users --home /home/servlet servlet
     fi
-fi
+    ln -s ${home} ${bin}/home
 
+    # TODO: there's no package dependency for this ...
+    export MAVEN_HOME=/opt/ui/opt/tools/wsdtools/maven/current
+    java -cp ${bin}/stool.jar net.oneandone.stool.setup.DebianHome ${home}
+    if test ${exists} -eq 1; then
+      chown -R root:users ${home}
+      sudo -u servlet ${bin}/stool-raw.sh chown -stage overview
+    fi
 
-# TODO: there's no package dependency for this ...
-export MAVEN_HOME=/opt/ui/opt/tools/wsdtools/maven/current
-/opt/ui/bin/setup-stool -v -batch ${dir}
-if test $exists -eq 1; then
-  # make sure the default for files/directory is root:root - i've seen root:seadmin ownership on waterloo4
-  chown -R root:root ${dir}
-  chown -R root:users ${dir}/downloads ${dir}/inbox ${dir}/logs ${dir}/service-wrapper ${dir}/run ${dir}/tomcat ${dir}/wrappers
-  sudo -u servlet ${dir}/bin/stool-raw.sh chown -stage overview
-fi
-
-if [ -x "/etc/init.d/stool" ]; then
-  update-rc.d stool defaults >/dev/null
+    update-rc.d stool defaults
 fi

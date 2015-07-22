@@ -329,7 +329,7 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <java classname="net.oneandone.stool.setup.Debfiles" classpath="${project.build.directory}/setup-stool" fork="false">
+                <java classname="net.oneandone.stool.setup.DebianPackage" classpath="${project.build.directory}/setup-stool" fork="false">
                   <arg path="${project.build.directory}/debfiles" />
                 </java>
               </target>
@@ -382,6 +382,7 @@
                 <data>
                   <src>${basedir}/src/deb/profile</src>
                   <dst>/etc/profile.d/stool.sh</dst>
+                  <conffile>true</conffile>
                   <type>file</type>
                   <mapper>
                     <type>perm</type>

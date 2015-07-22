@@ -15,27 +15,43 @@
  */
 package net.oneandone.stool.setup;
 
+import net.oneandone.stool.util.Environment;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
+import java.io.IOException;
 import java.util.HashMap;
 
-/** generate file hierarchie for debian installer */
-public class Debfiles {
+/** Create or update stool home during postinst configure. Does *not* care about permissions */
+public class DebianHome {
     public static void main(String[] args) throws Exception {
         World world;
-        Console console;
-        FileNode target;
+        FileNode home;
 
         if (args.length != 1) {
             throw new IllegalArgumentException();
         }
         world = new World();
-        console = Console.create(world);
-        target = world.file(args[0]);
-        new Install(console, true, world.file("/opt/ui/opt/tools/stool"), world.file("/usr/shared/stool"), world.file("/usr/shared/man"),
-                new HashMap<>()).debianFiles(target);
-        System.exit(0);
+        home = world.file(args[0]);
+
+        // migrate from 3.1.x
+        if (home.exists()) {
+            migrate_3_1(home);
+        }
+        new Install(Console.create(world), true, world.file("/usr/share/stool"), world.file("/usr/share/man"), new HashMap<>())
+                .debianHome("root", Environment.loadSystem(), home);
+    }
+
+    private static void migrate_3_1(FileNode home) throws IOException {
+        rename(home.join("conf"), home.join("run"));
+        rename(home.join("wrappers"), home.join("backstages"));
+        home.join("bin").deleteTreeOpt();
+    }
+
+    public static void rename(FileNode old, FileNode now) throws IOException {
+        if (old.exists()) {
+            old.move(now);
+        }
     }
 }

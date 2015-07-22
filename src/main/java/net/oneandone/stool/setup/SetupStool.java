@@ -116,7 +116,6 @@ public class SetupStool extends Cli implements Command {
         } else {
             oldHome.checkDirectory();
         }
-        environment.setStoolHome(home);
         environment.setStoolBin(home.join("bin"));
         if (oldHome.exists()) {
             try {
@@ -131,7 +130,7 @@ public class SetupStool extends Cli implements Command {
             if (!batch) {
                 console.pressReturn();
             }
-            new Install(console, true, home, environment.stoolBin(console.world), home.join("man"), config).standalone(user, environment);
+            new Install(console, true, environment.stoolBin(console.world), home.join("man"), config).standalone(user, environment, home);
             console.info.println("Done. To complete the installation:");
             console.info.println("1. add");
             console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
@@ -149,7 +148,7 @@ public class SetupStool extends Cli implements Command {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
-        session = new Install(console, true, home, environment.stoolBin(console.world), home.join("man"), config).standalone(user, environment);
+        session = new Install(console, true, environment.stoolBin(console.world), home.join("man"), config).standalone(user, environment, home);
         new SystemImport(session, oldHome).invoke();
 
         Runtime.getRuntime().removeShutdownHook(cleanup);

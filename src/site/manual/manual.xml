@@ -1167,6 +1167,7 @@ http://docbook.org/ns/docbook ">
       (stool home)
         |- config.json (Stool configuration)
         |- run
+        |   |- overview.properties
         |   |- stool.lock
         |   |- sleep.json
         |   '- users

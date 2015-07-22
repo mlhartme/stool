@@ -35,7 +35,6 @@ public class Environment {
      */
     private static final String EXPORTED = "EXPORTED_";
 
-    public static final String STOOL_HOME = "STOOL_HOME";
     public static final String STOOL_BIN = "STOOL_BIN";
     public static final String STOOL_SELECTED = "STOOL_SELECTED";
     // TODO: dump when pws uses stagehost instead
@@ -174,16 +173,6 @@ public class Environment {
 
     public Map<String, String> map() {
         return Collections.unmodifiableMap(properties);
-    }
-
-    //-- home handling. CAUTION: not part of the session
-
-    public FileNode stoolHome(World world) {
-        return world.file(get(STOOL_HOME));
-    }
-
-    public void setStoolHome(FileNode home) {
-        set(STOOL_HOME, home.getAbsolute());
     }
 
     public FileNode stoolBin(World world) {
