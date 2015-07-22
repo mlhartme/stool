@@ -1,30 +1,33 @@
 #!/bin/sh
+set -e
 
 bin=/usr/share/stool
 if [ -d /opt/ui/opt/tools ] ; then
     home=/opt/ui/opt/tools/stool
+    group=users
 else
     home=/var/lib/stool
+    group=stool
 fi
-test -d ${home}
-exists=$?
-set -e
 
 if [ "$1" = "configure" ]; then
+    if getent group ${group} >/dev/null 2>&1; then
+        echo "re-using existing group: ${group}"
+    else
+        groupadd $group
+    fi
     if id -u servlet >/dev/null 2>&1; then
-        echo "servlet user already exists"
+        echo "re-using existing user: servlet"
+        # TODO: add servlet to group
     else
         # TODO --no-create-home
-        adduser --system --quiet --ingroup users --home /home/servlet servlet
+        adduser --system --quiet --ingroup ${group} --home /home/servlet servlet
     fi
     ln -s ${home} ${bin}/home
 
-    # TODO: there's no package dependency for this ...
+    # TODO: should be possible to generate overview without MAVEN_HOME
     export MAVEN_HOME=/not/used/for/overview/stage
-    STOOL_BIN=${bin} java -cp ${bin}/stool.jar net.oneandone.stool.setup.DebianHome ${home}
-    if test ${exists} -eq 1; then
-      chown -R root:users ${home}
-    fi
+    STOOL_BIN=${bin} sg ${group} java -cp ${bin}/stool.jar net.oneandone.stool.setup.DebianHome ${home}
     sudo -u servlet ${bin}/stool-raw.sh chown -stage overview
 
     update-rc.d stool defaults
