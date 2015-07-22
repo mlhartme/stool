@@ -319,6 +319,7 @@
               <generateSectionTocLevel>0</generateSectionTocLevel>
               <postProcess>
                 <apply executable="gzip">
+                  <arg value="-9" />
                   <fileset dir="${project.build.directory}/classes/templates/man">
                     <patternset>
                       <include name="**/*"/>
