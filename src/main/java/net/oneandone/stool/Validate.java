@@ -56,7 +56,7 @@ public class Validate extends StageCommand {
         String psPid;
 
         filePid = stage.runningTomcat();
-        psPid = processes.tomcatPid(stage.getWrapper());
+        psPid = processes.tomcatPid(stage.getBackstage());
         if (filePid == null) {
             filePid = "";
         }

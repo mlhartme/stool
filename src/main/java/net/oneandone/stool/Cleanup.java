@@ -42,7 +42,7 @@ public class Cleanup extends StageCommand {
 
     public void cleanupMavenReposity(Stage stage) throws NodeNotFoundException, DeleteException {
         FileNode repository;
-        repository = stage.getWrapper().join(".m2");
+        repository = stage.getBackstage().join(".m2");
         if (repository.exists()) {
             console.info.println("Removing Maven Repository at " + repository.getAbsolute());
             repository.deleteTree();
@@ -53,10 +53,10 @@ public class Cleanup extends StageCommand {
 
     public void rotateLogs(Stage stage) throws IOException {
         Node archivedLog;
-        for (Node logfile : stage.getWrapper().find("**/*.log")) {
+        for (Node logfile : stage.getBackstage().find("**/*.log")) {
             archivedLog = archiveDirectory(logfile).join(logfile.getName() + ".gz");
-            console.verbose.println(String.format("rotating %s to %s", logfile.getRelative(stage.getWrapper()),
-              archivedLog.getRelative(stage.getWrapper())));
+            console.verbose.println(String.format("rotating %s to %s", logfile.getRelative(stage.getBackstage()),
+              archivedLog.getRelative(stage.getBackstage())));
             logfile.gzip(archivedLog);
             logfile.deleteFile();
         }

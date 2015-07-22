@@ -1,8 +1,20 @@
 #!/bin/sh
+
 dir=/opt/ui/opt/tools/stool
 test -d $dir
 exists=$?
 set -e
+
+# TODO
+# if [ -d /opt/ui/opt/tools/stool ] ; then
+#   mv /opt/ui/opt/tools/stool /usr/lib/stool
+# fi
+# if [ -d /usr/lib/stool/conf ] ; then
+#   mv /usr/lib/stool/conf /usr/lib/stool/run
+# fi
+# if [ -d /usr/lib/stool/wrappers ] ; then
+#   mv /usr/lib/stool/wrappers /usr/lib/stool/backstage
+# fi
 
 if [ "$1" = "configure" ]; then
     if id -u servlet >/dev/null 2>&1; then

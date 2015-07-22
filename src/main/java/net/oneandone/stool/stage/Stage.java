@@ -162,7 +162,7 @@ public abstract class Stage {
     public String getName() {
         return wrapper.getName();
     }
-    public FileNode getWrapper() {
+    public FileNode getBackstage() {
         return wrapper;
     }
     public FileNode getDirectory() {

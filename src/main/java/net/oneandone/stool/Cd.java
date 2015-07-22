@@ -53,7 +53,7 @@ public class Cd extends StageCommand {
         if (target == null) {
             node = stage.getDirectory();
         } else if ("wrapper".equals(target)) {
-            node = stage.getWrapper();
+            node = stage.getBackstage();
         } else {
             filter = console.world.filter();
             filter.includeAll();
