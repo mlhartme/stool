@@ -31,12 +31,12 @@ _stool_complete() {
             fi
             ;;
         select)
-            local stages=$(for dir in `ls -1 $home/wrappers/`; do echo ${dir}; done; echo 'none')
+            local stages=$(for dir in `ls -1 $home/backstages/`; do echo ${dir}; done; echo 'none')
             COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
             return 0
             ;;
         status)
-            local stages=$(for dir in `ls -1 $home/wrappers/`; do echo ${dir}; done)
+            local stages=$(for dir in `ls -1 $home/backstages/`; do echo ${dir}; done)
             COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
             return 0
             ;;

@@ -73,7 +73,7 @@ stoolIndicatorColor() {
     local home=${{stool.home}}
     local RED="\033[0;31m"
     local BLUE_BACKGROUND="\033[44;1;37m"
-    local DIR=$home/wrappers/$STOOL_SELECTED/anchor
+    local DIR=$home/backstages/$STOOL_SELECTED/anchor
     if [ ! -e $DIR ] ; then
       echo -e "$BLUE_BACKGROUND"
     else

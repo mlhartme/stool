@@ -5,15 +5,15 @@ test -d $dir
 exists=$?
 set -e
 
-# TODO
-# if [ -d /opt/ui/opt/tools/stool ] ; then
-#   mv /opt/ui/opt/tools/stool /usr/lib/stool
+# migration from 3.1.x
+# if [ -d $dir/conf ] ; then
+#   mv $dir/conf $dir/run
 # fi
-# if [ -d /usr/lib/stool/conf ] ; then
-#   mv /usr/lib/stool/conf /usr/lib/stool/run
+# if [ -d $dir/wrappers ] ; then
+#   mv $dir/wrappers $dir/backstages
 # fi
-# if [ -d /usr/lib/stool/wrappers ] ; then
-#   mv /usr/lib/stool/wrappers /usr/lib/stool/backstages
+# if [ -d $dir/bin ] ; then
+#   rm -rf $dir/bin
 # fi
 
 if [ "$1" = "configure" ]; then

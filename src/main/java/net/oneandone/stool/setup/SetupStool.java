@@ -39,17 +39,17 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /** Create a standalone stool directory with "bin" and "man" included. */
-public class Standalone extends Cli implements Command {
+public class SetupStool extends Cli implements Command {
     public static void main(String[] args) throws Exception {
-        Standalone standalone;
+        SetupStool setupStool;
         String file;
 
-        standalone = new Standalone();
+        setupStool = new SetupStool();
         file = System.getenv("SETUP_STOOL_DEFAULTS");
         if (file != null) {
-            standalone.defaultsFile(file);
+            setupStool.defaultsFile(file);
         }
-        System.exit(standalone.run(args));
+        System.exit(setupStool.run(args));
     }
 
     private FileNode home;
@@ -64,7 +64,7 @@ public class Standalone extends Cli implements Command {
     /** maps to String or Map<String, String> */
     private final Map<String, Object> config;
 
-    private Standalone() {
+    private SetupStool() {
         environment = Environment.loadSystem();
         config = new LinkedHashMap<>();
     }

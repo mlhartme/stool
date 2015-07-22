@@ -74,7 +74,7 @@ public class SystemImport extends SessionCommand {
     @Option("include")
     private Include include = Include.ALL;
 
-    private final List<FileNode> oldWrappers = new ArrayList<>();
+    private final List<FileNode> oldBackstages = new ArrayList<>();
 
     private final Map<Property, String> explicitProperties = new HashMap<>();
 
@@ -91,7 +91,7 @@ public class SystemImport extends SessionCommand {
             if (!backstage.isDirectory()) {
                 throw new ArgumentException("old stage not found: " + backstage.getAbsolute());
             }
-            oldWrappers.add(backstage);
+            oldBackstages.add(backstage);
         } else {
             key = str.substring(0, idx);
             property = StageConfiguration.properties(session.extensionsFactory).get(key);
@@ -130,17 +130,17 @@ public class SystemImport extends SessionCommand {
             patches.add(stoolConfig());
         }
         if (include.withStages) {
-            if (oldWrappers.isEmpty()) {
+            if (oldBackstages.isEmpty()) {
                 for (FileNode oldWrapper : oldHome.join("backstages").list()) {
                     name = oldWrapper.getName();
                     if (session.backstages.join(name).exists()) {
                         console.info.println("ignoring stage that already exists: " + name);
                     } else {
-                        oldWrappers.add(oldWrapper);
+                        oldBackstages.add(oldWrapper);
                     }
                 }
             }
-            for (FileNode oldWrapper : oldWrappers) {
+            for (FileNode oldWrapper : oldBackstages) {
                 name = oldWrapper.getName();
                 if (oldBedroom.stages().contains(name)) {
                     newBedroom.add(session.gson, name);

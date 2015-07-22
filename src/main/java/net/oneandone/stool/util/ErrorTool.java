@@ -16,7 +16,7 @@
 package net.oneandone.stool.util;
 
 import ch.qos.logback.classic.Level;
-import net.oneandone.stool.setup.Standalone;
+import net.oneandone.stool.setup.SetupStool;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -55,7 +55,7 @@ public class ErrorTool {
         add("product", "stool", dest);
         add("category", "default", dest);
         add("container", hostname, dest);
-        add("sessionId", Standalone.versionObject().toString(), dest);
+        add("sessionId", SetupStool.versionObject().toString(), dest);
 
         add("subject", subject, dest);
         add("body", body, dest);

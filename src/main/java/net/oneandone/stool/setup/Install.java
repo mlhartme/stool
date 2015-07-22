@@ -128,7 +128,7 @@ public class Install {
 
     private void doCreateBin(Map<String, String> variables, FileNode destBin) throws IOException {
         Files.stoolDirectory(destBin.mkdir());
-        Files.template(home.getWorld().resource("templates/bin"), destBin, variables);
+        Files.template(console.world.resource("templates/bin"), destBin, variables);
         if (withJar) {
             console.world.locateClasspathItem(getClass()).copyFile(destBin.join("stool.jar"));
         }
@@ -136,7 +136,7 @@ public class Install {
 
     private void doCreateMan(FileNode destMan) throws IOException {
         Files.stoolDirectory(destMan.mkdir());
-        home.getWorld().resource("templates/man").copyDirectory(destMan);
+        console.world.resource("templates/man").copyDirectory(destMan);
         Files.stoolTree(destMan);
     }
 
