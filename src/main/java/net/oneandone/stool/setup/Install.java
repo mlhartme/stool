@@ -75,7 +75,7 @@ public class Install {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
-        doCreateHomeWithoutOverview(home);
+        doCreateHomeWithoutOverview(home, false);
         doCreateBinWithoutHomeLink(variables(), bin);
         bin.join("home").mklink(home.getAbsolute());
         doCreateMan(man);
@@ -95,7 +95,7 @@ public class Install {
         if (home.exists()) {
             home.join("overview").deleteTree();
         } else {
-            doCreateHomeWithoutOverview(home);
+            doCreateHomeWithoutOverview(home, true);
         }
         doCreateHomeOverview(user, environment, home);
     }
@@ -112,12 +112,13 @@ public class Install {
         return home.join("downloads");
     }
 
-    private void doCreateHomeWithoutOverview(FileNode home) throws IOException {
+    private void doCreateHomeWithoutOverview(FileNode home, boolean shared) throws IOException {
         StoolConfiguration conf;
 
         Files.stoolDirectory(home.mkdirs());
         Files.setgid(home);
         conf = new StoolConfiguration(downloadCache(home));
+        conf.shared = shared;
         tuneHostname(conf);
         tuneExplicit(conf);
         Files.stoolDirectory(conf.downloadCache.mkdirOpt()).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();

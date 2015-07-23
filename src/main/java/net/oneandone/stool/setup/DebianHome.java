@@ -19,6 +19,7 @@ import net.oneandone.stool.util.Environment;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -59,22 +60,21 @@ public class DebianHome {
     }
 
     private static void migrate_3_1(Console console, FileNode home) throws IOException {
-        rename(console, home.join("conf/overview.properties"), home.join("overview.properties"));
-        rename(console, home.join("conf"), home.join("run"));
-        rename(console, home.join("wrappers"), home.join("backstages"));
-        delete(console, home.join("bin"));
+        if (home.join("bin").isDirectory()) {
+            console.info.println("migrating 3.1 -> 3.2: " + home);
+            run(console, home, "chgrp", "-r", "stool", ".");
+            run(console, home, "mv", home.join("conf/overview.properties").getAbsolute(), home.join("overview.properties").getAbsolute());
+            run(console, home, "chown", "stool", home.join("overview.properties").getAbsolute());
+            run(console, home, "mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
+            run(console, home, "mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
+            run(console, home, "rm", "-rf", home.join("bin").getAbsolute());
+            run(console, home, "sh", "-c", "find . -type d | xargs chmod g+s");
+        }
     }
 
-    public static void rename(Console console, FileNode old, FileNode now) throws IOException {
-        if (old.exists()) {
-            console.info.println("migrating: mv " + old + " " + now);
-            old.move(now);
-        }
+    private static void run(Console console, FileNode home, String ... cmd) throws IOException {
+        console.info.println("[" + home + "] " + Separator.SPACE.join(cmd));
+        home.execNoOutput(cmd);
     }
-    public static void delete(Console console, FileNode old) throws IOException {
-        if (old.exists()) {
-            console.info.println("migrating: rm -rf " + old);
-            old.deleteTree();
-        }
-    }
+
 }

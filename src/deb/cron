@@ -1,1 +1,1 @@
-1 4 * * * stooluser /usr/share/stool/stool-raw.sh validate -all -email -stop > /dev/null
+1 4 * * * stool /usr/share/stool/stool-raw.sh validate -all -email -stop > /dev/null

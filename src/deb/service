@@ -19,7 +19,7 @@ STOOL=/usr/share/stool/stool-raw.sh
 case "$1" in
         start)
                 log_daemon_msg "Starting stages" "stool"
-                sudo -u stooluser $STOOL system-start
+                sudo -u stool $STOOL system-start
                 result=$?
                 log_end_msg $result
                 exit $result
@@ -27,8 +27,8 @@ case "$1" in
         
         force-reload|restart)
                 log_daemon_msg "Restarting stages" "stool"
-                sudo -u stooluser $STOOL system-stop
-                sudo -u stooluser $STOOL system-start
+                sudo -u stool $STOOL system-stop
+                sudo -u stool $STOOL system-start
                 result=$?
                 log_end_msg $result
                 exit $result
@@ -36,7 +36,7 @@ case "$1" in
 
         stop)
                 log_daemon_msg "Stopping stages" "stool"
-                sudo -u stooluser $STOOL system-stop
+                sudo -u stool $STOOL system-stop
                 result=$?
                 log_end_msg $result
                 exit $result
@@ -44,7 +44,7 @@ case "$1" in
         
         status)
                 log_daemon_msg "Listing stages" "stool"
-                sudo -u stooluser $STOOL list
+                sudo -u stool $STOOL list
                 result=$?
                 log_end_msg $result
                 exit $result
