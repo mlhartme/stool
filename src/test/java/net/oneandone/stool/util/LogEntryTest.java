@@ -17,7 +17,6 @@ package net.oneandone.stool.util;
 
 import org.junit.Test;
 
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 import static org.junit.Assert.assertEquals;

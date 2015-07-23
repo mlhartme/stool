@@ -17,16 +17,13 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.LogEntry;
-import net.oneandone.stool.util.LogReader;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class History extends StageCommand {
     public History(Session session) {
