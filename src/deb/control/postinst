@@ -31,19 +31,20 @@ if [ "$1" = "configure" ]; then
     fi
     if id -u ${user} >/dev/null 2>&1; then
         echo "re-using existing user: ${user}"
-        if groups ${user} | grep -q -w ${group} ; then
-            echo "user ${user} already in group ${group}"
-        else
-            echo "add user ${user} to group ${group}"
-            usermod -a -G ${group} ${name}
-        fi
     else
         echo "creating user: ${user}"
         if [ -d /home/${user} ] ; then
              echo "home directory for user ${user} already exists"
              exit 1
         fi
+        # caution: --ingroup just configures the primary group, it does not add the user to this group
         adduser --system --ingroup ${group} --home /home/${user} ${user}
+    fi
+    if groups ${user} | cut --delimiter=: --fields=2 | grep -q -w ${group} ; then
+        echo "user ${user} already in group ${group}"
+    else
+        echo "add user ${user} to group ${group}"
+        usermod -a -G ${group} ${user}
     fi
     ln -s ${home} ${bin}/home
 

@@ -27,6 +27,7 @@ import java.util.HashMap;
 public class DebianHome {
     public static void main(String[] args) throws Exception {
         World world;
+        Console console;
         FileNode home;
         boolean existing;
 
@@ -34,15 +35,16 @@ public class DebianHome {
             throw new IllegalArgumentException();
         }
         world = new World();
+        console = Console.create(world);
         home = world.file(args[0]);
 
         // migrate from 3.1.x
         existing = home.exists();
         if (existing) {
-            migrate_3_1(home);
+            migrate_3_1(console, home);
         }
         try {
-            new Install(Console.create(world), true, world.file("/usr/share/stool"), world.file("/usr/share/man"), new HashMap<>())
+            new Install(console, true, world.file("/usr/share/stool"), world.file("/usr/share/man"), new HashMap<>())
                     .debianHome("root", Environment.loadSystem(), home);
         } catch (Exception e) {
             if (!existing) {
@@ -56,16 +58,23 @@ public class DebianHome {
         }
     }
 
-    private static void migrate_3_1(FileNode home) throws IOException {
-        rename(home.join("conf/overview.properties"), home.join("overview.properties"));
-        rename(home.join("conf"), home.join("run"));
-        rename(home.join("wrappers"), home.join("backstages"));
-        home.join("bin").deleteTreeOpt();
+    private static void migrate_3_1(Console console, FileNode home) throws IOException {
+        rename(console, home.join("conf/overview.properties"), home.join("overview.properties"));
+        rename(console, home.join("conf"), home.join("run"));
+        rename(console, home.join("wrappers"), home.join("backstages"));
+        delete(console, home.join("bin"));
     }
 
-    public static void rename(FileNode old, FileNode now) throws IOException {
+    public static void rename(Console console, FileNode old, FileNode now) throws IOException {
         if (old.exists()) {
+            console.info.println("migrating: mv " + old + " " + now);
             old.move(now);
+        }
+    }
+    public static void delete(Console console, FileNode old) throws IOException {
+        if (old.exists()) {
+            console.info.println("migrating: rm -rf " + old);
+            old.deleteTree();
         }
     }
 }
