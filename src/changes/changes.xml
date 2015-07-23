@@ -2,7 +2,7 @@
   <body>
     <release version="3.2.0">
       <action date="2015-07-23" dev="mlhartme" type="update">
-        Renamed servlet user to stool.
+        Renamed user "servlet" to "stooluser".
       </action>
       <action date="2015-07-23" dev="mlhartme" type="fix">
         Fixed setgid handling.

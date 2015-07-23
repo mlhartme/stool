@@ -325,6 +325,7 @@ public abstract class Stage {
         String pidFile;
         KeyStore keystore;
         Extensions extensions;
+        Launcher launcher;
 
         checkMemory();
         console.info.println("starting tomcat ...");
@@ -342,7 +343,9 @@ public abstract class Stage {
         serverXml.configure(ports, keystore, config().cookies, this);
         serverXml.save(serverXml());
         extensions.beforeStart(this);
-        catalina("start").exec(console.verbose);
+        launcher = catalina("start");
+        console.verbose.println("executing: " + launcher);
+        launcher.exec(console.verbose);
         pidFile = runningTomcat();
         if (pidFile == null) {
             throw new IOException("tomcat startup failed - no pid file found");

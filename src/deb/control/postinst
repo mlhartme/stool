@@ -10,6 +10,7 @@ else
     home=/var/lib/stool
     group=stool
 fi
+user=stooluser
 
 if [ "$1" = "configure" ]; then
     echo  "configure home ${home}, group ${group}"
@@ -20,29 +21,36 @@ if [ "$1" = "configure" ]; then
         groupadd $group
         for file in /home/* ; do
             name=$(basename $file)
-            echo "add user to group: ${name}"
-            usermod -a -G ${group} ${name}
+            if id -u ${name} >/dev/null 2>&1; then
+                echo "add user to group: ${name}"
+                usermod -a -G ${group} ${name}
+            else
+                echo "ignoring home directory: $file"
+            fi
         done
     fi
-    if id -u stool >/dev/null 2>&1; then
-        echo "re-using existing user: stool"
-        if groups stool | grep -q -w ${group} ; then
-            echo "stool user already in group ${group}"
+    if id -u ${user} >/dev/null 2>&1; then
+        echo "re-using existing user: ${user}"
+        if groups ${user} | grep -q -w ${group} ; then
+            echo "user ${user} already in group ${group}"
         else
-            echo "add stool user to group ${group}"
+            echo "add user ${user} to group ${group}"
             usermod -a -G ${group} ${name}
         fi
     else
-        echo "creating user: stool"
-        # TODO --no-create-home
-        adduser --system --quiet --ingroup ${group} --home /home/stool stool
+        echo "creating user: ${user}"
+        if [ -d /home/${user} ] ; then
+             echo "home directory for user ${user} already exists"
+             exit 1
+        fi
+        adduser --system --ingroup ${group} --home /home/${user} ${user}
     fi
     ln -s ${home} ${bin}/home
 
     # TODO: should be possible to generate overview without MAVEN_HOME
     export MAVEN_HOME=/not/used/for/overview/stage
     STOOL_BIN=${bin} sg ${group} "java -cp ${bin}/stool.jar net.oneandone.stool.setup.DebianHome ${home}"
-    sudo -u stool ${bin}/stool-raw.sh chown -stage overview
+    sudo -u ${user} ${bin}/stool-raw.sh chown -stage overview
 
     update-rc.d stool defaults
 fi
