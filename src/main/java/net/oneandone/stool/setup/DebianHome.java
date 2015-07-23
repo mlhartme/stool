@@ -22,6 +22,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 
 /** Create or update stool home during postinst configure. Does *not* care about permissions */
@@ -42,7 +43,7 @@ public class DebianHome {
         // migrate from 3.1.x
         existing = home.exists();
         if (existing) {
-            migrate_3_1(console, home);
+            migrate_3_1(console.info, home);
         }
         try {
             new Install(console, true, world.file("/usr/share/stool"), world.file("/usr/share/man"), new HashMap<>())
@@ -59,22 +60,25 @@ public class DebianHome {
         }
     }
 
-    private static void migrate_3_1(Console console, FileNode home) throws IOException {
+    private static void migrate_3_1(PrintWriter log, FileNode home) throws IOException {
         if (home.join("bin").isDirectory()) {
-            console.info.println("migrating 3.1 -> 3.2: " + home);
-            run(console, home, "chgrp", "-r", "stool", ".");
-            run(console, home, "mv", home.join("conf/overview.properties").getAbsolute(), home.join("overview.properties").getAbsolute());
-            run(console, home, "chown", "stool", home.join("overview.properties").getAbsolute());
-            run(console, home, "mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
-            run(console, home, "mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
-            run(console, home, "rm", "-rf", home.join("bin").getAbsolute());
-            run(console, home, "sh", "-c", "find . -type d | xargs chmod g+s");
+            log.println("migrating 3.1 -> 3.2: " + home);
+            run(log, home, "mv", home.join("conf/overview.properties").getAbsolute(), home.join("overview.properties").getAbsolute());
+            run(log, home, "chown", "stool", home.join("overview.properties").getAbsolute());
+            run(log, home, "mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
+            run(log, home, "mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
+            run(log, home, "rm", "-rf", home.join("bin").getAbsolute());
+            fixPermissions(log, home);
         }
     }
 
-    private static void run(Console console, FileNode home, String ... cmd) throws IOException {
-        console.info.println("[" + home + "] " + Separator.SPACE.join(cmd));
-        home.execNoOutput(cmd);
+    public static void fixPermissions(PrintWriter log, FileNode dir) throws IOException {
+        run(log, dir, "chgrp", "-r", "stool", ".");
+        run(log, dir, "sh", "-c", "find . -type d | xargs chmod g+s");
     }
 
+    public static void run(PrintWriter log, FileNode home, String ... cmd) throws IOException {
+        log.println("[" + home + "] " + Separator.SPACE.join(cmd));
+        home.execNoOutput(cmd);
+    }
 }

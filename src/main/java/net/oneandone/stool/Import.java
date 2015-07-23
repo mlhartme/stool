@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.setup.DebianHome;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Session;
@@ -206,7 +207,7 @@ public class Import extends SessionCommand {
         FileNode backstage;
 
         directory = candidate.getDirectory();
-        Files.groupDirectory(directory, session.group());
+        DebianHome.fixPermissions(console.verbose, directory);
         backstage = session.backstages.join(forceName != null ? forceName : name(directory));
         return create(session, candidate.getUrl(), directory, backstage);
     }
