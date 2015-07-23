@@ -24,25 +24,25 @@ if [ "$1" = "configure" ]; then
             usermod -a -G ${group} ${name}
         done
     fi
-    if id -u servlet >/dev/null 2>&1; then
-        echo "re-using existing user: servlet"
-        if groups servlet | grep -q -w ${group} ; then
-            echo "servlet user already in group ${group}"
+    if id -u stool >/dev/null 2>&1; then
+        echo "re-using existing user: stool"
+        if groups stool | grep -q -w ${group} ; then
+            echo "stool user already in group ${group}"
         else
-            echo "add servlet user to group ${group}"
+            echo "add stool user to group ${group}"
             usermod -a -G ${group} ${name}
         fi
     else
-        echo "creating user: servlet"
+        echo "creating user: stool"
         # TODO --no-create-home
-        adduser --system --quiet --ingroup ${group} --home /home/servlet servlet
+        adduser --system --quiet --ingroup ${group} --home /home/stool stool
     fi
     ln -s ${home} ${bin}/home
 
     # TODO: should be possible to generate overview without MAVEN_HOME
     export MAVEN_HOME=/not/used/for/overview/stage
     STOOL_BIN=${bin} sg ${group} "java -cp ${bin}/stool.jar net.oneandone.stool.setup.DebianHome ${home}"
-    sudo -u servlet ${bin}/stool-raw.sh chown -stage overview
+    sudo -u stool ${bin}/stool-raw.sh chown -stage overview
 
     update-rc.d stool defaults
 fi

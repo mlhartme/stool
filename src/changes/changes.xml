@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.2.0">
+      <action date="2015-07-23" dev="mlhartme" type="update">
+        Renamed servlet user to stool.
+      </action>
+      <action date="2015-07-23" dev="mlhartme" type="fix">
+        Fixed setgid handling.
+      </action>
       <action date="2015-07-22" dev="mlhartme" type="update">
         Moved $STOOL_HOME/conf/overview.properties to $STOOL_HOME/overview.properties.
       </action>
