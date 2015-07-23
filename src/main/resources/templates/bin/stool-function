@@ -10,6 +10,8 @@ stool() {
   export EXPORTED_PS1="$PS1"
   export EXPORTED_PWD="$PWD"
 
+  # adjust this to configure a specific java version
+  local java=java
   local bin=${{stool.bin}}
   local cp
   local verbose=false
@@ -53,7 +55,7 @@ stool() {
         cp="$cp:$jar"
       fi
     done
-    STOOL_BIN=$bin java $STOOL_OPTS -cp $cp net.oneandone.stool.Main -invocation $STOOL_INVOCATION "$@"
+    STOOL_BIN=$bin $java $STOOL_OPTS -cp $cp net.oneandone.stool.Main -invocation $STOOL_INVOCATION "$@"
     result=$?
     if [ -f $STOOL_INVOCATION ] ; then
       . $STOOL_INVOCATION
