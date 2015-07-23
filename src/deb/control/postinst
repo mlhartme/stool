@@ -2,6 +2,7 @@
 set -e
 
 bin=/usr/share/stool
+# TODO replace this check by some kind of configuration
 if [ -d /opt/ui/opt/tools ] ; then
     home=/opt/ui/opt/tools/stool
     group=users
@@ -11,14 +12,22 @@ else
 fi
 
 if [ "$1" = "configure" ]; then
+    echo  "configure home ${home}, group ${group}"
     if getent group ${group} >/dev/null 2>&1; then
         echo "re-using existing group: ${group}"
     else
         groupadd $group
+        for file in /home/* ; do
+            name=$(basename $file)
+            echo "add user to group: ${name}"
+            usermod -a -G ${group} ${name}
+        done
     fi
     if id -u servlet >/dev/null 2>&1; then
         echo "re-using existing user: servlet"
-        # TODO: add servlet to group
+        if usermod -a -G ${group} ${name} ; then
+            echo "added servlet user to group ${group}"
+        fi
     else
         # TODO --no-create-home
         adduser --system --quiet --ingroup ${group} --home /home/servlet servlet
