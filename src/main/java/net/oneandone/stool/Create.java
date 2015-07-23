@@ -214,6 +214,7 @@ public class Create extends SessionCommand {
         Stage stage;
 
         directory.mkdir();
+        Files.groupDirectory(directory, session.group());
         // CAUTION: create backstage before running possible prepare commands -- e.g. pws already populates the local repository of the stage
         Files.stoolDirectory(backstage.mkdir());
         stage = stage(backstage, url);

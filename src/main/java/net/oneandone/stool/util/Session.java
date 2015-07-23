@@ -140,6 +140,8 @@ public class Session {
     // TODO: redundant!
     public final FileNode home;
     public final FileNode bin;
+    private String lazyGroup;
+
     public final Console console;
     public final Environment environment;
     public final StoolConfiguration configuration;
@@ -169,6 +171,7 @@ public class Session {
         this.command = command;
         this.home = home;
         this.bin = bin;
+        this.lazyGroup = null;
         this.console = console;
         this.environment = environment;
         this.configuration = configuration;
@@ -209,6 +212,12 @@ public class Session {
 
     //--
 
+    public String group() throws ModeException {
+        if (lazyGroup == null) {
+            lazyGroup = home.getGroup().toString();
+        }
+        return lazyGroup;
+    }
 
     public FileNode bin(String name) {
         return bin.join(name);

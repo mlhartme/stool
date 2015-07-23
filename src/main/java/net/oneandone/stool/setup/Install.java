@@ -116,6 +116,7 @@ public class Install {
         StoolConfiguration conf;
 
         Files.stoolDirectory(home.mkdirs());
+        Files.setgid(home);
         conf = new StoolConfiguration(downloadCache(home));
         tuneHostname(conf);
         tuneExplicit(conf);

@@ -16,6 +16,7 @@ if [ "$1" = "configure" ]; then
     if getent group ${group} >/dev/null 2>&1; then
         echo "re-using existing group: ${group}"
     else
+        echo "creating group: ${group}"
         groupadd $group
         for file in /home/* ; do
             name=$(basename $file)
@@ -25,10 +26,14 @@ if [ "$1" = "configure" ]; then
     fi
     if id -u servlet >/dev/null 2>&1; then
         echo "re-using existing user: servlet"
-        if usermod -a -G ${group} ${name} ; then
-            echo "added servlet user to group ${group}"
+        if groups servlet | grep -q -w ${group} ; then
+            echo "servlet user already in group ${group}"
+        else
+            echo "add servlet user to group ${group}"
+            usermod -a -G ${group} ${name}
         fi
     else
+        echo "creating user: servlet"
         # TODO --no-create-home
         adduser --system --quiet --ingroup ${group} --home /home/servlet servlet
     fi

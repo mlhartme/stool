@@ -135,9 +135,19 @@ public final class Files {
 
     public static Node stoolDirectory(Node directory) throws IOException {
         permissions(directory, "rwxrwxr-x");
+        // TODO: this is expensive, but otherwise, the setgid bit inherited from the home directory is lost by the previous permissions call.
+        setgid((FileNode) directory);
         return directory;
     }
 
+    public static void setgid(FileNode dir) throws IOException {
+        dir.execNoOutput("chmod", "g+s", ".");
+    }
+
+    public static void groupDirectory(FileNode dir, String group) throws IOException {
+        dir.execNoOutput("chgrp", group, ".");
+        setgid(dir);
+    }
 
     private static void permissions(Node file, String str) throws IOException {
         String existing;
@@ -154,4 +164,5 @@ public final class Files {
 
     private Files() {
     }
+
 }

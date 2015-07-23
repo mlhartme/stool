@@ -206,6 +206,7 @@ public class Import extends SessionCommand {
         FileNode backstage;
 
         directory = candidate.getDirectory();
+        Files.groupDirectory(directory, session.group());
         backstage = session.backstages.join(forceName != null ? forceName : name(directory));
         return create(session, candidate.getUrl(), directory, backstage);
     }
