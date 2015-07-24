@@ -54,13 +54,56 @@ public final class Files {
     //   files or application files.
     //
 
+    //--
+
+    //-- Stage files
+    // * have stool as their group
+    // * setgid bit is set for directories
+
+    /** Creates a directory that's readable for all stool group users. */
+    public static void createStageDirectory(PrintWriter log, FileNode dir, String group) throws IOException {
+        dir.mkdir();
+        stageTree(log, dir, group);
+    }
+
+    /** Fixes permissions so that all files are stage files. */
+    public static void stageTree(PrintWriter log, FileNode dir, String group) throws IOException {
+        exec(log, dir, "chgrp", "-R", group, ".");
+        exec(log, dir, "sh", "-c", "find . -type d | xargs chmod g+s");
+    }
+
+
+    // Backstage files
+    // * have stool as their group
+    // * directories have the setgid bit set
+    // * permissions are rw-rw-r--
+
+    public static Node createBackstageDirectoryOpt(PrintWriter log, FileNode directory) throws IOException {
+        if (!directory.isDirectory()) {
+            createBackstageDirectory(log, directory);
+        }
+        return directory;
+    }
+
+    /** Creates a directory with mode 2775  */
+    public static Node createBackstageDirectory(PrintWriter log, FileNode directory) throws IOException {
+        // The code
+        //    directory.mkdir();
+        // would inherit the setgid flag from the home directory, but
+        //     permissions(directory, "rwxrwxr-x");
+        // would reset it. java.nio.file has code to set posix permissions, but not setgid (they even overwrite the setgid bit.
+        // Thus, I have to do it expensively
+        exec(log, directory.getParent(), "mkdir", "-m", "2775", directory.getName());
+        return directory;
+    }
+
     /**
      * Set permissions of a file that may be modified by any user.
      * CAUTION: assumes that the files is owned by the current user (usually because it was just created by us),
      * and we thus have permission to modify the file.
      */
     public static Node backstageFile(Node file) throws IOException {
-        permissions(file, "rw-rw-rw-");
+        file.setPermissions("rw-rw-rw-");
         return file;
     }
 
@@ -69,7 +112,7 @@ public final class Files {
      * and we thus have permission to modify the file.
      */
     private static Node backstageExecutable(Node file) throws IOException {
-        permissions(file, "rwxrwxr-x");
+        file.setPermissions("rwxrwxr-x");
         return file;
     }
 
@@ -78,9 +121,8 @@ public final class Files {
      * and we thus have permission to modify the file.
      */
     public static void backstageTree(PrintWriter log, FileNode dir) throws IOException {
-        permissions(dir, "rwxrwxr-x");
         // TODO: this is expensive, but otherwise, the setgid bit inherited from the home directory is lost by the previous permissions call.
-        setgid(log, dir);
+        exec(log, dir, "chmod", "2775", ".");
         for (FileNode child : dir.list()) {
             if (child.isDirectory()) {
                 backstageTree(log, child);
@@ -90,51 +132,12 @@ public final class Files {
         }
     }
 
-    public static Node createBackstageDirectoryOpt(PrintWriter log, FileNode directory) throws IOException {
-        if (!directory.isDirectory()) {
-            createBackstageDirectory(log, directory);
-        }
-        return directory;
-    }
-
-    /** creates a directory with mode 2775: writable for everybody in the group, with setgid. */
-    public static Node createBackstageDirectory(PrintWriter log, FileNode directory) throws IOException {
-        // java.nio.file has code to set posix permissions, but not setgid (they even overwrite the setgid bit
-        exec(log, directory.getParent(), "mkdir", "-m", "2775", directory.getName());
-        return directory;
-    }
-
-    /** Creates a directory that's readable for all stool group users. */
-    public static void createStageDirectory(PrintWriter log, FileNode dir, String group) throws IOException {
-        dir.mkdir();
-        exec(log, dir, "chgrp", group, dir.getAbsolute()); // . would be fine, but absolute path yields better exceptions
-        setgid(log, dir);
-    }
-
-    private static void permissions(Node file, String str) throws IOException {
-        try {
-            file.setPermissions(str);
-        } catch (ModeException e) {
-            throw new IOException(file.toString() + ": cannot updated permissions to " + str, e);
-        }
-    }
-
     //--
-
-    public static void setgid(PrintWriter log, FileNode dir) throws IOException {
-        exec(log, dir, "chmod", "g+s", ".");
-    }
-
-    public static void fixPermissions(PrintWriter log, FileNode dir, String group) throws IOException {
-        exec(log, dir, "chgrp", "-R", group, ".");
-        exec(log, dir, "sh", "-c", "find . -type d | xargs chmod g+s");
-    }
 
     public static void exec(PrintWriter log, FileNode home, String ... cmd) throws IOException {
         log.println("[" + home + "] " + Separator.SPACE.join(cmd));
         home.execNoOutput(cmd);
     }
-
 
     //-- templates
 

@@ -117,7 +117,6 @@ public class Install {
 
         home.getParent().mkdirsOpt();
         Files.createBackstageDirectory(console.verbose, home);
-        Files.setgid(console.verbose, home);
         conf = new StoolConfiguration(downloadCache(home));
         conf.shared = shared;
         tuneHostname(conf);
