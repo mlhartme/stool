@@ -144,7 +144,7 @@ public class PustefixEditor implements Extension {
                 throw new IOException("Cannot download editor: " + e.getMessage(), e);
             }
             war.unjar(dest);
-            Files.stoolDirectory(dest.join("WEB-INF"));
+            Files.stoolTree(dest);
         }
         // always update application list
         lines = new ArrayList<>();
@@ -157,7 +157,7 @@ public class PustefixEditor implements Extension {
             lines.add("  </project>");
         }
         lines.add("</projects>");
-        Files.stoolDirectory(dest.join("WEB-INF/editor-locations.xml").writeLines(lines));
+        Files.stoolFile(dest.join("WEB-INF/editor-locations.xml").writeLines(lines));
     }
 
     private FileNode editorDocroot(Stage stage) {

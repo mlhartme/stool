@@ -115,17 +115,18 @@ public class Install {
     private void doCreateHomeWithoutOverview(FileNode home, boolean shared) throws IOException {
         StoolConfiguration conf;
 
-        Files.stoolDirectory(home.mkdirs());
+        home.getParent().mkdirsOpt();
+        Files.createBackstageDirectory(home);
         Files.setgid(home);
         conf = new StoolConfiguration(downloadCache(home));
         conf.shared = shared;
         tuneHostname(conf);
         tuneExplicit(conf);
-        Files.stoolDirectory(conf.downloadCache.mkdirOpt()).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
+        Files.createBackstageDirectoryOpt(conf.downloadCache).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
         conf.save(Session.gson(home.getWorld(), ExtensionsFactory.create(home.getWorld())), home);
 
         for (String dir : new String[]{"extensions", "backstages", "inbox", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
-            Files.stoolDirectory(home.join(dir).mkdir());
+            Files.createBackstageDirectory(home.join(dir));
         }
     }
 
@@ -142,7 +143,7 @@ public class Install {
         byte[] bytes;
         int ofs;
 
-        Files.stoolDirectory(destBin.mkdir());
+        Files.createBackstageDirectory(destBin);
         Files.template(console.world.resource("templates/bin"), destBin, variables);
         if (withJar) {
             // strip launcher from application file
@@ -171,7 +172,7 @@ public class Install {
     }
 
     private void doCreateMan(FileNode destMan) throws IOException {
-        Files.stoolDirectory(destMan.mkdir());
+        Files.createBackstageDirectory(destMan);
         console.world.resource("templates/man").copyDirectory(destMan);
         Files.stoolTree(destMan);
     }

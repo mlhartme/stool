@@ -210,7 +210,8 @@ public class SystemImport extends SessionCommand {
         // Temp backstage in backstage directory, because it fasted to move within the same filesystem.
         // And Sushi has problems to move the anchor symlink across file systems
         tmpWrapper = session.backstages.createTempDirectory();
-        Files.stoolDirectory(tmpWrapper);
+        tmpWrapper.deleteDirectory();
+        Files.createBackstageDirectory(tmpWrapper);
         stage = Stage.createOpt(session, url, session.createStageConfiguration(url), tmpWrapper, directory);
         stage.tuneConfiguration();
         stage.initialize();

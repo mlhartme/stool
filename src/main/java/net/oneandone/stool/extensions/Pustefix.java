@@ -44,7 +44,7 @@ public class Pustefix implements Extension {
 
     @Override
     public void beforeStart(Stage stage) throws IOException {
-        Files.stoolDirectory(stage.shared().join(APPLOGS).mkdirOpt());
+        Files.createBackstageDirectoryOpt(stage.shared().join(APPLOGS));
     }
 
     @Override

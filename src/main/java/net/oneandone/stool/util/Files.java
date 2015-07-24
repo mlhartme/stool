@@ -144,7 +144,22 @@ public final class Files {
         dir.execNoOutput("chmod", "g+s", dir.getAbsolute()); // . would be fine, but absolute path yields better exceptions
     }
 
-    public static void groupDirectory(FileNode dir, String group) throws IOException {
+    public static Node createBackstageDirectoryOpt(Node directory) throws IOException {
+        if (!directory.isDirectory()) {
+            createBackstageDirectory(directory);
+        }
+        return directory;
+    }
+
+    public static Node createBackstageDirectory(Node directory) throws IOException {
+        directory.mkdir();
+        stoolDirectory(directory);
+        return directory;
+    }
+
+    /** Creates a directory that's readable for all stool group users. */
+    public static void createStageDirectory(FileNode dir, String group) throws IOException {
+        dir.mkdir();
         dir.execNoOutput("chgrp", group, dir.getAbsolute()); // . would be fine, but absolute path yields better exceptions
         setgid(dir);
     }

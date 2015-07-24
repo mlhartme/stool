@@ -150,9 +150,8 @@ public class Application {
         } else {
             changes = SCMChangeCollector.run(currentWarFile(), futureWarFile(), users, svnurl);
         }
-        Files.stoolDirectory(file.getParent().mkdirsOpt());
-        file.writeString(gson.toJson(changes));
-        Files.stoolFile(file);
+        Files.createBackstageDirectoryOpt(file.getParent());
+        Files.stoolFile(file.writeString(gson.toJson(changes)));
         return changes;
     }
 
