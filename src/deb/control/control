@@ -3,7 +3,10 @@ Version: [[version]]
 Section: misc
 Priority: optional
 Architecture: all
+# because Java is invoked by postinst:
 Pre-Depends: java8-jdk, adduser
+# because otherwise jdeb generates this field with java 6 defaults:
+Depends: java8-jdk, adduser
 Maintainer: CISO Operating <ciso-ops@1und1.de>
 Description: [[description]]
 Distribution: wheezy
