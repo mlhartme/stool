@@ -43,7 +43,12 @@ public class DebianHome {
         // migrate from 3.1.x
         existing = home.exists();
         if (existing) {
+            console.info.println("updating home: " + home);
             migrate_3_1(console.info, home);
+        } else {
+            // make sure the setgid does not overrule the current group id
+            home.getParent().execNoOutput("chmod", "g-s", ".");
+            console.info.println("creating home: " + home);
         }
         try {
             new Install(console, true, world.file("/usr/share/stool"), world.file("/usr/share/man"), new HashMap<>())
@@ -68,12 +73,12 @@ public class DebianHome {
             run(log, home, "mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
             run(log, home, "mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
             run(log, home, "rm", "-rf", home.join("bin").getAbsolute());
-            fixPermissions(log, home);
+            fixPermissions(log, home, "/opt/ui/opt/tools/stool".equals(home.getAbsolute()) ? "users" : "stool");
         }
     }
 
-    public static void fixPermissions(PrintWriter log, FileNode dir) throws IOException {
-        run(log, dir, "chgrp", "-r", "stool", ".");
+    public static void fixPermissions(PrintWriter log, FileNode dir, String group) throws IOException {
+        run(log, dir, "chgrp", "-R", group, ".");
         run(log, dir, "sh", "-c", "find . -type d | xargs chmod g+s");
     }
 

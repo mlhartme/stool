@@ -141,11 +141,11 @@ public final class Files {
     }
 
     public static void setgid(FileNode dir) throws IOException {
-        dir.execNoOutput("chmod", "g+s", ".");
+        dir.execNoOutput("chmod", "g+s", dir.getAbsolute()); // . would be fine, but absolute path yields better exceptions
     }
 
     public static void groupDirectory(FileNode dir, String group) throws IOException {
-        dir.execNoOutput("chgrp", group, ".");
+        dir.execNoOutput("chgrp", group, dir.getAbsolute()); // . would be fine, but absolute path yields better exceptions
         setgid(dir);
     }
 
