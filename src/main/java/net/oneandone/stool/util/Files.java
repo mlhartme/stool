@@ -28,66 +28,6 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 public final class Files {
-    public static final Substitution S = new Substitution("${{", "}}", '\\');
-
-    public static void template(PrintWriter log, Node src, FileNode dest, Map<String, String> variables) throws IOException {
-        Filter selection;
-
-        // Permissions:
-        //
-        // template files are stool files, but some of the directories may contain none-stool files
-        // (e.g. tomcat/conf/Catalina). So we cannot remove the whole directory to create a fresh copy
-        // (also, we would loose log files by wiping the template) and we cannot simply update permissions
-        // for all files in the directory recursively
-        selection = src.getWorld().filter().includeAll();
-        new Copy(src, withoutBinary(selection), false, variables, S).directory(dest);
-        Files.backstageTree(log, dest);
-        for (Node file : dest.find("**/*.sh")) {
-            backstageExecutable(file);
-        }
-        for (Node binary : src.find(selection)) {
-            if (isBinary(binary.getName())) {
-                Files.backstageFile(binary.copyFile(dest.join(binary.getRelative(src))));
-            }
-        }
-    }
-
-    public static void backstageTree(PrintWriter log, FileNode dir) throws IOException {
-        Files.backstageDirectory(log, dir);
-        for (FileNode child : dir.list()) {
-            if (child.isDirectory()) {
-                backstageTree(log, child);
-            } else {
-                backstageFile(child);
-            }
-        }
-    }
-
-    //--
-
-    /** files without keyword substitution */
-    private static final String[] BINARY_EXTENSIONS = {".keystore", ".war", ".jar", ".gif", ".ico", ".class "};
-
-    public static boolean isBinary(String name) {
-        for (String ext : BINARY_EXTENSIONS) {
-            if (name.endsWith(ext)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static Filter withoutBinary(Filter orig) {
-        Filter result;
-
-        result = new Filter(orig);
-        for (String ext : BINARY_EXTENSIONS) {
-            result.exclude("**/*" + ext);
-        }
-        return result;
-    }
-
-    //--
     //
     // The method below adjust file permisions.
     //
@@ -114,26 +54,40 @@ public final class Files {
     //   files or application files.
     //
 
-    /** set permissions of a file that may be modified by any user */
+    /**
+     * Set permissions of a file that may be modified by any user.
+     * CAUTION: assumes that the files is owned by the current user (usually because it was just created by us),
+     * and we thus have permission to modify the file.
+     */
     public static Node backstageFile(Node file) throws IOException {
         permissions(file, "rw-rw-rw-");
         return file;
     }
 
+    /**
+     * CAUTION: assumes that the files is owned by the current user (usually because it was just created by us),
+     * and we thus have permission to modify the file.
+     */
     private static Node backstageExecutable(Node file) throws IOException {
         permissions(file, "rwxrwxr-x");
         return file;
     }
 
-    private static Node backstageDirectory(PrintWriter log, Node directory) throws IOException {
-        permissions(directory, "rwxrwxr-x");
+    /**
+     * CAUTION: assumes that the files is owned by the current user (usually because it was just created by us),
+     * and we thus have permission to modify the file.
+     */
+    public static void backstageTree(PrintWriter log, FileNode dir) throws IOException {
+        permissions(dir, "rwxrwxr-x");
         // TODO: this is expensive, but otherwise, the setgid bit inherited from the home directory is lost by the previous permissions call.
-        setgid(log, (FileNode) directory);
-        return directory;
-    }
-
-    public static void setgid(PrintWriter log, FileNode dir) throws IOException {
-        exec(log, dir, "chmod", "g+s", ".");
+        setgid(log, dir);
+        for (FileNode child : dir.list()) {
+            if (child.isDirectory()) {
+                backstageTree(log, child);
+            } else {
+                backstageFile(child);
+            }
+        }
     }
 
     public static Node createBackstageDirectoryOpt(PrintWriter log, FileNode directory) throws IOException {
@@ -158,16 +112,17 @@ public final class Files {
     }
 
     private static void permissions(Node file, String str) throws IOException {
-        String existing;
-
-        existing = file.getPermissions();
-        if (!existing.equals(str)) {
-            try {
-                file.setPermissions(str);
-            } catch (ModeException e) {
-                throw new IOException(file.toString() + ": cannot updated permissions from " + existing + " to " + str, e);
-            }
+        try {
+            file.setPermissions(str);
+        } catch (ModeException e) {
+            throw new IOException(file.toString() + ": cannot updated permissions to " + str, e);
         }
+    }
+
+    //--
+
+    public static void setgid(PrintWriter log, FileNode dir) throws IOException {
+        exec(log, dir, "chmod", "g+s", ".");
     }
 
     public static void fixPermissions(PrintWriter log, FileNode dir, String group) throws IOException {
@@ -179,6 +134,60 @@ public final class Files {
         log.println("[" + home + "] " + Separator.SPACE.join(cmd));
         home.execNoOutput(cmd);
     }
+
+
+    //-- templates
+
+
+    /** files without keyword substitution */
+    private static final String[] BINARY_EXTENSIONS = {".keystore", ".war", ".jar", ".gif", ".ico", ".class "};
+
+    public static boolean isBinary(String name) {
+        for (String ext : BINARY_EXTENSIONS) {
+            if (name.endsWith(ext)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static Filter withoutBinary(Filter orig) {
+        Filter result;
+
+        result = new Filter(orig);
+        for (String ext : BINARY_EXTENSIONS) {
+            result.exclude("**/*" + ext);
+        }
+        return result;
+    }
+
+
+    //--
+    public static final Substitution S = new Substitution("${{", "}}", '\\');
+
+    public static void template(PrintWriter log, Node src, FileNode dest, Map<String, String> variables) throws IOException {
+        Filter selection;
+
+        // Permissions:
+        //
+        // template files are stool files, but some of the directories may contain none-stool files
+        // (e.g. tomcat/conf/Catalina). So we cannot remove the whole directory to create a fresh copy
+        // (also, we would loose log files by wiping the template) and we cannot simply update permissions
+        // for all files in the directory recursively
+        selection = src.getWorld().filter().includeAll();
+        new Copy(src, withoutBinary(selection), false, variables, S).directory(dest);
+        Files.backstageTree(log, dest);
+        for (Node file : dest.find("**/*.sh")) {
+            backstageExecutable(file);
+        }
+        for (Node binary : src.find(selection)) {
+            if (isBinary(binary.getName())) {
+                Files.backstageFile(binary.copyFile(dest.join(binary.getRelative(src))));
+            }
+        }
+    }
+
+    //--
 
     private Files() {
     }
