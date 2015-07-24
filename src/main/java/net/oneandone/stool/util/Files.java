@@ -133,7 +133,7 @@ public final class Files {
         return file;
     }
 
-    public static Node stoolDirectory(Node directory) throws IOException {
+    private static Node stoolDirectory(Node directory) throws IOException {
         permissions(directory, "rwxrwxr-x");
         // TODO: this is expensive, but otherwise, the setgid bit inherited from the home directory is lost by the previous permissions call.
         setgid((FileNode) directory);
