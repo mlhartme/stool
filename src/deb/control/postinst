@@ -49,6 +49,7 @@ if [ "$1" = "configure" ]; then
 
     # TODO: should be possible to generate overview without MAVEN_HOME
     export MAVEN_HOME=/not/used/for/overview/stage
+    # "sg" is used to set the proper group if home is newly generated
     STOOL_BIN=${bin} sg ${group} "java -cp ${bin}/stool.jar net.oneandone.stool.setup.DebianHome ${home}"
     sudo -u ${user} ${bin}/stool-raw.sh chown -stage overview
 
