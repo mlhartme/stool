@@ -16,7 +16,6 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.sushi.fs.Copy;
-import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
@@ -56,9 +55,9 @@ public final class Files {
 
     //--
 
-    //-- Stage files
-    // * have stool as their group
-    // * setgid bit is set for directories
+    //-- Stage files:
+    // * group: stool or users
+    // * mode: setgid bit is set for directories
 
     /** Creates a directory that's readable for all stool group users. */
     public static void createStageDirectory(PrintWriter log, FileNode dir, String group) throws IOException {
@@ -68,13 +67,14 @@ public final class Files {
 
     /** Fixes permissions so that all files are stage files. */
     public static void stageTree(PrintWriter log, FileNode dir, String group) throws IOException {
+        // CAUTION: setPermission doesn't work, see the comment in createBackstageDirectory
         exec(log, dir, "chgrp", "-R", group, ".");
         exec(log, dir, "sh", "-c", "find . -type d | xargs chmod g+s");
     }
 
 
     // Backstage files
-    // * have stool as their group
+    // * group: stool or users
     // * directories have the setgid bit set
     // * permissions are rw-rw-r--
 
