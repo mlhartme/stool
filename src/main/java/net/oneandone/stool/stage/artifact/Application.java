@@ -128,7 +128,7 @@ public class Application {
 
 
     public Changes changes(FileNode shared, Users users) throws IOException {
-        Node file;
+        FileNode file;
         String svnurl;
         Changes changes;
 

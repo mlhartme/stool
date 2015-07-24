@@ -144,14 +144,14 @@ public final class Files {
         dir.execNoOutput("chmod", "g+s", dir.getAbsolute()); // . would be fine, but absolute path yields better exceptions
     }
 
-    public static Node createBackstageDirectoryOpt(Node directory) throws IOException {
+    public static Node createBackstageDirectoryOpt(FileNode directory) throws IOException {
         if (!directory.isDirectory()) {
             createBackstageDirectory(directory);
         }
         return directory;
     }
 
-    public static Node createBackstageDirectory(Node directory) throws IOException {
+    public static Node createBackstageDirectory(FileNode directory) throws IOException {
         directory.mkdir();
         stoolDirectory(directory);
         return directory;
