@@ -28,8 +28,7 @@ import java.util.Map;
 public final class Files {
     public static final Substitution S = new Substitution("${{", "}}", '\\');
 
-    public static void template(Node src, Node dest, Map<String, String> variables) throws IOException {
-        Copy template;
+    public static void template(Node src, FileNode dest, Map<String, String> variables) throws IOException {
         Filter selection;
 
         // Permissions:
@@ -39,9 +38,10 @@ public final class Files {
         // (also, we would loose log files by wiping the template) and we cannot simply update permissions
         // for all files in the directory recursively
         selection = src.getWorld().filter().includeAll();
-        template = new Copy(src, withoutBinary(selection), false, variables, S);
-        for (Node node : template.directory(dest)) {
-            Files.backstageNode(node);
+        new Copy(src, withoutBinary(selection), false, variables, S).directory(dest);
+        Files.backstageTree(dest);
+        for (Node file : dest.find("**/*.sh")) {
+            backstageExecutable(file);
         }
         for (Node binary : src.find(selection)) {
             if (isBinary(binary.getName())) {
@@ -111,16 +111,6 @@ public final class Files {
     //   another user who may use stool; he can modify stool files e.g. to start a stage, but he cannot modify source
     //   files or application files.
     //
-    public static Node backstageNode(Node node) throws IOException {
-        if (node.isDirectory()) {
-            backstageDirectory(node);
-        } else if (node.getName().endsWith(".sh")) {
-            backstageExecutable(node);
-        } else {
-            backstageFile(node);
-        }
-        return node;
-    }
 
     /** set permissions of a file that may be modified by any user */
     public static Node backstageFile(Node file) throws IOException {
