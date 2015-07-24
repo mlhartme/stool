@@ -21,7 +21,6 @@ import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.MkdirException;
-import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
@@ -151,7 +150,7 @@ public class Application {
             changes = SCMChangeCollector.run(currentWarFile(), futureWarFile(), users, svnurl);
         }
         Files.createBackstageDirectoryOpt(file.getParent());
-        Files.stoolFile(file.writeString(gson.toJson(changes)));
+        Files.backstageFile(file.writeString(gson.toJson(changes)));
         return changes;
     }
 

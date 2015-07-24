@@ -41,22 +41,22 @@ public final class Files {
         selection = src.getWorld().filter().includeAll();
         template = new Copy(src, withoutBinary(selection), false, variables, S);
         for (Node node : template.directory(dest)) {
-            Files.stoolNode(node);
+            Files.backstageNode(node);
         }
         for (Node binary : src.find(selection)) {
             if (isBinary(binary.getName())) {
-                Files.stoolFile(binary.copyFile(dest.join(binary.getRelative(src))));
+                Files.backstageFile(binary.copyFile(dest.join(binary.getRelative(src))));
             }
         }
     }
 
-    public static void stoolTree(FileNode dir) throws IOException {
-        Files.stoolDirectory(dir);
+    public static void backstageTree(FileNode dir) throws IOException {
+        Files.backstageDirectory(dir);
         for (FileNode child : dir.list()) {
             if (child.isDirectory()) {
-                stoolTree(child);
+                backstageTree(child);
             } else {
-                stoolFile(child);
+                backstageFile(child);
             }
         }
     }
@@ -111,29 +111,30 @@ public final class Files {
     //   another user who may use stool; he can modify stool files e.g. to start a stage, but he cannot modify source
     //   files or application files.
     //
-    public static Node stoolNode(Node node) throws IOException {
+    public static Node backstageNode(Node node) throws IOException {
         if (node.isDirectory()) {
-            stoolDirectory(node);
+            backstageDirectory(node);
         } else if (node.getName().endsWith(".sh")) {
-            stoolExecutable(node);
+            backstageExecutable(node);
         } else {
-            stoolFile(node);
+            backstageFile(node);
         }
         return node;
     }
 
     /** set permissions of a file that may be modified by any user */
-    public static Node stoolFile(Node file) throws IOException {
+    public static Node backstageFile(Node file) throws IOException {
         permissions(file, "rw-rw-rw-");
         return file;
     }
 
-    public static Node stoolExecutable(Node file) throws IOException {
+    public static Node backstageExecutable(Node file) throws IOException {
         permissions(file, "rwxrwxr-x");
         return file;
     }
 
-    private static Node stoolDirectory(Node directory) throws IOException {
+    /** creates a directory with mode 2775: writable for everybody in the group, with setgid. */
+    private static Node backstageDirectory(Node directory) throws IOException {
         permissions(directory, "rwxrwxr-x");
         // TODO: this is expensive, but otherwise, the setgid bit inherited from the home directory is lost by the previous permissions call.
         setgid((FileNode) directory);
@@ -153,7 +154,7 @@ public final class Files {
 
     public static Node createBackstageDirectory(FileNode directory) throws IOException {
         directory.mkdir();
-        stoolDirectory(directory);
+        backstageDirectory(directory);
         return directory;
     }
 

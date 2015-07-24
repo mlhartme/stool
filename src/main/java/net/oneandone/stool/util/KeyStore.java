@@ -56,7 +56,7 @@ public class KeyStore {
             workDir.launcher("keytool", "-importkeystore", "-srckeystore", pkcs12.getAbsolute(), "-srcstoretype",
               "pkcs12", "-destkeystore", file.getAbsolute(), "-deststoretype", "jks",
               "-deststorepass", password(), "-srcstorepass", password()).exec();
-            Files.stoolFile(file);
+            Files.backstageFile(file);
         } catch (Failure failure) {
             throw new IOException(failure);
         }
@@ -85,8 +85,8 @@ public class KeyStore {
         certificate = create(hostname);
         if (!(certificate.privateKey().exists() || certificate.certificate().exists())) {
             generate(getUrlStart + hostname);
-            Files.stoolFile(certificate.privateKey());
-            Files.stoolFile(certificate.certificate());
+            Files.backstageFile(certificate.privateKey());
+            Files.backstageFile(certificate.certificate());
         }
         return certificate;
     }

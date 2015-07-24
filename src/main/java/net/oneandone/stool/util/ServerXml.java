@@ -50,7 +50,7 @@ public class ServerXml {
 
     public void save(FileNode file) throws IOException {
         file.writeXml(document);
-        Files.stoolFile(file);
+        Files.backstageFile(file);
     }
 
     public void configure(Ports ports, KeyStore keystore, boolean cookies, Stage stage) throws XmlException {

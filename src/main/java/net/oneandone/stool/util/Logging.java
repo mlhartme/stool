@@ -76,7 +76,7 @@ public class Logging {
         setStage("", "");
         if (!file.exists()) {
             file.writeBytes();
-            Files.stoolFile(file);
+            Files.backstageFile(file);
         }
     }
 
@@ -130,7 +130,7 @@ public class Logging {
                     }
                     // Make sure the file is always group-writable, because all users share the same log file
                     // (The archived log is not a problems, because it's written exactly one, all later access is reading)
-                    Files.stoolFile(file);
+                    Files.backstageFile(file);
                 } catch (IOException e) {
                     throw new RuntimeException("TODO", e);
                 }

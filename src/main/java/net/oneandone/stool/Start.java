@@ -288,7 +288,7 @@ public class Start extends StageCommand {
                     "org.apache.catalina.core.ContainerBase.[Catalina].handlers = 1catalina.org.apache.juli.FileHandler"
             );
 
-            Files.stoolTree(dest);
+            Files.backstageTree(dest);
         }
     }
 

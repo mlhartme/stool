@@ -70,7 +70,7 @@ public class Bedroom {
     }
 
     public void save(Gson gson) throws IOException {
-        Files.stoolFile(file.writeString(gson.toJson(this)));
+        Files.backstageFile(file.writeString(gson.toJson(this)));
     }
 
     public int size() {

@@ -82,6 +82,6 @@ public class Lock {
 
     private void writeLockDescription(String description) throws IOException {
         lock.writeString(description);
-        Files.stoolFile(lock);
+        Files.backstageFile(lock);
     }
 }

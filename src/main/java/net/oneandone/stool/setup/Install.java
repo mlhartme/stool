@@ -174,7 +174,7 @@ public class Install {
     private void doCreateMan(FileNode destMan) throws IOException {
         Files.createBackstageDirectory(destMan);
         console.world.resource("templates/man").copyDirectory(destMan);
-        Files.stoolTree(destMan);
+        Files.backstageTree(destMan);
     }
 
     private Map<String, String> variables() {
