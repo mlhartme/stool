@@ -213,9 +213,9 @@ public class Create extends SessionCommand {
     private Stage create(FileNode backstage, String url) throws Exception {
         Stage stage;
 
-        Files.createStageDirectory(directory, session.group());
+        Files.createStageDirectory(console.verbose, directory, session.group());
         // CAUTION: create backstage before running possible prepare commands -- e.g. pws already populates the local repository of the stage
-        Files.createBackstageDirectory(backstage);
+        Files.createBackstageDirectory(console.verbose, backstage);
         stage = stage(backstage, url);
         stage.tuneConfiguration();
         for (Map.Entry<Property, String> entry : config.entrySet()) {

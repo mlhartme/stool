@@ -116,17 +116,17 @@ public class Install {
         StoolConfiguration conf;
 
         home.getParent().mkdirsOpt();
-        Files.createBackstageDirectory(home);
-        Files.setgid(home);
+        Files.createBackstageDirectory(console.verbose, home);
+        Files.setgid(console.verbose, home);
         conf = new StoolConfiguration(downloadCache(home));
         conf.shared = shared;
         tuneHostname(conf);
         tuneExplicit(conf);
-        Files.createBackstageDirectoryOpt(conf.downloadCache).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
+        Files.createBackstageDirectoryOpt(console.verbose, conf.downloadCache).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
         conf.save(Session.gson(home.getWorld(), ExtensionsFactory.create(home.getWorld())), home);
 
         for (String dir : new String[]{"extensions", "backstages", "inbox", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
-            Files.createBackstageDirectory(home.join(dir));
+            Files.createBackstageDirectory(console.verbose, home.join(dir));
         }
     }
 
@@ -143,8 +143,8 @@ public class Install {
         byte[] bytes;
         int ofs;
 
-        Files.createBackstageDirectory(destBin);
-        Files.template(console.world.resource("templates/bin"), destBin, variables);
+        Files.createBackstageDirectory(console.verbose, destBin);
+        Files.template(console.verbose, console.world.resource("templates/bin"), destBin, variables);
         if (withJar) {
             // strip launcher from application file
             bytes = console.world.locateClasspathItem(getClass()).readBytes();
@@ -172,9 +172,9 @@ public class Install {
     }
 
     private void doCreateMan(FileNode destMan) throws IOException {
-        Files.createBackstageDirectory(destMan);
+        Files.createBackstageDirectory(console.verbose, destMan);
         console.world.resource("templates/man").copyDirectory(destMan);
-        Files.backstageTree(destMan);
+        Files.backstageTree(console.verbose, destMan);
     }
 
     private Map<String, String> variables() {

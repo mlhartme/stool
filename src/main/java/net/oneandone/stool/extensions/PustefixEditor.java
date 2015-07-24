@@ -144,7 +144,7 @@ public class PustefixEditor implements Extension {
                 throw new IOException("Cannot download editor: " + e.getMessage(), e);
             }
             war.unjar(dest);
-            Files.backstageTree(dest);
+            Files.backstageTree(stage.session.console.verbose, dest);
         }
         // always update application list
         lines = new ArrayList<>();

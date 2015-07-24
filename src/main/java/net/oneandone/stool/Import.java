@@ -207,7 +207,7 @@ public class Import extends SessionCommand {
         FileNode backstage;
 
         directory = candidate.getDirectory();
-        DebianHome.fixPermissions(console.verbose, directory, session.group());
+        Files.fixPermissions(console.verbose, directory, session.group());
         backstage = session.backstages.join(forceName != null ? forceName : name(directory));
         return create(session, candidate.getUrl(), directory, backstage);
     }
@@ -220,7 +220,7 @@ public class Import extends SessionCommand {
         Stage stage;
 
         directory.checkDirectory();
-        Files.createBackstageDirectory(backstage);
+        Files.createBackstageDirectory(session.console.verbose, backstage);
         stage = Stage.createOpt(session, url, session.createStageConfiguration(url), backstage, directory);
         stage.tuneConfiguration();
         stage.initialize();

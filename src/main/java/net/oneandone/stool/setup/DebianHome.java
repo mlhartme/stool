@@ -16,6 +16,7 @@
 package net.oneandone.stool.setup;
 
 import net.oneandone.stool.util.Environment;
+import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -68,22 +69,12 @@ public class DebianHome {
     private static void migrate_3_1(PrintWriter log, FileNode home) throws IOException {
         if (home.join("bin").isDirectory()) {
             log.println("migrating 3.1 -> 3.2: " + home);
-            run(log, home, "mv", home.join("conf/overview.properties").getAbsolute(), home.join("overview.properties").getAbsolute());
-            run(log, home, "chown", "stool", home.join("overview.properties").getAbsolute());
-            run(log, home, "mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
-            run(log, home, "mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
-            run(log, home, "rm", "-rf", home.join("bin").getAbsolute());
-            fixPermissions(log, home, "/opt/ui/opt/tools/stool".equals(home.getAbsolute()) ? "users" : "stool");
+            Files.exec(log, home, "mv", home.join("conf/overview.properties").getAbsolute(), home.join("overview.properties").getAbsolute());
+            Files.exec(log, home, "chown", "stool", home.join("overview.properties").getAbsolute());
+            Files.exec(log, home, "mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
+            Files.exec(log, home, "mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
+            Files.exec(log, home, "rm", "-rf", home.join("bin").getAbsolute());
+            Files.exec(log, home, "/opt/ui/opt/tools/stool".equals(home.getAbsolute()) ? "users" : "stool");
         }
-    }
-
-    public static void fixPermissions(PrintWriter log, FileNode dir, String group) throws IOException {
-        run(log, dir, "chgrp", "-R", group, ".");
-        run(log, dir, "sh", "-c", "find . -type d | xargs chmod g+s");
-    }
-
-    public static void run(PrintWriter log, FileNode home, String ... cmd) throws IOException {
-        log.println("[" + home + "] " + Separator.SPACE.join(cmd));
-        home.execNoOutput(cmd);
     }
 }

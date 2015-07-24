@@ -20,15 +20,17 @@ import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
+import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Substitution;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Map;
 
 public final class Files {
     public static final Substitution S = new Substitution("${{", "}}", '\\');
 
-    public static void template(Node src, FileNode dest, Map<String, String> variables) throws IOException {
+    public static void template(PrintWriter log, Node src, FileNode dest, Map<String, String> variables) throws IOException {
         Filter selection;
 
         // Permissions:
@@ -39,7 +41,7 @@ public final class Files {
         // for all files in the directory recursively
         selection = src.getWorld().filter().includeAll();
         new Copy(src, withoutBinary(selection), false, variables, S).directory(dest);
-        Files.backstageTree(dest);
+        Files.backstageTree(log, dest);
         for (Node file : dest.find("**/*.sh")) {
             backstageExecutable(file);
         }
@@ -50,11 +52,11 @@ public final class Files {
         }
     }
 
-    public static void backstageTree(FileNode dir) throws IOException {
-        Files.backstageDirectory(dir);
+    public static void backstageTree(PrintWriter log, FileNode dir) throws IOException {
+        Files.backstageDirectory(log, dir);
         for (FileNode child : dir.list()) {
             if (child.isDirectory()) {
-                backstageTree(child);
+                backstageTree(log, child);
             } else {
                 backstageFile(child);
             }
@@ -118,41 +120,41 @@ public final class Files {
         return file;
     }
 
-    public static Node backstageExecutable(Node file) throws IOException {
+    private static Node backstageExecutable(Node file) throws IOException {
         permissions(file, "rwxrwxr-x");
         return file;
     }
 
-    private static Node backstageDirectory(Node directory) throws IOException {
+    private static Node backstageDirectory(PrintWriter log, Node directory) throws IOException {
         permissions(directory, "rwxrwxr-x");
         // TODO: this is expensive, but otherwise, the setgid bit inherited from the home directory is lost by the previous permissions call.
-        setgid((FileNode) directory);
+        setgid(log, (FileNode) directory);
         return directory;
     }
 
-    public static void setgid(FileNode dir) throws IOException {
-        dir.execNoOutput("chmod", "g+s", dir.getAbsolute()); // . would be fine, but absolute path yields better exceptions
+    public static void setgid(PrintWriter log, FileNode dir) throws IOException {
+        exec(log, dir, "chmod", "g+s", ".");
     }
 
-    public static Node createBackstageDirectoryOpt(FileNode directory) throws IOException {
+    public static Node createBackstageDirectoryOpt(PrintWriter log, FileNode directory) throws IOException {
         if (!directory.isDirectory()) {
-            createBackstageDirectory(directory);
+            createBackstageDirectory(log, directory);
         }
         return directory;
     }
 
     /** creates a directory with mode 2775: writable for everybody in the group, with setgid. */
-    public static Node createBackstageDirectory(FileNode directory) throws IOException {
+    public static Node createBackstageDirectory(PrintWriter log, FileNode directory) throws IOException {
         // java.nio.file has code to set posix permissions, but not setgid (they even overwrite the setgid bit
-        directory.getParent().execNoOutput("mkdir", "-m", "2775", directory.getName());
+        exec(log, directory.getParent(), "mkdir", "-m", "2775", directory.getName());
         return directory;
     }
 
     /** Creates a directory that's readable for all stool group users. */
-    public static void createStageDirectory(FileNode dir, String group) throws IOException {
+    public static void createStageDirectory(PrintWriter log, FileNode dir, String group) throws IOException {
         dir.mkdir();
-        dir.execNoOutput("chgrp", group, dir.getAbsolute()); // . would be fine, but absolute path yields better exceptions
-        setgid(dir);
+        exec(log, dir, "chgrp", group, dir.getAbsolute()); // . would be fine, but absolute path yields better exceptions
+        setgid(log, dir);
     }
 
     private static void permissions(Node file, String str) throws IOException {
@@ -166,6 +168,16 @@ public final class Files {
                 throw new IOException(file.toString() + ": cannot updated permissions from " + existing + " to " + str, e);
             }
         }
+    }
+
+    public static void fixPermissions(PrintWriter log, FileNode dir, String group) throws IOException {
+        exec(log, dir, "chgrp", "-R", group, ".");
+        exec(log, dir, "sh", "-c", "find . -type d | xargs chmod g+s");
+    }
+
+    public static void exec(PrintWriter log, FileNode home, String ... cmd) throws IOException {
+        log.println("[" + home + "] " + Separator.SPACE.join(cmd));
+        home.execNoOutput(cmd);
     }
 
     private Files() {

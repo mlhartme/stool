@@ -183,11 +183,11 @@ public class Start extends StageCommand {
         FileNode shared;
 
         shared = stage.shared();
-        Files.template(world.resource("templates/stage"), shared, variables(stage, ports));
+        Files.template(console.verbose, world.resource("templates/stage"), shared, variables(stage, ports));
         // manually create empty subdirectories, because git doesn't know them
         // CAUTION: the log directory is created by "stool create" (because it contains log files)
         for (String dir : new String[] {"ssl", "run" }) {
-            Files.createBackstageDirectoryOpt(shared.join(dir));
+            Files.createBackstageDirectoryOpt(console.verbose, shared.join(dir));
         }
     }
 
@@ -288,7 +288,7 @@ public class Start extends StageCommand {
                     "org.apache.catalina.core.ContainerBase.[Catalina].handlers = 1catalina.org.apache.juli.FileHandler"
             );
 
-            Files.backstageTree(dest);
+            Files.backstageTree(console.verbose, dest);
         }
     }
 
