@@ -133,7 +133,6 @@ public final class Files {
         return file;
     }
 
-    /** creates a directory with mode 2775: writable for everybody in the group, with setgid. */
     private static Node backstageDirectory(Node directory) throws IOException {
         permissions(directory, "rwxrwxr-x");
         // TODO: this is expensive, but otherwise, the setgid bit inherited from the home directory is lost by the previous permissions call.
@@ -152,9 +151,10 @@ public final class Files {
         return directory;
     }
 
+    /** creates a directory with mode 2775: writable for everybody in the group, with setgid. */
     public static Node createBackstageDirectory(FileNode directory) throws IOException {
-        directory.mkdir();
-        backstageDirectory(directory);
+        // java.nio.file has code to set posix permissions, but not setgid (they even overwrite the setgid bit
+        directory.getParent().execNoOutput("mkdir", "-m", "2775", directory.getName());
         return directory;
     }
 
