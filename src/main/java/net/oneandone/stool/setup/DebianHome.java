@@ -74,7 +74,7 @@ public class DebianHome {
             Files.exec(log, home, "mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
             Files.exec(log, home, "mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
             Files.exec(log, home, "rm", "-rf", home.join("bin").getAbsolute());
-            Files.exec(log, home, "/opt/ui/opt/tools/stool".equals(home.getAbsolute()) ? "users" : "stool");
+            Files.exec(log, home, "chgrp", "/opt/ui/opt/tools/stool".equals(home.getAbsolute()) ? "users" : "stool", ".");
         }
     }
 }

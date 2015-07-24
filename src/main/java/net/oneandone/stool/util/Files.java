@@ -16,6 +16,7 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.sushi.fs.Copy;
+import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
@@ -103,7 +104,7 @@ public final class Files {
      * and we thus have permission to modify the file.
      */
     public static Node backstageFile(Node file) throws IOException {
-        file.setPermissions("rw-rw-rw-");
+        permissions(file, "rw-rw-r--");
         return file;
     }
 
@@ -112,20 +113,37 @@ public final class Files {
      * and we thus have permission to modify the file.
      */
     private static Node backstageExecutable(Node file) throws IOException {
-        file.setPermissions("rwxrwxr-x");
+        permissions(file, "rwxrwxr-x");
         return file;
+    }
+
+    private static void permissions(Node file, String permissions) throws ModeException {
+        // TODO: if Java overwrites an existing file, ownership and permissions are not changed!
+        // As a consequence. setPermissions would fail
+        String old;
+
+        old = file.getPermissions();
+        if (!old.equals(permissions)) {
+            file.setPermissions(permissions);
+        }
+    }
+
+    public static void backstageTree(PrintWriter log, FileNode dir) throws IOException {
+        backstageTree(log, dir, true);
     }
 
     /**
      * CAUTION: assumes that the files is owned by the current user (usually because it was just created by us),
      * and we thus have permission to modify the file.
      */
-    public static void backstageTree(PrintWriter log, FileNode dir) throws IOException {
+    public static void backstageTree(PrintWriter log, FileNode dir, boolean withDir) throws IOException {
         // TODO: this is expensive, but otherwise, the setgid bit inherited from the home directory is lost by the previous permissions call.
-        exec(log, dir, "chmod", "2775", ".");
+        if (withDir) {
+            exec(log, dir, "chmod", "2775", ".");
+        }
         for (FileNode child : dir.list()) {
             if (child.isDirectory()) {
-                backstageTree(log, child);
+                backstageTree(log, child, true);
             } else {
                 backstageFile(child);
             }
@@ -171,6 +189,7 @@ public final class Files {
     public static void template(PrintWriter log, Node src, FileNode dest, Map<String, String> variables) throws IOException {
         Filter selection;
 
+        dest.checkDirectory();
         // Permissions:
         //
         // template files are stool files, but some of the directories may contain none-stool files
@@ -179,7 +198,7 @@ public final class Files {
         // for all files in the directory recursively
         selection = src.getWorld().filter().includeAll();
         new Copy(src, withoutBinary(selection), false, variables, S).directory(dest);
-        Files.backstageTree(log, dest);
+        Files.backstageTree(log, dest, false /* because dest was pre-created */);
         for (Node file : dest.find("**/*.sh")) {
             backstageExecutable(file);
         }
