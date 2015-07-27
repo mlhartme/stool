@@ -513,7 +513,7 @@ public abstract class Stage {
     }
 
     public void initialize() throws IOException {
-        Files.createBackstageDirectory(session.console.verbose, shared());
+        Files.createStoolDirectory(session.console.verbose, shared());
         directory.link(anchor());
         session.saveStageProperties(configuration, backstage);
     }

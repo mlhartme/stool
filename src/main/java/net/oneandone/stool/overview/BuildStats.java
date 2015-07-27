@@ -82,7 +82,7 @@ public class BuildStats {
     }
 
     public void save() throws IOException {
-        Files.backstageFile(file.writeString(gson.toJson(this)));
+        Files.stoolFile(file.writeString(gson.toJson(this)));
     }
 
     public void add(String command, long latest) {

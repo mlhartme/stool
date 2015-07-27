@@ -187,7 +187,7 @@ public class Start extends StageCommand {
         // manually create empty subdirectories, because git doesn't know them
         // CAUTION: the log directory is created by "stool create" (because it contains log files)
         for (String dir : new String[] {"ssl", "run" }) {
-            Files.createBackstageDirectoryOpt(console.verbose, shared.join(dir));
+            Files.createStoolDirectoryOpt(console.verbose, shared.join(dir));
         }
     }
 
@@ -288,7 +288,7 @@ public class Start extends StageCommand {
                     "org.apache.catalina.core.ContainerBase.[Catalina].handlers = 1catalina.org.apache.juli.FileHandler"
             );
 
-            Files.backstageTree(console.verbose, dest);
+            Files.stoolTree(console.verbose, dest);
         }
     }
 
