@@ -143,23 +143,17 @@ public final class Files {
         }
     }
 
-    public static void stoolTree(PrintWriter log, FileNode dir) throws IOException {
-        stoolTree(log, dir, true);
-    }
-
     /**
      * Adjusts permissions for a tree of backstage files. The group is not touched.
      *
      * CAUTION: assumes that the files is owned by the current user (usually because it was just created by us) or otherwise
      * already has the proper permissions.
      */
-    public static void stoolTree(PrintWriter log, FileNode dir, boolean withDir) throws IOException {
-        if (withDir) {
-            stoolDirectory(log, dir);
-        }
+    public static void stoolTree(PrintWriter log, FileNode dir) throws IOException {
+        stoolDirectory(log, dir);
         for (FileNode child : dir.list()) {
             if (child.isDirectory()) {
-                stoolTree(log, child, true);
+                stoolTree(log, child);
             } else {
                 stoolFile(child);
             }
@@ -200,6 +194,7 @@ public final class Files {
 
 
     //--
+
     public static final Substitution S = new Substitution("${{", "}}", '\\');
 
     public static void template(PrintWriter log, Node src, FileNode dest, Map<String, String> variables) throws IOException {
