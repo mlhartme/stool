@@ -182,11 +182,8 @@ public class Install {
         result = new HashMap<>();
         result.put("stool.bin", bin.getAbsolute());
         result.put("man.path", "/usr/share/man".equals(man.getAbsolute()) ? "" :
-                "if [ -z $MANPATH ] ; then\n" +
-                "  export MANPATH=" + man.getAbsolute() + "\n" +
-                "else\n" +
-                "  export MANPATH=" + man.getAbsolute() + ":$MANPATH\n" +
-                "fi\n");
+                "# note that the empty entry instructs man to search locations" +
+                "export MANPATH=" + man.getAbsolute() + ":$MANPATH\n");
         return result;
     }
 
