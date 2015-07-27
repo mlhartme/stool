@@ -4,7 +4,6 @@ import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Command;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Remaining;
-import net.oneandone.sushi.fs.file.FileNode;
 
 public class Help implements Command {
     private final Console console;
@@ -25,10 +24,18 @@ public class Help implements Command {
 
     @Override
     public void invoke() throws Exception {
+        ProcessBuilder builder;
+        Process process;
+
         if (command == null) {
             printHelp();
         } else {
-            ((FileNode) console.world.getWorking()).launcher("man", "stool-" + command).exec(console.info, null, true, null, true);
+            builder = new ProcessBuilder();
+            builder.directory(null /* use current directory */);
+            builder.command("man", "stool-" + command);
+            builder.inheritIO();
+            process = builder.start();
+            process.waitFor();
         }
     }
 
