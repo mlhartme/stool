@@ -8,7 +8,7 @@
 # Should-Stop:     sssd
 # Default-Start:   2 3 4 5
 # Default-Stop:    0 1 6
-# Short-Description: Start Stool stages
+# Short-Description: Stage tool
 ### END INIT INFO
 
 # Note: we need sssd to stop the stool service on stagehosts, otherwise sudo rejects unknown users
