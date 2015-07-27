@@ -5,7 +5,7 @@
         Renamed user "servlet" to "stool".
       </action>
       <action date="2015-07-23" dev="mlhartme" type="fix">
-        Fixed setgid handling.
+        Properly set setgid bit for home directory and every stage directory.
       </action>
       <action date="2015-07-22" dev="mlhartme" type="update">
         Moved $STOOL_HOME/conf/overview.properties to $STOOL_HOME/overview.properties.

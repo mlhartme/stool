@@ -2,6 +2,7 @@
 
 set -e
 
+echo "calling prerm $1 ..."
 case "$1" in
     remove|upgrade)
         # TODO: upgrade could be much cheaper:

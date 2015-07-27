@@ -138,6 +138,9 @@ public class StageConfiguration {
         this.tomcatPerm = 64;
         this.tomcatSelect = new ArrayList<>();
         this.tomcatEnv = new ArrayList<>();
+        this.tomcatEnv.add("USER");
+        this.tomcatEnv.add("HOME");
+        this.tomcatEnv.add("PATH");
         this.javaHome = javaHome;
         this.mavenHome = mavenHome;
         this.mavenOpts = "";

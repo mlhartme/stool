@@ -240,21 +240,11 @@ public class Install {
         tomcatOpts += "-Doverview.stool.bin=" + session.bin.getAbsolute();
         create.remaining("tomcat.opts=" + tomcatOpts);
         create.remaining("until=reserved");
-        create.remaining("tomcat.env=" + environment());
         try {
             create.doInvoke();
         } catch (Exception e) {
             throw new IOException(e);
         }
-    }
-
-    // make sure the overview sees all environment variables, because the build command expects this environment
-    private static String environment() {
-        List<String> keys;
-
-        keys = new ArrayList<>(System.getenv().keySet());
-        Collections.sort(keys);
-        return Separator.COMMA.join(keys);
     }
 
     private static FileNode overviewDirectory(Session session) {
