@@ -2,7 +2,7 @@
   <body>
     <release version="3.2.0">
       <action date="2015-07-28" dev="mlhartme" type="fix">
-        Fix persistent ldap connection in overview.
+        Fix persistent ldap connection problem in overview.
       </action>
       <action date="2015-07-23" dev="mlhartme" type="update">
         Renamed user "servlet" to "stool".
