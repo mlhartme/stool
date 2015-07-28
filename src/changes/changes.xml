@@ -4,6 +4,9 @@
       <action date="2015-07-23" dev="mlhartme" type="update">
         Renamed user "servlet" to "stool".
       </action>
+      <action date="2015-07-23" dev="mlhartme" type="update">
+        Changed permission for stool files from 666 to 664.
+      </action>
       <action date="2015-07-23" dev="mlhartme" type="fix">
         Properly set setgid bit for home directory and every stage directory.
       </action>

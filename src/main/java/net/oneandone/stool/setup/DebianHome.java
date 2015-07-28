@@ -71,6 +71,7 @@ public class DebianHome {
             log.println("migrating 3.1 -> 3.2: " + home);
             Files.exec(log, home, "mv", home.join("conf/overview.properties").getAbsolute(), home.join("overview.properties").getAbsolute());
             Files.exec(log, home, "sh", "-c", "find . -user servlet | xargs chown stool");
+            Files.exec(log, home, "sh", "-c", "find . -perm 666 | xargs chmod 664");
             Files.exec(log, home, "mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
             Files.exec(log, home, "mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
             Files.exec(log, home, "rm", "-rf", home.join("bin").getAbsolute());
