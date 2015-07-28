@@ -39,7 +39,7 @@
         accross file now, because a command started before midnight may finish the next day.
       </action>
       <action date="2015-07-10" dev="mlhartme" type="add">
-        stool -exception throws an intentional now. To test error tool.
+        stool -exception throws an intentional exception now. To test error tool.
       </action>
       <action date="2015-07-10" dev="mlhartme" type="fix">
         Source stages: properly detect web application directory even if they have now web.xml.
