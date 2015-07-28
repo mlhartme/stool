@@ -25,6 +25,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
+import java.rmi.Naming;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -135,6 +136,12 @@ public class Ldap {
             // caution: creating this context is expensive
             lazyContext = new InitialLdapContext(environment, null);
         }
-        return lazyContext.search(name, matchAttrs);
+        try {
+            return lazyContext.search(name, matchAttrs);
+        } catch (NamingException e) {
+            // reset LdapContext, the connection is broken
+            lazyContext = null;
+            throw e;
+        }
     }
 }
