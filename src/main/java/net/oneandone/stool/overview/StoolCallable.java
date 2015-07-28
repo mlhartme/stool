@@ -78,7 +78,7 @@ public class StoolCallable implements Callable<Failure> {
         launcher.arg(command, "-stage", stage.getName());
         launcher.arg(options);
         try (PrintWriter writer = new PrintWriter(logDir.join(id + ".log").createWriter())) {
-            writer.println(hide(launcher.toString(), subversion.password));
+            writer.println(hide(hide(launcher.toString(), subversion.password), subversion.username));
             running = logDir.join(id + ".running").mkfile();
             try {
                 launcher.exec(writer);
