@@ -280,6 +280,13 @@
         <groupId>com.agilejava.docbkx</groupId>
         <artifactId>docbkx-maven-plugin</artifactId>
         <version>2.0.16</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-trax</artifactId>
+            <version>1.7.0</version>
+          </dependency>
+        </dependencies>
         <configuration>
           <sourceDirectory>src/site/manual</sourceDirectory>
           <includes>manual.xml</includes>
@@ -290,6 +297,9 @@
             </tstamp>
             <mkdir dir="${project.build.directory}/site/manual" />
             <echo file="${project.build.directory}/now.txt">${now}</echo>
+            <xslt processor="trax" in="${basedir}/src/site/manual/manual.xml" out="${project.build.directory}/synopsis.xml"
+                  style="${basedir}/src/site/synopsis.xsl">
+            </xslt>
           </preProcess>
         </configuration>
         <executions>

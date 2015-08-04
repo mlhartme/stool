@@ -294,17 +294,14 @@ http://docbook.org/ns/docbook ">
 
         <refnamediv>
           <refname>stool</refname>
-          <refpurpose>stool cli</refpurpose>
+          <refpurpose>stool command-line interface</refpurpose>
         </refnamediv>
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool</command>
-          </cmdsynopsis>
-        </refsynopsisdiv>
+        <xi:include href="../../../target/synopsis.xml" parse="xml"/>
 
         <refsect1><title>Description</title>
           <para>
+            Invoke 'stool help &ltcommand>' to see more details.
           </para>
         </refsect1>
 
@@ -366,7 +363,7 @@ http://docbook.org/ns/docbook ">
 
           <refsect1><title>Description</title>
             <para>
-              Stops the overview stage and sends all running stages to sleep.
+              Stops the overview stage and sends all other running stages to sleep.
             </para>
           </refsect1>
         </refentry>
@@ -976,8 +973,7 @@ http://docbook.org/ns/docbook ">
 
         <refsynopsisdiv>
           <cmdsynopsis>
-            <command>stool move</command>
-            <arg rep="plain"><replaceable>dest</replaceable></arg>
+            <command>stool list</command>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
@@ -1000,8 +996,7 @@ http://docbook.org/ns/docbook ">
 
         <refsynopsisdiv>
           <cmdsynopsis>
-            <command>stool move</command>
-            <arg rep="plain"><replaceable>dest</replaceable></arg>
+            <command>stool cleanup</command>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
