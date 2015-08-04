@@ -34,14 +34,11 @@
 
     <enforcer.skip>true</enforcer.skip>
 
-    <!-- disabled because it complain about comment-only code blocks -->
+    <!-- disabled because it complains about comment-only code blocks -->
     <pmd.skip>true</pmd.skip>
 
     <!-- too picky -->
     <cpd.skip>true</cpd.skip>
-
-    <!-- TODO: fails with Java 8 -->
-    <findbugs.skip>true</findbugs.skip>
 
     <jacoco.skip>true</jacoco.skip>
 
