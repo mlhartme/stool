@@ -85,7 +85,7 @@ public class Logging {
         stageName = name;
     }
 
-    public void configureRootLogger() throws IOException {
+    public void configureRootLogger() {
         Logger root;
 
         // adjust the default configuration
@@ -95,7 +95,7 @@ public class Logging {
         root.setLevel(Level.INFO);
     }
 
-    public PrintWriter writer(OutputStream stream, String logger) throws IOException {
+    public PrintWriter writer(OutputStream stream, String logger) {
         PrintWriter result;
 
         result = new PrintWriter(MultiOutputStream.createTeeStream(stream, new Slf4jOutputStream(logger(logger), false)), true);
@@ -104,7 +104,7 @@ public class Logging {
         return result;
     }
 
-    public Logger logger(String name) throws IOException {
+    public Logger logger(String name) {
         Logger result;
 
         result = context.getLogger(name);

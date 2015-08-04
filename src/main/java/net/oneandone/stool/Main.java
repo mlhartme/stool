@@ -71,7 +71,7 @@ public class Main extends Cli implements Command {
         }
     }
 
-    public static Console console(World world, Logging logging, OutputStream out, OutputStream err) throws IOException {
+    public static Console console(World world, Logging logging, OutputStream out, OutputStream err) {
         return new Console(world, logging.writer(out, "OUT"), logging.writer(err, "ERR"),
                 new InputLogStream(System.in, new Slf4jOutputStream(logging.logger("IN"), true)));
     }

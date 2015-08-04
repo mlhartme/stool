@@ -15,10 +15,8 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
 
-import javax.naming.NamingException;
 import java.io.IOException;
 
 public class SCMChangeCollector {
@@ -31,17 +29,13 @@ public class SCMChangeCollector {
         futureRev = future.revision();
 
         changeCollector = new SCMChangeCollector(svnurl, currentRev + 1, futureRev, users);
-        try {
-            return changeCollector.collect();
-        } catch (UserNotFound | NamingException e) {
-            throw new IOException("error collecting changelog: " + e.getMessage(), e);
-        }
+        return changeCollector.collect();
     }
 
     private final long revisionA;
     private final long revisionB;
     private final String url;
-    private Users users;
+    private final Users users;
 
     public SCMChangeCollector(String url, long revisionA, long revisionB, Users users) {
         this.revisionA = revisionA;
@@ -50,7 +44,7 @@ public class SCMChangeCollector {
         this.users = users;
     }
 
-    public Changes collect() throws IOException, NamingException, UserNotFound {
+    public Changes collect() {
         Changes changes;
 
         // TODO

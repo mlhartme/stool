@@ -246,16 +246,11 @@ public abstract class Stage {
     }
 
     /** @return pid or null */
-    public FileNode tomcatPidFile() throws IOException {
-        return runFile("tomcat.pid");
+    public FileNode tomcatPidFile() {
+        return shared().join("run", "tomcat.pid");
     }
 
     //--
-
-    /** @return pid or null */
-    private FileNode runFile(String name) throws IOException {
-        return shared().join("run", name);
-    }
 
     /** @return vhost to docroot mapping, where vhost is artifactId + "." + stageName, to uniquely identify the host */
     public abstract Map<String, FileNode> hosts() throws IOException;
@@ -460,11 +455,11 @@ public abstract class Stage {
     }
 
 
-    public Launcher launcher(String... command) throws ModeException {
+    public Launcher launcher(String... command) {
         return launcher(directory, command);
     }
 
-    public Launcher launcher(FileNode working, String... command) throws ModeException {
+    public Launcher launcher(FileNode working, String... command) {
         Launcher launcher;
 
         launcher = new Launcher(working, command);
@@ -570,7 +565,7 @@ public abstract class Stage {
             lazyMacros.addAll(session.configuration.macros);
             lazyMacros.add("directory", getDirectory().getAbsolute());
             lazyMacros.add("localRepository", localRepository().getAbsolute());
-            lazyMacros.add("proxyOpts", session.environment.proxyOpts(false));
+            lazyMacros.add("proxyOpts", session.environment.proxyOpts());
             lazyMacros.add("svnCredentials", Separator.SPACE.join(session.subversion().svnCredentials()));
             lazyMacros.add("stoolSvnCredentials", stoolSvnCredentials());
         }
@@ -630,7 +625,7 @@ public abstract class Stage {
         return false;
     }
 
-    public Changes changes() throws IOException {
+    public Changes changes() {
         return new Changes();
     }
     public FileNode localRepository() {

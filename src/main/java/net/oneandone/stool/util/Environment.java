@@ -185,8 +185,8 @@ public class Environment {
 
     //-- proxyOpts
 
-    public String proxyOpts(boolean quote) {
-        return proxyOpts(quote, getOpt("http_proxy"), getOpt("https_proxy"), getOpt("no_proxy"));
+    public String proxyOpts() {
+        return proxyOpts(false, getOpt("http_proxy"), getOpt("https_proxy"), getOpt("no_proxy"));
     }
 
     /**

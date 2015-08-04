@@ -52,7 +52,7 @@ public class Pustefix implements Extension {
     }
 
     @Override
-    public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) throws XmlException {
+    public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) {
         String app;
 
         app = host.substring(0, host.indexOf('.'));

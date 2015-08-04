@@ -235,7 +235,7 @@ public class ArtifactStage extends Stage {
     }
 
     @Override
-    public Changes changes() throws IOException {
+    public Changes changes() {
         return applications.changes(shared(), session.users);
     }
 }

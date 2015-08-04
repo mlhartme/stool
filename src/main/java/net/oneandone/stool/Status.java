@@ -45,7 +45,7 @@ public class Status extends StageCommand {
 
     private final List<Field> selected = new ArrayList<>();
 
-    public Status(Session session) throws IOException {
+    public Status(Session session) {
         super(session);
     }
 

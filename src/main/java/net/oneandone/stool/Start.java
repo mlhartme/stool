@@ -56,7 +56,7 @@ public class Start extends StageCommand {
     @Option("tail")
     private boolean tail = false;
 
-    public Start(Session session, boolean debug, boolean suspend) throws IOException {
+    public Start(Session session, boolean debug, boolean suspend) {
         super(session);
         this.debug = debug;
         this.suspend = suspend;
@@ -140,7 +140,7 @@ public class Start extends StageCommand {
 
     }
 
-    private void ping(Stage stage) throws IOException, SAXException, URISyntaxException, InterruptedException {
+    private void ping(Stage stage) throws IOException, URISyntaxException, InterruptedException {
         URI uri;
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(500);

@@ -52,7 +52,7 @@ public class Applications {
         return Collections.unmodifiableList(artifacts);
     }
 
-    public Changes changes(FileNode shared, Users users) throws IOException {
+    public Changes changes(FileNode shared, Users users) {
         if (lazyChanges == null) {
             lazyChanges = new Changes();
             /* TODO disabled for now ...

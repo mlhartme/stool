@@ -28,7 +28,7 @@ public class Rename extends StageCommand {
     @Value(name = "name", position = 1)
     private String name;
 
-    public Rename(Session session) throws IOException {
+    public Rename(Session session) {
         super(session);
     }
 

@@ -54,7 +54,7 @@ public class Create extends SessionCommand {
 
     private FileNode directory;
 
-    private Map<Property, String> config = new LinkedHashMap<>();
+    private final Map<Property, String> config = new LinkedHashMap<>();
 
     private StageConfiguration stageConfiguration;
 

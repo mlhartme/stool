@@ -27,7 +27,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 public class ErrorTool {
-    public static void send(URL url, Level level, String hostname, String subject, Throwable e) throws IOException {
+    public static void error(URL url, String hostname, String subject, Throwable e) throws IOException {
         StringWriter dest;
         PrintWriter writer;
 
@@ -41,7 +41,7 @@ public class ErrorTool {
             }
             dest.append("Caused by:\n");
         }
-        send(url, level, hostname, subject, dest.getBuffer().toString());
+        send(url, Level.ERROR, hostname, subject, dest.getBuffer().toString());
     }
 
     private static void send(URL url, Level level, String hostname, String subject, String body) throws IOException {

@@ -84,7 +84,7 @@ public class ProcessesController {
         return new ResponseEntity<>(output.toString(), headers, HttpStatus.OK);
     }
 
-    public Node logFile(String id) throws InterruptedException, ExistsException, MkdirException {
+    public Node logFile(String id) throws InterruptedException, ExistsException {
         Node logfile;
 
         logfile = logs.join(id + ".log");

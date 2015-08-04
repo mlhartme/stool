@@ -246,7 +246,7 @@ public class SystemImport extends SessionCommand {
         config.save(session.gson, file);
     }
 
-    public static String mergeConfig(String srcString, String destString, Object mapper) throws IOException {
+    public static String mergeConfig(String srcString, String destString, Object mapper) {
         JsonParser parser;
         JsonObject src;
         JsonObject dest;

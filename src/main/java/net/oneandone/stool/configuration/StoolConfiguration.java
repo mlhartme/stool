@@ -176,7 +176,7 @@ public class StoolConfiguration {
         configurationFile(home).writeString(gson.toJson(this, StoolConfiguration.class));
     }
 
-    public void setDefaults(Map<String, Property> properties, StageConfiguration configuration, String url) throws IOException {
+    public void setDefaults(Map<String, Property> properties, StageConfiguration configuration, String url) {
         Property property;
 
         for (Map.Entry<String, Map<String, String>> outer : defaults.entrySet()) {

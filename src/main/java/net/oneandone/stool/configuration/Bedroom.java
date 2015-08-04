@@ -48,7 +48,7 @@ public class Bedroom {
 
     //--
 
-    public List<String> sleep;
+    public final List<String> sleep;
 
     private transient FileNode file;
 

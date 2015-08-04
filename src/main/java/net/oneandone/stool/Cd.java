@@ -39,7 +39,7 @@ public class Cd extends StageCommand {
         this.target = str;
     }
 
-    public Cd(Session session) throws IOException {
+    public Cd(Session session) {
         super(session);
     }
 

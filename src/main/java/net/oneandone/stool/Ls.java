@@ -39,7 +39,7 @@ public class Ls extends StageCommand {
     }
 
     @Override
-    public boolean doBefore(List<Stage> stages, int indent) throws IOException {
+    public boolean doBefore(List<Stage> stages, int indent) {
         header("stages");
         message(Strings.padLeft("{name}   ", indent) + NOT_SELECTED + Strings.padRight("state", STATE_WIDTH)
           + Strings.padRight("owner", OWNER_WIDTH) + "url");

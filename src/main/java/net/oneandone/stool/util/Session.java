@@ -155,7 +155,7 @@ public class Session {
     private final Subversion subversion;
 
     private String selectedStageName;
-    private String stageIdPrefix;
+    private final String stageIdPrefix;
     private int nextStageId;
     public final Users users;
 
@@ -203,7 +203,7 @@ public class Session {
         if (configuration.errorTool != null) {
             try {
                 url = new URL(configuration.errorTool);
-                ErrorTool.send(url, Level.ERROR, user + "@" + configuration.hostname, header, e);
+                ErrorTool.error(url, user + "@" + configuration.hostname, header, e);
             } catch (IOException suppressed) {
                 LOG.error("suppressed: " + e.getMessage(), e);
             }
@@ -225,7 +225,7 @@ public class Session {
 
     //-- environment handling
 
-    public static int memTotal() throws IOException {
+    public static int memTotal() {
         long result;
 
         result = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
@@ -271,7 +271,7 @@ public class Session {
     }
 
 
-    public void select(Stage selected) throws ModeException {
+    public void select(Stage selected) {
         if (selected == null) {
             throw new IllegalArgumentException();
         }
@@ -279,7 +279,7 @@ public class Session {
         environment.setAll(environment(selected));
     }
 
-    public void backupEnvironment() throws ModeException {
+    public void backupEnvironment() {
         String backupKey;
         String backupValue;
 
@@ -293,7 +293,7 @@ public class Session {
         }
     }
 
-    public void resetEnvironment() throws IOException {
+    public void resetEnvironment() {
         Environment reset;
         String backupKey;
         String backupValue;
@@ -351,7 +351,7 @@ public class Session {
         return selectedStageName;
     }
 
-    public Environment environment(Stage stage) throws ModeException {
+    public Environment environment(Stage stage) {
         Environment env;
         String stoolIndicator;
         String mavenOpts;

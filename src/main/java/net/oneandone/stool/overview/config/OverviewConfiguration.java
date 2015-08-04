@@ -98,7 +98,7 @@ public class OverviewConfiguration {
     }
 
     @Bean
-    public FileNode logs() throws IOException {
+    public FileNode logs() {
         return world().file(System.getProperty("catalina.base")).join("logs");
     }
 

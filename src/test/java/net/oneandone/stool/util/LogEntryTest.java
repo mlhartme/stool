@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 
 public class LogEntryTest {
     @Test
-    public void normal() throws Exception {
+    public void normal() {
         LogEntry entry;
 
         entry = LogEntry.parse("10:12:12,948|20131128-32|net.oneandone.sushi.cli.Command|mabraun|stageId|stageName|message with | separator \n");

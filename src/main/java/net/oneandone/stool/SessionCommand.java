@@ -146,7 +146,7 @@ public abstract class SessionCommand implements Command {
 
     private static final long MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
 
-    public void updateCheck() throws URISyntaxException, IOException {
+    public void updateCheck() throws IOException {
         List<FileNode> updates;
         FileNode checked;
 

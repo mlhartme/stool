@@ -178,7 +178,7 @@ public abstract class StageCommand extends SessionCommand {
     }
 
     /* @return true to use prefix stream */
-    public boolean doBefore(List<Stage> stages, int indent) throws IOException {
+    public boolean doBefore(List<Stage> stages, int indent) {
         return stages.size() != 1;
     }
 

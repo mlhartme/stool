@@ -28,7 +28,7 @@ public class Move extends StageCommand {
     @Value(name = "dest", position = 1)
     private FileNode dest;
 
-    public Move(Session session) throws IOException {
+    public Move(Session session) {
         super(session);
     }
 

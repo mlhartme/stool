@@ -91,7 +91,7 @@ public class KeyStore {
         return certificate;
     }
 
-    private Certificate create(String hostname) throws IOException {
+    private Certificate create(String hostname) {
         FileNode crt, key;
 
         crt = workDir.join(hostname.replace("*", "_") + ".crt");

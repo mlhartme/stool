@@ -35,8 +35,8 @@ public class Application {
     private final Gson gson;
     private final FileNode stageDirectory;
     private DefaultArtifact artifact;
-    private Maven maven;
-    private Console console;
+    private final Maven maven;
+    private final Console console;
     private WarFile currentWarFile;
     private WarFile futureWarFile;
     private WarFile backupWarFile;
@@ -71,7 +71,7 @@ public class Application {
         return artifact;
     }
 
-    public WarFile currentWarFile() throws IOException {
+    public WarFile currentWarFile() {
         if (currentWarFile == null) {
             currentWarFile = new WarFile(currentFile());
         }
@@ -85,7 +85,7 @@ public class Application {
         return futureWarFile;
     }
 
-    public WarFile backupWarFile() throws IOException {
+    public WarFile backupWarFile() {
         if (backupWarFile == null) {
             backupWarFile = new WarFile(backupFile());
         }

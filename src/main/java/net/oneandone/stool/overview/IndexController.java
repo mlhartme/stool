@@ -44,7 +44,7 @@ import java.util.Map;
 @Scope(WebApplicationContext.SCOPE_REQUEST)
 @RequestMapping("/")
 public class IndexController {
-    private static Logger LOG = LoggerFactory.getLogger(IndexController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IndexController.class);
 
     @Autowired
     private Session session;
@@ -65,7 +65,7 @@ public class IndexController {
 
     @RequestMapping(value = "whoami", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity whoAmI() throws Exception {
+    public ResponseEntity whoAmI() {
         return new ResponseEntity<>(SecurityContextHolder.getContext().getAuthentication().getPrincipal(), HttpStatus.OK);
     }
 
@@ -84,17 +84,17 @@ public class IndexController {
     // pages
 
     @RequestMapping(value = "feedback", method = RequestMethod.GET)
-    public String feedback() throws IllegalAccessException {
+    public String feedback() {
         return "feedback";
     }
 
     @RequestMapping(value = "settings", method = RequestMethod.GET)
-    public String settings() throws IllegalAccessException {
+    public String settings() {
         return "settings";
     }
 
     @RequestMapping(value = "statistics", method = RequestMethod.GET)
-    public String statistics() throws IllegalAccessException {
+    public String statistics() {
         return "statistics";
     }
 

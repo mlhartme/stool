@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 
 public class SystemImportTest {
     @Test
-    public void mergeMissing() throws IOException {
+    public void mergeMissing() {
         String result;
 
         result = SystemImport.mergeConfig(
@@ -36,7 +36,7 @@ public class SystemImportTest {
     }
 
     @Test
-    public void mergeValue() throws IOException {
+    public void mergeValue() {
         String result;
 
         result = SystemImport.mergeConfig(
@@ -47,7 +47,7 @@ public class SystemImportTest {
     }
 
     @Test
-    public void mergeRemove() throws IOException {
+    public void mergeRemove() {
         String result;
 
         result = SystemImport.mergeConfig(
@@ -60,7 +60,7 @@ public class SystemImportTest {
     }
 
     @Test
-    public void mergeRename() throws IOException {
+    public void mergeRename() {
         String result;
 
         result = SystemImport.mergeConfig(
@@ -73,7 +73,7 @@ public class SystemImportTest {
     }
 
     @Test
-    public void mergeTransform() throws IOException {
+    public void mergeTransform() {
         String result;
 
         result = SystemImport.mergeConfig(

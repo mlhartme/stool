@@ -77,14 +77,12 @@ public class StageController {
     private StageInfoCache stages;
 
     @RequestMapping(method = RequestMethod.GET)
-    public Collection<StageInfo> stages()
-            throws IOException, URISyntaxException, SAXException, NamingException, UserNotFound, EnumerationFailed {
+    public Collection<StageInfo> stages() throws IOException {
         return stages.get(logs, session, users);
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
-    public ModelAndView stagesAsHtml(ModelAndView modelAndView)
-            throws SAXException, NamingException, UserNotFound, IOException, EnumerationFailed {
+    public ModelAndView stagesAsHtml(ModelAndView modelAndView) throws IOException {
         modelAndView.setViewName("stages");
         modelAndView.addObject("stages", stages.get(logs, session, users));
 
@@ -180,7 +178,7 @@ public class StageController {
         return stage;
     }
 
-    public Console console() throws FileNotFoundException, CreateOutputStreamException {
+    public Console console() {
         return Console.create(world);
     }
 

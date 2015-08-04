@@ -44,7 +44,7 @@ public class Import extends SessionCommand {
     }
 
     @Remaining
-    public void dirs(String directory) throws IOException {
+    public void dirs(String directory) {
         boolean exclude;
         FileNode node;
 
@@ -98,7 +98,7 @@ public class Import extends SessionCommand {
         }
     }
 
-    private void interactiveImport(List<Stage> candidates) throws IOException {
+    private void interactiveImport(List<Stage> candidates) {
         Stage candidate;
         String str;
         int n;

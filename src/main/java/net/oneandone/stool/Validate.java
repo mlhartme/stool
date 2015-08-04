@@ -44,7 +44,7 @@ public class Validate extends StageCommand {
     private Processes processes;
 
 
-    public Validate(Session session) throws IOException {
+    public Validate(Session session) {
         super(session);
     }
     private static void daemons(Stage stage, Processes processes, List<String> problems) throws IOException {

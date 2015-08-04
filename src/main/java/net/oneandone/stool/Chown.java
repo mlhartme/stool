@@ -37,11 +37,11 @@ public class Chown extends StageCommand {
      * if we consider locking, it makes much more sense to check if the stage which
      * should be chowned is currently locked.
      */
-    public Chown(Session session) throws IOException {
+    public Chown(Session session) {
         super(session);
     }
 
-    public Chown(Session session, boolean batch) throws IOException {
+    public Chown(Session session, boolean batch) {
         super(session);
         this.batch = batch;
     }

@@ -25,11 +25,11 @@ public class Stop extends StageCommand {
     @Option("sleep")
     private boolean sleep;
 
-    public Stop(Session session) throws IOException {
+    public Stop(Session session) {
         this(session, false);
     }
 
-    public Stop(Session session, boolean sleep) throws IOException {
+    public Stop(Session session, boolean sleep) {
         super(session);
         this.sleep = sleep;
     }

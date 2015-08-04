@@ -84,22 +84,22 @@ public class StoolIT {
 
 
     @Test
-    public void turnaroundArtifact() throws IOException, InterruptedException {
+    public void turnaroundArtifact() throws IOException {
         turnaround("gav:net.oneandone:hellowar:1.0.2");
     }
 
     @Test
-    public void turnaroundSource() throws IOException, InterruptedException {
+    public void turnaroundSource() throws IOException {
         turnaround("https://github.com/mlhartme/hellowar/trunk");
     }
 
     @Ignore // TODO
-    public void turnaroundSourceMultiModule() throws IOException, InterruptedException {
+    public void turnaroundSourceMultiModule() throws IOException {
         turnaround("https://svn.code.sf.net/p/pustefix/code/tags/pustefixframework-0.18.84/pustefix-samples");
     }
 
 
-    private void turnaround(String url) throws IOException, InterruptedException {
+    private void turnaround(String url) throws IOException {
         System.out.println("\nurl: " + url);
         stool("create", "-quiet", url, "it");
         stool("select", "none");

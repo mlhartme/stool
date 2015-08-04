@@ -28,7 +28,7 @@ public class Build extends StageCommand {
     @Option("restart")
     private boolean restart;
 
-    public Build(Session session) throws IOException {
+    public Build(Session session) {
         super(session);
     }
 

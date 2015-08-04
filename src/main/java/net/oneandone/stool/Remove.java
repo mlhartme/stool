@@ -32,11 +32,11 @@ public class Remove extends StageCommand {
     @Option("backstage")
     private boolean backstageOnly;
 
-    public Remove(Session session) throws IOException {
+    public Remove(Session session) {
         super(session);
     }
 
-    public Remove(Session session, boolean batch, boolean force) throws IOException {
+    public Remove(Session session, boolean batch, boolean force) {
         super(session);
         this.batch = batch;
         this.force = force;

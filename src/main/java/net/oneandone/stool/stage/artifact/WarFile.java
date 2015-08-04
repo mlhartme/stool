@@ -91,7 +91,7 @@ public class WarFile {
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return file.hashCode();
     }
 
     @Override

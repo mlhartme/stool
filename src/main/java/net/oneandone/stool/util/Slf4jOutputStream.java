@@ -21,7 +21,7 @@ import java.io.OutputStream;
 
 public class Slf4jOutputStream extends OutputStream {
     private Logger logger;
-    private StringBuilder mem;
+    private final StringBuilder mem;
     private boolean logAsError;
 
 

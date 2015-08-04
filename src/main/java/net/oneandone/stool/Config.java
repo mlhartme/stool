@@ -22,26 +22,24 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Remaining;
 
-import javax.naming.NoPermissionException;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Config extends StageCommand {
     private final Map<String, Property> all;
-    private Map<Property, String> selected;
+    private final Map<Property, String> selected;
 
     private boolean get;
     private boolean set;
 
-    public Config(Session session) throws IOException {
+    public Config(Session session) {
         super(session);
         all = StageConfiguration.properties(session.extensionsFactory);
         selected = new HashMap<>();
     }
 
     @Remaining
-    public void property(String str) throws NoPermissionException {
+    public void property(String str) {
         int idx;
         String key;
         String value;

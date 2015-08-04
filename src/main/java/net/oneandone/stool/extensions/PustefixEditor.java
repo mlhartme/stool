@@ -74,7 +74,7 @@ public class PustefixEditor implements Extension {
     }
 
     @Override
-    public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) throws XmlException {
+    public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) {
         String editorLocation;
         FileNode userdata;
 

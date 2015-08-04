@@ -20,7 +20,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class EnvironmentTest {
-    private Environment env;
+    private final Environment env;
 
     public EnvironmentTest() {
         env = new Environment();

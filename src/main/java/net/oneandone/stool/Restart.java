@@ -28,7 +28,7 @@ public class Restart extends StageCommand {
     @Option("suspend")
     private boolean suspend = false;
 
-    public Restart(Session session) throws IOException {
+    public Restart(Session session) {
         super(session);
     }
 

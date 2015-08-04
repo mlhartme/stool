@@ -40,7 +40,7 @@ public class Refresh extends StageCommand {
     @Option("restore")
     private boolean restore;
 
-    public Refresh(Session session) throws IOException {
+    public Refresh(Session session) {
         super(session);
     }
 

@@ -68,7 +68,7 @@ public class Extensions {
     }
 
     /** @param host  the vhost name, even if global vhosts config is false */
-    public Map<String, String> contextParameter(Stage stage, String host, int httpPort, FileNode webinf) throws XmlException {
+    public Map<String, String> contextParameter(Stage stage, String host, int httpPort, FileNode webinf) {
         Map<String, String> result;
 
         result = new HashMap<>();
