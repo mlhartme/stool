@@ -36,7 +36,6 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.net.URISyntaxException;
 import java.util.List;
 
 public abstract class SessionCommand implements Command {

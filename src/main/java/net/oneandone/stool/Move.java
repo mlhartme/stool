@@ -22,8 +22,6 @@ import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Value;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.io.IOException;
-
 public class Move extends StageCommand {
     @Value(name = "dest", position = 1)
     private FileNode dest;

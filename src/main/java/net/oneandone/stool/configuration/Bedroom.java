@@ -73,10 +73,6 @@ public class Bedroom {
         Files.stoolFile(file.writeString(gson.toJson(this)));
     }
 
-    public int size() {
-        return sleep.size();
-    }
-
     public Collection<String> stages() {
         return Collections.unmodifiableCollection(sleep);
     }

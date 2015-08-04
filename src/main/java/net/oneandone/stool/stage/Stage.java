@@ -31,7 +31,6 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Subversion;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
-import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -62,10 +61,6 @@ public abstract class Stage {
 
     public static Stage load(Session session, FileNode backstage) throws IOException {
         return load(session, session.loadStageConfiguration(backstage), backstage, (FileNode) Stage.anchor(backstage).resolveLink());
-    }
-
-    public static Stage load(Session session, FileNode backstage, FileNode directory) throws IOException {
-        return load(session, session.loadStageConfiguration(backstage), backstage, directory);
     }
 
     private static Stage load(Session session, StageConfiguration configuration, FileNode backstage, FileNode directory) throws IOException {

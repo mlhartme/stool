@@ -25,7 +25,6 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
 import net.oneandone.sushi.fs.filter.Predicate;
 
-import java.io.IOException;
 import java.util.List;
 
 public class Cd extends StageCommand {

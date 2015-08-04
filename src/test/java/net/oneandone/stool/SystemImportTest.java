@@ -19,8 +19,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import org.junit.Test;
 
-import java.io.IOException;
-
 import static org.junit.Assert.assertEquals;
 
 public class SystemImportTest {
