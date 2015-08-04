@@ -153,7 +153,8 @@ public class Validate extends StageCommand {
             problem = new StringBuilder();
             problem.append("stage has expired ").append(until).append(". Adjust the 'until' date or remove it:\n");
             if (session.configuration.autoRemove > -1) {
-                problem.append("CAUTION: This stage will be removed automatically in " + (session.configuration.autoRemove - until.expiredDays()) + " day(s)");
+                problem.append("CAUTION: This stage will be removed automatically in ")
+                        .append(session.configuration.autoRemove - until.expiredDays()).append(" day(s)");
             }
             problems.add(problem.toString());
         }

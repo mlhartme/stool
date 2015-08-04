@@ -83,7 +83,7 @@ public class Ldap {
         NamingEnumeration<SearchResult> answer;
         BasicAttributes matchAttrs;
 
-        if (args.length % 1 != 0) {
+        if (args.length % 2 != 0) {
             throw new IllegalArgumentException();
         }
         matchAttrs = new BasicAttributes(true); // ignore attribute name case

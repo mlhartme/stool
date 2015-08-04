@@ -709,7 +709,7 @@ public abstract class Stage {
             return "stage";
         }
         start = url.lastIndexOf(':', end - 1);
-        if (end == -1) {
+        if (start == -1) {
             return "stage";
         }
         return url.substring(start + 1, end);

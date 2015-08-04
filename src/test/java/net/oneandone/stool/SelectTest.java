@@ -18,6 +18,7 @@ package net.oneandone.stool;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -39,9 +40,7 @@ public class SelectTest {
         List<String> result;
 
         result = new ArrayList<>(elements.length);
-        for (String element : elements) {
-            result.add(element);
-        }
+        Collections.addAll(result, elements);
         return result;
     }
 }

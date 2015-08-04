@@ -156,7 +156,6 @@ public class Import extends SessionCommand {
         }
     }
 
-    /** @return stages with temporary backstage directory */
     private void scan(FileNode tmpBackstage, FileNode parent, List<Stage> result, List<FileNode> existingStages) throws IOException {
         String url;
         Stage stage;
