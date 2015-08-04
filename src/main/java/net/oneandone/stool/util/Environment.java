@@ -254,7 +254,6 @@ public class Environment {
         char c;
         int behind;
         String key;
-        String value;
 
         if (str.indexOf('$') == -1) {
             return str;
