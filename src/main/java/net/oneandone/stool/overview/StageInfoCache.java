@@ -35,7 +35,7 @@ public class StageInfoCache {
     }
 
     public Collection<StageInfo> get(FileNode logs, Session session, Users users) throws IOException {
-        if (stages == null || System.currentTimeMillis() - lastCacheRenew > 4000) {
+        if (System.currentTimeMillis() - lastCacheRenew > 4000) {
             stages.clear();
             session.wipeStaleBackstages();
             for (Stage stage : session.listWithoutOverview()) {
@@ -43,6 +43,7 @@ public class StageInfoCache {
                     stages.add(StageInfo.fromStage(logs, stage, users));
                 } catch (UserNotFound | NamingException e) {
                     session.reportException("StageInfo.fromStage", e);
+                    // fall-through
                 }
             }
             lastCacheRenew = System.currentTimeMillis();
