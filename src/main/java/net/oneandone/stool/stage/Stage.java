@@ -647,7 +647,7 @@ public abstract class Stage {
         return new Logs(shared().join("tomcat/logs"));
     }
 
-    public static enum State {
+    public enum State {
         DOWN, SLEEPING, UP, WORKING;
 
         public String toString() {

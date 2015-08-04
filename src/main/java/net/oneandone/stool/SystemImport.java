@@ -47,13 +47,13 @@ import java.util.List;
 import java.util.Map;
 
 public class SystemImport extends SessionCommand {
-    public static enum Include {
+    public enum Include {
         ALL(true, true), CONFIG(true, false), STAGES(false, true);
 
         public final boolean withConfig;
         public final boolean withStages;
 
-        private Include(boolean withConfig, boolean withStages) {
+        Include(boolean withConfig, boolean withStages) {
             this.withConfig = withConfig;
             this.withStages = withStages;
         }

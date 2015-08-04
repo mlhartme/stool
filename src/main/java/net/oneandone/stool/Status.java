@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class Status extends StageCommand {
-    public static enum Field {
+    public enum Field {
         ID, NAME, DIRECTORY, BACKSTAGE, URL, TYPE, STATE, OWNER, TOMCAT, DEBUGGER, JMX, APPS, OTHER;
 
         public String toString() {

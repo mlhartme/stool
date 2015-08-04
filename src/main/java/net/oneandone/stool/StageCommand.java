@@ -188,7 +188,7 @@ public abstract class StageCommand extends SessionCommand {
     public void doAfter() throws Exception {
     }
 
-    public static enum Fail {
+    public enum Fail {
         NORMAL, AFTER, NEVER
     }
 

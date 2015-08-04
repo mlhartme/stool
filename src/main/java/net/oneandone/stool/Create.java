@@ -197,7 +197,7 @@ public class Create extends SessionCommand {
         PosixFileAttributes attributes;
         FileNode parent;
 
-        attributes = java.nio.file.Files.readAttributes(node.toPath(), PosixFileAttributes.class, new LinkOption[]{LinkOption.NOFOLLOW_LINKS});
+        attributes = java.nio.file.Files.readAttributes(node.toPath(), PosixFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
         if (!attributes.permissions().contains(PosixFilePermission.GROUP_EXECUTE)
                 && !attributes.permissions().contains(PosixFilePermission.OTHERS_EXECUTE)) {
             throw new IOException(node.getAbsolute() + ": missing execute permission for group or others. \n" +
