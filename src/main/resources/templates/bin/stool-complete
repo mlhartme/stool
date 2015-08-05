@@ -7,7 +7,7 @@ _stool_complete() {
       prev="${COMP_WORDS[COMP_CWORD-1]}"
       cmd="stop remove chown rename build validate version help system-start system-upgrade config import system-stop refresh move restart status select system-install duso list create history start cd"
       general_opts="-v -e"
-      select_opts="-stage -all -all-state -all-owner"
+      select_opts="-stage -all"
       fail_opts="before after never"
 
       case "${prev}" in
