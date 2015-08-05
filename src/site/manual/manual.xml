@@ -294,16 +294,61 @@ http://docbook.org/ns/docbook ">
 
         <refnamediv>
           <refname>stool</refname>
-          <refpurpose>stool command-line interface</refpurpose>
+          <refpurpose>invokes a Stool command</refpurpose>
         </refnamediv>
 
-        <xi:include href="../../../target/synopsis.xml" parse="xml"/>
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool</command>
+            <arg rep="repeat"><replaceable>global-option</replaceable></arg>
+            <arg><replaceable>command</replaceable></arg>
+            <arg rep="repeat"><replaceable>arguments</replaceable></arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
 
         <refsect1><title>Description</title>
           <para>
-            Invoke 'stool help &ltcommand>' to see more details.
+            Invoke 'stool help &lt;command>' to see more details.
+
+            console.info.println("select options for stage commands");
+            console.info.println("  (no select option)      operate on the selected stage");
+            console.info.println("  -all                    operate on all stages");
+            console.info.println("  -stage &lt;predicate>   operate on all stages matching the specified predicate");
+            console.info.println();
+            console.info.println("failure mode for stage commands");
+            console.info.println("  -fail normal       fail immediately");
+            console.info.println("  -fail after        fail after all stages have been tried");
+            console.info.println("  -fail never        report errors as warning");
+            console.info.println();
+            console.info.println("global options");
+            console.info.println("  -v  verbose output");
+            console.info.println("  -e  print stacktrace for all errors");
+            console.info.println("  -svnuser      user name for svn");
+            console.info.println("  -svnpassword  password for svn");
+            console.info.println();
+            console.info.println("selection predicates");
+            console.info.println("  or        = and {',' and}");
+            console.info.println("  and       = cmp {'+' cmp}");
+            console.info.println("  cmp       = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring) ");
+            console.info.println("  prefix    = VALUE '*'");
+            console.info.println("  suffix    = '*' VALUE");
+            console.info.println("  substring = '*' VALUE '*'");
+            console.info.println("  FIELD     # status field");
+            console.info.println("  PROPERTY  # configuration property");
+            console.info.println();
+            console.info.println("example urls: ");
+            console.info.println("  gav:net.oneandone:hellowar:1.0.2  (artifact stage)");
+            console.info.println("  https://github.com/mlhartme/hellowar/trunk (source stage)");
+            console.info.println();
+            console.info.println("documentation:");
+            console.info.println("  Homepage: https://github.com/mlhartme/stool");
           </para>
         </refsect1>
+        <refsect1>
+          <title>Command</title>
+        </refsect1>
+        <xi:include href="../../../target/synopsis.xml" parse="xml"/>
+
 
       </refentry>
 
@@ -1051,6 +1096,53 @@ http://docbook.org/ns/docbook ">
         <refsect1><title>Description</title>
           <para>Checks if the until date of the stage has expired. If so, and <option>-stop</option> is specified, the stage is stopped.
             And if <option>-email</option> is specified, a notification mail is sent to the stage owner.</para>
+        </refsect1>
+      </refentry>
+    </sect1>
+    <sect1>
+      <title>Help</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-help</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-help</refname>
+          <refpurpose>prints man page</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool help</command>
+            <arg><replaceable>command</replaceable></arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Prints help about the specified command. Or, if command is not specified, prints help about Stool.</para>
+        </refsect1>
+      </refentry>
+    </sect1>
+    <sect1>
+      <title>Version</title>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-version</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-version</refname>
+          <refpurpose>prints version info</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool version</command>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Prints version info.</para>
         </refsect1>
       </refentry>
     </sect1>
