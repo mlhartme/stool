@@ -367,7 +367,9 @@ PROPERTY  # configuration property
         </refsect1>
         <refsect1>
           <title>Commands</title>
-          <xi:include href="../../../target/synopsis.xml" parse="xml"/>
+          <para>
+            <xi:include href="../../../target/synopsis.xml" />
+          </para>
         </refsect1>
         <refsect1>
           <title>See Also</title>

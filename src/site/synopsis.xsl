@@ -1,17 +1,16 @@
 <xsl:stylesheet
-    xmlns="http://docbook.org/ns/docbook"
     xmlns:x="http://docbook.org/ns/docbook"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
-  <xsl:output method="xml" indent="no"/>
+  <xsl:output method="xml" indent="yes"/>
 
   <xsl:template match="/">
-    <refsynopsisdiv>
+    <x:variablelist>
       <xsl:apply-templates select=".//x:refentry"/>
-    </refsynopsisdiv>
+    </x:variablelist>
   </xsl:template>
-  <xsl:template match="refentry">
-    <name><xsl:value-of select="x:refsynopsisdiv/x:cmdsynopsis/x:command"/></name>
-    <description><xsl:value-of select="x:refnamediv/x:refpurpose"/></description>
+
+  <xsl:template match="x:refentry">
+    <x:varlistentry><x:term><xsl:value-of select="x:refsynopsisdiv/x:cmdsynopsis/x:command"/></x:term><x:listitem><xsl:value-of select="x:refnamediv/x:refpurpose"/></x:listitem></x:varlistentry>
   </xsl:template>
 
   <!--
