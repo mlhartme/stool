@@ -34,58 +34,70 @@ http://docbook.org/ns/docbook ">
       Here's an example, what you can do with Stool:
     </para>
 
-    <para>(The following assumes that Stool has been installed properly - see the respective section below)</para>
+    <sect1>
+      <title>Quick Tour</title>
+      <para>(The following assumes that Stool has been installed properly - see the respective section below)</para>
 
-    <para>Invoke
-      <programlisting>stool</programlisting>
-      to see if stool is installed. You should get a usage message with available commands.
-    </para>
+      <para>Invoke
+        <programlisting>stool</programlisting>
+        to see if stool is installed. You should get a usage message with available commands.
+      </para>
 
-    <para>Create a new stage by checking out an application:
+      <para>Create a new stage by checking out an application:
 
-      <programlisting>stool create https://github.com/mlhartme/hellowar/trunk</programlisting>
+        <programlisting>stool create https://github.com/mlhartme/hellowar/trunk</programlisting>
 
-      Build the application:
+        Build the application:
 
-      <programlisting>stool build</programlisting>
+        <programlisting>stool build</programlisting>
 
-      Start it:
+        Start it:
 
-      <programlisting>stool start</programlisting>
+        <programlisting>stool start</programlisting>
 
-      To see the running application, point your browser to the url printed by the start command.
-    </para>
+        To see the running application, point your browser to the url printed by the start command.
+      </para>
 
-    <para>You can invoke
+      <para>You can invoke
 
-      <programlisting>stool status</programlisting>
+        <programlisting>stool status</programlisting>
 
-      to see if your application is running and to see the application urls.
-    </para>
+        to see if your application is running and to see the application urls.
+      </para>
 
-    <para>To remove the stage, stop the application with
+      <para>To remove the stage, stop the application with
 
-      <programlisting>stool stop</programlisting>
+        <programlisting>stool stop</programlisting>
 
-      and dump it from your disk with
+        and dump it from your disk with
 
-      <programlisting>stool remove</programlisting>
-    </para>
+        <programlisting>stool remove</programlisting>
+      </para>
 
-    <para>
-      You can create an arbitrary number of stages. Invoke
-      <programlisting>stool list</programlisting>
+      <para>
+        You can create an arbitrary number of stages. Invoke
+        <programlisting>stool list</programlisting>
 
-      to see what you have created and not yet removed. To switch to another stage, invoke
+        to see what you have created and not yet removed. To switch to another stage, invoke
 
-      <programlisting>stool select otherstage</programlisting>
+        <programlisting>stool select otherstage</programlisting>
 
-      You can use
+        You can use
 
-      <programlisting>stool history</programlisting>
+        <programlisting>stool history</programlisting>
 
-      to see what happened on the stage.
-    </para>
+        to see what happened on the stage.
+      </para>
+    </sect1>
+    <sect1>
+      <title>Rationale</title>
+      <para>Why not use virtual machine instead of creating stages with Stool? Stool offers the following benefits:</para>
+      <itemizedlist>
+        <listitem>creating stages is faster</listitem>
+        <listitem>creating stages is fully automatic, virtual machine might need extra steps like dns setup, cerfificates etc</listitem>
+        <listitem>if you have firewalls, you can set them up once for all stages; that's way more difficult for virtual machines</listitem>
+      </itemizedlist>
+    </sect1>
   </chapter>
 
   <chapter>
