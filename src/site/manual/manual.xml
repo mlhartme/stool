@@ -321,42 +321,43 @@ http://docbook.org/ns/docbook ">
         <refsect1><title>Description</title>
           <para>Stool is a command line tool that provides a lifecycle for stages: create, configure, build, run and remove.
             A stage contains web applications built from source or downloaded as artifacts.</para>
-          <para>Available commands are listed below. Invoke 'stool help &lt;command>' to see more details.</para>
-        </refsect1>
-        <refsect1>
-          <title>Select options for stage commands</title>
-          <variablelist>
-            <varlistentry><term>(no selection)</term><listitem>operate on the selected stage</listitem></varlistentry>
-            <varlistentry><term>-all</term><listitem>operate on all stages</listitem></varlistentry>
-            <varlistentry><term>-stage &lt;predicate></term><listitem>operate on all stages matching the specified predicate</listitem></varlistentry>
-          </variablelist>
-        </refsect1>
-        <refsect1>
-          <title>Failure mode for stage commands</title>
-          <variablelist>
-            <varlistentry><term>-fail normal</term><listitem>fail immediately</listitem></varlistentry>
-            <varlistentry><term>-fail after</term><listitem>fail after iterating all stages</listitem></varlistentry>
-            <varlistentry><term>-fail never</term><listitem>report errors as warning</listitem></varlistentry>
-          </variablelist>
-        </refsect1>
-        <refsect1>
-          <title>Global options</title>
-          <para>-v  verbose output</para>
-          <para>-e  print stacktrace for all errors</para>
-          <para>-svnuser      user name for svn operations</para>
-          <para>-svnpassword  password for svn</para>
+          <para>
+            <variablelist>
+              <title>Global options</title>
+              <varlistentry><term>-v</term><listitem>verbose output</listitem></varlistentry>
+              <varlistentry><term>-e</term><listitem>print stacktrace for all errors</listitem></varlistentry>
+              <varlistentry><term>-svnuser</term><listitem>user name for svn operations</listitem></varlistentry>
+              <varlistentry><term>-svnpassword</term><listitem>password for svn</listitem></varlistentry>
+            </variablelist>
+          </para>
+          <para>
+            <variablelist>
+              <title>Select options for stage commands</title>
+              <varlistentry><term>(no selection)</term><listitem>operate on the selected stage</listitem></varlistentry>
+              <varlistentry><term>-all</term><listitem>operate on all stages</listitem></varlistentry>
+              <varlistentry><term>-stage &lt;predicate></term><listitem>operate on all stages matching the specified predicate</listitem></varlistentry>
+            </variablelist>
+          </para>
+          <para>
+            <variablelist>
+              <title>Failure mode for stage commands</title>
+              <varlistentry><term>-fail normal</term><listitem>fail immediately</listitem></varlistentry>
+              <varlistentry><term>-fail after</term><listitem>fail after iterating all stages</listitem></varlistentry>
+              <varlistentry><term>-fail never</term><listitem>report errors as warning</listitem></varlistentry>
+            </variablelist>
+          </para>
         </refsect1>
         <refsect1>
           <title>Selection predicates</title>
           <programlisting>
-  or        = and {',' and}
-  and       = cmp {'+' cmp}
-  cmp       = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring)
-  prefix    = VALUE '*'
-  suffix    = '*' VALUE
-  substring = '*' VALUE '*'
-  FIELD     # status field
-  PROPERTY  # configuration property
+or        = and {',' and}
+and       = cmp {'+' cmp}
+cmp       = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring)
+prefix    = VALUE '*'
+suffix    = '*' VALUE
+substring = '*' VALUE '*'
+FIELD     # status field
+PROPERTY  # configuration property
           </programlisting>
         </refsect1>
         <refsect1>
@@ -371,6 +372,7 @@ http://docbook.org/ns/docbook ">
         <refsect1>
           <title>See Also</title>
           <para>Homepage: https://github.com/mlhartme/stool</para>
+          <para>Invoke 'stool help &lt;command>' to see more details.</para>
         </refsect1>
       </refentry>
     </sect1>
