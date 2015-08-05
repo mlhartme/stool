@@ -319,51 +319,60 @@ http://docbook.org/ns/docbook ">
         </refsynopsisdiv>
 
         <refsect1><title>Description</title>
-          <para>
-            Invoke 'stool help &lt;command>' to see more details.
-
-            console.info.println("select options for stage commands");
-            console.info.println("  (no select option)      operate on the selected stage");
-            console.info.println("  -all                    operate on all stages");
-            console.info.println("  -stage &lt;predicate>   operate on all stages matching the specified predicate");
-            console.info.println();
-            console.info.println("failure mode for stage commands");
-            console.info.println("  -fail normal       fail immediately");
-            console.info.println("  -fail after        fail after all stages have been tried");
-            console.info.println("  -fail never        report errors as warning");
-            console.info.println();
-            console.info.println("global options");
-            console.info.println("  -v  verbose output");
-            console.info.println("  -e  print stacktrace for all errors");
-            console.info.println("  -svnuser      user name for svn");
-            console.info.println("  -svnpassword  password for svn");
-            console.info.println();
-            console.info.println("selection predicates");
-            console.info.println("  or        = and {',' and}");
-            console.info.println("  and       = cmp {'+' cmp}");
-            console.info.println("  cmp       = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring) ");
-            console.info.println("  prefix    = VALUE '*'");
-            console.info.println("  suffix    = '*' VALUE");
-            console.info.println("  substring = '*' VALUE '*'");
-            console.info.println("  FIELD     # status field");
-            console.info.println("  PROPERTY  # configuration property");
-            console.info.println();
-            console.info.println("example urls: ");
-            console.info.println("  gav:net.oneandone:hellowar:1.0.2  (artifact stage)");
-            console.info.println("  https://github.com/mlhartme/hellowar/trunk (source stage)");
-            console.info.println();
-            console.info.println("documentation:");
-            console.info.println("  Homepage: https://github.com/mlhartme/stool");
-          </para>
+          <para>Stool is a command line tool that provides a lifecycle for stages: create, configure, build, run and remove.
+            A stage contains web applications built from source or downloaded as artifacts.</para>
+          <para>Available commands are listed below. Invoke 'stool help &lt;command>' to see more details.</para>
         </refsect1>
         <refsect1>
-          <title>Command</title>
+          <title>Select options for stage commands</title>
+          <variablelist>
+            <varlistentry><term>(no selection)</term><listitem>operate on the selected stage</listitem></varlistentry>
+            <varlistentry><term>-all</term><listitem>operate on all stages</listitem></varlistentry>
+            <varlistentry><term>-stage &lt;predicate></term><listitem>operate on all stages matching the specified predicate</listitem></varlistentry>
+          </variablelist>
         </refsect1>
-        <xi:include href="../../../target/synopsis.xml" parse="xml"/>
-
-
+        <refsect1>
+          <title>Failure mode for stage commands</title>
+          <variablelist>
+            <varlistentry><term>-fail normal</term><listitem>fail immediately</listitem></varlistentry>
+            <varlistentry><term>-fail after</term><listitem>fail after iterating all stages</listitem></varlistentry>
+            <varlistentry><term>-fail never</term><listitem>report errors as warning</listitem></varlistentry>
+          </variablelist>
+        </refsect1>
+        <refsect1>
+          <title>Global options</title>
+          <para>-v  verbose output</para>
+          <para>-e  print stacktrace for all errors</para>
+          <para>-svnuser      user name for svn operations</para>
+          <para>-svnpassword  password for svn</para>
+        </refsect1>
+        <refsect1>
+          <title>Selection predicates</title>
+          <programlisting>
+  or        = and {',' and}
+  and       = cmp {'+' cmp}
+  cmp       = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring)
+  prefix    = VALUE '*'
+  suffix    = '*' VALUE
+  substring = '*' VALUE '*'
+  FIELD     # status field
+  PROPERTY  # configuration property
+          </programlisting>
+        </refsect1>
+        <refsect1>
+          <title>Examples</title>
+          <para>Create an artifact stage: stool create gav:net.oneandone:hellowar:1.0.2</para>
+          <para>Create a source stage: stool create https://github.com/mlhartme/hellowar/trunk</para>
+        </refsect1>
+        <refsect1>
+          <title>Commands</title>
+          <xi:include href="../../../target/synopsis.xml" parse="xml"/>
+        </refsect1>
+        <refsect1>
+          <title>See Also</title>
+          <para>Homepage: https://github.com/mlhartme/stool</para>
+        </refsect1>
       </refentry>
-
     </sect1>
 
     <sect1>
