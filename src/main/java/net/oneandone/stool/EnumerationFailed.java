@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class EnumerationFailed extends Exception {
-    private final Map<FileNode, Exception> problems;
+    public final Map<FileNode, Exception> problems;
 
     public EnumerationFailed() {
         problems = new HashMap<>();

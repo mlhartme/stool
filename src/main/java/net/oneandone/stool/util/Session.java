@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
 public class Session {
     public static Session load(Logging logging, String user, String command, Environment environment, Console console,
@@ -264,8 +265,8 @@ public class Session {
                 return !stage.isOverview();
             }
         });
-        if (!problems.empty()) {
-            reportException("Session.listWithoutOverview", problems);
+        for (Map.Entry<FileNode, Exception> entry : problems.problems.entrySet()) {
+            reportException(entry.getKey() + ": Session.listWithoutOverview", entry.getValue());
         }
         return result;
     }
