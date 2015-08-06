@@ -298,199 +298,224 @@
   <chapter>
     <title>Commands</title>
 
-    <section>
-      <title>Stool</title>
-      <refentry>
-        <refmeta>
-          <refentrytitle>stool</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
+    <refentry>
+      <refmeta>
+        <refentrytitle>stool</refentrytitle>
+        <manvolnum>1</manvolnum>
+      </refmeta>
 
-        <refnamediv>
-          <refname>stool</refname>
-          <refpurpose>invokes a Stool command</refpurpose>
-        </refnamediv>
+      <refnamediv>
+        <refname>stool</refname>
+        <refpurpose>invokes a Stool command</refpurpose>
+      </refnamediv>
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool</command>
-            <arg rep="repeat"><replaceable>global-option</replaceable></arg>
-            <arg><replaceable>command</replaceable></arg>
-            <arg rep="repeat"><replaceable>arguments</replaceable></arg>
-          </cmdsynopsis>
-        </refsynopsisdiv>
+      <refsynopsisdiv>
+        <cmdsynopsis>
+          <command>stool</command>
+          <arg rep="repeat"><replaceable>global-option</replaceable></arg>
+          <arg><replaceable>command</replaceable></arg>
+          <arg rep="repeat"><replaceable>arguments</replaceable></arg>
+        </cmdsynopsis>
+      </refsynopsisdiv>
 
-        <refsect1><title>Description</title>
-          <para>Stool is a command line tool that provides a lifecycle for stages: create, configure, build, run and remove.
-            A stage contains web applications built from source or downloaded as artifacts.</para>
-          <refsect2>
-            <title>Commands</title>
-            <xi:include href="../../../target/synopsis.xml" />
-          </refsect2>
-          <refsect2>
-            <title>Global options</title>
-            <itemizedlist>
-              <listitem><para><option>-v</option> enables verbose output</para></listitem>
-              <listitem><para><option>-e</option> prints stacktrace for all errors</para></listitem>
-              <listitem><para><option>-svnuser</option> specified the user name for svn operations</para></listitem>
-              <listitem><para><option>-svnpassword</option> specifies the password for svn</para></listitem>
-            </itemizedlist>
-          </refsect2>
-          <refsect2>
-            <title>Select options for stage commands</title>
-            <variablelist>
-              <varlistentry><term>(no selection)</term><listitem><para>operate on the selected stage</para></listitem></varlistentry>
-              <varlistentry><term>-all</term><listitem><para>operate on all stages</para></listitem></varlistentry>
-              <varlistentry><term>-stage &lt;predicate></term><listitem><para>operate on all stages matching the specified predicate</para></listitem></varlistentry>
-            </variablelist>
-          </refsect2>
-          <refsect2>
-            <title>Failure mode for stage commands</title>
-            <variablelist>
-              <varlistentry><term>-fail normal</term><listitem><para>fail immediately</para></listitem></varlistentry>
-              <varlistentry><term>-fail after</term><listitem><para>fail after iterating all stages</para></listitem></varlistentry>
-              <varlistentry><term>-fail never</term><listitem><para>report errors as warning</para></listitem></varlistentry>
-            </variablelist>
-          </refsect2>
-          <refsect2>
-            <title>Selection predicates</title>
-            <programlisting>
-              or        = and {',' and}
-              and       = cmp {'+' cmp}
-              cmp       = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring)
-              prefix    = VALUE '*'
-              suffix    = '*' VALUE
-              substring = '*' VALUE '*'
-              FIELD     # status field
-              PROPERTY  # configuration property
-            </programlisting>
-          </refsect2>
-        </refsect1>
-        <refsect1>
-          <title>Examples</title>
-          <para>Create an artifact stage: stool create gav:net.oneandone:hellowar:1.0.2</para>
-          <para>Create a source stage: stool create https://github.com/mlhartme/hellowar/trunk</para>
-        </refsect1>
-        <refsect1>
-          <title>See Also</title>
-          <para>Homepage: https://github.com/mlhartme/stool</para>
-          <para>Invoke 'stool help &lt;command>' to see more details.</para>
-        </refsect1>
-      </refentry>
-    </section>
+      <refsect1><title>Description</title>
+        <para>Stool is a command line tool that provides a lifecycle for stages: create, configure, build, run and remove.
+          A stage contains web applications built from source or downloaded as artifacts.</para>
+        <refsect2>
+          <title>Commands</title>
+          <xi:include href="../../../target/synopsis.xml" />
+        </refsect2>
+        <refsect2>
+          <title>Global options</title>
+          <itemizedlist>
+            <listitem><para><option>-v</option> enables verbose output</para></listitem>
+            <listitem><para><option>-e</option> prints stacktrace for all errors</para></listitem>
+            <listitem><para><option>-svnuser</option> specified the user name for svn operations</para></listitem>
+            <listitem><para><option>-svnpassword</option> specifies the password for svn</para></listitem>
+          </itemizedlist>
+        </refsect2>
+        <refsect2>
+          <title>Select options for stage commands</title>
+          <variablelist>
+            <varlistentry><term>(no selection)</term><listitem><para>operate on the selected stage</para></listitem></varlistentry>
+            <varlistentry><term>-all</term><listitem><para>operate on all stages</para></listitem></varlistentry>
+            <varlistentry><term>-stage &lt;predicate></term><listitem><para>operate on all stages matching the specified predicate</para></listitem></varlistentry>
+          </variablelist>
+        </refsect2>
+        <refsect2>
+          <title>Failure mode for stage commands</title>
+          <variablelist>
+            <varlistentry><term>-fail normal</term><listitem><para>fail immediately</para></listitem></varlistentry>
+            <varlistentry><term>-fail after</term><listitem><para>fail after iterating all stages</para></listitem></varlistentry>
+            <varlistentry><term>-fail never</term><listitem><para>report errors as warning</para></listitem></varlistentry>
+          </variablelist>
+        </refsect2>
+        <refsect2>
+          <title>Selection predicates</title>
+          <programlisting>
+            or        = and {',' and}
+            and       = cmp {'+' cmp}
+            cmp       = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring)
+            prefix    = VALUE '*'
+            suffix    = '*' VALUE
+            substring = '*' VALUE '*'
+            FIELD     # status field
+            PROPERTY  # configuration property
+          </programlisting>
+        </refsect2>
+      </refsect1>
+      <refsect1>
+        <title>Examples</title>
+        <para>Create an artifact stage: stool create gav:net.oneandone:hellowar:1.0.2</para>
+        <para>Create a source stage: stool create https://github.com/mlhartme/hellowar/trunk</para>
+      </refsect1>
+      <refsect1>
+        <title>See Also</title>
+        <para>Homepage: https://github.com/mlhartme/stool</para>
+        <para>Invoke 'stool help &lt;command>' to see more details.</para>
+      </refsect1>
+    </refentry>
 
     <section>
       <title>System commands</title>
 
       <para>Commands that do not deal with individual stages.</para>
 
-      <section>
-        <title>System Start</title>
-        <refentry>
-          <refmeta>
-            <refentrytitle>stool-system-start</refentrytitle>
-            <manvolnum>1</manvolnum>
-          </refmeta>
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-help</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-help</refname>
+          <refpurpose>prints man page</refpurpose>
+        </refnamediv>
 
-          <refnamediv>
-            <refname>stool-system-start</refname>
-            <refpurpose>startup stages</refpurpose>
-          </refnamediv>
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool help</command>
+            <arg><replaceable>command</replaceable></arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Prints help about the specified command. Or, if command is not specified, prints help about Stool.</para>
+        </refsect1>
+      </refentry>
 
-          <refsynopsisdiv>
-            <cmdsynopsis>
-              <command>stool system-start</command>
-            </cmdsynopsis>
-          </refsynopsisdiv>
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-version</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-version</refname>
+          <refpurpose>prints version info</refpurpose>
+        </refnamediv>
 
-          <refsect1><title>Description</title>
-            <para>
-              Starts the stage overview and all sleeping stages.
-            </para>
-          </refsect1>
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool version</command>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Prints version info.</para>
+        </refsect1>
+      </refentry>
 
-        </refentry>
-      </section>
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-system-start</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
 
-      <section>
-        <title>System Stop</title>
-        <refentry>
-          <refmeta>
-            <refentrytitle>stool-system-stop</refentrytitle>
-            <manvolnum>1</manvolnum>
-          </refmeta>
+        <refnamediv>
+          <refname>stool-system-start</refname>
+          <refpurpose>startup stages</refpurpose>
+        </refnamediv>
 
-          <refnamediv>
-            <refname>stool-system-stop</refname>
-            <refpurpose>shutdown stages</refpurpose>
-          </refnamediv>
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool system-start</command>
+          </cmdsynopsis>
+        </refsynopsisdiv>
 
-          <refsynopsisdiv>
-            <cmdsynopsis>
-              <command>stool system-stop</command>
-            </cmdsynopsis>
-          </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>
+            Starts the stage overview and all sleeping stages.
+          </para>
+        </refsect1>
 
-          <refsect1><title>Description</title>
-            <para>
-              Stops the overview stage and sends all other running stages to sleep.
-            </para>
-          </refsect1>
-        </refentry>
-      </section>
+      </refentry>
 
-      <section>
-        <title>System Validate</title>
-        <refentry>
-          <refmeta>
-            <refentrytitle>stool-system-validate</refentrytitle>
-            <manvolnum>1</manvolnum>
-          </refmeta>
-          <refnamediv>
-            <refname>stool-system-validate</refname>
-            <refpurpose>check system configuration</refpurpose>
-          </refnamediv>
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-system-stop</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
 
-          <refsynopsisdiv>
-            <cmdsynopsis>
-              <command>stool system-validate</command>
-            </cmdsynopsis>
-          </refsynopsisdiv>
-          <refsect1><title>Description</title>
-            <para>
-              Checks DNS settings.
-            </para>
-          </refsect1>
-        </refentry>
-      </section>
-      <section>
-        <title>System Import</title>
-        <refentry>
-          <refmeta>
-            <refentrytitle>stool-system-import</refentrytitle>
-            <manvolnum>1</manvolnum>
-          </refmeta>
-          <refnamediv>
-            <refname>stool-system-import</refname>
-            <refpurpose>import from another stool installation</refpurpose>
-          </refnamediv>
+        <refnamediv>
+          <refname>stool-system-stop</refname>
+          <refpurpose>shutdown stages</refpurpose>
+        </refnamediv>
 
-          <refsynopsisdiv>
-            <cmdsynopsis>
-              <command>stool system-import</command>
-              <arg>-include <group><arg choice="plain">all</arg><arg choice="plain">config</arg><arg choice="plain">stages</arg></group></arg>
-              <arg choice="plain"><replaceable>other-home</replaceable></arg>
-              <group rep="repeat"><arg choice="plain"><replaceable>name</replaceable></arg><arg choice="plain"><replaceable>key=value</replaceable></arg></group>
-            </cmdsynopsis>
-          </refsynopsisdiv>
-          <refsect1><title>Description</title>
-            <para>Imports configuration and/or stages from a the specified directory.</para>
-          </refsect1>
-        </refentry>
-      </section>
-    </section>
-    <section>
-      <title>Create</title>
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool system-stop</command>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+
+        <refsect1><title>Description</title>
+          <para>
+            Stops the overview stage and sends all other running stages to sleep.
+          </para>
+        </refsect1>
+      </refentry>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-system-validate</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-system-validate</refname>
+          <refpurpose>check system configuration</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool system-validate</command>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>
+            Checks DNS settings.
+          </para>
+        </refsect1>
+      </refentry>
+
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-system-import</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-system-import</refname>
+          <refpurpose>import from another stool installation</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool system-import</command>
+            <arg>-include <group><arg choice="plain">all</arg><arg choice="plain">config</arg><arg choice="plain">stages</arg></group></arg>
+            <arg choice="plain"><replaceable>other-home</replaceable></arg>
+            <group rep="repeat"><arg choice="plain"><replaceable>name</replaceable></arg><arg choice="plain"><replaceable>key=value</replaceable></arg></group>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Imports configuration and/or stages from a the specified directory.</para>
+        </refsect1>
+      </refentry>
+
       <refentry>
         <refmeta>
           <refentrytitle>stool-create</refentrytitle>
@@ -535,10 +560,6 @@
             configuration.</para>
         </refsect1>
       </refentry>
-    </section>
-
-    <section>
-      <title>Import</title>
 
       <refentry>
         <refmeta>
@@ -566,9 +587,50 @@
             template is %d.</para>
         </refsect1>
       </refentry>
+      <refentry>
+        <refmeta>
+          <refentrytitle>stool-select</refentrytitle>
+          <manvolnum>1</manvolnum>
+        </refmeta>
+        <refnamediv>
+          <refname>stool-select</refname>
+          <refpurpose>switches between stages</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool select</command>
+            <group>
+              <arg choice="plain"><replaceable>stage</replaceable></arg>
+              <arg choice="plain">none</arg>
+            </group>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1><title>Description</title>
+          <para>Prints the current stage when called without argument.</para>
+          <para>Changes the selected stage when called with a stage name:
+            <itemizedlist>
+              <listitem>
+                <para>Adjusts the environment variables for the selected stage (e.g. MAVEN_OPTS, JAVA_HOME).</para>
+              </listitem>
+              <listitem>
+                <para>Adjusts the selected stage indicator. If it's red, you're not the owner.</para>
+              </listitem>
+              <listitem>
+                <para>Changes the current working directory to the stage directory.</para>
+              </listitem>
+            </itemizedlist>
+          </para>
+          <para>When called with <option>none</option>: resets environment variables and removes the stage indicator.</para>
+          <para>If the specified stage is not found, the command prints an error message and lists stages that
+            you could have meant.
+          </para>
+        </refsect1>
+      </refentry>
     </section>
+
     <section>
-      <title>Build</title>
+      <title>Stage Commands</title>
 
       <refentry>
         <refmeta>
@@ -600,10 +662,6 @@
             of the user who started the overview. </para>
         </refsect1>
       </refentry>
-    </section>
-
-    <section>
-      <title>Remove</title>
 
       <refentry>
         <refmeta>
@@ -637,9 +695,6 @@
           </para>
         </refsect1>
       </refentry>
-    </section>
-    <section>
-      <title>Start</title>
 
       <refentry>
         <refmeta>
@@ -686,10 +741,7 @@
             application, the login environment of the stage owner defines the basic environment.</para>
         </refsect1>
       </refentry>
-    </section>
 
-    <section>
-      <title>Stop</title>
 
       <refentry>
         <refmeta>
@@ -711,10 +763,6 @@
           <para>Stops tomcat of the respective stage. If <option>-sleep</option> is specified, the stage is also marked as sleeping.</para>
         </refsect1>
       </refentry>
-    </section>
-
-    <section>
-      <title>Restart</title>
 
       <refentry>
         <refmeta>
@@ -741,9 +789,7 @@
           </para>
         </refsect1>
       </refentry>
-    </section>
-    <section>
-      <title>Refresh</title>
+
 
       <refentry>
         <refmeta>
@@ -777,9 +823,7 @@
           to skip this step.)</para>
         </refsect1>
       </refentry>
-    </section>
-    <section>
-      <title>Chown</title>
+
 
       <refentry>
         <refmeta>
@@ -811,11 +855,6 @@
         </refsect1>
       </refentry>
 
-    </section>
-
-    <section>
-      <title>History</title>
-
       <refentry>
         <refmeta>
           <refentrytitle>stool-history</refentrytitle>
@@ -838,55 +877,7 @@
           command or range of commands. If the max number of commands is exceeded, older commands are ignores (defauls is 999). </para>
         </refsect1>
       </refentry>
-    </section>
 
-    <section>
-      <title>Select</title>
-
-      <refentry>
-        <refmeta>
-          <refentrytitle>stool-select</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
-        <refnamediv>
-          <refname>stool-select</refname>
-          <refpurpose>switches between stages</refpurpose>
-        </refnamediv>
-
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool select</command>
-            <group>
-              <arg choice="plain"><replaceable>stage</replaceable></arg>
-              <arg choice="plain">none</arg>
-            </group>
-          </cmdsynopsis>
-        </refsynopsisdiv>
-        <refsect1><title>Description</title>
-          <para>Prints the current stage when called without argument.</para>
-          <para>Changes the selected stage when called with a stage name:
-            <itemizedlist>
-              <listitem>
-                <para>Adjusts the environment variables for the selected stage (e.g. MAVEN_OPTS, JAVA_HOME).</para>
-              </listitem>
-              <listitem>
-                <para>Adjusts the selected stage indicator. If it's red, you're not the owner.</para>
-              </listitem>
-              <listitem>
-                <para>Changes the current working directory to the stage directory.</para>
-              </listitem>
-            </itemizedlist>
-          </para>
-          <para>When called with <option>none</option>: resets environment variables and removes the stage indicator.</para>
-          <para>If the specified stage is not found, the command prints an error message and lists stages that
-            you could have meant.
-          </para>
-        </refsect1>
-      </refentry>
-    </section>
-
-    <section>
-      <title>Cd</title>
 
       <refentry>
         <refmeta>
@@ -923,10 +914,6 @@
           <para><command>stool cd logs</command> will jumps to shared/tomcat/logs inside your backstage.</para>
         </refsect1>
       </refentry>
-    </section>
-
-    <section>
-      <title>Config</title>
 
       <refentry>
         <refmeta>
@@ -970,10 +957,7 @@
           </para>
         </refsect1>
       </refentry>
-    </section>
 
-    <section>
-      <title>Rename</title>
 
       <refentry>
         <refmeta>
@@ -997,10 +981,6 @@
           </para>
         </refsect1>
       </refentry>
-    </section>
-
-    <section>
-      <title>Move</title>
 
       <refentry>
         <refmeta>
@@ -1027,9 +1007,6 @@
             absolute paths (e.g. Lavender ...).</para>
         </refsect1>
       </refentry>
-    </section>
-    <section>
-      <title>List</title>
 
       <refentry>
         <refmeta>
@@ -1050,9 +1027,6 @@
           <para>Prints a short status of the selected stages; default selection is <option>-all</option></para>
         </refsect1>
       </refentry>
-    </section>
-    <section>
-      <title>Cleanup</title>
 
       <refentry>
         <refmeta>
@@ -1073,9 +1047,6 @@
           <para>Removes the Maven repository and rotages *.log info an archive.</para>
         </refsect1>
       </refentry>
-    </section>
-    <section>
-      <title>Status</title>
 
       <refentry>
         <refmeta>
@@ -1097,9 +1068,6 @@
           <para>Prints status fields of the stage. Default: all fields.</para>
         </refsect1>
       </refentry>
-    </section>
-    <section>
-      <title>Validate</title>
 
       <refentry>
         <refmeta>
@@ -1121,53 +1089,6 @@
         <refsect1><title>Description</title>
           <para>Checks if the until date of the stage has expired. If so, and <option>-stop</option> is specified, the stage is stopped.
             And if <option>-email</option> is specified, a notification mail is sent to the stage owner.</para>
-        </refsect1>
-      </refentry>
-    </section>
-    <section>
-      <title>Help</title>
-
-      <refentry>
-        <refmeta>
-          <refentrytitle>stool-help</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
-        <refnamediv>
-          <refname>stool-help</refname>
-          <refpurpose>prints man page</refpurpose>
-        </refnamediv>
-
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool help</command>
-            <arg><replaceable>command</replaceable></arg>
-          </cmdsynopsis>
-        </refsynopsisdiv>
-        <refsect1><title>Description</title>
-          <para>Prints help about the specified command. Or, if command is not specified, prints help about Stool.</para>
-        </refsect1>
-      </refentry>
-    </section>
-    <section>
-      <title>Version</title>
-
-      <refentry>
-        <refmeta>
-          <refentrytitle>stool-version</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
-        <refnamediv>
-          <refname>stool-version</refname>
-          <refpurpose>prints version info</refpurpose>
-        </refnamediv>
-
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool version</command>
-          </cmdsynopsis>
-        </refsynopsisdiv>
-        <refsect1><title>Description</title>
-          <para>Prints version info.</para>
         </refsect1>
       </refentry>
     </section>

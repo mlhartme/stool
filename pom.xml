@@ -310,14 +310,14 @@
         </configuration>
         <executions>
           <execution>
-            <id>manual-html</id>
+            <id>manual-xhtml</id>
             <phase>pre-site</phase>
             <goals>
               <goal>generate-html</goal>
             </goals>
             <configuration>
               <targetDirectory>${basedir}/target/site</targetDirectory>
-              <chunkedOutput>false</chunkedOutput>
+              <chunkedOutput>true</chunkedOutput>
               <generateSectionTocLevel>0</generateSectionTocLevel>
             </configuration>
           </execution>
