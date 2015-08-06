@@ -321,55 +321,51 @@ http://docbook.org/ns/docbook ">
         <refsect1><title>Description</title>
           <para>Stool is a command line tool that provides a lifecycle for stages: create, configure, build, run and remove.
             A stage contains web applications built from source or downloaded as artifacts.</para>
-          <para>
+          <refsect2>
+            <title>Commands</title>
+            <xi:include href="../../../target/synopsis.xml" />
+          </refsect2>
+          <refsect2>
+            <title>Global options</title>
+            <itemizedlist>
+              <listitem><para><option>-v</option> enables verbose output</para></listitem>
+              <listitem><para><option>-e</option> prints stacktrace for all errors</para></listitem>
+              <listitem><para><option>-svnuser</option> specified the user name for svn operations</para></listitem>
+              <listitem><para><option>-svnpassword</option> specifies the password for svn</para></listitem>
+            </itemizedlist>
+          </refsect2>
+          <refsect2>
+            <title>Select options for stage commands</title>
             <variablelist>
-              <title>Global options</title>
-              <varlistentry><term>-v</term><listitem>verbose output</listitem></varlistentry>
-              <varlistentry><term>-e</term><listitem>print stacktrace for all errors</listitem></varlistentry>
-              <varlistentry><term>-svnuser</term><listitem>user name for svn operations</listitem></varlistentry>
-              <varlistentry><term>-svnpassword</term><listitem>password for svn</listitem></varlistentry>
+              <varlistentry><term>(no selection)</term><listitem><para>operate on the selected stage</para></listitem></varlistentry>
+              <varlistentry><term>-all</term><listitem><para>operate on all stages</para></listitem></varlistentry>
+              <varlistentry><term>-stage &lt;predicate></term><listitem><para>operate on all stages matching the specified predicate</para></listitem></varlistentry>
             </variablelist>
-          </para>
-          <para>
-            <variablelist>
-              <title>Select options for stage commands</title>
-              <varlistentry><term>(no selection)</term><listitem>operate on the selected stage</listitem></varlistentry>
-              <varlistentry><term>-all</term><listitem>operate on all stages</listitem></varlistentry>
-              <varlistentry><term>-stage &lt;predicate></term><listitem>operate on all stages matching the specified predicate</listitem></varlistentry>
-            </variablelist>
-          </para>
-          <para>
-            <variablelist>
-              <title>Failure mode for stage commands</title>
-              <varlistentry><term>-fail normal</term><listitem>fail immediately</listitem></varlistentry>
-              <varlistentry><term>-fail after</term><listitem>fail after iterating all stages</listitem></varlistentry>
-              <varlistentry><term>-fail never</term><listitem>report errors as warning</listitem></varlistentry>
-            </variablelist>
-          </para>
-        </refsect1>
-        <refsect1>
-          <title>Selection predicates</title>
-          <programlisting>
-or        = and {',' and}
-and       = cmp {'+' cmp}
-cmp       = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring)
-prefix    = VALUE '*'
-suffix    = '*' VALUE
-substring = '*' VALUE '*'
-FIELD     # status field
-PROPERTY  # configuration property
-          </programlisting>
+          </refsect2>
+          <variablelist>
+            <title>Failure mode for stage commands</title>
+            <varlistentry><term>-fail normal</term><listitem><para>fail immediately</para></listitem></varlistentry>
+            <varlistentry><term>-fail after</term><listitem><para>fail after iterating all stages</para></listitem></varlistentry>
+            <varlistentry><term>-fail never</term><listitem><para>report errors as warning</para></listitem></varlistentry>
+          </variablelist>
+          <refsect2>
+            <title>Selection predicates</title>
+            <programlisting>
+              or        = and {',' and}
+              and       = cmp {'+' cmp}
+              cmp       = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring)
+              prefix    = VALUE '*'
+              suffix    = '*' VALUE
+              substring = '*' VALUE '*'
+              FIELD     # status field
+              PROPERTY  # configuration property
+            </programlisting>
+          </refsect2>
         </refsect1>
         <refsect1>
           <title>Examples</title>
           <para>Create an artifact stage: stool create gav:net.oneandone:hellowar:1.0.2</para>
           <para>Create a source stage: stool create https://github.com/mlhartme/hellowar/trunk</para>
-        </refsect1>
-        <refsect1>
-          <title>Commands</title>
-          <para>
-            <xi:include href="../../../target/synopsis.xml" />
-          </para>
         </refsect1>
         <refsect1>
           <title>See Also</title>

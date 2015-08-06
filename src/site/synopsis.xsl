@@ -4,20 +4,13 @@
   <xsl:output method="xml" indent="yes"/>
 
   <xsl:template match="/">
-    <x:variablelist>
+    <x:itemizedlist>
       <xsl:apply-templates select=".//x:refentry"/>
-    </x:variablelist>
+    </x:itemizedlist>
   </xsl:template>
 
   <xsl:template match="x:refentry">
-    <x:varlistentry><x:term><xsl:value-of select="x:refsynopsisdiv/x:cmdsynopsis/x:command"/></x:term><x:listitem><xsl:value-of select="x:refnamediv/x:refpurpose"/></x:listitem></x:varlistentry>
+    <x:listitem><x:para><x:command><xsl:value-of select="x:refsynopsisdiv/x:cmdsynopsis/x:command"/></x:command> - <xsl:value-of select="x:refnamediv/x:refpurpose"/></x:para></x:listitem>
   </xsl:template>
 
-  <!--
-  <xsl:template match="@*|node()">
-    <xsl:copy>
-      <xsl:apply-templates select="@*|node()"/>
-    </xsl:copy>
-  </xsl:template>
--->
 </xsl:stylesheet>
