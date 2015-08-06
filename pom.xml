@@ -286,6 +286,11 @@
             <artifactId>ant-trax</artifactId>
             <version>1.7.0</version>
           </dependency>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-nodeps</artifactId>
+            <version>1.7.0</version>
+          </dependency>
         </dependencies>
         <configuration>
           <sourceDirectory>src/site/manual</sourceDirectory>
@@ -300,6 +305,7 @@
             <xslt processor="trax" in="${basedir}/src/site/manual/manual.xml" out="${project.build.directory}/synopsis.xml"
                   style="${basedir}/src/site/synopsis.xsl">
             </xslt>
+            <schemavalidate failonerror="false" file="${basedir}/src/site/manual/manual.xml" />
           </preProcess>
         </configuration>
         <executions>

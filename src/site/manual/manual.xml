@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding='UTF-8'?>
-<book version="5.0" xmlns="http://docbook.org/ns/docbook"
-      xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0CR7/xsd/docbook.xsd
-http://docbook.org/ns/docbook ">
+<book version="5.0"
+      xmlns="http://docbook.org/ns/docbook"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
+        http://www.w3.org/2001/XInclude http://www.w3.org/2001/XInclude/XInclude.xsd">
   <info>
     <title>Stool</title>
     <subtitle>Stage Tool</subtitle>
@@ -93,9 +95,9 @@ http://docbook.org/ns/docbook ">
       <title>Rationale</title>
       <para>Why not use virtual machine instead of creating stages with Stool? Stool offers the following benefits:</para>
       <itemizedlist>
-        <listitem>creating stages is faster</listitem>
-        <listitem>creating stages is fully automatic, virtual machine might need extra steps like dns setup, cerfificates etc</listitem>
-        <listitem>if you have firewalls, you can set them up once for all stages; that's way more difficult for virtual machines</listitem>
+        <listitem><para>creating stages is faster</para></listitem>
+        <listitem><para>creating stages is fully automatic, virtual machine might need extra steps like dns setup, cerfificates etc</para></listitem>
+        <listitem><para>if you have firewalls, you can set them up once for all stages; that's way more difficult for virtual machines</para></listitem>
       </itemizedlist>
     </sect1>
   </chapter>
@@ -137,11 +139,11 @@ http://docbook.org/ns/docbook ">
           <listitem>
             <formalpara>
               <title>url</title>
-              <para>Specifies where the web applications come from: A Subversion URL or Maven Coordinates.</para>
+              <para>Specifies where the web applications come from: A Subversion URL or Maven Coordinates.
               <programlisting>Examples
                 https://github.com/mlhartme/hellowar/trunk
                 gav:net.oneandone:hellowar:1.0.2
-              </programlisting>
+              </programlisting></para>
             </formalpara>
           </listitem>
           <listitem>
@@ -156,13 +158,13 @@ http://docbook.org/ns/docbook ">
               <para>one of
                 <itemizedlist>
                   <listitem>
-                    down: initial state or after stage was stopped
+                    <para>down: initial state or after stage was stopped</para>
                   </listitem>
                   <listitem>
-                    up: state after successful start or restart
+                    <para>up: state after successful start or restart</para>
                   </listitem>
                   <listitem>
-                    sleeping: state after stage was stopped with '-sleep'
+                    <para>sleeping: state after stage was stopped with '-sleep'</para>
                   </listitem>
                 </itemizedlist>
               </para>
@@ -248,10 +250,10 @@ http://docbook.org/ns/docbook ">
 
       <para>Rationale:
         <itemizedlist>
-          <listitem>Tool users like 'servlet' or 'stage5' have to be replaced by personalized logins (security guideline).</listitem>
-          <listitem>We need to know exactly who changed a stage file (security guideline).</listitem>
-          <listitem>It's difficult and fragile to grant multiple users write access to stage files (e.g. via umask configuration),
-            in particular because the respective user's home directories have to be private.
+          <listitem><para>Tool users like 'servlet' or 'stage5' have to be replaced by personalized logins (security guideline).</para></listitem>
+          <listitem><para>We need to know exactly who changed a stage file (security guideline).</para></listitem>
+          <listitem><para>It's difficult and fragile to grant multiple users write access to stage files (e.g. via umask configuration),
+            in particular because the respective user's home directories have to be private.</para>
           </listitem>
         </itemizedlist>
         Ownership is meant to track changes, not to prevent them.
@@ -296,7 +298,7 @@ http://docbook.org/ns/docbook ">
   <chapter>
     <title>Commands</title>
 
-    <sect1>
+    <section>
       <title>Stool</title>
       <refentry>
         <refmeta>
@@ -342,12 +344,14 @@ http://docbook.org/ns/docbook ">
               <varlistentry><term>-stage &lt;predicate></term><listitem><para>operate on all stages matching the specified predicate</para></listitem></varlistentry>
             </variablelist>
           </refsect2>
-          <variablelist>
+          <refsect2>
             <title>Failure mode for stage commands</title>
-            <varlistentry><term>-fail normal</term><listitem><para>fail immediately</para></listitem></varlistentry>
-            <varlistentry><term>-fail after</term><listitem><para>fail after iterating all stages</para></listitem></varlistentry>
-            <varlistentry><term>-fail never</term><listitem><para>report errors as warning</para></listitem></varlistentry>
-          </variablelist>
+            <variablelist>
+              <varlistentry><term>-fail normal</term><listitem><para>fail immediately</para></listitem></varlistentry>
+              <varlistentry><term>-fail after</term><listitem><para>fail after iterating all stages</para></listitem></varlistentry>
+              <varlistentry><term>-fail never</term><listitem><para>report errors as warning</para></listitem></varlistentry>
+            </variablelist>
+          </refsect2>
           <refsect2>
             <title>Selection predicates</title>
             <programlisting>
@@ -373,14 +377,14 @@ http://docbook.org/ns/docbook ">
           <para>Invoke 'stool help &lt;command>' to see more details.</para>
         </refsect1>
       </refentry>
-    </sect1>
+    </section>
 
-    <sect1>
+    <section>
       <title>System commands</title>
 
       <para>Commands that do not deal with individual stages.</para>
 
-      <sect2>
+      <section>
         <title>System Start</title>
         <refentry>
           <refmeta>
@@ -406,9 +410,9 @@ http://docbook.org/ns/docbook ">
           </refsect1>
 
         </refentry>
-      </sect2>
+      </section>
 
-      <sect2>
+      <section>
         <title>System Stop</title>
         <refentry>
           <refmeta>
@@ -433,9 +437,9 @@ http://docbook.org/ns/docbook ">
             </para>
           </refsect1>
         </refentry>
-      </sect2>
+      </section>
 
-      <sect2>
+      <section>
         <title>System Validate</title>
         <refentry>
           <refmeta>
@@ -458,8 +462,8 @@ http://docbook.org/ns/docbook ">
             </para>
           </refsect1>
         </refentry>
-      </sect2>
-      <sect2>
+      </section>
+      <section>
         <title>System Import</title>
         <refentry>
           <refmeta>
@@ -483,9 +487,9 @@ http://docbook.org/ns/docbook ">
             <para>Imports configuration and/or stages from a the specified directory.</para>
           </refsect1>
         </refentry>
-      </sect2>
-    </sect1>
-    <sect1>
+      </section>
+    </section>
+    <section>
       <title>Create</title>
       <refentry>
         <refmeta>
@@ -531,9 +535,9 @@ http://docbook.org/ns/docbook ">
             configuration.</para>
         </refsect1>
       </refentry>
-    </sect1>
+    </section>
 
-    <sect1>
+    <section>
       <title>Import</title>
 
       <refentry>
@@ -562,8 +566,8 @@ http://docbook.org/ns/docbook ">
             template is %d.</para>
         </refsect1>
       </refentry>
-    </sect1>
-    <sect1>
+    </section>
+    <section>
       <title>Build</title>
 
       <refentry>
@@ -596,9 +600,9 @@ http://docbook.org/ns/docbook ">
             of the user who started the overview. </para>
         </refsect1>
       </refentry>
-    </sect1>
+    </section>
 
-    <sect1>
+    <section>
       <title>Remove</title>
 
       <refentry>
@@ -633,8 +637,8 @@ http://docbook.org/ns/docbook ">
           </para>
         </refsect1>
       </refentry>
-    </sect1>
-    <sect1>
+    </section>
+    <section>
       <title>Start</title>
 
       <refentry>
@@ -651,8 +655,8 @@ http://docbook.org/ns/docbook ">
           <cmdsynopsis>
             <command>stool start</command>
             <group>
-              <arg rep="plain">-debug</arg>
-              <arg rep="plain">-suspend</arg>
+              <arg choice="plain">-debug</arg>
+              <arg choice="plain">-suspend</arg>
             </group>
             <arg>-tail</arg>
           </cmdsynopsis>
@@ -682,9 +686,9 @@ http://docbook.org/ns/docbook ">
             application, the login environment of the stage owner defines the basic environment.</para>
         </refsect1>
       </refentry>
-    </sect1>
+    </section>
 
-    <sect1>
+    <section>
       <title>Stop</title>
 
       <refentry>
@@ -707,9 +711,9 @@ http://docbook.org/ns/docbook ">
           <para>Stops tomcat of the respective stage. If <option>-sleep</option> is specified, the stage is also marked as sleeping.</para>
         </refsect1>
       </refentry>
-    </sect1>
+    </section>
 
-    <sect1>
+    <section>
       <title>Restart</title>
 
       <refentry>
@@ -726,8 +730,8 @@ http://docbook.org/ns/docbook ">
           <cmdsynopsis>
             <command>stool restart</command>
             <group>
-              <arg rep="plain">-debug</arg>
-              <arg rep="plain">-suspend</arg>
+              <arg choice="plain">-debug</arg>
+              <arg choice="plain">-suspend</arg>
             </group>
           </cmdsynopsis>
         </refsynopsisdiv>
@@ -737,8 +741,8 @@ http://docbook.org/ns/docbook ">
           </para>
         </refsect1>
       </refentry>
-    </sect1>
-    <sect1>
+    </section>
+    <section>
       <title>Refresh</title>
 
       <refentry>
@@ -755,8 +759,8 @@ http://docbook.org/ns/docbook ">
           <cmdsynopsis>
             <command>stool refresh</command>
             <group>
-              <arg rep="plain">-debug</arg>
-              <arg rep="plain">-suspend</arg>
+              <arg choice="plain">-debug</arg>
+              <arg choice="plain">-suspend</arg>
             </group>
             <arg>-build</arg>
             <arg>-stop</arg>
@@ -773,8 +777,8 @@ http://docbook.org/ns/docbook ">
           to skip this step.)</para>
         </refsect1>
       </refentry>
-    </sect1>
-    <sect1>
+    </section>
+    <section>
       <title>Chown</title>
 
       <refentry>
@@ -807,9 +811,9 @@ http://docbook.org/ns/docbook ">
         </refsect1>
       </refentry>
 
-    </sect1>
+    </section>
 
-    <sect1>
+    <section>
       <title>History</title>
 
       <refentry>
@@ -834,9 +838,9 @@ http://docbook.org/ns/docbook ">
           command or range of commands. If the max number of commands is exceeded, older commands are ignores (defauls is 999). </para>
         </refsect1>
       </refentry>
-    </sect1>
+    </section>
 
-    <sect1>
+    <section>
       <title>Select</title>
 
       <refentry>
@@ -853,8 +857,8 @@ http://docbook.org/ns/docbook ">
           <cmdsynopsis>
             <command>stool select</command>
             <group>
-              <arg rep="plain"><replaceable>stage</replaceable></arg>
-              <arg rep="plain">none</arg>
+              <arg choice="plain"><replaceable>stage</replaceable></arg>
+              <arg choice="plain">none</arg>
             </group>
           </cmdsynopsis>
         </refsynopsisdiv>
@@ -863,13 +867,13 @@ http://docbook.org/ns/docbook ">
           <para>Changes the selected stage when called with a stage name:
             <itemizedlist>
               <listitem>
-                Adjusts the environment variables for the selected stage (e.g. MAVEN_OPTS, JAVA_HOME).
+                <para>Adjusts the environment variables for the selected stage (e.g. MAVEN_OPTS, JAVA_HOME).</para>
               </listitem>
               <listitem>
-                Adjusts the selected stage indicator. If it's red, you're not the owner.
+                <para>Adjusts the selected stage indicator. If it's red, you're not the owner.</para>
               </listitem>
               <listitem>
-                Changes the current working directory to the stage directory.
+                <para>Changes the current working directory to the stage directory.</para>
               </listitem>
             </itemizedlist>
           </para>
@@ -879,9 +883,9 @@ http://docbook.org/ns/docbook ">
           </para>
         </refsect1>
       </refentry>
-    </sect1>
+    </section>
 
-    <sect1>
+    <section>
       <title>Cd</title>
 
       <refentry>
@@ -904,13 +908,13 @@ http://docbook.org/ns/docbook ">
           <para>Changes the current working directory to the specified target:
             <itemizedlist>
               <listitem>
-                (empty): the stage directory
+                <para>(empty): the stage directory</para>
               </listitem>
               <listitem>
-                backstage: the stage's backstage directory.
+                <para>backstage: the stage's backstage directory.</para>
               </listitem>
               <listitem>
-                (otherwise): the specified direct or indirect sub-directory of the bachstage directory.
+                <para>(otherwise): the specified direct or indirect sub-directory of the bachstage directory.</para>
               </listitem>
             </itemizedlist>
           </para>
@@ -919,9 +923,9 @@ http://docbook.org/ns/docbook ">
           <para><command>stool cd logs</command> will jumps to shared/tomcat/logs inside your backstage.</para>
         </refsect1>
       </refentry>
-    </sect1>
+    </section>
 
-    <sect1>
+    <section>
       <title>Config</title>
 
       <refentry>
@@ -966,9 +970,9 @@ http://docbook.org/ns/docbook ">
           </para>
         </refsect1>
       </refentry>
-    </sect1>
+    </section>
 
-    <sect1>
+    <section>
       <title>Rename</title>
 
       <refentry>
@@ -984,7 +988,7 @@ http://docbook.org/ns/docbook ">
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool rename</command>
-            <arg rep="plain"><replaceable>name</replaceable></arg>
+            <arg choice="plain"><replaceable>name</replaceable></arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
@@ -993,9 +997,9 @@ http://docbook.org/ns/docbook ">
           </para>
         </refsect1>
       </refentry>
-    </sect1>
+    </section>
 
-    <sect1>
+    <section>
       <title>Move</title>
 
       <refentry>
@@ -1011,7 +1015,7 @@ http://docbook.org/ns/docbook ">
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool move</command>
-            <arg rep="plain"><replaceable>dest</replaceable></arg>
+            <arg choice="plain"><replaceable>dest</replaceable></arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
@@ -1023,8 +1027,8 @@ http://docbook.org/ns/docbook ">
             absolute paths (e.g. Lavender ...).</para>
         </refsect1>
       </refentry>
-    </sect1>
-    <sect1>
+    </section>
+    <section>
       <title>List</title>
 
       <refentry>
@@ -1046,8 +1050,8 @@ http://docbook.org/ns/docbook ">
           <para>Prints a short status of the selected stages; default selection is <option>-all</option></para>
         </refsect1>
       </refentry>
-    </sect1>
-    <sect1>
+    </section>
+    <section>
       <title>Cleanup</title>
 
       <refentry>
@@ -1069,8 +1073,8 @@ http://docbook.org/ns/docbook ">
           <para>Removes the Maven repository and rotages *.log info an archive.</para>
         </refsect1>
       </refentry>
-    </sect1>
-    <sect1>
+    </section>
+    <section>
       <title>Status</title>
 
       <refentry>
@@ -1086,15 +1090,15 @@ http://docbook.org/ns/docbook ">
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool status</command>
-            <arg rep="plain"><replaceable>field</replaceable></arg>
+            <arg choice="plain"><replaceable>field</replaceable></arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
           <para>Prints status fields of the stage. Default: all fields.</para>
         </refsect1>
       </refentry>
-    </sect1>
-    <sect1>
+    </section>
+    <section>
       <title>Validate</title>
 
       <refentry>
@@ -1119,8 +1123,8 @@ http://docbook.org/ns/docbook ">
             And if <option>-email</option> is specified, a notification mail is sent to the stage owner.</para>
         </refsect1>
       </refentry>
-    </sect1>
-    <sect1>
+    </section>
+    <section>
       <title>Help</title>
 
       <refentry>
@@ -1143,8 +1147,8 @@ http://docbook.org/ns/docbook ">
           <para>Prints help about the specified command. Or, if command is not specified, prints help about Stool.</para>
         </refsect1>
       </refentry>
-    </sect1>
-    <sect1>
+    </section>
+    <section>
       <title>Version</title>
 
       <refentry>
@@ -1166,7 +1170,7 @@ http://docbook.org/ns/docbook ">
           <para>Prints version info.</para>
         </refsect1>
       </refentry>
-    </sect1>
+    </section>
   </chapter>
 
   <chapter>
@@ -1245,19 +1249,19 @@ http://docbook.org/ns/docbook ">
 
       <para>Here's the best practice to roll-out a new version (unless it's only an incremental upgrade) on a machine:
         <itemizedlist>
-          <listitem>Run 'validate -all' and fix possible problems</listitem>
-          <listitem>Make sure there are no other shells open when you run setup-stool. This is crucial because existing
+          <listitem><para>Run 'validate -all' and fix possible problems</para></listitem>
+          <listitem><para>Make sure there are no other shells open when you run setup-stool. This is crucial because existing
             shells (in particular those of other users!) continue to access the old stool version, and this will usually
-            cause problems with the upgraded home directory.
+            cause problems with the upgraded home directory.</para>
           </listitem>
-          <listitem>'stool system-stop'</listitem>
-          <listitem>Run 'setup-stool' and adjust you shell initialization code.
+          <listitem><para>'stool system-stop'</para></listitem>
+          <listitem><para>Run 'setup-stool' and adjust you shell initialization code.</para>
           </listitem>
-          <listitem>Login with a new shell to get the updated Stool version and run the following commands
-            - but keep the original shell open until the commands succeeded:
+          <listitem><para>Login with a new shell to get the updated Stool version and run the following commands
+            - but keep the original shell open until the commands succeeded:</para>
           </listitem>
-          <listitem>'stool validate -all'</listitem>
-          <listitem>'stool system-start'</listitem>
+          <listitem><para>'stool validate -all'</para></listitem>
+          <listitem><para>'stool system-start'</para></listitem>
         </itemizedlist>
       </para>
     </sect1>
