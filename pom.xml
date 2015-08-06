@@ -313,7 +313,7 @@
             <id>manual-xhtml</id>
             <phase>pre-site</phase>
             <goals>
-              <goal>generate-html</goal>
+              <goal>generate-xhtml</goal>
             </goals>
             <configuration>
               <targetDirectory>${basedir}/target/site</targetDirectory>
@@ -338,6 +338,7 @@
               <goal>generate-manpages</goal>
             </goals>
             <configuration>
+              <manAuthorsSectionEnabled>false</manAuthorsSectionEnabled>
               <targetDirectory>${project.build.directory}/classes/templates/man</targetDirectory>
               <postProcess>
                 <apply executable="gzip">
