@@ -322,6 +322,16 @@
             </configuration>
           </execution>
           <execution>
+            <id>manual-pdf</id>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>generate-pdf</goal>
+            </goals>
+            <configuration>
+              <targetDirectory>${basedir}/target/site</targetDirectory>
+            </configuration>
+          </execution>
+          <execution>
             <id>manual-manpages</id>
             <phase>process-classes</phase>
             <goals>
@@ -329,7 +339,6 @@
             </goals>
             <configuration>
               <targetDirectory>${project.build.directory}/classes/templates/man</targetDirectory>
-              <generateSectionTocLevel>0</generateSectionTocLevel>
               <postProcess>
                 <apply executable="gzip">
                   <arg value="-9" />
