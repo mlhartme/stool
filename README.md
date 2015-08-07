@@ -1,6 +1,4 @@
-
-
-Downloads: https://github.com/mlhartme/stool/releases
+Homepage: https://github.com/mlhartme/stool
 
 Documentation: http://mlhartme.github.io/stool/manual.html
 

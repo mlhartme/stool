@@ -17,11 +17,9 @@
     <authorgroup>
       <author>
         <personname>Michael Hartmeier</personname>
-        <email>michael.hartmeier@1und1.de</email>
       </author>
       <author>
         <personname>Maximilian Braun</personname>
-        <email>maximilian.braun@1und1.de</email>
       </author>
     </authorgroup>
     <copyright>
@@ -315,12 +313,12 @@
     <title>Commands</title>
 
     <section>
-      <title>Main</title>
+      <title>Stool</title>
 
       <refentry>
         <refnamediv>
           <refname>stool</refname>
-          <refpurpose>stage tool</refpurpose>
+          <refpurpose>Stage tool</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -401,7 +399,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-help</refname>
-          <refpurpose>prints man page</refpurpose>
+          <refpurpose>Print man page</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -418,7 +416,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-version</refname>
-          <refpurpose>prints version info</refpurpose>
+          <refpurpose>Print version info</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -434,7 +432,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-system-start</refname>
-          <refpurpose>startup stages</refpurpose>
+          <refpurpose>Startup stages</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -454,7 +452,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-system-stop</refname>
-          <refpurpose>shutdown stages</refpurpose>
+          <refpurpose>Shutdown stages</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -473,7 +471,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-system-validate</refname>
-          <refpurpose>check system configuration</refpurpose>
+          <refpurpose>Check system configuration</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -491,7 +489,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-system-import</refname>
-          <refpurpose>import from another stool installation</refpurpose>
+          <refpurpose>Import from another stool installation</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -510,7 +508,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-create</refname>
-          <refpurpose>creates a new stage</refpurpose>
+          <refpurpose>Create a new stage</refpurpose>
         </refnamediv>
         <refsynopsisdiv>
           <cmdsynopsis>
@@ -539,19 +537,22 @@ PROPERTY  # configuration property
           <para>The new stage is configured with default stage properties. You can specify key-value pairs to override the
             defaults, or you can change the configuration later with <literal>stool config</literal>.
           </para>
-          <para>Unless specified with the <literal>-name</literal> option, the stage name is the directory name.</para>
+          <para>For artifact stages, the <literal>maven.home</literal> property is used to locate Maven Settings which configure
+            the repositories (and optional credentials) to download for artifacts.</para>
+          <para>Unless specified with the <literal>-name</literal> option, the stage name is the directory name, i.e. the last segment
+            of the absulute path to the stage directory.</para>
           <para>Instead of a <replaceable>url</replaceable> you can specify <literal>% </literal><replaceable>searchstring</replaceable>.
             This will search Pommes for the specified search string, show all corresponding svn urls (including branches), and ask you to select one.
           </para>
-          <para>Create reports an error if the available free disk space is low (the threshold is specified in the Stool
-            configuration.</para>
+          <para>Create reports an error if the available free disk space is low (the threshold is specified by the <literal>diskMin</literal> Stool
+            property.</para>
         </refsect1>
       </refentry>
 
       <refentry>
         <refnamediv>
           <refname>stool-import</refname>
-          <refpurpose>creates stages for existing directories</refpurpose>
+          <refpurpose>Create stages for existing directories</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -573,7 +574,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-select</refname>
-          <refpurpose>switches between stages</refpurpose>
+          <refpurpose>Switch between stages</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -614,7 +615,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-build</refname>
-          <refpurpose>builds a stage</refpurpose>
+          <refpurpose>Build a stage</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -641,7 +642,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-remove</refname>
-          <refpurpose>removes a stage</refpurpose>
+          <refpurpose>Remove a stage</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -670,7 +671,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-start</refname>
-          <refpurpose>starts a stage</refpurpose>
+          <refpurpose>Start a stage</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -712,7 +713,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-stop</refname>
-          <refpurpose>stops a stage</refpurpose>
+          <refpurpose>Stop a stage</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -729,7 +730,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-restart</refname>
-          <refpurpose>restarts a stage</refpurpose>
+          <refpurpose>Restart a stage</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -752,7 +753,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-refresh</refname>
-          <refpurpose>refreshes a stage</refpurpose>
+          <refpurpose>Refresh a stage</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -782,7 +783,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-chown</refname>
-          <refpurpose>changes the stage owner</refpurpose>
+          <refpurpose>Change the stage owner</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -808,7 +809,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-history</refname>
-          <refpurpose>prints the command history</refpurpose>
+          <refpurpose>Print the command history</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -828,7 +829,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-cd</refname>
-          <refpurpose>jump to directories</refpurpose>
+          <refpurpose>Jump to directories</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -860,7 +861,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-config</refname>
-          <refpurpose>manages stage properties</refpurpose>
+          <refpurpose>Manage stage properties</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -901,7 +902,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-rename</refname>
-          <refpurpose>changes the stage name</refpurpose>
+          <refpurpose>Change the stage name</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -920,7 +921,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-move</refname>
-          <refpurpose>moves the stage directory</refpurpose>
+          <refpurpose>Move the stage directory</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -942,7 +943,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-list</refname>
-          <refpurpose>lists stages</refpurpose>
+          <refpurpose>List stages</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -958,7 +959,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-cleanup</refname>
-          <refpurpose>cleanup a stage</refpurpose>
+          <refpurpose>Cleanup a stage</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -974,7 +975,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-status</refname>
-          <refpurpose>prints stage status</refpurpose>
+          <refpurpose>Print stage status</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -991,7 +992,7 @@ PROPERTY  # configuration property
       <refentry>
         <refnamediv>
           <refname>stool-validate</refname>
-          <refpurpose>validates the stage</refpurpose>
+          <refpurpose>Validate the stage</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>

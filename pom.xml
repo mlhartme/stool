@@ -305,6 +305,7 @@
               <goal>generate-manpages</goal>
             </goals>
             <configuration>
+              <!-- see http://docbook.sourceforge.net/release/xsl/1.76.1/doc/param.html -->
               <manAuthorsSectionEnabled>false</manAuthorsSectionEnabled>
               <targetDirectory>${project.build.directory}/classes/templates/man</targetDirectory>
               <preProcess>
@@ -333,17 +334,19 @@
             </configuration>
           </execution>
           <execution>
-            <id>manual-xhtml</id>
+            <id>manual-html</id>
             <phase>pre-site</phase>
             <goals>
-              <goal>generate-xhtml</goal>
+              <goal>generate-html</goal>
             </goals>
             <configuration>
               <targetDirectory>${basedir}/target/site</targetDirectory>
-              <chunkedOutput>true</chunkedOutput>
+              <chunkedOutput>false</chunkedOutput>
+              <sectionLabelIncludesComponentLabel>true</sectionLabelIncludesComponentLabel>
+              <sectionAutolabel>true</sectionAutolabel>
             </configuration>
           </execution>
-          <execution>
+          <!-- look ugly, too many page breaks: execution>
             <id>manual-pdf</id>
             <phase>pre-site</phase>
             <goals>
@@ -352,7 +355,7 @@
             <configuration>
               <targetDirectory>${basedir}/target/site</targetDirectory>
             </configuration>
-          </execution>
+          </execution -->
         </executions>
       </plugin>
       <plugin>
