@@ -316,7 +316,7 @@
                 <xslt processor="trax" in="${basedir}/src/site/manual/manual.xml" out="${project.build.directory}/synopsis.xml"
                       style="${basedir}/src/site/synopsis.xsl">
                 </xslt>
-                <schemavalidate failonerror="false" file="${basedir}/src/site/manual/manual.xml">
+                <schemavalidate file="${basedir}/src/site/manual/manual.xml">
                   <attribute name="http://apache.org/xml/features/xinclude" value="true" />
                 </schemavalidate>
               </preProcess>
