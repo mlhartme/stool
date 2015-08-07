@@ -296,41 +296,8 @@
           <sourceDirectory>src/site/manual</sourceDirectory>
           <includes>manual.xml</includes>
           <xincludeSupported>true</xincludeSupported>
-          <preProcess>
-            <tstamp>
-              <format pattern="yyyy-MM-d" property="now" />
-            </tstamp>
-            <mkdir dir="${project.build.directory}/site/manual" />
-            <echo file="${project.build.directory}/now.txt">${now}</echo>
-            <xslt processor="trax" in="${basedir}/src/site/manual/manual.xml" out="${project.build.directory}/synopsis.xml"
-                  style="${basedir}/src/site/synopsis.xsl">
-            </xslt>
-            <schemavalidate failonerror="false" file="${basedir}/src/site/manual/manual.xml" />
-          </preProcess>
         </configuration>
         <executions>
-          <execution>
-            <id>manual-xhtml</id>
-            <phase>pre-site</phase>
-            <goals>
-              <goal>generate-xhtml</goal>
-            </goals>
-            <configuration>
-              <targetDirectory>${basedir}/target/site</targetDirectory>
-              <chunkedOutput>true</chunkedOutput>
-              <generateSectionTocLevel>0</generateSectionTocLevel>
-            </configuration>
-          </execution>
-          <execution>
-            <id>manual-pdf</id>
-            <phase>pre-site</phase>
-            <goals>
-              <goal>generate-pdf</goal>
-            </goals>
-            <configuration>
-              <targetDirectory>${basedir}/target/site</targetDirectory>
-            </configuration>
-          </execution>
           <execution>
             <id>manual-manpages</id>
             <phase>process-classes</phase>
@@ -340,6 +307,19 @@
             <configuration>
               <manAuthorsSectionEnabled>false</manAuthorsSectionEnabled>
               <targetDirectory>${project.build.directory}/classes/templates/man</targetDirectory>
+              <preProcess>
+                <tstamp>
+                  <format pattern="yyyy-MM-d" property="now" />
+                </tstamp>
+                <mkdir dir="${project.build.directory}/site/manual" />
+                <echo file="${project.build.directory}/now.txt">${now}</echo>
+                <xslt processor="trax" in="${basedir}/src/site/manual/manual.xml" out="${project.build.directory}/synopsis.xml"
+                      style="${basedir}/src/site/synopsis.xsl">
+                </xslt>
+                <schemavalidate failonerror="false" file="${basedir}/src/site/manual/manual.xml">
+                  <attribute name="http://apache.org/xml/features/xinclude" value="true" />
+                </schemavalidate>
+              </preProcess>
               <postProcess>
                 <apply executable="gzip">
                   <arg value="-9" />
@@ -350,6 +330,27 @@
                   </fileset>
                 </apply>
               </postProcess>
+            </configuration>
+          </execution>
+          <execution>
+            <id>manual-xhtml</id>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>generate-xhtml</goal>
+            </goals>
+            <configuration>
+              <targetDirectory>${basedir}/target/site</targetDirectory>
+              <chunkedOutput>true</chunkedOutput>
+            </configuration>
+          </execution>
+          <execution>
+            <id>manual-pdf</id>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>generate-pdf</goal>
+            </goals>
+            <configuration>
+              <targetDirectory>${basedir}/target/site</targetDirectory>
             </configuration>
           </execution>
         </executions>
