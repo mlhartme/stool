@@ -627,16 +627,18 @@ PROPERTY  # configuration property
         <refsect1><title>Description</title>
           <para>Enters the stage directory and executes the build command specified in the <literal>build</literal> property.</para>
           <para>You can see the configured build command with <literal>stool config build</literal>, and you can change it with
-            <literal>stool config "build=command to build"</literal> (the quotes are mandatory if your command contains spaces).
+            <literal>stool config "build="</literal><replaceable>command to build</replaceable><literal>"</literal> (the quotes are
+            mandatory if your command contains spaces).
           </para>
-
           <para><command>stool build</command> does no extra magic besides entering the stage directory. Thus, it has exactly the same effect
             if you manually enter the stage directory and invoke the build command yourself, without Stool. <command>stool build</command>
-            is only for your convenience, you do not have to use it to build you project properly.
+            is only for your convenience, you do not have to use it to build you source stage properly.
           </para>
-          <para>The build command executes in the same environment (i.e. with the same environment variablens) as Stool is
+          <para>The pre-defined build command for artifact stages does nothing. Thus, you can invoke <literal>stool build</literal>
+            for artifact stages, it just has no effect.</para>
+          <para>The build command executes in the same environment (i.e. with the same environment variables) as Stool is
             executed. If you invoke <command>build</command> from the overview application, the build command executes in the environment
-            of the user who started the overview. </para>
+            of the user who started the overview stage.</para>
         </refsect1>
       </refentry>
 
@@ -658,13 +660,13 @@ PROPERTY  # configuration property
           <para>Removes the stage, i.e. deletes the stage directory and the backstage directory.</para>
           <para>Before deleting anything, this command checks if there are uncommitted changes or if the stage is started.
             If so, the command is aborted with an error. In this case, stop the stage and inspect the uncommitted changes; either
-            commit them or revert them. Alternatively, you can disable this check with the -force option.
+            commit them or revert them. Alternatively, you can disable this check with the <literal>-force</literal> option.
           </para>
           <para>Also, before removing anything, this command asks if you really want to remove the stage.
             You can disable this check with the <literal>-batch</literal> option.
           </para>
-          <para>If you specify the <literal>-backstage</literal> option, only the backstage directory will be deleted. This is useful to
-            "unimport" a stage, i.e. revert the effect of <literal>stool import</literal>.
+          <para>If you specify the <literal>-backstage</literal> option, only the backstage directory will be deleted.
+            This is useful to "unimport" a stage, i.e. revert the effect of <literal>stool import</literal>.
           </para>
         </refsect1>
       </refentry>
@@ -689,25 +691,26 @@ PROPERTY  # configuration property
           <para>Creates the necessary configuration and starts Tomcat. If the stage is an artifact stage,
             you can start it right away; otherwise, you have to build it first. Depending on your application,
             startup may take a while.</para>
-          <para>Startup is refused if your stage has expired. In this case, use <literal>stool config until=</literal><replaceable>newdata</replaceable> to configure
-            a new <literal>until</literal> date.
+          <para>Startup is refused if your stage has expired. In this case, use <literal>stool config until=</literal><replaceable>newdata</replaceable>
+            to configure a new <literal>until</literal> date.
           </para>
-          <para><option>-debug</option> and <option>-suspend</option> enable the debugger. The difference is that suspend waits for the
-            debugger to connect before starting any application code.</para>
-          <para>Use the <literal>-tail</literal> option to start tomcat and get catalina.out printed to the console. Press ctrl-c to stop watching
-            catalina.out, the application will continue to run. Alternatively, you can tail manually with
-            <literal>stool cd logs &amp;&amp; tail -f catalina.out</literal></para>
-          <para>The Tomcat version is configurable with <literal>stool config tomcat.version=</literal><replaceable>version</replaceable>. You have to restart the stage
-            when you change the version. The respective Tomcat will be downloaded automatically to the directory specified by the downloadCache
-            property (default is <literal>$STOOL_HOME/downloads</literal>). Alternatively, you can place customized Tomcats into this directory,
-            provided they unpack to a directory that matches the base file name of the tar.gz file.
+          <para><literal>-debug</literal> and <literal>-suspend</literal> enable the debugger. The difference is that <literal>-suspend</literal>
+            waits for the debugger to connect before starting any application code.</para>
+          <para>Use the <literal>-tail</literal> option to start tomcat and get <literal>catalina.out</literal> printed to the console.
+            Press ctrl-c to stop watching <literal>catalina.out</literal>, the application will continue to run. Alternatively, you can tail
+            manually with <literal>stool cd logs &amp;&amp; tail -f catalina.out</literal></para>
+          <para>The Tomcat version is configurable with <literal>stool config tomcat.version=</literal><replaceable>version</replaceable>.
+            You have to restart the stage when you change the version. The respective Tomcat will be downloaded automatically to the directory
+            specified by the <literal>downloadCache</literal> property (default is <literal>$STOOL_HOME/downloads</literal>). Alternatively,
+            you can place customized Tomcats into this directory, provided they unpack to a directory that matches the base file name of
+            the <literal>tar.gz</literal> file.
           </para>
-          <para>Start generates a Tomcat base directory if it does not yet exist. If it exists, only the server.xml is updated by taking
-            server.xml.template and adding all apps to it.
+          <para><literal>start</literal> generates a Tomcat base directory if it does not yet exist. If it exists, only the server.xml is updated
+            by taking server.xml.template and adding all apps to it. This allows for manual changes in the base directory.
           </para>
-          <para>The environment of the started application is the current environment restricted to the variables listed in the <literal>tomcat.env</literal>
-            property; variables listed there are passed to the application, all others are removed. If you invoke <literal>start</literal> from the overview
-            application, the login environment of the stage owner defines the basic environment.</para>
+          <para>The environment of the started application is the current environment restricted to the variables listed in the
+            <literal>tomcat.env</literal> property; variables listed there are passed to the application, all others are removed. If you invoke
+            <literal>start</literal> from the overview stage, the login environment of the stage owner defines the basic environment.</para>
         </refsect1>
       </refentry>
 
@@ -724,7 +727,7 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Stops tomcat of the respective stage. If <option>-sleep</option> is specified, the stage is also marked as sleeping.</para>
+          <para>Stops tomcat of the respective stage. If <literal>-sleep</literal> is specified, the stage is also marked as sleeping.</para>
         </refsect1>
       </refentry>
 
@@ -745,7 +748,7 @@ PROPERTY  # configuration property
         </refsynopsisdiv>
         <refsect1><title>Description</title>
           <para>
-            Shorthand for <command>stool stop</command> and <command>stool start</command> with the specified options.
+            Shorthand for <literal>stool stop</literal> and <literal>stool start</literal> with the specified options.
           </para>
         </refsect1>
       </refentry>
@@ -770,13 +773,13 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>First stops the stage if it is started. Then chowns that stage to the current user (unless stage owner and current user
-            are the same). Then updates artifact stages or - if <option>-build</option> is specified -
+          <para>First stops the stage if it is started. Then chowns that stage to the current user (unless stage owner
+            and current user are the same). Then updates artifact stages or - if <literal>-build</literal> is specified -
             invokes the command specified by the refresh property on source stages.</para>
-          <para>Next, if the owner was changed, the stage is chowned back to the original ower. (Specify <option>-own</option>
+          <para>Next, if the owner was changed, the stage is chowned back to the original owner. (Specify <literal>-own</literal>
           to skip this step.)</para>
-          <para>And finally, if the stage was initially started starts the stage again. (Specify <option>-stop</option>
-          to skip this step.)</para>
+          <para>And finally, if the stage was initially started, <literal>refresh</literal> starts the stage again.
+            (Specify <literal>-stop</literal> to skip this.)</para>
         </refsect1>
       </refentry>
 
@@ -798,12 +801,12 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Changes the stage owner, i.e. the owner of all files and directories in the stage directory and the backstage directory.</para>
-          <para>Before executing, chown checks if the stage has modified source files. If so, it asks for confirmation before changing ownership.
-            You can skip confirmation by specifying <option>-batch</option>.</para>
-          <para>Reports an error if the stage is running. In this case, you can specify <option>-stop</option> to stop the stage before
-            changing ownership and also start it afterwards.</para>
-          <para><option>user</option> defaults to the current user.</para>
+          <para>Changes the stage owner, i.e. the owner of all files and directories in the stage- and backstage directory.</para>
+          <para>Before executing, <literal>chown</literal> checks if the stage has modified source files. If so, it asks for
+            confirmation before changing ownership. You can skip confirmation by specifying <literal>-batch</literal>.</para>
+          <para>Reports an error if the stage is running. In this case, you can specify <literal>-stop</literal> to stop the stage
+            before changing ownership and also start it afterwards.</para>
+          <para><replaceable>user</replaceable> defaults to the current user.</para>
         </refsect1>
       </refentry>
 
@@ -821,11 +824,11 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Prints the command history of the stage. Speficy <option>detail</option> to the full command output for the respective
-          command or range of commands. If the max number of commands is exceeded, older commands are ignores (defauls is 999). </para>
+          <para>Prints the command history of the stage. Specify <replaceable>detail</replaceable> with a command number or a command
+            range to get the full command output for the respective command(s). If the max number <replaceable>n</replaceable> of
+            commands is exceeded, older commands are ignores (<replaceable>n</replaceable> defauls is 999). </para>
         </refsect1>
       </refentry>
-
 
       <refentry>
         <refnamediv>
@@ -840,22 +843,23 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Changes the current working directory to the specified target:
+          <para>Changes the current working directory to the specified <replaceable>target</replaceable>:
             <itemizedlist>
               <listitem>
                 <para>(empty): the stage directory</para>
               </listitem>
               <listitem>
-                <para>backstage: the stage's backstage directory.</para>
+                <para>backstage: the backstage directory.</para>
               </listitem>
               <listitem>
-                <para>(otherwise): the specified direct or indirect sub-directory of the bachstage directory.</para>
+                <para>(otherwise): the specified direct or indirect sub-directory of the backstage directory.</para>
               </listitem>
             </itemizedlist>
           </para>
         </refsect1>
         <refsect1><title>Example</title>
-          <para><literal>stool cd logs</literal> will jumps to shared/tomcat/logs inside your backstage.</para>
+          <para><literal>stool cd logs</literal> will jumps to <literal>shared/tomcat/logs</literal> inside your
+            backstage directory.</para>
         </refsect1>
       </refentry>
 
@@ -876,21 +880,22 @@ PROPERTY  # configuration property
         </refsynopsisdiv>
         <refsect1><title>Description</title>
           <para>Gets or sets stage properties. A property is a key-value pair that configures the respective stage.</para>
-          <para>When invoked without arguments, all properties are printed with documentation.</para>
-          <para>When invoked with one or more keys, the respective properties are printed.</para>
+          <para>When invoked without arguments, all stage properties are printed with documentation.</para>
+          <para>When invoked with one or more <replaceable>key</replaceable>s, the respective properties are printed.</para>
           <para>When invoked with one or more assignments, the respective properties are changed.
           </para>
           <para>If you want to set a property to a value with spaces, you have to use quotes around the key-value pair.
             Otherwise, the shell does not see what belongs to your value.</para>
           <para>If you change a property, you have to invoke the necessary re-builds or re-starts to make the changes
-            effective.</para>
-          <para>Date properties have the form <literal>yyyy-mm-dd</literal>, so a valid value for <literal>until</literal> is - e.g.
-            - <literal>2013-12-31</literal>.</para>
+            effective. E.g. if you change <literal>tomcat.heap</literal>, you have to run <literal>stool restart</literal>
+            to make the change effective.</para>
+          <para>Date properties have the form <replaceable>yyyy-mm-dd</replaceable>, so a valid value for <literal>until</literal>
+            is - e.g.  - <literal>2013-12-31</literal>.</para>
           <para>Values in list properties (e.g. <literal>tomcat.select</literal>) are separated by commas.</para>
         </refsect1>
         <refsect1><title>Examples</title>
-          <para><literal>stool config tomcat.heap</literal> prints the current value for the tomcat.heap property.</para>
-          <para><literal>stool config tomcat.heap=1000</literal> sets the tomcat heap size to 1000 mb.</para>
+          <para><literal>stool config tomcat.heap</literal> prints the current value for the <literal>tomcat.heap</literal> property.</para>
+          <para><literal>stool config tomcat.heap=1000</literal> sets the tomcat heap size to <literal>1000</literal> mb.</para>
           <para><literal>stool config "build=mvn clean package"</literal> sets a value with spaces</para>
           <para><literal>stool config tomcat.select=foo,bar</literal> configures a list property.
             Do not used spaces around the comma because the shell would consider this as a new key-value argument -- unless you
@@ -913,8 +918,8 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Changes the stage name without touching anything else. If the stage is up, you have to restart it to reflect
-            this change in your application url(s).
+          <para>Changes the stage name without changing the stage directory. If the stage is up, you have to restart it
+            to reflect this change in your application url(s).
           </para>
         </refsect1>
       </refentry>
@@ -932,9 +937,9 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Moves the stage directory without touching the stage name. If <command>dest</command> exists, it is moved into it.
-            Otherwise it is moved into the parent of dest with the specified name. This is the same behavior as the unix <literal>mv</literal> command,
-            but it also adjusts Stool's backstage directory.
+          <para>Moves the stage directory without touching the stage name. If <replaceable>dest</replaceable> exists, it is
+            moved into it. Otherwise it is moved into the parent of dest with the specified name. This is the same behavior as
+            the unix <literal>mv</literal> command, but it also adjusts Stool's backstage directory.
           </para>
           <para>You might have to re-build your application after moving the stage if you have development tools that store
             absolute paths (e.g. Lavender ...).</para>
@@ -953,7 +958,7 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Prints a short status of the selected stages; default selection is <option>-all</option></para>
+          <para>Prints a short status of the selected stages; default selection is <literal>-all</literal></para>
         </refsect1>
       </refentry>
 
@@ -969,7 +974,7 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Removes the Maven repository and rotages *.log info an archive.</para>
+          <para>Removes the Maven repository and rotates *.log info an archive.</para>
         </refsect1>
       </refentry>
 
@@ -986,7 +991,8 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Prints status fields of the stage. Default: all fields.</para>
+          <para>Prints the specified status <replaceable>field</replaceable>s of the stage.
+            Default: print all fields.</para>
         </refsect1>
       </refentry>
 
@@ -1004,8 +1010,9 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Checks if the until date of the stage has expired. If so, and <option>-stop</option> is specified, the stage is stopped.
-            And if <option>-email</option> is specified, a notification mail is sent to the stage owner.</para>
+          <para>Checks if the <literal>until</literal> date of the stage has expired. If so, and <literal>-stop</literal>
+            is specified, the stage is stopped. And if <literal>-email</literal> is specified, a notification mail is
+            sent to the stage owner.</para>
         </refsect1>
       </refentry>
     </section>
