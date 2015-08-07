@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.util;
 
-import ch.qos.logback.classic.Level;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.oneandone.maven.embedded.Maven;
@@ -241,14 +240,18 @@ public class Session {
 
         result = new ArrayList<>();
         for (FileNode backstage : backstages.list()) {
-            try {
-                stage = Stage.load(this, backstage);
-            } catch (IOException e) {
-                problems.add(backstage, e);
-                continue;
-            }
-            if (predicate.matches(stage)) {
-                result.add(stage);
+            if (StageConfiguration.file(backstage).exists()) {
+                try {
+                    stage = Stage.load(this, backstage);
+                } catch (IOException e) {
+                    problems.add(backstage, e);
+                    continue;
+                }
+                if (predicate.matches(stage)) {
+                    result.add(stage);
+                }
+            } else {
+                // stage is being created, we're usually waiting the the checkout to complete
             }
         }
         return result;

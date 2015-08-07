@@ -353,14 +353,14 @@
         <refsect2>
           <title>Selection predicates</title>
           <programlisting>
-            or        = and {',' and}
-            and       = cmp {'+' cmp}
-            cmp       = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring)
-            prefix    = VALUE '*'
-            suffix    = '*' VALUE
-            substring = '*' VALUE '*'
-            FIELD     # status field
-            PROPERTY  # configuration property
+or        = and {',' and}
+and       = cmp {'+' cmp}
+cmp       = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring)
+prefix    = VALUE '*'
+suffix    = '*' VALUE
+substring = '*' VALUE '*'
+FIELD     # status field
+PROPERTY  # configuration property
           </programlisting>
         </refsect2>
       </refsect1>

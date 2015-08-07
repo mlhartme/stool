@@ -505,6 +505,7 @@ public abstract class Stage {
     public void initialize() throws IOException {
         Files.createStoolDirectory(session.console.verbose, shared());
         directory.link(anchor());
+        // important: this is the last step in stage creation; creating this file indicates that the stage is ready
         session.saveStageProperties(configuration, backstage);
     }
 
