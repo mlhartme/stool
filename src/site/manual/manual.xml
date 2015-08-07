@@ -443,7 +443,7 @@ PROPERTY  # configuration property
 
         <refsect1><title>Description</title>
           <para>
-            Starts the stage overview and all sleeping stages.
+            Starts the overview stage and all sleeping stages.
           </para>
         </refsect1>
 
@@ -501,7 +501,8 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Imports configuration and/or stages from a the specified Stool home directory.</para>
+          <para>Imports configuration and/or stages from a the specified Stool home <replaceable>directory</replaceable>. This command is useful
+          to migrate stages from an older/different Stool installation.</para>
         </refsect1>
       </refentry>
 
@@ -527,25 +528,25 @@ PROPERTY  # configuration property
             In most cases, you invoke <literal>stool create</literal> similar to <literal>svn checkout</literal>: with an url and a directory.
           </para>
           <para><replaceable>url</replaceable> specifies the application you want to run in your stage. In many cases, the url is a subversion url and
-            Stool performs a checkout. Output of the checkout command is printed to the console unless the quiet option is specified.
+            Stool performs a checkout. Output of the checkout command is printed to the console unless the <literal>-quiet</literal> option is specified.
           </para>
-          <para><replaceable>directory</replaceable> specifies the stage directory to holding your application. If not specified, the current directory
-            with the last usable segment of the url (i.e. the last segment that is not trunk, tags, or branches) is used. You can specify an arbitrary
-            directory, as long as it does not exist yet and the parent directory exists and is writable for all users of the current group. Otherwise,
-            create reports an error.
-          </para>
-          <para>The new stage is configured with default stage properties. You can specify key-value pairs to override the
-            defaults, or you can change the configuration later with <literal>stool config</literal>.
-          </para>
-          <para>For artifact stages, the <literal>maven.home</literal> property is used to locate Maven Settings which configure
-            the repositories (and optional credentials) to download for artifacts.</para>
-          <para>Unless specified with the <literal>-name</literal> option, the stage name is the directory name, i.e. the last segment
-            of the absulute path to the stage directory.</para>
-          <para>Instead of a <replaceable>url</replaceable> you can specify <literal>% </literal><replaceable>searchstring</replaceable>.
+          <para>Instead of a <replaceable>url</replaceable> you can specify <literal>%</literal><replaceable>searchstring</replaceable>.
             This will search Pommes for the specified search string, show all corresponding svn urls (including branches), and ask you to select one.
           </para>
-          <para>Create reports an error if the available free disk space is low (the threshold is specified by the <literal>diskMin</literal> Stool
-            property.</para>
+          <para><replaceable>directory</replaceable> specifies the stage directory to holding your application. If not specified, the current directory
+            with the last usable segment of the <literal>url</literal> (i.e. the last segment that is not trunk, tags, or branches) is used. You can
+            specify an arbitrary directory, as long as it does not exist yet and the parent directory exists and is writable for all users of the
+            Stool group. Otherwise, create reports an error.
+          </para>
+          <para>The new stage is configured with default stage properties. You can specify <replaceable>key-value</replaceable> pairs to override the
+            defaults, or you can change the configuration later with <literal>stool config</literal>.
+          </para>
+          <para>For artifact stages, the <literal>maven.home</literal> property is used to locate Maven settings which configure
+            the repositories (and optional credentials) to download for artifact(s) from.</para>
+          <para>Unless specified with the <literal>-name</literal> option, the stage name is the directory name, i.e. the last segment
+            of the absolute path to the stage directory.</para>
+          <para><literal>create</literal> reports an error if the available free disk space is low (the threshold is specified by the
+            <literal>diskMin</literal> Stool property.</para>
         </refsect1>
       </refentry>
 
@@ -564,11 +565,11 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Scans the specified directories (recursively) for new stages and offers to import them. If the scan only
+          <para>Scans <replaceable>directory</replaceable> for stage candidates and offers to import them. If the scan only
             yields a single candidate, it will be imported and selected without additional interaction. Importing means that
             a backstage directory for the stage directory is created. </para>
-          <para><option>template</option> is a string, and any occurence of %d will be replaced by the current directory name. Default
-            template is %d.</para>
+          <para><replaceable>template</replaceable> is a string defining the stage name. And any occurrence of <literal>%d</literal>
+            will be replaced by the current directory name. Default template is <literal>%d</literal>.</para>
         </refsect1>
       </refentry>
       <refentry>
@@ -587,21 +588,21 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1><title>Description</title>
-          <para>Prints the current stage when called without argument.</para>
-          <para>Changes the selected stage when called with a stage name:
+          <para>Prints the selected stage when called without argument.</para>
+          <para>Changes the selected stage when called with a <replaceable>stage</replaceable> name:
             <itemizedlist>
               <listitem>
                 <para>Adjusts the environment variables for the selected stage (e.g. MAVEN_OPTS, JAVA_HOME).</para>
               </listitem>
               <listitem>
-                <para>Adjusts the selected stage indicator. If it's red, you're not the owner.</para>
+                <para>Adjusts the stage indicator. If it's red, you're not the owner.</para>
               </listitem>
               <listitem>
                 <para>Changes the current working directory to the stage directory.</para>
               </listitem>
             </itemizedlist>
           </para>
-          <para>When called with <option>none</option>: resets environment variables and removes the stage indicator.</para>
+          <para>When called with <literal>none</literal>: resets environment variables and removes the stage indicator.</para>
           <para>If the specified stage is not found, the command prints an error message and lists stages that
             you could have meant.
           </para>
