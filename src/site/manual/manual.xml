@@ -318,11 +318,6 @@
       <title>Main</title>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
-
         <refnamediv>
           <refname>stool</refname>
           <refpurpose>stage tool</refpurpose>
@@ -404,10 +399,6 @@ PROPERTY  # configuration property
       <para>Commands that do not deal with individual stages.</para>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-help</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-help</refname>
           <refpurpose>prints man page</refpurpose>
@@ -425,10 +416,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-version</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-version</refname>
           <refpurpose>prints version info</refpurpose>
@@ -445,11 +432,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-system-start</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
-
         <refnamediv>
           <refname>stool-system-start</refname>
           <refpurpose>startup stages</refpurpose>
@@ -470,11 +452,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-system-stop</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
-
         <refnamediv>
           <refname>stool-system-stop</refname>
           <refpurpose>shutdown stages</refpurpose>
@@ -494,10 +471,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-system-validate</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-system-validate</refname>
           <refpurpose>check system configuration</refpurpose>
@@ -516,10 +489,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-system-import</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-system-import</refname>
           <refpurpose>import from another stool installation</refpurpose>
@@ -539,10 +508,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-create</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-create</refname>
           <refpurpose>creates a new stage</refpurpose>
@@ -584,10 +549,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-import</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-import</refname>
           <refpurpose>creates stages for existing directories</refpurpose>
@@ -610,10 +571,6 @@ PROPERTY  # configuration property
         </refsect1>
       </refentry>
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-select</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-select</refname>
           <refpurpose>switches between stages</refpurpose>
@@ -655,10 +612,6 @@ PROPERTY  # configuration property
       <title>Stage Commands</title>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-build</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-build</refname>
           <refpurpose>builds a stage</refpurpose>
@@ -686,10 +639,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-remove</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-remove</refname>
           <refpurpose>removes a stage</refpurpose>
@@ -719,10 +668,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-start</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-start</refname>
           <refpurpose>starts a stage</refpurpose>
@@ -765,10 +710,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-stop</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-stop</refname>
           <refpurpose>stops a stage</refpurpose>
@@ -786,10 +727,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-restart</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-restart</refname>
           <refpurpose>restarts a stage</refpurpose>
@@ -813,10 +750,6 @@ PROPERTY  # configuration property
 
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-refresh</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-refresh</refname>
           <refpurpose>refreshes a stage</refpurpose>
@@ -847,10 +780,6 @@ PROPERTY  # configuration property
 
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-chown</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-chown</refname>
           <refpurpose>changes the stage owner</refpurpose>
@@ -877,10 +806,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-history</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-history</refname>
           <refpurpose>prints the command history</refpurpose>
@@ -901,10 +826,6 @@ PROPERTY  # configuration property
 
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-cd</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-cd</refname>
           <refpurpose>jump to directories</refpurpose>
@@ -937,10 +858,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-config</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-config</refname>
           <refpurpose>manages stage properties</refpurpose>
@@ -982,10 +899,6 @@ PROPERTY  # configuration property
 
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-rename</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-rename</refname>
           <refpurpose>changes the stage name</refpurpose>
@@ -1005,10 +918,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-move</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-move</refname>
           <refpurpose>moves the stage directory</refpurpose>
@@ -1031,10 +940,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-list</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-list</refname>
           <refpurpose>lists stages</refpurpose>
@@ -1051,10 +956,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-cleanup</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-cleanup</refname>
           <refpurpose>cleanup a stage</refpurpose>
@@ -1071,10 +972,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-status</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-status</refname>
           <refpurpose>prints stage status</refpurpose>
@@ -1092,10 +989,6 @@ PROPERTY  # configuration property
       </refentry>
 
       <refentry>
-        <refmeta>
-          <refentrytitle>stool-validate</refentrytitle>
-          <manvolnum>1</manvolnum>
-        </refmeta>
         <refnamediv>
           <refname>stool-validate</refname>
           <refpurpose>validates the stage</refpurpose>
