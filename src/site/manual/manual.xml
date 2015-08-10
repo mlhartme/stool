@@ -378,11 +378,6 @@ PROPERTY  # configuration property
           </refsect2>
         </refsect1>
         <refsect1>
-          <title>Examples</title>
-          <para>Create an artifact stage: <literal>stool create gav:net.oneandone:hellowar:1.0.2</literal></para>
-          <para>Create a source stage: <literal>stool create https://github.com/mlhartme/hellowar/trunk</literal></para>
-        </refsect1>
-        <refsect1>
           <title>See Also</title>
           <para>Homepage: https://github.com/mlhartme/stool</para>
           <para>Documentation: http://mlhartme.github.io/stool/manual.html</para>
@@ -547,6 +542,11 @@ PROPERTY  # configuration property
             of the absolute path to the stage directory.</para>
           <para><literal>create</literal> reports an error if the available free disk space is low (the threshold is specified by the
             <literal>diskMin</literal> Stool property.</para>
+        </refsect1>
+        <refsect1>
+          <title>Examples</title>
+          <para>Create an artifact stage: <literal>stool create gav:net.oneandone:hellowar:1.0.2</literal></para>
+          <para>Create a source stage: <literal>stool create https://github.com/mlhartme/hellowar/trunk</literal></para>
         </refsect1>
       </refentry>
 
