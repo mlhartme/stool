@@ -32,6 +32,7 @@
     <mavenVersion>3.2.5</mavenVersion>
     <wagonVersion>2.8</wagonVersion>
 
+    <!-- because dependencies diverge -->
     <enforcer.skip>true</enforcer.skip>
 
     <!-- disabled because it complains about comment-only code blocks -->
