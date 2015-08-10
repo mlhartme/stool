@@ -63,7 +63,7 @@ public class Config extends StageCommand {
         } catch (SecurityException e) {
             throw new ArgumentException(e.getMessage());
         }
-        if (selected.containsKey(key)) {
+        if (selected.containsKey(property)) {
             throw new ArgumentException("duplicate property: " + key);
         }
         if (get && set) {

@@ -23,6 +23,7 @@ import ch.qos.logback.core.encoder.Encoder;
 import ch.qos.logback.core.encoder.EncoderBase;
 import ch.qos.logback.core.rolling.RollingFileAppender;
 import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
+import net.oneandone.sushi.fs.Settings;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiOutputStream;
 import net.oneandone.sushi.io.PrefixWriter;
@@ -31,7 +32,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -98,7 +101,12 @@ public class Logging {
     public PrintWriter writer(OutputStream stream, String logger) {
         PrintWriter result;
 
-        result = new PrintWriter(MultiOutputStream.createTeeStream(stream, new Slf4jOutputStream(logger(logger), false)), true);
+        try {
+            result = new PrintWriter(
+                    new OutputStreamWriter(MultiOutputStream.createTeeStream(stream, new Slf4jOutputStream(logger(logger), false)), Settings.UTF_8), true);
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
         // empty prefix is replaced by stage commands when iterating multiple stages:
         result = new PrefixWriter(result);
         return result;
@@ -162,7 +170,11 @@ public class Logging {
 
             @Override
             public void init(OutputStream out) {
-                writer = new PrintWriter(out);
+                try {
+                    writer = new PrintWriter(new OutputStreamWriter(out, Settings.UTF_8));
+                } catch (UnsupportedEncodingException e) {
+                    throw new IllegalStateException(e);
+                }
             }
 
             @Override

@@ -21,12 +21,9 @@ import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Remaining;
 
 public class Help implements Command {
-    private final Console console;
-
     private String command = null;
 
-    public Help(Console console) {
-        this.console = console;
+    public Help() {
     }
 
     @Remaining

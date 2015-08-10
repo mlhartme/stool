@@ -287,13 +287,13 @@ public class Main extends Cli implements Command {
     @Override
     @Child("help")
     public Command help() {
-        return new Help(console);
+        return new Help();
     }
 
     @Override
     public void printHelp() {
         try {
-            new Help(console).invoke();
+            help().invoke();
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }

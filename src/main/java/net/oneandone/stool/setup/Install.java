@@ -28,18 +28,15 @@ import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
+import net.oneandone.sushi.fs.Settings;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
-import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 
@@ -138,7 +135,7 @@ public class Install {
     }
 
     private void doCreateBinWithoutHomeLink(Map<String, String> variables, FileNode destBin) throws IOException {
-        final byte[] marker = "exit $?\n".getBytes("utf8");
+        final byte[] marker = "exit $?\n".getBytes(Settings.UTF_8);
         byte[] bytes;
         int ofs;
 

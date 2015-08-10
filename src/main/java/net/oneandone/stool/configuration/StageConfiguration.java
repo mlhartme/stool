@@ -76,7 +76,7 @@ public class StageConfiguration {
     @Option(key = "pom", description = "pom file name")
     public String pom;
 
-    @Option(key = "tomcat.opts", description = "CATALINE_OPTS without heap/perm settings")
+    @Option(key = "tomcat.opts", description = "CATALINA_OPTS without heap/perm settings")
     public String tomcatOpts;
 
     @Option(key = "tomcat.version", description = "Tomcat version to use.")
@@ -107,7 +107,7 @@ public class StageConfiguration {
       description = "MAVEN_OPTS when building this stage. Supported variables: @trustStore@, @proxyOpts@ and @localRepository@")
     public String mavenOpts;
 
-    @Option(key = "until", description = "YYYY-MM-DD and optional time")
+    @Option(key = "until", description = "YYYY-MM-DD")
     public Until until;
 
     @Option(key = "suffix", description = "suffix for the link eg. http://1and1.com/{suffix}")

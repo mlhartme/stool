@@ -49,10 +49,6 @@ public class LogReader implements AutoCloseable {
         return new LogReader(files);
     }
 
-    private static boolean current(FileNode log) {
-        return log.getName().equals(log);
-    }
-
     private final List<FileNode> files;
     private LineReader reader;
 

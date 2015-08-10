@@ -74,8 +74,12 @@ public class Fitnesse implements Extension {
             File output = new File(projectDir + "/target/fitness-" + port + ".out");
             File error = new File(projectDir + "/target/fitness-" + port + ".err");
             if (!output.exists()) {
-                output.createNewFile();
-                error.createNewFile();
+                if (!output.createNewFile()) {
+                    throw new IOException("cannot create file: " + output);
+                }
+                if (!error.createNewFile()) {
+                    throw new IOException("cannot create file: " + error);
+                }
             }
 
             launcher.getBuilder().redirectOutput(output);
