@@ -19,7 +19,7 @@
 
   <groupId>net.oneandone</groupId>
   <artifactId>stool</artifactId>
-  <version>3.2.0-SNAPSHOT</version>
+  <version>3.2.0</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -81,7 +81,7 @@
     <connection>scm:git:ssh://git@github.com/mlhartme/stool.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/mlhartme/stool.git</developerConnection>
     <url>https://github.com/mlhartme/stool</url>
-    <tag>HEAD</tag>
+    <tag>stool-3.2.0</tag>
   </scm>
 
   <issueManagement>
@@ -317,8 +317,7 @@
                 </tstamp>
                 <mkdir dir="${project.build.directory}/site/manual" />
                 <echo file="${project.build.directory}/now.txt">${now}</echo>
-                <xslt processor="trax" in="${basedir}/src/site/manual/manual.xml" out="${project.build.directory}/synopsis.xml"
-                      style="${basedir}/src/site/synopsis.xsl">
+                <xslt processor="trax" in="${basedir}/src/site/manual/manual.xml" out="${project.build.directory}/synopsis.xml" style="${basedir}/src/site/synopsis.xsl">
                 </xslt>
                 <schemavalidate file="${basedir}/src/site/manual/manual.xml">
                   <attribute name="http://apache.org/xml/features/xinclude" value="true" />
@@ -329,7 +328,7 @@
                   <arg value="-9" />
                   <fileset dir="${project.build.directory}/classes/templates/man">
                     <patternset>
-                      <include name="**/*"/>
+                      <include name="**/*" />
                     </patternset>
                   </fileset>
                 </apply>
