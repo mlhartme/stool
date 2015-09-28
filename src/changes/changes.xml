@@ -41,6 +41,8 @@
       <action date="2015-07-10" dev="mlhartme" type="add">
         stool -exception throws an intentional exception now. To test error tool.
       </action>
+    </release>
+    <release version="3.1.2" date="2015-07-14"><!-- not released into artifactory -->
       <action date="2015-07-10" dev="mlhartme" type="fix">
         Source stages: properly detect web application directory even if they have now web.xml.
       </action>
