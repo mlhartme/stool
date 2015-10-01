@@ -24,7 +24,6 @@ import net.oneandone.stool.stage.artifact.Change;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.stage.artifact.Inbox;
 import net.oneandone.stool.stage.artifact.Maven;
-import net.oneandone.stool.stage.artifact.Dashboard;
 import net.oneandone.stool.stage.artifact.WarFile;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -212,8 +211,6 @@ public class ArtifactStage extends Stage {
 
         if ("@inbox".equals(application.artifact().getVersion())) {
             source = new Inbox(application.name(), getName(), session.home.join(Main.INBOX));
-        } else if ("@dashboard".equals(application.artifact().getVersion())) {
-            source = new Dashboard(Session.jdkHome(), session.console.world);
         } else {
             source = new Maven(application.artifact(), maven());
         }
