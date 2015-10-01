@@ -257,7 +257,7 @@ public class Session {
         return result;
     }
 
-    public List<Stage> listWithoutDashboard() throws IOException {
+    public List<Stage> listWithoutSystem() throws IOException {
         List<Stage> result;
         EnumerationFailed problems;
 
@@ -265,7 +265,7 @@ public class Session {
         result = list(problems, new Predicate() {
             @Override
             public boolean matches(Stage stage) {
-                return !stage.isDashboard();
+                return !stage.isSystem();
             }
         });
         for (Map.Entry<FileNode, Exception> entry : problems.problems.entrySet()) {

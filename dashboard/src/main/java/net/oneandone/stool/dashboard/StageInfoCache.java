@@ -38,7 +38,7 @@ public class StageInfoCache {
         if (System.currentTimeMillis() - lastCacheRenew > 4000) {
             stages.clear();
             session.wipeStaleBackstages();
-            for (Stage stage : session.listWithoutDashboard()) {
+            for (Stage stage : session.listWithoutSystem()) {
                 try {
                     stages.add(StageInfo.fromStage(logs, stage, users));
                 } catch (UserNotFound | NamingException e) {

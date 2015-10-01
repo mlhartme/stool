@@ -31,8 +31,6 @@ import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
 import net.oneandone.sushi.util.SubstitutionException;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -141,6 +139,7 @@ public class Start extends StageCommand {
     }
 
     private void ping(Stage stage) throws IOException, URISyntaxException, InterruptedException {
+        /* TODO
         URI uri;
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
         requestFactory.setConnectTimeout(500);
@@ -157,7 +156,7 @@ public class Start extends StageCommand {
                 }
             }
         }
-
+*/
     }
 
     //TODO: work-around for sushi http problem with proxies

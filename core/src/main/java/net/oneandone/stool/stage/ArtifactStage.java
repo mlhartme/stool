@@ -229,12 +229,6 @@ public class ArtifactStage extends Stage {
     }
 
     @Override
-    //TODO
-    public boolean isDashboard() {
-        return url.contains(":@dashboard");
-    }
-
-    @Override
     public Changes changes() {
         return applications.changes(shared(), session.users);
     }

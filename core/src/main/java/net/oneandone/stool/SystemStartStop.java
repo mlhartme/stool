@@ -40,7 +40,7 @@ public class SystemStartStop extends StageCommand {
         // put dashboard at the end -- work-around for dashboard problem: sleep state is not updated properly
         dashboard = null;
         for (Stage stage : result) {
-            if (stage.isDashboard()) {
+            if (stage.isSystem()) {
                 dashboard = stage;
             }
         }
@@ -54,7 +54,7 @@ public class SystemStartStop extends StageCommand {
     @Override
     public void doInvoke(Stage stage) throws Exception {
         if (start) {
-            if (stage.isDashboard() || stage.state() == Stage.State.SLEEPING) {
+            if (stage.isSystem() || stage.state() == Stage.State.SLEEPING) {
                 session.console.info.println("[" + stage.getName() + "]");
                 new Start(stage.session, false, false).doInvoke(stage);
             }
