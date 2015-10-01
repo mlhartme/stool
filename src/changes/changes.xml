@@ -2,6 +2,9 @@
   <body>
     <release version="3.3.0" date="2015-10-01">
       <action date="2015-10-01" dev="mlhartme" type="update">
+        Removed global portDashboard property.
+      </action>
+      <action date="2015-10-01" dev="mlhartme" type="update">
         Updated default tomcat version from 7.0.57 to 8.0.26.
       </action>
       <action date="2015-10-01" dev="mlhartme" type="update">

@@ -26,12 +26,11 @@ import java.util.List;
 public class Pool {
     private final int first;
     private final int last;
-    private final int dashboard;
 
     private final FileNode backstages;
     private List<Integer> lazyUsed;
 
-    public Pool(int first, int last, int dashboard, FileNode backstages) {
+    public Pool(int first, int last, FileNode backstages) {
         if (first % 2 != 0) {
             throw new IllegalArgumentException("even port expected: " + first);
         }
@@ -40,7 +39,6 @@ public class Pool {
         }
         this.first = first;
         this.last = last;
-        this.dashboard = dashboard;
         this.backstages = backstages;
         this.lazyUsed = null;
     }
@@ -81,7 +79,6 @@ public class Pool {
     public List<Integer> used() throws IOException {
         if (lazyUsed == null) {
             lazyUsed = new ArrayList<>();
-            lazyUsed.add(dashboard);
             for (FileNode backstage : backstages.list()) {
                 Ports.addUsed(backstage, lazyUsed);
             }

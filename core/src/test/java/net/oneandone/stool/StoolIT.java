@@ -65,8 +65,7 @@ public class StoolIT {
         system.set(Environment.PS1, "prompt");
         config = new HashMap<>();
         config.put("diskMin", "500");
-        config.put("portDashboard", "1300");
-        config.put("portFirst", "1302");
+        config.put("portFirst", "1300");
         config.put("portLast", "1319");
         new Install(Console.create(world), false, system.stoolBin(world), home.join("man"), config).standalone(TESTUSER, system, home);
         stages = home.getParent().join("stages");

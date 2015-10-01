@@ -37,9 +37,6 @@ public class StoolConfiguration {
 
     //--
 
-    /** may be separate port or part of the portFirst ... portLast range; has to end with 2 to use single-sign-on */
-    public int portDashboard;
-
     public int portFirst;
 
     public int portLast;
@@ -138,7 +135,6 @@ public class StoolConfiguration {
     public StoolConfiguration(FileNode downloadCache) {
         portFirst = 9000;
         portLast = 9999;
-        portDashboard = portFirst;
         baseHeap = 200;
         basePerm = 60;
         prompt = "{\\+} \\=";

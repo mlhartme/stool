@@ -500,7 +500,7 @@ public class Session {
     }
 
     public Pool createPool() {
-        return new Pool(configuration.portFirst, configuration.portLast, configuration.portDashboard, backstages);
+        return new Pool(configuration.portFirst, configuration.portLast, backstages);
     }
 
     public StageConfiguration createStageConfiguration(String url) throws IOException {

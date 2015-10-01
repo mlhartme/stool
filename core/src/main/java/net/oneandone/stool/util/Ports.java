@@ -51,19 +51,15 @@ public class Ports {
         hosts.putAll(stage.extensions().vhosts(stage));
         for (Map.Entry<String, FileNode> entry : hosts.entrySet()) {
             vhost = entry.getKey();
-            if (stage.isSystem() && vhost.equals("dashboard.dashboard")) {
-                even = stage.session.configuration.portDashboard;
-            } else {
-                even = 0;
-                if (previous != null) {
-                    host = previous.lookup(vhost);
-                    if (host != null) {
-                        even = host.even;
-                    }
+            even = 0;
+            if (previous != null) {
+                host = previous.lookup(vhost);
+                if (host != null) {
+                    even = host.even;
                 }
-                if (even == 0) {
-                    even = pool.allocate(vhost);
-                }
+            }
+            if (even == 0) {
+                even = pool.allocate(vhost);
             }
             result.hosts.add(new Host(even, vhost, stage.session.configuration.hostname, entry.getValue()));
         }
