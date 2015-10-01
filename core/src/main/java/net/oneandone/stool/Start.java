@@ -36,6 +36,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -139,24 +140,28 @@ public class Start extends StageCommand {
     }
 
     private void ping(Stage stage) throws IOException, URISyntaxException, InterruptedException {
-        /* TODO
         URI uri;
-        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(500);
+        Socket socket;
+        InputStream in;
+
         console.info.println("Ping'n Applications.");
-        Thread.sleep(2000);
         for (String url : stage.urlMap().values()) {
             if (url.startsWith("http://")) {
                 uri = new URI(url);
-                console.verbose.println("Opening connection to " + url);
-                try {
-                    requestFactory.createRequest(uri, HttpMethod.GET).execute();
-                } catch (IOException e) {
-                    console.verbose.println("Opening connection failed. " + e.getCause());
+                console.verbose.println("Ping'n " + url);
+                while (true) {
+                    try {
+                        socket = new Socket(uri.getHost(), uri.getPort());
+                        in = socket.getInputStream();
+                        in.close();
+                        break;
+                    } catch (IOException e) {
+                        console.verbose.println("port not ready yet: " + e.getCause());
+                        Thread.sleep(100);
+                    }
                 }
             }
         }
-*/
     }
 
     //TODO: work-around for sushi http problem with proxies

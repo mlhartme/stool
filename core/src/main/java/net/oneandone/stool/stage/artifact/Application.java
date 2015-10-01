@@ -105,12 +105,12 @@ public class Application {
     }
 
     public void replaceFutureWarFile(WarFile warFile) throws IOException {
-        futureWarFile = warFile.relocateTo(futureFile());
+        futureWarFile = warFile.saveTo(futureFile());
     }
 
     public void update() throws IOException {
         backup();
-        currentWarFile = futureWarFile().relocateTo(currentFile());
+        currentWarFile = futureWarFile().saveTo(currentFile());
         console.verbose.println("Update for " + artifactId() + " executed.");
         currentFile().getParent().join("ROOT").deleteTreeOpt();
     }
@@ -118,7 +118,7 @@ public class Application {
     public void restore() throws IOException {
         if (backupFile().exists()) {
             console.info.println("Restoring backup of  " + artifactId());
-            currentWarFile = backupWarFile().relocateTo(currentFile());
+            currentWarFile = backupWarFile().saveTo(currentFile());
             console.info.println("Restored.");
         } else {
             console.info.println("No backup available for " + artifactId());

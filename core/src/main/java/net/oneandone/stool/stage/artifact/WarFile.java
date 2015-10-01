@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.stage.artifact;
 
+import net.oneandone.sushi.fs.CopyException;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.MoveException;
 import net.oneandone.sushi.fs.Node;
@@ -22,10 +23,10 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.util.Properties;
+
 public class WarFile {
     private final FileNode file;
     private String md5;
-    private String svnurl;
     private String version;
     private long revision;
 
@@ -37,11 +38,11 @@ public class WarFile {
         return file.exists();
     }
 
-    public WarFile relocateTo(FileNode destination) throws MoveException, MkdirException {
+    public WarFile saveTo(FileNode destination) throws CopyException, MkdirException {
         if (!destination.getParent().exists()) {
             destination.getParent().mkdirs();
         }
-        return new WarFile((FileNode) file.move(destination, true));
+        return new WarFile((FileNode) file.copyFile(destination));
     }
 
     private String md5() {
@@ -84,7 +85,6 @@ public class WarFile {
         if (properties.get("scmConnection") == null || properties.get("build.revision") == null) {
             throw new IOException("Parent Pom is too old to assemble Changes. Please update.");
         }
-        svnurl = String.valueOf(properties.get("scmConnection"));
         version = String.valueOf(properties.get("version"));
         revision = Long.valueOf(String.valueOf(properties.get("build.revision")));
     }
