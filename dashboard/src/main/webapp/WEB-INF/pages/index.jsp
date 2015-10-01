@@ -2,10 +2,10 @@
 <html>
 <head>
     <title>Stool Dashboard</title>
-    <link href="resources/css/bootstrap.yeti.min.css" rel="stylesheet" type="text/css"/>
-    <link href="resources/css/font-awesome.min.css" rel="stylesheet" type="text/css" id="css">
-    <link href="resources/css/style.css" rel="stylesheet" type="text/css"/>
-    <link href="resources/css/shepherd-theme-arrows.css" rel="stylesheet" type="text/css"/>
+    <link href="css/bootstrap.yeti.min.css" rel="stylesheet" type="text/css"/>
+    <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css" id="css">
+    <link href="css/style.css" rel="stylesheet" type="text/css"/>
+    <link href="css/shepherd-theme-arrows.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="info">
@@ -138,9 +138,9 @@
         <!-- /.modal-dialog -->
     </div>
 </div>
-<script src="resources/js/lib/require.js" type="text/javascript"></script>
-<script src="resources/js/lib/driftwood.min.js" type="text/javascript"></script>
-<script src="resources/js/app/logging.js" type="text/javascript"></script>
-<script src="resources/js/dashboard.js" type="text/javascript" defer></script>
+<script src="js/lib/require.js" type="text/javascript"></script>
+<script src="js/lib/driftwood.min.js" type="text/javascript"></script>
+<script src="js/app/logging.js" type="text/javascript"></script>
+<script src="js/dashboard.js" type="text/javascript" defer></script>
 </body>
 </html>
