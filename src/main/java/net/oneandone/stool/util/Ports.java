@@ -52,7 +52,7 @@ public class Ports {
         for (Map.Entry<String, FileNode> entry : hosts.entrySet()) {
             vhost = entry.getKey();
             if (stage.isOverview() && vhost.equals("overview.overview")) {
-                even = stage.session.configuration.portOverview;
+                even = stage.session.configuration.portDashboard;
             } else {
                 even = 0;
                 if (previous != null) {
