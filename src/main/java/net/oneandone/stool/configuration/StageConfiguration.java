@@ -132,7 +132,7 @@ public class StageConfiguration {
         this.refresh = "svn @svnCredentials@ up";
         this.pom = "pom.xml";
         this.tomcatOpts = "";
-        this.tomcatVersion = "7.0.57";
+        this.tomcatVersion = "8.0.26";
         this.tomcatService = "3.5.26";
         this.tomcatHeap = 200;
         this.tomcatPerm = 64;
