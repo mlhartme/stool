@@ -13,17 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.overview;
+package net.oneandone.stool.dashboard;
 
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
-import net.oneandone.sushi.fs.CreateOutputStreamException;
-import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -39,12 +35,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
-import org.xml.sax.SAXException;
 
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.oneandone.stool.overview.config;
+package net.oneandone.stool.dashboard.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

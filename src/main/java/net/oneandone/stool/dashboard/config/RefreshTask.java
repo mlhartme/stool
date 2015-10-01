@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.overview.config;
+package net.oneandone.stool.dashboard.config;
 
-import net.oneandone.stool.overview.StoolCallable;
+import net.oneandone.stool.dashboard.StoolCallable;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
