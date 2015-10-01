@@ -113,13 +113,14 @@
     <sect1>
       <title>Stage</title>
 
-      <para>A stage hosts one or more Java web applications (https://en.wikipedia.org/wiki/Java_Servlet). A stage has a
+      <para>A stage is a Tomcat servlet container (http://tomcat.apache.org) with one or more Java web applications
+        (https://en.wikipedia.org/wiki/Java_Servlet). A stage has a
         <itemizedlist>
           <listitem>
             <formalpara>
               <title>directory</title>
               <para>Where the stage is stored in your file system. This is where you usually work with your stage.
-                It holds the source code or the artifacts of this stage. The directory is specified when you create a
+                It holds the source code or the war files of this stage. The directory is determined when you create a
                 stage. You can change the stage directory with <literal>stool move</literal>.
               </para>
             </formalpara>
@@ -129,8 +130,8 @@
               <title>name</title>
               <para>Unique identifier for a stage. The name of the selected stage is shown in your shell prompt, you
                 use it to switch between stages, and it's part of the application url(s).
-                In most cases, you create a stage without specifying a name, and the name is automatically derived
-                from the directory; you'll get an error message if it's not unique.
+                The name is determined when you create a stage (in most cases it's implicitly the name of the stage directory);
+                you'll get an error message if it's not unique.
                 You can change the name with <literal>stool rename</literal>.
               </para>
             </formalpara>
@@ -166,8 +167,9 @@
                       it was stopped</para>
                   </listitem>
                   <listitem>
-                    <para>sleeping: state after stage was stopped with <literal>-sleep</literal>. This state is used when a machine is
-                      rebooted, it flags the stages that should be started once the machine is up again.</para>
+                    <para>sleeping: stage is temporarily not running; state after stage was stopped with <literal>-sleep</literal>.
+                      This state is used e.g. when a machine is rebooted, it flags the stages that should be started once the machine
+                      is up again.</para>
                   </listitem>
                 </itemizedlist>
               </para>
@@ -210,7 +212,8 @@
       </para>
 
       <para>By default, stage commands operate on the selected stage. You can change this by specifying one of the
-        selection options <literal>-all</literal> or <literal>-stage </literal><replaceable>expr</replaceable>. E.g. <literal>stool status -stage owner=mhm</literal>
+        selection options <literal>-all</literal> (to operate on all stages) or <literal>-stage </literal><replaceable>expr</replaceable>
+        to operate on stages that match <replaceable>expr</replaceable>. E.g. <literal>stool status -stage owner=mhm</literal>
         prints the status of all stages owned by user <literal>mhm</literal>. Or you can print the configuration of stage <literal>foo</literal>
         with <literal>stool config -stage foo</literal> without changing the selected stage.
       </para>
@@ -226,9 +229,10 @@
     <sect1>
       <title>Stage owner</title>
 
-      <para>Stool can run in shared mode to comply with company security rules. If you run Stool on your own machine
-        and you are the only user, you'll set <literal>shared</literal> to false - you can skip the rest of this section. On the other
-        hand, if Stool is used by multiple users, you'll used shared mode as described below.
+      <para>Stool has a <literal>shared</literal> configuration property. If you run Stool on your own machine
+        and you are the only user, you'll set it to <literal>false</literal> - you can skip the rest of this section. On the other
+        hand, if Stool is used by multiple users, you have to comply with company security rules. Set <literal>shared</literal> to
+        <literal>true</literal> to use Stool as described below.
       </para>
 
       <para>If you create a new stage, you become the owner of this stage. You own the files in the stage directory
@@ -259,7 +263,7 @@
             (security guideline).</para></listitem>
           <listitem><para>We need to know exactly who changed a stage file (security guideline).</para></listitem>
           <listitem><para>It's difficult and fragile to grant multiple users write access to stage files (e.g. via umask configuration),
-            in particular because the respective user's home directories have to be private.</para>
+            in particular because the respective user's home directory has to be private.</para>
           </listitem>
         </itemizedlist>
         Ownership is meant to track changes, not to prevent them.
@@ -268,7 +272,7 @@
       <para>Implementation note: The <literal>chown</literal> command internally uses <literal>sudo</literal> to elevate the current user's
         permissions to start/stop processes or change file ownership. Note that some files have to be group-writable, because arbitrary
         users have to create them: the global lock and things generated by <literal>stool start</literal>). All users of Stool have to be
-        in the same group.
+        in the group <literal>stool</literal>.
       </para>
     </sect1>
 
@@ -282,7 +286,7 @@
 
     <sect1>
       <title>Backstage</title>
-      <para>Every stage directory as an associated backstage directory - a directory that stores Stool-related data about the stage,
+      <para>Every stage directory has an associated backstage directory - a directory that stores Stool-related data about the stage,
         e.g. the stage properties, Tomcat configuration and log files of the applications. The backstage directory is created when you create
         or import the stage. Backstage directories are created in <literal>$STOOL_HOME/backstage</literal> and have the name of the stage;
         Stool uses this directory to iterate all stages.
@@ -301,7 +305,7 @@
         with <literal>stool config until</literal>. If this date has passed, the stage is called expired, and it is automatically stopped,
         the owner gets an email notification and you cannot start it unless you specify a new date with <literal>stool config until=</literal><replaceable>yyyy-mm-dd</replaceable>.
         Depending on the <literal>autoRemove</literal> property, the stage will automatically be removed after the configured number of days.
-        This mechanism helps to detect and remove unused stages, which is crucial for shared machines. If you receive an email
+        Stage expiring helps to detect and remove unused stages, which is crucial for shared machines. If you receive an email
         notification that your stage has expired, please check if your stage is still needed. If so, adjust the
         until data, otherwise remove the stage.
       </para>
