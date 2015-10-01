@@ -155,7 +155,7 @@
       <scope>compile</scope>
     </dependency>
 
-    <!-- Overview -->
+    <!-- Dashboard -->
 
     <dependency>
       <groupId>com.google.code.gson</groupId>
