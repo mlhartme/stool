@@ -20,7 +20,6 @@ import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Logging;
@@ -227,19 +226,16 @@ public class Install {
         StageConfiguration stageConfiguration;
 
         stageConfiguration = session.createStageConfiguration("");
-        url = "gav:dashboard:dashboard:@dashboard";
-        create = new Create(session, true, "dashboard", url, dashboardDirectory(session), stageConfiguration);
-        create.remaining("tomcat.opts=" + session.createStageConfiguration(url).tomcatOpts);
+        // TODO: this is a cyclic dependency
+        // TODO: version
+        url = "gav:net.oneandone.stool:dashboard:3.3.0-SNAPSHOT";
+        create = new Create(session, true, "dashboard", url, session.home.join("dashboard"), stageConfiguration);
         create.remaining("until=reserved");
         try {
             create.doInvoke();
         } catch (Exception e) {
             throw new IOException(e);
         }
-    }
-
-    private static FileNode dashboardDirectory(Session session) {
-        return session.home.join("dashboard");
     }
 
 }
