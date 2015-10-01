@@ -19,6 +19,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SystemStartStop extends StageCommand {
@@ -33,21 +34,19 @@ public class SystemStartStop extends StageCommand {
 
     protected List<Stage> defaultSelected(EnumerationFailed problems) throws IOException {
         List<Stage> result;
-        Stage dashboard;
+        List<Stage> system;
 
         result = all(problems);
 
         // put dashboard at the end -- work-around for dashboard problem: sleep state is not updated properly
-        dashboard = null;
+        system = new ArrayList<>();
         for (Stage stage : result) {
             if (stage.isSystem()) {
-                dashboard = stage;
+                system.add(stage);
             }
         }
-        if (dashboard != null) {
-            result.remove(dashboard);
-            result.add(dashboard);
-        }
+        result.removeAll(system);
+        result.addAll(system);
         return result;
     }
 

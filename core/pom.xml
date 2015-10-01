@@ -373,24 +373,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <reporting>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-changes-plugin</artifactId>
-        <configuration>
-          <onlyMilestoneIssues>false</onlyMilestoneIssues>
-        </configuration>
-      </plugin>
-      <plugin>
-        <!-- javadoc 8 is way too picky ... -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <additionalparam>-Xdoclint:syntax</additionalparam>
-        </configuration>
-      </plugin>
-    </plugins>
-  </reporting>
 </project>

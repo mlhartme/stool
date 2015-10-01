@@ -130,7 +130,7 @@ public class Install {
         Session session;
 
         session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
-        createDashboard(session);
+        // TODO: createDashboard(session);
         return session;
     }
 
