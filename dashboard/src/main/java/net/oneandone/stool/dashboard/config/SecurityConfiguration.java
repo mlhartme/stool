@@ -46,6 +46,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private Session session;
 
+    @Autowired
+    private Stage self;
+
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         CasAuthenticationProvider provider;
@@ -90,11 +93,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public ServiceProperties serviceProperties() throws IOException {
         ServiceProperties serviceProperties;
-        Stage stage;
 
-        stage = session.load(Stage.DASHBOARD_NAME);
         serviceProperties = new ServiceProperties();
-        serviceProperties.setService(stage.loadPortsOpt().mainHost().httpsUrl(session.configuration.vhosts) + "/j_spring_cas_security_check");
+        serviceProperties.setService(self.loadPortsOpt().mainHost().httpsUrl(session.configuration.vhosts) + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
     }

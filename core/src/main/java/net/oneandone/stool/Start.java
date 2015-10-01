@@ -319,6 +319,7 @@ public class Start extends StageCommand {
 
         // this is a marker to indicate they are launched by stool; and this is used by the dashboard to locate stool
         opts.add("-Dstool.bin=" + session.bin.getAbsolute());
+        opts.add("-Dstool.backstage=" + stage.backstage.getAbsolute());
 
         tomcatOpts = stage.macros().replace(stage.config().tomcatOpts);
         opts.addAll(Separator.SPACE.split(tomcatOpts));

@@ -57,8 +57,6 @@ import java.util.Properties;
  * Concrete implementations are SourceStage or ArtifactStage.
  */
 public abstract class Stage {
-    public static final String DASHBOARD_NAME = "dashboard";
-
     public static Stage load(Session session, FileNode backstage) throws IOException {
         return load(session, session.loadStageConfiguration(backstage), backstage, (FileNode) Stage.anchor(backstage).resolveLink());
     }

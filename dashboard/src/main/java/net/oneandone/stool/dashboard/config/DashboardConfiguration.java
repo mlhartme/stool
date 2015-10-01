@@ -78,7 +78,7 @@ public class DashboardConfiguration {
 
         system = Environment.loadSystem();
         home = home();
-        props = home.join("dashboard.dashboard");
+        props = home.join("dashboard.properties");
         if (props.exists()) {
             p = props.readProperties();
             svnuser = p.getProperty("svnuser");
@@ -94,7 +94,7 @@ public class DashboardConfiguration {
 
     @Bean
     public Stage self() throws IOException {
-        return session().load("dashboard");
+        return Stage.load(session(), world().file(System.getProperty("stool.backstage")));
     }
 
     @Bean

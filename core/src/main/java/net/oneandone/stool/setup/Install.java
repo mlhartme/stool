@@ -228,7 +228,7 @@ public class Install {
 
         stageConfiguration = session.createStageConfiguration("");
         url = "gav:dashboard:dashboard:@dashboard";
-        create = new Create(session, true, Stage.DASHBOARD_NAME, url, dashboardDirectory(session), stageConfiguration);
+        create = new Create(session, true, "dashboard", url, dashboardDirectory(session), stageConfiguration);
         create.remaining("tomcat.opts=" + session.createStageConfiguration(url).tomcatOpts);
         create.remaining("until=reserved");
         try {
@@ -239,7 +239,7 @@ public class Install {
     }
 
     private static FileNode dashboardDirectory(Session session) {
-        return session.home.join(Stage.DASHBOARD_NAME);
+        return session.home.join("dashboard");
     }
 
 }
