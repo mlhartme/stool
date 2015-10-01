@@ -442,7 +442,7 @@ PROPERTY  # configuration property
 
         <refsect1><title>Description</title>
           <para>
-            Starts the overview stage and all sleeping stages.
+            Starts the dashboard stage and all sleeping stages.
           </para>
         </refsect1>
 
@@ -462,7 +462,7 @@ PROPERTY  # configuration property
 
         <refsect1><title>Description</title>
           <para>
-            Stops the overview stage and sends all other running stages to sleep.
+            Stops the dashboard stage and sends all other running stages to sleep.
           </para>
         </refsect1>
       </refentry>
@@ -641,8 +641,8 @@ PROPERTY  # configuration property
           <para>The pre-defined build command for artifact stages does nothing. Thus, you can invoke <literal>stool build</literal>
             for artifact stages, it just has no effect.</para>
           <para>The build command executes in the same environment (i.e. with the same environment variables) as Stool is
-            executed. If you invoke <command>build</command> from the overview application, the build command executes in the environment
-            of the user who started the overview stage.</para>
+            executed. If you invoke <command>build</command> from the dashboard application, the build command executes in the environment
+            of the user who started the dashboard stage.</para>
         </refsect1>
       </refentry>
 
@@ -717,7 +717,7 @@ PROPERTY  # configuration property
           </para>
           <para>The environment of the started application is the current environment restricted to the variables listed in the
             <literal>tomcat.env</literal> property; variables listed there are passed to the application, all others are removed. If you invoke
-            <literal>start</literal> from the overview stage, the login environment of the stage owner defines the basic environment.</para>
+            <literal>start</literal> from the dashboard stage, the login environment of the stage owner defines the basic environment.</para>
         </refsect1>
       </refentry>
 
@@ -1130,7 +1130,7 @@ PROPERTY  # configuration property
       (stage directory) (normal application files)
       (stool home)
         |- config.json (Stool configuration)
-        |- overview.properties (Overview configuration)
+        |- dashboard.properties (Dashboard configuration)
         |- run
         |   |- stool.lock
         |   |- sleep.json
@@ -1150,7 +1150,7 @@ PROPERTY  # configuration property
         |- logs
         |   |- stool.log
         |   |- (archived stool logs)
-        |- overview (stage directory of the overview stage)
+        |- dashboard (stage directory of the dashboard stage)
         |- service-wrapper
         |   |- wrapper-linux-x86-64-3.5.26 (installed service wrapper)
         |   :

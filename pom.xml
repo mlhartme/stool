@@ -19,7 +19,7 @@
 
   <groupId>net.oneandone</groupId>
   <artifactId>stool</artifactId>
-  <version>3.2.1-SNAPSHOT</version>
+  <version>3.3.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>

@@ -1,7 +1,7 @@
 define(['jquery', 'bootstrap', "logging"], function ($) {
-    var overview = overview || {};
+    var dashboard = dashboard || {};
 
-    overview = {
+    dashboard = {
         init: function () {
             this.navigation.init();
             this.bootstrap.init();
@@ -17,14 +17,14 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                 });
 
                 $('#search').bind('keyup', function () {
-                    overview.stages.filter($(this).val());
+                    dashboard.stages.filter($(this).val());
                 });
                 $('#btn-refresh').bind('click', function () {
-                    overview.stages.reload();
+                    dashboard.stages.reload();
                 });
                 $('.modal').on('hide.bs.modal', function () {
                     $(".shell").html("");
-                    overview.stages.reload();
+                    dashboard.stages.reload();
                 });
                 $('[data-toggle="tab"]').on('click', function () {
                     var stages, filter, check;
@@ -32,7 +32,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                     filter = $(this).attr("href").slice(1);
                     check = '';
 
-                    overview.bootstrap.activeFilter = filter;
+                    dashboard.bootstrap.activeFilter = filter;
 
                     if (filter == 'all') {
                         stages.removeClass('filter');
@@ -72,7 +72,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
 
                     });
 
-                    overview.stages.filter($('#search').val());
+                    dashboard.stages.filter($('#search').val());
 
                 });
 
@@ -103,9 +103,9 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                         h = params[0];
                     }
                     if (h != '') {
-                        overview.navigation.loadContentByHash(h, params);
+                        dashboard.navigation.loadContentByHash(h, params);
                     }
-                    overview.navigation.checkLocationHash();
+                    dashboard.navigation.checkLocationHash();
                 });
             },
 
@@ -151,9 +151,9 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                         if (parameter.indexOf('=') > -1) {
                             param = parameter.split('=');
                             if (param[0] == 'search') {
-                                overview.stages.filter(param[1]);
+                                dashboard.stages.filter(param[1]);
                             } else if (param[0] == 'stage') {
-                                overview.navigation.updateStageBreadcrump(param[1]);
+                                dashboard.navigation.updateStageBreadcrump(param[1]);
                             }
                         }
                     }
@@ -178,19 +178,19 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
 
         stages: {
             init: function () {
-                overview.stages.reload();
-                $('[data-action]').on('click', overview.stages.action);
+                dashboard.stages.reload();
+                $('[data-action]').on('click', dashboard.stages.action);
                 $('#loading').remove();
-                overview.stages.silentReload();
+                dashboard.stages.silentReload();
             },
 
 
             silentReload: function () {
 
-                overview.stages.reload();
+                dashboard.stages.reload();
                 setTimeout(function () {
-                    overview.stages.silentReload();
-                }, overview.interval.withCounter(0));
+                    dashboard.stages.silentReload();
+                }, dashboard.interval.withCounter(0));
             },
 
             recountTabs: function (wrapper) {
@@ -210,7 +210,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                 $.ajax('/stages', {
                     dataType: "html",
                     success: function (data) {
-                        // TODO: handle removed stages. They currently remain in the overview until the user presses refresh.
+                        // TODO: handle removed stages. They currently remain in the dashboard until the user presses refresh.
 
                         var wrapper;
                         wrapper = $('#all-stages');
@@ -229,21 +229,21 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
 
                             if (oldTr.length === 0) {
                                 // new stage
-                                $(tr).find('[data-action]').off('click', overview.stages.action);
+                                $(tr).find('[data-action]').off('click', dashboard.stages.action);
                                 wrapper.append(tr);
-                                $(tr).find('[data-action]').on('click', overview.stages.action);
+                                $(tr).find('[data-action]').on('click', dashboard.stages.action);
                             } else if (oldTr.attr("data-hash") !== $(tr).attr("data-hash")) {
                                 // updated stage
-                                $(tr).find('[data-action]').off('click', overview.stages.action);
+                                $(tr).find('[data-action]').off('click', dashboard.stages.action);
                                 oldTr.replaceWith(tr);
-                                $(tr).find('[data-action]').on('click', overview.stages.action);
+                                $(tr).find('[data-action]').on('click', dashboard.stages.action);
                             } else {
                                 // no changes
                             }
                         });
                         $('[data-toggle="popover"]').popover();
-                        overview.stages.recountTabs(wrapper);
-                        overview.navigation.checkLocationHash();
+                        dashboard.stages.recountTabs(wrapper);
+                        dashboard.navigation.checkLocationHash();
                     }
                 });
             },
@@ -280,15 +280,15 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                     $(p).find('.fa').addClass('hidden');
                     $(p).find('.label').attr('class', 'label label-warning').html('broken');
                     $(p).addClass('warning');
-                    overview.info.show(i, 'dude something went wrong ... try again or send us a <a href="#feedback">feedback</a>');
-                    overview.info.text('warning', stage, '%ERROR_MESSAGE%');
+                    dashboard.info.show(i, 'dude something went wrong ... try again or send us a <a href="#feedback">feedback</a>');
+                    dashboard.info.text('warning', stage, '%ERROR_MESSAGE%');
                     log.error(r);
                 }).done(function (r) {
                     var spinner;
                     $('.modal-body .shell').html("").show();
                     spinner = '.fa-spinner';
                     $(spinner).show();
-                    overview.stages.showLog('.modal-body .shell', r, 0, spinner, '.modal', estimate);
+                    dashboard.stages.showLog('.modal-body .shell', r, 0, spinner, '.modal', estimate);
 
                 });
 
@@ -297,9 +297,9 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
 
             },
             showLog: function (element, id, index, spinner, parent, estimate) {
-                overview.stages.fetchLog(element, id, index, spinner, 0, parent);
+                dashboard.stages.fetchLog(element, id, index, spinner, 0, parent);
 
-                //overview.stages.progressbar.updater(".modal-footer", estimate, new Date())
+                //dashboard.stages.progressbar.updater(".modal-footer", estimate, new Date())
             },
 
             progressbar: {
@@ -308,10 +308,10 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                     done = new Date() - start;
                     percent = Math.round(done / estimate * 100);
                     text = "ETA " + Math.round(estimate / 1000 - done / 1000) + "sec.";
-                    overview.stages.progressbar.update(parent, percent, text)
+                    dashboard.stages.progressbar.update(parent, percent, text)
                     if (percent <= 100) {
                         setTimeout(function () {
-                            overview.stages.progressbar.updater(parent, estimate, start);
+                            dashboard.stages.progressbar.updater(parent, estimate, start);
                         }, 200);
                     }
 
@@ -341,7 +341,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                     }
                     if ("true" == response.getResponseHeader("X-Running")) {
                         setTimeout(function () {
-                            overview.stages.fetchLog(element, id, index, spinner, lastSize, parent);
+                            dashboard.stages.fetchLog(element, id, index, spinner, lastSize, parent);
                         }, 1000);
                     } else {
                         $(spinner).hide();
@@ -353,7 +353,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
             filter: function (search) {
                 if (search !== '') {
                     var activeFilter;
-                    activeFilter = overview.bootstrap.activeFilter;
+                    activeFilter = dashboard.bootstrap.activeFilter;
                     document.location.hash = '#dashboard:search=' + search;
 
                     $('#all-stages').find('tr.stage').addClass('hidden');
@@ -408,5 +408,5 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
         }
 
     };
-    overview.init();
+    dashboard.init();
 });

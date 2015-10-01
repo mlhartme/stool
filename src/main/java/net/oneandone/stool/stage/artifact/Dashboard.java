@@ -20,12 +20,12 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
-public class Overview implements ArtifactSource {
+public class Dashboard implements ArtifactSource {
 
     private final String jdkHome;
     private final World world;
 
-    public Overview(String jdkHome, World world) {
+    public Dashboard(String jdkHome, World world) {
         this.jdkHome = jdkHome;
         this.world = world;
     }
@@ -37,7 +37,7 @@ public class Overview implements ArtifactSource {
         tmp = world.getTemp().createTempDirectory();
         dest = world.getTemp().createTempDirectory().createTempFile();
 
-        world.resource("templates/overview").copyDirectory(tmp);
+        world.resource("templates/dashboard").copyDirectory(tmp);
         lib = tmp.join("WEB-INF/lib").mkdir();
 
         cp = world.locateClasspathItem(getClass());

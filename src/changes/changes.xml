@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
+    <release version="3.3.0" date="2015-10-01">
+      <action date="2015-10-01" dev="mlhartme" type="fix">
+        Renamed overview to dashboard.
+      </action>
+    </release>
     <release version="3.2.0" date="2015-08-09">
       <action date="2015-07-28" dev="mlhartme" type="fix">
         Fix persistent ldap connection problem in overview.

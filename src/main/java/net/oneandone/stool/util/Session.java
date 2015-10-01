@@ -269,7 +269,7 @@ public class Session {
             }
         });
         for (Map.Entry<FileNode, Exception> entry : problems.problems.entrySet()) {
-            reportException(entry.getKey() + ": Session.listWithoutOverview", entry.getValue());
+            reportException(entry.getKey() + ": Session.listWithoutDashboard", entry.getValue());
         }
         return result;
     }

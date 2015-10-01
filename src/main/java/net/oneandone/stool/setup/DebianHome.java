@@ -78,5 +78,9 @@ public class DebianHome {
             Files.exec(log, home, "rm", "-rf", home.join("bin").getAbsolute());
             Files.exec(log, home, "chgrp", "/opt/ui/opt/tools/stool".equals(home.getAbsolute()) ? "users" : "stool", ".");
         }
+        if (home.join("overview.properties").isFile()) {
+            log.println("migrating 3.2 -> 3.3");
+            Files.exec(log, home, "mv", home.join("overview.properties").getAbsolute(), home.join("dashboard.properties").getAbsolute());
+        }
     }
 }

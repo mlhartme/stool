@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Stage overview</title>
+    <title>Stool Dashboard</title>
     <link href="resources/css/bootstrap.yeti.min.css" rel="stylesheet" type="text/css"/>
     <link href="resources/css/font-awesome.min.css" rel="stylesheet" type="text/css" id="css">
     <link href="resources/css/style.css" rel="stylesheet" type="text/css"/>
@@ -141,6 +141,6 @@
 <script src="resources/js/lib/require.js" type="text/javascript"></script>
 <script src="resources/js/lib/driftwood.min.js" type="text/javascript"></script>
 <script src="resources/js/app/logging.js" type="text/javascript"></script>
-<script src="resources/js/overview.js" type="text/javascript" defer></script>
+<script src="resources/js/dashboard.js" type="text/javascript" defer></script>
 </body>
 </html>

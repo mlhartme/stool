@@ -30,7 +30,7 @@ public class ApplicationInitializer extends AbstractSecurityWebApplicationInitia
         ServletRegistration.Dynamic dispatcher;
 
         context = new AnnotationConfigWebApplicationContext();
-        context.setConfigLocation("net.oneandone.stool.overview.config");
+        context.setConfigLocation("net.oneandone.stool.dashboard.config");
         servletContext.addListener(new ContextLoaderListener(context));
         dispatcher = servletContext.addServlet("DispatcherServlet", new DispatcherServlet(context));
         dispatcher.setLoadOnStartup(1);

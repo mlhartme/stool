@@ -72,11 +72,11 @@ public class Install {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
-        doCreateHomeWithoutOverview(home, false);
+        doCreateHomeWithoutDashboard(home, false);
         doCreateBinWithoutHomeLink(variables(), bin);
         bin.join("home").mklink(home.getAbsolute());
         doCreateMan(man);
-        session = doCreateHomeOverview(user, environment, home);
+        session = doCreateHomeDashboard(user, environment, home);
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
         return session;
@@ -90,11 +90,11 @@ public class Install {
 
     public void debianHome(String user, Environment environment, FileNode home) throws Exception {
         if (home.exists()) {
-            home.join("overview").deleteTree();
+            home.join("dashboard").deleteTree();
         } else {
-            doCreateHomeWithoutOverview(home, true);
+            doCreateHomeWithoutDashboard(home, true);
         }
-        doCreateHomeOverview(user, environment, home);
+        doCreateHomeDashboard(user, environment, home);
     }
 
     private FileNode downloadCache(FileNode home) {
@@ -109,7 +109,7 @@ public class Install {
         return home.join("downloads");
     }
 
-    private void doCreateHomeWithoutOverview(FileNode home, boolean shared) throws IOException {
+    private void doCreateHomeWithoutDashboard(FileNode home, boolean shared) throws IOException {
         StoolConfiguration conf;
 
         home.getParent().mkdirsOpt();
@@ -126,11 +126,11 @@ public class Install {
         }
     }
 
-    private Session doCreateHomeOverview(String user, Environment environment, FileNode home) throws IOException {
+    private Session doCreateHomeDashboard(String user, Environment environment, FileNode home) throws IOException {
         Session session;
 
         session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
-        createOverview(session);
+        createDashboard(session);
         return session;
     }
 
@@ -221,20 +221,20 @@ public class Install {
 
     //--
 
-    public static void createOverview(Session session) throws IOException {
+    public static void createDashboard(Session session) throws IOException {
         Create create;
         String url;
         String tomcatOpts;
         StageConfiguration stageConfiguration;
 
         stageConfiguration = session.createStageConfiguration("");
-        url = "gav:overview:overview:@overview";
-        create = new Create(session, true, Stage.DASHBOARD_NAME, url, overviewDirectory(session), stageConfiguration);
+        url = "gav:dashboard:dashboard:@dashboard";
+        create = new Create(session, true, Stage.DASHBOARD_NAME, url, dashboardDirectory(session), stageConfiguration);
         tomcatOpts = session.createStageConfiguration(url).tomcatOpts;
         if (!tomcatOpts.isEmpty()) {
             tomcatOpts += " ";
         }
-        tomcatOpts += "-Doverview.stool.bin=" + session.bin.getAbsolute();
+        tomcatOpts += "-Ddashboard.stool.bin=" + session.bin.getAbsolute();
         create.remaining("tomcat.opts=" + tomcatOpts);
         create.remaining("until=reserved");
         try {
@@ -244,7 +244,7 @@ public class Install {
         }
     }
 
-    private static FileNode overviewDirectory(Session session) {
+    private static FileNode dashboardDirectory(Session session) {
         return session.home.join(Stage.DASHBOARD_NAME);
     }
 

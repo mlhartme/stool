@@ -47,11 +47,11 @@ if [ "$1" = "configure" ]; then
     fi
     ln -s ${home} ${bin}/home
 
-    # TODO: should be possible to generate overview without MAVEN_HOME
-    export MAVEN_HOME=/not/used/for/overview/stage
+    # TODO: should be possible to generate dashboard without MAVEN_HOME
+    export MAVEN_HOME=/not/used/for/dashboard/stage
     # "sg" is used to set the proper group if home is newly generated
     STOOL_BIN=${bin} sg ${group} "java -cp ${bin}/stool.jar net.oneandone.stool.setup.DebianHome ${home}"
-    sudo -u ${user} ${bin}/stool-raw.sh chown -stage overview
+    sudo -u ${user} ${bin}/stool-raw.sh chown -stage dashboard
 
     update-rc.d stool defaults
 fi

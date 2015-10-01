@@ -27,11 +27,11 @@ public class ProcessesTest {
     public void tomcat() {
         String psline = "mhm             56189   0.0  0.0  2465620    988   ??  S     1:06PM   0:00.25 "
                 + "/Users/mhm/Projects/oneandone/sales/tools/wrapper-macosx-universal-64-3.5.26/bin/wrapper "
-                + "/Users/mhm/.stool/backstages/overview/shared/conf/wrapper.conf wrapper.syslog.ident=tomcat "
-                + "wrapper.pidfile=/Users/mhm/.stool/backstages/overview/shared/run/tomcat.pid wrapper.name=tomcat "
-                + "wrapper.displayname=Stage overview Tomcat wrapper.daemonize=TRUE "
-                + "wrapper.statusfile=/Users/mhm/.stool/backstages/overview/shared/run/tomcat.status "
-                + "wrapper.java.statusfile=/Users/mhm/.stool/backstages/overview/shared/run/tomcat.java.status "
+                + "/Users/mhm/.stool/backstages/dashboard/shared/conf/wrapper.conf wrapper.syslog.ident=tomcat "
+                + "wrapper.pidfile=/Users/mhm/.stool/backstages/dashboard/shared/run/tomcat.pid wrapper.name=tomcat "
+                + "wrapper.displayname=Stage dashboard Tomcat wrapper.daemonize=TRUE "
+                + "wrapper.statusfile=/Users/mhm/.stool/backstages/dashboard/shared/run/tomcat.status "
+                + "wrapper.java.statusfile=/Users/mhm/.stool/backstages/dashboard/shared/run/tomcat.java.status "
                 + "wrapper.script.version=3.5.22\n"
                 + "mhm             4711    0.0  0.0  2465620    988   ??  S     1:06PM   0:00.25 "
                 + "/Users/mhm/Projects/oneandone/sales/tools/wrapper-macosx-universal-64-3.5.26/bin/wrapper "
@@ -42,7 +42,7 @@ public class ProcessesTest {
                 + "wrapper.java.statusfile=/Users/mhm/.stool/backstages/two/shared/run/tomcat.java.status "
                 + "wrapper.script.version=3.5.22\n";
         tomcat(null, "5", "");
-        tomcat("56189", "/Users/mhm/.stool/backstages/overview", psline);
+        tomcat("56189", "/Users/mhm/.stool/backstages/dashboard", psline);
         tomcat("4711", "/Users/mhm/.stool/backstages/two", psline);
         tomcat(null, "eue", psline);
     }

@@ -131,7 +131,7 @@ public class Application {
         String svnurl;
         Changes changes;
 
-        if (artifact.getVersion().equals("@overview")) {
+        if (artifact.getVersion().equals("@dashboard")) {
             return new Changes();
         }
         if (!futureWarFile().exists() || !currentWarFile().exists()) {

@@ -6,7 +6,7 @@ case "$1" in
     remove|upgrade)
         # TODO: upgrade could be much cheaper:
         # * reject new stool invocations
-        # * stop stool overview
+        # * stop stool dashboard
 
         # may fail if setup did not complete properly
         service stool stop || echo service shutdown failed
