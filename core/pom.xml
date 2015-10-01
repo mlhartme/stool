@@ -7,18 +7,11 @@
     <version>3.3.0-SNAPSHOT</version>
   </parent>
 
-  <name>Stool</name>
+  <name>Stool Core</name>
   <url>https://github.com/mlhartme/stool</url>
-  <description>Runs multiple web applications in multiple tomcats on a single machine.
- Stool is a command line tool that provides a lifecycle for stages:
- create, configure, build, run and remove. A stage contains web applications,
- that may come in different flavors: Maven war projects or artifacts
- (GAV coordinates).
-  </description>
 
   <groupId>net.oneandone.stool</groupId>
   <artifactId>core</artifactId>
-  <version>3.3.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <properties>
@@ -31,26 +24,8 @@
     <mavenVersion>3.2.5</mavenVersion>
     <wagonVersion>2.8</wagonVersion>
 
-    <!-- because dependencies diverge -->
-    <enforcer.skip>true</enforcer.skip>
-
-    <!-- disabled because it complains about comment-only code blocks -->
-    <pmd.skip>true</pmd.skip>
-
-    <!-- too picky -->
-    <cpd.skip>true</cpd.skip>
-
-    <jacoco.skip>true</jacoco.skip>
-
-    <findbugs.failOnError>false</findbugs.failOnError>
-
-    <netbeans.hint.jdkPlatform>JDK_1.7</netbeans.hint.jdkPlatform>
-    <maven-checkstyle-plugin.suppressionsLocation>${basedir}/src/conf/checkstyle-suppressions.xml</maven-checkstyle-plugin.suppressionsLocation>
-    <surefire.forkCount>0</surefire.forkCount>
-
     <spring.version>4.1.3.RELEASE</spring.version>
     <spring.security.version>4.0.0.RELEASE</spring.security.version>
-    <javax.net.ssl.trustStore />
   </properties>
 
   <developers>
