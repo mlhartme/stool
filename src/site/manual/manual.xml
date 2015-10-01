@@ -1152,10 +1152,10 @@ PROPERTY  # configuration property
         |   |- (archived stool logs)
         |- dashboard (stage directory of the dashboard stage)
         |- service-wrapper
-        |   |- wrapper-linux-x86-64-3.5.26 (installed service wrapper)
+        |   |- wrapper-linux-x86-64-x.y.z (installed service wrapper)
         |   :
         |- tomcat
-        |   |- apache-tomcat-7.0.59 (installed Tomcat)
+        |   |- apache-tomcat-x.y.z (installed Tomcat)
         |   :
         '- backstage
             '- (stage name)
