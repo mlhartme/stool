@@ -224,18 +224,12 @@ public class Install {
     public static void createDashboard(Session session) throws IOException {
         Create create;
         String url;
-        String tomcatOpts;
         StageConfiguration stageConfiguration;
 
         stageConfiguration = session.createStageConfiguration("");
         url = "gav:dashboard:dashboard:@dashboard";
         create = new Create(session, true, Stage.DASHBOARD_NAME, url, dashboardDirectory(session), stageConfiguration);
-        tomcatOpts = session.createStageConfiguration(url).tomcatOpts;
-        if (!tomcatOpts.isEmpty()) {
-            tomcatOpts += " ";
-        }
-        tomcatOpts += "-Ddashboard.stool.bin=" + session.bin.getAbsolute();
-        create.remaining("tomcat.opts=" + tomcatOpts);
+        create.remaining("tomcat.opts=" + session.createStageConfiguration(url).tomcatOpts);
         create.remaining("until=reserved");
         try {
             create.doInvoke();

@@ -53,7 +53,7 @@ public class DashboardConfiguration {
 
     @Bean
     public FileNode bin() {
-        return world().file(System.getProperty("dashboard.stool.bin"));
+        return world().file(System.getProperty("stool.bin"));
     }
 
     @Bean
