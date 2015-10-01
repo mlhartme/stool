@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>net.oneandone</groupId>
+    <artifactId>stool</artifactId>
+    <version>3.3.0-SNAPSHOT</version>
+  </parent>
+
+  <name>Stool</name>
+  <url>https://github.com/mlhartme/stool</url>
+  <description>Runs multiple web applications in multiple tomcats on a single machine.
+ Stool is a command line tool that provides a lifecycle for stages:
+ create, configure, build, run and remove. A stage contains web applications,
+ that may come in different flavors: Maven war projects or artifacts
+ (GAV coordinates).
+  </description>
+
+  <groupId>net.oneandone.stool</groupId>
+  <artifactId>core</artifactId>
+  <version>3.3.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <properties>
+    <oneandone.java.source>1.8</oneandone.java.source>
+    <oneandone.java.target>1.8</oneandone.java.target>
+    <oneandone.java.docversion>8</oneandone.java.docversion>
+
+    <aetherVersion>1.0.0.v20140518</aetherVersion>
+    <guava.version>14.0.1</guava.version>
+    <mavenVersion>3.2.5</mavenVersion>
+    <wagonVersion>2.8</wagonVersion>
+
+    <!-- because dependencies diverge -->
+    <enforcer.skip>true</enforcer.skip>
+
+    <!-- disabled because it complains about comment-only code blocks -->
+    <pmd.skip>true</pmd.skip>
+
+    <!-- too picky -->
+    <cpd.skip>true</cpd.skip>
+
+    <jacoco.skip>true</jacoco.skip>
+
+    <findbugs.failOnError>false</findbugs.failOnError>
+
+    <netbeans.hint.jdkPlatform>JDK_1.7</netbeans.hint.jdkPlatform>
+    <maven-checkstyle-plugin.suppressionsLocation>${basedir}/src/conf/checkstyle-suppressions.xml</maven-checkstyle-plugin.suppressionsLocation>
+    <surefire.forkCount>0</surefire.forkCount>
+
+    <spring.version>4.1.3.RELEASE</spring.version>
+    <spring.security.version>4.0.0.RELEASE</spring.security.version>
+    <javax.net.ssl.trustStore />
+  </properties>
+
+  <developers>
+    <developer>
+      <id>mhm</id>
+      <name>Michael Hartmeier</name>
+      <roles>
+        <role>lead</role>
+        <role>developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>mabraun</id>
+      <name>Maximilian Braun</name>
+    </developer>
+    <developer>
+      <id>rsternagel</id>
+      <name>Richard Sternagel</name>
+    </developer>
+    <developer>
+      <id>garican</id>
+      <name>Goekhan Arican</name>
+    </developer>
+  </developers>
+
+  <scm>
+    <connection>scm:git:ssh://git@github.com/mlhartme/stool.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/mlhartme/stool.git</developerConnection>
+    <url>https://github.com/mlhartme/stool</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/mlhartme/stool/issues/</url>
+  </issueManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>net.oneandone</groupId>
+      <artifactId>sushi</artifactId>
+      <version>2.8.18</version>
+    </dependency>
+    <dependency>
+      <groupId>net.oneandone.maven</groupId>
+      <artifactId>embedded</artifactId>
+      <version>3.11.0</version>
+    </dependency>
+    <!-- TODO: override 0.3.0.M1 that comes with maven 3.2.5 -->
+    <dependency>
+      <groupId>org.eclipse.sisu</groupId>
+      <artifactId>org.eclipse.sisu.plexus</artifactId>
+      <version>0.3.0</version>
+    </dependency>
+    <!-- TODO: override 3.2.3 that comes with maven 3.2.5 -->
+    <dependency>
+      <groupId>org.sonatype.sisu</groupId>
+      <artifactId>sisu-guice</artifactId>
+      <version>3.2.5</version>
+      <classifier>no_aop</classifier>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+      <version>4.3.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.mail</groupId>
+      <artifactId>mail</artifactId>
+      <version>1.5.0-b01</version>
+      <exclusions>
+        <exclusion><!-- because it's part of Java 7 -->
+          <groupId>javax.activation</groupId>
+          <artifactId>activation</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- logging -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.7</version>
+    </dependency>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-core</artifactId>
+      <version>1.1.2</version>
+      <!-- TODO: needed to override inherited test scope -->
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.1.2</version>
+      <!-- TODO: needed to override inherited test scope -->
+      <scope>compile</scope>
+    </dependency>
+
+    <!-- Dashboard -->
+
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>2.2.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <version>${spring.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-web</artifactId>
+      <version>${spring.security.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-config</artifactId>
+      <version>${spring.security.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-ldap</artifactId>
+      <version>${spring.security.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-cas-client</artifactId>
+      <version>3.0.8.RELEASE</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <!-- that's the version we have on the live machines -->
+      <version>3.0.1</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+      <version>1.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.zafarkhaja</groupId>
+      <artifactId>java-semver</artifactId>
+      <version>0.7.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>14.0.1</version>
+    </dependency>
+
+    <!-- test -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <additionalparam>-Xdoclint:syntax</additionalparam>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>net.oneandone.maven.plugins</groupId>
+        <artifactId>application</artifactId>
+        <version>1.5.2</version>
+        <configuration>
+          <!-- for generate -->
+          <path>$PATH</path>
+          <options>-Djava.awt.headless=true</options>
+          <name>setup-stool</name>
+          <main>net.oneandone.stool.setup.SetupStool</main>
+          <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
+          <remove>META-INF/LICENSE, META-INF/NOTICE, META-INF/NOTICE.txt, META-INF/wsd.properties, META-INF/DEPENDENCIES,
+            META-INF/LICENSE.txt,readme.txt,
+            META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,changelog.txt,
+            notice.txt,license.txt
+          </remove>
+          <overwrite>META-INF/pominfo.properties, org/apache/commons/logging/**/*</overwrite>
+          <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
+          <attach>false</attach>
+        </configuration>
+        <executions>
+          <execution>
+            <id>stool</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <!-- Documentation: http://code.google.com/p/docbkx-tools/ -->
+        <groupId>com.agilejava.docbkx</groupId>
+        <artifactId>docbkx-maven-plugin</artifactId>
+        <version>2.0.16</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-trax</artifactId>
+            <version>1.7.0</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-nodeps</artifactId>
+            <version>1.7.0</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <sourceDirectory>src/site/manual</sourceDirectory>
+          <includes>manual.xml</includes>
+          <xincludeSupported>true</xincludeSupported>
+        </configuration>
+        <executions>
+          <execution>
+            <id>manual-manpages</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>generate-manpages</goal>
+            </goals>
+            <configuration>
+              <!-- see http://docbook.sourceforge.net/release/xsl/1.76.1/doc/param.html -->
+              <manAuthorsSectionEnabled>false</manAuthorsSectionEnabled>
+              <targetDirectory>${project.build.directory}/classes/templates/man</targetDirectory>
+              <preProcess>
+                <tstamp>
+                  <format pattern="yyyy-MM-d" property="now" />
+                </tstamp>
+                <mkdir dir="${project.build.directory}/site/manual" />
+                <echo file="${project.build.directory}/now.txt">${now}</echo>
+                <xslt processor="trax" in="${basedir}/src/site/manual/manual.xml" out="${project.build.directory}/synopsis.xml" style="${basedir}/src/site/synopsis.xsl">
+                </xslt>
+                <schemavalidate file="${basedir}/src/site/manual/manual.xml">
+                  <attribute name="http://apache.org/xml/features/xinclude" value="true" />
+                </schemavalidate>
+              </preProcess>
+              <postProcess>
+                <apply executable="gzip">
+                  <arg value="-9" />
+                  <fileset dir="${project.build.directory}/classes/templates/man">
+                    <patternset>
+                      <include name="**/*" />
+                    </patternset>
+                  </fileset>
+                </apply>
+              </postProcess>
+            </configuration>
+          </execution>
+          <execution>
+            <id>manual-html</id>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>generate-html</goal>
+            </goals>
+            <configuration>
+              <targetDirectory>${basedir}/target/site</targetDirectory>
+              <chunkedOutput>false</chunkedOutput>
+              <sectionLabelIncludesComponentLabel>true</sectionLabelIncludesComponentLabel>
+              <sectionAutolabel>true</sectionAutolabel>
+            </configuration>
+          </execution>
+          <!-- look ugly, too many page breaks: execution>
+            <id>manual-pdf</id>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>generate-pdf</goal>
+            </goals>
+            <configuration>
+              <targetDirectory>${basedir}/target/site</targetDirectory>
+            </configuration>
+          </execution -->
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <configuration>
+              <target>
+                <java classname="net.oneandone.stool.setup.DebianPackage" classpath="${project.build.directory}/setup-stool" fork="false">
+                  <arg path="${project.build.directory}/debfiles" />
+                </java>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>      <plugin>
+        <artifactId>jdeb</artifactId>
+        <groupId>org.vafer</groupId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>jdeb</goal>
+            </goals>
+            <configuration>
+              <name>stool</name>
+              <snapshotExpand>true</snapshotExpand>
+              <dataSet>
+                <data>
+                  <src>${project.build.directory}/debfiles</src>
+                  <dst>/usr/share</dst>
+                  <type>directory</type>
+                  <excludes>**/*.sh</excludes>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share</prefix>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>644</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${project.build.directory}/debfiles</src>
+                  <dst>/usr/share</dst>
+                  <type>directory</type>
+                  <includes>**/*.sh</includes>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share</prefix>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>755</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/src/deb/profile</src>
+                  <dst>/etc/profile.d/stool.sh</dst>
+                  <conffile>true</conffile>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>644</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/src/deb/sudoers</src>
+                  <dst>/etc/sudoers.d/stool</dst>
+                  <conffile>true</conffile>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>440</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/src/deb/cron</src>
+                  <dst>/etc/cron.d/stool</dst>
+                  <type>file</type>
+                  <conffile>true</conffile>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>644</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/src/deb/service</src>
+                  <dst>/etc/init.d/stool</dst>
+                  <conffile>true</conffile>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>755</filemode>
+                  </mapper>
+                </data>
+              </dataSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-changes-plugin</artifactId>
+        <configuration>
+          <onlyMilestoneIssues>false</onlyMilestoneIssues>
+        </configuration>
+      </plugin>
+      <plugin>
+        <!-- javadoc 8 is way too picky ... -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <configuration>
+          <additionalparam>-Xdoclint:syntax</additionalparam>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
+
+  <distributionManagement>
+    <site>
+      <id>github</id>
+      <name>maven-reports at github</name>
+      <url>https://github.com/mlhartme/stool</url>
+    </site>
+  </distributionManagement>
+</project>
