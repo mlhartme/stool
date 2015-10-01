@@ -33,20 +33,20 @@ public class SystemStartStop extends StageCommand {
 
     protected List<Stage> defaultSelected(EnumerationFailed problems) throws IOException {
         List<Stage> result;
-        Stage overview;
+        Stage dashboard;
 
         result = all(problems);
 
-        // put overview at the end -- work-around for overview problem: sleep state is not updated properly
-        overview = null;
+        // put dashboard at the end -- work-around for dashboard problem: sleep state is not updated properly
+        dashboard = null;
         for (Stage stage : result) {
-            if (stage.isOverview()) {
-                overview = stage;
+            if (stage.isDashboard()) {
+                dashboard = stage;
             }
         }
-        if (overview != null) {
-            result.remove(overview);
-            result.add(overview);
+        if (dashboard != null) {
+            result.remove(dashboard);
+            result.add(dashboard);
         }
         return result;
     }
@@ -54,7 +54,7 @@ public class SystemStartStop extends StageCommand {
     @Override
     public void doInvoke(Stage stage) throws Exception {
         if (start) {
-            if (stage.isOverview() || stage.state() == Stage.State.SLEEPING) {
+            if (stage.isDashboard() || stage.state() == Stage.State.SLEEPING) {
                 session.console.info.println("[" + stage.getName() + "]");
                 new Start(stage.session, false, false).doInvoke(stage);
             }

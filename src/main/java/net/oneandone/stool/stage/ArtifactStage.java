@@ -230,7 +230,7 @@ public class ArtifactStage extends Stage {
 
     @Override
     //TODO
-    public boolean isOverview() {
+    public boolean isDashboard() {
         return url.contains(":@overview");
     }
 

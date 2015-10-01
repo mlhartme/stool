@@ -617,7 +617,7 @@ public abstract class Stage {
         }
     }
 
-    public boolean isOverview() {
+    public boolean isDashboard() {
         return false;
     }
 

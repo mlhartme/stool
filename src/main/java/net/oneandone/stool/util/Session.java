@@ -265,7 +265,7 @@ public class Session {
         result = list(problems, new Predicate() {
             @Override
             public boolean matches(Stage stage) {
-                return !stage.isOverview();
+                return !stage.isDashboard();
             }
         });
         for (Map.Entry<FileNode, Exception> entry : problems.problems.entrySet()) {

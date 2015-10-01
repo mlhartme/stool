@@ -51,7 +51,7 @@ public class Ports {
         hosts.putAll(stage.extensions().vhosts(stage));
         for (Map.Entry<String, FileNode> entry : hosts.entrySet()) {
             vhost = entry.getKey();
-            if (stage.isOverview() && vhost.equals("overview.overview")) {
+            if (stage.isDashboard() && vhost.equals("dashboard.dashboard")) {
                 even = stage.session.configuration.portDashboard;
             } else {
                 even = 0;
