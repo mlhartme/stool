@@ -40,7 +40,7 @@ import java.util.concurrent.Executors;
 
 @Configuration
 @ComponentScan(basePackageClasses = {IndexController.class})
-public class OverviewConfiguration {
+public class DashboardConfiguration {
     @Bean
     public World world() {
         return new World();
@@ -53,7 +53,7 @@ public class OverviewConfiguration {
 
     @Bean
     public FileNode bin() {
-        return world().file(System.getProperty("overview.stool.bin"));
+        return world().file(System.getProperty("dashboard.stool.bin"));
     }
 
     @Bean
@@ -78,7 +78,7 @@ public class OverviewConfiguration {
 
         system = Environment.loadSystem();
         home = home();
-        props = home.join("overview.properties");
+        props = home.join("dashboard.dashboard");
         if (props.exists()) {
             p = props.readProperties();
             svnuser = p.getProperty("svnuser");
@@ -89,12 +89,12 @@ public class OverviewConfiguration {
         }
         user = user();
         system.setStoolBin(bin());
-        return Session.load(Logging.create(logs(), "overview", user), user, "overview", system, console(), null, svnuser, svnpassword);
+        return Session.load(Logging.create(logs(), "dashboard", user), user, "dashboard", system, console(), null, svnuser, svnpassword);
     }
 
     @Bean
     public Stage self() throws IOException {
-        return session().load("overview");
+        return session().load("dashboard");
     }
 
     @Bean

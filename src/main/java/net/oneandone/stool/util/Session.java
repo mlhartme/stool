@@ -257,7 +257,7 @@ public class Session {
         return result;
     }
 
-    public List<Stage> listWithoutOverview() throws IOException {
+    public List<Stage> listWithoutDashboard() throws IOException {
         List<Stage> result;
         EnumerationFailed problems;
 

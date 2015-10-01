@@ -229,7 +229,7 @@ public class Install {
 
         stageConfiguration = session.createStageConfiguration("");
         url = "gav:overview:overview:@overview";
-        create = new Create(session, true, Stage.OVERVIEW_NAME, url, overviewDirectory(session), stageConfiguration);
+        create = new Create(session, true, Stage.DASHBOARD_NAME, url, overviewDirectory(session), stageConfiguration);
         tomcatOpts = session.createStageConfiguration(url).tomcatOpts;
         if (!tomcatOpts.isEmpty()) {
             tomcatOpts += " ";
@@ -245,7 +245,7 @@ public class Install {
     }
 
     private static FileNode overviewDirectory(Session session) {
-        return session.home.join(Stage.OVERVIEW_NAME);
+        return session.home.join(Stage.DASHBOARD_NAME);
     }
 
 }

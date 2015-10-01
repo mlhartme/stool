@@ -92,7 +92,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         ServiceProperties serviceProperties;
         Stage stage;
 
-        stage = session.load(Stage.OVERVIEW_NAME);
+        stage = session.load(Stage.DASHBOARD_NAME);
         serviceProperties = new ServiceProperties();
         serviceProperties.setService(stage.loadPortsOpt().mainHost().httpsUrl(session.configuration.vhosts) + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);

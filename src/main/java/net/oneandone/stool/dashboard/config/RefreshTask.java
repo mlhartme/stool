@@ -35,7 +35,7 @@ public class RefreshTask extends TimerTask {
     @Override
     public void run() {
         try {
-            for (Stage stage : session.listWithoutOverview()) {
+            for (Stage stage : session.listWithoutDashboard()) {
                 if (stage.config().autoRefresh) {
                     StoolCallable.create(UUID.randomUUID().toString(), logs, stage, "refresh").call();
                 }
