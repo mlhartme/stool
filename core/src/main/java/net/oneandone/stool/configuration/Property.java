@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** converts between strings an objects and deals with reflection */
+/** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
 public class Property {
     public final String name;
     public final String description;
@@ -90,7 +90,7 @@ public class Property {
     }
 
     // TODO: change strOrMap to str when it's no longer used for stool.defaults
-    public void set(Object configuration, Object strOrMap) {
+    public void set(Object configuration, String str) {
         Object value;
         Class type;
         int idx;
@@ -98,18 +98,18 @@ public class Property {
 
         type = field.getType();
         if (type.equals(String.class)) {
-            value = strOrMap;
+            value = str;
         } else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
-            value = Boolean.valueOf((String) strOrMap);
+            value = Boolean.valueOf(str);
         } else if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {
-            value = Integer.valueOf((String) strOrMap);
+            value = Integer.valueOf(str);
         } else if (Enum.class.isAssignableFrom(type)) {
-            value = Enum.valueOf(type, (String) strOrMap);
+            value = Enum.valueOf(type, str);
         } else if (type.equals(List.class)) {
-            value = asList((String) strOrMap);
+            value = asList(str);
         } else if (type.equals(Map.class)) {
             map = new HashMap<>();
-            for (String item : asList((String) strOrMap)) {
+            for (String item : asList(str)) {
                 idx = item.indexOf(':');
                 if (idx == -1) {
                     throw new ArgumentException("expected key:value, got " + item);
@@ -118,9 +118,9 @@ public class Property {
             }
             value = map;
         } else if (type.equals(Until.class)) {
-            value = Until.fromHuman((String) strOrMap);
+            value = Until.fromHuman(str);
         } else if (Map.class.isAssignableFrom(type)) {
-            value = strOrMap;
+            value = str;
         } else {
             throw new IllegalStateException("Cannot convert String to " + type.getSimpleName());
         }

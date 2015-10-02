@@ -51,9 +51,9 @@ public class Install {
     private final FileNode bin;
     private final FileNode man;
 
-    private final Map<String, Object> globalProperties;
+    private final Map<String, String> globalProperties;
 
-    public Install(Console console, boolean withJar, FileNode bin, FileNode man, Map<String, Object> globalProperties) {
+    public Install(Console console, boolean withJar, FileNode bin, FileNode man, Map<String, String> globalProperties) {
         this.console = console;
         this.withJar = withJar;
         this.bin = bin;
@@ -198,7 +198,7 @@ public class Install {
 
         properties = StoolConfiguration.properties();
         error = false;
-        for (Map.Entry<String, Object> entry : globalProperties.entrySet()) {
+        for (Map.Entry<String, String> entry : globalProperties.entrySet()) {
             property = properties.get(entry.getKey());
             if (property == null) {
                 console.info.println("property not found: " + entry.getKey());

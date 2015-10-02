@@ -54,7 +54,7 @@ public class SetupStool extends Cli implements Command {
     private final Environment environment;
 
     /** maps to String or Map<String, String> */
-    private final Map<String, Object> config;
+    private final Map<String, String> config;
 
     private SetupStool() {
         environment = Environment.loadSystem();

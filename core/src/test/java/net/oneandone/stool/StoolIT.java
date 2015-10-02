@@ -51,7 +51,7 @@ public class StoolIT {
 
     @Before
     public void before() throws Exception {
-        Map<String, Object> config;
+        Map<String, String> config;
         FileNode stages;
 
         world = new World();
