@@ -40,17 +40,51 @@ public class Property {
         field.setAccessible(true);
     }
 
-    public Object get(StoolConfiguration configuration) {
+    public String get(StoolConfiguration configuration) {
         return doGet(configuration);
     }
-    public Object get(StageConfiguration configuration) {
+    public String get(StageConfiguration configuration) {
         return doGet(configuration);
     }
-    private Object doGet(Object configuration) {
+
+    private String doGet(Object configuration) {
+        Object obj;
+        StringBuilder builder;
+        boolean first;
+
         try {
-            return field.get(object(configuration));
+            obj = field.get(object(configuration));
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
+        }
+        if (obj instanceof List) {
+            builder = new StringBuilder();
+            first = true;
+            for (Object item : (List) obj) {
+                if (first) {
+                    first = false;
+                } else {
+                    builder.append(", ");
+                }
+                builder.append(item.toString());
+            }
+            return builder.toString();
+        } else if (obj instanceof Map) {
+            builder = new StringBuilder();
+            first = true;
+            for (Map.Entry<Object, Object> entry : ((Map<Object, Object>) obj).entrySet()) {
+                if (first) {
+                    first = false;
+                } else {
+                    builder.append(", ");
+                }
+                builder.append(entry.getKey().toString());
+                builder.append(':');
+                builder.append(entry.getValue().toString());
+            }
+            return builder.toString();
+        } else {
+            return obj.toString();
         }
     }
 

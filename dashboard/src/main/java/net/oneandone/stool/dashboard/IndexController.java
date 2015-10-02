@@ -76,7 +76,7 @@ public class IndexController {
 
         model = new HashMap<>();
         for (Map.Entry<String, Property> entry : StoolConfiguration.properties().entrySet()) {
-            model.put(entry.getKey(), String.valueOf(entry.getValue().get(session.configuration)));
+            model.put(entry.getKey(), entry.getValue().get(session.configuration));
         }
         return model;
     }
