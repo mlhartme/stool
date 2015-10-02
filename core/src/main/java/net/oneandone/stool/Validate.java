@@ -74,8 +74,7 @@ public class Validate extends StageCommand {
         header("validate " + hostname);
         processes = Processes.create(console.world);
         if (email) {
-            mailer = new Mailer(session.configuration.mailHost,
-                    session.configuration.mailUsername, session.configuration.mailPassword);
+            mailer = session.configuration.mailer();
         }
         super.doInvoke();
     }
@@ -162,11 +161,10 @@ public class Validate extends StageCommand {
 
     private String[] stageEmails(Stage stage) throws IOException, NamingException {
         String owner;
-        User user;
 
         owner = stage.owner();
         try {
-            user = session.lookupUser(owner);
+            return new String[]{ session.lookupUser(owner).email };
         } catch (UserNotFound e) {
             owner = session.configuration.contactAdmin;
             if (owner.isEmpty()) {
@@ -174,6 +172,5 @@ public class Validate extends StageCommand {
             }
             return new String[]{ owner };
         }
-        return new String[]{ user.email };
     }
 }

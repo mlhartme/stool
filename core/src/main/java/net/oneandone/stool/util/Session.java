@@ -27,6 +27,7 @@ import net.oneandone.stool.configuration.adapter.ExtensionsAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.extensions.ExtensionsFactory;
+import net.oneandone.stool.setup.SetupStool;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
@@ -45,11 +46,13 @@ import org.codehaus.plexus.DefaultPlexusContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -194,18 +197,34 @@ public class Session {
     private static final Logger LOG = LoggerFactory.getLogger(Session.class);
 
     /** logs an error for administrators, i.e. the user is not expected to understand/fix this problem. */
-    public void reportException(String title, Throwable e) {
-        String header;
-        URL url;
+    public void reportException(String context, Throwable e) {
+        String subject;
+        StringWriter body;
+        PrintWriter writer;
 
-        header = command + ": " + title + " failed: " + e.getMessage();
-        LOG.error(header, e);
-        if (configuration.errorTool != null) {
+        LOG.error("[" + command + "] " + context + ": " + e.getMessage(), e);
+        if (!configuration.contactAdmin.isEmpty()) {
+            subject = "[stool exception] " + e.getMessage();
+            body = new StringWriter();
+            body.write("stool: " + SetupStool.versionObject().toString() + "\n");
+            body.write("command: " + command + "\n");
+            body.write("context: " + context + "\n");
+            body.write("user: " + user + "\n");
+            body.write("hostname: " + configuration.hostname + "\n");
+            writer = new PrintWriter(body);
+            while (true) {
+                e.printStackTrace(writer);
+                e = e.getCause();
+                if (e == null) {
+                    break;
+                }
+                body.append("Caused by:\n");
+            }
             try {
-                url = new URL(configuration.errorTool);
-                ErrorTool.error(url, user + "@" + configuration.hostname, header, e);
-            } catch (IOException suppressed) {
-                LOG.error("suppressed: " + e.getMessage(), e);
+                configuration.mailer().send(configuration.contactAdmin,
+                        new String[]{configuration.contactAdmin}, subject, body.toString());
+            } catch (MessagingException suppressed) {
+                LOG.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
             }
         }
     }

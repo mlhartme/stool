@@ -16,6 +16,7 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
+import net.oneandone.stool.util.Mailer;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 
@@ -121,11 +122,6 @@ public class StoolConfiguration {
      */
     public int autoRemove;
 
-    /**
-     * url or null
-     */
-    public String errorTool;
-
     public String downloadTomcat;
 
     public String downloadServiceWrapper;
@@ -186,5 +182,9 @@ public class StoolConfiguration {
                 }
             }
         }
+    }
+
+    public Mailer mailer() {
+        return new Mailer(mailHost, mailUsername, mailPassword);
     }
 }
