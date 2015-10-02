@@ -16,11 +16,13 @@
 package net.oneandone.stool.configuration;
 
 import net.oneandone.stool.extensions.Switch;
+import net.oneandone.sushi.cli.ArgumentException;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -52,10 +54,12 @@ public class Property {
         }
     }
 
+    // TODO: change strOrMap to str when it's no longer used for stool.defaults
     public void set(Object configuration, Object strOrMap) {
         Object value;
         Class type;
-        String str;
+        int idx;
+        Map<String, String> map;
 
         type = field.getType();
         if (type.equals(String.class)) {
@@ -67,18 +71,17 @@ public class Property {
         } else if (Enum.class.isAssignableFrom(type)) {
             value = Enum.valueOf(type, (String) strOrMap);
         } else if (type.equals(List.class)) {
-            str = (String) strOrMap;
-            if (str.contains(",")) {
-                value = Arrays.asList(str.split(","));
-            } else if (str.contains(" ")) {
-                value = Arrays.asList(str.split(" "));
-            } else if (str.length() > 0) {
-                ArrayList<String> list = new ArrayList<>();
-                list.add(str);
-                value = list;
-            } else {
-                value = Collections.emptyList();
+            value = asList((String) strOrMap);
+        } else if (type.equals(Map.class)) {
+            map = new HashMap<>();
+            for (String item : asList((String) strOrMap)) {
+                idx = item.indexOf(':');
+                if (idx == -1) {
+                    throw new ArgumentException("expected key:value, got " + item);
+                }
+                map.put(item.substring(0, idx).trim(), item.substring(idx + 1).trim());
             }
+            value = map;
         } else if (type.equals(Until.class)) {
             value = Until.fromHuman((String) strOrMap);
         } else if (Map.class.isAssignableFrom(type)) {
@@ -91,6 +94,23 @@ public class Property {
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    private static List<String> asList(String str) {
+        List<String> result;
+
+        if (str.contains(",")) {
+            result = Arrays.asList(str.split(","));
+        } else if (str.contains(" ")) {
+            result = Arrays.asList(str.split(" "));
+        } else if (str.length() > 0) {
+            ArrayList<String> list = new ArrayList<>();
+            list.add(str);
+            result = list;
+        } else {
+            result = Collections.emptyList();
+        }
+        return result;
     }
 
     private Object object(Object configuration) {

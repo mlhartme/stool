@@ -26,6 +26,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -94,8 +95,9 @@ public class StageConfiguration {
     @Option(key = "tomcat.select", description = "hostnames to start - empty for all")
     public List<String> tomcatSelect;
 
-    @Option(key = "tomcat.env", description = "white list of environment variables visible for running applications")
-    public List<String> tomcatEnv;
+    @Option(key = "tomcat.env", description = "Environment variables passes to applications. The current envionment is "
+            + "intentionally unavailable for the running application; this is to make things reproducible.")
+    public Map<String, String> tomcatEnv;
 
     @Option(key = "java.home", description = "jdk or jre directory")
     public String javaHome;
@@ -137,10 +139,7 @@ public class StageConfiguration {
         this.tomcatHeap = 200;
         this.tomcatPerm = 64;
         this.tomcatSelect = new ArrayList<>();
-        this.tomcatEnv = new ArrayList<>();
-        this.tomcatEnv.add("USER");
-        this.tomcatEnv.add("HOME");
-        this.tomcatEnv.add("PATH");
+        this.tomcatEnv = new HashMap<>();
         this.javaHome = javaHome;
         this.mavenHome = mavenHome;
         this.mavenOpts = "";

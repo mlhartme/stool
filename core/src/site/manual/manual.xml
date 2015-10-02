@@ -895,7 +895,9 @@ PROPERTY  # configuration property
             to make the change effective.</para>
           <para>Date properties have the form <replaceable>yyyy-mm-dd</replaceable>, so a valid value for <literal>until</literal>
             is - e.g.  - <literal>2013-12-31</literal>.</para>
-          <para>Values in list properties (e.g. <literal>tomcat.select</literal>) are separated by commas.</para>
+          <para>List properties (e.g. <literal>tomcat.select</literal>) are separated by commas.</para>
+          <para>Map properties (e.g. <literal>tomcat.env</literal>) separate entries by commas, and each entry separates key and value
+            by a colon. Example<literal>PATH:/bin, HOME:/home/me</literal></para>
         </refsect1>
         <refsect1><title>Examples</title>
           <para><literal>stool config tomcat.heap</literal> prints the current value for the <literal>tomcat.heap</literal> property.</para>

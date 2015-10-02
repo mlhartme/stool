@@ -366,15 +366,10 @@ public abstract class Stage {
      */
     private Launcher catalina(String ... action) throws IOException {
         Launcher launcher;
-        Iterator<String> iter;
 
         launcher = new Launcher(getDirectory());
-        iter = launcher.getBuilder().environment().keySet().iterator();
-        while (iter.hasNext()) {
-            if (!configuration.tomcatEnv.contains(iter.next())) {
-                iter.remove();
-            }
-        }
+        launcher.getBuilder().environment().clear();
+        launcher.getBuilder().environment().putAll(configuration.tomcatEnv);
         if (session.configuration.shared) {
             launcher.arg("sudo", "-u", owner(), "-E");
         }
