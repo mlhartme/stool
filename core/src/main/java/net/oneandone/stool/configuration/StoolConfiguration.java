@@ -64,7 +64,7 @@ public class StoolConfiguration {
     public int diskMin;
 
     /**
-     * Name + email
+     * Name + email. Used for problem reports, feedback emails,
      */
     public String contactAdmin;
 

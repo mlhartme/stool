@@ -65,7 +65,12 @@ public class Select extends SessionCommand {
             }
             return;
         }
-        backstage = session.backstages.join(stageName);
+        try {
+            backstage = session.backstages.join(stageName);
+        } catch (IllegalArgumentException e) {
+            // user specified an apsolute path
+            throw new IOException("No such stage: " + stageName);
+        }
         if (!backstage.isDirectory()) {
             throw new IOException("No such stage: " + stageName + suggestion());
         }
