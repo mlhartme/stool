@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/** converts between strings an objects and deals with reflection */
 public class Property {
     public final String name;
     public final String description;
@@ -135,8 +136,6 @@ public class Property {
 
         if (str.contains(",")) {
             result = Arrays.asList(str.split(","));
-        } else if (str.contains(" ")) {
-            result = Arrays.asList(str.split(" "));
         } else if (str.length() > 0) {
             ArrayList<String> list = new ArrayList<>();
             list.add(str);

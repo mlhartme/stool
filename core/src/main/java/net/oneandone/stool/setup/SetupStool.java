@@ -41,15 +41,7 @@ import java.util.Map;
 /** Create a standalone stool directory with "bin" and "man" included. */
 public class SetupStool extends Cli implements Command {
     public static void main(String[] args) throws Exception {
-        SetupStool setupStool;
-        String file;
-
-        setupStool = new SetupStool();
-        file = System.getenv("SETUP_STOOL_DEFAULTS");
-        if (file != null) {
-            setupStool.defaultsFile(file);
-        }
-        System.exit(setupStool.run(args));
+        System.exit(new SetupStool().run(args));
     }
 
     private FileNode home;
@@ -76,8 +68,6 @@ public class SetupStool extends Cli implements Command {
         idx = str.indexOf('=');
         if (idx != -1) {
             config.put(str.substring(0, idx), str.substring(idx + 1));
-        } else if (str.startsWith("@")) {
-            defaultsFile(str.substring(1));
         } else if (home == null) {
             home = console.world.file(str);
         } else if (oldHome == null) {
@@ -173,19 +163,6 @@ public class SetupStool extends Cli implements Command {
     }
 
     //--
-
-    private void defaultsFile(String file) throws IOException {
-        Object value;
-
-        for (Map.Entry<String, JsonElement> entry : loadJson(console.world.file(file)).entrySet()) {
-            if (entry.getValue() instanceof JsonObject) {
-                value = toMap((JsonObject) entry.getValue());
-            } else {
-                value = toString(entry.getValue());
-            }
-            config.put(entry.getKey(), value);
-        }
-    }
 
     private Map<String, Object> toMap(JsonObject object) {
         Map<String, Object> result;

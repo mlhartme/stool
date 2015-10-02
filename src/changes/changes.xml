@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.3.0" date="2015-10-01">
+      <action date="2015-10-02" dev="mlhartme" type="update">
+        The separator for list property values is ",", space is no longer supported.
+      </action>
       <action date="2015-10-02" dev="mlhartme" type="fix">
         Display properties as strings, not as json objects.
       </action>
