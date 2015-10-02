@@ -44,11 +44,6 @@
       <para>Here's an example, what you can do with Stool.
         (The following assumes that Stool has been installed properly - see the respective section below)</para>
 
-      <para>Invoke
-        <programlisting>stool</programlisting>
-        to see if Stool is installed. You should get a usage message with available commands.
-      </para>
-
       <para>Create a new stage by checking out an application:
 
         <programlisting>stool create https://github.com/mlhartme/hellowar/trunk</programlisting>
@@ -87,12 +82,14 @@
         to see what you have created and not yet removed. To switch to another stage, invoke
 
         <programlisting>stool select otherstage</programlisting>
+      </para>
 
-        You can use
-
-        <programlisting>stool history</programlisting>
-
-        to see what happened on the stage.
+      <para>
+        You can get help with
+          <programlisting>stool help</programlisting>
+        to see a list of available Stool commands. You can append a command to get more help on that, e.g.
+          <programlisting>stool help create</programlisting>
+        prints help about the create command.
       </para>
     </sect1>
     <sect1>
