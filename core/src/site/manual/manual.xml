@@ -1030,35 +1030,42 @@ PROPERTY  # configuration property
     <sect1>
       <title>Install</title>
 
-      <para>To install Stool on your system:</para>
+      <para>You can install Stool with a Debian Package or a Java installer. You have to use the Debian package if you need shared mode.
+        You have to use the Java installer if you're on a Mac.
+      </para>
+      <para>To Stool with the Java installer:</para>
       <itemizedlist>
         <listitem>
-          <para>Download Stool's setup script from <literal>https://github.com/mlhartme/stool/releases</literal> and store it -e.g. - as <literal>/YOUR/DOWNLOADS/setup-stool</literal>.</para>
+          <para>Download the installer from <literal>https://github.com/mlhartme/stool/releases</literal> and store it -e.g. - as <literal>/YOUR/DOWNLOADS/setup-stool</literal>.</para>
         </listitem>
         <listitem>
           <para>Make the download executable: <literal>chmod a+x /YOUR/DOWNLOADS/setup-stool</literal>.</para>
         </listitem>
         <listitem>
           <para>Make sure to have Java 8 installed on your system and <literal>java</literal> is in your path. <literal>java</literal> is used by the
-            setup script and it becomes the default java version for new stages. (If you want a different java version for new stages, define it
+            setup script and it becomes the default java version for new stages. (If you want a different Java version for new stages, define it
             under <literal>defaults</literal> in Stool's configuration file - see below). </para>
         </listitem>
         <listitem>
-          <para>Actually install Stool: run <literal>/YOUR/DOWNLOADS/setup-stool /PATH/TO/STOOL/HOME</literal>. This will create Stool's home
-            directory at the specified location.</para>
-        </listitem>
-        <listitem>
-          <para>Adjust Stool properties in <literal>$STOOL_HOME/config.json</literal> to your needs. If you enabled "shared" mode, you also need the
-          following sudo rules:<programlisting>
-%users ALL = (%users) NOPASSWD: /PATH/TO/STOOL/HOME/bin/stool-raw.sh
-%users ALL = (%users) NOPASSWD:SETENV: /PATH/TO/STOOL/HOME/bin/service-wrapper.sh
-%users ALL = (root) NOPASSWD: /PATH/TO/STOOL/HOME/bin/chowntree.sh
-            </programlisting>
-          </para>
+          <para>Actually install Stool: run <literal>/YOUR/DOWNLOADS/setup-stool /PATH/TO/STOOL/HOME</literal>.</para>
         </listitem>
         <listitem>
           <para>Add the line <literal>source /PATH/TO/STOOL/HOME/bin/stool-function</literal> to your $HOME/.bashrc file. This defines the shell
             function <literal>stool</literal> that actually invokes Stool.
+          </para>
+        </listitem>
+        <listitem>
+          <para>If you want to run Stool in <literal>shared</literal> mode, you also need the following sudo rules:<programlisting>
+%users ALL = (%users) NOPASSWD: /PATH/TO/STOOL/HOME/bin/stool-raw.sh
+%users ALL = (%users) NOPASSWD:SETENV: /PATH/TO/STOOL/HOME/bin/service-wrapper.sh
+%users ALL = (root) NOPASSWD: /PATH/TO/STOOL/HOME/bin/chowntree.sh
+            </programlisting>
+            TODO: what about the stool group.</para>
+        </listitem>
+        <listitem>
+          <para>If you want Stage expiring and auto-removal of stages, you also need the following cron job:<programlisting>
+            1 4 * * * stool /PATH/TO/STOOL/HOME/bin/stool-raw.sh validate -all -email -stop > /dev/null
+          </programlisting>
           </para>
         </listitem>
         <listitem>

@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
+/** Generates Stool install files. May be executed at build time (for Debian Installer) or runtime (Java Installer) */
 public class Install {
     public static final String STOOL_UPDATE_CHECKED = ".stool.update.checked";
 

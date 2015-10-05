@@ -38,7 +38,7 @@ import java.io.Reader;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/** Create a standalone stool directory with "bin" and "man" included. */
+/** Java installer. Creates a standalone stool directory with "bin" and "man" included. */
 public class SetupStool extends Cli implements Command {
     public static void main(String[] args) throws Exception {
         System.exit(new SetupStool().run(args));
