@@ -46,6 +46,7 @@ public class DebianHome {
         if (existing) {
             console.info.println("updating home: " + home);
             migrate_3_1(console.info, home);
+            migrate_3_2(console.info, home);
         } else {
             // make sure the setgid does not overrule the current group id
             home.getParent().execNoOutput("chmod", "g-s", ".");
@@ -78,6 +79,9 @@ public class DebianHome {
             Files.exec(log, home, "rm", "-rf", home.join("bin").getAbsolute());
             Files.exec(log, home, "chgrp", "/opt/ui/opt/tools/stool".equals(home.getAbsolute()) ? "users" : "stool", ".");
         }
+    }
+
+    private static void migrate_3_2(PrintWriter log, FileNode home) throws IOException {
         if (home.join("overview.properties").isFile()) {
             log.println("migrating 3.2 -> 3.3");
             Files.exec(log, home, "mv", home.join("overview.properties").getAbsolute(), home.join("dashboard.properties").getAbsolute());

@@ -1123,8 +1123,7 @@ PROPERTY  # configuration property
   <chapter>
     <title>Directory Layout</title>
     <para>
-      ... of a source stage
-
+      ... of files installed or managed by stool:
       <programlisting>
       (stage directory) (normal application files)
       (stool home)
@@ -1137,13 +1136,14 @@ PROPERTY  # configuration property
         |       |- (one file per user session)
         |       :
         |- downloads (caches Tomcat- and Service Wrapper downloads)
-        |- bin
+        |- bin (*)  binary- and script stuff
         |   |- stool-function
         |   |- service-wrapper.sh
         |   |- stool.jar
         |   |- stool-(timestamp).jar  (optional incremental updates)
         |   |- stool-catalina.sh
         |   '- stool-chown.sh
+        |- man (*)  documentation
         |- inbox (to push jars into artifact stages with an inbox urls)
         |- extensions (for jars with Stool extensions)
         |- logs
@@ -1174,6 +1174,7 @@ PROPERTY  # configuration property
                        '- logs
                            '- applogs (application log files for pustefix apps)
       </programlisting>
+      (*) If you installed the Debian package: bin is placed at /usr/share/stool, man is placed at /usr/share/man.
     </para>
   </chapter>
 </book>
