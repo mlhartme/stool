@@ -39,6 +39,8 @@ public class Ports {
         int even;
         Host host;
         Map<String, FileNode> hosts;
+        Integer i;
+        Map<String, Integer> reserved;
 
         previous = loadOpt(stage);
         pool = stage.session.createPool();
@@ -59,7 +61,13 @@ public class Ports {
                 }
             }
             if (even == 0) {
-                even = pool.allocate(vhost);
+                reserved = stage.session.configuration.reservedPorts;
+                i = reserved.get(vhost);
+                if (i != null) {
+                    even = i;
+                } else {
+                    even = pool.allocate(vhost);
+                }
             }
             result.hosts.add(new Host(even, vhost, stage.session.configuration.hostname, entry.getValue()));
         }

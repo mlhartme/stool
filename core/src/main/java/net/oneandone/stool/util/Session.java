@@ -519,7 +519,7 @@ public class Session {
     }
 
     public Pool createPool() {
-        return new Pool(configuration.portFirst, configuration.portLast, backstages);
+        return new Pool(configuration.portFirst, configuration.portLast, backstages, configuration.reservedPorts.values());
     }
 
     public StageConfiguration createStageConfiguration(String url) throws IOException {

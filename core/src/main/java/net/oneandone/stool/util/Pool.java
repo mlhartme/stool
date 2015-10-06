@@ -21,16 +21,18 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class Pool {
     private final int first;
     private final int last;
+    private final Collection<Integer> excludes;
 
     private final FileNode backstages;
     private List<Integer> lazyUsed;
 
-    public Pool(int first, int last, FileNode backstages) {
+    public Pool(int first, int last, FileNode backstages, Collection<Integer> excludes) {
         if (first % 2 != 0) {
             throw new IllegalArgumentException("even port expected: " + first);
         }
@@ -39,6 +41,7 @@ public class Pool {
         }
         this.first = first;
         this.last = last;
+        this.excludes = excludes;
         this.backstages = backstages;
         this.lazyUsed = null;
     }
@@ -58,7 +61,9 @@ public class Pool {
         }
         current = start;
         do {
-            if (!used().contains(current)) {
+            if (excludes.contains(start)) {
+                // skip
+            } else if (!used().contains(current)) {
                 checkFree(current);
                 checkFree(current + 1);
                 lazyUsed.add(current);

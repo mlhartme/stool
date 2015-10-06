@@ -22,6 +22,7 @@ import net.oneandone.sushi.io.OS;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -128,6 +129,8 @@ public class StoolConfiguration {
 
     public FileNode downloadCache;
 
+    public Map<String, Integer> reservedPorts;
+
     public StoolConfiguration(FileNode downloadCache) {
         portFirst = 9000;
         portLast = 9999;
@@ -154,6 +157,7 @@ public class StoolConfiguration {
         downloadServiceWrapper = "http://wrapper.tanukisoftware.com/download/${version}/wrapper-"
                 + (OS.CURRENT == OS.LINUX ? "linux-x86-64" : "macosx-universal-64") + "-${version}.tar.gz";
         this.downloadCache = downloadCache;
+        this.reservedPorts = new HashMap<>();
     }
 
     public static FileNode configurationFile(FileNode home) {
