@@ -511,12 +511,19 @@ public abstract class Stage {
     /** CAUTION: this is not a session method, because it respected the stage repository */
     public Maven maven() throws IOException {
         World world;
+        String mavenHome;
+        FileNode settings;
 
         if (maven == null) {
             world = session.console.world;
+            mavenHome = config().mavenHome();
+            if (mavenHome == null) {
+                settings = session.home.join("maven-settings.xml");
+            } else {
+                settings = world.file(mavenHome).join("conf/settings.xml");
+            }
             // CAUTION: shared plexus - otherwise, Maven components are created over and over again
-            maven = Maven.withSettings(world, localRepository(), world.file(config().mavenHome()).join("conf/settings.xml"), null,
-                    session.plexus(), null, null);
+            maven = Maven.withSettings(world, localRepository(), settings, null, session.plexus(), null, null);
             // always get the latest snapshots
             maven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
         }

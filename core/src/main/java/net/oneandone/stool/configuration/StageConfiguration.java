@@ -102,6 +102,7 @@ public class StageConfiguration {
     @Option(key = "java.home", description = "jdk or jre directory")
     public String javaHome;
 
+    // never null
     @Option(key = "maven.home", description = "Maven home")
     private String mavenHome;
 
@@ -157,8 +158,9 @@ public class StageConfiguration {
         }
     }
 
+
     public String mavenHome() {
-        return mavenHome == null || mavenHome.isEmpty() ? null : mavenHome;
+        return mavenHome.isEmpty() ? null : mavenHome;
     }
 }
 

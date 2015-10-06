@@ -523,12 +523,15 @@ public class Session {
     }
 
     public StageConfiguration createStageConfiguration(String url) throws IOException {
-        FileNode mavenHome;
+        String mavenHome;
         StageConfiguration stage;
 
-        mavenHome = Maven.locateMaven(console.world);
-        stage = new StageConfiguration(nextStageId(), javaHome(), mavenHome == null ? null : mavenHome.getAbsolute(),
-                extensionsFactory.newInstance());
+        try {
+            mavenHome = Maven.locateMaven(console.world).getAbsolute();
+        } catch (IOException e) {
+            mavenHome = "";
+        }
+        stage = new StageConfiguration(nextStageId(), javaHome(), mavenHome, extensionsFactory.newInstance());
         configuration.setDefaults(StageConfiguration.properties(extensionsFactory), stage, url);
         return stage;
     }
