@@ -1,16 +1,7 @@
-class { "apache":
-  manage_user   => false,
-}
-
-apt::key { 'minibuild' :
-  id => 'AECD9D45',
-  source    => 'http://buildd-i386.schlund.de:80/~mini-buildd/pgp_key.asc',
+apt::source { 'backports':
+  location          => 'http://http.debian.net/debian',
+  release => "jessie-backports",
+  repos   => 'main',
 }
 ->
-apt::source { 'minibuild':
-  location          => 'http://buildd-i386.schlund.de:80/~mini-buildd/rep/',
-  release => "wheezy-ui/",
-  repos   => '',
-}
-->
-package { 'ui-oracle-java8u40-jdk-no-bc' : }
+package { 'openjdk-8-jdk' : }
