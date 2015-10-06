@@ -4,7 +4,8 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
-        http://www.w3.org/2001/XInclude http://www.w3.org/2001/XInclude/XInclude.xsd">
+        http://www.w3.org/2001/XInclude http://www.w3.org/2001/XInclude/XInclude.xsd
+http://docbook.org/ns/docbook ">
   <!-- Conventions
        * 'Stool' is written with a capital S
        * <literal/> marks things to type or technical term from Stool. I use literal instead of command because command is rendered in
@@ -28,7 +29,9 @@
     </copyright>
 
     <releaseinfo>
-      <remark>Stool <?eval ${project.version}?>, <xi:include href="../../../target/now.txt" parse="text"/></remark>
+      <remark>Stool <?eval ${project.version}?>,
+        <xi:include href="../../../target/now.txt" parse="text"/>
+      </remark>
     </releaseinfo>
   </info>
 
@@ -42,7 +45,8 @@
     <sect1>
       <title>Quick Tour</title>
       <para>Here's an example, what you can do with Stool.
-        (The following assumes that Stool has been installed properly - see the respective section below)</para>
+        (The following assumes that Stool has been installed properly - see the respective section below)
+      </para>
 
       <para>Create a new stage by checking out an application:
 
@@ -86,9 +90,9 @@
 
       <para>
         You can get help with
-          <programlisting>stool help</programlisting>
+        <programlisting>stool help</programlisting>
         to see a list of available Stool commands. You can append a command to get more help on that, e.g.
-          <programlisting>stool help create</programlisting>
+        <programlisting>stool help create</programlisting>
         prints help about the create command.
       </para>
     </sect1>
@@ -96,10 +100,17 @@
       <title>Rationale</title>
       <para>Why not use virtual machines instead of creating stages with Stool? Stool offers the following benefits:</para>
       <itemizedlist>
-        <listitem><para>creating stages is faster</para></listitem>
-        <listitem><para>creating stages is fully automatic, virtual machine might need extra steps like dns setup, cerfificates etc</para></listitem>
-        <listitem><para>if you have firewalls, you can set them up once for all stages; with virtual machine, you'll probably have to
-          request firewalls for every new vm.</para></listitem>
+        <listitem>
+          <para>creating stages is faster</para>
+        </listitem>
+        <listitem>
+          <para>creating stages is fully automatic, virtual machine might need extra steps like dns setup, cerfificates etc</para>
+        </listitem>
+        <listitem>
+          <para>if you have firewalls, you can set them up once for all stages; with virtual machine, you'll probably have to
+            request firewalls for every new vm.
+          </para>
+        </listitem>
       </itemizedlist>
     </sect1>
   </chapter>
@@ -118,7 +129,7 @@
               <title>directory</title>
               <para>Where the stage is stored in your file system. This is where you usually work with your stage.
                 It holds the source code or the war files of this stage. The directory is determined when you create a
-                stage. You can change the stage directory with <literal>stool move</literal>.
+                stage. You can change the stage directory with<literal>stool move</literal>.
               </para>
             </formalpara>
           </listitem>
@@ -129,7 +140,7 @@
                 use it to switch between stages, and it's part of the application url(s).
                 The name is determined when you create a stage (in most cases it's implicitly the name of the stage directory);
                 you'll get an error message if it's not unique.
-                You can change the name with <literal>stool rename</literal>.
+                You can change the name with<literal>stool rename</literal>.
               </para>
             </formalpara>
           </listitem>
@@ -137,17 +148,19 @@
             <formalpara>
               <title>url</title>
               <para>Specifies where the web applications come from: A Subversion URL or Maven coordinates.
-              <programlisting>Examples
-                https://github.com/mlhartme/hellowar/trunk
-                gav:net.oneandone:hellowar:1.0.2
-              </programlisting></para>
+                <programlisting>Examples
+                  https://github.com/mlhartme/hellowar/trunk
+                  gav:net.oneandone:hellowar:1.0.2
+                </programlisting>
+              </para>
             </formalpara>
           </listitem>
           <listitem>
             <formalpara>
               <title>type</title>
               <para>How the stage contains the web application(s): source - checkout of a Maven project, or artifact - a Maven artifact.
-                The stage url implies the stage type.</para>
+                The stage url implies the stage type.
+              </para>
             </formalpara>
           </listitem>
           <listitem>
@@ -157,21 +170,28 @@
                 <itemizedlist>
                   <listitem>
                     <para>up: stage is running, applications can be access via application url(s). This is the state after successful start
-                      or restart</para>
+                      or restart
+                    </para>
                   </listitem>
                   <listitem>
                     <para>down: stage is not running, applciations cannot be accessed. This is the initial state after creation or after
-                      it was stopped</para>
+                      it was stopped
+                    </para>
                   </listitem>
                   <listitem>
-                    <para>sleeping: stage is temporarily not running; state after stage was stopped with <literal>-sleep</literal>.
+                    <para>sleeping: stage is temporarily not running; state after stage was stopped with<literal>-sleep</literal>.
                       This state is used e.g. when a machine is rebooted, it flags the stages that should be started once the machine
-                      is up again.</para>
+                      is up again.
+                    </para>
                   </listitem>
                 </itemizedlist>
               </para>
             </formalpara>
-            <para>You can check the state with <literal>stool status</literal> or <literal>stool list</literal></para>
+            <para>You can check the state with
+              <literal>stool status</literal>
+              or
+              <literal>stool list</literal>
+            </para>
           </listitem>
           <listitem>
             <formalpara>
@@ -189,7 +209,9 @@
       <para>Usually you have one stage you're working with: the selected stage, which is shown in the stage
         indicator in your prompt:<literal>{somestage}</literal>. After creating a stage, it
         automatically becomes the selected stage, subsequent Stool commands work with this stage. If you want to work
-        with a different stage, you use <literal>stool select</literal> to switch to it. If you remove the current stage,
+        with a different stage, you use
+        <literal>stool select</literal>
+        to switch to it. If you remove the current stage,
         you no longer have a selected stage and the stage indicator vanishes.
       </para>
 
@@ -203,22 +225,40 @@
       <title>Stage commands</title>
 
       <para>Most Stool commands are stage commands, i.e. they operate on (an arbitrary number of) stages. Typical
-        stage commands are <literal>status</literal>, <literal>build</literal>, <literal>start</literal>, and <literal>stop</literal>.
-        Note that <literal>create</literal> is not a stage command because it does not initially have a stage to operate on (although it
+        stage commands are<literal>status</literal>,<literal>build</literal>,<literal>start</literal>, and<literal>stop</literal>.
+        Note that
+        <literal>create</literal>
+        is not a stage command because it does not initially have a stage to operate on (although it
         results in a new (and selected) stage).
       </para>
 
       <para>By default, stage commands operate on the selected stage. You can change this by specifying one of the
-        selection options <literal>-all</literal> (to operate on all stages) or <literal>-stage </literal><replaceable>expr</replaceable>
-        to operate on stages that match <replaceable>expr</replaceable>. E.g. <literal>stool status -stage owner=mhm</literal>
-        prints the status of all stages owned by user <literal>mhm</literal>. Or you can print the configuration of stage <literal>foo</literal>
-        with <literal>stool config -stage foo</literal> without changing the selected stage.
+        selection options
+        <literal>-all</literal>
+        (to operate on all stages) or
+        <literal>-stage</literal>
+        <replaceable>expr</replaceable>
+        to operate on stages that match<replaceable>expr</replaceable>. E.g.
+        <literal>stool status -stage owner=mhm</literal>
+        prints the status of all stages owned by user<literal>mhm</literal>. Or you can print the configuration of stage
+        <literal>foo</literal>
+        with
+        <literal>stool config -stage foo</literal>
+        without changing the selected stage.
       </para>
 
-      <para>Stage commands have a failure mode, configurable with <literal>-fail </literal><replaceable>mode</replaceable>, to specify how to
-        deal with broken stages and failed stage commands. Mode <literal>normal</literal> reports problems as soon as they are detected; this is
-        the default. <literal>after</literal> reports problems after the actual command was invoked on all matching stages.
-        And finally <literal>never</literal> is similar to <literal>after</literal>, but reports warnings instead of errors (and thus,
+      <para>Stage commands have a failure mode, configurable with
+        <literal>-fail</literal>
+        <replaceable>mode</replaceable>, to specify how to
+        deal with broken stages and failed stage commands. Mode
+        <literal>normal</literal>
+        reports problems as soon as they are detected; this is
+        the default.
+        <literal>after</literal>
+        reports problems after the actual command was invoked on all matching stages.
+        And finally
+        <literal>never</literal>
+        is similar to<literal>after</literal>, but reports warnings instead of errors (and thus,
         Stool always returns with error code 0).
       </para>
     </sect1>
@@ -226,16 +266,25 @@
     <sect1>
       <title>Stage owner</title>
 
-      <para>Stool has a <literal>shared</literal> configuration property. If you run Stool on your own machine
-        and you are the only user, you'll set it to <literal>false</literal> - you can skip the rest of this section. On the other
-        hand, if Stool is used by multiple users, you have to comply with company security rules. Set <literal>shared</literal> to
-        <literal>true</literal> to use Stool as described below.
+      <para>Stool has a
+        <literal>shared</literal>
+        configuration property. If you run Stool on your own machine
+        and you are the only user, you'll set it to
+        <literal>false</literal>
+        - you can skip the rest of this section. On the other
+        hand, if Stool is used by multiple users, you have to comply with company security rules. Set
+        <literal>shared</literal>
+        to
+        <literal>true</literal>
+        to use Stool as described below.
       </para>
 
       <para>If you create a new stage, you become the owner of this stage. You own the files in the stage directory
         in terms of Unix file ownership, and you have write access to stage files. Other users have read access to the
         files. Note that everybody (with the appropriate svn permissions) can change files in Subversion, but only the
-        stage owner can run <literal>svn up</literal> on his stage. Note also, that everybody can change files via Pustefix Editor
+        stage owner can run
+        <literal>svn up</literal>
+        on his stage. Note also, that everybody can change files via Pustefix Editor
         (with the appropriate editor permissions), they appear as modified by the stage owner), but only the stage owner can
         commit the modifications.
       </para>
@@ -244,32 +293,54 @@
         actually issued the start command. Thus, any user can start and stop a stage, not only the owner.
       </para>
 
-      <para>If a different user has to make changes to stage files, he/she has to use the <literal>chown</literal> command to become
+      <para>If a different user has to make changes to stage files, he/she has to use the
+        <literal>chown</literal>
+        command to become
         owner of the stage and thus get the necessary permissions to change files.
       </para>
 
-      <para>Example: If user <literal>mhm</literal> owns stage <literal>tec1584</literal>, and user 'bitterichc' wants to change
-        a file in the stage directory, one of them has to run <literal>stool chown -stage tec1584 bitterichc</literal>. This will stop any
-        stage processes (which is allowed for <literal>bitterichc</literal> as well!), change Unix file ownership of the stage files to
-        <literal>bitterichc</literal> and re-start the stage processes to also change process ownership to the new owner.
+      <para>Example: If user
+        <literal>mhm</literal>
+        owns stage<literal>tec1584</literal>, and user 'bitterichc' wants to change
+        a file in the stage directory, one of them has to run<literal>stool chown -stage tec1584 bitterichc</literal>. This will stop any
+        stage processes (which is allowed for
+        <literal>bitterichc</literal>
+        as well!), change Unix file ownership of the stage files to
+        <literal>bitterichc</literal>
+        and re-start the stage processes to also change process ownership to the new owner.
       </para>
 
       <para>Rationale:
         <itemizedlist>
-          <listitem><para>Tool users like <literal>servlet</literal> or <literal>stage5</literal> have to be replaced by personalized logins
-            (security guideline).</para></listitem>
-          <listitem><para>We need to know exactly who changed a stage file (security guideline).</para></listitem>
-          <listitem><para>It's difficult and fragile to grant multiple users write access to stage files (e.g. via umask configuration),
-            in particular because the respective user's home directory has to be private.</para>
+          <listitem>
+            <para>Tool users like
+              <literal>servlet</literal>
+              or
+              <literal>stage5</literal>
+              have to be replaced by personalized logins
+              (security guideline).
+            </para>
+          </listitem>
+          <listitem>
+            <para>We need to know exactly who changed a stage file (security guideline).</para>
+          </listitem>
+          <listitem>
+            <para>It's difficult and fragile to grant multiple users write access to stage files (e.g. via umask configuration),
+              in particular because the respective user's home directory has to be private.
+            </para>
           </listitem>
         </itemizedlist>
         Ownership is meant to track changes, not to prevent them.
       </para>
 
-      <para>Implementation note: The <literal>chown</literal> command internally uses <literal>sudo</literal> to elevate the current user's
+      <para>Implementation note: The
+        <literal>chown</literal>
+        command internally uses
+        <literal>sudo</literal>
+        to elevate the current user's
         permissions to start/stop processes or change file ownership. Note that some files have to be group-writable, because arbitrary
-        users have to create them: the global lock and things generated by <literal>stool start</literal>). All users of Stool have to be
-        in the group <literal>stool</literal>.
+        users have to create them: the global lock and things generated by<literal>stool start</literal>). All users of Stool have to be
+        in the group<literal>stool</literal>.
       </para>
     </sect1>
 
@@ -277,20 +348,25 @@
       <title>Properties</title>
       <para>Stool is configured via Stool properties and stage properties. Stool properties are global settings that apply to all stages,
         they are usually adjusted by system administration. Stage properties configure the respective stage only, every stage has its own
-        set of stage properties. The owner of a stage can adjust stage properties with <command>stool config</command>.
+        set of stage properties. The owner of a stage can adjust stage properties with<command>stool config</command>.
       </para>
     </sect1>
 
     <sect1>
       <title>Backstage</title>
       <para>Every stage directory has an associated backstage directory - a directory that stores Stool-related data about the stage,
-        e.g. the stage properties, Tomcat configuration and log files of the applications. The backstage directory is created when you create
-        or import the stage. Backstage directories are created in <literal>$STOOL_HOME/backstage</literal> and have the name of the stage;
+        e.g. the stage properties, Tomcat configuration and log files of the applications. The backstage directory is created when you
+        create
+        or import the stage. Backstage directories are created in
+        <literal>$STOOL_HOME/backstage</literal>
+        and have the name of the stage;
         Stool uses this directory to iterate all stages.
       </para>
-      <para>Stool removes backstage directories either explicitly when you run <literal>stool remove</literal>, or implicitly when it detects
+      <para>Stool removes backstage directories either explicitly when you run<literal>stool remove</literal>, or implicitly when it detects
         a stale backstage directory. A backstage directory is stale if its corresponding stage directory has been deleted (usually by a user
-        running <literal>rm -rf</literal> on it). Stool checks for - and cleans - stale backstages before every command. Cleaning a stale
+        running
+        <literal>rm -rf</literal>
+        on it). Stool checks for - and cleans - stale backstages before every command. Cleaning a stale
         backstage deletes (kill -9) all processes that have a pid file in the backstage directory and deletes the backstage
         directory itself.
       </para>
@@ -298,10 +374,16 @@
 
     <sect1>
       <title>Stage expiring</title>
-      <para>Every stage has an <literal>until</literal> property that specifies how long the stage is needed. You can see the until date
-        with <literal>stool config until</literal>. If this date has passed, the stage is called expired, and it is automatically stopped,
-        the owner gets an email notification and you cannot start it unless you specify a new date with <literal>stool config until=</literal><replaceable>yyyy-mm-dd</replaceable>.
-        Depending on the <literal>autoRemove</literal> property, the stage will automatically be removed after the configured number of days.
+      <para>Every stage has an
+        <literal>until</literal>
+        property that specifies how long the stage is needed. You can see the until date
+        with<literal>stool config until</literal>. If this date has passed, the stage is called expired, and it is automatically stopped,
+        the owner gets an email notification and you cannot start it unless you specify a new date with
+        <literal>stool config until=</literal>
+        <replaceable>yyyy-mm-dd</replaceable>.
+        Depending on the
+        <literal>autoRemove</literal>
+        property, the stage will automatically be removed after the configured number of days.
         Stage expiring helps to detect and remove unused stages, which is crucial for shared machines. If you receive an email
         notification that your stage has expired, please check if your stage is still needed. If so, adjust the
         until data, otherwise remove the stage.
@@ -325,56 +407,123 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool</command>
-            <arg rep="repeat"><replaceable>global-option</replaceable></arg>
-            <arg><replaceable>command</replaceable></arg>
-            <arg rep="repeat"><replaceable>arguments</replaceable></arg>
+            <arg rep="repeat">
+              <replaceable>global-option</replaceable>
+            </arg>
+            <arg>
+              <replaceable>command</replaceable>
+            </arg>
+            <arg rep="repeat">
+              <replaceable>arguments</replaceable>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
 
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>Stool is a command line tool that provides a lifecycle for stages: create, configure, build, run and remove.
-            A stage contains web applications built from source or downloaded as artifacts. <replaceable>command</replaceable> defaults to
-            <literal>help</literal>.</para>
+            A stage contains web applications built from source or downloaded as artifacts.
+            <replaceable>command</replaceable>
+            defaults to
+            <literal>help</literal>.
+          </para>
           <refsect2>
             <title>Commands</title>
-            <xi:include href="../../../target/synopsis.xml" />
+            <xi:include href="../../../target/synopsis.xml"/>
           </refsect2>
           <refsect2>
             <title>Global options</title>
             <itemizedlist>
-              <listitem><para><option>-v</option> enables verbose output</para></listitem>
-              <listitem><para><option>-e</option> prints stacktrace for all errors</para></listitem>
-              <listitem><para><option>-svnuser</option> specified the user name for svn operations</para></listitem>
-              <listitem><para><option>-svnpassword</option> specifies the password for svn operations</para></listitem>
+              <listitem>
+                <para>
+                  <option>-v</option>
+                  enables verbose output
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <option>-e</option>
+                  prints stacktrace for all errors
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <option>-svnuser</option>
+                  specified the user name for svn operations
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  <option>-svnpassword</option>
+                  specifies the password for svn operations
+                </para>
+              </listitem>
             </itemizedlist>
           </refsect2>
           <refsect2>
             <title>Failure mode for stage commands</title>
             <variablelist>
-              <varlistentry><term>-fail normal</term><listitem><para>fail immediately</para></listitem></varlistentry>
-              <varlistentry><term>-fail after</term><listitem><para>fail after iterating all stages</para></listitem></varlistentry>
-              <varlistentry><term>-fail never</term><listitem><para>don't fail, report errors as warning</para></listitem></varlistentry>
+              <varlistentry>
+                <term>-fail normal</term>
+                <listitem>
+                  <para>fail immediately</para>
+                </listitem>
+              </varlistentry>
+              <varlistentry>
+                <term>-fail after</term>
+                <listitem>
+                  <para>fail after iterating all stages</para>
+                </listitem>
+              </varlistentry>
+              <varlistentry>
+                <term>-fail never</term>
+                <listitem>
+                  <para>don't fail, report errors as warning</para>
+                </listitem>
+              </varlistentry>
             </variablelist>
           </refsect2>
           <refsect2>
             <title>Select options for stage commands</title>
             <variablelist>
-              <varlistentry><term>(no selection)</term><listitem><para>operate on the selected stage</para></listitem></varlistentry>
-              <varlistentry><term><literal>-all</literal></term><listitem><para>operate on all stages</para></listitem></varlistentry>
-              <varlistentry><term><literal>-stage </literal><replaceable>predicate></replaceable></term><listitem><para>operate on all stages matching the specified <replaceable>predicate</replaceable></para></listitem></varlistentry>
+              <varlistentry>
+                <term>(no selection)</term>
+                <listitem>
+                  <para>operate on the selected stage</para>
+                </listitem>
+              </varlistentry>
+              <varlistentry>
+                <term>
+                  <literal>-all</literal>
+                </term>
+                <listitem>
+                  <para>operate on all stages</para>
+                </listitem>
+              </varlistentry>
+              <varlistentry>
+                <term>
+                  <literal>-stage</literal>
+                  <replaceable>predicate></replaceable>
+                </term>
+                <listitem>
+                  <para>operate on all stages matching the specified
+                    <replaceable>predicate</replaceable>
+                  </para>
+                </listitem>
+              </varlistentry>
             </variablelist>
           </refsect2>
           <refsect2>
             <title>Selection predicates</title>
             <programlisting>
-or        = and {',' and}
-and       = cmp {'+' cmp}
-cmp       = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring)
-prefix    = VALUE '*'
-suffix    = '*' VALUE
-substring = '*' VALUE '*'
-FIELD     # status field
-PROPERTY  # configuration property
+              or = and {',' and}
+              and = cmp {'+' cmp}
+              cmp = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring)
+              prefix = VALUE '*'
+              suffix = '*' VALUE
+              substring = '*' VALUE '*'
+              FIELD # status field
+              PROPERTY # configuration property
             </programlisting>
           </refsect2>
         </refsect1>
@@ -382,7 +531,11 @@ PROPERTY  # configuration property
           <title>See Also</title>
           <para>Homepage: https://github.com/mlhartme/stool</para>
           <para>Documentation: http://mlhartme.github.io/stool/manual.html</para>
-          <para>Invoke <literal>stool help </literal><replaceable>command</replaceable> to see more details.</para>
+          <para>Invoke
+            <literal>stool help</literal>
+            <replaceable>command</replaceable>
+            to see more details.
+          </para>
         </refsect1>
       </refentry>
     </section>
@@ -401,11 +554,17 @@ PROPERTY  # configuration property
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool help</command>
-            <arg><replaceable>command</replaceable></arg>
+            <arg>
+              <replaceable>command</replaceable>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
-          <para>Prints help about the specified <replaceable>command</replaceable>. Or, if <replaceable>command</replaceable> is not specified, prints help about Stool.</para>
+        <refsect1>
+          <title>Description</title>
+          <para>Prints help about the specified<replaceable>command</replaceable>. Or, if
+            <replaceable>command</replaceable>
+            is not specified, prints help about Stool.
+          </para>
         </refsect1>
       </refentry>
 
@@ -420,7 +579,8 @@ PROPERTY  # configuration property
             <command>stool version</command>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>Prints Stool's version info.</para>
         </refsect1>
       </refentry>
@@ -437,7 +597,8 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
 
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>
             Starts the dashboard stage and all sleeping stages.
           </para>
@@ -457,7 +618,8 @@ PROPERTY  # configuration property
           </cmdsynopsis>
         </refsynopsisdiv>
 
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>
             Stops the dashboard stage and sends all other running stages to sleep.
           </para>
@@ -475,7 +637,8 @@ PROPERTY  # configuration property
             <command>stool system-validate</command>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>
             Checks DNS settings.
           </para>
@@ -491,14 +654,32 @@ PROPERTY  # configuration property
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool system-import</command>
-            <arg>-include <group><arg choice="plain">all</arg><arg choice="plain">config</arg><arg choice="plain">stages</arg></group></arg>
-            <arg choice="plain"><replaceable>other-home</replaceable></arg>
-            <group rep="repeat"><arg choice="plain"><replaceable>name</replaceable></arg><arg choice="plain"><replaceable>key=value</replaceable></arg></group>
+            <arg>-include
+              <group>
+                <arg choice="plain">all</arg>
+                <arg choice="plain">config</arg>
+                <arg choice="plain">stages</arg>
+              </group>
+            </arg>
+            <arg choice="plain">
+              <replaceable>other-home</replaceable>
+            </arg>
+            <group rep="repeat">
+              <arg choice="plain">
+                <replaceable>name</replaceable>
+              </arg>
+              <arg choice="plain">
+                <replaceable>key=value</replaceable>
+              </arg>
+            </group>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
-          <para>Imports configuration and/or stages from a the specified Stool home <replaceable>directory</replaceable>. This command is useful
-          to migrate stages from an older/different Stool installation.</para>
+        <refsect1>
+          <title>Description</title>
+          <para>Imports configuration and/or stages from a the specified Stool home<replaceable>directory</replaceable>. This command is
+            useful
+            to migrate stages from an older/different Stool installation.
+          </para>
         </refsect1>
       </refentry>
 
@@ -512,42 +693,83 @@ PROPERTY  # configuration property
             <command>stool create</command>
             <group>
               <arg>-quiet</arg>
-              <arg>-name <replaceable>str</replaceable></arg>
+              <arg>-name
+                <replaceable>str</replaceable>
+              </arg>
             </group>
-            <arg choice="plain"><replaceable>url</replaceable></arg>
-            <arg><replaceable>directory</replaceable></arg>
-            <arg rep="repeat"><replaceable>key=value</replaceable></arg>
+            <arg choice="plain">
+              <replaceable>url</replaceable>
+            </arg>
+            <arg>
+              <replaceable>directory</replaceable>
+            </arg>
+            <arg rep="repeat">
+              <replaceable>key=value</replaceable>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>Creates a new stage- and backstage directory, enters the stage directory and selects the stage.
-            In most cases, you invoke <literal>stool create</literal> similar to <literal>svn checkout</literal>: with an url and a directory.
+            In most cases, you invoke
+            <literal>stool create</literal>
+            similar to<literal>svn checkout</literal>: with an url and a directory.
           </para>
-          <para><replaceable>url</replaceable> specifies the application you want to run in your stage. In many cases, the url is a subversion url and
-            Stool performs a checkout. Output of the checkout command is printed to the console unless the <literal>-quiet</literal> option is specified.
+          <para>
+            <replaceable>url</replaceable>
+            specifies the application you want to run in your stage. In many cases, the url is a subversion url and
+            Stool performs a checkout. Output of the checkout command is printed to the console unless the
+            <literal>-quiet</literal>
+            option is specified.
           </para>
-          <para>Instead of a <replaceable>url</replaceable> you can specify <literal>%</literal><replaceable>searchstring</replaceable>.
-            This will search Pommes for the specified search string, show all corresponding svn urls (including branches), and ask you to select one.
+          <para>Instead of a
+            <replaceable>url</replaceable>
+            you can specify
+            <literal>%</literal>
+            <replaceable>searchstring</replaceable>.
+            This will search Pommes for the specified search string, show all corresponding svn urls (including branches), and ask you to
+            select one.
           </para>
-          <para><replaceable>directory</replaceable> specifies the stage directory to holding your application. If not specified, the current directory
-            with the last usable segment of the <literal>url</literal> (i.e. the last segment that is not trunk, tags, or branches) is used. You can
-            specify an arbitrary directory, as long as it does not exist yet and the parent directory exists and is writable for all users of the
+          <para>
+            <replaceable>directory</replaceable>
+            specifies the stage directory to holding your application. If not specified, the current directory
+            with the last usable segment of the
+            <literal>url</literal>
+            (i.e. the last segment that is not trunk, tags, or branches) is used. You can
+            specify an arbitrary directory, as long as it does not exist yet and the parent directory exists and is writable for all users
+            of the
             Stool group. Otherwise, create reports an error.
           </para>
-          <para>The new stage is configured with default stage properties. You can specify <replaceable>key-value</replaceable> pairs to override the
-            defaults, or you can change the configuration later with <literal>stool config</literal>.
+          <para>The new stage is configured with default stage properties. You can specify
+            <replaceable>key-value</replaceable>
+            pairs to override the
+            defaults, or you can change the configuration later with<literal>stool config</literal>.
           </para>
-          <para>For artifact stages, the <literal>maven.home</literal> property is used to locate Maven settings which configure
-            the repositories (and optional credentials) to download for artifact(s) from.</para>
-          <para>Unless specified with the <literal>-name</literal> option, the stage name is the directory name, i.e. the last segment
-            of the absolute path to the stage directory.</para>
-          <para><literal>create</literal> reports an error if the available free disk space is low (the threshold is specified by the
-            <literal>diskMin</literal> Stool property.</para>
+          <para>For artifact stages, the
+            <literal>maven.home</literal>
+            property is used to locate Maven settings which configure
+            the repositories (and optional credentials) to download for artifact(s) from.
+          </para>
+          <para>Unless specified with the
+            <literal>-name</literal>
+            option, the stage name is the directory name, i.e. the last segment
+            of the absolute path to the stage directory.
+          </para>
+          <para>
+            <literal>create</literal>
+            reports an error if the available free disk space is low (the threshold is specified by the
+            <literal>diskMin</literal>
+            Stool property.
+          </para>
         </refsect1>
         <refsect1>
           <title>Examples</title>
-          <para>Create an artifact stage: <literal>stool create gav:net.oneandone:hellowar:1.0.2</literal></para>
-          <para>Create a source stage: <literal>stool create https://github.com/mlhartme/hellowar/trunk</literal></para>
+          <para>Create an artifact stage:
+            <literal>stool create gav:net.oneandone:hellowar:1.0.2</literal>
+          </para>
+          <para>Create a source stage:
+            <literal>stool create https://github.com/mlhartme/hellowar/trunk</literal>
+          </para>
         </refsect1>
       </refentry>
 
@@ -560,17 +782,31 @@ PROPERTY  # configuration property
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool import</command>
-            <arg>-max <replaceable>n</replaceable></arg>
-            <arg>-name <replaceable>template</replaceable></arg>
-            <arg rep="repeat"><replaceable>directory</replaceable></arg>
+            <arg>-max
+              <replaceable>n</replaceable>
+            </arg>
+            <arg>-name
+              <replaceable>template</replaceable>
+            </arg>
+            <arg rep="repeat">
+              <replaceable>directory</replaceable>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
-          <para>Scans <replaceable>directory</replaceable> for stage candidates and offers to import them. If the scan only
+        <refsect1>
+          <title>Description</title>
+          <para>Scans
+            <replaceable>directory</replaceable>
+            for stage candidates and offers to import them. If the scan only
             yields a single candidate, it will be imported and selected without additional interaction. Importing means that
-            a backstage directory for the stage directory is created. </para>
-          <para><replaceable>template</replaceable> is a string defining the stage name. And any occurrence of <literal>%d</literal>
-            will be replaced by the current directory name. Default template is <literal>%d</literal>.</para>
+            a backstage directory for the stage directory is created.
+          </para>
+          <para>
+            <replaceable>template</replaceable>
+            is a string defining the stage name. And any occurrence of
+            <literal>%d</literal>
+            will be replaced by the current directory name. Default template is<literal>%d</literal>.
+          </para>
         </refsect1>
       </refentry>
       <refentry>
@@ -583,14 +819,19 @@ PROPERTY  # configuration property
           <cmdsynopsis>
             <command>stool select</command>
             <group>
-              <arg choice="plain"><replaceable>stage</replaceable></arg>
+              <arg choice="plain">
+                <replaceable>stage</replaceable>
+              </arg>
               <arg choice="plain">none</arg>
             </group>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>Prints the selected stage when called without argument.</para>
-          <para>Changes the selected stage when called with a <replaceable>stage</replaceable> name:
+          <para>Changes the selected stage when called with a
+            <replaceable>stage</replaceable>
+            name:
             <itemizedlist>
               <listitem>
                 <para>Adjusts the environment variables for the selected stage (e.g. MAVEN_OPTS, JAVA_HOME).</para>
@@ -603,7 +844,8 @@ PROPERTY  # configuration property
               </listitem>
             </itemizedlist>
           </para>
-          <para>When called with <literal>none</literal>: resets environment variables and removes the stage indicator.</para>
+          <para>When called with<literal>none</literal>: resets environment variables and removes the stage indicator.
+          </para>
           <para>If the specified stage is not found, the command prints an error message and lists stages that
             you could have meant.
           </para>
@@ -625,21 +867,36 @@ PROPERTY  # configuration property
             <command>stool build</command>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
-          <para>Enters the stage directory and executes the build command specified in the <literal>build</literal> property.</para>
-          <para>You can see the configured build command with <literal>stool config build</literal>, and you can change it with
-            <literal>stool config "build="</literal><replaceable>command to build</replaceable><literal>"</literal> (the quotes are
+        <refsect1>
+          <title>Description</title>
+          <para>Enters the stage directory and executes the build command specified in the
+            <literal>build</literal>
+            property.
+          </para>
+          <para>You can see the configured build command with<literal>stool config build</literal>, and you can change it with
+            <literal>stool config "build="</literal>
+            <replaceable>command to build</replaceable>
+            <literal>"</literal>
+            (the quotes are
             mandatory if your command contains spaces).
           </para>
-          <para><command>stool build</command> does no extra magic besides entering the stage directory. Thus, it has exactly the same effect
-            if you manually enter the stage directory and invoke the build command yourself, without Stool. <command>stool build</command>
+          <para>
+            <command>stool build</command>
+            does no extra magic besides entering the stage directory. Thus, it has exactly the same effect
+            if you manually enter the stage directory and invoke the build command yourself, without Stool.
+            <command>stool build</command>
             is only for your convenience, you do not have to use it to build you source stage properly.
           </para>
-          <para>The pre-defined build command for artifact stages does nothing. Thus, you can invoke <literal>stool build</literal>
-            for artifact stages, it just has no effect.</para>
+          <para>The pre-defined build command for artifact stages does nothing. Thus, you can invoke
+            <literal>stool build</literal>
+            for artifact stages, it just has no effect.
+          </para>
           <para>The build command executes in the same environment (i.e. with the same environment variables) as Stool is
-            executed. If you invoke <command>build</command> from the dashboard application, the build command executes in the environment
-            of the user who started the dashboard stage.</para>
+            executed. If you invoke
+            <command>build</command>
+            from the dashboard application, the build command executes in the environment
+            of the user who started the dashboard stage.
+          </para>
         </refsect1>
       </refentry>
 
@@ -657,17 +914,24 @@ PROPERTY  # configuration property
             <arg>-backstage</arg>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>Removes the stage, i.e. deletes the stage directory and the backstage directory.</para>
           <para>Before deleting anything, this command checks if there are uncommitted changes or if the stage is started.
             If so, the command is aborted with an error. In this case, stop the stage and inspect the uncommitted changes; either
-            commit them or revert them. Alternatively, you can disable this check with the <literal>-force</literal> option.
+            commit them or revert them. Alternatively, you can disable this check with the
+            <literal>-force</literal>
+            option.
           </para>
           <para>Also, before removing anything, this command asks if you really want to remove the stage.
-            You can disable this check with the <literal>-batch</literal> option.
+            You can disable this check with the
+            <literal>-batch</literal>
+            option.
           </para>
-          <para>If you specify the <literal>-backstage</literal> option, only the backstage directory will be deleted.
-            This is useful to "unimport" a stage, i.e. revert the effect of <literal>stool import</literal>.
+          <para>If you specify the
+            <literal>-backstage</literal>
+            option, only the backstage directory will be deleted.
+            This is useful to "unimport" a stage, i.e. revert the effect of<literal>stool import</literal>.
           </para>
         </refsect1>
       </refentry>
@@ -688,33 +952,64 @@ PROPERTY  # configuration property
             <arg>-tail</arg>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>Creates the necessary configuration and starts Tomcat. If the stage is an artifact stage,
             you can start it right away; otherwise, you have to build it first. Depending on your application,
-            startup may take a while.</para>
-          <para>Startup is refused if your stage has expired. In this case, use <literal>stool config until=</literal><replaceable>newdata</replaceable>
-            to configure a new <literal>until</literal> date.
+            startup may take a while.
           </para>
-          <para><literal>-debug</literal> and <literal>-suspend</literal> enable the debugger. The difference is that <literal>-suspend</literal>
-            waits for the debugger to connect before starting any application code.</para>
-          <para>Use the <literal>-tail</literal> option to start tomcat and get <literal>catalina.out</literal> printed to the console.
-            Press ctrl-c to stop watching <literal>catalina.out</literal>, the application will continue to run. Alternatively, you can tail
-            manually with <literal>stool cd logs &amp;&amp; tail -f catalina.out</literal></para>
-          <para>The Tomcat version is configurable with <literal>stool config tomcat.version=</literal><replaceable>version</replaceable>.
-            You have to restart the stage when you change the version. The respective Tomcat will be downloaded automatically to the directory
-            specified by the <literal>downloadCache</literal> property (default is <literal>$STOOL_HOME/downloads</literal>). Alternatively,
+          <para>Startup is refused if your stage has expired. In this case, use
+            <literal>stool config until=</literal>
+            <replaceable>newdata</replaceable>
+            to configure a new
+            <literal>until</literal>
+            date.
+          </para>
+          <para>
+            <literal>-debug</literal>
+            and
+            <literal>-suspend</literal>
+            enable the debugger. The difference is that
+            <literal>-suspend</literal>
+            waits for the debugger to connect before starting any application code.
+          </para>
+          <para>Use the
+            <literal>-tail</literal>
+            option to start tomcat and get
+            <literal>catalina.out</literal>
+            printed to the console.
+            Press ctrl-c to stop watching<literal>catalina.out</literal>, the application will continue to run. Alternatively, you can tail
+            manually with
+            <literal>stool cd logs &amp;&amp; tail -f catalina.out</literal>
+          </para>
+          <para>The Tomcat version is configurable with
+            <literal>stool config tomcat.version=</literal>
+            <replaceable>version</replaceable>.
+            You have to restart the stage when you change the version. The respective Tomcat will be downloaded automatically to the
+            directory
+            specified by the
+            <literal>downloadCache</literal>
+            property (default is<literal>$STOOL_HOME/downloads</literal>). Alternatively,
             you can place customized Tomcats into this directory, provided they unpack to a directory that matches the base file name of
-            the <literal>tar.gz</literal> file.
+            the
+            <literal>tar.gz</literal>
+            file.
           </para>
-          <para><literal>start</literal> generates a Tomcat base directory if it does not yet exist. If it exists, only the server.xml is updated
+          <para>
+            <literal>start</literal>
+            generates a Tomcat base directory if it does not yet exist. If it exists, only the server.xml is updated
             by taking server.xml.template and adding all apps to it. This allows for manual changes in the base directory.
           </para>
-          <para>If you want to re-generated the file generated by this command, use <literal>stool cd backstage &amp;&amp; rm -rf shared/*</literal>.
+          <para>If you want to re-generated the file generated by this command, use<literal>stool cd backstage &amp;&amp; rm -rf
+            shared/*</literal>.
             This is useful e.g. to get certificates regenerated.
           </para>
           <para>The environment of the started application is the current environment restricted to the variables listed in the
-            <literal>tomcat.env</literal> property; variables listed there are passed to the application, all others are removed. If you invoke
-            <literal>start</literal> from the dashboard stage, the login environment of the stage owner defines the basic environment.</para>
+            <literal>tomcat.env</literal>
+            property; variables listed there are passed to the application, all others are removed. If you invoke
+            <literal>start</literal>
+            from the dashboard stage, the login environment of the stage owner defines the basic environment.
+          </para>
         </refsect1>
       </refentry>
 
@@ -730,8 +1025,12 @@ PROPERTY  # configuration property
             <arg>-sleep</arg>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
-          <para>Stops tomcat of the respective stage. If <literal>-sleep</literal> is specified, the stage is also marked as sleeping.</para>
+        <refsect1>
+          <title>Description</title>
+          <para>Stops tomcat of the respective stage. If
+            <literal>-sleep</literal>
+            is specified, the stage is also marked as sleeping.
+          </para>
         </refsect1>
       </refentry>
 
@@ -750,9 +1049,14 @@ PROPERTY  # configuration property
             </group>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>
-            Shorthand for <literal>stool stop</literal> and <literal>stool start</literal> with the specified options.
+            Shorthand for
+            <literal>stool stop</literal>
+            and
+            <literal>stool start</literal>
+            with the specified options.
           </para>
         </refsect1>
       </refentry>
@@ -776,14 +1080,25 @@ PROPERTY  # configuration property
             <arg>-own</arg>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>First stops the stage if it is started. Then chowns that stage to the current user (unless stage owner
-            and current user are the same). Then updates artifact stages or - if <literal>-build</literal> is specified -
-            invokes the command specified by the refresh property on source stages.</para>
-          <para>Next, if the owner was changed, the stage is chowned back to the original owner. (Specify <literal>-own</literal>
-          to skip this step.)</para>
-          <para>And finally, if the stage was initially started, <literal>refresh</literal> starts the stage again.
-            (Specify <literal>-stop</literal> to skip this.)</para>
+            and current user are the same). Then updates artifact stages or - if
+            <literal>-build</literal>
+            is specified -
+            invokes the command specified by the refresh property on source stages.
+          </para>
+          <para>Next, if the owner was changed, the stage is chowned back to the original owner. (Specify
+            <literal>-own</literal>
+            to skip this step.)
+          </para>
+          <para>And finally, if the stage was initially started,
+            <literal>refresh</literal>
+            starts the stage again.
+            (Specify
+            <literal>-stop</literal>
+            to skip this.)
+          </para>
         </refsect1>
       </refentry>
 
@@ -800,17 +1115,29 @@ PROPERTY  # configuration property
             <group>
               <arg>-stop</arg>
               <arg>-batch</arg>
-              <arg><replaceable>user</replaceable></arg>
+              <arg>
+                <replaceable>user</replaceable>
+              </arg>
             </group>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>Changes the stage owner, i.e. the owner of all files and directories in the stage- and backstage directory.</para>
-          <para>Before executing, <literal>chown</literal> checks if the stage has modified source files. If so, it asks for
-            confirmation before changing ownership. You can skip confirmation by specifying <literal>-batch</literal>.</para>
-          <para>Reports an error if the stage is running. In this case, you can specify <literal>-stop</literal> to stop the stage
-            before changing ownership and also start it afterwards.</para>
-          <para><replaceable>user</replaceable> defaults to the current user.</para>
+          <para>Before executing,
+            <literal>chown</literal>
+            checks if the stage has modified source files. If so, it asks for
+            confirmation before changing ownership. You can skip confirmation by specifying<literal>-batch</literal>.
+          </para>
+          <para>Reports an error if the stage is running. In this case, you can specify
+            <literal>-stop</literal>
+            to stop the stage
+            before changing ownership and also start it afterwards.
+          </para>
+          <para>
+            <replaceable>user</replaceable>
+            defaults to the current user.
+          </para>
         </refsect1>
       </refentry>
 
@@ -823,14 +1150,26 @@ PROPERTY  # configuration property
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool history</command>
-            <arg>-max <replaceable>n</replaceable></arg>
-            <arg rep="repeat"><replaceable>detail</replaceable></arg>
+            <arg>-max
+              <replaceable>n</replaceable>
+            </arg>
+            <arg rep="repeat">
+              <replaceable>detail</replaceable>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
-          <para>Prints the command history of the stage. Specify <replaceable>detail</replaceable> with a command number or a command
-            range to get the full command output for the respective command(s). If the max number <replaceable>n</replaceable> of
-            commands is exceeded, older commands are ignores (<replaceable>n</replaceable> defauls is 999). </para>
+        <refsect1>
+          <title>Description</title>
+          <para>Prints the command history of the stage. Specify
+            <replaceable>detail</replaceable>
+            with a command number or a command
+            range to get the full command output for the respective command(s). If the max number
+            <replaceable>n</replaceable>
+            of
+            commands is exceeded, older commands are ignores (
+            <replaceable>n</replaceable>
+            defauls is 999).
+          </para>
         </refsect1>
       </refentry>
 
@@ -843,11 +1182,14 @@ PROPERTY  # configuration property
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool cd</command>
-            <arg><replaceable>target</replaceable></arg>
+            <arg>
+              <replaceable>target</replaceable>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
-          <para>Changes the current working directory to the specified <replaceable>target</replaceable>:
+        <refsect1>
+          <title>Description</title>
+          <para>Changes the current working directory to the specified<replaceable>target</replaceable>:
             <itemizedlist>
               <listitem>
                 <para>(empty): the stage directory</para>
@@ -861,9 +1203,15 @@ PROPERTY  # configuration property
             </itemizedlist>
           </para>
         </refsect1>
-        <refsect1><title>Example</title>
-          <para><literal>stool cd logs</literal> will jumps to <literal>shared/tomcat/logs</literal> inside your
-            backstage directory.</para>
+        <refsect1>
+          <title>Example</title>
+          <para>
+            <literal>stool cd logs</literal>
+            will jumps to
+            <literal>shared/tomcat/logs</literal>
+            inside your
+            backstage directory.
+          </para>
         </refsect1>
       </refentry>
 
@@ -877,33 +1225,63 @@ PROPERTY  # configuration property
           <cmdsynopsis>
             <command>stool config</command>
             <group rep="repeat">
-              <arg><replaceable>key</replaceable></arg>
-              <arg><replaceable>key</replaceable>=<replaceable>value</replaceable></arg>
+              <arg>
+                <replaceable>key</replaceable>
+              </arg>
+              <arg><replaceable>key</replaceable>=
+                <replaceable>value</replaceable>
+              </arg>
             </group>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>Gets or sets stage properties. A property is a key-value pair that configures the respective stage.</para>
           <para>When invoked without arguments, all stage properties are printed with documentation.</para>
-          <para>When invoked with one or more <replaceable>key</replaceable>s, the respective properties are printed.</para>
+          <para>When invoked with one or more<replaceable>key</replaceable>s, the respective properties are printed.
+          </para>
           <para>When invoked with one or more assignments, the respective properties are changed.
           </para>
           <para>If you want to set a property to a value with spaces, you have to use quotes around the key-value pair.
-            Otherwise, the shell does not see what belongs to your value.</para>
+            Otherwise, the shell does not see what belongs to your value.
+          </para>
           <para>If you change a property, you have to invoke the necessary re-builds or re-starts to make the changes
-            effective. E.g. if you change <literal>tomcat.heap</literal>, you have to run <literal>stool restart</literal>
-            to make the change effective.</para>
-          <para>Date properties have the form <replaceable>yyyy-mm-dd</replaceable>, so a valid value for <literal>until</literal>
-            is - e.g.  - <literal>2013-12-31</literal>.</para>
-          <para>List properties (e.g. <literal>tomcat.select</literal>) are separated by commas.</para>
-          <para>Map properties (e.g. <literal>tomcat.env</literal>) separate entries by commas, and each entry separates key and value
-            by a colon. Example<literal>PATH:/bin, HOME:/home/me</literal></para>
+            effective. E.g. if you change<literal>tomcat.heap</literal>, you have to run
+            <literal>stool restart</literal>
+            to make the change effective.
+          </para>
+          <para>Date properties have the form<replaceable>yyyy-mm-dd</replaceable>, so a valid value for
+            <literal>until</literal>
+            is - e.g. -<literal>2013-12-31</literal>.
+          </para>
+          <para>List properties (e.g.<literal>tomcat.select</literal>) are separated by commas.
+          </para>
+          <para>Map properties (e.g.<literal>tomcat.env</literal>) separate entries by commas, and each entry separates key and value
+            by a colon. Example
+            <literal>PATH:/bin, HOME:/home/me</literal>
+          </para>
         </refsect1>
-        <refsect1><title>Examples</title>
-          <para><literal>stool config tomcat.heap</literal> prints the current value for the <literal>tomcat.heap</literal> property.</para>
-          <para><literal>stool config tomcat.heap=1000</literal> sets the tomcat heap size to <literal>1000</literal> mb.</para>
-          <para><literal>stool config "build=mvn clean package"</literal> sets a value with spaces</para>
-          <para><literal>stool config tomcat.select=foo,bar</literal> configures a list property.
+        <refsect1>
+          <title>Examples</title>
+          <para>
+            <literal>stool config tomcat.heap</literal>
+            prints the current value for the
+            <literal>tomcat.heap</literal>
+            property.
+          </para>
+          <para>
+            <literal>stool config tomcat.heap=1000</literal>
+            sets the tomcat heap size to
+            <literal>1000</literal>
+            mb.
+          </para>
+          <para>
+            <literal>stool config "build=mvn clean package"</literal>
+            sets a value with spaces
+          </para>
+          <para>
+            <literal>stool config tomcat.select=foo,bar</literal>
+            configures a list property.
             Do not used spaces around the comma because the shell would consider this as a new key-value argument -- unless you
             also quote the arguments.
           </para>
@@ -920,10 +1298,13 @@ PROPERTY  # configuration property
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool rename</command>
-            <arg choice="plain"><replaceable>name</replaceable></arg>
+            <arg choice="plain">
+              <replaceable>name</replaceable>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>Changes the stage name without changing the stage directory. If the stage is up, you have to restart it
             to reflect this change in your application url(s).
           </para>
@@ -939,16 +1320,24 @@ PROPERTY  # configuration property
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool move</command>
-            <arg choice="plain"><replaceable>dest</replaceable></arg>
+            <arg choice="plain">
+              <replaceable>dest</replaceable>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
-          <para>Moves the stage directory without touching the stage name. If <replaceable>dest</replaceable> exists, it is
+        <refsect1>
+          <title>Description</title>
+          <para>Moves the stage directory without touching the stage name. If
+            <replaceable>dest</replaceable>
+            exists, it is
             moved into it. Otherwise it is moved into the parent of dest with the specified name. This is the same behavior as
-            the unix <literal>mv</literal> command, but it also adjusts Stool's backstage directory.
+            the unix
+            <literal>mv</literal>
+            command, but it also adjusts Stool's backstage directory.
           </para>
           <para>You might have to re-build your application after moving the stage if you have development tools that store
-            absolute paths (e.g. Lavender ...).</para>
+            absolute paths (e.g. Lavender ...).
+          </para>
         </refsect1>
       </refentry>
 
@@ -963,8 +1352,11 @@ PROPERTY  # configuration property
             <command>stool list</command>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
-          <para>Prints a short status of the selected stages; default selection is <literal>-all</literal></para>
+        <refsect1>
+          <title>Description</title>
+          <para>Prints a short status of the selected stages; default selection is
+            <literal>-all</literal>
+          </para>
         </refsect1>
       </refentry>
 
@@ -979,7 +1371,8 @@ PROPERTY  # configuration property
             <command>stool cleanup</command>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
+        <refsect1>
+          <title>Description</title>
           <para>Removes the Maven repository and rotates *.log info an archive.</para>
         </refsect1>
       </refentry>
@@ -993,12 +1386,16 @@ PROPERTY  # configuration property
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool status</command>
-            <arg choice="plain"><replaceable>field</replaceable></arg>
+            <arg choice="plain">
+              <replaceable>field</replaceable>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
-          <para>Prints the specified status <replaceable>field</replaceable>s of the stage.
-            Default: print all fields.</para>
+        <refsect1>
+          <title>Description</title>
+          <para>Prints the specified status<replaceable>field</replaceable>s of the stage.
+            Default: print all fields.
+          </para>
         </refsect1>
       </refentry>
 
@@ -1015,10 +1412,17 @@ PROPERTY  # configuration property
             <arg>-email</arg>
           </cmdsynopsis>
         </refsynopsisdiv>
-        <refsect1><title>Description</title>
-          <para>Checks if the <literal>until</literal> date of the stage has expired. If so, and <literal>-stop</literal>
-            is specified, the stage is stopped. And if <literal>-email</literal> is specified, a notification mail is
-            sent to the stage owner.</para>
+        <refsect1>
+          <title>Description</title>
+          <para>Checks if the
+            <literal>until</literal>
+            date of the stage has expired. If so, and
+            <literal>-stop</literal>
+            is specified, the stage is stopped. And if
+            <literal>-email</literal>
+            is specified, a notification mail is
+            sent to the stage owner.
+          </para>
         </refsect1>
       </refentry>
     </section>
@@ -1036,57 +1440,90 @@ PROPERTY  # configuration property
       <para>To Stool with the Java installer:</para>
       <itemizedlist>
         <listitem>
-          <para>Download the installer from <literal>https://github.com/mlhartme/stool/releases</literal> and store it -e.g. - as <literal>/YOUR/DOWNLOADS/setup-stool</literal>.</para>
-        </listitem>
-        <listitem>
-          <para>Make the download executable: <literal>chmod a+x /YOUR/DOWNLOADS/setup-stool</literal>.</para>
-        </listitem>
-        <listitem>
-          <para>Make sure to have Java 8 installed on your system and <literal>java</literal> is in your path. <literal>java</literal> is used by the
-            setup script and it becomes the default java version for new stages. (If you want a different Java version for new stages, define it
-            under <literal>defaults</literal> in Stool's configuration file - see below). </para>
-        </listitem>
-        <listitem>
-          <para>Actually install Stool: run <literal>/YOUR/DOWNLOADS/setup-stool /PATH/TO/STOOL/HOME</literal>.</para>
-        </listitem>
-        <listitem>
-          <para>Add the line <literal>source /PATH/TO/STOOL/HOME/bin/stool-function</literal> to your $HOME/.bashrc file. This defines the shell
-            function <literal>stool</literal> that actually invokes Stool.
+          <para>Download the installer from
+            <literal>https://github.com/mlhartme/stool/releases</literal>
+            and store it -e.g. - as<literal>/YOUR/DOWNLOADS/setup-stool</literal>.
           </para>
         </listitem>
         <listitem>
-          <para>If you want to run Stool in <literal>shared</literal> mode, you also need the following sudo rules:<programlisting>
-%users ALL = (%users) NOPASSWD: /PATH/TO/STOOL/HOME/bin/stool-raw.sh
-%users ALL = (%users) NOPASSWD:SETENV: /PATH/TO/STOOL/HOME/bin/service-wrapper.sh
-%users ALL = (root) NOPASSWD: /PATH/TO/STOOL/HOME/bin/chowntree.sh
-            </programlisting>
-            TODO: what about the stool group.</para>
+          <para>Make the download executable:<literal>chmod a+x /YOUR/DOWNLOADS/setup-stool</literal>.
+          </para>
         </listitem>
         <listitem>
-          <para>If you want Stage expiring and auto-removal of stages, you also need the following cron job:<programlisting>
-            1 4 * * * stool /PATH/TO/STOOL/HOME/bin/stool-raw.sh validate -all -email -stop > /dev/null
-          </programlisting>
+          <para>Make sure to have Java 8 installed on your system and
+            <literal>java</literal>
+            is in your path.
+            <literal>java</literal>
+            is used by the
+            setup script and it becomes the default java version for new stages. (If you want a different Java version for new stages,
+            define it
+            under
+            <literal>defaults</literal>
+            in Stool's configuration file - see below).
+          </para>
+        </listitem>
+        <listitem>
+          <para>Actually install Stool: run<literal>/YOUR/DOWNLOADS/setup-stool /PATH/TO/STOOL/HOME</literal>.
+          </para>
+        </listitem>
+        <listitem>
+          <para>Add the line
+            <literal>source /PATH/TO/STOOL/HOME/bin/stool-function</literal>
+            to your $HOME/.bashrc file. This defines the shell
+            function
+            <literal>stool</literal>
+            that actually invokes Stool.
+          </para>
+        </listitem>
+        <listitem>
+          <para>If you want to run Stool in
+            <literal>shared</literal>
+            mode, you also need the following sudo rules:
+            <programlisting>
+              %users ALL = (%users) NOPASSWD: /PATH/TO/STOOL/HOME/bin/stool-raw.sh
+              %users ALL = (%users) NOPASSWD:SETENV: /PATH/TO/STOOL/HOME/bin/service-wrapper.sh
+              %users ALL = (root) NOPASSWD: /PATH/TO/STOOL/HOME/bin/chowntree.sh
+            </programlisting>
+            TODO: what about the stool group.
+          </para>
+        </listitem>
+        <listitem>
+          <para>If you want Stage expiring and auto-removal of stages, you also need the following cron job:
+            <programlisting>
+              1 4 * * * stool /PATH/TO/STOOL/HOME/bin/stool-raw.sh validate -all -email -stop > /dev/null
+            </programlisting>
           </para>
         </listitem>
         <listitem>
           <para>Open a new shell window to make sure that your modified bashrc is loaded.</para>
         </listitem>
         <listitem>
-          <para>Invoke <literal>stool</literal> to verify your setup. You should get a usage message.</para>
+          <para>Invoke
+            <literal>stool</literal>
+            to verify your setup. You should get a usage message.
+          </para>
         </listitem>
         <listitem>
           <para>setup-stool is no longer needed, you can remove it</para>
         </listitem>
       </itemizedlist>
 
-      <para>Implementation note: <literal>stool</literal> is a shell function, so <literal>which stool</literal> cannot find it (you can see if with
-        <literal>declare</literal>). <literal>stool</literal> is not a binary because it has to adjust your environment variables (e.g. to set MAVEN_OPTS
+      <para>Implementation note:
+        <literal>stool</literal>
+        is a shell function, so
+        <literal>which stool</literal>
+        cannot find it (you can see if with
+        <literal>declare</literal>).
+        <literal>stool</literal>
+        is not a binary because it has to adjust your environment variables (e.g. to set MAVEN_OPTS
         depending on you current stage) - this is possible in a shell function, but not in a binary.
       </para>
       <para>There's no uninstall command. To uninstall Stool:</para>
       <itemizedlist>
         <listitem>
-          <para>Run <literal>stool system-stop</literal></para>
+          <para>Run
+            <literal>stool system-stop</literal>
+          </para>
           <para>Remove the $STOOL_HOME directory.</para>
           <para>Remove the initialization code from your shell files.</para>
         </listitem>
@@ -1097,8 +1534,10 @@ PROPERTY  # configuration property
     <sect1>
       <title>Upgrade</title>
 
-      <para>If you run a new <literal>stool-setup</literal> on an existing $STOOL_HOME it perform an incremental or full upgrade.
-        An incremental upgrade just updates <literal>stool.jar</literal>, it is used if only the micro version number has changed.
+      <para>If you run a new
+        <literal>stool-setup</literal>
+        on an existing $STOOL_HOME it perform an incremental or full upgrade.
+        An incremental upgrade just updates<literal>stool.jar</literal>, it is used if only the micro version number has changed.
         A full upgrade is performed if the minor or major version of Stool has changed. In this case, a new $STOOL_HOME
         directory is created and the configuration and all stages from the old home directory is imported
         (shows a diff before changing anything). You can remove the old home directory after a full upgrade when you
@@ -1107,19 +1546,44 @@ PROPERTY  # configuration property
 
       <para>Here's the best practice to roll-out a new version (unless it's only an incremental upgrade) on a machine:
         <itemizedlist>
-          <listitem><para>Run <literal>stool validate -all</literal> and fix possible problems</para></listitem>
-          <listitem><para>Make sure there are no other shells open when you run setup-stool. This is crucial because existing
-            shells (in particular those of other users!) continue to access the old stool version, and this will usually
-            cause problems with the upgraded home directory.</para>
+          <listitem>
+            <para>Run
+              <literal>stool validate -all</literal>
+              and fix possible problems
+            </para>
           </listitem>
-          <listitem><para><literal>stool system-stop</literal></para></listitem>
-          <listitem><para>Run <literal>>setup-stool</literal> and adjust you shell initialization code.</para>
+          <listitem>
+            <para>Make sure there are no other shells open when you run setup-stool. This is crucial because existing
+              shells (in particular those of other users!) continue to access the old stool version, and this will usually
+              cause problems with the upgraded home directory.
+            </para>
           </listitem>
-          <listitem><para>Login with a new shell to get the updated Stool version and run the following commands
-            - but keep the original shell open until the commands succeeded:</para>
+          <listitem>
+            <para>
+              <literal>stool system-stop</literal>
+            </para>
           </listitem>
-          <listitem><para><literal>stool validate -all</literal></para></listitem>
-          <listitem><para><literal>stool system-start</literal></para></listitem>
+          <listitem>
+            <para>Run
+              <literal>>setup-stool</literal>
+              and adjust you shell initialization code.
+            </para>
+          </listitem>
+          <listitem>
+            <para>Login with a new shell to get the updated Stool version and run the following commands
+              - but keep the original shell open until the commands succeeded:
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <literal>stool validate -all</literal>
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <literal>stool system-start</literal>
+            </para>
+          </listitem>
         </itemizedlist>
       </para>
     </sect1>
@@ -1132,54 +1596,55 @@ PROPERTY  # configuration property
     <para>
       ... of files installed or managed by stool:
       <programlisting>
-      (stage directory) (normal application files)
-      (stool home)
+        (stage directory) (normal application files)
+        (stool home)
         |- config.json (Stool configuration)
         |- dashboard.properties (Dashboard configuration)
         |- run
-        |   |- stool.lock
-        |   |- sleep.json
-        |   '- users
-        |       |- (one file per user session)
-        |       :
+        | |- stool.lock
+        | |- sleep.json
+        | '- users
+        | |- (one file per user session)
+        | :
         |- downloads (caches Tomcat- and Service Wrapper downloads)
-        |- bin (*)  binary- and script stuff
-        |   |- stool-function
-        |   |- service-wrapper.sh
-        |   |- stool.jar
-        |   |- stool-(timestamp).jar  (optional incremental updates)
-        |   |- stool-catalina.sh
-        |   '- stool-chown.sh
-        |- man (*)  documentation
+        |- bin (*) binary- and script stuff
+        | |- home (symlink to home directory)
+        | |- stool-function
+        | |- service-wrapper.sh
+        | |- stool.jar
+        | |- stool-(timestamp).jar (optional incremental updates)
+        | |- stool-catalina.sh
+        | '- stool-chown.sh
+        |- man (*) documentation
         |- inbox (to push jars into artifact stages with an inbox urls)
         |- extensions (for jars with Stool extensions)
         |- logs
-        |   |- stool.log
-        |   |- (archived stool logs)
+        | |- stool.log
+        | |- (archived stool logs)
         |- dashboard (stage directory of the dashboard stage)
         |- service-wrapper
-        |   |- wrapper-linux-x86-64-x.y.z (installed service wrapper)
-        |   :
+        | |- wrapper-linux-x86-64-x.y.z (installed service wrapper)
+        | :
         |- tomcat
-        |   |- apache-tomcat-x.y.z (installed Tomcat)
-        |   :
+        | |- apache-tomcat-x.y.z (installed Tomcat)
+        | :
         '- backstage
-            '- (stage name)
-                |- config.json (stage properties and some status fields)
-                |- anchor (symlink to stage directory)
-                |- ports (ports allocated for this stage -- created when stage is first started)
-                '- shared
-                   |- buildstats.json
-                   |- ssl (generated certs, if any)
-                   |- run (pid stuff for service wrapper)
-                   |- conf
-                   |   '- service-wrapper.conf
-                   '- tomcat (tomcat for this stage)
-                       |- conf (standard tomcat directory with generated server.xml)
-                       |- temp (standart tomcat)
-                       |- work (standard tomcat)
-                       '- logs
-                           '- applogs (application log files for pustefix apps)
+        '- (stage name)
+        |- config.json (stage properties and some status fields)
+        |- anchor (symlink to stage directory)
+        |- ports (ports allocated for this stage -- created when stage is first started)
+        '- shared
+        |- buildstats.json
+        |- ssl (generated certs, if any)
+        |- run (pid stuff for service wrapper)
+        |- conf
+        | '- service-wrapper.conf
+        '- tomcat (tomcat for this stage)
+        |- conf (standard tomcat directory with generated server.xml)
+        |- temp (standart tomcat)
+        |- work (standard tomcat)
+        '- logs
+        '- applogs (application log files for pustefix apps)
       </programlisting>
       (*) If you installed the Debian package: bin is placed at /usr/share/stool, man is placed at /usr/share/man.
     </para>
