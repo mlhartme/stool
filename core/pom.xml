@@ -289,6 +289,10 @@
               <goal>jdeb</goal>
             </goals>
             <configuration>
+              <!-- override deb and changes out because the artifact id is not suitable -->
+              <deb>${basedir}/target/stool_[[version]]_all.deb</deb>
+              <changesOut>${basedir}/target/stool_[[version]]_all.changes</changesOut>
+
               <name>stool</name>
               <snapshotExpand>true</snapshotExpand>
               <dataSet>
