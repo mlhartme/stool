@@ -515,7 +515,7 @@ public abstract class Stage {
         if (maven == null) {
             world = session.console.world;
             // CAUTION: shared plexus - otherwise, Maven components are created over and over again
-            maven = Maven.withSettings(world, localRepository(), world.file(config().mavenHome).join("conf/settings.xml"), null,
+            maven = Maven.withSettings(world, localRepository(), world.file(config().mavenHome()).join("conf/settings.xml"), null,
                     session.plexus(), null, null);
             // always get the latest snapshots
             maven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);

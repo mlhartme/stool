@@ -395,7 +395,7 @@ public class Session {
         env.set(Environment.STAGE_HOST, stage != null ? stage.getName() + "." + configuration.hostname : null);
         // not that both MAVEN and ANT use JAVA_HOME to locate their JVM - it's not necessary to add java to the PATH variable
         env.set(Environment.JAVA_HOME, stage != null ? stage.config().javaHome : null);
-        env.set(Environment.MAVEN_HOME, stage != null ? stage.config().mavenHome : null);
+        env.set(Environment.MAVEN_HOME, (stage != null && stage.config().mavenHome() != null) ? stage.config().mavenHome() : null);
         env.set(Environment.MAVEN_OPTS, mavenOpts);
         // to avoid ulimit permission denied warnings on Ubuntu machines:
         if (stage == null) {
@@ -523,9 +523,12 @@ public class Session {
     }
 
     public StageConfiguration createStageConfiguration(String url) throws IOException {
+        FileNode mavenHome;
         StageConfiguration stage;
 
-        stage = new StageConfiguration(nextStageId(), javaHome(), Maven.locateMaven(console.world).getAbsolute(), extensionsFactory.newInstance());
+        mavenHome = Maven.locateMaven(console.world);
+        stage = new StageConfiguration(nextStageId(), javaHome(), mavenHome == null ? null : mavenHome.getAbsolute(),
+                extensionsFactory.newInstance());
         configuration.setDefaults(StageConfiguration.properties(extensionsFactory), stage, url);
         return stage;
     }

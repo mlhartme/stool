@@ -103,7 +103,7 @@ public class StageConfiguration {
     public String javaHome;
 
     @Option(key = "maven.home", description = "Maven home")
-    public String mavenHome;
+    private String mavenHome;
 
     @Option(key = "maven.opts",
       description = "MAVEN_OPTS when building this stage. Supported variables: @trustStore@, @proxyOpts@ and @localRepository@")
@@ -155,6 +155,10 @@ public class StageConfiguration {
         try (Writer writer = file.createWriter()) {
             gson.toJson(this, writer);
         }
+    }
+
+    public String mavenHome() {
+        return mavenHome == null || mavenHome.isEmpty() ? null : mavenHome;
     }
 }
 

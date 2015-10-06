@@ -114,6 +114,7 @@ public class Install {
 
         home.getParent().mkdirsOpt();
         Files.createStoolDirectory(console.verbose, home);
+        home.getWorld().resource("templates/maven-settings.xml").copyFile(home.join("maven-settings.xml"));
         conf = new StoolConfiguration(downloadCache(home));
         conf.shared = shared;
         tuneHostname(conf);

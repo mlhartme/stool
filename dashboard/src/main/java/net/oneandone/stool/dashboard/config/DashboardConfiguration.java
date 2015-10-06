@@ -109,11 +109,7 @@ public class DashboardConfiguration {
 
     @Bean
     public Maven maven() throws IOException {
-        Maven maven;
-
-        maven = self().maven();
-        maven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
-        return maven;
+        return self().maven();
     }
 
     @Bean
