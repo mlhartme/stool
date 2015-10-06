@@ -158,6 +158,7 @@ public class StoolConfiguration {
                 + (OS.CURRENT == OS.LINUX ? "linux-x86-64" : "macosx-universal-64") + "-${version}.tar.gz";
         this.downloadCache = downloadCache;
         this.reservedPorts = new HashMap<>();
+        reservedPorts.put("dashboard.dashboard", 9992); // TODO
     }
 
     public static FileNode configurationFile(FileNode home) {
