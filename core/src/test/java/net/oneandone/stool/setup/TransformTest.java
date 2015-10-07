@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool;
+package net.oneandone.stool.setup;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
-import net.oneandone.stool.setup.Transform;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
