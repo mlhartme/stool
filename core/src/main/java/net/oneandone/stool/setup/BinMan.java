@@ -46,12 +46,12 @@ public class BinMan {
         target.mkdir();
         bin = world.file("/usr/share/stool");
         man = world.file("/usr/share/man");
-        new BinMan(console, true, man, bin, target.join(man.getName()), target.join(bin.getName())).run();
+        new BinMan(console, true, bin, man, target.join(bin.getName()), target.join(man.getName())).run();
         System.exit(0);
     }
 
     public static BinMan java(Console console, boolean withJar, FileNode installedMan, FileNode installedBin) {
-        return new BinMan(console, withJar, installedMan, installedBin, installedMan, installedBin);
+        return new BinMan(console, withJar, installedBin, installedMan, installedBin, installedMan);
     }
 
     //--
@@ -64,30 +64,24 @@ public class BinMan {
     // locations when installed on target machine
     private final FileNode installedMan;
     public final FileNode installedBin;
-    private final FileNode nowMan;
     private final FileNode nowBin;
+    private final FileNode nowMan;
 
-    private BinMan(Console console, boolean withJar, FileNode installedMan, FileNode installedBin, FileNode nowMan, FileNode nowBin) {
+    private BinMan(Console console, boolean withJar, FileNode installedBin, FileNode installedMan, FileNode nowBin, FileNode nowMan) {
         this.console = console;
         this.withJar = withJar;
-        this.installedMan = installedMan;
         this.installedBin = installedBin;
-        this.nowMan = nowMan;
+        this.installedMan = installedMan;
         this.nowBin = nowBin;
+        this.nowMan = nowMan;
     }
 
     public void run() throws IOException {
-        man();
         bin();
+        man();
     }
 
     //--
-
-    private void man() throws IOException {
-        Files.createStoolDirectory(console.verbose, nowMan);
-        console.world.resource("templates/man").copyDirectory(nowMan);
-        Files.stoolTree(console.verbose, nowMan);
-    }
 
     // CAUTION: does not generate the home symlink
     private void bin() throws IOException {
@@ -112,6 +106,14 @@ public class BinMan {
             }
         }
     }
+
+    private void man() throws IOException {
+        Files.createStoolDirectory(console.verbose, nowMan);
+        console.world.resource("templates/man").copyDirectory(nowMan);
+        Files.stoolTree(console.verbose, nowMan);
+    }
+
+    //--
 
     public static int indexOf(byte[] array, byte[] sub) {
         int j;
