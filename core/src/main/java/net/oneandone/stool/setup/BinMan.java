@@ -76,6 +76,11 @@ public class BinMan {
         this.nowMan = nowMan;
     }
 
+    public void remove() throws IOException {
+        nowBin.deleteTree();
+        nowMan.deleteTree();
+    }
+
     public void create() throws IOException {
         bin();
         man();

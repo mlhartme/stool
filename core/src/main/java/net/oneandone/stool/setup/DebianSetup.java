@@ -136,8 +136,6 @@ public class DebianSetup extends Debian {
             h.upgrade();
             echo("home: " + home.getAbsolute() + " (upgraded)");
         } else {
-            // make sure the setgid does not overrule the current group id
-            home.getParent().execNoOutput("chmod", "g-s", ".");
             console.info.println("creating home: " + home);
             try {
                 h.create();

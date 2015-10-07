@@ -16,27 +16,19 @@
 package net.oneandone.stool.setup;
 
 import com.github.zafarkhaja.semver.Version;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import net.oneandone.stool.SystemImport;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Environment;
-import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.RmRfThread;
-import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Cli;
 import net.oneandone.sushi.cli.Command;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
-import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.cli.Value;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -65,8 +57,8 @@ public class JavaSetup extends Cli implements Command {
 
     //--
 
+    @Value(name = "home", position = 1)
     private FileNode home;
-    private FileNode oldHome;
 
 
     @Option("batch")
@@ -87,24 +79,17 @@ public class JavaSetup extends Cli implements Command {
         int idx;
 
         idx = str.indexOf('=');
-        if (idx != -1) {
-            config.put(str.substring(0, idx), str.substring(idx + 1));
-        } else if (home == null) {
-            home = console.world.file(str);
-        } else if (oldHome == null) {
-            oldHome = home;
-            home = console.world.file(str);
-        } else {
+        if (idx == -1) {
             throw new ArgumentException("too many directories");
         }
+        config.put(str.substring(0, idx), str.substring(idx + 1));
     }
 
     @Override
     public void printHelp() {
         console.info.println("Setup stool " + versionObject());
-        console.info.println("usage: setup-stool [<old>] <home>");
-        console.info.println("  Create a new <home> directory, upgrades an existing <home> (incremental upgrade), ");
-        console.info.println("  or upgrade and existing <old> home directory into a new <home> (full upgrade).");
+        console.info.println("usage: setup-stool <home> {<name>=<value>}");
+        console.info.println("  Create a new <home> directory or upgrades an existing.");
         console.info.println("  Does not modify anything outside the home directory.");
         console.info.println("documentation:");
         console.info.println("  https://github.com/mlhartme/stool");
@@ -112,33 +97,25 @@ public class JavaSetup extends Cli implements Command {
 
     @Override
     public void invoke() throws Exception {
-        String user;
-        Version version;
-        Version old;
+        BinMan bm;
 
-        user = System.getProperty("user.name");
-        version = versionObject();
-        if (home == null) {
-            printHelp();
-            return;
-        }
-        if (oldHome == null) {
-            oldHome = home;
-        } else {
-            oldHome.checkDirectory();
-        }
         environment.setStoolBin(home.join("bin"));
-        if (oldHome.exists()) {
-            try {
-                old = oldVersion();
-            } catch (IOException e) {
-                throw new ArgumentException("Cannot detect Stool version from old Stool home directory " + oldHome + ": "
-                    + e.getMessage(), e);
-            }
-            fullUpgrade(user, old, version, environment);
-        } else {
-            console.info.println("Ready to install Stool " + version + " to " + home.getAbsolute());
+        if (home.exists()) {
             if (!batch) {
+                console.info.println("Ready to upgrade " + home.getAbsolute() + " to Stool " + version());
+                console.pressReturn();
+            }
+            new Home(console, home, false, config).upgrade();
+            bm = BinMan.java(console, true, home.join("bin"), home.join("man"));
+            bm.remove();
+            bm.create();
+            console.info.println("Done. To complete the installation:");
+            console.info.println("1. change your ~/.bashrc to");
+            console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
+            console.info.println("2. restart your shell");
+        } else {
+            if (!batch) {
+                console.info.println("Ready to install Stool " + version() + " to " + home.getAbsolute());
                 console.pressReturn();
             }
             standalone(console, true, home, config);
@@ -149,88 +126,6 @@ public class JavaSetup extends Cli implements Command {
             console.info.println("2. restart your shell");
         }
     }
-
-    private void fullUpgrade(String user, Version old, Version version, Environment environment) throws Exception {
-        RmRfThread cleanup;
-        Session session;
-
-        console.info.println("Preparing full upgrade of " + home.getAbsolute() + ": " + old + " -> " + version);
-        cleanup = new RmRfThread(console);
-        cleanup.add(home);
-        Runtime.getRuntime().addShutdownHook(cleanup);
-
-        standalone(console, true, home, config);
-        session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
-        new SystemImport(session, oldHome).invoke();
-
-        Runtime.getRuntime().removeShutdownHook(cleanup);
-        console.info.println("Done. To complete the installation:");
-        console.info.println("1. change your ~/.bashrc to");
-        console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
-        console.info.println("2. restart your shell");
-    }
-
-    private Version oldVersion() throws IOException {
-        Node file;
-        JsonObject obj;
-
-        file = oldHome.join("bin/stool.jar");
-        if (file.exists()) {
-            file = ((FileNode) file).openZip().join("META-INF/maven/net.oneandone/stool/pom.properties");
-            return Version.valueOf((String) file.readProperties().get("version"));
-        } else {
-            obj = (JsonObject) new JsonParser().parse(oldHome.join("config.json").readString());
-            return Version.valueOf(obj.get("version").getAsString());
-        }
-    }
-
-    //--
-
-    private Map<String, Object> toMap(JsonObject object) {
-        Map<String, Object> result;
-        JsonElement value;
-
-        result = new LinkedHashMap<>();
-        for (Map.Entry<String, JsonElement> entry : object.entrySet()) {
-            value = entry.getValue();
-            if (value instanceof JsonArray) {
-                result.put(entry.getKey(), toListString((JsonArray) value));
-            } else if (value instanceof JsonObject) {
-                result.put(entry.getKey(), toMap((JsonObject) value));
-            } else {
-                result.put(entry.getKey(), toString(value));
-            }
-        }
-        return result;
-    }
-
-    private String toListString(JsonArray array) {
-        StringBuilder result;
-
-        result = new StringBuilder();
-        for (JsonElement element : array) {
-            if (result.length() > 0) {
-                result.append(",");
-            }
-            result.append(toString(element));
-        }
-        return result.toString();
-    }
-
-    private String toString(JsonElement value) {
-        return environment.substitute(value.getAsString());
-    }
-
-    private static JsonObject loadJson(FileNode file) throws IOException {
-        JsonParser parser;
-
-        parser = new JsonParser();
-        try (Reader src = file.createReader()) {
-            return (JsonObject) parser.parse(src);
-        }
-    }
-
-    //--
 
     // TODO: doesn't work in integration tests
     public static Version versionObject() {

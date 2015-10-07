@@ -112,7 +112,7 @@ public class Home {
         }
     }
 
-    //-- Mapper Code
+    //-- upgrade
 
     public void upgrade() throws IOException {
         upgrade_31_32(home);
