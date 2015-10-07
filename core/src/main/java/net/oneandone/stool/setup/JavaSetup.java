@@ -101,7 +101,7 @@ public class JavaSetup extends Cli implements Command {
         environment.setStoolBin(home.join("bin"));
         if (home.exists()) {
             if (!batch) {
-                console.info.println("Ready to upgrade " + home.getAbsolute() + " to Stool " + version());
+                console.info.println("Ready to upgrade " + home.getAbsolute() + " to Stool " + versionObject());
                 console.pressReturn();
             }
             new Home(console, home, false, config).upgrade();
@@ -114,7 +114,7 @@ public class JavaSetup extends Cli implements Command {
             console.info.println("2. restart your shell");
         } else {
             if (!batch) {
-                console.info.println("Ready to install Stool " + version() + " to " + home.getAbsolute());
+                console.info.println("Ready to install Stool " + versionObject() + " to " + home.getAbsolute());
                 console.pressReturn();
             }
             standalone(console, true, home, config);
@@ -126,11 +126,10 @@ public class JavaSetup extends Cli implements Command {
         }
     }
 
-    // TODO: doesn't work in integration tests
     public static Version versionObject() {
         String str;
 
         str = JavaSetup.class.getPackage().getSpecificationVersion();
-        return Version.valueOf(String.valueOf(str));
+        return Version.valueOf(str);
     }
 }
