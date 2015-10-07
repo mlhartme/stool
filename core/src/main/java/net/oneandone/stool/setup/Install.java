@@ -59,26 +59,42 @@ public class Install {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
         new Home(console, home, false, globalProperties).create();
-        doCreateBinWithoutHomeLink(variables(), bin);
-        bin.join("home").mklink(home.getAbsolute());
         doCreateMan(man);
+        doCreateBinWithoutHomeLink(bin);
+        bin.join("home").mklink(home.getAbsolute());
         session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
         return session;
     }
 
+    //--
+
     public void debianFiles(FileNode dest) throws Exception {
         dest.mkdir();
-        doCreateBinWithoutHomeLink(variables(), dest.join(bin.getName()));
+        doCreateBinWithoutHomeLink(dest.join(bin.getName()));
         doCreateMan(dest.join(man.getName()));
     }
 
-    private void doCreateBinWithoutHomeLink(Map<String, String> variables, FileNode destBin) throws IOException {
+    //--
+
+    private void doCreateMan(FileNode destMan) throws IOException {
+        Files.createStoolDirectory(console.verbose, destMan);
+        console.world.resource("templates/man").copyDirectory(destMan);
+        Files.stoolTree(console.verbose, destMan);
+    }
+
+    private void doCreateBinWithoutHomeLink(FileNode destBin) throws IOException {
         final byte[] marker = "exit $?\n".getBytes(Settings.UTF_8);
+        Map<String, String> variables;
         byte[] bytes;
         int ofs;
 
+        variables = new HashMap<>();
+        variables.put("stool.bin", bin.getAbsolute());
+        variables.put("man.path", "/usr/share/man".equals(man.getAbsolute()) ? "" :
+                "# note that the empty entry instructs man to search locations.\n" +
+                        "export MANPATH=" + man.getAbsolute() + ":$MANPATH\n");
         Files.createStoolDirectory(console.verbose, destBin);
         Files.template(console.verbose, console.world.resource("templates/bin"), destBin, variables);
         if (withJar) {
@@ -105,22 +121,5 @@ public class Install {
             }
         }
         throw new IllegalStateException();
-    }
-
-    private void doCreateMan(FileNode destMan) throws IOException {
-        Files.createStoolDirectory(console.verbose, destMan);
-        console.world.resource("templates/man").copyDirectory(destMan);
-        Files.stoolTree(console.verbose, destMan);
-    }
-
-    private Map<String, String> variables() {
-        Map<String, String> result;
-
-        result = new HashMap<>();
-        result.put("stool.bin", bin.getAbsolute());
-        result.put("man.path", "/usr/share/man".equals(man.getAbsolute()) ? "" :
-                "# note that the empty entry instructs man to search locations.\n" +
-                "export MANPATH=" + man.getAbsolute() + ":$MANPATH\n");
-        return result;
     }
 }
