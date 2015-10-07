@@ -55,7 +55,7 @@ public class SetupStool extends Cli implements Command {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
         new Home(console, home, false, globalProperties).create();
-        ManBin.java(console, withJar, man, bin).run();
+        BinMan.java(console, withJar, man, bin).run();
         bin.join("home").mklink(home.getAbsolute());
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);

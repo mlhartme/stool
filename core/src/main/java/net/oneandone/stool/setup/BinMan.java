@@ -27,8 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-/** Generates man- and bin directories. Executed at build time (for Debian Installer) or runtime (Java Installer) */
-public class ManBin {
+/** Generates bin- and man directories. Used at build time (for Debian Package) or runtime (Java Installer) */
+public class BinMan {
     /** generate file hierarchie for debian installer */
     public static void main(String[] args) throws Exception {
         World world;
@@ -44,14 +44,14 @@ public class ManBin {
         console = Console.create(world);
         target = world.file(args[0]);
         target.mkdir();
-        man = world.file("/usr/share/man");
         bin = world.file("/usr/share/stool");
-        new ManBin(console, true, man, bin, target.join(man.getName()), target.join(bin.getName())).run();
+        man = world.file("/usr/share/man");
+        new BinMan(console, true, man, bin, target.join(man.getName()), target.join(bin.getName())).run();
         System.exit(0);
     }
 
-    public static ManBin java(Console console, boolean withJar, FileNode installedMan, FileNode installedBin) {
-        return new ManBin(console, withJar, installedMan, installedBin, installedMan, installedBin);
+    public static BinMan java(Console console, boolean withJar, FileNode installedMan, FileNode installedBin) {
+        return new BinMan(console, withJar, installedMan, installedBin, installedMan, installedBin);
     }
 
     //--
@@ -67,7 +67,7 @@ public class ManBin {
     private final FileNode nowMan;
     private final FileNode nowBin;
 
-    private ManBin(Console console, boolean withJar, FileNode installedMan, FileNode installedBin, FileNode nowMan, FileNode nowBin) {
+    private BinMan(Console console, boolean withJar, FileNode installedMan, FileNode installedBin, FileNode nowMan, FileNode nowBin) {
         this.console = console;
         this.withJar = withJar;
         this.installedMan = installedMan;

@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.setup.ManBin;
 import net.oneandone.stool.setup.SetupStool;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
