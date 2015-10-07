@@ -17,19 +17,21 @@ package net.oneandone.stool;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
+import net.oneandone.stool.setup.Transform;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class SystemImportTest {
+public class TransformTest {
     @Test
     public void mergeMissing() {
         String result;
 
-        result = SystemImport.mergeConfig(
+        result = Transform.mergeConfig(
                 "{\n  \"version\": \"3.0.0-SNAPSHOT\"\n}\n",
                 "{\n  \"version\": \"3.0.0-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}",
-                new Object() {});
+                new Object() {
+                });
         assertEquals("{\n  \"version\": \"3.0.0-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}", result);
     }
 
@@ -37,7 +39,7 @@ public class SystemImportTest {
     public void mergeValue() {
         String result;
 
-        result = SystemImport.mergeConfig(
+        result = Transform.mergeConfig(
                 "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}\n",
                 "{\n  \"version\": \"3.0.0-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}",
                 new Object() {});
@@ -48,7 +50,7 @@ public class SystemImportTest {
     public void mergeRemove() {
         String result;
 
-        result = SystemImport.mergeConfig(
+        result = Transform.mergeConfig(
                 "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\",\n  \"additional\": \"foo\"\n}\n",
                 "{\n  \"version\": \"3.0.0-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}",
                 new Object() {
@@ -61,7 +63,7 @@ public class SystemImportTest {
     public void mergeRename() {
         String result;
 
-        result = SystemImport.mergeConfig(
+        result = Transform.mergeConfig(
                 "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"before\": \"/Users/mhm\"\n}\n",
                 "{\n  \"version\": \"3.0.0-SNAPSHOT\"\n}",
                 new Object() {
@@ -74,7 +76,7 @@ public class SystemImportTest {
     public void mergeTransform() {
         String result;
 
-        result = SystemImport.mergeConfig(
+        result = Transform.mergeConfig(
                 "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": 5\n}\n",
                 "{\n  \"version\": \"3.0.0-SNAPSHOT\"\n}",
                 new Object() {

@@ -16,14 +16,11 @@
 package net.oneandone.stool;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
-import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonWriter;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.setup.Transform;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Session;
@@ -36,11 +33,7 @@ import net.oneandone.sushi.util.Diff;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.io.StringWriter;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -131,21 +124,21 @@ public class SystemImport extends SessionCommand {
         }
         if (include.withStages) {
             if (oldBackstages.isEmpty()) {
-                for (FileNode oldWrapper : oldHome.join("backstages").list()) {
-                    name = oldWrapper.getName();
+                for (FileNode oldBackstage : oldHome.join("backstages").list()) {
+                    name = oldBackstage.getName();
                     if (session.backstages.join(name).exists()) {
                         console.info.println("ignoring stage that already exists: " + name);
                     } else {
-                        oldBackstages.add(oldWrapper);
+                        oldBackstages.add(oldBackstage);
                     }
                 }
             }
-            for (FileNode oldWrapper : oldBackstages) {
-                name = oldWrapper.getName();
+            for (FileNode oldBackstage : oldBackstages) {
+                name = oldBackstage.getName();
                 if (oldBedroom.stages().contains(name)) {
                     newBedroom.add(session.gson, name);
                 }
-                patches.add(stage(oldWrapper));
+                patches.add(stage(oldBackstage));
             }
         }
         patches.add(new Patch("M " + newBedroom.file(), Diff.diff(newBedroomOrig, newBedroom.stages().toString())) {
@@ -183,7 +176,7 @@ public class SystemImport extends SessionCommand {
 
         dest = session.home.join(path);
         current = dest.readString();
-        result = mergeConfig(oldHome.join(path).readString(), current, stool30_31());
+        result = Transform.mergeConfig(oldHome.join(path).readString(), current, stool30_31());
         diff = Diff.diff(current, result);
         return new Patch("M " + dest.getAbsolute(), diff) {
             public void apply() throws IOException {
@@ -192,9 +185,9 @@ public class SystemImport extends SessionCommand {
         };
     }
 
-    private Patch stage(FileNode oldWrapper) throws IOException {
-        final FileNode tmpWrapper;
-        final FileNode destWrapper;
+    private Patch stage(FileNode oldBackstage) throws IOException {
+        final FileNode tmpBackstage;
+        final FileNode destBackstage;
         FileNode directory;
         final Stage stage;
         String url;
@@ -202,35 +195,35 @@ public class SystemImport extends SessionCommand {
         FileNode tmpConfig;
         String tmp;
 
-        directory = (FileNode) oldWrapper.join("anchor").resolveLink();
+        directory = (FileNode) oldBackstage.join("anchor").resolveLink();
         directory.checkDirectory();
         url = Stage.probe(session.subversion(), directory);
-        destWrapper = session.backstages.join(oldWrapper.getName());
-        destWrapper.checkNotExists();
+        destBackstage = session.backstages.join(oldBackstage.getName());
+        destBackstage.checkNotExists();
         // Temp backstage in backstage directory, because it fasted to move within the same filesystem.
         // And Sushi has problems to move the anchor symlink across file systems
-        tmpWrapper = session.backstages.createTempDirectory();
-        tmpWrapper.deleteDirectory();
-        Files.createStoolDirectory(console.verbose, tmpWrapper);
-        stage = Stage.createOpt(session, url, session.createStageConfiguration(url), tmpWrapper, directory);
+        tmpBackstage = session.backstages.createTempDirectory();
+        tmpBackstage.deleteDirectory();
+        Files.createStoolDirectory(console.verbose, tmpBackstage);
+        stage = Stage.createOpt(session, url, session.createStageConfiguration(url), tmpBackstage, directory);
         stage.tuneConfiguration();
         stage.initialize();
-        tmpConfig = tmpWrapper.join("config.json");
+        tmpConfig = tmpBackstage.join("config.json");
         tmp = tmpConfig.readString();
-        tmp = mergeConfig(oldWrapper.join("config.json").readString(), tmp, stage30_31());
+        tmp = Transform.mergeConfig(oldBackstage.join("config.json").readString(), tmp, stage30_31());
         tmpConfig.writeString(tmp);
         explicit(tmpConfig);
-        msg = Diff.diff(oldWrapper.join("config.json").readString(), tmp);
+        msg = Diff.diff(oldBackstage.join("config.json").readString(), tmp);
         if (msg.isEmpty()) {
             // make sure the message is not empty, because we have to move the file
             msg = "(no config changes)";
         }
-        return new Patch("A " + destWrapper.getAbsolute(), msg) {
+        return new Patch("A " + destBackstage.getAbsolute(), msg) {
             @Override
             public void apply() throws IOException {
-                tmpWrapper.move(destWrapper);
+                tmpBackstage.move(destBackstage);
                 if (session.configuration.shared) {
-                    session.chown(stage.owner(), destWrapper);
+                    session.chown(stage.owner(), destBackstage);
                 }
             }
         };
@@ -244,126 +237,6 @@ public class SystemImport extends SessionCommand {
             entry.getKey().set(config, entry.getValue());
         }
         config.save(session.gson, file);
-    }
-
-    public static String mergeConfig(String srcString, String destString, Object mapper) {
-        JsonParser parser;
-        JsonObject src;
-        JsonObject dest;
-        JsonObject target;
-        Object[] mapped;
-        String name;
-        int idx;
-        String extension;
-
-        parser = new JsonParser();
-        src = (JsonObject) parser.parse(srcString);
-        dest = (JsonObject) parser.parse(destString);
-        for (Map.Entry<String, JsonElement> entry : src.entrySet()) {
-            mapped = map(mapper, entry.getKey(), entry.getValue());
-            if (mapped != null) {
-                name = (String) mapped[0];
-                idx = name.indexOf('+');
-                if (idx != -1) {
-                    extension = name.substring(0, idx);
-                    name = name.substring(idx + 1);
-                    target = dest.getAsJsonObject().get("extensions").getAsJsonObject();
-                    target = target.get((target.has("+" + extension) ? "+" : "-") + extension).getAsJsonObject();
-                } else {
-                    target = dest;
-
-                }
-                target.add(name, (JsonElement) mapped[1]);
-            }
-        }
-        mapGlobal(mapper, src, dest);
-        return toString(dest);
-    }
-
-    private static void mapGlobal(Object mapper, JsonElement left, JsonElement right) {
-        Method m;
-
-        try {
-            m = mapper.getClass().getDeclaredMethod("global", JsonElement.class, JsonElement.class);
-        } catch (NoSuchMethodException e) {
-            return;
-        }
-        try {
-            m.invoke(mapper, left, right);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    private static Object[] map(Object mapper, String name, JsonElement value) {
-        Class clazz;
-        Method rename;
-        Method transform;
-
-        clazz = mapper.getClass();
-        if (method(clazz, name + "Remove") != null) {
-            return null;
-        }
-        rename = method(clazz, name + "Rename");
-        transform = method(clazz, name + "Transform", JsonElement.class);
-        return new Object[] { rename(rename, mapper, name), transform(transform, mapper, value) };
-    }
-
-    /* Search with method by name, check arguments later. Helps to detect methods with wrong arguments. */
-    private static Method method(Class clazz, String name, Class ... args) {
-        Method result;
-
-        result = null;
-        for (Method m : clazz.getDeclaredMethods()) {
-            if (m.getName().equals(name)) {
-                if (result != null) {
-                    throw new ArgumentException("method ambiguous: " + name);
-                }
-                result = m;
-            }
-        }
-        if (result != null) {
-            if (!Arrays.equals(args, result.getParameterTypes())) {
-                throw new ArgumentException("argument type mismatch for method " + name);
-            }
-        }
-        return result;
-    }
-
-    private static String rename(Method method, Object object, String old) {
-        if (method == null) {
-            return old;
-        } else {
-            try {
-                return (String) method.invoke(object);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-    }
-    private static JsonElement transform(Method method, Object object, JsonElement old) {
-        if (method == null) {
-            return old;
-        } else {
-            try {
-                return (JsonElement) method.invoke(object, old);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new IllegalStateException(e);
-            }
-        }
-    }
-
-    public static String toString(JsonObject obj) {
-        try {
-            StringWriter stringWriter = new StringWriter();
-            JsonWriter jsonWriter = new JsonWriter(stringWriter);
-            jsonWriter.setIndent("  ");
-            jsonWriter.setLenient(true);
-            Streams.write(obj, jsonWriter);
-            return stringWriter.toString();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     public abstract static class Patch {
