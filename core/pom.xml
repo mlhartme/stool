@@ -268,7 +268,7 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <java classname="net.oneandone.stool.setup.DebianPackage" classpath="${project.build.directory}/setup-stool" fork="false">
+                <java classname="net.oneandone.stool.setup.ManBin" classpath="${project.build.directory}/setup-stool" fork="false">
                   <arg path="${project.build.directory}/debfiles" />
                 </java>
               </target>

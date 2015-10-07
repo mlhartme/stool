@@ -15,13 +15,10 @@
  */
 package net.oneandone.stool.setup;
 
-import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Files;
-import net.oneandone.stool.util.Logging;
-import net.oneandone.stool.util.RmRfThread;
-import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.Settings;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -32,49 +29,41 @@ import java.util.Map;
 
 /** Generates man- and bin directories. Executed at build time (for Debian Installer) or runtime (Java Installer) */
 public class ManBin {
-    public static Session standaloneWithSession(String user, Environment environment, Console console, boolean withJar,
-                                                FileNode man, FileNode bin, FileNode home, Map<String, String> globalProperties) throws Exception {
-        Session session;
+    /** generate file hierarchie for debian installer */
+    public static void main(String[] args) throws Exception {
+        World world;
+        Console console;
+        FileNode target;
+        FileNode man;
+        FileNode bin;
 
-        standalone(console, withJar, man, bin, home, globalProperties);
-        session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
-        return session;
-    }
-
-    public static void standalone(Console console, boolean withJar, FileNode man, FileNode bin,
-                                  FileNode home, Map<String, String> globalProperties) throws Exception {
-        ManBin mb;
-        RmRfThread cleanup;
-
-        home.checkNotExists();
-        cleanup = new RmRfThread(console);
-        cleanup.add(home);
-        Runtime.getRuntime().addShutdownHook(cleanup);
-        new Home(console, home, false, globalProperties).create();
-        mb = java(console, withJar, man, bin);
-        mb.run();
-        mb.installedBin.join("home").mklink(home.getAbsolute());
-        // ok, no exceptions - we have a proper install directory: no cleanup
-        Runtime.getRuntime().removeShutdownHook(cleanup);
-    }
-
-
-    public static ManBin debian(Console console, boolean withJar, FileNode installedMan, FileNode installedBin, FileNode dest) {
-        return new ManBin(console, withJar, installedMan, installedBin, dest.join(installedMan.getName()), dest.join(installedBin.getName()));
+        if (args.length != 1) {
+            throw new IllegalArgumentException();
+        }
+        world = new World();
+        console = Console.create(world);
+        target = world.file(args[0]);
+        target.mkdir();
+        man = world.file("/usr/share/man");
+        bin = world.file("/usr/share/stool");
+        new ManBin(console, true, man, bin, target.join(man.getName()), target.join(bin.getName())).run();
+        System.exit(0);
     }
 
     public static ManBin java(Console console, boolean withJar, FileNode installedMan, FileNode installedBin) {
         return new ManBin(console, withJar, installedMan, installedBin, installedMan, installedBin);
     }
 
+    //--
+
     private final Console console;
 
-    // to create bin directory with a stool jar. False in tests, when stool.jar is not in classpath
+    /** to create bin directory with a stool jar. False in tests, when stool.jar is not in classpath */
     private final boolean withJar;
 
     // locations when installed on target machine
     private final FileNode installedMan;
-    private final FileNode installedBin;
+    public final FileNode installedBin;
     private final FileNode nowMan;
     private final FileNode nowBin;
 
@@ -88,19 +77,20 @@ public class ManBin {
     }
 
     public void run() throws IOException {
-        doCreateMan();
-        doCreateBinWithoutHomeLink();
+        man();
+        bin();
     }
 
     //--
 
-    private void doCreateMan() throws IOException {
+    private void man() throws IOException {
         Files.createStoolDirectory(console.verbose, nowMan);
         console.world.resource("templates/man").copyDirectory(nowMan);
         Files.stoolTree(console.verbose, nowMan);
     }
 
-    private void doCreateBinWithoutHomeLink() throws IOException {
+    // CAUTION: does not generate the home symlink
+    private void bin() throws IOException {
         final byte[] marker = "exit $?\n".getBytes(Settings.UTF_8);
         Map<String, String> variables;
         byte[] bytes;

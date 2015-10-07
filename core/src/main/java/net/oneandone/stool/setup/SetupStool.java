@@ -23,11 +23,13 @@ import com.google.gson.JsonParser;
 import net.oneandone.stool.SystemImport;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Environment;
+import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Cli;
 import net.oneandone.sushi.cli.Command;
+import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.fs.Node;
@@ -43,6 +45,24 @@ public class SetupStool extends Cli implements Command {
     public static void main(String[] args) throws Exception {
         System.exit(new SetupStool().run(args));
     }
+
+    public static void standalone(Console console, boolean withJar, FileNode man, FileNode bin,
+                                  FileNode home, Map<String, String> globalProperties) throws Exception {
+        RmRfThread cleanup;
+
+        home.checkNotExists();
+        cleanup = new RmRfThread(console);
+        cleanup.add(home);
+        Runtime.getRuntime().addShutdownHook(cleanup);
+        new Home(console, home, false, globalProperties).create();
+        ManBin.java(console, withJar, man, bin).run();
+        bin.join("home").mklink(home.getAbsolute());
+        // ok, no exceptions - we have a proper install directory: no cleanup
+        Runtime.getRuntime().removeShutdownHook(cleanup);
+    }
+
+
+    //--
 
     private FileNode home;
     private FileNode oldHome;
@@ -120,7 +140,7 @@ public class SetupStool extends Cli implements Command {
             if (!batch) {
                 console.pressReturn();
             }
-            ManBin.standalone(console, true, home.join("man"), environment.stoolBin(console.world), home, config);
+            standalone(console, true, home.join("man"), environment.stoolBin(console.world), home, config);
             console.info.println("Done. To complete the installation:");
             console.info.println("1. add");
             console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
@@ -138,7 +158,8 @@ public class SetupStool extends Cli implements Command {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
-        session = ManBin.standaloneWithSession(user, environment, console, true, home.join("man"), environment.stoolBin(console.world), home, config);
+        standalone(console, true, home.join("man"), environment.stoolBin(console.world), home, config);
+        session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
         new SystemImport(session, oldHome).invoke();
 
         Runtime.getRuntime().removeShutdownHook(cleanup);
