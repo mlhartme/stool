@@ -16,7 +16,6 @@
 package net.oneandone.stool.setup;
 
 import com.github.zafarkhaja.semver.Version;
-import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -131,8 +130,7 @@ public class JavaSetup extends Cli implements Command {
     public static Version versionObject() {
         String str;
 
-        str = StoolConfiguration.class.getPackage().getSpecificationVersion();
+        str = JavaSetup.class.getPackage().getSpecificationVersion();
         return Version.valueOf(String.valueOf(str));
     }
-
 }
