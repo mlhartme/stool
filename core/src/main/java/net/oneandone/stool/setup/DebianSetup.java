@@ -154,6 +154,8 @@ public class DebianSetup extends Debian {
                 }
                 throw e;
             }
+            exec("chmod", "g+s", "-R", home.getAbsolute());
+            exec("chgrp", group, "-R", home.getAbsolute());
         }
     }
 

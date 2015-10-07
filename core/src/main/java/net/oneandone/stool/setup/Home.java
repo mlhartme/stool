@@ -28,7 +28,6 @@ import net.oneandone.sushi.io.OS;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class Home {
@@ -43,7 +42,7 @@ public class Home {
         this.console = console;
         this.home = home;
         this.shared = shared;
-        this.globalProperties = new HashMap<>();
+        this.globalProperties = globalProperties;
     }
 
     public void create() throws IOException {
