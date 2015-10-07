@@ -46,7 +46,7 @@ public class SetupStool extends Cli implements Command {
         System.exit(new SetupStool().run(args));
     }
 
-    public static void standalone(Console console, boolean withJar, FileNode man, FileNode bin,
+    public static void standalone(Console console, boolean withJar, FileNode bin, FileNode man,
                                   FileNode home, Map<String, String> globalProperties) throws Exception {
         RmRfThread cleanup;
 
@@ -140,7 +140,7 @@ public class SetupStool extends Cli implements Command {
             if (!batch) {
                 console.pressReturn();
             }
-            standalone(console, true, home.join("man"), environment.stoolBin(console.world), home, config);
+            standalone(console, true, environment.stoolBin(console.world), home.join("man"), home, config);
             console.info.println("Done. To complete the installation:");
             console.info.println("1. add");
             console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
@@ -158,7 +158,7 @@ public class SetupStool extends Cli implements Command {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
-        standalone(console, true, home.join("man"), environment.stoolBin(console.world), home, config);
+        standalone(console, true, environment.stoolBin(console.world), home.join("man"), home, config);
         session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
         new SystemImport(session, oldHome).invoke();
 

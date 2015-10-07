@@ -67,7 +67,7 @@ public class StoolIT {
         config.put("diskMin", "500");
         config.put("portFirst", "1300");
         config.put("portLast", "1319");
-        SetupStool.standalone(Console.create(world), false, home.join("man"), system.stoolBin(world), home, config);
+        SetupStool.standalone(Console.create(world), false, system.stoolBin(world), home.join("man"), home, config);
         stages = home.getParent().join("stages");
         stages.deleteTreeOpt();
         stages.mkdir();
