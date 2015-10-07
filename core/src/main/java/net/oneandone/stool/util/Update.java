@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.setup;
+package net.oneandone.stool.util;
 
 import com.github.zafarkhaja.semver.Version;
 import com.google.gson.JsonArray;
