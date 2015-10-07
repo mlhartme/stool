@@ -33,7 +33,9 @@ public class Debian {
         if (args.length == 0) {
             throw new IllegalArgumentException();
         }
-        cmd = args[0];
+        verbose(Separator.SPACE.join(args));
+        cmd = args[0]; // path to maintainer script, e.g. /var/lib/dpkg/info/stool.postinst
+        cmd = cmd.substring(cmd.lastIndexOf('.') + 1);
         args = Strings.cdr(args);
         try {
             switch (cmd) {
@@ -182,6 +184,10 @@ public class Debian {
 
     public void echo(String str) {
         console.info.println(str);
+    }
+
+    public void verbose(String str) {
+        console.verbose.println(str);
     }
 
     public String slurp(String ... args) throws IOException {

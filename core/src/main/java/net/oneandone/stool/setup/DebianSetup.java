@@ -56,14 +56,14 @@ public class DebianSetup extends Debian {
         setupUser();
         setupHome();
         home.link(bin.join("home"));
-        slurp("sudo", "-u", user, bin.join("stool-raw.sh").getAbsolute(), "chown", "-stage", "dashboard");
+        verbose(slurp("sudo", "-u", user, bin.join("stool-raw.sh").getAbsolute(), "chown", "-stage", "dashboard"));
         exec("update-rc.d", "stool", "defaults");
     }
 
     @Override
     public void prermRemove() throws IOException {
         echo(slurp("service", "stool", "stop"));
-        bin.join("home").deleteFile();
+        bin.join("home").deleteDirectory();
     }
 
     @Override
@@ -114,7 +114,7 @@ public class DebianSetup extends Debian {
             if (world.file("/home").join(user).isDirectory()) {
                 throw new IOException("cannot create user " + user + ": home directory already exists");
             }
-            exec("adduser", "--system", "--ingroup", group, "--home", "/home/" + user, user);
+            verbose(slurp("adduser", "--system", "--ingroup", group, "--home", "/home/" + user, user));
         }
 
         inGroup = groups(user).contains(group);
