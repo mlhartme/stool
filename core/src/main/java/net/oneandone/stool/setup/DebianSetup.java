@@ -25,9 +25,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class StoolDebian extends Debian {
+public class DebianSetup extends Debian {
     public static void main(String[] args) {
-        System.exit(new StoolDebian().run(args));
+        System.exit(new DebianSetup().run(args));
     }
 
     //--
@@ -37,7 +37,7 @@ public class StoolDebian extends Debian {
     private final String group;
     private final String user;
 
-    public StoolDebian() {
+    public DebianSetup() {
         bin = world.file("/usr/share/stool");
         // TODO replace this check by some kind of configuration
         if (world.file("/opt/ui/opt/tools").isDirectory()) {
