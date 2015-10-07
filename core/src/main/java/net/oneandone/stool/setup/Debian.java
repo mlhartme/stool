@@ -1,7 +1,5 @@
 package net.oneandone.stool.setup;
 
-import net.oneandone.stool.util.Environment;
-import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -10,43 +8,38 @@ import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
+/** Called by Debian Maintainer scripts https://www.debian.org/doc/debian-policy/ch-maintainerscripts.html */
 public class Debian {
-    public static void main(String[] args) {
-        System.exit(run(args));
-    }
-
-    public static int run(String ... args) {
+    public int run(String ... args) {
         String cmd;
-        Debian debian;
 
         if (args.length == 0) {
             throw new IllegalArgumentException();
         }
-        debian = new Debian();
         cmd = args[0];
         args = Strings.cdr(args);
         try {
             switch (cmd) {
-                case "prerm":
-                    debian.prerm(args);
+                case "preinst":
+                    preinst(args);
                     break;
                 case "postinst":
-                    debian.postinst(args);
+                    postinst(args);
+                    break;
+                case "prerm":
+                    prerm(args);
                     break;
                 case "postrm":
-                    debian.postrm(args);
+                    postrm(args);
                     break;
                 default:
                     throw new IllegalArgumentException(cmd);
             }
         } catch (IOException e) {
-            debian.console.error.println(e.getMessage());
-            e.printStackTrace(debian.console.verbose);
+            console.error.println(e.getMessage());
+            e.printStackTrace(console.verbose);
             return 1;
         }
         return 0;
@@ -54,138 +47,137 @@ public class Debian {
 
     //--
 
-    private final World world;
-    private final Console console;
-    private final FileNode cwd;
-    private final FileNode bin;
-    private final FileNode home;
-    private final String group;
-    private final String user;
+    protected final World world;
+    protected final Console console;
+    protected final FileNode cwd;
 
     public Debian() {
         world = new World();
         console = Console.create(world);
         cwd = (FileNode) world.getWorking();
-        bin = world.file("/usr/share/stool");
-        // TODO replace this check by some kind of configuration
-        if (world.file("/opt/ui/opt/tools").isDirectory()) {
-            home = world.file("/opt/ui/opt/tools/stool");
-            group = "users";
-        } else {
-            home = world.file("/var/lib/stool");
-            group = "stool";
+    }
+
+    //--
+
+    public void preinst(String ... args) throws IOException {
+        switch (args[0]) {
+            case "install":
+                preinstInstall();
+                break;
+            case "upgrade":
+                preinstUpgrade();
+                break;
+            case "abort-upgrade":
+                preinstAbortUpgrade();
+                break;
+            default:
+                throw new IllegalArgumentException("preinst called with unknown argument: " + args[0]);
         }
-        user = group;
+    }
+
+    protected void preinstInstall() throws IOException {
+    }
+
+    protected void preinstUpgrade() throws IOException {
+    }
+
+    protected void preinstAbortUpgrade() throws IOException {
     }
 
     public void postinst(String ... args) throws IOException {
-        if (args.length > 0 && args[1].equals("configure")) {
-            configure();
+        switch (args[0]) {
+            case "configure":
+                postinstConfigure();
+                break;
+            case "abort-upgrade":
+                postinstAbortUpgrade();
+                break;
+            case "abort-remove":
+                postinstAbortRemove();
+                break;
+            case "abort-deconfigure":
+                postinstDeconfigure();
+                break;
+            default:
+                throw new IllegalArgumentException("postinst called with unknown argument: " + args[0]);
         }
     }
 
-    public void postrm(String ... args) throws IOException {
-        if (args.length > 0 && args[1].equals("purge")) {
-            // TODO: why does lintian want this call in postrm? It doesn't make sense to have symlinks pointing to none-existing code
-            exec("update-rc.d", "stool", "remove");
-            home.deleteTree();
-        }
+    protected void postinstConfigure() throws IOException {
+    }
+    protected void postinstAbortUpgrade() throws IOException {
+    }
+    protected void postinstAbortRemove() throws IOException {
+    }
+    protected void postinstDeconfigure() throws IOException {
     }
 
     public void prerm(String ... args) throws IOException {
         switch (args[0]) {
             case "remove":
+                prermRemove();
+                break;
             case "upgrade":
-                // TODO: upgrade could be much cheaper:
-                // * block  new stool invocations
-                // * stop stool dashboard
-
-                // may fail if setup did not complete properly
-                echo(slurp("service", "stool", "stop"));
-                world.file("/usr/share/stool/home").deleteFile();
+                prermUpgrade();
                 break;
             case "deconfigure":
+                prermDeconfigure();
+                break;
             case "failed-upgrade":
-                // nothing to do
+                prermFailedUpgrade();
                 break;
             default:
                 throw new IllegalArgumentException("prerm called with unknown argument: " + args[0]);
         }
     }
 
-    public void configure() throws IOException {
-        configureGroup(group);
-        configureUser(user, group);
-        home.link(bin.join("home"));
-        home(home);
-        exec("sudo", "-u", user, bin.join("stool-raw.sh").getAbsolute(), "chown", "-stage", "dashboard");
-        exec("update-rc.d", "stool", "defaults");
+    protected void prermRemove() throws IOException {
+    }
+    protected void prermUpgrade() throws IOException {
+    }
+    protected void prermDeconfigure() throws IOException {
+    }
+    protected void prermFailedUpgrade() throws IOException {
     }
 
-    private void configureGroup(String group) throws IOException {
-        List<String> result;
-
-        if (test("getent", "group", group)) {
-            echo("group: " + group + " (existing)");
-        } else {
-            result = new ArrayList<>();
-            exec("groupadd", group);
-            for (FileNode dir : world.file("/home/").list()) {
-                if (dir.isDirectory()) {
-                    String name = dir.getName();
-                    if (test("id", "-u", name)) {
-                        result.add(name);
-                        exec("usermod", "-a", "-G", group, name);
-                    }
-                }
-            }
-            echo("group: " + group + " (created with " + Separator.SPACE.join(result) + ")");
+    public void postrm(String ... args) throws IOException {
+        switch (args[0]) {
+            case "purge":
+                postrmPurge();
+                break;
+            case "failed-upgrade":
+                postrmFailedUpgrade();
+                break;
+            case "abort-install":
+                postrmAbortInstall();
+                break;
+            default:
+                throw new IllegalArgumentException("postrm called with unknown argument: " + args[0]);
         }
     }
 
-    private void configureUser(String user, String group) throws IOException {
-        boolean existing;
-        boolean inGroup;
-
-        existing = test("id", "-u", user);
-        if (!existing) {
-            if (world.file("/home").join(user).isDirectory()) {
-                throw new IOException("cannot create user " + user + ": home directory already exists");
-            }
-            exec("adduser", "--system", "--ingroup", group, "--home", "/home/" + user, user);
-        }
-
-        inGroup = groups(user).contains(group);
-        if (!inGroup) {
-            exec("usermod", "-a", "-G", group, user);
-        }
-        echo("user: " + user + " (" + (existing ? "existing" : "created") + (inGroup ? "" : ", added to group" + group) + ")");
+    protected void postrmPurge() throws IOException {
+    }
+    protected void postrmFailedUpgrade() throws IOException {
+    }
+    protected void postrmAbortInstall() throws IOException {
     }
 
     //--
 
-    private List<String> groups(String user) throws IOException {
-        String output;
-
-        output = slurp("groups", user);
-        output = Strings.removeLeft(output, user).trim();
-        output = Strings.removeLeft(output, ":").trim();
-        return Separator.SPACE.split(output);
-    }
-
-    private void echo(String str) {
+    public void echo(String str) {
         console.info.println(str);
     }
 
-    private String slurp(String ... args) throws IOException {
+    public String slurp(String ... args) throws IOException {
         return cwd.exec(args);
     }
 
-    private void exec(String ... args) throws IOException {
+    public void exec(String ... args) throws IOException {
         cwd.execNoOutput(args);
     }
 
-    private boolean test(String ... args) throws IOException {
+    public boolean test(String ... args) throws IOException {
         try {
             console.verbose.println(cwd.exec(args));
             return true;
@@ -194,56 +186,13 @@ public class Debian {
         }
     }
 
-    //--
+    protected List<String> groups(String user) throws IOException {
+        String output;
 
-    public void home(FileNode home) throws IOException {
-        boolean existing;
-
-        // migrate from 3.1.x
-        existing = home.exists();
-        if (existing) {
-            migrate_3_1(console.info, home);
-            migrate_3_2(console.info, home);
-            echo("home: " + home.getAbsolute() + " (upgraded)");
-        } else {
-            // make sure the setgid does not overrule the current group id
-            home.getParent().execNoOutput("chmod", "g-s", ".");
-            console.info.println("creating home: " + home);
-        }
-        try {
-            new Install(console, true, world.file("/usr/share/stool"), world.file("/usr/share/man"), new HashMap<>())
-                    .debianHome("root", Environment.loadSystem(), home);
-        } catch (IOException e) {
-            if (!existing) {
-                // make sure we don't leave any undefined home directory;
-                try {
-                    home.deleteTreeOpt();
-                } catch (IOException suppressed) {
-                    e.addSuppressed(suppressed);
-                }
-            }
-            throw e;
-        }
+        output = slurp("groups", user);
+        output = Strings.removeLeft(output, user).trim();
+        output = Strings.removeLeft(output, ":").trim();
+        return Separator.SPACE.split(output);
     }
 
-    private static void migrate_3_1(PrintWriter log, FileNode home) throws IOException {
-        if (home.join("bin").isDirectory()) {
-            log.println("migrating 3.1 -> 3.2: " + home);
-            Files.exec(log, home, "mv", home.join("conf/overview.properties").getAbsolute(), home.join("overview.properties").getAbsolute());
-            Files.exec(log, home, "sh", "-c", "find . -user servlet | xargs chown stool");
-            Files.exec(log, home, "sh", "-c", "find . -perm 666 | xargs chmod 664");
-            Files.exec(log, home, "sh", "-c", "find . -type d | xargs chmod g+s");
-            Files.exec(log, home, "mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
-            Files.exec(log, home, "mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
-            Files.exec(log, home, "rm", "-rf", home.join("bin").getAbsolute());
-            Files.exec(log, home, "chgrp", "/opt/ui/opt/tools/stool".equals(home.getAbsolute()) ? "users" : "stool", ".");
-        }
-    }
-
-    private static void migrate_3_2(PrintWriter log, FileNode home) throws IOException {
-        if (home.join("overview.properties").isFile()) {
-            log.println("migrating 3.2 -> 3.3");
-            Files.exec(log, home, "mv", home.join("overview.properties").getAbsolute(), home.join("dashboard.properties").getAbsolute());
-        }
-    }
 }

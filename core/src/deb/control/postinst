@@ -1,2 +1,2 @@
 #!/bin/sh
-java -cp /usr/share/stool/stool.jar net.oneandone.stool.setup.Debian $0 "$@"
+java -cp /usr/share/stool/stool.jar net.oneandone.stool.setup.StoolDebian $0 "$@"
