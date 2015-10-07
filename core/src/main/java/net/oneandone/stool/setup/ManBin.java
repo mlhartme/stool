@@ -60,9 +60,16 @@ public class ManBin {
         this.nowBin = nowBin;
     }
 
-    public Session standalone(String user, Environment environment, FileNode home, Map<String, String> globalProperties) throws Exception {
-        RmRfThread cleanup;
+    public Session standaloneWithSession(String user, Environment environment, FileNode home, Map<String, String> globalProperties) throws Exception {
         Session session;
+
+        standalone(home, globalProperties);
+        session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
+        return session;
+    }
+
+    public void standalone(FileNode home, Map<String, String> globalProperties) throws Exception {
+        RmRfThread cleanup;
 
         home.checkNotExists();
 
@@ -72,10 +79,8 @@ public class ManBin {
         new Home(console, home, false, globalProperties).create();
         run();
         installedBin.join("home").mklink(home.getAbsolute());
-        session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
-        return session;
     }
 
     public void run() throws IOException {
