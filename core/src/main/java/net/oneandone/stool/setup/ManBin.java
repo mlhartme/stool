@@ -70,8 +70,7 @@ public class ManBin {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
         new Home(console, home, false, globalProperties).create();
-        doCreateMan();
-        doCreateBinWithoutHomeLink();
+        run();
         installedBin.join("home").mklink(home.getAbsolute());
         session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
         // ok, no exceptions - we have a proper install directory: no cleanup
@@ -79,10 +78,7 @@ public class ManBin {
         return session;
     }
 
-    //--
-
-    public void debianFiles(FileNode dest) throws Exception {
-        dest.mkdir();
+    public void run() throws IOException {
         doCreateMan();
         doCreateBinWithoutHomeLink();
     }

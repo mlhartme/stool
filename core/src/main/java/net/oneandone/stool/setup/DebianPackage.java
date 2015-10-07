@@ -25,6 +25,7 @@ public class DebianPackage {
         World world;
         Console console;
         FileNode target;
+        ManBin mb;
 
         if (args.length != 1) {
             throw new IllegalArgumentException();
@@ -32,7 +33,8 @@ public class DebianPackage {
         world = new World();
         console = Console.create(world);
         target = world.file(args[0]);
-        ManBin.debian(console, true, world.file("/usr/share/man"), world.file("/usr/share/stool"), target).debianFiles(target);
+        target.mkdir();
+        ManBin.debian(console, true, world.file("/usr/share/man"), world.file("/usr/share/stool"), target).run();
         System.exit(0);
     }
 }
