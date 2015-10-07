@@ -164,22 +164,22 @@ public class Home {
 
     //--
 
-    private static Object stool31_32() {
+    public static Object stool31_32() {
         return new Object() {
         };
     }
 
-    private static Object stage31_32() {
+    public static Object stage31_32() {
         return new Object() {
         };
     }
 
-    private static Object stool32_33() {
+    public static Object stool32_33() {
         return new Object() {
         };
     }
 
-    private static Object stage32_33() {
+    public static Object stage32_33() {
         return new Object() {
         };
     }

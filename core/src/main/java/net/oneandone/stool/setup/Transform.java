@@ -16,34 +16,21 @@ import java.util.Map;
 
 /** Transform json */
 public class Transform {
-    public static String mergeConfig(String srcString, String destString, Object mapper) {
+    public static String transform(String srcString, Object mapper) {
         JsonParser parser;
         JsonObject src;
         JsonObject dest;
-        JsonObject target;
         Object[] mapped;
-        String name;
-        int idx;
-        String extension;
 
         parser = new JsonParser();
         src = (JsonObject) parser.parse(srcString);
-        dest = (JsonObject) parser.parse(destString);
+        dest = new JsonObject();
         for (Map.Entry<String, JsonElement> entry : src.entrySet()) {
             mapped = map(mapper, entry.getKey(), entry.getValue());
             if (mapped != null) {
-                name = (String) mapped[0];
-                idx = name.indexOf('+');
-                if (idx != -1) {
-                    extension = name.substring(0, idx);
-                    name = name.substring(idx + 1);
-                    target = dest.getAsJsonObject().get("extensions").getAsJsonObject();
-                    target = target.get((target.has("+" + extension) ? "+" : "-") + extension).getAsJsonObject();
-                } else {
-                    target = dest;
-
-                }
-                target.add(name, (JsonElement) mapped[1]);
+                dest.add((String) mapped[0], (JsonElement) mapped[1]);
+            } else {
+                // removed
             }
         }
         mapGlobal(mapper, src, dest);
@@ -54,7 +41,7 @@ public class Transform {
         Method m;
 
         try {
-            m = mapper.getClass().getDeclaredMethod("global", JsonElement.class, JsonElement.class);
+            m = mapper.getClass().getDeclaredMethod("global", JsonObject.class, JsonObject.class);
         } catch (NoSuchMethodException e) {
             return;
         }
@@ -65,6 +52,9 @@ public class Transform {
         }
     }
 
+    /**
+     * @return null to remove element; otherwise key/value pair (String/JsonObject)
+     */
     private static Object[] map(Object mapper, String name, JsonElement value) {
         Class clazz;
         Method rename;
@@ -136,5 +126,4 @@ public class Transform {
             throw new IllegalStateException(e);
         }
     }
-
 }

@@ -15,11 +15,10 @@
  */
 package net.oneandone.stool;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.setup.Transform;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
@@ -171,7 +170,7 @@ public class SystemImport extends SessionCommand {
 
         dest = session.home.join(path);
         current = dest.readString();
-        result = Transform.mergeConfig(oldHome.join(path).readString(), current, stool30_31());
+        result = Transform.transform(oldHome.join(path).readString(), Home.stool32_33());// TODO: other versions ...
         diff = Diff.diff(current, result);
         return new Patch("M " + dest.getAbsolute(), diff) {
             public void apply() throws IOException {
@@ -204,8 +203,7 @@ public class SystemImport extends SessionCommand {
         stage.tuneConfiguration();
         stage.initialize();
         tmpConfig = tmpBackstage.join("config.json");
-        tmp = tmpConfig.readString();
-        tmp = Transform.mergeConfig(oldBackstage.join("config.json").readString(), tmp, stage30_31());
+        tmp = Transform.transform(oldBackstage.join("config.json").readString(), Home.stage32_33()); // TODO: other verions
         tmpConfig.writeString(tmp);
         explicit(tmpConfig);
         msg = Diff.diff(oldBackstage.join("config.json").readString(), tmp);

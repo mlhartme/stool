@@ -16,6 +16,7 @@
 package net.oneandone.stool.setup;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.junit.Test;
 
@@ -23,64 +24,66 @@ import static org.junit.Assert.assertEquals;
 
 public class TransformTest {
     @Test
-    public void mergeMissing() {
+    public void nop() {
         String result;
 
-        result = Transform.mergeConfig(
+        result = Transform.transform(
                 "{\n  \"version\": \"3.0.0-SNAPSHOT\"\n}\n",
-                "{\n  \"version\": \"3.0.0-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}",
                 new Object() {
                 });
-        assertEquals("{\n  \"version\": \"3.0.0-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}", result);
+        assertEquals("{\n  \"version\": \"3.0.0-SNAPSHOT\"\n}", result);
     }
 
     @Test
-    public void mergeValue() {
+    public void remove() {
         String result;
 
-        result = Transform.mergeConfig(
-                "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}\n",
-                "{\n  \"version\": \"3.0.0-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}",
-                new Object() {});
-        assertEquals("{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}", result);
-    }
-
-    @Test
-    public void mergeRemove() {
-        String result;
-
-        result = Transform.mergeConfig(
+        result = Transform.transform(
                 "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\",\n  \"additional\": \"foo\"\n}\n",
-                "{\n  \"version\": \"3.0.0-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}",
                 new Object() {
-                    void additionalRemove() {}
+                    void additionalRemove() {
+                    }
                 });
         assertEquals("{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}", result);
     }
 
     @Test
-    public void mergeRename() {
+    public void rename() {
         String result;
 
-        result = Transform.mergeConfig(
+        result = Transform.transform(
                 "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"before\": \"/Users/mhm\"\n}\n",
-                "{\n  \"version\": \"3.0.0-SNAPSHOT\"\n}",
                 new Object() {
-                    String beforeRename() { return "after"; }
+                    String beforeRename() {
+                        return "after";
+                    }
                 });
         assertEquals("{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"after\": \"/Users/mhm\"\n}", result);
     }
 
     @Test
-    public void mergeTransform() {
+    public void transform() {
         String result;
 
-        result = Transform.mergeConfig(
+        result = Transform.transform(
                 "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": 5\n}\n",
-                "{\n  \"version\": \"3.0.0-SNAPSHOT\"\n}",
                 new Object() {
                     JsonElement stagesTransform(JsonElement orig) { return new JsonPrimitive(orig.getAsInt() * 2); }
                 });
         assertEquals("{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": 10\n}", result);
+    }
+
+    @Test
+    public void global() {
+        String result;
+
+        result = Transform.transform(
+                "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": 5\n}\n",
+                new Object() {
+                    void global(JsonObject src, JsonObject dest) {
+                        dest.add("foo", new JsonPrimitive("bar"));
+                    }
+                });
+        assertEquals("{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": 5,\n  \"foo\": \"bar\"\n}", result);
     }
 }
