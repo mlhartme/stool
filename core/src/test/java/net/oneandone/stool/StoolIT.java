@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.setup.Install;
+import net.oneandone.stool.setup.ManBin;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.sushi.cli.Console;
@@ -67,7 +67,7 @@ public class StoolIT {
         config.put("diskMin", "500");
         config.put("portFirst", "1300");
         config.put("portLast", "1319");
-        new Install(Console.create(world), false, system.stoolBin(world), home.join("man")).standalone(TESTUSER, system, home, config);
+        new ManBin(Console.create(world), false, home.join("man"), system.stoolBin(world)).standalone(TESTUSER, system, home, config);
         stages = home.getParent().join("stages");
         stages.deleteTreeOpt();
         stages.mkdir();

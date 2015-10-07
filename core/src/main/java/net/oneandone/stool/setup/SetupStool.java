@@ -120,7 +120,7 @@ public class SetupStool extends Cli implements Command {
             if (!batch) {
                 console.pressReturn();
             }
-            new Install(console, true, environment.stoolBin(console.world), home.join("man")).standalone(user, environment, home, config);
+            new ManBin(console, true, home.join("man"), environment.stoolBin(console.world)).standalone(user, environment, home, config);
             console.info.println("Done. To complete the installation:");
             console.info.println("1. add");
             console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
@@ -138,7 +138,7 @@ public class SetupStool extends Cli implements Command {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
-        session = new Install(console, true, environment.stoolBin(console.world), home.join("man")).standalone(user, environment, home, config);
+        session = new ManBin(console, true, home.join("man"), environment.stoolBin(console.world)).standalone(user, environment, home, config);
         new SystemImport(session, oldHome).invoke();
 
         Runtime.getRuntime().removeShutdownHook(cleanup);

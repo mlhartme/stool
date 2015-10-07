@@ -19,8 +19,6 @@ import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.util.HashMap;
-
 /** generate file hierarchie for debian installer */
 public class DebianPackage {
     public static void main(String[] args) throws Exception {
@@ -34,7 +32,7 @@ public class DebianPackage {
         world = new World();
         console = Console.create(world);
         target = world.file(args[0]);
-        new Install(console, true, world.file("/usr/share/stool"), world.file("/usr/share/man")).debianFiles(target);
+        new ManBin(console, true, world.file("/usr/share/man"), world.file("/usr/share/stool")).debianFiles(target);
         System.exit(0);
     }
 }

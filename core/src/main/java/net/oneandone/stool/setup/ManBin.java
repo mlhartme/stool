@@ -23,7 +23,6 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.Settings;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.io.OS;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -31,22 +30,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-/** Generates Stool install files. May be executed at build time (for Debian Installer) or runtime (Java Installer) */
+/** Generates man- and bin directories. Executed at build time (for Debian Installer) or runtime (Java Installer) */
 public class ManBin {
     private final Console console;
 
     // to create bin directory with a stool jar. False in tests, when stool.jar is not in classpath
     private final boolean withJar;
 
-    // configuration when installed on target system
-    private final FileNode bin;
-    private final FileNode man;
+    // locations when installed on target machine
+    private final FileNode installedMan;
+    private final FileNode installedBin;
 
-    public ManBin(Console console, boolean withJar, FileNode bin, FileNode man) {
+    public ManBin(Console console, boolean withJar, FileNode installedMan, FileNode installedBin) {
         this.console = console;
         this.withJar = withJar;
-        this.bin = bin;
-        this.man = man;
+        this.installedMan = installedMan;
+        this.installedBin = installedBin;
     }
 
     public Session standalone(String user, Environment environment, FileNode home, Map<String, String> globalProperties) throws Exception {
@@ -59,9 +58,9 @@ public class ManBin {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
         new Home(console, home, false, globalProperties).create();
-        doCreateMan(man);
-        doCreateBinWithoutHomeLink(bin);
-        bin.join("home").mklink(home.getAbsolute());
+        doCreateMan(installedMan);
+        doCreateBinWithoutHomeLink(installedBin);
+        installedBin.join("home").mklink(home.getAbsolute());
         session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
@@ -72,36 +71,36 @@ public class ManBin {
 
     public void debianFiles(FileNode dest) throws Exception {
         dest.mkdir();
-        doCreateBinWithoutHomeLink(dest.join(bin.getName()));
-        doCreateMan(dest.join(man.getName()));
+        doCreateMan(dest.join(installedMan.getName()));
+        doCreateBinWithoutHomeLink(dest.join(installedBin.getName()));
     }
 
     //--
 
-    private void doCreateMan(FileNode destMan) throws IOException {
-        Files.createStoolDirectory(console.verbose, destMan);
-        console.world.resource("templates/man").copyDirectory(destMan);
-        Files.stoolTree(console.verbose, destMan);
+    private void doCreateMan(FileNode nowMan) throws IOException {
+        Files.createStoolDirectory(console.verbose, nowMan);
+        console.world.resource("templates/man").copyDirectory(nowMan);
+        Files.stoolTree(console.verbose, nowMan);
     }
 
-    private void doCreateBinWithoutHomeLink(FileNode destBin) throws IOException {
+    private void doCreateBinWithoutHomeLink(FileNode nowBin) throws IOException {
         final byte[] marker = "exit $?\n".getBytes(Settings.UTF_8);
         Map<String, String> variables;
         byte[] bytes;
         int ofs;
 
         variables = new HashMap<>();
-        variables.put("stool.bin", bin.getAbsolute());
-        variables.put("man.path", "/usr/share/man".equals(man.getAbsolute()) ? "" :
+        variables.put("stool.bin", installedBin.getAbsolute());
+        variables.put("man.path", "/usr/share/man".equals(installedMan.getAbsolute()) ? "" :
                 "# note that the empty entry instructs man to search locations.\n" +
-                        "export MANPATH=" + man.getAbsolute() + ":$MANPATH\n");
-        Files.createStoolDirectory(console.verbose, destBin);
-        Files.template(console.verbose, console.world.resource("templates/bin"), destBin, variables);
+                        "export MANPATH=" + installedMan.getAbsolute() + ":$MANPATH\n");
+        Files.createStoolDirectory(console.verbose, nowBin);
+        Files.template(console.verbose, console.world.resource("templates/bin"), nowBin, variables);
         if (withJar) {
             // strip launcher from application file
             bytes = console.world.locateClasspathItem(getClass()).readBytes();
             ofs = indexOf(bytes, marker) + marker.length;
-            try (OutputStream out = destBin.join("stool.jar").createOutputStream()) {
+            try (OutputStream out = nowBin.join("stool.jar").createOutputStream()) {
                 out.write(bytes, ofs, bytes.length - ofs);
             }
         }
