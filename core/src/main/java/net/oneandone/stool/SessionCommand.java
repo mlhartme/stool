@@ -16,7 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.StoolConfiguration;
-import net.oneandone.stool.setup.Install;
+import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.setup.SetupStool;
 import net.oneandone.stool.setup.Update;
 import net.oneandone.stool.stage.Stage;
@@ -149,7 +149,7 @@ public abstract class SessionCommand implements Command {
         List<FileNode> updates;
         FileNode checked;
 
-        checked = session.downloadCache().join(Install.STOOL_UPDATE_CHECKED);
+        checked = session.downloadCache().join(Home.STOOL_UPDATE_CHECKED);
         if (updateCheck || ((session.configuration.updateInterval > 0) && updateCheckPending(checked))) {
             updates = Update.check(console, SetupStool.versionObject(), session.home, session.downloadCache());
             for (FileNode file : updates) {

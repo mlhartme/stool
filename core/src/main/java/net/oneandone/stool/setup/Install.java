@@ -15,17 +15,11 @@
  */
 package net.oneandone.stool.setup;
 
-import net.oneandone.stool.Create;
-import net.oneandone.stool.configuration.Property;
-import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.configuration.StoolConfiguration;
-import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.Settings;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -33,16 +27,12 @@ import net.oneandone.sushi.io.OS;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
 
 /** Generates Stool install files. May be executed at build time (for Debian Installer) or runtime (Java Installer) */
 public class Install {
-    public static final String STOOL_UPDATE_CHECKED = ".stool.update.checked";
-
     private final Console console;
 
     // to create bin directory with a stool jar. False in tests, when stool.jar is not in classpath
@@ -52,17 +42,14 @@ public class Install {
     private final FileNode bin;
     private final FileNode man;
 
-    private final Map<String, String> globalProperties;
-
-    public Install(Console console, boolean withJar, FileNode bin, FileNode man, Map<String, String> globalProperties) {
+    public Install(Console console, boolean withJar, FileNode bin, FileNode man) {
         this.console = console;
         this.withJar = withJar;
         this.bin = bin;
         this.man = man;
-        this.globalProperties = globalProperties;
     }
 
-    public Session standalone(String user, Environment environment, FileNode home) throws Exception {
+    public Session standalone(String user, Environment environment, FileNode home, Map<String, String> globalProperties) throws Exception {
         RmRfThread cleanup;
         Session session;
 
@@ -71,8 +58,7 @@ public class Install {
         cleanup = new RmRfThread(console);
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
-
-        doCreateHomeWithoutDashboard(home, false);
+        new Home(console, home, false, globalProperties).create();
         doCreateBinWithoutHomeLink(variables(), bin);
         bin.join("home").mklink(home.getAbsolute());
         doCreateMan(man);
@@ -86,44 +72,6 @@ public class Install {
         dest.mkdir();
         doCreateBinWithoutHomeLink(variables(), dest.join(bin.getName()));
         doCreateMan(dest.join(man.getName()));
-    }
-
-    public void debianHome(FileNode home) throws IOException {
-        if (home.exists()) {
-            home.join("dashboard").deleteTree();
-        } else {
-            doCreateHomeWithoutDashboard(home, true);
-        }
-    }
-
-    private FileNode downloadCache(FileNode home) {
-        FileNode directory;
-
-        if (OS.CURRENT == OS.MAC) {
-            directory = (FileNode) console.world.getHome().join("Downloads");
-            if (directory.isDirectory()) {
-                return directory;
-            }
-        }
-        return home.join("downloads");
-    }
-
-    private void doCreateHomeWithoutDashboard(FileNode home, boolean shared) throws IOException {
-        StoolConfiguration conf;
-
-        home.getParent().mkdirsOpt();
-        Files.createStoolDirectory(console.verbose, home);
-        home.getWorld().resource("templates/maven-settings.xml").copyFile(home.join("maven-settings.xml"));
-        conf = new StoolConfiguration(downloadCache(home));
-        conf.shared = shared;
-        tuneHostname(conf);
-        tuneExplicit(conf);
-        Files.createStoolDirectoryOpt(console.verbose, conf.downloadCache).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
-        conf.save(Session.gson(home.getWorld(), ExtensionsFactory.create(home.getWorld())), home);
-
-        for (String dir : new String[]{"extensions", "backstages", "inbox", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
-            Files.createStoolDirectory(console.verbose, home.join(dir));
-        }
     }
 
     private void doCreateBinWithoutHomeLink(Map<String, String> variables, FileNode destBin) throws IOException {
@@ -175,60 +123,4 @@ public class Install {
                 "export MANPATH=" + man.getAbsolute() + ":$MANPATH\n");
         return result;
     }
-
-    private void tuneHostname(StoolConfiguration conf) {
-        try {
-            conf.hostname = InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (UnknownHostException e) {
-            console.info.println("WARNING: cannot configure hostname: " + e.getMessage() + ". Using " + conf.hostname);
-        }
-    }
-
-    private void tuneExplicit(StoolConfiguration conf) {
-        boolean error;
-        Map<String, Property> properties;
-        Property property;
-
-        properties = StoolConfiguration.properties();
-        error = false;
-        for (Map.Entry<String, String> entry : globalProperties.entrySet()) {
-            property = properties.get(entry.getKey());
-            if (property == null) {
-                console.info.println("property not found: " + entry.getKey());
-                error = true;
-            } else {
-                try {
-                    property.set(conf, entry.getValue());
-                } catch (Exception e) {
-                    console.info.println("invalid value for property " + entry.getKey() + " : " + e.getMessage());
-                    e.printStackTrace(console.verbose);
-                    error = true;
-                }
-            }
-        }
-        if (error) {
-            throw new ArgumentException("invalid configuration");
-        }
-    }
-
-    //--
-
-    public static void createDashboard(Session session) throws IOException {
-        Create create;
-        String url;
-        StageConfiguration stageConfiguration;
-
-        stageConfiguration = session.createStageConfiguration("");
-        // TODO: this is a cyclic dependency
-        // TODO: version
-        url = "gav:net.oneandone.stool:dashboard:3.3.0-SNAPSHOT";
-        create = new Create(session, true, "dashboard", url, session.home.join("dashboard"), stageConfiguration);
-        create.remaining("until=reserved");
-        try {
-            create.doInvoke();
-        } catch (Exception e) {
-            throw new IOException(e);
-        }
-    }
-
 }

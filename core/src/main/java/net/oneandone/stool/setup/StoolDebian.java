@@ -1,6 +1,20 @@
+/**
+ * Copyright 1&1 Internet AG, https://github.com/1and1/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.oneandone.stool.setup;
 
-import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -127,19 +141,19 @@ public class StoolDebian extends Debian {
             // make sure the setgid does not overrule the current group id
             home.getParent().execNoOutput("chmod", "g-s", ".");
             console.info.println("creating home: " + home);
-        }
-        try {
-            new Install(console, true, world.file("/usr/share/stool"), world.file("/usr/share/man"), new HashMap<>()).debianHome(home);
-        } catch (IOException e) {
-            if (!existing) {
-                // make sure we don't leave any undefined home directory;
-                try {
-                    home.deleteTreeOpt();
-                } catch (IOException suppressed) {
-                    e.addSuppressed(suppressed);
+            try {
+                new Home(console, home, true, new HashMap<>()).create();
+            } catch (IOException e) {
+                if (!existing) {
+                    // make sure we don't leave any undefined home directory;
+                    try {
+                        home.deleteTreeOpt();
+                    } catch (IOException suppressed) {
+                        e.addSuppressed(suppressed);
+                    }
                 }
+                throw e;
             }
-            throw e;
         }
     }
 
