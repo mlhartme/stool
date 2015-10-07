@@ -32,7 +32,7 @@ public class DebianPackage {
         world = new World();
         console = Console.create(world);
         target = world.file(args[0]);
-        new ManBin(console, true, world.file("/usr/share/man"), world.file("/usr/share/stool")).debianFiles(target);
+        ManBin.debian(console, true, world.file("/usr/share/man"), world.file("/usr/share/stool"), target).debianFiles(target);
         System.exit(0);
     }
 }

@@ -32,6 +32,14 @@ import java.util.Map;
 
 /** Generates man- and bin directories. Executed at build time (for Debian Installer) or runtime (Java Installer) */
 public class ManBin {
+    public static ManBin debian(Console console, boolean withJar, FileNode installedMan, FileNode installedBin, FileNode dest) {
+        return new ManBin(console, withJar, installedMan, installedBin, dest.join(installedMan.getName()), dest.join(installedBin.getName()));
+    }
+
+    public static ManBin java(Console console, boolean withJar, FileNode installedMan, FileNode installedBin) {
+        return new ManBin(console, withJar, installedMan, installedBin, installedMan, installedBin);
+    }
+
     private final Console console;
 
     // to create bin directory with a stool jar. False in tests, when stool.jar is not in classpath
@@ -40,12 +48,16 @@ public class ManBin {
     // locations when installed on target machine
     private final FileNode installedMan;
     private final FileNode installedBin;
+    private final FileNode nowMan;
+    private final FileNode nowBin;
 
-    public ManBin(Console console, boolean withJar, FileNode installedMan, FileNode installedBin) {
+    private ManBin(Console console, boolean withJar, FileNode installedMan, FileNode installedBin, FileNode nowMan, FileNode nowBin) {
         this.console = console;
         this.withJar = withJar;
         this.installedMan = installedMan;
         this.installedBin = installedBin;
+        this.nowMan = nowMan;
+        this.nowBin = nowBin;
     }
 
     public Session standalone(String user, Environment environment, FileNode home, Map<String, String> globalProperties) throws Exception {
@@ -58,8 +70,8 @@ public class ManBin {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
         new Home(console, home, false, globalProperties).create();
-        doCreateMan(installedMan);
-        doCreateBinWithoutHomeLink(installedBin);
+        doCreateMan();
+        doCreateBinWithoutHomeLink();
         installedBin.join("home").mklink(home.getAbsolute());
         session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
         // ok, no exceptions - we have a proper install directory: no cleanup
@@ -71,19 +83,19 @@ public class ManBin {
 
     public void debianFiles(FileNode dest) throws Exception {
         dest.mkdir();
-        doCreateMan(dest.join(installedMan.getName()));
-        doCreateBinWithoutHomeLink(dest.join(installedBin.getName()));
+        doCreateMan();
+        doCreateBinWithoutHomeLink();
     }
 
     //--
 
-    private void doCreateMan(FileNode nowMan) throws IOException {
+    private void doCreateMan() throws IOException {
         Files.createStoolDirectory(console.verbose, nowMan);
         console.world.resource("templates/man").copyDirectory(nowMan);
         Files.stoolTree(console.verbose, nowMan);
     }
 
-    private void doCreateBinWithoutHomeLink(FileNode nowBin) throws IOException {
+    private void doCreateBinWithoutHomeLink() throws IOException {
         final byte[] marker = "exit $?\n".getBytes(Settings.UTF_8);
         Map<String, String> variables;
         byte[] bytes;
