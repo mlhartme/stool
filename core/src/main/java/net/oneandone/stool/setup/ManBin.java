@@ -32,6 +32,33 @@ import java.util.Map;
 
 /** Generates man- and bin directories. Executed at build time (for Debian Installer) or runtime (Java Installer) */
 public class ManBin {
+    public static Session standaloneWithSession(String user, Environment environment, Console console, boolean withJar,
+                                                FileNode man, FileNode bin, FileNode home, Map<String, String> globalProperties) throws Exception {
+        Session session;
+
+        standalone(console, withJar, man, bin, home, globalProperties);
+        session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
+        return session;
+    }
+
+    public static void standalone(Console console, boolean withJar, FileNode man, FileNode bin,
+                                  FileNode home, Map<String, String> globalProperties) throws Exception {
+        ManBin mb;
+        RmRfThread cleanup;
+
+        home.checkNotExists();
+        cleanup = new RmRfThread(console);
+        cleanup.add(home);
+        Runtime.getRuntime().addShutdownHook(cleanup);
+        new Home(console, home, false, globalProperties).create();
+        mb = java(console, withJar, man, bin);
+        mb.run();
+        mb.installedBin.join("home").mklink(home.getAbsolute());
+        // ok, no exceptions - we have a proper install directory: no cleanup
+        Runtime.getRuntime().removeShutdownHook(cleanup);
+    }
+
+
     public static ManBin debian(Console console, boolean withJar, FileNode installedMan, FileNode installedBin, FileNode dest) {
         return new ManBin(console, withJar, installedMan, installedBin, dest.join(installedMan.getName()), dest.join(installedBin.getName()));
     }
@@ -58,29 +85,6 @@ public class ManBin {
         this.installedBin = installedBin;
         this.nowMan = nowMan;
         this.nowBin = nowBin;
-    }
-
-    public Session standaloneWithSession(String user, Environment environment, FileNode home, Map<String, String> globalProperties) throws Exception {
-        Session session;
-
-        standalone(home, globalProperties);
-        session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
-        return session;
-    }
-
-    public void standalone(FileNode home, Map<String, String> globalProperties) throws Exception {
-        RmRfThread cleanup;
-
-        home.checkNotExists();
-
-        cleanup = new RmRfThread(console);
-        cleanup.add(home);
-        Runtime.getRuntime().addShutdownHook(cleanup);
-        new Home(console, home, false, globalProperties).create();
-        run();
-        installedBin.join("home").mklink(home.getAbsolute());
-        // ok, no exceptions - we have a proper install directory: no cleanup
-        Runtime.getRuntime().removeShutdownHook(cleanup);
     }
 
     public void run() throws IOException {
