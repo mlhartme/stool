@@ -46,16 +46,17 @@ public class SetupStool extends Cli implements Command {
         System.exit(new SetupStool().run(args));
     }
 
-    public static void standalone(Console console, boolean withJar, FileNode bin, FileNode man,
-                                  FileNode home, Map<String, String> globalProperties) throws Exception {
+    public static void standalone(Console console, boolean withJar, FileNode home, Map<String, String> globalProperties) throws Exception {
         RmRfThread cleanup;
+        FileNode bin;
 
         home.checkNotExists();
         cleanup = new RmRfThread(console);
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
         new Home(console, home, false, globalProperties).create();
-        BinMan.java(console, withJar, man, bin).run();
+        bin = home.join("bin");
+        BinMan.java(console, withJar, bin, home.join("man")).create();
         bin.join("home").mklink(home.getAbsolute());
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
@@ -140,7 +141,7 @@ public class SetupStool extends Cli implements Command {
             if (!batch) {
                 console.pressReturn();
             }
-            standalone(console, true, environment.stoolBin(console.world), home.join("man"), home, config);
+            standalone(console, true, home, config);
             console.info.println("Done. To complete the installation:");
             console.info.println("1. add");
             console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
@@ -158,7 +159,7 @@ public class SetupStool extends Cli implements Command {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
-        standalone(console, true, environment.stoolBin(console.world), home.join("man"), home, config);
+        standalone(console, true, home, config);
         session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
         new SystemImport(session, oldHome).invoke();
 

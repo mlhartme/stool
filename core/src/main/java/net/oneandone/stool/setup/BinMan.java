@@ -46,11 +46,11 @@ public class BinMan {
         target.mkdir();
         bin = world.file("/usr/share/stool");
         man = world.file("/usr/share/man");
-        new BinMan(console, true, bin, man, target.join(bin.getName()), target.join(man.getName())).run();
+        new BinMan(console, true, bin, man, target.join(bin.getName()), target.join(man.getName())).create();
         System.exit(0);
     }
 
-    public static BinMan java(Console console, boolean withJar, FileNode installedMan, FileNode installedBin) {
+    public static BinMan java(Console console, boolean withJar, FileNode installedBin, FileNode installedMan) {
         return new BinMan(console, withJar, installedBin, installedMan, installedBin, installedMan);
     }
 
@@ -76,7 +76,7 @@ public class BinMan {
         this.nowMan = nowMan;
     }
 
-    public void run() throws IOException {
+    public void create() throws IOException {
         bin();
         man();
     }
