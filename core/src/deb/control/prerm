@@ -1,23 +1,2 @@
 #!/bin/sh
-
-set -e
-
-case "$1" in
-    remove|upgrade)
-        # TODO: upgrade could be much cheaper:
-        # * reject new stool invocations
-        # * stop stool dashboard
-
-        # may fail if setup did not complete properly
-        service stool stop || echo service shutdown failed
-        # CAUTION
-        rm /usr/share/stool/home
-    ;;
-    deconfigure|failed-upgrade)
-    ;;
-    *)
-        echo "prerm called with unknown argument: $1"
-        exit 1
-    ;;
-esac
-exit 0
+java -cp /usr/share/stool/stool.jar net.oneandone.stool.setup.Debian $0 "$@"

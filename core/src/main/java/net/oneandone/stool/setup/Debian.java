@@ -29,10 +29,17 @@ public class Debian {
         }
         debian = new Debian();
         cmd = args[0];
+        args = Strings.cdr(args);
         try {
             switch (cmd) {
+                case "prerm":
+                    debian.prerm(args);
+                    break;
                 case "postinst":
-                    debian.postinst(Strings.cdr(args));
+                    debian.postinst(args);
+                    break;
+                case "postrm":
+                    debian.postrm(args);
                     break;
                 default:
                     throw new IllegalArgumentException(cmd);
@@ -50,25 +57,16 @@ public class Debian {
     private final World world;
     private final Console console;
     private final FileNode cwd;
+    private final FileNode bin;
+    private final FileNode home;
+    private final String group;
+    private final String user;
 
     public Debian() {
         world = new World();
         console = Console.create(world);
         cwd = (FileNode) world.getWorking();
-    }
-
-    public void postinst(String ... args) throws IOException {
-        if (args.length > 0 && args[1].equals("configure")) {
-            new Debian().configure();
-        }
-    }
-
-    public void configure() throws IOException {
-        String user;
-        FileNode bin;
-        FileNode home;
-        String group;
-
+        bin = world.file("/usr/share/stool");
         // TODO replace this check by some kind of configuration
         if (world.file("/opt/ui/opt/tools").isDirectory()) {
             home = world.file("/opt/ui/opt/tools/stool");
@@ -77,9 +75,45 @@ public class Debian {
             home = world.file("/var/lib/stool");
             group = "stool";
         }
-        bin = world.file("/usr/share/stool");
-        user = "stool";
+        user = group;
+    }
 
+    public void postinst(String ... args) throws IOException {
+        if (args.length > 0 && args[1].equals("configure")) {
+            configure();
+        }
+    }
+
+    public void postrm(String ... args) throws IOException {
+        if (args.length > 0 && args[1].equals("purge")) {
+            // TODO: why does lintian want this call in postrm? It doesn't make sense to have symlinks pointing to none-existing code
+            exec("update-rc.d", "stool", "remove");
+            home.deleteTree();
+        }
+    }
+
+    public void prerm(String ... args) throws IOException {
+        switch (args[0]) {
+            case "remove":
+            case "upgrade":
+                // TODO: upgrade could be much cheaper:
+                // * block  new stool invocations
+                // * stop stool dashboard
+
+                // may fail if setup did not complete properly
+                echo(slurp("service", "stool", "stop"));
+                world.file("/usr/share/stool/home").deleteFile();
+                break;
+            case "deconfigure":
+            case "failed-upgrade":
+                // nothing to do
+                break;
+            default:
+                throw new IllegalArgumentException("prerm called with unknown argument: " + args[0]);
+        }
+    }
+
+    public void configure() throws IOException {
         configureGroup(group);
         configureUser(user, group);
         home.link(bin.join("home"));
