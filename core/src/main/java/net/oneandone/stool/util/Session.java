@@ -27,7 +27,7 @@ import net.oneandone.stool.configuration.adapter.ExtensionsAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.extensions.ExtensionsFactory;
-import net.oneandone.stool.setup.SetupStool;
+import net.oneandone.stool.setup.JavaSetup;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
@@ -206,7 +206,7 @@ public class Session {
         if (!configuration.contactAdmin.isEmpty()) {
             subject = "[stool exception] " + e.getMessage();
             body = new StringWriter();
-            body.write("stool: " + SetupStool.versionObject().toString() + "\n");
+            body.write("stool: " + JavaSetup.versionObject().toString() + "\n");
             body.write("command: " + command + "\n");
             body.write("context: " + context + "\n");
             body.write("user: " + user + "\n");
