@@ -32,7 +32,7 @@ import java.util.Map;
 
 
 /** Generates Stool install files. May be executed at build time (for Debian Installer) or runtime (Java Installer) */
-public class Install {
+public class ManBin {
     private final Console console;
 
     // to create bin directory with a stool jar. False in tests, when stool.jar is not in classpath
@@ -42,7 +42,7 @@ public class Install {
     private final FileNode bin;
     private final FileNode man;
 
-    public Install(Console console, boolean withJar, FileNode bin, FileNode man) {
+    public ManBin(Console console, boolean withJar, FileNode bin, FileNode man) {
         this.console = console;
         this.withJar = withJar;
         this.bin = bin;
