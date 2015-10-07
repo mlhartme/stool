@@ -76,7 +76,7 @@ public class Install {
         doCreateBinWithoutHomeLink(variables(), bin);
         bin.join("home").mklink(home.getAbsolute());
         doCreateMan(man);
-        session = doCreateHomeDashboard(user, environment, home);
+        session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
         return session;
@@ -88,13 +88,12 @@ public class Install {
         doCreateMan(dest.join(man.getName()));
     }
 
-    public void debianHome(String user, Environment environment, FileNode home) throws IOException {
+    public void debianHome(FileNode home) throws IOException {
         if (home.exists()) {
             home.join("dashboard").deleteTree();
         } else {
             doCreateHomeWithoutDashboard(home, true);
         }
-        doCreateHomeDashboard(user, environment, home);
     }
 
     private FileNode downloadCache(FileNode home) {
@@ -125,14 +124,6 @@ public class Install {
         for (String dir : new String[]{"extensions", "backstages", "inbox", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
             Files.createStoolDirectory(console.verbose, home.join(dir));
         }
-    }
-
-    private Session doCreateHomeDashboard(String user, Environment environment, FileNode home) throws IOException {
-        Session session;
-
-        session = Session.load(Logging.forStool(home, user), user, "setup-stool", environment, console, null, null, null);
-        // TODO: createDashboard(session);
-        return session;
     }
 
     private void doCreateBinWithoutHomeLink(Map<String, String> variables, FileNode destBin) throws IOException {

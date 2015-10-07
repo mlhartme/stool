@@ -129,8 +129,7 @@ public class StoolDebian extends Debian {
             console.info.println("creating home: " + home);
         }
         try {
-            new Install(console, true, world.file("/usr/share/stool"), world.file("/usr/share/man"), new HashMap<>())
-                    .debianHome("root", Environment.loadSystem(), home);
+            new Install(console, true, world.file("/usr/share/stool"), world.file("/usr/share/man"), new HashMap<>()).debianHome(home);
         } catch (IOException e) {
             if (!existing) {
                 // make sure we don't leave any undefined home directory;
