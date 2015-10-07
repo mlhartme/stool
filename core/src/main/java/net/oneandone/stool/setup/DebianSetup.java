@@ -129,54 +129,29 @@ public class DebianSetup extends Debian {
     //--
 
     public void setupHome() throws IOException {
-        boolean existing;
+        Home h;
 
-        // migrate from 3.1.x
-        existing = home.exists();
-        if (existing) {
-            migrate_3_1(console.info, home);
-            migrate_3_2(console.info, home);
+        h = new Home(console, home, true, new HashMap<>());
+        if (home.exists()) {
+            h.upgrade();
             echo("home: " + home.getAbsolute() + " (upgraded)");
         } else {
             // make sure the setgid does not overrule the current group id
             home.getParent().execNoOutput("chmod", "g-s", ".");
             console.info.println("creating home: " + home);
             try {
-                new Home(console, home, true, new HashMap<>()).create();
+                h.create();
             } catch (IOException e) {
-                if (!existing) {
-                    // make sure we don't leave any undefined home directory;
-                    try {
-                        home.deleteTreeOpt();
-                    } catch (IOException suppressed) {
-                        e.addSuppressed(suppressed);
-                    }
+                // make sure we don't leave any undefined home directory;
+                try {
+                    home.deleteTreeOpt();
+                } catch (IOException suppressed) {
+                    e.addSuppressed(suppressed);
                 }
                 throw e;
             }
             exec("chmod", "g+s", "-R", home.getAbsolute());
             exec("chgrp", group, "-R", home.getAbsolute());
-        }
-    }
-
-    private static void migrate_3_1(PrintWriter log, FileNode home) throws IOException {
-        if (home.join("bin").isDirectory()) {
-            log.println("migrating 3.1 -> 3.2: " + home);
-            Files.exec(log, home, "mv", home.join("conf/overview.properties").getAbsolute(), home.join("overview.properties").getAbsolute());
-            Files.exec(log, home, "sh", "-c", "find . -user servlet | xargs chown stool");
-            Files.exec(log, home, "sh", "-c", "find . -perm 666 | xargs chmod 664");
-            Files.exec(log, home, "sh", "-c", "find . -type d | xargs chmod g+s");
-            Files.exec(log, home, "mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
-            Files.exec(log, home, "mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
-            Files.exec(log, home, "rm", "-rf", home.join("bin").getAbsolute());
-            Files.exec(log, home, "chgrp", "/opt/ui/opt/tools/stool".equals(home.getAbsolute()) ? "users" : "stool", ".");
-        }
-    }
-
-    private static void migrate_3_2(PrintWriter log, FileNode home) throws IOException {
-        if (home.join("overview.properties").isFile()) {
-            log.println("migrating 3.2 -> 3.3");
-            Files.exec(log, home, "mv", home.join("overview.properties").getAbsolute(), home.join("dashboard.properties").getAbsolute());
         }
     }
 }

@@ -110,11 +110,6 @@ public class SystemImport extends SessionCommand {
             throw new ArgumentException("cannot import from myself");
         }
         console.info.println();
-        console.info.println("CAUTION: import has the following known limitations:");
-        console.info.println("  * global 'defaults' are not migrated");
-        console.info.println("  * global 'security' are not migrated");
-        console.info.println();
-        // CAUTION: stool 3.1 moved bedroom from home to home/conf
         oldBedroom = Bedroom.loadOrCreateDir(session.gson, oldHome);
         newBedroom = Bedroom.loadOrCreate(session.gson, session.home);
         newBedroomOrig = newBedroom.stages().toString();
@@ -249,34 +244,5 @@ public class SystemImport extends SessionCommand {
         }
 
         public abstract void apply() throws IOException;
-    }
-
-    //-- Mapper Code
-
-    private static Object stage30_31() {
-        return new Object() {
-            JsonElement untilTransform(JsonElement orig) {
-                String str;
-                int idx;
-
-                str = orig.getAsString();
-                idx = str.indexOf(' ');
-                if (idx != -1) {
-                    str = str.substring(0, idx);
-                } else {
-                    // reserved
-                }
-                return new JsonPrimitive(str);
-            }
-            // TODO
-            String modeRename() { return "pustefix+mode"; }
-        };
-    }
-
-    private static Object stool30_31() {
-        return new Object() {
-            void securityRemove() {}
-            void adminGroupRemove() {}
-        };
     }
 }

@@ -24,8 +24,10 @@ import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
+import net.oneandone.sushi.util.Diff;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
@@ -110,4 +112,75 @@ public class Home {
         }
     }
 
+    //-- Mapper Code
+
+    public void upgrade() throws IOException {
+        upgrade_31_32(console.info, home);
+        upgrade_32_33(console.info, home);
+    }
+
+    private void upgrade_31_32(PrintWriter log, FileNode home) throws IOException {
+        if (home.join("bin").isDirectory()) {
+            log.println("migrating 3.1 -> 3.2: " + home);
+            Files.exec(log, home, "mv", home.join("conf/overview.properties").getAbsolute(), home.join("overview.properties").getAbsolute());
+            Files.exec(log, home, "sh", "-c", "find . -user servlet | xargs chown stool");
+            Files.exec(log, home, "sh", "-c", "find . -perm 666 | xargs chmod 664");
+            Files.exec(log, home, "sh", "-c", "find . -type d | xargs chmod g+s");
+            Files.exec(log, home, "mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
+            Files.exec(log, home, "mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
+            Files.exec(log, home, "rm", "-rf", home.join("bin").getAbsolute());
+            Files.exec(log, home, "chgrp", "/opt/ui/opt/tools/stool".equals(home.getAbsolute()) ? "users" : "stool", ".");
+            upgradeJson(stool31_32(), stage31_32());
+        }
+    }
+
+    private void upgrade_32_33(PrintWriter log, FileNode home) throws IOException {
+        if (home.join("overview.properties").isFile()) {
+            log.println("migrating 3.2 -> 3.3");
+            Files.exec(log, home, "mv", home.join("overview.properties").getAbsolute(), home.join("dashboard.properties").getAbsolute());
+            upgradeJson(stool32_33(), stage32_33());
+        }
+    }
+
+    private void upgradeJson(Object stoolMapper, Object stageMapper) throws IOException {
+        String current;
+        final String path = "config.json";
+        final FileNode dest;
+        final String result;
+        String diff;
+
+        dest = home.join(path);
+        current = dest.readString();
+        /*
+        result = Transform.mergeConfig(oldHome.join(path).readString(), current, stool30_31());
+        diff = Diff.diff(current, result);
+        return new Patch("M " + dest.getAbsolute(), diff) {
+            public void apply() throws IOException {
+                dest.writeString(result);
+            }
+        };
+*/
+    }
+
+    //--
+
+    private static Object stool31_32() {
+        return new Object() {
+        };
+    }
+
+    private static Object stage31_32() {
+        return new Object() {
+        };
+    }
+
+    private static Object stool32_33() {
+        return new Object() {
+        };
+    }
+
+    private static Object stage32_33() {
+        return new Object() {
+        };
+    }
 }
