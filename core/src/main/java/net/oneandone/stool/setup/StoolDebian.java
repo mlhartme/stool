@@ -4,7 +4,6 @@ import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
-import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -58,11 +57,11 @@ public class StoolDebian extends Debian {
     @Override
     public void prermUpgrade() throws IOException {
         // TODO: upgrade could be much cheaper:
-        // * block  new stool invocations
+        // * block new stool invocations
         // * stop stool dashboard
 
         // may fail if setup did not complete properly
-        prermUpgrade();
+        prermRemove();
     }
 
     @Override
