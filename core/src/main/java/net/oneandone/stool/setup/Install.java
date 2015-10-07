@@ -88,7 +88,7 @@ public class Install {
         doCreateMan(dest.join(man.getName()));
     }
 
-    public void debianHome(String user, Environment environment, FileNode home) throws Exception {
+    public void debianHome(String user, Environment environment, FileNode home) throws IOException {
         if (home.exists()) {
             home.join("dashboard").deleteTree();
         } else {
