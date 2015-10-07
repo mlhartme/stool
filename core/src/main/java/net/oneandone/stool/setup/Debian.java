@@ -17,30 +17,32 @@ import java.util.List;
 
 public class Debian {
     public static void main(String[] args) {
+        System.exit(run(args));
+    }
+
+    public static int run(String ... args) {
         String cmd;
+        Debian debian;
 
         if (args.length == 0) {
             throw new IllegalArgumentException();
         }
+        debian = new Debian();
         cmd = args[0];
-        switch (cmd) {
-            case "postinst":
-                postinst(Strings.cdr(args));
-                break;
-            default:
-                throw new IllegalArgumentException(cmd);
-        }
-    }
-
-    public static void postinst(String ... args) {
-        if (args.length > 0 && args[1].equals("configure")) {
-            try {
-                new Debian().configure();
-            } catch (IOException e) {
-                System.err.println(e.getMessage());
-                System.exit(1);
+        try {
+            switch (cmd) {
+                case "postinst":
+                    debian.postinst(Strings.cdr(args));
+                    break;
+                default:
+                    throw new IllegalArgumentException(cmd);
             }
+        } catch (IOException e) {
+            debian.console.error.println(e.getMessage());
+            e.printStackTrace(debian.console.verbose);
+            return 1;
         }
+        return 0;
     }
 
     //--
@@ -55,14 +57,17 @@ public class Debian {
         cwd = (FileNode) world.getWorking();
     }
 
+    public void postinst(String ... args) throws IOException {
+        if (args.length > 0 && args[1].equals("configure")) {
+            new Debian().configure();
+        }
+    }
+
     public void configure() throws IOException {
         String user;
         FileNode bin;
         FileNode home;
         String group;
-
-        bin = world.file("/usr/share/stool");
-        user = "stool";
 
         // TODO replace this check by some kind of configuration
         if (world.file("/opt/ui/opt/tools").isDirectory()) {
@@ -72,11 +77,12 @@ public class Debian {
             home = world.file("/var/lib/stool");
             group = "stool";
         }
+        bin = world.file("/usr/share/stool");
+        user = "stool";
+
         configureGroup(group);
         configureUser(user, group);
         home.link(bin.join("home"));
-
-        // "sg" is used to set the proper group if home is newly generated
         home(home);
         exec("sudo", "-u", user, bin.join("stool-raw.sh").getAbsolute(), "chown", "-stage", "dashboard");
         exec("update-rc.d", "stool", "defaults");
@@ -85,7 +91,7 @@ public class Debian {
     private void configureGroup(String group) throws IOException {
         List<String> result;
 
-        if (execBoolean("getent", "group", group)) {
+        if (test("getent", "group", group)) {
             echo("group: " + group + " (existing)");
         } else {
             result = new ArrayList<>();
@@ -93,7 +99,7 @@ public class Debian {
             for (FileNode dir : world.file("/home/").list()) {
                 if (dir.isDirectory()) {
                     String name = dir.getName();
-                    if (execBoolean("id", "-u", name)) {
+                    if (test("id", "-u", name)) {
                         result.add(name);
                         exec("usermod", "-a", "-G", group, name);
                     }
@@ -107,7 +113,7 @@ public class Debian {
         boolean existing;
         boolean inGroup;
 
-        existing = execBoolean("id", "-u", user);
+        existing = test("id", "-u", user);
         if (!existing) {
             if (world.file("/home").join(user).isDirectory()) {
                 throw new IOException("cannot create user " + user + ": home directory already exists");
@@ -127,7 +133,7 @@ public class Debian {
     private List<String> groups(String user) throws IOException {
         String output;
 
-        output = exec("groups", user);
+        output = slurp("groups", user);
         output = Strings.removeLeft(output, user).trim();
         output = Strings.removeLeft(output, ":").trim();
         return Separator.SPACE.split(output);
@@ -137,13 +143,17 @@ public class Debian {
         console.info.println(str);
     }
 
-    private String exec(String ... args) throws IOException {
+    private String slurp(String ... args) throws IOException {
         return cwd.exec(args);
     }
 
-    private boolean execBoolean(String ... args) throws IOException {
+    private void exec(String ... args) throws IOException {
+        cwd.execNoOutput(args);
+    }
+
+    private boolean test(String ... args) throws IOException {
         try {
-            cwd.exec(args);
+            console.verbose.println(cwd.exec(args));
             return true;
         } catch (ExitCode e) {
             return false;
