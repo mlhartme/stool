@@ -322,7 +322,8 @@
             </goals>
           </execution>
         </executions>
-      </plugin>      <plugin>
+      </plugin>
+      <plugin>
         <artifactId>jdeb</artifactId>
         <groupId>org.vafer</groupId>
         <version>1.4</version>
@@ -336,7 +337,7 @@
               <!-- override deb and changes out because the artifact id is not suitable -->
               <deb>${basedir}/target/stool_[[version]]_all.deb</deb>
               <changesOut>${basedir}/target/stool_[[version]]_all.changes</changesOut>
-
+              <compression></compression>
               <name>stool</name>
               <snapshotExpand>true</snapshotExpand>
               <dataSet>
