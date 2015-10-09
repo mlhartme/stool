@@ -5,7 +5,6 @@ jar=${dir}/${DPKG_MAINTSCRIPT_PACKAGE}.postrm
 if [ ! -e ${jar} ] ; then
   jar=${dir}/postrm
 fi
-echo jar: ${jar}
 java -cp ${jar} net.oneandone.stool.setup.DebianSetup $0 "$@"
 exit $?
 # make sure to exit, because we might append a jar file
