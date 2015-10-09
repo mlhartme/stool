@@ -7,8 +7,8 @@
     <version>3.3.0-SNAPSHOT</version>
   </parent>
 
-  <name>Stool Core</name>
-  <artifactId>core</artifactId>
+  <name>Stool Main</name>
+  <artifactId>main</artifactId>
   <packaging>jar</packaging>
 
   <properties>
