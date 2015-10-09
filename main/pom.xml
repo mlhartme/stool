@@ -150,7 +150,7 @@
               <overwrite>META-INF/pominfo.properties, org/apache/commons/logging/**/*</overwrite>
               <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
               <attach>false</attach>
-              <launcher>empty</launcher>
+              <launcher>${basedir}/empty</launcher>
             </configuration>
             <id>debian-setup</id>
             <goals>
