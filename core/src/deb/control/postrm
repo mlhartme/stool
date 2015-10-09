@@ -1,0 +1,13 @@
+#!/bin/sh
+# /var/lib/dpkg/tmp.ci or /var/lib/dpkg/info
+env | grep DPKG
+dir=$(dirname $0)
+jar=${dir}/stool.postrm
+if [ ! -e ${jar} ] ; then
+  jar=${dir}/postrm
+fi
+echo dir: ${dir}
+echo jar: ${jar}
+ java -cp ${jar} net.oneandone.stool.setup.DebianSetup $0 "$@"
+exit $?
+# make sure to exit, because we might append a jar file

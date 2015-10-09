@@ -34,8 +34,9 @@ public class Debian {
             throw new IllegalArgumentException();
         }
         verbose(Separator.SPACE.join(args));
-        cmd = args[0]; // path to maintainer script, e.g. /var/lib/dpkg/info/stool.postinst
-        cmd = cmd.substring(cmd.lastIndexOf('.') + 1);
+        cmd = args[0]; // path to maintainer script, e.g. /var/lib/dpkg/info/stool.postinst or /var/lib/dpkg/tmp.ci/preinst
+        cmd = cmd.substring(cmd.lastIndexOf('/') + 1); // last path segment - important to properly get preinst name
+        cmd = cmd.substring(cmd.lastIndexOf('.') + 1); // ok for both 'preinst' and 'mypkg.preinst'
         args = Strings.cdr(args);
         try {
             switch (cmd) {
@@ -159,8 +160,17 @@ public class Debian {
 
     public void postrm(String ... args) throws IOException {
         switch (args[0]) {
+            case "remove":
+                postrmRemove();
+                break;
             case "purge":
                 postrmPurge();
+                break;
+            case "upgrade":
+                postrmUpgrade();
+                break;
+            case "disappear":
+                postrmDisappear();
                 break;
             case "failed-upgrade":
                 postrmFailedUpgrade();
@@ -173,7 +183,13 @@ public class Debian {
         }
     }
 
+    protected void postrmRemove() throws IOException {
+    }
     protected void postrmPurge() throws IOException {
+    }
+    protected void postrmUpgrade() throws IOException {
+    }
+    protected void postrmDisappear() throws IOException {
     }
     protected void postrmFailedUpgrade() throws IOException {
     }

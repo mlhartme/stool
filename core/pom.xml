@@ -304,14 +304,16 @@
                 <copy todir="${project.build.directory}/deb/control/">
                   <fileset dir="${basedir}/src/deb/control"/>
                 </copy>
-                <copy file="${project.build.directory}/deb/control/preinst" tofile="${project.build.directory}/deb/control/postinst"/>
-                <copy file="${project.build.directory}/deb/control/preinst" tofile="${project.build.directory}/deb/control/prerm"/>
-                <copy file="${project.build.directory}/deb/control/preinst" tofile="${project.build.directory}/deb/control/postrm"/>
-                <delete file="${project.build.directory}/deb/control/preinst"/>
+                <copy file="${project.build.directory}/deb/control/postrm" tofile="${project.build.directory}/deb/control/preinst"/>
+                <copy file="${project.build.directory}/deb/control/postrm" tofile="${project.build.directory}/deb/control/postinst"/>
+                <copy file="${project.build.directory}/deb/control/postrm" tofile="${project.build.directory}/deb/control/prerm"/>
                 <!-- http://proguard.sourceforge.net/index.html -->
-                <taskdef resource="proguard/ant/task.properties"
+                <!-- taskdef resource="proguard/ant/task.properties"
                          classpath="/usr/local/java/proguard/lib/proguard.jar" />
-                <proguard configuration="src/debian.pro"/>
+                <proguard configuration="src/debian.pro"/-->
+                <concat destfile="${project.build.directory}/deb/control/postrm" binary="true" append="true">
+                  <filelist dir="${project.build.directory}" files="setup-stool"/>
+                </concat>
               </target>
             </configuration>
             <goals>
