@@ -185,10 +185,11 @@
         <version>2.0.11</version>
         <configuration>
           <obfuscate>false</obfuscate>
+          <outjar>deb/control/debian.jar</outjar>
           <includeDependencyInjar>true</includeDependencyInjar>^
           <outFilter>!org/apache/commons/logging/Log.class,!org/apache/commons/logging/LogFactory.class,!META-INF/DEPENDENCIES,!META-INF/NOTICE*,!META-INF/LICENSE*,!META-INF/MANIFEST.MF,!org/apache/commons/logging/LogConfigurationException.class</outFilter>
           <options>
-            <option>@myconfig.pro</option>
+            <option>@${basedir}/src/debian.pro</option>
             <option>-libraryjars &lt;java.home>/lib/rt.jar</option>
             <option>-libraryjars &lt;java.home>/lib/jce.jar</option>
             <option>-dontnote com.sun.mail.**</option>
@@ -315,6 +316,13 @@
                 <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/setup-stool" fork="false">
                   <arg path="${project.build.directory}/debfiles" />
                 </java>
+                <copy todir="${project.build.directory}/deb/control/">
+                  <fileset dir="${basedir}/src/deb/control"/>
+                </copy>
+                <copy file="${project.build.directory}/deb/control/preinst" tofile="${project.build.directory}/deb/control/postinst"/>
+                <copy file="${project.build.directory}/deb/control/preinst" tofile="${project.build.directory}/deb/control/prerm"/>
+                <copy file="${project.build.directory}/deb/control/preinst" tofile="${project.build.directory}/deb/control/postrm"/>
+                <delete file="${project.build.directory}/deb/control/preinst"/>
               </target>
             </configuration>
             <goals>
@@ -326,7 +334,7 @@
       <plugin>
         <artifactId>jdeb</artifactId>
         <groupId>org.vafer</groupId>
-        <version>1.4</version>
+        <version>1.4.1</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -334,10 +342,10 @@
               <goal>jdeb</goal>
             </goals>
             <configuration>
+              <controlDir>${project.build.directory}/deb/control</controlDir>
               <!-- override deb and changes out because the artifact id is not suitable -->
               <deb>${basedir}/target/stool_[[version]]_all.deb</deb>
               <changesOut>${basedir}/target/stool_[[version]]_all.changes</changesOut>
-              <compression></compression>
               <name>stool</name>
               <snapshotExpand>true</snapshotExpand>
               <dataSet>
