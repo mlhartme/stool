@@ -64,29 +64,6 @@
               <goal>generate</goal>
             </goals>
           </execution>
-          <execution>
-            <configuration>
-              <!-- for generate -->
-              <path>$PATH</path>
-              <options>-Djava.awt.headless=true</options>
-              <name>debian.jar</name>
-              <main>net.oneandone.stool.setup.JavaSetup</main>
-              <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
-              <remove>META-INF/LICENSE, META-INF/NOTICE, META-INF/NOTICE.txt, META-INF/wsd.properties, META-INF/DEPENDENCIES,
-                META-INF/LICENSE.txt,readme.txt,
-                META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,changelog.txt,
-                notice.txt,license.txt
-              </remove>
-              <overwrite>META-INF/pominfo.properties, org/apache/commons/logging/**/*</overwrite>
-              <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
-              <attach>false</attach>
-              <launcher>${basedir}/empty</launcher>
-            </configuration>
-            <id>debian-setup</id>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -107,6 +84,10 @@
                 <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/setup-stool" fork="false">
                   <arg path="${project.build.directory}/debfiles" />
                 </java>
+                <java classname="net.oneandone.stool.setup.Rawjar" classpath="${project.build.directory}/setup-stool" fork="false">
+                  <arg path="${project.build.directory}/setup-stool"/>
+                  <arg path="${project.build.directory}/setup-stool.jar"/>
+                </java>
                 <copy todir="${project.build.directory}/deb/control/">
                   <fileset dir="${basedir}/src/deb/control"/>
                 </copy>
@@ -118,10 +99,10 @@
                 <!-- taskdef resource="proguard/ant/task.properties"
                          classpath="/usr/local/java/proguard/lib/proguard.jar" />
                 <proguard configuration="src/debian.pro"/-->
-                
+
                 <!-- append jar to postrm, because that's the last file remaining in var/lib/dpkg when running the postrm script -->
                 <concat destfile="${project.build.directory}/deb/control/postrm.bin" binary="true" append="true">
-                  <filelist dir="${project.build.directory}" files="setup-stool"/>
+                  <filelist dir="${project.build.directory}" files="setup-stool.jar"/>
                 </concat>
               </target>
             </configuration>
