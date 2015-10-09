@@ -50,8 +50,8 @@
               <name>setup-stool</name>
               <main>net.oneandone.stool.setup.JavaSetup</main>
               <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
-              <remove>META-INF/LICENSE, META-INF/NOTICE, META-INF/NOTICE.txt, META-INF/wsd.properties, META-INF/DEPENDENCIES,
-                META-INF/LICENSE.txt,readme.txt,
+              <remove>META-INF/maven/**/pom.properties, META-INF/maven/**/pom.xml, META-INF/LICENSE, META-INF/NOTICE,
+                META-INF/NOTICE.txt, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE.txt,readme.txt,
                 META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,changelog.txt,
                 notice.txt,license.txt
               </remove>
@@ -96,13 +96,13 @@
                 <copy file="${project.build.directory}/deb/control/template" tofile="${project.build.directory}/deb/control/prerm"/>
                 <move file="${project.build.directory}/deb/control/template" tofile="${project.build.directory}/deb/control/postrm.bin"/>
                 <!-- http://proguard.sourceforge.net/index.html -->
-                <!-- taskdef resource="proguard/ant/task.properties"
+                <taskdef resource="proguard/ant/task.properties"
                          classpath="/usr/local/java/proguard/lib/proguard.jar" />
-                <proguard configuration="src/debian.pro"/-->
+                <proguard configuration="src/debian.pro"/>
 
                 <!-- append jar to postrm, because that's the last file remaining in var/lib/dpkg when running the postrm script -->
                 <concat destfile="${project.build.directory}/deb/control/postrm.bin" binary="true" append="true">
-                  <filelist dir="${project.build.directory}" files="setup-stool.jar"/>
+                  <filelist dir="${project.build.directory}" files="setup-stool-min.jar"/>
                 </concat>
               </target>
             </configuration>
