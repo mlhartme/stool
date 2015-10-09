@@ -1,3 +1,9 @@
+-dontobfuscate
+-injar ../target/debian.jar
+-outjar ../target/deb/control/debian.jar
+
+-libraryjars <java.home>/lib/rt.jar:<java.home>/lib/jce.jar
+
 -dontnote com.sun.mail.**
 -dontnote javax.annotation.*
 -dontwarn javax.enterprise.**
