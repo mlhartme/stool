@@ -214,27 +214,6 @@
             <option>@${basedir}/src/debian.pro</option>
             <option>-libraryjars &lt;java.home>/lib/rt.jar</option>
             <option>-libraryjars &lt;java.home>/lib/jce.jar</option>
-            <option>-dontnote com.sun.mail.**</option>
-            <option>-dontnote javax.annotation.*</option>
-            <option>-dontwarn javax.enterprise.**</option>
-            <option>-dontnote javax.enterprise.**</option>
-            <option>-dontnote org.apache.maven.**</option>
-            <option>-dontwarn org.apache.maven.**</option>
-            <option>-dontnote net.oneandone.stool.**</option>
-            <option>-dontnote ch.qos.logback.**</option>
-            <option>-dontwarn ch.qos.logback.**</option>
-            <option>-dontnote org.apache.commons.**</option>
-            <option>-dontwarn org.apache.commons.**</option>
-            <option>-dontnote org.apache.http.**</option>
-            <option>-dontwarn org.apache.http.**</option>
-            <option>-dontnote com.google.**</option>
-            <option>-dontwarn com.google.**</option>
-            <option>-dontnote org.eclipse.**</option>
-            <option>-dontwarn org.eclipse.**</option>
-            <option>-dontnote net.oneandone.sushi.**</option>
-            <option>-dontwarn net.oneandone.sushi.**</option>
-            <option>-dontnote org.codehaus.**</option>
-            <option>-dontwarn org.codehaus.**</option>
           </options>
         </configuration>
         <executions>
