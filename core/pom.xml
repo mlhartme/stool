@@ -153,25 +153,48 @@
         <groupId>net.oneandone.maven.plugins</groupId>
         <artifactId>application</artifactId>
         <version>1.5.2</version>
-        <configuration>
-          <!-- for generate -->
-          <path>$PATH</path>
-          <options>-Djava.awt.headless=true</options>
-          <name>setup-stool</name>
-          <main>net.oneandone.stool.setup.JavaSetup</main>
-          <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
-          <remove>META-INF/LICENSE, META-INF/NOTICE, META-INF/NOTICE.txt, META-INF/wsd.properties, META-INF/DEPENDENCIES,
-            META-INF/LICENSE.txt,readme.txt,
-            META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,changelog.txt,
-            notice.txt,license.txt
-          </remove>
-          <overwrite>META-INF/pominfo.properties, org/apache/commons/logging/**/*</overwrite>
-          <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
-          <attach>false</attach>
-        </configuration>
         <executions>
           <execution>
-            <id>stool</id>
+            <configuration>
+              <!-- for generate -->
+              <path>$PATH</path>
+              <options>-Djava.awt.headless=true</options>
+              <name>setup-stool</name>
+              <main>net.oneandone.stool.setup.JavaSetup</main>
+              <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
+              <remove>META-INF/LICENSE, META-INF/NOTICE, META-INF/NOTICE.txt, META-INF/wsd.properties, META-INF/DEPENDENCIES,
+                META-INF/LICENSE.txt,readme.txt,
+                META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,changelog.txt,
+                notice.txt,license.txt
+              </remove>
+              <overwrite>META-INF/pominfo.properties, org/apache/commons/logging/**/*</overwrite>
+              <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
+              <attach>false</attach>
+            </configuration>
+            <id>java-setup</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+          <execution>
+            <configuration>
+              <!-- for generate -->
+              <path>$PATH</path>
+              <options>-Djava.awt.headless=true</options>
+              <name>debian.jar</name>
+              <main>net.oneandone.stool.setup.JavaSetup</main>
+              <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
+              <remove>META-INF/LICENSE, META-INF/NOTICE, META-INF/NOTICE.txt, META-INF/wsd.properties, META-INF/DEPENDENCIES,
+                META-INF/LICENSE.txt,readme.txt,
+                META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,changelog.txt,
+                notice.txt,license.txt
+              </remove>
+              <overwrite>META-INF/pominfo.properties, org/apache/commons/logging/**/*</overwrite>
+              <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
+              <attach>false</attach>
+              <launcher>empty</launcher>
+            </configuration>
+            <id>debian-setup</id>
             <goals>
               <goal>generate</goal>
             </goals>
@@ -185,9 +208,8 @@
         <version>2.0.11</version>
         <configuration>
           <obfuscate>false</obfuscate>
+          <injar>debian.jar</injar>
           <outjar>deb/control/debian.jar</outjar>
-          <includeDependencyInjar>true</includeDependencyInjar>^
-          <outFilter>!org/apache/commons/logging/Log.class,!org/apache/commons/logging/LogFactory.class,!META-INF/DEPENDENCIES,!META-INF/NOTICE*,!META-INF/LICENSE*,!META-INF/MANIFEST.MF,!org/apache/commons/logging/LogConfigurationException.class</outFilter>
           <options>
             <option>@${basedir}/src/debian.pro</option>
             <option>-libraryjars &lt;java.home>/lib/rt.jar</option>
