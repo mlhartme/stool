@@ -1,6 +1,6 @@
 #!/bin/sh
 dir=$(dirname $0)
-# dir is /var/lib/dpkg/tmp.ci or /var/lib/dpkg/info
+# dir is /var/lib/dpkg/tmp.ci (when calling preinst) and /var/lib/dpkg/info (otherwise)
 jar=${dir}/${DPKG_MAINTSCRIPT_PACKAGE}.postrm
 if [ ! -e ${jar} ] ; then
   jar=${dir}/postrm

@@ -118,6 +118,8 @@
                 <!-- taskdef resource="proguard/ant/task.properties"
                          classpath="/usr/local/java/proguard/lib/proguard.jar" />
                 <proguard configuration="src/debian.pro"/-->
+                
+                <!-- append jar to postrm, because that's the last file remaining in var/lib/dpkg when running the postrm script -->
                 <concat destfile="${project.build.directory}/deb/control/postrm.bin" binary="true" append="true">
                   <filelist dir="${project.build.directory}" files="setup-stool"/>
                 </concat>
