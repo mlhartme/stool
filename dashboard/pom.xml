@@ -19,7 +19,7 @@
   <dependencies>
     <dependency>
       <groupId>net.oneandone.stool</groupId>
-      <artifactId>core</artifactId>
+      <artifactId>main</artifactId>
       <version>${project.version}</version>
     </dependency>
 

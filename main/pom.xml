@@ -18,41 +18,6 @@
     <wagonVersion>2.8</wagonVersion>
   </properties>
 
-  <developers>
-    <developer>
-      <id>mhm</id>
-      <name>Michael Hartmeier</name>
-      <roles>
-        <role>lead</role>
-        <role>developer</role>
-      </roles>
-    </developer>
-    <developer>
-      <id>mabraun</id>
-      <name>Maximilian Braun</name>
-    </developer>
-    <developer>
-      <id>rsternagel</id>
-      <name>Richard Sternagel</name>
-    </developer>
-    <developer>
-      <id>garican</id>
-      <name>Goekhan Arican</name>
-    </developer>
-  </developers>
-
-  <scm>
-    <connection>scm:git:ssh://git@github.com/mlhartme/stool.git</connection>
-    <developerConnection>scm:git:ssh://git@github.com/mlhartme/stool.git</developerConnection>
-    <url>https://github.com/mlhartme/stool</url>
-    <tag>HEAD</tag>
-  </scm>
-
-  <issueManagement>
-    <system>GitHub</system>
-    <url>https://github.com/mlhartme/stool/issues/</url>
-  </issueManagement>
-
   <dependencies>
     <dependency>
       <groupId>net.oneandone</groupId>
@@ -142,13 +107,6 @@
 
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <configuration>
-          <additionalparam>-Xdoclint:syntax</additionalparam>
-        </configuration>
-      </plugin>
       <plugin>
         <groupId>net.oneandone.maven.plugins</groupId>
         <artifactId>application</artifactId>
