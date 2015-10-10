@@ -1,6 +1,6 @@
 -dontobfuscate
 -dontoptimize # because of proguard bug
--injar ../target/setup-stool.jar
+-injar ../target/setup-stool.jar(!templates/man/**)
 -outjar ../target/setup-stool-min.jar
 -keepattributes *Annotation*
 
