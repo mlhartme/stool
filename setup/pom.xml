@@ -50,12 +50,12 @@
               <name>setup-stool</name>
               <main>net.oneandone.stool.setup.JavaSetup</main>
               <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
-              <remove>META-INF/maven/**/pom.properties, META-INF/maven/**/pom.xml, META-INF/LICENSE, META-INF/NOTICE,
-                META-INF/NOTICE.txt, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE.txt,readme.txt,
-                META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,changelog.txt,
-                notice.txt,license.txt
+              <overwrite>org/apache/commons/logging/**/*</overwrite>
+              <remove>META-INF/maven/**/pom.properties, META-INF/maven/**/pom.xml,
+                META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
+                META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
+                readme.txt, changelog.txt, notice.txt, license.txt
               </remove>
-              <overwrite>META-INF/pominfo.properties, org/apache/commons/logging/**/*</overwrite>
               <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
               <attach>false</attach>
             </configuration>
@@ -128,6 +128,7 @@
               <deb>${basedir}/target/stool_[[version]]_all.deb</deb>
               <changesOut>${basedir}/target/stool_[[version]]_all.changes</changesOut>
               <name>stool</name>
+              <compression>bz2</compression>
               <snapshotExpand>true</snapshotExpand>
               <dataSet>
                 <data>

@@ -1,5 +1,5 @@
 -dontobfuscate
--dontoptimize
+-dontoptimize # because of proguard bug
 -injar ../target/setup-stool.jar
 -outjar ../target/setup-stool-min.jar
 -keepattributes *Annotation*
@@ -30,15 +30,15 @@
 -dontnote net.oneandone.sushi.**
 -dontwarn net.oneandone.sushi.**
 
+-keep public class net.oneandone.stool.setup.DebianSetup {
+    public static void main(java.lang.String[]);
+}
+
 -keep public class ** implements net.oneandone.stool.extensions.Extension {
     public <init>(...);
 }
 
-# TODO: because of standard file system list ...
 -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
     public <init>(...);
 }
 
--keep public class net.oneandone.stool.setup.DebianSetup {
-    public static void main(java.lang.String[]);
-}
