@@ -30,17 +30,12 @@
 -dontnote net.oneandone.sushi.**
 -dontwarn net.oneandone.sushi.**
 
+-keep public class ** implements net.oneandone.stool.extensions.Extension {
+    public <init>(...);
+}
+
 # TODO: because of standard file system list ...
 -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
-    public <init>(...);
-}
--keep public class net.oneandone.stool.extensions.Fitnesse {
-    public <init>(...);
-}
--keep public class net.oneandone.stool.extensions.Pustefix {
-    public <init>(...);
-}
--keep public class net.oneandone.stool.extensions.PustefixEditor {
     public <init>(...);
 }
 
