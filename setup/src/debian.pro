@@ -31,13 +31,7 @@
 -dontwarn net.oneandone.sushi.**
 
 # TODO: because of standard file system list ...
--keep public class net.oneandone.sushi.fs.ssh.SshFilesystem {
-    public <init>(...);
-}
--keep public class net.oneandone.sushi.fs.svn.SvnFilesystem {
-    public <init>(...);
-}
--keep public class net.oneandone.sushi.fs.webdav.WebdavFilesystem {
+-keep public class ** extends net.oneandone.sushi.fs.Filesystem {
     public <init>(...);
 }
 -keep public class net.oneandone.stool.extensions.Fitnesse {
