@@ -27,7 +27,7 @@
     <dependency>
       <groupId>net.oneandone.maven</groupId>
       <artifactId>embedded</artifactId>
-      <version>3.11.0</version>
+      <version>3.11.1-SNAPTSHOT</version>
     </dependency>
     <!-- TODO: override 0.3.0.M1 that comes with maven 3.2.5 -->
     <dependency>
