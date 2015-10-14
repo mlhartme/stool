@@ -72,18 +72,18 @@ public class Pool {
 
     // TODO: ugly reference to stage ...
     public Ports allocate(Stage stage) throws IOException {
+        // maps vhosts to docroots
+        Map<String, FileNode> map;
         Vhost previous;
         String stageName;
         List<Vhost> result;
         String vhost;
-        // maps vhosts to docroots
-        Map<String, FileNode> map;
 
-        result = new ArrayList<>();
         map = new LinkedHashMap<>();
+        result = new ArrayList<>();
         stageName = stage.getName();
-        map.put("+stop+wrapper", null);
-        map.put("+jmx+debug", null);
+        map.put(Ports.STOP_WRAPPER, null);
+        map.put(Ports.JMX_DEBUG, null);
         map.putAll(stage.selectedVhosts());
         map.putAll(stage.extensions().vhosts(stage));
         for (Map.Entry<String, FileNode> entry : map.entrySet()) {

@@ -21,29 +21,54 @@ import java.util.Map;
 
 /** Manage ports used for one stage. Immutable. Do not create directly, use Pool class instead. */
 public class Ports {
+    public static final String STOP_WRAPPER = "+stop+wrapper";
+    public static final String JMX_DEBUG = "+jmx+debug";
+
     private final List<Vhost> vhosts;
+    private final int stopWrapper;
+    private final int jmxDebug;
 
     public Ports(List<Vhost> vhosts) {
-        if (vhosts.size() < 2) {
-            throw new IllegalArgumentException();
+        String stage;
+
+        if (vhosts.isEmpty()) {
+            throw new IllegalStateException();
+        }
+        stage = null;
+        for (Vhost v : vhosts) {
+            if (stage == null) {
+                stage = v.stage;
+            } else {
+                if (!stage.equals(v.stage)) {
+                    throw new IllegalArgumentException(stage + " vs " + v.stage);
+                }
+            }
         }
         this.vhosts = vhosts;
+        this.stopWrapper = indexOf(STOP_WRAPPER, stage);
+        this.jmxDebug = indexOf(JMX_DEBUG, stage);
+        if (stopWrapper == -1) {
+            throw new IllegalArgumentException(vhosts.toString());
+        }
+        if (jmxDebug == -1) {
+            throw new IllegalArgumentException(vhosts.toString());
+        }
     }
 
     public int stop() {
-        return vhosts.get(0).even;
+        return vhosts.get(stopWrapper).even;
     }
 
     public int wrapper() {
-        return vhosts.get(0).even + 1;
+        return vhosts.get(stopWrapper).even + 1;
     }
 
     public int jmx() {
-        return vhosts.get(1).even;
+        return vhosts.get(jmxDebug).even;
     }
 
     public int debug() {
-        return vhosts.get(1).even + 1;
+        return vhosts.get(jmxDebug).even + 1;
     }
 
     public List<Vhost> vhosts() {
@@ -60,12 +85,22 @@ public class Ports {
     }
 
     public Vhost lookup(String name, String stage) {
-        for (Vhost vhost : vhosts) {
-            if (name.equals(vhost.name) && stage.equals(vhost.name)) {
-                return vhost;
+        int idx;
+
+        idx = indexOf(name, stage);
+        return idx == -1 ? null : vhosts.get(idx);
+    }
+
+    public int indexOf(String name, String stage) {
+        Vhost vhost;
+
+        for (int i = 0; i < vhosts.size(); i++) {
+            vhost = vhosts.get(i);
+            if (name.equals(vhost.name) && stage.equals(vhost.stage)) {
+                return i;
             }
         }
-        return null;
+        return -1;
     }
 
     public Map<String, String> urlMap(boolean https, boolean vhosts, String hostname, String suffix) {
