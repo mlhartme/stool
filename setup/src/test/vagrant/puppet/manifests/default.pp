@@ -3,7 +3,9 @@ apt::source { 'backports':
   release => "jessie-backports",
   repos   => 'main',
 }
-
+->
+Class['apt::update']
+->
 package { 'openjdk-8-jdk' :
   # require => Class['apt::source']
 }
