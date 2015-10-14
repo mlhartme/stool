@@ -522,7 +522,7 @@ public class Session {
 
     public Pool pool() {
         if (lazyPool == null) {
-            lazyPool = new Pool(home.join("run/ports"), configuration.portFirst, configuration.portLast);
+            lazyPool = new Pool(home.join("run/ports"), configuration.portFirst, configuration.portLast, backstages);
         }
         return lazyPool;
     }

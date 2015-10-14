@@ -25,19 +25,21 @@ import java.io.IOException;
 import java.io.Reader;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public class Pool {
     private static final LineFormat FMT = new LineFormat(LineFormat.LF_SEPARATOR, LineFormat.Trim.ALL, LineFormat.excludes(true));
 
-    public static Pool load(FileNode file, int first, int last) throws IOException {
+    public static Pool load(FileNode file, int first, int last, FileNode backstages) throws IOException {
         Pool result;
         String line;
 
-        result = new Pool(file, first, last);
+        result = new Pool(file, first, last, backstages);
         try (Reader in = file.createReader(); LineReader src = new LineReader(in, FMT)) {
             while (true) {
                 line = src.next();
@@ -56,8 +58,9 @@ public class Pool {
     private final int first;
     private final int last;
     private final List<Vhost> vhosts;
+    private final FileNode backstages;
 
-    public Pool(FileNode file, int first, int last) {
+    public Pool(FileNode file, int first, int last, FileNode backstages) {
         if (first % 2 != 0) {
             throw new IllegalArgumentException("even port expected: " + first);
         }
@@ -67,6 +70,7 @@ public class Pool {
         this.file = file;
         this.first = first;
         this.last = last;
+        this.backstages = backstages;
         this.vhosts = new ArrayList<>();
     }
 
@@ -79,6 +83,7 @@ public class Pool {
         List<Vhost> result;
         String vhost;
 
+        gc();
         map = new LinkedHashMap<>();
         result = new ArrayList<>();
         stageName = stage.getName();
@@ -101,6 +106,31 @@ public class Pool {
         }
         save();
         return new Ports(result);
+    }
+
+    private void gc() {
+        Set<String> used;
+
+        used = new HashSet<>();
+        for (Vhost vhost : vhosts) {
+            used.add(vhost.stage);
+        }
+        for (String stage : used) {
+            if (!backstages.join(stage).isDirectory()) {
+                gc(stage);
+            }
+        }
+    }
+
+    private void gc(String stage) {
+        Vhost vhost;
+
+        for (int i = vhosts.size() - 1; i >= 0; i--) {
+            vhost = vhosts.get(i);
+            if (stage.equals(vhost.stage)) {
+                vhosts.remove(i);
+            }
+        }
     }
 
     public Vhost lookup(String name, String stage) {
