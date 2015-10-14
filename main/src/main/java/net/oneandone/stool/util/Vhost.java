@@ -30,26 +30,26 @@ public class Vhost {
 
         parts = Separator.SPACE.split(line);
         switch (parts.size()) {
-            case 3:
+            case 2:
                 docroot = null;
                 break;
-            case 4:
-                docroot = world.file(parts.get(3));
+            case 3:
+                docroot = world.file(parts.get(2));
                 break;
             default:
                 throw new IOException("invalid vhost line: " + line);
         }
-        return Vhost.create(Integer.parseInt(parts.get(0)), parts.get(1), parts.get(2), docroot);
+        return Vhost.create(Integer.parseInt(parts.get(0)), parts.get(1), docroot);
     }
 
-    public static Vhost create(int even, String vhost, String hostname, FileNode docroot) {
+    public static Vhost create(int even, String vhost, FileNode docroot) {
         int idx;
 
         idx = vhost.lastIndexOf('.');
         if (idx == -1) {
             throw new IllegalStateException(vhost);
         }
-        return new Vhost(even, vhost.substring(0, idx), vhost.substring(idx + 1), hostname, docroot);
+        return new Vhost(even, vhost.substring(0, idx), vhost.substring(idx + 1), docroot);
     }
 
     public final int even;
@@ -58,16 +58,13 @@ public class Vhost {
 
     public final String stage;
 
-    private final String hostname;
-
     /** null for ports that have no domain */
     public final FileNode docroot;
 
-    public Vhost(int even, String name, String stage, String hostname, FileNode docroot) {
+    public Vhost(int even, String name, String stage, FileNode docroot) {
         this.even = even;
         this.name = name;
         this.stage = stage;
-        this.hostname = hostname;
         this.docroot = docroot;
     }
 
@@ -100,15 +97,15 @@ public class Vhost {
         return even + 1;
     }
 
-    public String httpUrl(boolean vhosts) {
-        return "http://" + fqdn(vhosts) + ":" + httpPort();
+    public String httpUrl(boolean vhosts, String hostname) {
+        return "http://" + fqdn(vhosts, hostname) + ":" + httpPort();
     }
 
-    public String httpsUrl(boolean vhosts) {
-        return "https://" + fqdn(vhosts) + ":" + httpsPort();
+    public String httpsUrl(boolean vhosts, String hostname) {
+        return "https://" + fqdn(vhosts, hostname) + ":" + httpsPort();
     }
 
-    public String fqdn(boolean vhosts) {
+    public String fqdn(boolean vhosts, String hostname) {
         if (vhosts) {
             return name + "." + stage + "." + hostname;
         } else {
@@ -120,7 +117,7 @@ public class Vhost {
         // CAUTION: just
         //    even + ' '
         // results in am integer!
-        return Integer.toString(even) + ' ' + vhost() + ' ' + hostname + (docroot == null ? "" : " " + docroot);
+        return Integer.toString(even) + ' ' + vhost() + (docroot == null ? "" : " " + docroot);
     }
 
     public String toString() {

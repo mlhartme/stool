@@ -66,7 +66,8 @@ public class PustefixEditor implements Extension {
         ports = stage.loadPortsOpt();
         userdata(stage);
         session = stage.session;
-        editorDirectory(stage, ports.urlMap(!session.configuration.certificates.isEmpty(), session.configuration.vhosts, stage.config().suffix).values());
+        editorDirectory(stage, ports.urlMap(!session.configuration.certificates.isEmpty(), session.configuration.vhosts,
+                session.configuration.hostname, stage.config().suffix).values());
     }
 
     @Override

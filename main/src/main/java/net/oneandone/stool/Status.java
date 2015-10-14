@@ -142,7 +142,7 @@ public class Status extends StageCommand {
                 if (host.name.contains("+")) {
                     continue;
                 }
-                result.add(host.httpUrl(stage.session.configuration.vhosts));
+                result.add(host.httpUrl(stage.session.configuration.vhosts, stage.session.configuration.hostname));
             }
         }
         return result;

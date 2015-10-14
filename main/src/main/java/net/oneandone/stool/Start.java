@@ -280,7 +280,7 @@ public class Start extends StageCommand {
             src.move(dest);
 
             file = dest.join("conf/server.xml");
-            serverXml = ServerXml.load(file);
+            serverXml = ServerXml.load(file, session.configuration.hostname);
             serverXml.stripComments();
             serverXml.save(dest.join("conf/server.xml.template"));
             file.deleteFile();

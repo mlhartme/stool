@@ -130,7 +130,7 @@ public class Fitnesse implements Extension {
     }
 
     private String findUrl(Stage stage, Vhost host) {
-        return host.httpUrl(stage.session.configuration.vhosts);
+        return host.httpUrl(stage.session.configuration.vhosts, stage.session.configuration.hostname);
     }
 
     @Override

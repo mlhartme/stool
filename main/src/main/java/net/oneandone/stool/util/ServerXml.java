@@ -38,14 +38,16 @@ public class ServerXml {
 
     private final Selector selector;
     private final Document document;
+    private final String hostname;
 
-    public ServerXml(Xml xml, Document document) {
+    public ServerXml(Xml xml, Document document, String hostname) {
         this.selector = xml.getSelector();
         this.document = document;
+        this.hostname = hostname;
     }
 
-    public static ServerXml load(Node src) throws IOException, SAXException {
-        return new ServerXml(src.getWorld().getXml(), src.readXml());
+    public static ServerXml load(Node src, String hostname) throws IOException, SAXException {
+        return new ServerXml(src.getWorld().getXml(), src.readXml(), hostname);
     }
 
     public void save(FileNode file) throws IOException {
@@ -78,7 +80,7 @@ public class ServerXml {
         Element context;
         Element element;
 
-        name = object.fqdn(true);
+        name = object.fqdn(true, hostname);
         service.setAttribute("name", name);
         engine = selector.element(service, "Engine");
         engine.setAttribute("defaultHost", name);
@@ -97,7 +99,7 @@ public class ServerXml {
         host.appendChild(context);
 
         element = service.getOwnerDocument().createElement("alias");
-        element.setAttribute("name", object.fqdn(false));
+        element.setAttribute("name", object.fqdn(false, hostname));
         host.insertBefore(element, host.getFirstChild());
     }
 

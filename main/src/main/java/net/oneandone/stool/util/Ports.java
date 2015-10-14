@@ -69,7 +69,7 @@ public class Ports {
                     even = pool.allocate(vhost);
                 }
             }
-            result.hosts.add(Vhost.create(even, vhost, stage.session.configuration.hostname, entry.getValue()));
+            result.hosts.add(Vhost.create(even, vhost, entry.getValue()));
         }
         result.save(stage.backstage);
         return result;
@@ -164,7 +164,7 @@ public class Ports {
 
     //--
 
-    public Map<String, String> urlMap(boolean https, boolean vhosts, String suffix) {
+    public Map<String, String> urlMap(boolean https, boolean vhosts, String hostname, String suffix) {
         String name;
         Map<String, String> result;
         int idx;
@@ -177,9 +177,9 @@ public class Ports {
                 if (idx != -1) {
                     name = name.substring(0, idx);
                 }
-                result.put(name, host.httpUrl(vhosts) + suffix);
+                result.put(name, host.httpUrl(vhosts, hostname) + suffix);
                 if (https) {
-                    result.put(name + " SSL", host.httpsUrl(vhosts) + suffix);
+                    result.put(name + " SSL", host.httpsUrl(vhosts, hostname) + suffix);
                 }
             }
         }

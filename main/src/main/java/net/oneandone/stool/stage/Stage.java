@@ -290,7 +290,8 @@ public abstract class Stage {
 
         ports = loadPortsOpt();
         return ports == null ? new HashMap<>()
-                : ports.urlMap(!session.configuration.certificates.isEmpty(), session.configuration.vhosts, config().suffix);
+                : ports.urlMap(!session.configuration.certificates.isEmpty(), session.configuration.vhosts, session.configuration.hostname,
+                config().suffix);
     }
 
 
@@ -325,7 +326,7 @@ public abstract class Stage {
         //    Files.stoolFile(editorLocations);
         // }
 
-        serverXml = ServerXml.load(serverXmlTemplate());
+        serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
         keystore = keystore();
         extensions = extensions();
         serverXml.configure(ports, keystore, config().cookies, this);
