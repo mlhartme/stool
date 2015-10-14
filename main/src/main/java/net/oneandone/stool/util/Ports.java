@@ -35,7 +35,7 @@ public class Ports {
         Pool pool;
         String name;
         Ports result;
-        String vhost;
+        String vhoststr;
         int even;
         Vhost host;
         Map<String, FileNode> hosts;
@@ -52,24 +52,24 @@ public class Ports {
         hosts.putAll(stage.selectedHosts());
         hosts.putAll(stage.extensions().vhosts(stage));
         for (Map.Entry<String, FileNode> entry : hosts.entrySet()) {
-            vhost = entry.getKey();
+            vhoststr = entry.getKey();
             even = 0;
             if (previous != null) {
-                host = previous.lookup(vhost);
+                host = previous.lookup(vhoststr);
                 if (host != null) {
                     even = host.even;
                 }
             }
             if (even == 0) {
                 reserved = stage.session.configuration.reservedPorts;
-                i = reserved.get(vhost);
+                i = reserved.get(vhoststr);
                 if (i != null) {
                     even = i;
                 } else {
-                    even = pool.allocate(vhost);
+                    even = pool.allocate(vhoststr);
                 }
             }
-            result.vhosts.add(Vhost.create(even, vhost, entry.getValue()));
+            result.vhosts.add(Vhost.create(even, vhoststr, entry.getValue()));
         }
         result.save(stage.backstage);
         return result;
