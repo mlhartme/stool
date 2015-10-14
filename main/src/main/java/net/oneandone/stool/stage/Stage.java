@@ -269,7 +269,7 @@ public abstract class Stage {
     }
 
     public Ports loadPortsOpt() throws IOException {
-        return Ports.loadOpt(this);
+        return session.pool().stageOpt(getName());
     }
 
     /** @return empty list of no ports are allocated */

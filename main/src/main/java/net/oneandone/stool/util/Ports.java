@@ -15,101 +15,19 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.stage.Stage;
-import net.oneandone.sushi.fs.LineFormat;
-import net.oneandone.sushi.fs.LineReader;
-import net.oneandone.sushi.fs.file.FileNode;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Manage ports used for one stage */
+/** Manage ports used for one stage. Immutable. Do not create directly, use Pool class instead. */
 public class Ports {
-    // TODO: ugly reference to stage ...
-    public static Ports allocate(Stage stage) throws IOException {
-        Ports previous;
-        Pool pool;
-        String stageName;
-        Ports result;
-        String vhoststr;
-        int even;
-        Vhost vhost;
-        Map<String, FileNode> vhosts;
-        Integer i;
-        Map<String, Integer> reserved;
-
-        previous = loadOpt(stage);
-        pool = stage.session.createPool();
-        result = new Ports();
-        vhosts = new LinkedHashMap<>();
-        stageName = stage.getName();
-        vhosts.put("stop+wrapper", null);
-        vhosts.put("jmx+debug", null);
-        vhosts.putAll(stage.selectedVhosts());
-        vhosts.putAll(stage.extensions().vhosts(stage));
-        for (Map.Entry<String, FileNode> entry : vhosts.entrySet()) {
-            vhoststr = entry.getKey();
-            even = 0;
-            if (previous != null) {
-                vhost = previous.lookup(vhoststr, stageName);
-                if (vhost != null) {
-                    even = vhost.even;
-                }
-            }
-            if (even == 0) {
-                reserved = stage.session.configuration.reservedPorts;
-                i = reserved.get(vhoststr + "." + stageName);
-                if (i != null) {
-                    even = i;
-                } else {
-                    even = pool.allocate(vhoststr);
-                }
-            }
-            result.vhosts.add(new Vhost(even, vhoststr, stageName, entry.getValue()));
-        }
-        result.save(stage.backstage);
-        return result;
-    }
-
-    private static final LineFormat FMT = new LineFormat(LineFormat.LF_SEPARATOR, LineFormat.Trim.ALL, LineFormat.excludes(true));
-
-    public static Ports loadOpt(Stage stage) throws IOException {
-        FileNode file;
-        Ports result;
-        String line;
-
-        file = file(stage.backstage);
-        if (file.isFile()) {
-            result = new Ports();
-            try (Reader in = file.createReader(); LineReader src = new LineReader(in, FMT)) {
-                while (true) {
-                    line = src.next();
-                    if (line == null) {
-                        break;
-                    }
-                    result.vhosts.add(Vhost.forLine(stage.session.console.world, line));
-                }
-                return result;
-            }
-        } else {
-            return null;
-        }
-    }
-
-    private static FileNode file(FileNode backstage) {
-        return backstage.join("ports");
-    }
-
-    //--
-
     private final List<Vhost> vhosts;
 
-    public Ports() {
-        this.vhosts = new ArrayList<>();
+    public Ports(List<Vhost> vhosts) {
+        if (vhosts.size() < 2) {
+            throw new IllegalArgumentException();
+        }
+        this.vhosts = vhosts;
     }
 
     public int stop() {
@@ -150,20 +68,6 @@ public class Ports {
         return null;
     }
 
-    //--
-
-    private void save(FileNode backstage) throws IOException {
-        List<String> lines;
-
-        lines = new ArrayList<>();
-        for (Vhost vhost : vhosts) {
-            lines.add(vhost.toLine());
-        }
-        Files.stoolFile(file(backstage).writeLines(lines));
-    }
-
-    //--
-
     public Map<String, String> urlMap(boolean https, boolean vhosts, String hostname, String suffix) {
         Map<String, String> result;
 
@@ -177,30 +81,5 @@ public class Ports {
             }
         }
         return result;
-    }
-
-    //--
-
-    public static void addUsed(FileNode backstage, List<Integer> lazyUsed) throws IOException {
-        FileNode file;
-        String line;
-        int idx;
-
-        file = file(backstage);
-        if (file.isFile()) {
-            try (Reader in = file.createReader(); LineReader src = new LineReader(in, FMT)) {
-                while (true) {
-                    line = src.next();
-                    if (line == null) {
-                        break;
-                    }
-                    idx = line.indexOf(' ');
-                    if (idx != -1) {
-                        line = line.substring(0, idx);
-                    }
-                    lazyUsed.add(Integer.parseInt(line));
-                }
-            }
-        }
     }
 }

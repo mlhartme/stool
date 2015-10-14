@@ -21,6 +21,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
+/** immutable */
 public class Vhost {
     private static final char SEP = ' ';
 

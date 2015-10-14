@@ -161,6 +161,7 @@ public class Session {
     private final String stageIdPrefix;
     private int nextStageId;
     public final Users users;
+    private Pool lazyPool;
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd");
 
@@ -190,6 +191,7 @@ public class Session {
         } else {
             this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials);
         }
+        this.lazyPool= null;
     }
 
     //--
@@ -518,8 +520,11 @@ public class Session {
         return result;
     }
 
-    public Pool createPool() {
-        return new Pool(configuration.portFirst, configuration.portLast, backstages, configuration.reservedPorts.values());
+    public Pool pool() {
+        if (lazyPool == null) {
+            lazyPool = new Pool(home.join("run/ports"), configuration.portFirst, configuration.portLast);
+        }
+        return lazyPool;
     }
 
     public StageConfiguration createStageConfiguration(String url) throws IOException {

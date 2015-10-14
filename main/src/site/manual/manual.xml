@@ -1602,6 +1602,7 @@ http://docbook.org/ns/docbook ">
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
         |- dashboard.properties (Dashboard configuration)
         |- run
+        | |- ports  (ports allocated for stages)
         | |- stool.lock
         | |- sleep.json
         | '- users
@@ -1633,7 +1634,6 @@ http://docbook.org/ns/docbook ">
           '- (stage name)
             |- config.json (stage properties and some status fields)
             |- anchor (symlink to stage directory)
-            |- ports (ports allocated for this stage -- created when stage is first started)
             '- shared
             |- buildstats.json
             |- ssl (generated certs, if any)

@@ -16,42 +16,119 @@
 
 package net.oneandone.stool.util;
 
+import net.oneandone.stool.stage.Stage;
+import net.oneandone.sushi.fs.LineFormat;
+import net.oneandone.sushi.fs.LineReader;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 public class Pool {
+    private static final LineFormat FMT = new LineFormat(LineFormat.LF_SEPARATOR, LineFormat.Trim.ALL, LineFormat.excludes(true));
+
+    public static Pool load(FileNode file, int first, int last) throws IOException {
+        Pool result;
+        String line;
+
+        result = new Pool(file, first, last);
+        try (Reader in = file.createReader(); LineReader src = new LineReader(in, FMT)) {
+            while (true) {
+                line = src.next();
+                if (line == null) {
+                    break;
+                }
+                result.vhosts.add(Vhost.forLine(file.getWorld(), line));
+            }
+        }
+        return result;
+    }
+
+    //--
+
+    private final FileNode file;
     private final int first;
     private final int last;
-    private final Collection<Integer> excludes;
+    private final List<Vhost> vhosts;
 
-    private final FileNode backstages;
-    private List<Integer> lazyUsed;
-
-    public Pool(int first, int last, FileNode backstages, Collection<Integer> excludes) {
+    public Pool(FileNode file, int first, int last) {
         if (first % 2 != 0) {
             throw new IllegalArgumentException("even port expected: " + first);
         }
         if (last % 2 != 1) {
             throw new IllegalArgumentException("odd port expected: " + last);
         }
+        this.file = file;
         this.first = first;
         this.last = last;
-        this.excludes = excludes;
-        this.backstages = backstages;
-        this.lazyUsed = null;
+        this.vhosts = new ArrayList<>();
     }
 
-    public int allocate(String name) throws IOException {
-        return allocate(forName(name));
+    // TODO: ugly reference to stage ...
+    public Ports allocate(Stage stage) throws IOException {
+        Vhost previous;
+        String stageName;
+        List<Vhost> result;
+        String vhost;
+        // maps vhosts to docroots
+        Map<String, FileNode> map;
+
+        result = new ArrayList<>();
+        map = new LinkedHashMap<>();
+        stageName = stage.getName();
+        map.put("+stop+wrapper", null);
+        map.put("+jmx+debug", null);
+        map.putAll(stage.selectedVhosts());
+        map.putAll(stage.extensions().vhosts(stage));
+        for (Map.Entry<String, FileNode> entry : map.entrySet()) {
+            vhost = entry.getKey();
+            previous = lookup(vhost, stageName);
+            if (previous != null) {
+                if (Objects.equals(entry.getValue(), previous.docroot)) {
+                    result.add(previous);
+                } else {
+                    vhosts.remove(previous);
+                }
+            } else {
+                result.add(allocate(vhost, stageName, entry.getValue()));
+            }
+        }
+        save();
+        return new Ports(result);
     }
 
-    public int allocate(int start) throws IOException {
+    public Vhost lookup(String name, String stage) {
+        for (Vhost vhost : vhosts) {
+            if (name.equals(vhost.name) && stage.equals(vhost.name)) {
+                return vhost;
+            }
+        }
+        return null;
+    }
+
+    private void save() throws IOException {
+        List<String> lines;
+
+        lines = new ArrayList<>();
+        for (Vhost vhost : vhosts) {
+            lines.add(vhost.toLine());
+        }
+        Files.stoolFile(file.writeLines(lines));
+    }
+
+    private Vhost allocate(String name, String stage, FileNode docroot) throws IOException {
+        return allocate(forName(name, stage), name, stage, docroot);
+    }
+
+    private Vhost allocate(int start, String name, String stage, FileNode docroot) throws IOException {
         int current;
+        Vhost result;
 
         if ((start < first) || (start > last)) {
             throw new IllegalArgumentException("ports out of range: " + start);
@@ -61,13 +138,12 @@ public class Pool {
         }
         current = start;
         do {
-            if (excludes.contains(start)) {
-                // skip
-            } else if (!used().contains(current)) {
+            if (!used(current)) {
                 checkFree(current);
                 checkFree(current + 1);
-                lazyUsed.add(current);
-                return current;
+                result = new Vhost(current, name, stage, docroot);
+                vhosts.add(result);
+                return result;
             }
             current += 2;
             if (current > last) {
@@ -77,19 +153,20 @@ public class Pool {
         throw new IOException("cannot allocate port");
     }
 
-    public int forName(String name) {
-        return ((Math.abs(name.hashCode()) % (last - first + 1)) + first) & 0xfffffffe;
-    }
-
-    public List<Integer> used() throws IOException {
-        if (lazyUsed == null) {
-            lazyUsed = new ArrayList<>();
-            for (FileNode backstage : backstages.list()) {
-                Ports.addUsed(backstage, lazyUsed);
+    private boolean used(int even) {
+        for (Vhost vhost : vhosts) {
+            if (vhost.even == even) {
+                return true;
             }
         }
-        return lazyUsed;
+        return false;
     }
+
+    private int forName(String name, String stage) {
+        return ((Math.abs((name + stage).hashCode()) % (last - first + 1)) + first) & 0xfffffffe;
+    }
+
+    //--
 
     /**
      * See http://stackoverflow.com/questions/434718/sockets-discover-port-availability-using-java
@@ -119,5 +196,17 @@ public class Pool {
         if (!available) {
             throw new IOException("port already in use: " + port);
         }
+    }
+
+    public Ports stageOpt(String stage) {
+        List<Vhost> result;
+
+        result = new ArrayList<>();
+        for (Vhost vhost : vhosts) {
+            if (stage.equals(vhost.stage)) {
+                result.add(vhost);
+            }
+        }
+        return result.isEmpty() ? null : new Ports(result);
     }
 }
