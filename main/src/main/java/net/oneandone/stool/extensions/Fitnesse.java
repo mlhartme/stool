@@ -92,7 +92,7 @@ public class Fitnesse implements Extension {
     private String findProjectDir(Ports ports, Host fitnesseHost) {
         String path;
 
-        path = ports.lookup(removeLeft(fitnesseHost.vhost, FITNESSSE_PREFIX)).docBase();
+        path = ports.lookup(removeLeft(fitnesseHost.vhost(), FITNESSSE_PREFIX)).docBase();
         return path.substring(0, path.indexOf("/target"));
     }
 

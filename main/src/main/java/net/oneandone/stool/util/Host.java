@@ -39,21 +39,34 @@ public class Host {
             default:
                 throw new IOException("invalid host line: " + line);
         }
-        return new Host(Integer.parseInt(parts.get(0)), parts.get(1), parts.get(2), docroot);
+        return Host.create(Integer.parseInt(parts.get(0)), parts.get(1), parts.get(2), docroot);
+    }
+
+    public static Host create(int even, String vhost, String hostname, FileNode docroot) {
+        int idx;
+
+        idx = vhost.lastIndexOf('.');
+        if (idx == -1) {
+            throw new IllegalStateException(vhost);
+        }
+        return new Host(even, vhost.substring(0, idx), vhost.substring(idx + 1), hostname, docroot);
     }
 
     public final int even;
 
-    public final String vhost;
+    public final String name;
+
+    public final String stage;
 
     private final String hostname;
 
     /** null for ports that have no domain */
     public final FileNode docroot;
 
-    public Host(int even, String vhost, String hostname, FileNode docroot) {
+    public Host(int even, String name, String stage, String hostname, FileNode docroot) {
         this.even = even;
-        this.vhost = vhost;
+        this.name = name;
+        this.stage = stage;
         this.hostname = hostname;
         this.docroot = docroot;
     }
@@ -97,7 +110,7 @@ public class Host {
 
     public String fqdn(boolean vhosts) {
         if (vhosts) {
-            return vhost + "." + hostname;
+            return name + "." + stage + "." + hostname;
         } else {
             return hostname;
         }
@@ -107,10 +120,14 @@ public class Host {
         // CAUTION: just
         //    even + ' '
         // results in am integer!
-        return Integer.toString(even) + ' ' + vhost + ' ' + hostname + (docroot == null ? "" : " " + docroot);
+        return Integer.toString(even) + ' ' + vhost() + ' ' + hostname + (docroot == null ? "" : " " + docroot);
     }
 
     public String toString() {
         return toLine();
+    }
+
+    public String vhost() {
+        return name + "." + stage;
     }
 }

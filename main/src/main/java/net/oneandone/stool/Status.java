@@ -139,7 +139,7 @@ public class Status extends StageCommand {
                 if (host.isWebapp()) {
                     continue;
                 }
-                if (host.vhost.contains("+")) {
+                if (host.name.contains("+")) {
                     continue;
                 }
                 result.add(host.httpUrl(stage.session.configuration.vhosts));

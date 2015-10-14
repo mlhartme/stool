@@ -69,7 +69,7 @@ public class Ports {
                     even = pool.allocate(vhost);
                 }
             }
-            result.hosts.add(new Host(even, vhost, stage.session.configuration.hostname, entry.getValue()));
+            result.hosts.add(Host.create(even, vhost, stage.session.configuration.hostname, entry.getValue()));
         }
         result.save(stage.backstage);
         return result;
@@ -143,7 +143,7 @@ public class Ports {
 
     public Host lookup(String vhost) {
         for (Host host : hosts) {
-            if (vhost.equals(host.vhost)) {
+            if (vhost.equals(host.vhost())) {
                 return host;
             }
         }
@@ -172,8 +172,8 @@ public class Ports {
         result = new LinkedHashMap<>();
         for (Host host : hosts()) {
             if (host.isWebapp()) {
-                name = host.vhost;
-                idx = host.vhost.indexOf('.');
+                name = host.vhost();
+                idx = host.vhost().indexOf('.');
                 if (idx != -1) {
                     name = name.substring(0, idx);
                 }
