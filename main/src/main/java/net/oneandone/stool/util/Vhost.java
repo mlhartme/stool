@@ -18,28 +18,43 @@ package net.oneandone.stool.util;
 
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
-import java.util.List;
 
 public class Vhost {
+    private static final char SEP = ' ';
+
+    // parses   <even> <name> <stage> [<docroot>]
     public static Vhost forLine(World world, String line) throws IOException {
-        List<String> parts;
+        int afterEven;
+        int afterName;
+        int afterStage;
+        int even;
+        String name;
+        String stage;
         FileNode docroot;
 
-        parts = Separator.SPACE.split(line);
-        switch (parts.size()) {
-            case 3:
-                docroot = null;
-                break;
-            case 4:
-                docroot = world.file(parts.get(2));
-                break;
-            default:
-                throw new IOException("invalid vhost line: " + line);
+        afterEven = line.indexOf(SEP);
+        if (afterEven == -1) {
+            throw new IllegalArgumentException("invalid vhost line: " + line);
         }
-        return new Vhost(Integer.parseInt(parts.get(0)), parts.get(1), parts.get(2), docroot);
+        even = Integer.parseInt(line.substring(0, afterEven));
+
+        afterName = line.indexOf(SEP, afterEven + 1);
+        if (afterName == -1) {
+            throw new IllegalArgumentException("invalid vhost line: " + line);
+        }
+        name = line.substring(afterEven + 1, afterName);
+
+        afterStage = line.indexOf(SEP, afterName + 1);
+        if (afterStage == -1) {
+            stage = line.substring(afterName + 1);
+            docroot = null;
+        } else {
+            stage = line.substring(afterName + 1, afterStage);
+            docroot = world.file(line.substring(afterStage + 1));
+        }
+        return new Vhost(even, name, stage, docroot);
     }
 
     // TODO: dump
@@ -63,10 +78,10 @@ public class Vhost {
     public final FileNode docroot;
 
     public Vhost(int even, String name, String stage, FileNode docroot) {
-        if (name.indexOf(' ') != -1) {
+        if (name.indexOf(SEP) != -1) {
             throw new IllegalArgumentException(name);
         }
-        if (stage.indexOf(' ') != -1) {
+        if (stage.indexOf(SEP) != -1) {
             throw new IllegalArgumentException(stage);
         }
         this.even = even;
@@ -122,9 +137,9 @@ public class Vhost {
 
     public String toLine() {
         // CAUTION: just
-        //    even + ' '
+        //    even + SEP
         // is an integer addition!
-        return Integer.toString(even) + ' ' + name + ' ' + stage + (docroot == null ? "" : " " + docroot);
+        return Integer.toString(even) + SEP + name + SEP + stage + (docroot == null ? "" : Character.toString(SEP) + docroot);
     }
 
     public String toString() {
