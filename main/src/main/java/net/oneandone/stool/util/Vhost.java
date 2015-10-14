@@ -57,17 +57,6 @@ public class Vhost {
         return new Vhost(even, name, stage, docroot);
     }
 
-    // TODO: dump
-    public static Vhost create(int even, String vhost, FileNode docroot) {
-        int idx;
-
-        idx = vhost.lastIndexOf('.');
-        if (idx == -1) {
-            throw new IllegalStateException(vhost);
-        }
-        return new Vhost(even, vhost.substring(0, idx), vhost.substring(idx + 1), docroot);
-    }
-
     public final int even;
 
     public final String name;
@@ -144,9 +133,5 @@ public class Vhost {
 
     public String toString() {
         return toLine();
-    }
-
-    public String vhost() {
-        return name + "." + stage;
     }
 }

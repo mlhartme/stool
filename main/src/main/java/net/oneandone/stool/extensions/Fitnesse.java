@@ -22,6 +22,7 @@ import net.oneandone.stool.util.Ports;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,8 +30,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-
-import static net.oneandone.sushi.util.Strings.removeLeft;
 
 public class Fitnesse implements Extension {
     private static final String FITNESSSE_PREFIX = "fitnesse.";
@@ -43,7 +42,7 @@ public class Fitnesse implements Extension {
             throw new UnsupportedOperationException("stage type not supported: " + stage.getClass());
         }
         result = new HashMap<>();
-        for (String vhost : stage.hosts().keySet()) {
+        for (String vhost : stage.vhosts().keySet()) {
             result.put(FITNESSSE_PREFIX + vhost, null);
         }
         return result;
@@ -60,8 +59,8 @@ public class Fitnesse implements Extension {
 
         console = stage.session.console;
         ports = stage.loadPortsOpt();
-        for (String vhost : stage.hosts().keySet()) {
-            host = ports.lookup(FITNESSSE_PREFIX + vhost);
+        for (String vhost : stage.vhosts().keySet()) {
+            host = ports.lookup(FITNESSSE_PREFIX + vhost, stage.getName());
             port = host.httpPort();
             url = findUrl(stage, host);
             String projectDir = findProjectDir(ports, host);
@@ -91,7 +90,7 @@ public class Fitnesse implements Extension {
     private String findProjectDir(Ports ports, Vhost fitnesseHost) {
         String path;
 
-        path = ports.lookup(removeLeft(fitnesseHost.vhost(), FITNESSSE_PREFIX)).docBase();
+        path = ports.lookup(Strings.removeLeft(fitnesseHost.name, FITNESSSE_PREFIX), fitnesseHost.stage).docBase();
         return path.substring(0, path.indexOf("/target"));
     }
 
@@ -104,8 +103,8 @@ public class Fitnesse implements Extension {
         console = stage.session.console;
         ports = stage.loadPortsOpt();
 
-        for (String vhost : stage.hosts().keySet()) {
-            host = ports.lookup(FITNESSSE_PREFIX + vhost);
+        for (String vhost : stage.vhosts().keySet()) {
+            host = ports.lookup(FITNESSSE_PREFIX + vhost, stage.getName());
             String url = findUrl(stage, host);
             if (isFitnesseServerUp(url, console)) {
                 stage.launcher("curl", url + "?responder=shutdown").exec(console.verbose);

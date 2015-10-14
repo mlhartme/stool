@@ -163,14 +163,14 @@ public class ArtifactStage extends Stage {
     }
 
     @Override
-    public Map<String, FileNode> hosts() {
+    public Map<String, FileNode> vhosts() {
         Map<String, FileNode> result;
         FileNode dir;
 
         result = new LinkedHashMap<>();
         for (Application application : applications.applications()) {
             dir = application.currentFile().getParent();
-            result.put(dir.getName() + "." + getName(), dir.join("ROOT"));
+            result.put(dir.getName(), dir.join("ROOT"));
         }
 
         return result;

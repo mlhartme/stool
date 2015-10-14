@@ -245,28 +245,27 @@ public abstract class Stage {
 
     //--
 
-    /** @return vhost to docroot mapping, where vhost is artifactId + "." + stageName, to uniquely identify the host */
-    public abstract Map<String, FileNode> hosts() throws IOException;
+    /** @return vhost to docroot mapping, where vhost does *not* include the stage name */
+    public abstract Map<String, FileNode> vhosts() throws IOException;
 
-    public Map<String, FileNode> selectedHosts() throws IOException {
-        Map<String, FileNode> hosts;
+    public Map<String, FileNode> selectedVhosts() throws IOException {
+        Map<String, FileNode> vhosts;
         Iterator<Map.Entry<String, FileNode>> iter;
         List<String> selected;
-        String hostname;
+        String vhostname;
 
-        hosts = hosts();
+        vhosts = vhosts();
         selected = configuration.tomcatSelect;
         if (!selected.isEmpty()) {
-            iter = hosts.entrySet().iterator();
+            iter = vhosts.entrySet().iterator();
             while (iter.hasNext()) {
-                hostname = iter.next().getKey();
-                hostname = hostname.substring(0, hostname.indexOf('.'));
-                if (!selected.contains(hostname)) {
+                vhostname = iter.next().getKey();
+                if (!selected.contains(vhostname)) {
                     iter.remove();
                 }
             }
         }
-        return hosts;
+        return vhosts;
     }
 
     public Ports loadPortsOpt() throws IOException {

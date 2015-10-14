@@ -33,43 +33,43 @@ public class Ports {
     public static Ports allocate(Stage stage) throws IOException {
         Ports previous;
         Pool pool;
-        String name;
+        String stageName;
         Ports result;
         String vhoststr;
         int even;
-        Vhost host;
-        Map<String, FileNode> hosts;
+        Vhost vhost;
+        Map<String, FileNode> vhosts;
         Integer i;
         Map<String, Integer> reserved;
 
         previous = loadOpt(stage);
         pool = stage.session.createPool();
         result = new Ports();
-        hosts = new LinkedHashMap<>();
-        name = stage.getName();
-        hosts.put("stop+wrapper." + name, null);
-        hosts.put("jmx+debug." + name, null);
-        hosts.putAll(stage.selectedHosts());
-        hosts.putAll(stage.extensions().vhosts(stage));
-        for (Map.Entry<String, FileNode> entry : hosts.entrySet()) {
+        vhosts = new LinkedHashMap<>();
+        stageName = stage.getName();
+        vhosts.put("stop+wrapper", null);
+        vhosts.put("jmx+debug", null);
+        vhosts.putAll(stage.selectedVhosts());
+        vhosts.putAll(stage.extensions().vhosts(stage));
+        for (Map.Entry<String, FileNode> entry : vhosts.entrySet()) {
             vhoststr = entry.getKey();
             even = 0;
             if (previous != null) {
-                host = previous.lookup(vhoststr);
-                if (host != null) {
-                    even = host.even;
+                vhost = previous.lookup(vhoststr, stageName);
+                if (vhost != null) {
+                    even = vhost.even;
                 }
             }
             if (even == 0) {
                 reserved = stage.session.configuration.reservedPorts;
-                i = reserved.get(vhoststr);
+                i = reserved.get(vhoststr + "." + stageName);
                 if (i != null) {
                     even = i;
                 } else {
                     even = pool.allocate(vhoststr);
                 }
             }
-            result.vhosts.add(Vhost.create(even, vhoststr, entry.getValue()));
+            result.vhosts.add(new Vhost(even, vhoststr, stageName, entry.getValue()));
         }
         result.save(stage.backstage);
         return result;
@@ -128,22 +128,22 @@ public class Ports {
         return vhosts.get(1).even + 1;
     }
 
-    public List<Vhost> hosts() {
+    public List<Vhost> vhosts() {
         return vhosts;
     }
 
-    public Vhost mainHost() {
-        for (Vhost host : hosts()) {
-            if (host.isWebapp()) {
-                return host;
+    public Vhost firstWebapp() {
+        for (Vhost vhost : vhosts()) {
+            if (vhost.isWebapp()) {
+                return vhost;
             }
         }
         throw new IllegalStateException();
     }
 
-    public Vhost lookup(String str) {
+    public Vhost lookup(String name, String stage) {
         for (Vhost vhost : vhosts) {
-            if (str.equals(vhost.vhost())) {
+            if (name.equals(vhost.name) && stage.equals(vhost.name)) {
                 return vhost;
             }
         }
@@ -165,21 +165,14 @@ public class Ports {
     //--
 
     public Map<String, String> urlMap(boolean https, boolean vhosts, String hostname, String suffix) {
-        String name;
         Map<String, String> result;
-        int idx;
 
         result = new LinkedHashMap<>();
-        for (Vhost host : hosts()) {
-            if (host.isWebapp()) {
-                name = host.vhost();
-                idx = host.vhost().indexOf('.');
-                if (idx != -1) {
-                    name = name.substring(0, idx);
-                }
-                result.put(name, host.httpUrl(vhosts, hostname) + suffix);
+        for (Vhost vhost : vhosts()) {
+            if (vhost.isWebapp()) {
+                result.put(vhost.name, vhost.httpUrl(vhosts, hostname) + suffix);
                 if (https) {
-                    result.put(name + " SSL", host.httpsUrl(vhosts, hostname) + suffix);
+                    result.put(vhost.name + " SSL", vhost.httpsUrl(vhosts, hostname) + suffix);
                 }
             }
         }

@@ -135,14 +135,14 @@ public class Status extends StageCommand {
 
         result = new ArrayList<>();
         if (ports != null) {
-            for (Vhost host : ports.hosts()) {
-                if (host.isWebapp()) {
+            for (Vhost vhost : ports.vhosts()) {
+                if (vhost.isWebapp()) {
                     continue;
                 }
-                if (host.name.contains("+")) {
+                if (vhost.name.contains("+")) {
                     continue;
                 }
-                result.add(host.httpUrl(stage.session.configuration.vhosts, stage.session.configuration.hostname));
+                result.add(vhost.httpUrl(stage.session.configuration.vhosts, stage.session.configuration.hostname));
             }
         }
         return result;
