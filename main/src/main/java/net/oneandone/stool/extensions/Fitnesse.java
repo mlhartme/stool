@@ -17,12 +17,11 @@ package net.oneandone.stool.extensions;
 
 import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Host;
+import net.oneandone.stool.util.Vhost;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
-import net.oneandone.sushi.xml.XmlException;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +53,7 @@ public class Fitnesse implements Extension {
     public void beforeStart(Stage stage) throws IOException {
         Console console;
         Ports ports;
-        Host host;
+        Vhost host;
         int port;
         String url;
         Launcher launcher;
@@ -89,7 +88,7 @@ public class Fitnesse implements Extension {
         }
     }
 
-    private String findProjectDir(Ports ports, Host fitnesseHost) {
+    private String findProjectDir(Ports ports, Vhost fitnesseHost) {
         String path;
 
         path = ports.lookup(removeLeft(fitnesseHost.vhost(), FITNESSSE_PREFIX)).docBase();
@@ -100,7 +99,7 @@ public class Fitnesse implements Extension {
     public void beforeStop(Stage stage) throws IOException {
         Console console;
         Ports ports;
-        Host host;
+        Vhost host;
 
         console = stage.session.console;
         ports = stage.loadPortsOpt();
@@ -130,7 +129,7 @@ public class Fitnesse implements Extension {
         return false;
     }
 
-    private String findUrl(Stage stage, Host host) {
+    private String findUrl(Stage stage, Vhost host) {
         return host.httpUrl(stage.session.configuration.vhosts);
     }
 

@@ -59,7 +59,7 @@ public class ServerXml {
 
         document.getDocumentElement().setAttribute("port", Integer.toString(ports.stop()));
         template = selector.element(document, "Server/Service");
-        for (Host host : ports.hosts()) {
+        for (Vhost host : ports.hosts()) {
             if (host.isWebapp()) {
                 service = (Element) template.cloneNode(true);
                 document.getDocumentElement().appendChild(service);
@@ -71,7 +71,7 @@ public class ServerXml {
         template.getParentNode().removeChild(template);
     }
 
-    private void service(Element service, Host object) throws XmlException {
+    private void service(Element service, Vhost object) throws XmlException {
         String name;
         Element engine;
         Element host;
@@ -101,7 +101,7 @@ public class ServerXml {
         host.insertBefore(element, host.getFirstChild());
     }
 
-    private void connectors(Element service, Host host, KeyStore keyStore) {
+    private void connectors(Element service, Vhost host, KeyStore keyStore) {
         String ip;
 
         ip = "0.0.0.0";

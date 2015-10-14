@@ -23,8 +23,8 @@ import net.oneandone.sushi.util.Separator;
 import java.io.IOException;
 import java.util.List;
 
-public class Host {
-    public static Host forLine(World world, String line) throws IOException {
+public class Vhost {
+    public static Vhost forLine(World world, String line) throws IOException {
         List<String> parts;
         FileNode docroot;
 
@@ -37,19 +37,19 @@ public class Host {
                 docroot = world.file(parts.get(3));
                 break;
             default:
-                throw new IOException("invalid host line: " + line);
+                throw new IOException("invalid vhost line: " + line);
         }
-        return Host.create(Integer.parseInt(parts.get(0)), parts.get(1), parts.get(2), docroot);
+        return Vhost.create(Integer.parseInt(parts.get(0)), parts.get(1), parts.get(2), docroot);
     }
 
-    public static Host create(int even, String vhost, String hostname, FileNode docroot) {
+    public static Vhost create(int even, String vhost, String hostname, FileNode docroot) {
         int idx;
 
         idx = vhost.lastIndexOf('.');
         if (idx == -1) {
             throw new IllegalStateException(vhost);
         }
-        return new Host(even, vhost.substring(0, idx), vhost.substring(idx + 1), hostname, docroot);
+        return new Vhost(even, vhost.substring(0, idx), vhost.substring(idx + 1), hostname, docroot);
     }
 
     public final int even;
@@ -63,7 +63,7 @@ public class Host {
     /** null for ports that have no domain */
     public final FileNode docroot;
 
-    public Host(int even, String name, String stage, String hostname, FileNode docroot) {
+    public Vhost(int even, String name, String stage, String hostname, FileNode docroot) {
         this.even = even;
         this.name = name;
         this.stage = stage;

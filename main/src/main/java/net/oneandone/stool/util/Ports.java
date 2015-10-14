@@ -37,7 +37,7 @@ public class Ports {
         Ports result;
         String vhost;
         int even;
-        Host host;
+        Vhost host;
         Map<String, FileNode> hosts;
         Integer i;
         Map<String, Integer> reserved;
@@ -69,7 +69,7 @@ public class Ports {
                     even = pool.allocate(vhost);
                 }
             }
-            result.hosts.add(Host.create(even, vhost, stage.session.configuration.hostname, entry.getValue()));
+            result.hosts.add(Vhost.create(even, vhost, stage.session.configuration.hostname, entry.getValue()));
         }
         result.save(stage.backstage);
         return result;
@@ -91,7 +91,7 @@ public class Ports {
                     if (line == null) {
                         break;
                     }
-                    result.hosts.add(Host.forLine(stage.session.console.world, line));
+                    result.hosts.add(Vhost.forLine(stage.session.console.world, line));
                 }
                 return result;
             }
@@ -106,7 +106,7 @@ public class Ports {
 
     //--
 
-    private final List<Host> hosts;
+    private final List<Vhost> hosts;
 
     public Ports() {
         this.hosts = new ArrayList<>();
@@ -128,12 +128,12 @@ public class Ports {
         return hosts.get(1).even + 1;
     }
 
-    public List<Host> hosts() {
+    public List<Vhost> hosts() {
         return hosts;
     }
 
-    public Host mainHost() {
-        for (Host host : hosts()) {
+    public Vhost mainHost() {
+        for (Vhost host : hosts()) {
             if (host.isWebapp()) {
                 return host;
             }
@@ -141,8 +141,8 @@ public class Ports {
         throw new IllegalStateException();
     }
 
-    public Host lookup(String vhost) {
-        for (Host host : hosts) {
+    public Vhost lookup(String vhost) {
+        for (Vhost host : hosts) {
             if (vhost.equals(host.vhost())) {
                 return host;
             }
@@ -156,7 +156,7 @@ public class Ports {
         List<String> lines;
 
         lines = new ArrayList<>();
-        for (Host host : hosts) {
+        for (Vhost host : hosts) {
             lines.add(host.toLine());
         }
         Files.stoolFile(file(backstage).writeLines(lines));
@@ -170,7 +170,7 @@ public class Ports {
         int idx;
 
         result = new LinkedHashMap<>();
-        for (Host host : hosts()) {
+        for (Vhost host : hosts()) {
             if (host.isWebapp()) {
                 name = host.vhost();
                 idx = host.vhost().indexOf('.');

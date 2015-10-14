@@ -16,7 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Host;
+import net.oneandone.stool.util.Vhost;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -135,7 +135,7 @@ public class Status extends StageCommand {
 
         result = new ArrayList<>();
         if (ports != null) {
-            for (Host host : ports.hosts()) {
+            for (Vhost host : ports.hosts()) {
                 if (host.isWebapp()) {
                     continue;
                 }
