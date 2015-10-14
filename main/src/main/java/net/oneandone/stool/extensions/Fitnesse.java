@@ -60,7 +60,7 @@ public class Fitnesse implements Extension {
         console = stage.session.console;
         ports = stage.loadPortsOpt();
         for (String vhost : stage.vhosts().keySet()) {
-            host = ports.lookup(FITNESSSE_PREFIX + vhost, stage.getName());
+            host = ports.lookup(FITNESSSE_PREFIX + vhost);
             port = host.httpPort();
             url = findUrl(stage, host);
             String projectDir = findProjectDir(ports, host);
@@ -90,7 +90,7 @@ public class Fitnesse implements Extension {
     private String findProjectDir(Ports ports, Vhost fitnesseHost) {
         String path;
 
-        path = ports.lookup(Strings.removeLeft(fitnesseHost.name, FITNESSSE_PREFIX), fitnesseHost.stage).docBase();
+        path = ports.lookup(Strings.removeLeft(fitnesseHost.name, FITNESSSE_PREFIX)).docBase();
         return path.substring(0, path.indexOf("/target"));
     }
 
@@ -104,7 +104,7 @@ public class Fitnesse implements Extension {
         ports = stage.loadPortsOpt();
 
         for (String vhost : stage.vhosts().keySet()) {
-            host = ports.lookup(FITNESSSE_PREFIX + vhost, stage.getName());
+            host = ports.lookup(FITNESSSE_PREFIX + vhost);
             String url = findUrl(stage, host);
             if (isFitnesseServerUp(url, console)) {
                 stage.launcher("curl", url + "?responder=shutdown").exec(console.verbose);

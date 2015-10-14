@@ -45,8 +45,8 @@ public class Ports {
             }
         }
         this.vhosts = vhosts;
-        this.stopWrapper = indexOf(STOP_WRAPPER, stage);
-        this.jmxDebug = indexOf(JMX_DEBUG, stage);
+        this.stopWrapper = indexOf(STOP_WRAPPER);
+        this.jmxDebug = indexOf(JMX_DEBUG);
         if (stopWrapper == -1) {
             throw new IllegalArgumentException(vhosts.toString());
         }
@@ -84,19 +84,19 @@ public class Ports {
         throw new IllegalStateException();
     }
 
-    public Vhost lookup(String name, String stage) {
+    public Vhost lookup(String name) {
         int idx;
 
-        idx = indexOf(name, stage);
+        idx = indexOf(name);
         return idx == -1 ? null : vhosts.get(idx);
     }
 
-    public int indexOf(String name, String stage) {
+    private int indexOf(String name) {
         Vhost vhost;
 
         for (int i = 0; i < vhosts.size(); i++) {
             vhost = vhosts.get(i);
-            if (name.equals(vhost.name) && stage.equals(vhost.stage)) {
+            if (name.equals(vhost.name)) {
                 return i;
             }
         }
