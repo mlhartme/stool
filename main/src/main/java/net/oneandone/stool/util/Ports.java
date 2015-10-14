@@ -69,7 +69,7 @@ public class Ports {
                     even = pool.allocate(vhost);
                 }
             }
-            result.hosts.add(Vhost.create(even, vhost, entry.getValue()));
+            result.vhosts.add(Vhost.create(even, vhost, entry.getValue()));
         }
         result.save(stage.backstage);
         return result;
@@ -91,7 +91,7 @@ public class Ports {
                     if (line == null) {
                         break;
                     }
-                    result.hosts.add(Vhost.forLine(stage.session.console.world, line));
+                    result.vhosts.add(Vhost.forLine(stage.session.console.world, line));
                 }
                 return result;
             }
@@ -106,30 +106,30 @@ public class Ports {
 
     //--
 
-    private final List<Vhost> hosts;
+    private final List<Vhost> vhosts;
 
     public Ports() {
-        this.hosts = new ArrayList<>();
+        this.vhosts = new ArrayList<>();
     }
 
     public int stop() {
-        return hosts.get(0).even;
+        return vhosts.get(0).even;
     }
 
     public int wrapper() {
-        return hosts.get(0).even + 1;
+        return vhosts.get(0).even + 1;
     }
 
     public int jmx() {
-        return hosts.get(1).even;
+        return vhosts.get(1).even;
     }
 
     public int debug() {
-        return hosts.get(1).even + 1;
+        return vhosts.get(1).even + 1;
     }
 
     public List<Vhost> hosts() {
-        return hosts;
+        return vhosts;
     }
 
     public Vhost mainHost() {
@@ -141,10 +141,10 @@ public class Ports {
         throw new IllegalStateException();
     }
 
-    public Vhost lookup(String vhost) {
-        for (Vhost host : hosts) {
-            if (vhost.equals(host.vhost())) {
-                return host;
+    public Vhost lookup(String str) {
+        for (Vhost vhost : vhosts) {
+            if (str.equals(vhost.vhost())) {
+                return vhost;
             }
         }
         return null;
@@ -156,8 +156,8 @@ public class Ports {
         List<String> lines;
 
         lines = new ArrayList<>();
-        for (Vhost host : hosts) {
-            lines.add(host.toLine());
+        for (Vhost vhost : vhosts) {
+            lines.add(vhost.toLine());
         }
         Files.stoolFile(file(backstage).writeLines(lines));
     }
