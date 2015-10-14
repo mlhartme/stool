@@ -30,18 +30,19 @@ public class Vhost {
 
         parts = Separator.SPACE.split(line);
         switch (parts.size()) {
-            case 2:
+            case 3:
                 docroot = null;
                 break;
-            case 3:
+            case 4:
                 docroot = world.file(parts.get(2));
                 break;
             default:
                 throw new IOException("invalid vhost line: " + line);
         }
-        return Vhost.create(Integer.parseInt(parts.get(0)), parts.get(1), docroot);
+        return new Vhost(Integer.parseInt(parts.get(0)), parts.get(1), parts.get(2), docroot);
     }
 
+    // TODO: dump
     public static Vhost create(int even, String vhost, FileNode docroot) {
         int idx;
 
@@ -62,6 +63,12 @@ public class Vhost {
     public final FileNode docroot;
 
     public Vhost(int even, String name, String stage, FileNode docroot) {
+        if (name.indexOf(' ') != -1) {
+            throw new IllegalArgumentException(name);
+        }
+        if (stage.indexOf(' ') != -1) {
+            throw new IllegalArgumentException(stage);
+        }
         this.even = even;
         this.name = name;
         this.stage = stage;
@@ -116,8 +123,8 @@ public class Vhost {
     public String toLine() {
         // CAUTION: just
         //    even + ' '
-        // results in am integer!
-        return Integer.toString(even) + ' ' + vhost() + (docroot == null ? "" : " " + docroot);
+        // is an integer addition!
+        return Integer.toString(even) + ' ' + name + ' ' + stage + (docroot == null ? "" : " " + docroot);
     }
 
     public String toString() {
