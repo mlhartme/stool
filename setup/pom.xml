@@ -41,6 +41,17 @@
         <groupId>net.oneandone.maven.plugins</groupId>
         <artifactId>application</artifactId>
         <version>1.6.0-SNAPSHOT</version>
+        <configuration>
+          <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
+          <overwrite>org/apache/commons/logging/**/*</overwrite>
+          <remove>META-INF/maven/**/*,
+            META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
+            META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
+            readme.txt, changelog.txt, notice.txt, license.txt, licenses/*
+          </remove>
+          <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
+          <attach>false</attach>
+        </configuration>
         <executions>
           <execution>
             <configuration>
@@ -49,17 +60,54 @@
               <options>-Djava.awt.headless=true</options>
               <name>setup-stool</name>
               <main>net.oneandone.stool.setup.JavaSetup</main>
-              <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
-              <overwrite>org/apache/commons/logging/**/*</overwrite>
-              <remove>META-INF/maven/**/*,
-                META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
-                META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
-                readme.txt, changelog.txt, notice.txt, license.txt, licenses/*
-              </remove>
-              <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
-              <attach>false</attach>
             </configuration>
             <id>java-setup</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+          <execution>
+            <configuration>
+              <name>postrm</name>
+              <main>net.oneandone.stool.setup.DebianSetup</main>
+              <shrink>true</shrink>
+              <shrinkOptions>
+                -dontoptimize # because of proguard bug
+                -keepattributes *Annotation*
+                -ignorewarnings
+
+                -dontnote com.sun.mail.**
+                -dontnote javax.annotation.*
+                -dontwarn javax.enterprise.**
+                -dontnote javax.enterprise.**
+                -dontnote org.apache.maven.**
+                -dontwarn org.apache.maven.**
+                -dontnote net.oneandone.stool.**
+                -dontnote ch.qos.logback.**
+                -dontwarn ch.qos.logback.**
+                -dontnote org.apache.commons.**
+                -dontwarn org.apache.commons.**
+                -dontnote org.apache.http.**
+                -dontwarn org.apache.http.**
+                -dontnote com.google.**
+                -dontwarn com.google.**
+                -dontnote org.eclipse.**
+                -dontwarn org.eclipse.**
+                -dontnote org.codehaus.**
+                -dontwarn org.codehaus.**
+                -dontnote net.oneandone.sushi.**
+                -dontwarn net.oneandone.sushi.**
+
+                -keep public class ** implements net.oneandone.stool.extensions.Extension {
+                public &lt;init>(...);
+                }
+
+                -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
+                public &lt;init>(...);
+                }
+              </shrinkOptions>
+            </configuration>
+            <id>debian-setup</id>
             <goals>
               <goal>generate</goal>
             </goals>
@@ -69,13 +117,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
-        <dependencies>
-          <dependency>
-            <groupId>net.sf.proguard</groupId>
-            <artifactId>proguard-anttask</artifactId>
-            <version>5.2.1</version>
-          </dependency>
-        </dependencies>
         <executions>
           <execution>
             <phase>package</phase>
@@ -84,26 +125,13 @@
                 <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/setup-stool" fork="false">
                   <arg path="${project.build.directory}/debfiles" />
                 </java>
-                <java classname="net.oneandone.stool.setup.Rawjar" classpath="${project.build.directory}/setup-stool" fork="false">
-                  <arg path="${project.build.directory}/setup-stool"/>
-                  <arg path="${project.build.directory}/setup-stool.jar"/>
-                </java>
                 <copy todir="${project.build.directory}/deb/control/">
                   <fileset dir="${basedir}/src/deb/control"/>
                 </copy>
                 <copy file="${project.build.directory}/deb/control/template" tofile="${project.build.directory}/deb/control/preinst"/>
                 <copy file="${project.build.directory}/deb/control/template" tofile="${project.build.directory}/deb/control/postinst"/>
                 <copy file="${project.build.directory}/deb/control/template" tofile="${project.build.directory}/deb/control/prerm"/>
-                <move file="${project.build.directory}/deb/control/template" tofile="${project.build.directory}/deb/control/postrm.bin"/>
-                <!-- http://proguard.sourceforge.net/index.html -->
-                <taskdef resource="proguard/ant/task.properties"
-                         classpath="/usr/local/java/proguard/lib/proguard.jar" />
-                <proguard configuration="src/debian.pro"/>
-
-                <!-- append jar to postrm, because that's the last file remaining in var/lib/dpkg when running the postrm script -->
-                <concat destfile="${project.build.directory}/deb/control/postrm.bin" binary="true" append="true">
-                  <filelist dir="${project.build.directory}" files="setup-stool-min.jar"/>
-                </concat>
+                <move file="${project.build.directory}/postrm" tofile="${project.build.directory}/deb/control/postrm.bin"/>
               </target>
             </configuration>
             <goals>

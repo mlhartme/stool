@@ -53,7 +53,7 @@ public class Debian {
                     postrm(args);
                     break;
                 default:
-                    throw new IllegalArgumentException(cmd);
+                    throw new IllegalArgumentException(Separator.SPACE.join(args) + " - " + cmd);
             }
         } catch (IOException e) {
             console.error.println(e.getMessage());
