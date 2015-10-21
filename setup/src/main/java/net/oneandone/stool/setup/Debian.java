@@ -28,18 +28,19 @@ import java.util.List;
 /** Called by Debian Maintainer scripts https://www.debian.org/doc/debian-policy/ch-maintainerscripts.html */
 public class Debian {
     public int run(String ... args) {
-        String cmd;
+        String all;
+        String script;
 
         if (args.length == 0) {
             throw new IllegalArgumentException();
         }
-        verbose(Separator.SPACE.join(args));
-        cmd = args[0]; // path to maintainer script, e.g. /var/lib/dpkg/info/stool.postinst or /var/lib/dpkg/tmp.ci/preinst
-        cmd = cmd.substring(cmd.lastIndexOf('/') + 1); // last path segment - important to properly get preinst name
-        cmd = cmd.substring(cmd.lastIndexOf('.') + 1); // ok for both 'preinst' and 'mypkg.preinst'
-        args = Strings.cdr(args);
+        // I use to mass the script name via $0 before all other arguments here - but I learned that dpkg/apt renames maintainer scripts
+        // depending of the current setup state.
+        script = System.getenv("DPKG_MAINTSCRIPT_NAME");
+        all = script + ": " + Separator.SPACE.join(args);
+        verbose(all);
         try {
-            switch (cmd) {
+            switch (script) {
                 case "preinst":
                     preinst(args);
                     break;
@@ -53,13 +54,16 @@ public class Debian {
                     postrm(args);
                     break;
                 default:
-                    throw new IllegalArgumentException(Separator.SPACE.join(args) + " - " + cmd);
+                    echo("env: " + System.getenv());
+                    echo("jar: " + world.locateClasspathItem(Debian.class));
+                    throw new IllegalArgumentException(all);
             }
         } catch (IOException e) {
             console.error.println(e.getMessage());
             e.printStackTrace(console.verbose);
             return 1;
         }
+        verbose(all + ": ok");
         return 0;
     }
 
