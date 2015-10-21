@@ -178,6 +178,9 @@ public class Debian {
             case "abort-install":
                 postrmAbortInstall();
                 break;
+            case "abort-upgrade":
+                postrmAbortUpgrade();
+                break;
             default:
                 throw new IllegalArgumentException("postrm called with unknown argument: " + args[0]);
         }
@@ -194,6 +197,8 @@ public class Debian {
     protected void postrmFailedUpgrade() throws IOException {
     }
     protected void postrmAbortInstall() throws IOException {
+    }
+    protected void postrmAbortUpgrade() throws IOException {
     }
 
     //--
