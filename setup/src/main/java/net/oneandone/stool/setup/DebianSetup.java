@@ -45,7 +45,7 @@ public class DebianSetup extends Debian {
             home = world.file("/var/lib/stool");
             group = "stool";
         }
-        user = group;
+        user = "stool";
     }
 
     //--
