@@ -8,7 +8,7 @@
         Support stages with empty MAVEN_HOME.
       </action>
       <action date="2015-10-02" dev="mlhartme" type="update">
-        The separator for list property values is ",", space is no longer supported.
+        The separator for list property values is "," now, space is no longer supported.
       </action>
       <action date="2015-10-02" dev="mlhartme" type="fix">
         Display properties as strings, not as json objects.
