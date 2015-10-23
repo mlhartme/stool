@@ -18,7 +18,7 @@
         Because the old white-listing is hard to debug and problematic when starting an application as a different user.
       </action>
       <action date="2015-10-02" dev="mlhartme" type="fix">
-        Removed global errorTool parameter, used admin emails instead.
+        Removed global errorTool parameter, send emails to configured admin instead.
       </action>
       <action date="2015-10-02" dev="mlhartme" type="fix">
         Fixed illegal argument exception is an absolute path is passed to 'stool select'.
