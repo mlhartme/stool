@@ -37,8 +37,6 @@ public class Restart extends StageCommand {
         } else {
             console.info.println("Tomcat is not running - starting a new instance.");
         }
-        // tomcat may take some time
-        Thread.sleep(5000);
 
         new Start(session, debug, suspend).doInvoke(stage);
         if (session.bedroom.stages().contains(stage.getName())) {
