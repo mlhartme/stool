@@ -520,9 +520,9 @@ public class Session {
         return result;
     }
 
-    public Pool pool() {
+    public Pool pool() throws IOException {
         if (lazyPool == null) {
-            lazyPool = new Pool(home.join("run/ports"), configuration.portFirst, configuration.portLast, backstages);
+            lazyPool = Pool.loadOpt(home.join("run/ports"), configuration.portFirst, configuration.portLast, backstages);
         }
         return lazyPool;
     }

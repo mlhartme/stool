@@ -35,18 +35,20 @@ import java.util.Set;
 public class Pool {
     private static final LineFormat FMT = new LineFormat(LineFormat.LF_SEPARATOR, LineFormat.Trim.ALL, LineFormat.excludes(true));
 
-    public static Pool load(FileNode file, int first, int last, FileNode backstages) throws IOException {
+    public static Pool loadOpt(FileNode file, int first, int last, FileNode backstages) throws IOException {
         Pool result;
         String line;
 
         result = new Pool(file, first, last, backstages);
-        try (Reader in = file.createReader(); LineReader src = new LineReader(in, FMT)) {
-            while (true) {
-                line = src.next();
-                if (line == null) {
-                    break;
+        if (file.exists()) {
+            try (Reader in = file.createReader(); LineReader src = new LineReader(in, FMT)) {
+                while (true) {
+                    line = src.next();
+                    if (line == null) {
+                        break;
+                    }
+                    result.vhosts.add(Vhost.forLine(file.getWorld(), line));
                 }
-                result.vhosts.add(Vhost.forLine(file.getWorld(), line));
             }
         }
         return result;
