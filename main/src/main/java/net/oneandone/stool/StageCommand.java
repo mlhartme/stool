@@ -30,6 +30,7 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -191,9 +192,14 @@ public abstract class StageCommand extends SessionCommand {
     public void doAutoInvoke(Stage stage) throws Exception {
         boolean postStart;
         String postChown;
+        Map<Status.Field, Object> status;
+        boolean debug;
+        boolean suspend;
 
+        status = new HashMap<>();
         if (autoRestart && stage.state() == Stage.State.UP) {
             postStart = true;
+            Status.tomcatStatus(stage, status);
             new Stop(session).doInvoke(stage);
         } else {
             postStart = false;
@@ -211,7 +217,9 @@ public abstract class StageCommand extends SessionCommand {
             session.chown(stage, postChown);
         }
         if (postStart) {
-            new Start(session, false, false).doInvoke(stage);
+            debug = status.get(Status.Field.DEBUGGER) != null;
+            suspend = (Boolean) status.get(Status.Field.SUSPEND);
+            new Start(session, debug, suspend).doInvoke(stage);
         }
     }
 

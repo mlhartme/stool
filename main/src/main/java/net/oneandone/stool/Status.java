@@ -32,7 +32,7 @@ import java.util.TreeMap;
 
 public class Status extends StageCommand {
     public enum Field {
-        ID, NAME, DIRECTORY, BACKSTAGE, URL, TYPE, STATE, OWNER, TOMCAT, DEBUGGER, JMX, APPS, OTHER;
+        ID, NAME, DIRECTORY, BACKSTAGE, URL, TYPE, STATE, OWNER, TOMCAT, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
 
         public String toString() {
             return name().toLowerCase();
@@ -82,6 +82,8 @@ public class Status extends StageCommand {
             if (value == null) {
                 console.info.println();
             } else if (value instanceof String) {
+                console.info.println(value);
+            } else if (value instanceof Boolean) {
                 console.info.println(value);
             } else {
                 first = true;
@@ -148,10 +150,12 @@ public class Status extends StageCommand {
         return result;
     }
 
-    private static Ports tomcatStatus(Stage stage, Map<Field, Object> result) throws IOException {
+    public static Ports tomcatStatus(Stage stage, Map<Field, Object> result) throws IOException {
         String tomcatPid;
         String debug;
+        boolean suspend;
         Ports ports;
+        String config;
 
         tomcatPid = stage.runningTomcat();
         result.put(Field.TOMCAT, tomcatPid);
@@ -159,18 +163,23 @@ public class Status extends StageCommand {
             ports = stage.loadPortsOpt();
             if (ports == null) {
                 debug = null;
+                suspend = false;
             } else {
-                if (stage.shared().join("conf/service-wrapper.conf").readString().contains("=-Xdebug\n")) {
+                config = stage.shared().join("conf/service-wrapper.conf").readString();
+                if (config.contains("=-Xdebug\n")) {
                     debug = Integer.toString(ports.debug());
                 } else {
                     debug = null;
                 }
+                suspend = debug != null && config.contains(",suspend=y");
             }
         } else {
             ports = null;
             debug = null;
+            suspend = false;
         }
         result.put(Field.DEBUGGER, debug);
+        result.put(Field.SUSPEND, suspend);
         return ports;
     }
 }
