@@ -93,7 +93,6 @@ public class ServerXml {
         host.setAttribute("autoDeploy", "false");
         engine.appendChild(host);
         context = service.getOwnerDocument().createElement("Context");
-        context.setAttribute("allowLinking", "true"); // for Mamba  -- TODO
         context.setAttribute("path", "");
         context.setAttribute("docBase", object.docBase());
         host.appendChild(context);
