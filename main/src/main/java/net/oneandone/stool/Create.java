@@ -126,6 +126,7 @@ public class Create extends SessionCommand {
             session.backupEnvironment();
         }
         session.select(stage);
+        session.cd(stage.getDirectory());
     }
 
     private String url() throws IOException {

@@ -332,15 +332,24 @@ public class Session {
         }
     }
 
+    private FileNode cd;
+
+    public void cd(FileNode dest) {
+        cd = dest;
+    }
+
     public void invocationFileUpdate() throws IOException {
         List<String> lines;
 
-        lines = new ArrayList<>();
-        for (String key : environment(null).keys()) {
-            lines.add(environment.code(key));
-            lines.add(environment.code(Environment.backupKey(key)));
-        }
         if (invocationFile != null) {
+            lines = new ArrayList<>();
+            for (String key : environment(null).keys()) {
+                lines.add(environment.code(key));
+                lines.add(environment.code(Environment.backupKey(key)));
+            }
+            if (cd != null) {
+                lines.add("cd '" + cd.getAbsolute() + "'");
+            }
             if (console.getVerbose()) {
                 for (String line : lines) {
                     console.verbose.println("[env] " + line);
@@ -409,7 +418,6 @@ public class Session {
         prompt = Strings.replace(prompt, "\\+", stoolIndicator);
         prompt = Strings.replace(prompt, "\\=", this.environment.getOpt(Environment.backupKey(Environment.PS1)));
         env.set(Environment.PS1, prompt);
-        env.set(Environment.PWD, (stage == null ? ((FileNode) console.world.getWorking()) : stage.getDirectory()).getAbsolute());
         return env;
     }
 

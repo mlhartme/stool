@@ -45,7 +45,6 @@ public class Environment {
     public static final String MAVEN_OPTS = "MAVEN_OPTS";
 
     public static final String PS1 = "PS1";
-    public static final String PWD = "PWD";
 
     public static Environment loadSystem() {
         Environment result;
@@ -115,15 +114,11 @@ public class Environment {
     public String code(String key) {
         String value;
 
-        if (key.equals(PWD)) {
-            return "cd '" + get(key) + "'";
+        value = getOpt(key);
+        if (value == null) {
+            return "unset " + key;
         } else {
-            value = getOpt(key);
-            if (value == null) {
-                return "unset " + key;
-            } else {
-                return "export " + key + "='" + value + "'";
-            }
+            return "export " + key + "='" + value + "'";
         }
     }
 

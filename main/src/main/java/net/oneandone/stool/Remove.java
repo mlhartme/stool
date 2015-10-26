@@ -77,5 +77,6 @@ public class Remove extends StageCommand {
         }
 
         session.bedroom.remove(session.gson, stage.getName());
+        session.cd(stage.getDirectory().getParent());
     }
 }

@@ -933,6 +933,7 @@ http://docbook.org/ns/docbook ">
             option, only the backstage directory will be deleted.
             This is useful to "unimport" a stage, i.e. revert the effect of<literal>stool import</literal>.
           </para>
+          <para>Changes the current directory to the parent of the now deleted stage directory.</para>
         </refsect1>
       </refentry>
 

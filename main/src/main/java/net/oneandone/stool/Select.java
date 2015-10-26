@@ -50,6 +50,7 @@ public class Select extends SessionCommand {
     @Override
     public void doInvoke() throws Exception {
         FileNode backstage;
+        Stage stage;
 
         if (stageName == null) {
             console.info.println("currently selected: "
@@ -78,7 +79,9 @@ public class Select extends SessionCommand {
         if (session.getSelectedStageName() == null) {
             session.backupEnvironment();
         }
-        session.select(Stage.load(session, backstage));
+        stage = Stage.load(session, backstage);
+        session.select(stage);
+        session.cd(stage.getDirectory());
     }
 
     private String suggestion() throws IOException {

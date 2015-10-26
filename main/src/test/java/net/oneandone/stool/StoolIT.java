@@ -61,7 +61,6 @@ public class StoolIT {
 
         system = Environment.loadSystem();
         system.setStoolBin(home.join("bin"));
-        system.set(Environment.PWD, "pwd");
         system.set(Environment.PS1, "prompt");
         config = new HashMap<>();
         config.put("diskMin", "500");

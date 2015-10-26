@@ -73,6 +73,6 @@ public class Cd extends StageCommand {
                 throw new ArgumentException("unknown target: " + target + ". Choose one of backstage" + message + " or leave empty.");
             }
         }
-        session.environment.set(Environment.PWD, node.getAbsolute());
+        session.cd(node);
     }
 }
