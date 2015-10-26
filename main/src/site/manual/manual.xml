@@ -261,6 +261,12 @@ http://docbook.org/ns/docbook ">
         is similar to<literal>after</literal>, but reports warnings instead of errors (and thus,
         Stool always returns with error code 0).
       </para>
+
+      <para>Stage commands have an <literal>-autorechown</literal> option: if specified, Stool checks the owner of a stage. If it's not the
+      current owner, it temporarily chown the stage to the current user, invokes the actual command, and chown the stage back to the original
+      owner.</para>
+      <para>Stage commands have an <literal>-autorestart</literal> option: if specified, Stool checks the state of a stage. It the stage is
+      up, Stool stops the stage, invokes the actual command, and starts the stage.</para>
     </sect1>
 
     <sect1>

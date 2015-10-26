@@ -34,6 +34,12 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class StageCommand extends SessionCommand {
+    @Option("autorechown")
+    private boolean autoChown;
+
+    @Option("autorestart")
+    private boolean autoRestart;
+
     @Option("stage")
     private String stageClause;
 
@@ -93,7 +99,7 @@ public abstract class StageCommand extends SessionCommand {
                     ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
                 }
                 session.logging.setStage(stage.config().id, stage.getName());
-                doInvoke(stage);
+                doAutoInvoke(stage);
             } catch (ArgumentException e) {
                 if (fail == Fail.NORMAL) {
                     throw e;
@@ -182,7 +188,35 @@ public abstract class StageCommand extends SessionCommand {
         return stages.size() != 1;
     }
 
+    public void doAutoInvoke(Stage stage) throws Exception {
+        boolean postStart;
+        String postChown;
+
+        if (autoRestart && stage.state() == Stage.State.UP) {
+            postStart = true;
+            new Stop(session).doInvoke(stage);
+        } else {
+            postStart = false;
+        }
+        if (autoChown && !stage.owner().equals(session.user)) {
+            postChown = stage.owner();
+            session.chown(stage, session.user);
+        } else {
+            postChown = null;
+        }
+
+        doInvoke(stage);
+
+        if (postChown != null) {
+            session.chown(stage, postChown);
+        }
+        if (postStart) {
+            new Start(session, false, false).doInvoke(stage);
+        }
+    }
+
     public abstract void doInvoke(Stage stage) throws Exception;
+
 
     //--
     public void doAfter() throws Exception {

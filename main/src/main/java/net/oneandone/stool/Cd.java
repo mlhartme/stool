@@ -16,7 +16,6 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Remaining;
