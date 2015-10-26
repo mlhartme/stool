@@ -98,7 +98,7 @@ public class ServerXml {
         context.setAttribute("docBase", object.docBase());
         host.appendChild(context);
 
-        element = service.getOwnerDocument().createElement("alias");
+        element = service.getOwnerDocument().createElement("Alias");
         element.setAttribute("name", object.fqdn(false, hostname));
         host.insertBefore(element, host.getFirstChild());
     }
