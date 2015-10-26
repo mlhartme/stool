@@ -137,7 +137,7 @@ public class Pool {
 
     public Vhost lookup(String name, String stage) {
         for (Vhost vhost : vhosts) {
-            if (name.equals(vhost.name) && stage.equals(vhost.name)) {
+            if (name.equals(vhost.name) && stage.equals(vhost.stage)) {
                 return vhost;
             }
         }
@@ -182,7 +182,7 @@ public class Pool {
                 current = first;
             }
         } while (current != start);
-        throw new IOException("cannot allocate port");
+        throw new IOException("cannot find free port in range [" + first + ", " + last + "[");
     }
 
     private boolean used(int even) {

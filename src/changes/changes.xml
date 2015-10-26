@@ -28,7 +28,7 @@
         Removed global errorTool parameter, send emails to configured admin instead.
       </action>
       <action date="2015-10-02" dev="mlhartme" type="fix">
-        Fixed illegal argument exception is an absolute path is passed to 'stool select'.
+        Fixed illegal argument exception if an absolute path is passed to 'stool select'.
       </action>
       <action date="2015-10-01" dev="mlhartme" type="update">
         Removed global portDashboard property.
