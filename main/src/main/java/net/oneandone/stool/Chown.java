@@ -26,9 +26,6 @@ import java.io.IOException;
 public class Chown extends StageCommand {
     private String userArgument;
 
-    @Option("stop")
-    private boolean stop;
-
     @Option("batch")
     private boolean batch;
 
@@ -60,14 +57,13 @@ public class Chown extends StageCommand {
     @Override
     public void doInvoke(Stage stage) throws Exception {
         String user;
-        boolean startAgain;
 
         user = userArgument != null ? userArgument : session.user;
         if (stage.owner().contains(user)) {
             console.info.println("Nothing to do: stage " + stage.getName() + " already owned by " + user);
             return;
         }
-
+        stage.checkNotUp();
         try {
             checkCommitted(stage);
         } catch (IOException e) {
@@ -79,27 +75,11 @@ public class Chown extends StageCommand {
             }
         }
 
-        if (Stage.State.UP.equals(stage.state())) {
-            try {
-                stage.stop(console);
-                startAgain = true;
-            } catch (Exception e) {
-                console.info.println("WARNING: stop failed: " + e.getMessage());
-                e.printStackTrace(console.info);
-                startAgain = false;
-            }
-        } else {
-            startAgain = false;
-        }
-
         session.chown(stage, user);
         console.info.println("... " + user + " is now owner of " + stage.getName() + ".");
 
         stage = Stage.load(session, stage.backstage);
         newline();
-        if (startAgain && !stop) {
-            new Start(session, false, false).doInvoke(stage);
-        }
         if (session.isSelected(stage)) {
             session.select(stage);
         }

@@ -48,7 +48,7 @@ public class Rename extends StageCommand {
         FileNode newWrapper;
 
         stage.checkOwnership();
-        stage.checkStopped();
+        stage.checkNotUp();
 
         selected = session.isSelected(stage);
         stage.checkOwnership();

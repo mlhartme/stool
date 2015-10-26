@@ -877,7 +877,7 @@ http://docbook.org/ns/docbook ">
           <title>Description</title>
           <para>Enters the stage directory and executes the build command specified in the
             <literal>build</literal>
-            property.
+            property. Reports an error if the stage is not owned or if the stage is up.
           </para>
           <para>You can see the configured build command with<literal>stool config build</literal>, and you can change it with
             <literal>stool config "build="</literal>
@@ -1120,7 +1120,6 @@ http://docbook.org/ns/docbook ">
           <cmdsynopsis>
             <command>stool chown</command>
             <group>
-              <arg>-stop</arg>
               <arg>-batch</arg>
               <arg>
                 <replaceable>user</replaceable>
@@ -1136,10 +1135,9 @@ http://docbook.org/ns/docbook ">
             checks if the stage has modified source files. If so, it asks for
             confirmation before changing ownership. You can skip confirmation by specifying<literal>-batch</literal>.
           </para>
-          <para>Reports an error if the stage is running. In this case, you can specify
-            <literal>-stop</literal>
-            to stop the stage
-            before changing ownership and also start it afterwards.
+          <para>Reports an error if the stage is up. In this case, you can specify
+            <literal>-autorestart</literal>
+            to stop the stage before changing ownership and also start it afterwards.
           </para>
           <para>
             <replaceable>user</replaceable>

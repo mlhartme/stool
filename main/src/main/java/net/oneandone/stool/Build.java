@@ -24,10 +24,6 @@ import net.oneandone.sushi.util.Separator;
 import java.io.IOException;
 
 public class Build extends StageCommand {
-
-    @Option("restart")
-    private boolean restart;
-
     public Build(Session session) {
         super(session);
     }
@@ -35,19 +31,7 @@ public class Build extends StageCommand {
     @Override
     public void doInvoke(Stage stage) throws Exception {
         stage.checkOwnership();
-        try {
-            stage.checkStopped();
-        } catch (IOException e) {
-            console.info.println(e.getMessage() + "\nIt will be stopped, built and started again.");
-            if (!restart) {
-                console.pressReturn();
-            }
-            new Stop(session).doInvoke(stage);
-            build(stage);
-            new Start(session, false, false).doInvoke(stage);
-            return;
-        }
-
+        stage.checkNotUp();
         build(stage);
     }
 

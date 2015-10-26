@@ -429,7 +429,7 @@ public abstract class Stage {
 
     //-- util
 
-    public void checkStopped() throws IOException {
+    public void checkNotUp() throws IOException {
         if (state() == State.UP) {
             throw new IOException("stage is not stopped.");
         }

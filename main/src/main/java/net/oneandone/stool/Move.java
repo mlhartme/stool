@@ -43,7 +43,7 @@ public class Move extends StageCommand {
     @Override
     public void doInvoke(Stage stage) throws Exception {
         stage.checkOwnership();
-        stage.checkStopped();
+        stage.checkNotUp();
 
         if (dest.exists()) {
             dest.checkDirectory();

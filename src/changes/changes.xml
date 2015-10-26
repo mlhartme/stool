@@ -5,6 +5,13 @@
         Added -autorestart and -autorechown options for all stage commands.
       </action>
       <action date="2015-10-26" dev="mlhartme" type="update">
+        Adjusted the chown command for the new -autorestart options: chown now reports an error, if the start is up. Use  '-autorestart'
+        to get the old behavior. The old -stop option is gone.
+      </action>
+      <action date="2015-10-26" dev="mlhartme" type="remove">
+        Removed the 'build -restart' option, use '-autorestart' instead.
+      </action>
+      <action date="2015-10-26" dev="mlhartme" type="update">
         Simplified cwd handling: only the following commands change the current directory: create, remove, select and cd.
       </action>
       <action date="2015-10-26" dev="mlhartme" type="removed">
