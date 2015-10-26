@@ -133,7 +133,7 @@ public abstract class Stage {
     /** user visible directory */
     protected FileNode directory;
     protected final StageConfiguration configuration;
-    private Maven maven;
+    private Maven lazyMaven;
 
     //--
 
@@ -505,7 +505,7 @@ public abstract class Stage {
     //--
 
     public void setMaven(Maven maven) {
-        this.maven = maven;
+        this.lazyMaven = maven;
     }
 
     /** CAUTION: this is not a session method, because it respected the stage repository */
@@ -514,7 +514,7 @@ public abstract class Stage {
         String mavenHome;
         FileNode settings;
 
-        if (maven == null) {
+        if (lazyMaven == null) {
             world = session.console.world;
             mavenHome = config().mavenHome();
             if (mavenHome == null) {
@@ -523,11 +523,11 @@ public abstract class Stage {
                 settings = world.file(mavenHome).join("conf/settings.xml");
             }
             // CAUTION: shared plexus - otherwise, Maven components are created over and over again
-            maven = Maven.withSettings(world, localRepository(), settings, null, session.plexus(), null, null);
+            lazyMaven = Maven.withSettings(world, localRepository(), settings, null, session.plexus(), null, null);
             // always get the latest snapshots
-            maven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
+            lazyMaven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
         }
-        return maven;
+        return lazyMaven;
     }
 
     protected List<MavenProject> loadWars(FileNode rootPom) throws IOException {

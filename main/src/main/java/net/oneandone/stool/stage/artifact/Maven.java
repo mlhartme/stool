@@ -20,6 +20,7 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+
 public class Maven implements ArtifactSource {
 
     private final DefaultArtifact artifact;

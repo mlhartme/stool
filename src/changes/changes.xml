@@ -5,7 +5,8 @@
         Merged all {stage}/shared/ports files into one {home}/run/ports file.
       </action>
       <action date="2015-10-06" dev="mlhartme" type="update">
-        Support stages with empty MAVEN_HOME.
+        Support stages with empty MAVEN_HOME: Stool includes ${home}/maven-settings.xml now, they are used to resovle dependencies if
+        the current user has no MAVEN_HOME.
       </action>
       <action date="2015-10-02" dev="mlhartme" type="update">
         The separator for list property values is "," now, space is no longer supported.
