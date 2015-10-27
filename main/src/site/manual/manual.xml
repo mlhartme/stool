@@ -4,8 +4,7 @@
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
-        http://www.w3.org/2001/XInclude http://www.w3.org/2001/XInclude/XInclude.xsd
-http://docbook.org/ns/docbook ">
+        http://www.w3.org/2001/XInclude http://www.w3.org/2001/XInclude/XInclude.xsd">
   <!-- Conventions
        * 'Stool' is written with a capital S
        * <literal/> marks things to type or technical term from Stool. I use literal instead of command because command is rendered in
@@ -702,6 +701,7 @@ http://docbook.org/ns/docbook ">
               <arg>-name
                 <replaceable>str</replaceable>
               </arg>
+              <arg>-ports <replaceable>name</replaceable>:<replaceable>port</replaceable></arg>
             </group>
             <arg choice="plain">
               <replaceable>url</replaceable>
@@ -767,6 +767,8 @@ http://docbook.org/ns/docbook ">
             <literal>diskMin</literal>
             Stool property.
           </para>
+          <para>The <literal>-ports</literal> option can be used to reserve specific ports for this stage. <replaceable>name</replaceable>
+            is the vhost name.</para>
         </refsect1>
         <refsect1>
           <title>Examples</title>

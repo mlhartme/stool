@@ -75,7 +75,7 @@ public class Start extends StageCommand {
         checkUntil(stage.config().until);
         checkCommitted(stage);
         checkNotStarted(stage);
-        ports = session.pool().allocate(stage);
+        ports = session.pool().allocate(stage, Collections.emptyMap());
         copyTemplate(stage, ports);
         copyTomcatBaseOpt(download, stage.shared(), stage.config().tomcatVersion);
         if (session.bedroom.stages().contains(stage.getName())) {

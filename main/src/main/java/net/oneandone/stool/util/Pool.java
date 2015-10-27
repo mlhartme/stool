@@ -17,6 +17,7 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.fs.LineFormat;
 import net.oneandone.sushi.fs.LineReader;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -27,6 +28,7 @@ import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -77,33 +79,60 @@ public class Pool {
     }
 
     // TODO: ugly reference to stage ...
-    public Ports allocate(Stage stage) throws IOException {
+    public Ports allocate(Stage stage, Map<String, Integer> fixed) throws IOException {
         // maps vhosts to docroots
-        Map<String, FileNode> map;
+        LinkedHashSet<String> names;
+        Map<String, FileNode> nameDocroots;
         Vhost previous;
+        Vhost found;
         String stageName;
         List<Vhost> result;
-        String vhost;
+        Integer port; // null for not fixed
+        Vhost modified;
+        FileNode docroot;
 
         gc();
-        map = new LinkedHashMap<>();
-        result = new ArrayList<>();
+
+        names = new LinkedHashSet<>();
+        names.add(Ports.STOP_WRAPPER);
+        names.add(Ports.JMX_DEBUG);
+
+        names.addAll(fixed.keySet());
+
+        nameDocroots = new LinkedHashMap<>();
+        nameDocroots.putAll(stage.selectedVhosts());
+        nameDocroots.putAll(stage.extensions().vhosts(stage));
+        names.addAll(nameDocroots.keySet());
+
         stageName = stage.getName();
-        map.put(Ports.STOP_WRAPPER, null);
-        map.put(Ports.JMX_DEBUG, null);
-        map.putAll(stage.selectedVhosts());
-        map.putAll(stage.extensions().vhosts(stage));
-        for (Map.Entry<String, FileNode> entry : map.entrySet()) {
-            vhost = entry.getKey();
-            previous = lookup(vhost, stageName);
+        result = new ArrayList<>();
+        for (String name : names) {
+            docroot = nameDocroots.get(name);
+            port = fixed.get(name);
+            previous = lookup(name, stageName);
             if (previous != null) {
-                if (Objects.equals(entry.getValue(), previous.docroot)) {
+                modified = previous.set(port, docroot);
+                if (modified == null) {
+                    // no changes
                     result.add(previous);
                 } else {
+                    if (port != null) {
+                        checkFree(port);
+                    }
+                    result.add(modified);
                     vhosts.remove(previous);
+                    vhosts.add(modified);
                 }
             } else {
-                result.add(allocate(vhost, stageName, entry.getValue()));
+                if (port == null) {
+                    found = allocate(name, stageName, docroot);
+                } else {
+                    found = allocate(port, name, stageName, docroot);
+                    if (found.even != port) {
+                        throw new ArgumentException("port already in use: " + port);
+                    }
+                }
+                result.add(found);
             }
         }
         save();

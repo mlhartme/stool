@@ -20,6 +20,7 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /** immutable */
 public class Vhost {
@@ -129,10 +130,18 @@ public class Vhost {
         // CAUTION: just
         //    even + SEP
         // is an integer addition!
-        return Integer.toString(even) + SEP + name + SEP + stage + (docroot == null ? "" : Character.toString(SEP) + docroot);
+        return Integer.toString(even) + SEP + name + SEP + stage + (docroot == null ? "" : Character.toString(SEP) + docroot.getAbsolute());
     }
 
     public String toString() {
         return toLine();
+    }
+
+    /** null if not modified */
+    public Vhost set(Integer newEven, FileNode newDocroot) {
+        if (Objects.equals(this.docroot, newDocroot) && (newEven == null || newEven == even)) {
+            return null;
+        }
+        return new Vhost(newEven == null ? even : newEven, name, stage, docroot);
     }
 }
