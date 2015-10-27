@@ -39,17 +39,16 @@ import java.io.Writer;
 import java.util.List;
 
 public abstract class SessionCommand implements Command {
-
     protected final Console console;
     protected final World world;
     protected final Session session;
-    private final Lock.Mode globalLockMode;
+    private final Lock.Mode globalLock;
 
-    public SessionCommand(Session session, Lock.Mode globalLockMode) {
+    public SessionCommand(Session session, Lock.Mode globalLock) {
         this.console = session.console;
         this.world = console.world;
         this.session = session;
-        this.globalLockMode = globalLockMode;
+        this.globalLock = globalLock;
     }
 
     @Option("nolock")
@@ -64,7 +63,7 @@ public abstract class SessionCommand implements Command {
         Lock.Mode mode;
 
         updateCheck();
-        mode = noLock ? Lock.Mode.NONE : globalLockMode;
+        mode = noLock ? Lock.Mode.NONE : globalLock;
         try (Lock lock = Lock.create(session.ports(), console, mode)) {
             doInvoke();
         }
