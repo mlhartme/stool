@@ -117,6 +117,9 @@ public class Pool {
                     result.add(previous);
                 } else {
                     if (port != null) {
+                        if (used(port)) {
+                            throw new ArgumentException("port already reserved: " + port);
+                        }
                         checkFree(port);
                     }
                     result.add(modified);
@@ -140,13 +143,13 @@ public class Pool {
     }
 
     private void gc() {
-        Set<String> used;
+        Set<String> stages;
 
-        used = new HashSet<>();
+        stages = new HashSet<>();
         for (Vhost vhost : vhosts) {
-            used.add(vhost.stage);
+            stages.add(vhost.stage);
         }
-        for (String stage : used) {
+        for (String stage : stages) {
             if (!backstages.join(stage).isDirectory()) {
                 gc(stage);
             }

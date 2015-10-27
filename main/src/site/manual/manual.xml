@@ -1111,7 +1111,6 @@
         </refsect1>
       </refentry>
 
-
       <refentry>
         <refnamediv>
           <refname>stool-chown</refname>
@@ -1345,6 +1344,25 @@
           <para>You might have to re-build your application after moving the stage if you have development tools that store
             absolute paths (e.g. Lavender ...).
           </para>
+        </refsect1>
+      </refentry>
+
+      <refentry>
+        <refnamediv>
+          <refname>stool-port</refname>
+          <refpurpose>Allocates ports for the current stage</refpurpose>
+        </refnamediv>
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool port</command>
+            <group>
+              <arg><replaceable>name</replaceable>:<replaceable>port</replaceable></arg>
+            </group>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1>
+          <title>Description</title>
+          <para>Allocates the specified ports for this stage. <replaceable>name</replaceable> specifies the vhost to use this port for.</para>
         </refsect1>
       </refentry>
 

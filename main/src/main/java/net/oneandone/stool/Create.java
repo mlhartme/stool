@@ -38,7 +38,6 @@ import java.nio.file.LinkOption;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,9 +48,6 @@ public class Create extends SessionCommand {
 
     @Option("name")
     private String name = null;
-
-    @Option("ports")
-    private String ports = null;
 
     @Value(name = "url", position = 1)
     private String urlOrSearch;
@@ -122,10 +118,6 @@ public class Create extends SessionCommand {
 
         // if this method fails with an exception or it is aborted with ctrl-c, the shutdown hook is used to wipe things
         stage = create(backstage, url);
-
-        if (ports != null) {
-            session.pool().allocate(stage, parse(ports));
-        }
 
         Runtime.getRuntime().removeShutdownHook(cleanup);
 
@@ -232,21 +224,6 @@ public class Create extends SessionCommand {
         }
         stage.initialize();
         return stage;
-    }
-
-    private static Map<String, Integer> parse(String ports) {
-        int idx;
-        Map<String, Integer> result;
-
-        result = new HashMap<>();
-        for (String entry : Separator.COMMA.split(ports)) {
-            idx = entry.indexOf(':');
-            if (idx == -1) {
-                throw new ArgumentException("invalid ports entry: " + entry);
-            }
-            result.put(entry.substring(0, idx), Integer.parseInt(entry.substring(idx + 1).trim()));
-        }
-        return result;
     }
 
     private Stage stage(FileNode backstage, String url) throws Exception {
