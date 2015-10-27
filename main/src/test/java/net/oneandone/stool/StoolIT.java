@@ -117,7 +117,6 @@ public class StoolIT {
         stool("refresh");
         stool("refresh", "-build");
         stool("refresh", "-debug");
-        stool("refresh", "-stop");
         stool("start");
         stool("stop");
         stool("list");

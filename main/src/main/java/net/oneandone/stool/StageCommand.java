@@ -63,6 +63,10 @@ public abstract class StageCommand extends SessionCommand {
         return new Lock(session.user, stage.shared().join("stage.aquire"));
     }
 
+    public boolean isNoop(Stage stage) throws IOException {
+        return false;
+    }
+
     @Override
     public void doInvoke() throws Exception {
         Lock lock;
@@ -95,32 +99,36 @@ public abstract class StageCommand extends SessionCommand {
             if (lock != null) {
                 lock.aquire(getClass().getSimpleName().toLowerCase(), console);
             }
-            try {
-                if (withPrefix) {
-                    ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
-                }
-                session.logging.setStage(stage.config().id, stage.getName());
-                doAutoInvoke(stage);
-            } catch (ArgumentException e) {
-                if (fail == Fail.NORMAL) {
+            if (isNoop(stage)) {
+                console.verbose.println("nothing to do");
+            } else {
+                try {
+                    if (withPrefix) {
+                        ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
+                    }
+                    session.logging.setStage(stage.config().id, stage.getName());
+                    doAutoInvoke(stage);
+                } catch (ArgumentException e) {
+                    if (fail == Fail.NORMAL) {
+                        throw e;
+                    }
+                    failures.add(stage.getBackstage(), e);
+                } catch (Error | RuntimeException e) {
+                    console.error.println(stage.getName() + ": " + e.getMessage());
                     throw e;
-                }
-                failures.add(stage.getBackstage(), e);
-            } catch (Error | RuntimeException e) {
-                console.error.println(stage.getName() + ": " + e.getMessage());
-                throw e;
-            } catch (Exception e) {
-                if (fail == Fail.NORMAL) {
-                    throw e;
-                }
-                failures.add(stage.getBackstage(), e);
-            } finally {
-                session.logging.setStage("", "");
-                if (console.info instanceof PrefixWriter) {
-                    ((PrefixWriter) console.info).setPrefix("");
-                }
-                if (lock != null) {
-                    lock.release();
+                } catch (Exception e) {
+                    if (fail == Fail.NORMAL) {
+                        throw e;
+                    }
+                    failures.add(stage.getBackstage(), e);
+                } finally {
+                    session.logging.setStage("", "");
+                    if (console.info instanceof PrefixWriter) {
+                        ((PrefixWriter) console.info).setPrefix("");
+                    }
+                    if (lock != null) {
+                        lock.release();
+                    }
                 }
             }
         }

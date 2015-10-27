@@ -2,6 +2,11 @@
   <body>
     <release version="3.3.0" date="2015-11-01">
       <action date="2015-10-27" dev="mlhartme" type="update">
+        refresh: Removed implicit re-chowning and re-starting. If you need this functionality, invoke refresh with the new '-autorechown'
+        and '-autorestart' options. Also removed the '-own' and '-stop' options. If you need this, invoke the chown/stop commands before
+        calling chown.
+      </action>
+      <action date="2015-10-27" dev="mlhartme" type="update">
         Changed 'suffix' stage property to 'suffixes', it holds a list now.
       </action>
       <action date="2015-10-26" dev="mlhartme" type="update">
