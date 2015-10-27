@@ -16,6 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Option;
 
@@ -39,7 +40,7 @@ public class Refresh extends StageCommand {
     private boolean restore;
 
     public Refresh(Session session) {
-        super(session);
+        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE);
     }
 
     @Override

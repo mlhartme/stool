@@ -18,6 +18,7 @@ package net.oneandone.stool;
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.UserNotFound;
+import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
@@ -44,7 +45,7 @@ public class Validate extends StageCommand {
 
 
     public Validate(Session session) {
-        super(session);
+        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE);
     }
     private static void daemons(Stage stage, Processes processes, List<String> problems) throws IOException {
         tomcat(stage, processes, problems);

@@ -18,6 +18,7 @@ package net.oneandone.stool;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Remaining;
@@ -33,7 +34,7 @@ public class Config extends StageCommand {
     private boolean set;
 
     public Config(Session session) {
-        super(session);
+        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE);
         all = StageConfiguration.properties(session.extensionsFactory);
         selected = new HashMap<>();
     }

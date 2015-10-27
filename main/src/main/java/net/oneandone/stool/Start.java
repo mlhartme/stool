@@ -18,6 +18,7 @@ package net.oneandone.stool;
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
+import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
@@ -56,7 +57,7 @@ public class Start extends StageCommand {
     private boolean tail = false;
 
     public Start(Session session, boolean debug, boolean suspend) {
-        super(session);
+        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE);
         this.debug = debug;
         this.suspend = suspend;
     }

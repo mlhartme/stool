@@ -43,11 +43,13 @@ public abstract class SessionCommand implements Command {
     protected final Console console;
     protected final World world;
     protected final Session session;
+    private final Lock.Mode globalLockMode;
 
-    public SessionCommand(Session session) {
+    public SessionCommand(Session session, Lock.Mode globalLockMode) {
         this.console = session.console;
         this.world = console.world;
         this.session = session;
+        this.globalLockMode = globalLockMode;
     }
 
     @Option("nolock")
@@ -57,27 +59,14 @@ public abstract class SessionCommand implements Command {
     @Option("updateCheck")
     private boolean updateCheck;
 
-    // override if you don't want locking
-    protected Lock lock() {
-        return session.lock();
-    }
-
     @Override
     public void invoke() throws Exception {
-        Lock lock;
+        Lock.Mode mode;
 
         updateCheck();
-        lock = noLock ? null : lock();
-        if (lock != null) {
-            lock.aquire(getClass().getSimpleName().toLowerCase(), console);
-        }
-
-        try {
+        mode = noLock ? Lock.Mode.NONE : globalLockMode;
+        try (Lock lock = Lock.create(session.ports(), console, mode)) {
             doInvoke();
-        } finally {
-            if (lock != null) {
-                lock.release();
-            }
         }
         session.invocationFileUpdate();
     }

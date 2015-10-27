@@ -63,6 +63,7 @@ public class Home {
         for (String dir : new String[]{"extensions", "backstages", "inbox", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
             Files.createStoolDirectory(console.verbose, home.join(dir));
         }
+        Files.stoolFile(home.join("run/ports").mkfile());
     }
 
     private FileNode downloadCache() {

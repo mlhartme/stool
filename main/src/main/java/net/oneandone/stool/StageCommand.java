@@ -50,22 +50,15 @@ public abstract class StageCommand extends SessionCommand {
     @Option("fail")
     private Fail fail = Fail.NORMAL;
 
-    public StageCommand(Session session) {
-        super(session);
-    }
+    private final Lock.Mode stageLockMode;
 
-    @Override
-    protected Lock lock() {
-        return null;
-
-    }
-    protected Lock stageLock(Stage stage) {
-        return new Lock(session.user, stage.shared().join("stage.aquire"));
+    public StageCommand(Session session, Lock.Mode globalLockMode, Lock.Mode stageLockMode) {
+        super(session, globalLockMode);
+        this.stageLockMode = stageLockMode;
     }
 
     @Override
     public void doInvoke() throws Exception {
-        Lock lock;
         int width;
         List<Stage> lst;
         EnumerationFailed failures;
@@ -87,15 +80,7 @@ public abstract class StageCommand extends SessionCommand {
         withPrefix = doBefore(lst, width);
         for (Stage stage : lst) {
             console.verbose.println("current stage: " + stage.getName());
-            if (noLock) {
-                lock = null;
-            } else {
-                lock = stageLock(stage);
-            }
-            if (lock != null) {
-                lock.aquire(getClass().getSimpleName().toLowerCase(), console);
-            }
-            try {
+            try (Lock lock = Lock.create(StageConfiguration.file(stage.backstage), console, noLock ? Lock.Mode.NONE : stageLockMode)) {
                 if (withPrefix) {
                     ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
                 }
@@ -118,9 +103,6 @@ public abstract class StageCommand extends SessionCommand {
                 session.logging.setStage("", "");
                 if (console.info instanceof PrefixWriter) {
                     ((PrefixWriter) console.info).setPrefix("");
-                }
-                if (lock != null) {
-                    lock.release();
                 }
             }
         }
@@ -184,7 +166,7 @@ public abstract class StageCommand extends SessionCommand {
         return Collections.singletonList(selected());
     }
 
-    /* @return true to use prefix stream */
+    /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
     public boolean doBefore(List<Stage> stages, int indent) {
         return stages.size() != 1;
     }
@@ -227,6 +209,8 @@ public abstract class StageCommand extends SessionCommand {
 
 
     //--
+
+    /* Note that the stage is not locked when this method is called. */
     public void doAfter() throws Exception {
     }
 

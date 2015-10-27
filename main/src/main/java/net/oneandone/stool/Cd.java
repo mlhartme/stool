@@ -16,6 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Remaining;
@@ -29,16 +30,16 @@ import java.util.List;
 public class Cd extends StageCommand {
     private String target;
 
+    public Cd(Session session) {
+        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE);
+    }
+
     @Remaining
     public void addTarget(String str) {
         if (target != null) {
             throw new ArgumentException("too many targets");
         }
         this.target = str;
-    }
-
-    public Cd(Session session) {
-        super(session);
     }
 
     @Override

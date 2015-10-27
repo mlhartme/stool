@@ -31,23 +31,13 @@ public class Remove extends StageCommand {
     private boolean backstageOnly;
 
     public Remove(Session session) {
-        super(session);
+        this(session, false, false);
     }
 
     public Remove(Session session, boolean batch, boolean force) {
-        super(session);
+        super(session, Lock.Mode.EXCLUSIVE, Lock.Mode.NONE);
         this.batch = batch;
         this.force = force;
-    }
-
-    @Override
-    public Lock lock() {
-        return session.lock();
-    }
-
-    @Override
-    public Lock stageLock(Stage stage) {
-        return null;
     }
 
     @Override

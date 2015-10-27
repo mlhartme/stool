@@ -20,6 +20,7 @@ import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -32,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 public class StageConfiguration {
-    public static Node file(Node backstage) throws ExistsException {
+    public static FileNode file(FileNode backstage) throws ExistsException {
         return backstage.isDirectory() ? backstage.join("config.json") : backstage;
     }
 

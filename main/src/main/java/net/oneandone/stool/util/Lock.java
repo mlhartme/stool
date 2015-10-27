@@ -16,72 +16,70 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.sushi.cli.Console;
-import net.oneandone.sushi.fs.OnShutdown;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.file.OpenOption;
+import java.nio.file.StandardOpenOption;
 
-public class Lock {
-    private static final String DELIM_CHAR = ";";
+public class Lock implements AutoCloseable {
+    public enum Mode {
+        NONE, SHARED, EXCLUSIVE
+    }
 
-    private final String user;
-    private final FileNode lock;
+    private static final OpenOption[] SHARED = { StandardOpenOption.READ };
+    private static final OpenOption[] EXCLUSIVE = { StandardOpenOption.WRITE, StandardOpenOption.APPEND };
 
-    public Lock(String user, FileNode lock) {
-        this.user = user;
+    public static Lock create(FileNode file, Console console, Mode mode) throws IOException, InterruptedException {
+        int seconds;
+        FileChannel channel;
+        FileLock lock;
+        boolean shared;
+
+        if (mode == Mode.NONE) {
+            lock = null;
+        } else {
+            shared = mode == Mode.SHARED;
+            seconds = 0;
+            try {
+                channel = FileChannel.open(file.toPath(), shared ? SHARED : EXCLUSIVE);
+                while (true) {
+                    lock = channel.tryLock(0, Long.MAX_VALUE, shared);
+                    if (lock != null) {
+                        break;
+                    }
+                    if (seconds > 10) {
+                        throw new IOException("waiting for lock timed out");
+                    }
+                    if (seconds % 10 == 0) {
+                        console.info.println("trying to lock " + file);
+                    }
+                    seconds++;
+                    Thread.sleep(1000);
+                }
+            } catch (IOException e) {
+                throw new IOException("cannot lock " + file + ": " + e.getMessage(), e);
+            }
+        }
+        return new Lock(lock);
+
+    }
+
+    private FileLock lock;
+
+    public Lock(FileLock lock) {
         this.lock = lock;
     }
 
-    public void aquire(String opInProgress, Console console) throws IOException, InterruptedException {
-        String[] userAndOpInProgress;
-        File lockfile = lock.toPath().toFile();
-        int seconds = 0;
-
-        // as long as file exists we have to wait
-        try {
-            while (!lockfile.createNewFile()) {
-                if (seconds > 60) {
-                    throw new IOException("cannot acquire lock " + lock);
-                }
-                userAndOpInProgress = getLockDescription();
-                if (seconds % 10 == 0) {
-                    console.verbose.println("trying to acquire " + lockfile.getAbsolutePath());
-                    console.info.println("Waiting for " + userAndOpInProgress[0]
-                      + " (who runs 'stool " + userAndOpInProgress[1] + "'): " + seconds + "s" + " (Ctrl-C to abort)");
-                }
-                seconds++;
-                Thread.sleep(1000);
-            }
-        } catch (IOException e) {
-            throw new IOException("cannot create lock " + lock + ": " + e.getMessage(), e);
+    @Override
+    public void close() throws Exception {
+        if (lock != null) {
+            lock.release();
+            lock.channel().close();
+        } else {
+            // noop lock
         }
-
-        // register first, because a full disk causes writeLockDescription to fail
-        OnShutdown.get().deleteAtExit(lock);
-        writeLockDescription(user + DELIM_CHAR + opInProgress);
-    }
-
-    public void release() throws IOException {
-        if (lock.exists()) {
-            lock.deleteFile();
-            OnShutdown.get().dontDeleteAtExit(lock);
-        }
-    }
-
-    //--
-
-    private String[] getLockDescription() {
-        try {
-            return lock.readString().split(DELIM_CHAR);
-        } catch (Exception e) {
-            // the lock file might have any content, it might even have been removed by a concurrent user.
-            return new String[]{"unknownuser", "unknown reason"};
-        }
-    }
-
-    private void writeLockDescription(String description) throws IOException {
-        lock.writeString(description);
-        Files.stoolFile(lock);
     }
 }

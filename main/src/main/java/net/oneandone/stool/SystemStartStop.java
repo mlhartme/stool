@@ -16,6 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Session;
 
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class SystemStartStop extends StageCommand {
     private final boolean start;
 
     public SystemStartStop(Session session, boolean start) {
-        super(session);
+        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE);
         this.session = session;
         this.start = start;
     }

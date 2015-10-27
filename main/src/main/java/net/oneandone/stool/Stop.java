@@ -16,6 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Option;
 
@@ -28,7 +29,7 @@ public class Stop extends StageCommand {
     }
 
     public Stop(Session session, boolean sleep) {
-        super(session);
+        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE);
         this.sleep = sleep;
     }
 

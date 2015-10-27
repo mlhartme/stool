@@ -30,12 +30,7 @@ public class Select extends SessionCommand {
     private String stageName;
 
     public Select(Session session) {
-        super(session);
-    }
-
-    @Override
-    protected Lock lock() {
-        return null;
+        super(session, Lock.Mode.EXCLUSIVE);
     }
 
     @Remaining

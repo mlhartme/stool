@@ -216,8 +216,9 @@ public abstract class Stage {
     }
 
     //-- pid file handling
+
     public boolean isWorking() {
-        return isLocked();
+        return false; // TODO: isLocked();
     }
 
     public State state() throws IOException {
@@ -229,9 +230,6 @@ public abstract class Stage {
             return State.DOWN;
         }
 
-    }
-    public boolean isLocked() {
-        return shared().join("stage.aquire").exists();
     }
 
     public String runningTomcat() throws IOException {

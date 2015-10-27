@@ -1627,8 +1627,7 @@
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
         |- dashboard.properties (Dashboard configuration)
         |- run
-        | |- ports  (ports allocated for stages)
-        | |- stool.lock
+        | |- ports       (ports allocated for stages)
         | |- sleep.json
         | '- users
         | |- (one file per user session)
