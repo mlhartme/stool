@@ -33,7 +33,7 @@ import java.util.Map;
 
 public class StageConfiguration {
     public static Node file(Node backstage) throws ExistsException {
-        return backstage.isDirectory() ? backstage.join("config.json") : backstage;
+        return backstage.join("config.json");
     }
 
     public static StageConfiguration load(Gson gson, Node file) throws IOException {
