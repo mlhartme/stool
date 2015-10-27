@@ -82,8 +82,8 @@ public abstract class StageCommand extends SessionCommand {
         withPrefix = doBefore(lst, width);
         for (Stage stage : lst) {
             console.verbose.println("current stage: " + stage.getName());
-            try (Lock backstage = createLock(StageConfiguration.file(stage.backstage), backstageLock);
-                 /*Lock d = createLock(directoryLock)*/) {
+            try (Lock lock1 = createLock(StageConfiguration.file(stage.backstage), backstageLock);
+                 Lock lock2 = createLock(stage.backstage.join("directory.lock"), directoryLock)) {
                 if (withPrefix) {
                     ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
                 }
