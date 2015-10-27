@@ -113,8 +113,8 @@ public class StageConfiguration {
     @Option(key = "until", description = "YYYY-MM-DD")
     public Until until;
 
-    @Option(key = "suffix", description = "suffix for the link eg. http://1and1.com/{suffix}")
-    public String suffix;
+    @Option(key = "suffixes", description = "suffixes for the link eg. http://1and1.com/{suffix}")
+    public List<String> suffixes;
 
     @Option(key = "sslUrl", description = "overrides the default url for certificate creation")
     public String sslUrl;
@@ -145,7 +145,7 @@ public class StageConfiguration {
         this.mavenHome = mavenHome;
         this.mavenOpts = "";
         this.until = Until.reserved();
-        this.suffix = "";
+        this.suffixes = new ArrayList<>();
         this.sslUrl = "";
         this.comment = "";
         this.autoRefresh = false;

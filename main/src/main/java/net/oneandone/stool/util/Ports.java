@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.util;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,15 +105,17 @@ public class Ports {
         return -1;
     }
 
-    public Map<String, String> urlMap(boolean https, boolean vhosts, String hostname, String suffix) {
+    public Map<String, String> urlMap(boolean https, boolean vhosts, String hostname, List<String> suffixes) {
         Map<String, String> result;
 
         result = new LinkedHashMap<>();
         for (Vhost vhost : vhosts()) {
             if (vhost.isWebapp()) {
-                result.put(vhost.name, vhost.httpUrl(vhosts, hostname) + suffix);
-                if (https) {
-                    result.put(vhost.name + " SSL", vhost.httpsUrl(vhosts, hostname) + suffix);
+                for (String suffix : suffixes.isEmpty() ? Collections.singletonList("") : suffixes) {
+                    result.put(vhost.name, vhost.httpUrl(vhosts, hostname) + suffix);
+                    if (https) {
+                        result.put(vhost.name + " SSL", vhost.httpsUrl(vhosts, hostname) + suffix);
+                    }
                 }
             }
         }
