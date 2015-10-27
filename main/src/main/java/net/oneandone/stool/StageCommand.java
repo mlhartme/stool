@@ -52,9 +52,9 @@ public abstract class StageCommand extends SessionCommand {
 
     private final Lock.Mode stageLock;
 
-    public StageCommand(Session session, Lock.Mode globalLockMode, Lock.Mode stageLockMode) {
-        super(session, globalLockMode);
-        this.stageLock = stageLockMode;
+    public StageCommand(Session session, Lock.Mode globalLock, Lock.Mode stageLock) {
+        super(session, globalLock);
+        this.stageLock = stageLock;
     }
 
     @Override
