@@ -31,7 +31,7 @@ public class Cd extends StageCommand {
     private String target;
 
     public Cd(Session session) {
-        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
+        super(session, Lock.Mode.SHARED, Lock.Mode.SHARED, Lock.Mode.NONE);
     }
 
     @Remaining

@@ -31,7 +31,7 @@ import java.time.format.DateTimeFormatter;
 public class Cleanup extends StageCommand {
 
     public Cleanup(Session session) {
-        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
+        super(session, Lock.Mode.SHARED, Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
     }
 
     @Override

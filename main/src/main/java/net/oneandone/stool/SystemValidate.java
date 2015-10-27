@@ -26,7 +26,7 @@ public class SystemValidate extends SessionCommand {
     private final Session session;
 
     public SystemValidate(Session session) {
-        super(session, Lock.Mode.EXCLUSIVE);
+        super(session, Lock.Mode.SHARED);
         this.session = session;
     }
 

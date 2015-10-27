@@ -28,7 +28,7 @@ public class Port extends StageCommand {
     private Map<String, Integer> ports = new HashMap<>();
 
     public Port(Session session) {
-        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
+        super(session, Lock.Mode.EXCLUSIVE, Lock.Mode.SHARED, Lock.Mode.NONE);
     }
 
     @Remaining

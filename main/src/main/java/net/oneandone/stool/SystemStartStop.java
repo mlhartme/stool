@@ -28,7 +28,7 @@ public class SystemStartStop extends StageCommand {
     private final boolean start;
 
     public SystemStartStop(Session session, boolean start) {
-        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
+        super(session, Lock.Mode.SHARED, Lock.Mode.SHARED, Lock.Mode.SHARED);
         this.session = session;
         this.start = start;
     }

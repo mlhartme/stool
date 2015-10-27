@@ -45,7 +45,7 @@ public class Validate extends StageCommand {
 
 
     public Validate(Session session) {
-        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
+        super(session, Lock.Mode.SHARED, Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
     }
     private static void daemons(Stage stage, Processes processes, List<String> problems) throws IOException {
         tomcat(stage, processes, problems);

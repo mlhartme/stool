@@ -40,7 +40,7 @@ public class Refresh extends StageCommand {
     private boolean restore;
 
     public Refresh(Session session) {
-        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
+        super(session, Lock.Mode.SHARED, Lock.Mode.SHARED, Lock.Mode.SHARED);
     }
 
     @Override
