@@ -47,7 +47,7 @@ public class Status extends StageCommand {
     private final List<Field> selected = new ArrayList<>();
 
     public Status(Session session) {
-        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE);
+        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
     }
 
     @Remaining

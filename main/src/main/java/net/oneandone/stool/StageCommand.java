@@ -50,11 +50,13 @@ public abstract class StageCommand extends SessionCommand {
     @Option("fail")
     private Fail fail = Fail.NORMAL;
 
-    private final Lock.Mode stageLock;
+    private final Lock.Mode backstageLock;
+    private final Lock.Mode directoryLock;
 
-    public StageCommand(Session session, Lock.Mode globalLock, Lock.Mode stageLock) {
+    public StageCommand(Session session, Lock.Mode globalLock, Lock.Mode backstageLock, Lock.Mode directoryLock) {
         super(session, globalLock);
-        this.stageLock = stageLock;
+        this.backstageLock = backstageLock;
+        this.directoryLock = directoryLock;
     }
 
     @Override
@@ -80,7 +82,8 @@ public abstract class StageCommand extends SessionCommand {
         withPrefix = doBefore(lst, width);
         for (Stage stage : lst) {
             console.verbose.println("current stage: " + stage.getName());
-            try (Lock lock = Lock.create(StageConfiguration.file(stage.backstage), console, noLock ? Lock.Mode.NONE : stageLock)) {
+            try (Lock backstage = createLock(StageConfiguration.file(stage.backstage), backstageLock);
+                 /*Lock d = createLock(directoryLock)*/) {
                 if (withPrefix) {
                     ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
                 }

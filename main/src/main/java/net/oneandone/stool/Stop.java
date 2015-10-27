@@ -29,7 +29,7 @@ public class Stop extends StageCommand {
     }
 
     public Stop(Session session, boolean sleep) {
-        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE);
+        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
         this.sleep = sleep;
     }
 

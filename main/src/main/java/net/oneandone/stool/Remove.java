@@ -35,7 +35,7 @@ public class Remove extends StageCommand {
     }
 
     public Remove(Session session, boolean batch, boolean force) {
-        super(session, Lock.Mode.EXCLUSIVE, Lock.Mode.NONE);
+        super(session, Lock.Mode.EXCLUSIVE, Lock.Mode.NONE, Lock.Mode.NONE);
         this.batch = batch;
         this.force = force;
     }

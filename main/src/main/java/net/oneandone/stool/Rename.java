@@ -29,7 +29,7 @@ public class Rename extends StageCommand {
     private String name;
 
     public Rename(Session session) {
-        super(session, Lock.Mode.EXCLUSIVE, Lock.Mode.NONE);
+        super(session, Lock.Mode.EXCLUSIVE, Lock.Mode.NONE, Lock.Mode.NONE);
     }
 
     @Override

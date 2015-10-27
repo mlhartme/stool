@@ -28,7 +28,7 @@ public class Restart extends StageCommand {
     private boolean suspend = false;
 
     public Restart(Session session) {
-        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE);
+        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
     }
 
     @Override

@@ -60,14 +60,15 @@ public abstract class SessionCommand implements Command {
 
     @Override
     public void invoke() throws Exception {
-        Lock.Mode mode;
-
         updateCheck();
-        mode = noLock ? Lock.Mode.NONE : globalLock;
-        try (Lock lock = Lock.create(session.ports(), console, mode)) {
+        try (Lock lock = createLock(session.ports(), globalLock)) {
             doInvoke();
         }
         session.invocationFileUpdate();
+    }
+
+    protected Lock createLock(FileNode file, Lock.Mode mode) throws IOException, InterruptedException {
+        return Lock.create(file, console, noLock ? Lock.Mode.NONE : mode);
     }
 
     public abstract void doInvoke() throws Exception;

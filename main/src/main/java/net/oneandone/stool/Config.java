@@ -34,7 +34,7 @@ public class Config extends StageCommand {
     private boolean set;
 
     public Config(Session session) {
-        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE);
+        super(session, Lock.Mode.NONE, Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
         all = StageConfiguration.properties(session.extensionsFactory);
         selected = new HashMap<>();
     }

@@ -27,7 +27,7 @@ public class Move extends StageCommand {
     private FileNode dest;
 
     public Move(Session session) {
-        super(session, Lock.Mode.EXCLUSIVE, Lock.Mode.NONE);
+        super(session, Lock.Mode.EXCLUSIVE, Lock.Mode.NONE, Lock.Mode.NONE);
     }
 
     @Override

@@ -1659,17 +1659,17 @@
             |- config.json (stage properties and some status fields)
             |- anchor (symlink to stage directory)
             '- shared
-            |- buildstats.json
-            |- ssl (generated certs, if any)
-            |- run (pid stuff for service wrapper)
-            |- conf
-            | '- service-wrapper.conf
-            '- tomcat (tomcat for this stage)
-            |- conf (standard tomcat directory with generated server.xml)
-            |- temp (standart tomcat)
-            |- work (standard tomcat)
-            '- logs
-            '- applogs (application log files for pustefix apps)
+               |- buildstats.json
+               |- ssl (generated certs, if any)
+               |- run (pid stuff for service wrapper)
+               |- conf
+               |  '- service-wrapper.conf
+               '- tomcat (tomcat for this stage)
+                  |- conf (standard tomcat directory with generated server.xml)
+                  |- temp (standart tomcat)
+                  |- work (standard tomcat)
+                  '- logs
+                     '- applogs (application log files for pustefix apps)
       </programlisting>
       (*) If you installed the Debian package: bin is placed at /usr/share/stool, man is placed at /usr/share/man.
     </para>
