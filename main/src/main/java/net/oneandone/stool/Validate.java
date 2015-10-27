@@ -111,7 +111,7 @@ public class Validate extends StageCommand {
                     new Stop(session).doInvoke(stage);
                 }
                 if (!stage.owner().equals(session.user)) {
-                    new Chown(session, true).doInvoke(stage);
+                    new Chown(session, true, null).doInvoke(stage);
                 }
                 new Remove(session, true, true).doInvoke(stage);
                 message("Stage has been deleted.");

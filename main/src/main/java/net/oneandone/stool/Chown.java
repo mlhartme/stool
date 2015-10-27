@@ -36,12 +36,13 @@ public class Chown extends StageCommand {
      * should be chowned is currently locked.
      */
     public Chown(Session session) {
-        this(session, false);
+        this(session, false, null);
     }
 
-    public Chown(Session session, boolean batch) {
+    public Chown(Session session, boolean batch, String userArgument) {
         super(session, Lock.Mode.SHARED, Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
         this.batch = batch;
+        this.userArgument = userArgument;
     }
 
     @Remaining

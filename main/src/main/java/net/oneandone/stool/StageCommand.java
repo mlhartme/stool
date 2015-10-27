@@ -191,7 +191,8 @@ public abstract class StageCommand extends SessionCommand {
         }
         if (autoChown && !stage.owner().equals(session.user)) {
             postChown = stage.owner();
-            session.chown(stage, session.user);
+            // do NOT call session.chown to get property locking
+            new Chown(session, true, session.user).doInvoke(stage);
         } else {
             postChown = null;
         }
@@ -199,7 +200,8 @@ public abstract class StageCommand extends SessionCommand {
         doInvoke(stage);
 
         if (postChown != null) {
-            session.chown(stage, postChown);
+            // do NOT call session.chown to get property locking
+            new Chown(session, true, postChown).doInvoke(stage);
         }
         if (postStart) {
             debug = status.get(Status.Field.DEBUGGER) != null;
