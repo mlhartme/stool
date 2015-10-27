@@ -32,7 +32,7 @@ public class Lock implements AutoCloseable {
     private static final OpenOption[] SHARED = { StandardOpenOption.READ };
     private static final OpenOption[] EXCLUSIVE = { StandardOpenOption.WRITE, StandardOpenOption.APPEND };
 
-    public static Lock create(FileNode file, Console console, Mode mode) throws IOException, InterruptedException {
+    public static Lock create(FileNode file, Console console, Mode mode) throws IOException {
         int seconds;
         FileChannel channel;
         FileLock lock;
@@ -57,7 +57,11 @@ public class Lock implements AutoCloseable {
                         console.info.println("trying to lock " + file);
                     }
                     seconds++;
-                    Thread.sleep(1000);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        // continue
+                    }
                 }
             } catch (IOException e) {
                 throw new IOException("cannot lock " + file + ": " + e.getMessage(), e);
@@ -81,5 +85,9 @@ public class Lock implements AutoCloseable {
         } else {
             // noop lock
         }
+    }
+
+    public String toString() {
+        return lock == null ? "none" : lock.toString();
     }
 }
