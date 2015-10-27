@@ -25,7 +25,6 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.InitialLdapContext;
-import java.rmi.Naming;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.Map;

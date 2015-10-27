@@ -18,7 +18,6 @@ package net.oneandone.stool.extensions;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.xml.XmlException;
 
 import java.io.IOException;
 import java.util.HashMap;

@@ -23,7 +23,6 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.util.Strings;
-import net.oneandone.sushi.xml.XmlException;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 
 import java.io.IOException;

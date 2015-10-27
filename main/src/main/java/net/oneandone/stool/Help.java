@@ -17,7 +17,6 @@ package net.oneandone.stool;
 
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Command;
-import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Remaining;
 
 public class Help implements Command {
