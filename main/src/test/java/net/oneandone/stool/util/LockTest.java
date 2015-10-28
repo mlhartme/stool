@@ -20,22 +20,43 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.Test;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 
 public class LockTest {
     @Test
-    public void normal() throws Exception {
+    public void none() throws Exception {
+        recursive(Lock.Mode.NONE, Lock.Mode.NONE);
+    }
+
+    @Test
+    public void shared() throws Exception {
+        recursive(Lock.Mode.SHARED, Lock.Mode.SHARED);
+    }
+
+    @Test
+    public void exclusive() throws Exception {
+        recursive(Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
+    }
+
+    private void recursive(Lock.Mode first, Lock.Mode second) throws Exception {
+        LockManager manager;
         World world;
         Console console;
-        FileNode file;
 
         world = new World();
-        file = world.getTemp().createTempFile();
+        manager = LockManager.create(world.getTemp().createTempFile());
         console = Console.create(world);
-        try (Lock first = Lock.create(file, console, Lock.Mode.NONE)) {
-            System.out.println("first: " + first);
-            try (Lock second = Lock.create(file, console, Lock.Mode.NONE)) {
-                System.out.println("second: " + second);
+        try (Lock f = manager.acquire("foo", console, first)) {
+            try (Lock s = manager.acquire("foo", console, second)) {
+                if (first == Lock.Mode.NONE && second == Lock.Mode.NONE) {
+                    // skip
+                } else {
+                    assertFalse(manager.empty());
+                }
             }
         }
+        assertTrue(manager.empty());
     }
 }

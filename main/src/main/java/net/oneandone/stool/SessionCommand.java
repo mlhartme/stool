@@ -61,14 +61,14 @@ public abstract class SessionCommand implements Command {
     @Override
     public void invoke() throws Exception {
         updateCheck();
-        try (Lock lock = createLock(session.ports(), globalLock)) {
+        try (Lock lock = createLock("ports", globalLock)) {
             doInvoke();
         }
         session.invocationFileUpdate();
     }
 
-    protected Lock createLock(FileNode file, Lock.Mode mode) throws IOException, InterruptedException {
-        return Lock.create(file, console, noLock ? Lock.Mode.NONE : mode);
+    protected Lock createLock(String lock, Lock.Mode mode) throws IOException {
+        return session.lockManager.acquire(lock, console, noLock ? Lock.Mode.NONE : mode);
     }
 
     public abstract void doInvoke() throws Exception;

@@ -161,6 +161,8 @@ public class Session {
     private final String stageIdPrefix;
     private int nextStageId;
     public final Users users;
+    public final LockManager lockManager;
+
     private Pool lazyPool;
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd");
@@ -191,6 +193,7 @@ public class Session {
         } else {
             this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials);
         }
+        this.lockManager = LockManager.create(home.join("run/locks"));
         this.lazyPool= null;
     }
 

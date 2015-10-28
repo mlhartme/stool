@@ -219,7 +219,7 @@ public class Import extends SessionCommand {
         Stage stage;
 
         directory.checkDirectory();
-        Create.initBackstage(session.console, backstage);
+        Files.createStoolDirectory(session.console.verbose, backstage);
         stage = Stage.createOpt(session, url, session.createStageConfiguration(url), backstage, directory);
         stage.tuneConfiguration();
         stage.initialize();

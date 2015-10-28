@@ -66,6 +66,7 @@ public abstract class StageCommand extends SessionCommand {
         EnumerationFailed failures;
         String failureMessage;
         boolean withPrefix;
+        String stageId;
 
         failures = new EnumerationFailed();
         lst = selected(failures);
@@ -81,9 +82,10 @@ public abstract class StageCommand extends SessionCommand {
         width += 5;
         withPrefix = doBefore(lst, width);
         for (Stage stage : lst) {
+            stageId = stage.config().id;
             console.verbose.println("current stage: " + stage.getName());
-            try (Lock lock1 = createLock(StageConfiguration.file(stage.backstage), backstageLock);
-                 Lock lock2 = createLock(stage.backstage.join("directory.lock"), directoryLock)) {
+            try (Lock lock1 = createLock("backstage-" + stageId, backstageLock);
+                 Lock lock2 = createLock("directory-" + stageId, directoryLock)) {
                 if (withPrefix) {
                     ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
                 }

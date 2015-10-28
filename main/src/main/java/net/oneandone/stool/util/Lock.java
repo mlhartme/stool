@@ -15,79 +15,27 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.sushi.cli.Console;
-import net.oneandone.sushi.fs.file.FileNode;
-
-import java.io.IOException;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.file.OpenOption;
-import java.nio.file.StandardOpenOption;
-
 public class Lock implements AutoCloseable {
     public enum Mode {
         NONE, SHARED, EXCLUSIVE
     }
 
-    private static final OpenOption[] SHARED = { StandardOpenOption.READ };
-    private static final OpenOption[] EXCLUSIVE = { StandardOpenOption.WRITE, StandardOpenOption.APPEND };
+    public final LockManager locks;
+    public final String name;
+    public final Mode mode;
 
-    public static Lock create(FileNode file, Console console, Mode mode) throws IOException {
-        int seconds;
-        FileChannel channel;
-        FileLock lock;
-        boolean shared;
-
-        if (mode == Mode.NONE) {
-            lock = null;
-        } else {
-            shared = mode == Mode.SHARED;
-            seconds = 0;
-            try {
-                channel = FileChannel.open(file.toPath(), shared ? SHARED : EXCLUSIVE);
-                while (true) {
-                    lock = channel.tryLock(0, Long.MAX_VALUE, shared);
-                    if (lock != null) {
-                        break;
-                    }
-                    if (seconds > 10) {
-                        throw new IOException("waiting for lock timed out");
-                    }
-                    if (seconds % 10 == 0) {
-                        console.info.println("trying to lock " + file);
-                    }
-                    seconds++;
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        // continue
-                    }
-                }
-            } catch (IOException e) {
-                throw new IOException("cannot lock " + file + ": " + e.getMessage(), e);
-            }
-        }
-        return new Lock(lock);
-
-    }
-
-    private FileLock lock;
-
-    public Lock(FileLock lock) {
-        this.lock = lock;
+    public Lock(LockManager locks, String name, Mode mode) {
+        this.locks = locks;
+        this.name = name;
+        this.mode = mode;
     }
 
     @Override
     public void close() throws Exception {
-        if (lock != null) {
-            lock.release();
-            lock.channel().close();
-        } else {
-            // noop lock
-        }
+        locks.release(name, mode);
     }
 
     public String toString() {
-        return lock == null ? "none" : lock.toString();
+        return name + " (" + mode.toString().toLowerCase() + ")";
     }
 }

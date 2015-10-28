@@ -25,7 +25,6 @@ import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.cli.Value;
@@ -218,7 +217,7 @@ public class Create extends SessionCommand {
 
         Files.createSourceDirectory(console.verbose, directory, session.group());
         // CAUTION: create backstage before running possible prepare commands -- e.g. pws already populates the local repository of the stage
-        initBackstage(console, backstage);
+        Files.createStoolDirectory(console.verbose, backstage);
         stage = stage(backstage, url);
         stage.tuneConfiguration();
         for (Map.Entry<Property, String> entry : config.entrySet()) {
@@ -226,11 +225,6 @@ public class Create extends SessionCommand {
         }
         stage.initialize();
         return stage;
-    }
-
-    public static void initBackstage(Console console, FileNode backstage) throws IOException {
-        Files.createStoolDirectory(console.verbose, backstage);
-        Files.stoolFile(backstage.join("directory.lock").mkfile());
     }
 
     private Stage stage(FileNode backstage, String url) throws Exception {
