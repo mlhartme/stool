@@ -16,6 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.StoolConfiguration;
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.setup.JavaSetup;
 import net.oneandone.stool.stage.Stage;
@@ -42,9 +43,9 @@ public abstract class SessionCommand implements Command {
     protected final Console console;
     protected final World world;
     protected final Session session;
-    private final Lock.Mode globalLock;
+    private final Mode globalLock;
 
-    public SessionCommand(Session session, Lock.Mode globalLock) {
+    public SessionCommand(Session session, Mode globalLock) {
         this.console = session.console;
         this.world = console.world;
         this.session = session;
@@ -67,8 +68,8 @@ public abstract class SessionCommand implements Command {
         session.invocationFileUpdate();
     }
 
-    protected Lock createLock(String lock, Lock.Mode mode) throws IOException {
-        return session.lockManager.acquire(lock, console, noLock ? Lock.Mode.NONE : mode);
+    protected Lock createLock(String lock, Mode mode) throws IOException {
+        return session.lockManager.acquire(lock, console, noLock ? Mode.NONE : mode);
     }
 
     public abstract void doInvoke() throws Exception;

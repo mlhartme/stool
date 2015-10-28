@@ -15,24 +15,6 @@
  */
 package net.oneandone.stool.locking;
 
-public class Lock implements AutoCloseable {
-
-    public final LockManager locks;
-    public final String name;
-    public final Mode mode;
-
-    public Lock(LockManager locks, String name, Mode mode) {
-        this.locks = locks;
-        this.name = name;
-        this.mode = mode;
-    }
-
-    @Override
-    public void close() throws Exception {
-        locks.release(name, mode);
-    }
-
-    public String toString() {
-        return name + " (" + mode.toString().toLowerCase() + ")";
-    }
+public enum Mode {
+    NONE, SHARED, EXCLUSIVE
 }

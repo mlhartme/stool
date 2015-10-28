@@ -17,11 +17,11 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
-import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -62,7 +62,7 @@ public class Create extends SessionCommand {
     private final Map<String, Property> properties;
 
     public Create(Session session) {
-        super(session, Lock.Mode.SHARED);
+        super(session, Mode.SHARED);
         this.properties = StageConfiguration.properties(session.extensionsFactory);
     }
 

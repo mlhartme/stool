@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.util.LogEntry;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -28,7 +28,7 @@ import java.util.List;
 
 public class History extends StageCommand {
     public History(Session session) {
-        super(session, Lock.Mode.SHARED, Lock.Mode.SHARED, Lock.Mode.NONE);
+        super(session, Mode.SHARED, Mode.SHARED, Mode.NONE);
     }
 
     @Option("max")

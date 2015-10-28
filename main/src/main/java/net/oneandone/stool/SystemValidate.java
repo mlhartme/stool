@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.locking.Lock;
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
@@ -26,7 +26,7 @@ public class SystemValidate extends SessionCommand {
     private final Session session;
 
     public SystemValidate(Session session) {
-        super(session, Lock.Mode.SHARED);
+        super(session, Mode.SHARED);
         this.session = session;
     }
 

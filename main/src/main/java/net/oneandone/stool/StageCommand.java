@@ -17,6 +17,7 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.util.Predicate;
@@ -50,10 +51,10 @@ public abstract class StageCommand extends SessionCommand {
     @Option("fail")
     private Fail fail = Fail.NORMAL;
 
-    private final Lock.Mode backstageLock;
-    private final Lock.Mode directoryLock;
+    private final Mode backstageLock;
+    private final Mode directoryLock;
 
-    public StageCommand(Session session, Lock.Mode globalLock, Lock.Mode backstageLock, Lock.Mode directoryLock) {
+    public StageCommand(Session session, Mode globalLock, Mode backstageLock, Mode directoryLock) {
         super(session, globalLock);
         this.backstageLock = backstageLock;
         this.directoryLock = directoryLock;

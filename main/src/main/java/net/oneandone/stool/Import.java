@@ -15,9 +15,9 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
-import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
@@ -39,7 +39,7 @@ public class Import extends SessionCommand {
     private final List<FileNode> excludes;
 
     public Import(Session session) {
-        super(session, Lock.Mode.EXCLUSIVE);
+        super(session, Mode.EXCLUSIVE);
         includes = new ArrayList<>();
         excludes = new ArrayList<>();
     }

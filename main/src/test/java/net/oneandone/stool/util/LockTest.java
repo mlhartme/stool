@@ -17,6 +17,7 @@ package net.oneandone.stool.util;
 
 import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.locking.LockManager;
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import org.junit.Test;
@@ -28,20 +29,20 @@ import static org.junit.Assert.assertTrue;
 public class LockTest {
     @Test
     public void none() throws Exception {
-        recursive(Lock.Mode.NONE, Lock.Mode.NONE);
+        recursive(Mode.NONE, Mode.NONE);
     }
 
     @Test
     public void shared() throws Exception {
-        recursive(Lock.Mode.SHARED, Lock.Mode.SHARED);
+        recursive(Mode.SHARED, Mode.SHARED);
     }
 
     @Test
     public void exclusive() throws Exception {
-        recursive(Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
+        recursive(Mode.EXCLUSIVE, Mode.EXCLUSIVE);
     }
 
-    private void recursive(Lock.Mode first, Lock.Mode second) throws Exception {
+    private void recursive(Mode first, Mode second) throws Exception {
         LockManager manager;
         World world;
         Console console;
@@ -51,7 +52,7 @@ public class LockTest {
         console = Console.create(world);
         try (Lock f = manager.acquire("foo", console, first)) {
             try (Lock s = manager.acquire("foo", console, second)) {
-                if (first == Lock.Mode.NONE && second == Lock.Mode.NONE) {
+                if (first == Mode.NONE && second == Mode.NONE) {
                     // skip
                 } else {
                     assertFalse(manager.empty());

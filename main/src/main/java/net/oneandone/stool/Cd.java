@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Remaining;
@@ -31,7 +31,7 @@ public class Cd extends StageCommand {
     private String target;
 
     public Cd(Session session) {
-        super(session, Lock.Mode.SHARED, Lock.Mode.SHARED, Lock.Mode.NONE);
+        super(session, Mode.SHARED, Mode.SHARED, Mode.NONE);
     }
 
     @Remaining

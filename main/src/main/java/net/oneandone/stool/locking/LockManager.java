@@ -52,7 +52,7 @@ public class LockManager {
         this.process = process;
     }
 
-    public Lock acquire(String name, Console console, Lock.Mode mode) throws IOException {
+    public Lock acquire(String name, Console console, Mode mode) throws IOException {
         switch (mode) {
             case NONE:
                 break;
@@ -94,7 +94,7 @@ public class LockManager {
         }
     }
 
-    public void release(String name, Lock.Mode mode) throws IOException {
+    public void release(String name, Mode mode) throws IOException {
         boolean exclusive;
 
         switch (mode) {

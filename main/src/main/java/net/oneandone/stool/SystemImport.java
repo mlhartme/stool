@@ -18,11 +18,11 @@ package net.oneandone.stool;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.setup.Transform;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
-import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
@@ -57,7 +57,7 @@ public class SystemImport extends SessionCommand {
     }
 
     public SystemImport(Session session, FileNode oldHome) {
-        super(session, Lock.Mode.EXCLUSIVE);
+        super(session, Mode.EXCLUSIVE);
         this.oldHome = oldHome;
     }
 

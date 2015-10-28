@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
@@ -40,7 +40,7 @@ public class Chown extends StageCommand {
     }
 
     public Chown(Session session, boolean batch, String userArgument) {
-        super(session, Lock.Mode.SHARED, Lock.Mode.EXCLUSIVE, Lock.Mode.EXCLUSIVE);
+        super(session, Mode.SHARED, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.batch = batch;
         this.userArgument = userArgument;
     }
