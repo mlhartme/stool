@@ -13,11 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.util;
+package net.oneandone.stool.locking;
 
-import net.oneandone.stool.locking.Lock;
-import net.oneandone.stool.locking.LockManager;
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import org.junit.Test;
