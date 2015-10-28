@@ -107,16 +107,14 @@ public class StoolIT {
         stool("build");
         stool("config", "tomcat.opts=@trustStore@");
         stool("config", "tomcat.heap=300");
-        stool("refresh");
+        stool("refresh", "-autorestart");
         stool("start");
         stool("stop", "-sleep");
         stool("start");
         stool("status");
         stool("validate");
         stool("restart");
-        stool("refresh");
-        stool("refresh", "-build");
-        stool("refresh", "-debug");
+        stool("refresh", "-build", "-autostop");
         stool("start");
         stool("stop");
         stool("list");

@@ -36,10 +36,16 @@ import java.util.Map;
 
 public abstract class StageCommand extends SessionCommand {
     @Option("autorechown")
+    private boolean autoRechown;
+
+    @Option("autochown")
     private boolean autoChown;
 
     @Option("autorestart")
     private boolean autoRestart;
+
+    @Option("autostop")
+    private boolean autoStop;
 
     @Option("stage")
     private String stageClause;
@@ -76,6 +82,12 @@ public abstract class StageCommand extends SessionCommand {
         String failureMessage;
         boolean withPrefix;
 
+        if (autoChown && autoRechown) {
+            throw new ArgumentException("ambiguous options: you cannot use both -autochown and -autorechown");
+        }
+        if (autoStop && autoRestart) {
+            throw new ArgumentException("ambiguous options: you cannot use both -autostop and -autorestart");
+        }
         failures = new EnumerationFailed();
         lst = selected(failures);
         failureMessage = failures.getMessage();
@@ -205,15 +217,15 @@ public abstract class StageCommand extends SessionCommand {
         boolean suspend;
 
         status = new HashMap<>();
-        if (autoRestart && stage.state() == Stage.State.UP) {
-            postStart = true;
+        if ((autoRestart || autoStop) && stage.state() == Stage.State.UP) {
+            postStart = autoRestart;
             Status.tomcatStatus(stage, status);
             new Stop(session).doInvoke(stage);
         } else {
             postStart = false;
         }
-        if (autoChown && !stage.owner().equals(session.user)) {
-            postChown = stage.owner();
+        if ((autoRechown || autoChown) && !stage.owner().equals(session.user)) {
+            postChown = autoRechown ? stage.owner() : null;
             session.chown(stage, session.user);
         } else {
             postChown = null;

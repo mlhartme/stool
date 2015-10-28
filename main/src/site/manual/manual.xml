@@ -261,11 +261,13 @@
         Stool always returns with error code 0).
       </para>
 
-      <para>Stage commands have an <literal>-autorechown</literal> option: if specified, Stool checks the owner of a stage. If it's not the
-      current owner, it temporarily chown the stage to the current user, invokes the actual command, and chown the stage back to the original
-      owner.</para>
-      <para>Stage commands have an <literal>-autorestart</literal> option: if specified, Stool checks the state of a stage. It the stage is
-      up, Stool stops the stage, invokes the actual command, and starts the stage.</para>
+      <para>All stage commands provide 4 auto options do deal with stages that are not stopped or not own by the current user:
+        <literal>-autochown</literal>, <literal>-autorechown</literal>, <literal>-autostop</literal>, <literal>-autorestart</literal>. </para>
+      <para>With <literal>-autorechown</literal>, Stool checks the owner of a stage. If it is not the current user, it temporarily
+        chowns the stage to the current user, invokes the actual command, and chown the stage back to the original
+        owner. <literal>-autochown</literal> is similar, the stage is not chowned back.</para>
+      <para>With <literal>-autorestart</literal>, Stool checks the state of a stage. It the stage is up, Stool stops the stage,
+        invokes the actual command, and starts the stage. <literal>-autostop</literal> is similar, but the stage is not started again.</para>
     </sect1>
 
     <sect1>
@@ -863,6 +865,8 @@
 
     <section>
       <title>Stage Commands</title>
+
+      <para>All stage commands provide auto options (see above).</para>
 
       <refentry>
         <refnamediv>
