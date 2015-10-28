@@ -15,9 +15,10 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.stool.locking.Lock;
+import net.oneandone.stool.locking.LockManager;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.Test;
 
 import static org.junit.Assert.assertFalse;

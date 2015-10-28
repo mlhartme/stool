@@ -27,6 +27,7 @@ import net.oneandone.stool.configuration.adapter.ExtensionsAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.extensions.ExtensionsFactory;
+import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.setup.JavaSetup;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;

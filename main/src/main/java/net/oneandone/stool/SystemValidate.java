@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.util.Lock;
+import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
