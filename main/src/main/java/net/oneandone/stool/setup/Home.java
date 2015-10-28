@@ -19,9 +19,11 @@ import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Files;
+import net.oneandone.stool.util.Pool;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
+import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.util.Diff;
@@ -121,7 +123,7 @@ public class Home {
 
     private void upgrade_31_32(FileNode home) throws IOException {
         if (home.join("bin").isDirectory()) {
-            console.info.println("migrating 3.1 -> 3.2: " + home);
+            console.info.println("upgrading 3.1 -> 3.2: " + home);
             exec("mv", home.join("conf/overview.properties").getAbsolute(), home.join("overview.properties").getAbsolute());
             exec("sh", "-c", "find . -user servlet | xargs chown stool");
             exec("sh", "-c", "find . -perm 666 | xargs chmod 664");
@@ -136,10 +138,30 @@ public class Home {
 
     private void upgrade_32_33(FileNode home) throws IOException {
         if (home.join("overview.properties").isFile()) {
-            console.info.println("migrating 3.2 -> 3.3");
+            console.info.println("upgrading 3.2 -> 3.3");
             exec("mv", home.join("overview.properties").getAbsolute(), home.join("dashboard.properties").getAbsolute());
+            ports_32_33(home);
             doUpgrade(stool32_33(), stage32_33());
         }
+    }
+
+    private void ports_32_33(FileNode home) throws IOException {
+        FileNode backstages;
+        Node ports32;
+        Pool pool;
+
+        backstages = home.join("backstages");
+        pool = new Pool(home.join("run/ports"), 2, Integer.MAX_VALUE, backstages);
+        for (Node stage : home.list()) {
+            ports32 = stage.join("ports");
+            if (ports32.isFile()) {
+                for (Host32 host32 : Host32.load(ports32)) {
+                    pool.add(host32.upgrade(stage));
+                }
+            }
+        }
+        pool.save();
+        exec("chown", "stool", pool.getFile().getAbsolute());
     }
 
     private void doUpgrade(Object stoolMapper, Object stageMapper) throws IOException {

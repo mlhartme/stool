@@ -2,8 +2,8 @@
   <body>
     <release version="3.3.0" date="2015-11-01">
       <action date="2015-10-27" dev="mlhartme" type="update">
-        refresh: Removed implicit re-chowning and re-starting. If you need this functionality, invoke refresh with the new -auto options
-        for stage commands.
+        refresh: Removed implicit re-chowning and re-starting. If you need this functionality, invoke refresh with the new auto options
+        for stage commands: invoke 'stool refresh -autorechown -autorestart' to get the old behavior.
       </action>
       <action date="2015-10-27" dev="mlhartme" type="update">
         Changed 'suffix' stage property to 'suffixes', it holds a list now.
@@ -31,7 +31,7 @@
         Fixed host alias in server.xml.
       </action>
       <action date="2015-10-14" dev="mlhartme" type="update">
-        Merged all {stage}/shared/ports files into one {home}/run/ports file.
+        Merged all {stage}/ports files into one {home}/run/ports file.
       </action>
       <action date="2015-10-06" dev="mlhartme" type="update">
         Support stages with empty MAVEN_HOME: Stool includes ${home}/maven-settings.xml now, they are used to resovle dependencies if

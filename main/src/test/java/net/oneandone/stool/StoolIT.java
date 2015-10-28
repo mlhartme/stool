@@ -18,6 +18,7 @@ package net.oneandone.stool;
 import net.oneandone.stool.setup.JavaSetup;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
+import net.oneandone.stool.util.Pool;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -53,7 +54,13 @@ public class StoolIT {
     public void before() throws Exception {
         Map<String, String> config;
         FileNode stages;
+        Integer start = 1300;
+        Integer end = 1319;
 
+        for (int even = start; even < end; even += 2) {
+            Pool.checkFree(even);
+            Pool.checkFree(even + 1);
+        }
         world = new World();
         home = world.guessProjectHome(StoolIT.class).join("target/it/home");
         home.getParent().mkdirsOpt();
@@ -64,8 +71,8 @@ public class StoolIT {
         system.set(Environment.PS1, "prompt");
         config = new HashMap<>();
         config.put("diskMin", "500");
-        config.put("portFirst", "1300");
-        config.put("portLast", "1319");
+        config.put("portFirst", start.toString());
+        config.put("portLast", end.toString());
         JavaSetup.standalone(Console.create(world), false, home, config);
         stages = home.getParent().join("stages");
         stages.deleteTreeOpt();
@@ -107,7 +114,7 @@ public class StoolIT {
         stool("build");
         stool("config", "tomcat.opts=@trustStore@");
         stool("config", "tomcat.heap=300");
-        stool("refresh", "-autorestart");
+        stool("refresh");
         stool("start");
         stool("stop", "-sleep");
         stool("start");

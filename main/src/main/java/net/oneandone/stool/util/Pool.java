@@ -77,6 +77,10 @@ public class Pool {
         this.vhosts = new ArrayList<>();
     }
 
+    public FileNode getFile() {
+        return file;
+    }
+
     // TODO: ugly reference to stage ...
     public Ports allocate(Stage stage, Map<String, Integer> fixed) throws IOException {
         // maps vhosts to docroots
@@ -175,7 +179,7 @@ public class Pool {
         return null;
     }
 
-    private void save() throws IOException {
+    public void save() throws IOException {
         List<String> lines;
 
         lines = new ArrayList<>();
@@ -214,6 +218,10 @@ public class Pool {
             }
         } while (current != start);
         throw new IOException("cannot find free port in range [" + first + ", " + last + "[");
+    }
+
+    public void add(Vhost vhost) {
+        vhosts.add(vhost);
     }
 
     private boolean used(int even) {
