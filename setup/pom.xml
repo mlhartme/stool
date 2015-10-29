@@ -102,7 +102,6 @@
                 }
 
                 -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
-
                     public &lt;init>(...);
                 }
 
@@ -110,11 +109,33 @@
                     public &lt;init>(...);
                 }
 
+                -keep public class ** implements org.eclipse.aether.spi.locator.Service {
+                    void initService(...);
+                }
+
                 -keep @org.codehaus.plexus.component.annotations.Component class *
                 -keep @com.google.inject.Singleton class *
                 -keep @javax.inject.Named class *
 
-                -keep class org.eclipse.*
+                -keep class org.eclipse.** {
+                    *;
+                }
+
+                -keep class org.sonatype.** {
+                *;
+                }
+
+                -keep class com.google.** {
+                *;
+                }
+
+                -keep class org.codehaus.** {
+                *;
+                }
+
+                -keep class org.apache.** {
+                    *;
+                }
 
                 -keepclassmembers class * {
                     @javax.inject.Inject *;
