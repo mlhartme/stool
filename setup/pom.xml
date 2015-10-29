@@ -96,7 +96,7 @@
                 -keep @com.google.inject.Singleton class *
                 -keep @javax.inject.Named class *
 
-                -keep class org.apache.maven.repository.internal.** {
+                -keep class org.apache.maven.repository.internal.Default* {
                     *;
                 }
 
