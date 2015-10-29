@@ -22,7 +22,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -39,7 +38,7 @@ public class Lock2Test {
 
         world = new World();
         tmp = world.getTemp().createTempFile();
-        managerA = LockManager.create(tmp, 2);
+        managerA = LockManager.create(tmp, "a", 2);
         managerB = new LockManager(tmp, new Process(0, ""), 2);
         console = Console.create(world);
     }

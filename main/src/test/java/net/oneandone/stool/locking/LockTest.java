@@ -20,8 +20,6 @@ import net.oneandone.sushi.fs.World;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -34,7 +32,7 @@ public class LockTest {
     @Before
     public void before() throws Exception {
         world = new World();
-        manager = LockManager.create(world.getTemp().createTempFile(), 2);
+        manager = LockManager.create(world.getTemp().createTempFile(), "", 2);
         console = Console.create(world);
     }
 

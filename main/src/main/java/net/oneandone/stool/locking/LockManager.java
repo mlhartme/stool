@@ -25,8 +25,8 @@ import java.nio.channels.FileLock;
 
 /** Thread-save and save against concurrent processes */
 public class LockManager {
-    public static LockManager create(FileNode file, int timeout) {
-        return new LockManager(file, new Process(pid(), ""), timeout);
+    public static LockManager create(FileNode file, String comment, int timeout) {
+        return new LockManager(file, new Process(pid(), comment), timeout);
     }
 
     public static int pid() {
@@ -156,6 +156,25 @@ public class LockManager {
              FileLock lock = raf.getChannel().lock()) {
             lf = Store.load(raf);
             return lf.isEmpty();
+        }
+    }
+
+    public synchronized boolean hasExclusiveLocks(String ... locks) throws IOException {
+        Store lf;
+        Queue queue;
+
+        try (RandomAccessFile raf = new RandomAccessFile(file.toPath().toFile(), "rw");
+             FileLock l = raf.getChannel().lock()) {
+            lf = Store.load(raf);
+            for (String lock : locks) {
+                queue = lf.lookup(lock);
+                if (queue != null) {
+                    if (queue.exclusiveCount > 0) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 }
