@@ -110,7 +110,6 @@
                 }
 
                 -keep public class ** implements org.eclipse.aether.spi.locator.Service {
-                    void initService(...);
                 }
 
                 -keep @org.codehaus.plexus.component.annotations.Component class *
