@@ -134,10 +134,6 @@
                 }
 
                 -keepclassmembers class * {
-                    java.lang.String ROLE;
-                }
-
-                -keepclassmembers class * {
                     @net.oneandone.sushi.cli.* *;
                 }
               </shrinkOptions>
