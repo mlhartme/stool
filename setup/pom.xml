@@ -125,7 +125,7 @@
                     *;
                 }
 
-                -keep class org.apache.maven.** {
+                -keep class org.apache.maven.repository.** {
                     *;
                 }
 
