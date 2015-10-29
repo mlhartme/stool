@@ -25,8 +25,8 @@ import java.nio.channels.FileLock;
 
 /** Thread-save and save against concurrent processes */
 public class LockManager {
-    public static LockManager create(FileNode file) {
-        return new LockManager(file, new Process(pid(), ""));
+    public static LockManager create(FileNode file, int timeout) {
+        return new LockManager(file, new Process(pid(), ""), timeout);
     }
 
     public static int pid() {
@@ -44,21 +44,38 @@ public class LockManager {
 
     private final FileNode file;
     private final Process self;
+    /** seconds */
+    private final int timeout;
 
-    public LockManager(FileNode file, Process self) {
+    public LockManager(FileNode file, Process self, int timeout) {
         this.file = file;
         this.self = self;
+        this.timeout = timeout;
     }
 
     public Lock acquire(String name, Console console, Mode mode) throws IOException {
+        Lock result;
+
+        result = acquireOpt(name, console, mode);
+        if (result == null) {
+            throw new LockException(name);
+        }
+        return result;
+    }
+
+    public Lock acquireOpt(String name, Console console, Mode mode) throws IOException {
         switch (mode) {
             case NONE:
                 break;
             case SHARED:
-                await(name, false, console);
+                if (!await(name, false, console)) {
+                    return null;
+                }
                 break;
             case EXCLUSIVE:
-                await(name, true, console);
+                if (!await(name, true, console)) {
+                    return null;
+                }
                 break;
             default:
                 throw new IllegalStateException(mode.toString());
@@ -66,16 +83,15 @@ public class LockManager {
         return new Lock(this, name, mode);
     }
 
-    //--
 
-    public void await(String name, boolean exclusive, Console console) throws IOException {
+    private boolean await(String name, boolean exclusive, Console console) throws IOException {
         int seconds;
 
         try {
             seconds = 0;
             while (!awaitStep(name, exclusive)) {
-                if (seconds > 10) {
-                    throw new IOException("waiting for lock timed out");
+                if (seconds > timeout) {
+                    return false;
                 }
                 if (seconds % 10 == 0) {
                     console.info.println("trying to lock " + file);
@@ -87,6 +103,7 @@ public class LockManager {
                     // continue
                 }
             }
+            return true;
         } catch (IOException e) {
             throw new IOException("cannot lock " + file + ": " + e.getMessage(), e);
         }

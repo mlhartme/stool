@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.locking;
 
+import java.io.IOException;
+
 public class Lock implements AutoCloseable {
 
     public final LockManager locks;
@@ -28,7 +30,7 @@ public class Lock implements AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         locks.release(name, mode);
     }
 

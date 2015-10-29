@@ -194,7 +194,7 @@ public class Session {
         } else {
             this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials);
         }
-        this.lockManager = LockManager.create(home.join("run/locks"));
+        this.lockManager = LockManager.create(home.join("run/locks"), 10);
         this.lazyPool= null;
     }
 
