@@ -89,7 +89,7 @@ public class LockManager {
             try {
                 problem = tryLock(name, exclusive);
             } catch (IOException e) {
-                throw new IOException("cannot lock " + file + ": " + e.getMessage(), e);
+                throw new IOException("cannot acquire lock " + name + ": " + e.getMessage(), e);
             }
             if (problem == null) {
                 return;
@@ -98,7 +98,7 @@ public class LockManager {
                 throw new LockException(name, problem);
             }
             if (seconds % 10 == 0) {
-                console.info.println("trying to lock " + file);
+                console.info.println("trying to acquire lock " + name);
             }
             seconds++;
             try {

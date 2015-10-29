@@ -23,4 +23,8 @@ class Process {
     public String toLine() {
         return Integer.toString(id) + ' ' + comment;
     }
+
+    public String toString() {
+        return toLine();
+    }
 }

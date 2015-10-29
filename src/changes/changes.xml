@@ -2,7 +2,7 @@
   <body>
     <release version="3.3.0" date="2015-10-01">
       <action date="2015-10-27" dev="mlhartme" type="update">
-        Improved locking: replace the old global and stage semaphores by a global read/write lock, and per-stage a backstage read/write lock
+        Improved locking: replace the old global and stage semaphores by one global read/write lock, and per-stage a backstage read/write lock
         and a directory read/write lock.
       </action>
       <action date="2015-10-26" dev="mlhartme" type="update">
