@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -27,7 +28,7 @@ public class Port extends StageCommand {
     private Map<String, Integer> ports = new HashMap<>();
 
     public Port(Session session) {
-        super(session);
+        super(session, Mode.EXCLUSIVE, Mode.SHARED, Mode.NONE);
     }
 
     @Remaining

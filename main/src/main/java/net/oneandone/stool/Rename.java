@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Value;
 import net.oneandone.sushi.fs.NodeAlreadyExistsException;
@@ -29,17 +29,7 @@ public class Rename extends StageCommand {
     private String name;
 
     public Rename(Session session) {
-        super(session);
-    }
-
-    @Override
-    public Lock lock() {
-        return session.lock();
-    }
-
-    @Override
-    public Lock stageLock(Stage stage) {
-        return null;
+        super(session, Mode.EXCLUSIVE, Mode.NONE, Mode.NONE);
     }
 
     @Override

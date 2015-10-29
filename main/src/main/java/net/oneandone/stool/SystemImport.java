@@ -18,6 +18,7 @@ package net.oneandone.stool;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.setup.Transform;
 import net.oneandone.stool.stage.Stage;
@@ -56,7 +57,7 @@ public class SystemImport extends SessionCommand {
     }
 
     public SystemImport(Session session, FileNode oldHome) {
-        super(session);
+        super(session, Mode.EXCLUSIVE);
         this.oldHome = oldHome;
     }
 

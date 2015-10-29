@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Option;
 
@@ -31,23 +31,13 @@ public class Remove extends StageCommand {
     private boolean backstageOnly;
 
     public Remove(Session session) {
-        super(session);
+        this(session, false, false);
     }
 
     public Remove(Session session, boolean batch, boolean force) {
-        super(session);
+        super(session, Mode.EXCLUSIVE, Mode.NONE, Mode.NONE);
         this.batch = batch;
         this.force = force;
-    }
-
-    @Override
-    public Lock lock() {
-        return session.lock();
-    }
-
-    @Override
-    public Lock stageLock(Stage stage) {
-        return null;
     }
 
     @Override

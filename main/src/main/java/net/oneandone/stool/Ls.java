@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Lock;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Strings;
 
@@ -30,12 +30,7 @@ public class Ls extends StageCommand {
     private static final String NOT_SELECTED = "   ";
 
     public Ls(Session session) {
-        super(session);
-    }
-
-    @Override
-    protected Lock lock() {
-        return null;
+        super(session, Mode.SHARED, Mode.SHARED, Mode.NONE);
     }
 
     @Override

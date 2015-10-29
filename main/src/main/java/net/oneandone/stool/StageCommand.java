@@ -17,8 +17,9 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Lock;
+import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -56,17 +57,13 @@ public abstract class StageCommand extends SessionCommand {
     @Option("fail")
     private Fail fail = Fail.NORMAL;
 
-    public StageCommand(Session session) {
-        super(session);
-    }
+    private final Mode backstageLock;
+    private final Mode directoryLock;
 
-    @Override
-    protected Lock lock() {
-        return null;
-
-    }
-    protected Lock stageLock(Stage stage) {
-        return new Lock(session.user, stage.shared().join("stage.aquire"));
+    public StageCommand(Session session, Mode globalLock, Mode backstageLock, Mode directoryLock) {
+        super(session, globalLock);
+        this.backstageLock = backstageLock;
+        this.directoryLock = directoryLock;
     }
 
     public boolean isNoop(Stage stage) throws IOException {
@@ -75,7 +72,6 @@ public abstract class StageCommand extends SessionCommand {
 
     @Override
     public void doInvoke() throws Exception {
-        Lock lock;
         int width;
         List<Stage> lst;
         EnumerationFailed failures;
@@ -103,18 +99,11 @@ public abstract class StageCommand extends SessionCommand {
         withPrefix = doBefore(lst, width);
         for (Stage stage : lst) {
             console.verbose.println("current stage: " + stage.getName());
-            if (noLock) {
-                lock = null;
-            } else {
-                lock = stageLock(stage);
-            }
-            if (lock != null) {
-                lock.aquire(getClass().getSimpleName().toLowerCase(), console);
-            }
             if (isNoop(stage)) {
                 console.verbose.println("nothing to do");
             } else {
-                try {
+                try (Lock lock1 = createLock(stage.backstageLock(), backstageLock);
+                     Lock lock2 = createLock(stage.directoryLock(), directoryLock)) {
                     if (withPrefix) {
                         ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
                     }
@@ -137,9 +126,6 @@ public abstract class StageCommand extends SessionCommand {
                     session.logging.setStage("", "");
                     if (console.info instanceof PrefixWriter) {
                         ((PrefixWriter) console.info).setPrefix("");
-                    }
-                    if (lock != null) {
-                        lock.release();
                     }
                 }
             }
@@ -204,7 +190,7 @@ public abstract class StageCommand extends SessionCommand {
         return Collections.singletonList(selected());
     }
 
-    /* @return true to use prefix stream */
+    /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
     public boolean doBefore(List<Stage> stages, int indent) {
         return stages.size() != 1;
     }
@@ -226,7 +212,7 @@ public abstract class StageCommand extends SessionCommand {
         }
         if ((autoRechown || autoChown) && !stage.owner().equals(session.user)) {
             postChown = autoRechown ? stage.owner() : null;
-            session.chown(stage, session.user);
+            new Chown(session, true, session.user).doInvoke(stage);
         } else {
             postChown = null;
         }
@@ -234,7 +220,8 @@ public abstract class StageCommand extends SessionCommand {
         doInvoke(stage);
 
         if (postChown != null) {
-            session.chown(stage, postChown);
+            // do NOT call session.chown to get property locking
+            new Chown(session, true, postChown).doInvoke(stage);
         }
         if (postStart) {
             debug = status.get(Status.Field.DEBUGGER) != null;
@@ -247,6 +234,8 @@ public abstract class StageCommand extends SessionCommand {
 
 
     //--
+
+    /* Note that the stage is not locked when this method is called. */
     public void doAfter() throws Exception {
     }
 

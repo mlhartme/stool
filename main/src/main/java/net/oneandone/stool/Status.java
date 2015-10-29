@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
@@ -46,7 +47,7 @@ public class Status extends StageCommand {
     private final List<Field> selected = new ArrayList<>();
 
     public Status(Session session) {
-        super(session);
+        super(session, Mode.SHARED, Mode.SHARED, Mode.SHARED);
     }
 
     @Remaining

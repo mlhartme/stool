@@ -171,6 +171,14 @@ public abstract class Stage {
         return getClass().getSimpleName().toLowerCase();
     }
 
+    public String backstageLock() {
+        return "backstage-" + config().id;
+    }
+
+    public String directoryLock() {
+        return "directory-" + config().id;
+    }
+
     private KeyStore keystore() throws IOException {
         KeyStore keyStore;
         FileNode sslDir;
@@ -216,8 +224,9 @@ public abstract class Stage {
     }
 
     //-- pid file handling
-    public boolean isWorking() {
-        return isLocked();
+
+    public boolean isWorking() throws IOException {
+        return !session.lockManager.hasExclusiveLocks(directoryLock(), backstageLock());
     }
 
     public State state() throws IOException {
@@ -229,9 +238,6 @@ public abstract class Stage {
             return State.DOWN;
         }
 
-    }
-    public boolean isLocked() {
-        return shared().join("stage.aquire").exists();
     }
 
     public String runningTomcat() throws IOException {

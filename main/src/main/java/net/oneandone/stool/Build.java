@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.launcher.Launcher;
@@ -24,7 +25,7 @@ import java.io.IOException;
 
 public class Build extends StageCommand {
     public Build(Session session) {
-        super(session);
+        super(session, Mode.SHARED, Mode.SHARED, Mode.EXCLUSIVE);
     }
 
     @Override

@@ -17,6 +17,7 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
@@ -61,7 +62,7 @@ public class Create extends SessionCommand {
     private final Map<String, Property> properties;
 
     public Create(Session session) {
-        super(session);
+        super(session, Mode.SHARED);
         this.properties = StageConfiguration.properties(session.extensionsFactory);
     }
 

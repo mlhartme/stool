@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Session;
@@ -38,7 +39,7 @@ public class Import extends SessionCommand {
     private final List<FileNode> excludes;
 
     public Import(Session session) {
-        super(session);
+        super(session, Mode.EXCLUSIVE);
         includes = new ArrayList<>();
         excludes = new ArrayList<>();
     }

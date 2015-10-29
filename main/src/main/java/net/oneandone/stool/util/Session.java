@@ -27,6 +27,7 @@ import net.oneandone.stool.configuration.adapter.ExtensionsAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.extensions.ExtensionsFactory;
+import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.setup.JavaSetup;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
@@ -161,6 +162,8 @@ public class Session {
     private final String stageIdPrefix;
     private int nextStageId;
     public final Users users;
+    public final LockManager lockManager;
+
     private Pool lazyPool;
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd");
@@ -191,6 +194,7 @@ public class Session {
         } else {
             this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials);
         }
+        this.lockManager = LockManager.create(home.join("run/locks"), user + ":" + command, 10);
         this.lazyPool= null;
     }
 
@@ -496,9 +500,8 @@ public class Session {
         launcher.exec(console.info);
     }
 
-    /** session lock */
-    public Lock lock() {
-        return new Lock(user, home.join("run/stool.lock"));
+    public FileNode ports() {
+        return home.join("run/ports");
     }
 
     public boolean isSelected(Stage stage) {
@@ -508,11 +511,11 @@ public class Session {
     //-- stage properties
 
 
-    public void saveStageProperties(StageConfiguration stageConfiguration, Node backstage) throws IOException {
+    public void saveStageProperties(StageConfiguration stageConfiguration, FileNode backstage) throws IOException {
         stageConfiguration.save(gson, StageConfiguration.file(backstage));
     }
 
-    public StageConfiguration loadStageConfiguration(Node backstage) throws IOException {
+    public StageConfiguration loadStageConfiguration(FileNode backstage) throws IOException {
         return StageConfiguration.load(gson, StageConfiguration.file(backstage));
     }
 
@@ -530,7 +533,7 @@ public class Session {
 
     public Pool pool() throws IOException {
         if (lazyPool == null) {
-            lazyPool = Pool.loadOpt(home.join("run/ports"), configuration.portFirst, configuration.portLast, backstages);
+            lazyPool = Pool.loadOpt(ports(), configuration.portFirst, configuration.portLast, backstages);
         }
         return lazyPool;
     }

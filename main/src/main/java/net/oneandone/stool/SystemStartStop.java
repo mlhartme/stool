@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
@@ -27,7 +28,7 @@ public class SystemStartStop extends StageCommand {
     private final boolean start;
 
     public SystemStartStop(Session session, boolean start) {
-        super(session);
+        super(session, Mode.SHARED, Mode.SHARED, Mode.SHARED);
         this.session = session;
         this.start = start;
     }

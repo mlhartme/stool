@@ -16,6 +16,7 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.Until;
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Mailer;
@@ -44,7 +45,7 @@ public class Validate extends StageCommand {
 
 
     public Validate(Session session) {
-        super(session);
+        super(session, Mode.SHARED, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
     }
     private static void daemons(Stage stage, Processes processes, List<String> problems) throws IOException {
         tomcat(stage, processes, problems);
@@ -110,7 +111,7 @@ public class Validate extends StageCommand {
                     new Stop(session).doInvoke(stage);
                 }
                 if (!stage.owner().equals(session.user)) {
-                    new Chown(session, true).doInvoke(stage);
+                    new Chown(session, true, null).doInvoke(stage);
                 }
                 new Remove(session, true, true).doInvoke(stage);
                 message("Stage has been deleted.");

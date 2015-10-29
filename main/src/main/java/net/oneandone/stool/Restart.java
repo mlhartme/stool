@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Option;
@@ -27,7 +28,7 @@ public class Restart extends StageCommand {
     private boolean suspend = false;
 
     public Restart(Session session) {
-        super(session);
+        super(session, Mode.SHARED, Mode.SHARED, Mode.NONE);
     }
 
     @Override

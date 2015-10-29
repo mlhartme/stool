@@ -16,11 +16,12 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.StoolConfiguration;
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.setup.JavaSetup;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
-import net.oneandone.stool.util.Lock;
+import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Update;
 import net.oneandone.sushi.cli.Command;
@@ -39,15 +40,16 @@ import java.io.Writer;
 import java.util.List;
 
 public abstract class SessionCommand implements Command {
-
     protected final Console console;
     protected final World world;
     protected final Session session;
+    private final Mode globalLock;
 
-    public SessionCommand(Session session) {
+    public SessionCommand(Session session, Mode globalLock) {
         this.console = session.console;
         this.world = console.world;
         this.session = session;
+        this.globalLock = globalLock;
     }
 
     @Option("nolock")
@@ -57,29 +59,17 @@ public abstract class SessionCommand implements Command {
     @Option("updateCheck")
     private boolean updateCheck;
 
-    // override if you don't want locking
-    protected Lock lock() {
-        return session.lock();
-    }
-
     @Override
     public void invoke() throws Exception {
-        Lock lock;
-
         updateCheck();
-        lock = noLock ? null : lock();
-        if (lock != null) {
-            lock.aquire(getClass().getSimpleName().toLowerCase(), console);
-        }
-
-        try {
+        try (Lock lock = createLock("ports", globalLock)) {
             doInvoke();
-        } finally {
-            if (lock != null) {
-                lock.release();
-            }
         }
         session.invocationFileUpdate();
+    }
+
+    protected Lock createLock(String lock, Mode mode) throws IOException {
+        return session.lockManager.acquire(lock, console, noLock ? Mode.NONE : mode);
     }
 
     public abstract void doInvoke() throws Exception;
