@@ -125,10 +125,6 @@
                 *;
                 }
 
-                -keep class com.google.** {
-                *;
-                }
-
                 -keep class org.apache.** {
                     *;
                 }
