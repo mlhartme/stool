@@ -107,4 +107,12 @@ class Queue {
         }
         return false;
     }
+
+    public String problem() {
+        if (exclusiveCount > 0) {
+            return "exclusively locked by " + exclusiveProcess;
+        } else {
+            return "shared locked by: " + shared;
+        }
+    }
 }

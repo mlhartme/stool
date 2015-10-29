@@ -21,7 +21,6 @@ import java.io.IOException;
  * I cannot use Java's FileLocks because you cannot acquire them recursively.
  */
 public class Lock implements AutoCloseable {
-
     public final LockManager locks;
     public final String name;
     public final Mode mode;

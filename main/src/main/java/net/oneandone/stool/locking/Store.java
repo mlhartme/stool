@@ -71,7 +71,8 @@ public class Store {
         return null;
     }
 
-    public boolean tryLock(String lock, boolean exclusive, Process processExtern) {
+    /** @return null for success, problematic queue otherwise */
+    public Queue tryLock(String lock, boolean exclusive, Process processExtern) {
         Process process;
         Queue queue;
 
@@ -85,10 +86,10 @@ public class Store {
             queues.add(queue);
         } else {
             if (!queue.tryLock(exclusive, process)) {
-                return false;
+                return queue;
             }
         }
-        return true;
+        return null;
     }
 
     public void release(String lock, boolean exclusive, Process processExtern) {

@@ -54,28 +54,14 @@ public class LockManager {
     }
 
     public Lock acquire(String name, Console console, Mode mode) throws IOException {
-        Lock result;
-
-        result = acquireOpt(name, console, mode);
-        if (result == null) {
-            throw new LockException(name);
-        }
-        return result;
-    }
-
-    public Lock acquireOpt(String name, Console console, Mode mode) throws IOException {
         switch (mode) {
             case NONE:
                 break;
             case SHARED:
-                if (!await(name, false, console)) {
-                    return null;
-                }
+                awaitLock(name, false, console);
                 break;
             case EXCLUSIVE:
-                if (!await(name, true, console)) {
-                    return null;
-                }
+                awaitLock(name, true, console);
                 break;
             default:
                 throw new IllegalStateException(mode.toString());
@@ -83,43 +69,60 @@ public class LockManager {
         return new Lock(this, name, mode);
     }
 
-
-    private boolean await(String name, boolean exclusive, Console console) throws IOException {
-        int seconds;
-
+    /** for testing */
+    public Lock acquireOpt(String name, Console console, Mode mode) throws IOException {
         try {
-            seconds = 0;
-            while (!awaitStep(name, exclusive)) {
-                if (seconds > timeout) {
-                    return false;
-                }
-                if (seconds % 10 == 0) {
-                    console.info.println("trying to lock " + file);
-                }
-                seconds++;
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    // continue
-                }
-            }
-            return true;
-        } catch (IOException e) {
-            throw new IOException("cannot lock " + file + ": " + e.getMessage(), e);
+            return acquire(name, console, mode);
+        } catch (LockException e) {
+            return null;
         }
     }
 
-    private boolean awaitStep(String name, boolean exclusive) throws IOException {
+
+    /** @return null for success, problematic queue otherwise */
+    private void awaitLock(String name, boolean exclusive, Console console) throws IOException {
+        Queue problem;
+        int seconds;
+
+        seconds = 0;
+        while (true) {
+            try {
+                problem = tryLock(name, exclusive);
+            } catch (IOException e) {
+                throw new IOException("cannot lock " + file + ": " + e.getMessage(), e);
+            }
+            if (problem == null) {
+                return;
+            }
+            if (seconds > timeout) {
+                throw new LockException(name, problem);
+            }
+            if (seconds % 10 == 0) {
+                console.info.println("trying to lock " + file);
+            }
+            seconds++;
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // continue
+            }
+        }
+    }
+
+    /** @return null or problematic queue otherwise */
+    private Queue tryLock(String name, boolean exclusive) throws IOException {
         Store lf;
+        Queue problem;
 
         try (RandomAccessFile raf = new RandomAccessFile(file.toPath().toFile(), "rw");
              FileLock lock = raf.getChannel().lock()) {
             lf = Store.load(raf);
-            if (!lf.tryLock(name, exclusive, self)) {
-                return false;
+            problem = lf.tryLock(name, exclusive, self);
+            if (problem != null) {
+                return problem;
             }
             lf.save(raf);
-            return true;
+            return null;
         }
 
     }
