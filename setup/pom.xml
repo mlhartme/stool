@@ -55,11 +55,60 @@
         <executions>
           <execution>
             <configuration>
-              <!-- for generate -->
+              <!-- JavaSetup is used as the setup tool *and* as the Jar file for the resulting stool installation. -->
               <path>$PATH</path>
               <options>-Djava.awt.headless=true</options>
               <name>setup-stool</name>
               <main>net.oneandone.stool.setup.JavaSetup</main>
+              <shrink>true</shrink>
+              <shrinkOptions>
+                -dontoptimize # because of proguard bug
+                -keepattributes *Annotation*
+                -keepdirectories
+                -ignorewarnings
+
+                -dontnote com.sun.mail.**
+                -dontnote javax.annotation.*
+                -dontwarn javax.enterprise.**
+                -dontnote javax.enterprise.**
+                -dontnote org.apache.maven.**
+                -dontwarn org.apache.maven.**
+                -dontnote net.oneandone.stool.**
+                -dontnote ch.qos.logback.**
+                -dontwarn ch.qos.logback.**
+                -dontnote org.apache.commons.**
+                -dontwarn org.apache.commons.**
+                -dontnote org.apache.http.**
+                -dontwarn org.apache.http.**
+                -dontnote com.google.**
+                -dontwarn com.google.**
+                -dontnote org.eclipse.**
+                -dontwarn org.eclipse.**
+                -dontnote org.codehaus.**
+                -dontwarn org.codehaus.**
+                -dontnote net.oneandone.sushi.**
+                -dontwarn net.oneandone.sushi.**
+
+                -keep public class net.oneandone.stool.Main {
+                    public static void main(java.lang.String[]);
+                }
+
+                -keep public class net.oneandone.stool.setup.BinMan {
+                    public static void main(java.lang.String[]);
+                }
+
+                -keep public class ** implements net.oneandone.stool.extensions.Extension {
+                    public &lt;init>(...);
+                }
+
+                -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
+                    public &lt;init>(...);
+                }
+
+                -keep public class ** implements net.oneandone.sushi.cli.Command {
+                    public &lt;init>(...);
+                }
+              </shrinkOptions>
             </configuration>
             <id>java-setup</id>
             <goals>
@@ -99,11 +148,11 @@
                 -dontwarn net.oneandone.sushi.**
 
                 -keep public class ** implements net.oneandone.stool.extensions.Extension {
-                public &lt;init>(...);
+                    public &lt;init>(...);
                 }
 
                 -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
-                public &lt;init>(...);
+                    public &lt;init>(...);
                 }
               </shrinkOptions>
             </configuration>
@@ -122,7 +171,8 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/setup-stool" fork="false">
+                <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/setup-stool" fork="false"
+                    failonerror="true">
                   <arg path="${project.build.directory}/debfiles" />
                 </java>
                 <copy todir="${project.build.directory}/deb/control/">
