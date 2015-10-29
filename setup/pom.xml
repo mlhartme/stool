@@ -102,11 +102,30 @@
                 }
 
                 -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
+
                     public &lt;init>(...);
                 }
 
                 -keep public class ** implements net.oneandone.sushi.cli.Command {
                     public &lt;init>(...);
+                }
+
+                -keep @org.codehaus.plexus.component.annotations.Component class *
+                -keep @com.google.inject.Singleton class *
+                -keep @javax.inject.Named class *
+
+                -keep class org.eclipse.*
+
+                -keepclassmembers class * {
+                    @javax.inject.Inject *;
+                }
+
+                -keepclassmembers class * {
+                    java.lang.String ROLE;
+                }
+
+                -keepclassmembers class * {
+                    @net.oneandone.sushi.cli.* *;
                 }
               </shrinkOptions>
             </configuration>
