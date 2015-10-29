@@ -21,6 +21,6 @@ class Process {
     }
 
     public String toLine() {
-        return id + ' ' + comment;
+        return Integer.toString(id) + ' ' + comment;
     }
 }

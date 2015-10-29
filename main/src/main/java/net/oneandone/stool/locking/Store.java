@@ -24,46 +24,42 @@ public class Store {
         last = null;
         for (line = raf.readLine(); line != null; line = raf.readLine()) {
             if (line.isEmpty()) {
-                continue;
+                throw new IllegalStateException();
+            }
+            marker = line.charAt(0);
+            if (marker == PROCESS) {
+                last = Process.parse(line.substring(1));
             } else {
-                marker = line.charAt(0);
-                if (marker == PROCESS) {
-                    last = Process.parse(line.substring(1));
-                    result.processes.add(last);
-                } else {
-                    switch (marker) {
-                        case SHARED:
-                            exclusive = false;
-                            break;
-                        case EXCLUSIVE:
-                            exclusive = true;
-                            break;
-                        default:
-                            throw new IllegalStateException("unexpected marker: " + marker);
-                    }
-                    if (last == null) {
-                        throw new IllegalStateException();
-                    }
-                    queue = result.getOrCreate(line.substring(1));
-                    if (!queue.tryLock(exclusive, last)) {
-                        throw new IllegalStateException();
-                    }
+                switch (marker) {
+                    case SHARED:
+                        exclusive = false;
+                        break;
+                    case EXCLUSIVE:
+                        exclusive = true;
+                        break;
+                    default:
+                        throw new IllegalStateException("unexpected marker: " + marker);
+                }
+                if (last == null) {
+                    throw new IllegalStateException();
+                }
+                queue = result.getOrCreate(line.substring(1));
+                if (!queue.tryLock(exclusive, last)) {
+                    throw new IllegalStateException();
                 }
             }
         }
         return result;
     }
 
-    private final List<Process> processes;
     private final List<Queue> queues;
 
     public Store() {
-        this.processes = new ArrayList<>();
         this.queues = new ArrayList<>();
     }
 
     public boolean isEmpty() {
-        return processes.isEmpty();
+        return queues.isEmpty();
     }
 
     public Queue lookup(String lock) {
@@ -75,9 +71,11 @@ public class Store {
         return null;
     }
 
-    public boolean tryLock(String lock, boolean exclusive, Process process) {
+    public boolean tryLock(String lock, boolean exclusive, Process processExtern) {
+        Process process;
         Queue queue;
 
+        process = intern(processExtern);
         queue = lookup(lock);
         if (queue == null) {
             queue = new Queue(lock);
@@ -90,15 +88,14 @@ public class Store {
                 return false;
             }
         }
-        if (!processes.contains(process)) {
-            processes.add(process);
-        }
         return true;
     }
 
-    public void release(String lock, boolean exclusive, Process process) {
+    public void release(String lock, boolean exclusive, Process processExtern) {
+        Process process;
         Queue queue;
 
+        process = intern(processExtern);
         queue = lookup(lock);
         if (queue == null) {
             throw new IllegalStateException(lock);
@@ -106,12 +103,21 @@ public class Store {
         queue.release(exclusive, process);
     }
 
+    private Process intern(Process extern) {
+        for (Process intern : processes()) {
+            if (intern.id == extern.id) {
+                return intern;
+            }
+        }
+        return extern;
+    }
+
     public void save(RandomAccessFile raf) throws IOException {
         List<Queue> queues;
 
         raf.seek(0);
         raf.setLength(0);
-        for (Process process : processes) {
+        for (Process process : processes()) {
             queues = queuesWithProcess(process);
             if (!queues.isEmpty()) {
                 line(raf, PROCESS, process.toLine());
@@ -128,6 +134,30 @@ public class Store {
                     }
                 }
             }
+        }
+    }
+
+    private List<Process> processes() {
+        List<Process> result;
+
+        result = new ArrayList<>();
+        for (Queue queue : queues) {
+            processes(queue, result);
+        }
+        return result;
+    }
+
+    private static void processes(Queue queue, List<Process> result) {
+        if (queue.exclusiveCount > 0) {
+            addOpt(result, queue.exclusiveProcess);
+        }
+        for (Process process : queue.shared) {
+            addOpt(result, process);
+        }
+    }
+    private static void addOpt(List<Process> result, Process process) {
+        if (!result.contains(process)) {
+            result.add(process);
         }
     }
 
