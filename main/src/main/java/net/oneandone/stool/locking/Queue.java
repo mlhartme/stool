@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** A lock with processes holding this lock. Internal class. */
-public class Queue {
+class Queue {
     /** Name of the lock */
     public final String lock;
 
@@ -44,25 +44,15 @@ public class Queue {
     }
 
     public boolean tryLock(boolean exclusive, Process process) {
-        boolean result;
-
-        result = doTryLock(exclusive, process);
-        if (result) {
-            process.addOpt(this);
-        }
-        return result;
-    }
-
-    private boolean doTryLock(boolean exclusive, Process process) {
         if (exclusive) {
-            if (!containsOther(process)) {
+            if (containsOther(process)) {
+                return false;
+            } else {
                 if (exclusiveCount == 0) {
                     exclusiveProcess = process;
                 }
                 exclusiveCount++;
                 return true;
-            } else {
-                return false;
             }
         } else {
             if (exclusiveCount == 0 || !containsOther(process)) {
@@ -75,13 +65,6 @@ public class Queue {
     }
 
     public void release(boolean exclusive, Process process) {
-        doRelease(exclusive, process);
-        if (!contains(process)) {
-            process.remove(this);
-        }
-    }
-
-    private void doRelease(boolean exclusive, Process process) {
         if (exclusive) {
             if (!process.equals(exclusiveProcess)) {
                 throw new IllegalStateException();
@@ -90,9 +73,6 @@ public class Queue {
                 throw new IllegalStateException();
             }
             exclusiveCount--;
-            if (exclusiveCount == 0) {
-                process.remove(this);
-            }
         } else {
             for (int i = shared.size() - 1; i >= 0; i--) {
                 if (process.equals(shared.get(i))) {
@@ -104,7 +84,7 @@ public class Queue {
         }
     }
 
-    private boolean contains(Process process) {
+    public boolean contains(Process process) {
         if (exclusiveCount > 0 && process == exclusiveProcess) {
             return true;
         }
@@ -116,7 +96,7 @@ public class Queue {
         return false;
     }
 
-    private boolean containsOther(Process process) {
+    public boolean containsOther(Process process) {
         if (exclusiveCount > 0 && process != exclusiveProcess) {
             return true;
         }

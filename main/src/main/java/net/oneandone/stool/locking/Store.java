@@ -45,7 +45,9 @@ public class Store {
                         throw new IllegalStateException();
                     }
                     queue = result.getOrCreate(line.substring(1));
-                    queue.tryLock(exclusive, last);
+                    if (!queue.tryLock(exclusive, last)) {
+                        throw new IllegalStateException();
+                    }
                 }
             }
         }
@@ -82,13 +84,11 @@ public class Store {
             if (!queue.tryLock(exclusive, process)) {
                 throw new IllegalStateException();
             }
+            queues.add(queue);
         } else {
             if (!queue.tryLock(exclusive, process)) {
                 return false;
             }
-        }
-        if (!queues.contains(queue)) {
-            queues.add(queue);
         }
         if (!processes.contains(process)) {
             processes.add(process);
@@ -107,27 +107,42 @@ public class Store {
     }
 
     public void save(RandomAccessFile raf) throws IOException {
+        List<Queue> queues;
+
         raf.seek(0);
         raf.setLength(0);
         for (Process process : processes) {
-            if (!process.queues.isEmpty()) {
-                raf.writeByte(PROCESS);
-                raf.writeBytes(process.toLine());
-                raf.writeByte('\n');
-                for (Queue entry : process.queues) {
-                    if (process == entry.exclusiveProcess) {
-                        for (int count = entry.exclusiveCount; count > 0; count--) {
-                            line(raf, EXCLUSIVE, entry.lock);
+            queues = queuesWithProcess(process);
+            if (!queues.isEmpty()) {
+                line(raf, PROCESS, process.toLine());
+                for (Queue queue : queues) {
+                    if (process == queue.exclusiveProcess) {
+                        for (int count = queue.exclusiveCount; count > 0; count--) {
+                            line(raf, EXCLUSIVE, queue.lock);
                         }
                     }
-                    for (Process e : entry.shared) {
+                    for (Process e : queue.shared) {
                         if (process == e) {
-                            line(raf, SHARED, entry.lock);
+                            line(raf, SHARED, queue.lock);
                         }
                     }
                 }
             }
         }
+    }
+
+    private List<Queue> queuesWithProcess(Process process) {
+        List<Queue> result;
+
+        result = new ArrayList<>();
+        for (Queue queue : queues) {
+            if (queue.contains(process)) {
+                if (!result.contains(queue)) {
+                    result.add(queue);
+                }
+            }
+        }
+        return result;
     }
 
     private static void line(RandomAccessFile raf, char marker, String line) throws IOException {
