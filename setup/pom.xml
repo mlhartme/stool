@@ -89,22 +89,6 @@
                 -dontnote net.oneandone.sushi.**
                 -dontwarn net.oneandone.sushi.**
 
-                -keep public class net.oneandone.stool.Main {
-                    public static void main(java.lang.String[]);
-                }
-
-                -keep public class net.oneandone.stool.setup.BinMan {
-                    public static void main(java.lang.String[]);
-                }
-
-                -keep public class ** implements net.oneandone.stool.extensions.Extension {
-                    public &lt;init>(...);
-                }
-
-                -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
-                    public &lt;init>(...);
-                }
-
                 -keep public class ** implements org.eclipse.aether.spi.locator.Service {
                 }
 
@@ -130,8 +114,23 @@
                     @javax.inject.Inject *;
                 }
 
+                # Stool
+                -keep public class net.oneandone.stool.Main {
+                public static void main(java.lang.String[]);
+                }
+                -keep public class net.oneandone.stool.setup.BinMan {
+                public static void main(java.lang.String[]);
+                }
+                -keep public class ** implements net.oneandone.stool.extensions.Extension {
+                public &lt;init>(...);
+                }
+
+                # Sushi
                 -keepclassmembers class * {
                     @net.oneandone.sushi.cli.* *;
+                }
+                -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
+                public &lt;init>(...);
                 }
               </shrinkOptions>
             </configuration>
