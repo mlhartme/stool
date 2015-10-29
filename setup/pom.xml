@@ -129,10 +129,6 @@
                 *;
                 }
 
-                -keep class org.codehaus.** {
-                *;
-                }
-
                 -keep class org.apache.** {
                     *;
                 }
