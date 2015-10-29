@@ -121,8 +121,8 @@
                     *;
                 }
 
-                -keep class org.sonatype.** {
-                *;
+                -keep public class ** implements org.sonatype.plexus.components.sec.dispatcher.SecDispatcher {
+                    *;
                 }
 
                 -keep class org.apache.** {
