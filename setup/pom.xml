@@ -117,8 +117,8 @@
                 -keep @com.google.inject.Singleton class *
                 -keep @javax.inject.Named class *
 
-                -keep class org.apache.maven.repository.** {
-                *;
+                -keep class org.apache.maven.repository.internal.** {
+                    *;
                 }
 
                 -keep class org.eclipse.sisu.** {
