@@ -18,9 +18,7 @@ package net.oneandone.stool.stage;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.artifact.Application;
 import net.oneandone.stool.stage.artifact.Applications;
-import net.oneandone.stool.stage.artifact.Change;
 import net.oneandone.stool.stage.artifact.Changes;
-import net.oneandone.stool.stage.artifact.WarFile;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
@@ -28,9 +26,7 @@ import net.oneandone.sushi.fs.MoveException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.resolution.ArtifactResolutionException;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -130,7 +126,7 @@ public class ArtifactStage extends Stage {
     public boolean updateAvailable() {
         try {
             for (Application application : applications.applications()) {
-                if (application.updateAvalable()) {
+                if (application.updateAvailable()) {
                     return true;
                 }
             }
@@ -143,7 +139,7 @@ public class ArtifactStage extends Stage {
     @Override
     public void executeRefresh(Console console) throws IOException {
         for (Application application : applications.applications()) {
-            if (application.updateAvalable()) {
+            if (application.updateAvailable()) {
                 application.update();
             }
         }

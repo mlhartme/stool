@@ -40,6 +40,7 @@ public class Application {
     private DefaultArtifact artifact;
     private final Maven maven;
     private final Console console;
+
     private WarFile currentWarFile;
     private WarFile futureWarFile;
     private WarFile backupWarFile;
@@ -56,7 +57,7 @@ public class Application {
         return artifact.getArtifactId();
     }
 
-    public String name() {
+    private String name() {
         return artifact.getArtifactId();
     }
 
@@ -74,21 +75,21 @@ public class Application {
         return artifact;
     }
 
-    public WarFile currentWarFile() {
+    private WarFile currentWarFile() {
         if (currentWarFile == null) {
             currentWarFile = new WarFile(currentFile());
         }
         return currentWarFile;
     }
 
-    public WarFile futureWarFile() throws IOException {
+    private WarFile futureWarFile() throws IOException {
         if (futureWarFile == null) {
             futureWarFile = new WarFile(futureFile());
         }
         return futureWarFile;
     }
 
-    public WarFile backupWarFile() {
+    private WarFile backupWarFile() {
         if (backupWarFile == null) {
             backupWarFile = new WarFile(backupFile());
         }
@@ -99,16 +100,12 @@ public class Application {
         return stageDirectory.join(artifactId(), "ROOT.war");
     }
 
-    public FileNode futureFile() throws MkdirException {
+    private FileNode futureFile() throws MkdirException {
         return (FileNode) stageDirectory.join(".refresh").mkdirsOpt().join(name() + ".war.next");
     }
 
-    public FileNode backupFile() {
+    private FileNode backupFile() {
         return stageDirectory.join(".refresh").join(name() + ".war.backup");
-    }
-
-    public void replaceFutureWarFile(WarFile warFile) throws IOException {
-        futureWarFile = warFile.saveTo(futureFile());
     }
 
     public void update() throws IOException {
@@ -129,7 +126,7 @@ public class Application {
     }
 
 
-    public Changes changes(FileNode shared, Users users) throws IOException {
+    private Changes changes(FileNode shared, Users users) throws IOException {
         FileNode file;
         String svnurl;
         Changes changes;
@@ -157,7 +154,7 @@ public class Application {
         return changes;
     }
 
-    public MavenProject pom() throws IOException {
+    private MavenProject pom() throws IOException {
         try {
             return maven.loadPom(artifact());
         } catch (RepositoryException | ProjectBuildingException e) {
@@ -165,14 +162,14 @@ public class Application {
         }
     }
 
-    public void backup() throws IOException {
+    private void backup() throws IOException {
         if (currentFile().exists()) {
             currentFile().copy(backupFile());
             console.info.println("Backup for " + artifactId() + " created.");
         }
     }
 
-    public boolean updateAvalable() throws IOException {
+    public boolean updateAvailable() throws IOException {
         if (!futureFile().exists()) {
             return false;
         }
@@ -204,7 +201,8 @@ public class Application {
             return false;
         }
 
-        replaceFutureWarFile(candidate);
+        futureWarFile = candidate.saveTo(futureFile());
+
         try {
             changes = changes(shared, session.users);
         } catch (IOException e) {
