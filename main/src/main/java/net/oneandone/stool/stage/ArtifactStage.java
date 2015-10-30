@@ -18,7 +18,6 @@ package net.oneandone.stool.stage;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.artifact.Application;
 import net.oneandone.stool.stage.artifact.Applications;
-import net.oneandone.stool.stage.artifact.ArtifactSource;
 import net.oneandone.stool.stage.artifact.Change;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.stage.artifact.MavenSource;
@@ -204,7 +203,7 @@ public class ArtifactStage extends Stage {
         return true;
     }
 
-    public ArtifactSource sourceFor(Application application) throws IOException {
+    public MavenSource sourceFor(Application application) throws IOException {
         return new MavenSource(application.artifact(), maven());
     }
 

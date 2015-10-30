@@ -21,7 +21,7 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class MavenSource implements ArtifactSource {
+public class MavenSource {
 
     private final DefaultArtifact artifact;
     private final net.oneandone.maven.embedded.Maven maven;
@@ -31,7 +31,6 @@ public class MavenSource implements ArtifactSource {
         this.maven = maven;
     }
 
-    @Override
     public WarFile resolve() throws IOException {
         try {
             return new WarFile(maven.resolve(artifact));
