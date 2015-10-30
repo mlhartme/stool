@@ -30,7 +30,6 @@ import org.eclipse.aether.artifact.DefaultArtifact;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -103,7 +102,7 @@ public class ArtifactStage extends Stage {
         getGavFile().writeString(url);
 
         for (Application application : applications.applications()) {
-            application.currentFile().getParent().mkdir();
+            application.base().mkdir();
         }
         refreshPending(console);
         executeRefresh(console);
@@ -159,12 +158,12 @@ public class ArtifactStage extends Stage {
     @Override
     public Map<String, FileNode> vhosts() {
         Map<String, FileNode> result;
-        FileNode dir;
+        FileNode base;
 
         result = new LinkedHashMap<>();
         for (Application application : applications.applications()) {
-            dir = application.currentFile().getParent();
-            result.put(dir.getName(), dir.join("ROOT"));
+            base = application.base();
+            result.put(base.getName(), base.join("ROOT"));
         }
 
         return result;

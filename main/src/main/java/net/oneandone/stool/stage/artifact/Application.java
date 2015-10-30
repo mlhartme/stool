@@ -41,9 +41,9 @@ public class Application {
     private final Maven maven;
     private final Console console;
 
+    private WarFile backupWarFile;
     private WarFile currentWarFile;
     private WarFile futureWarFile;
-    private WarFile backupWarFile;
 
     public Application(Gson gson, DefaultArtifact artifact, FileNode stageDirectory, Maven maven, Console console) {
         this.gson = gson;
@@ -96,8 +96,12 @@ public class Application {
         return backupWarFile;
     }
 
-    public FileNode currentFile() {
-        return stageDirectory.join(artifactId(), "ROOT.war");
+    public FileNode base() {
+        return stageDirectory.join(artifactId());
+    }
+
+    private FileNode currentFile() {
+        return base().join("ROOT.war");
     }
 
     private FileNode futureFile() throws MkdirException {
