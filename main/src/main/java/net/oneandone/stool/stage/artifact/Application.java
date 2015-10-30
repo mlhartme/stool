@@ -57,6 +57,15 @@ public class Application {
         return artifact.getArtifactId();
     }
 
+    public void populate() throws MkdirException {
+        base().mkdir();
+        refresh().mkdir();
+    }
+
+    private FileNode refresh() {
+        return stageDirectory.join(".refresh");
+    }
+
     public FileNode base() {
         return stageDirectory.join(artifactId());
     }
@@ -180,13 +189,13 @@ public class Application {
     private void updateArtifact() throws IOException {
         String version;
 
-        try {
-            if (artifact.getVersion().equals("@latest")) {
+        if (artifact.getVersion().equals("@latest")) {
+            try {
                 version = maven.latestRelease(artifact);
-                artifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "war", version);
+            } catch (VersionRangeResolutionException e) {
+                throw new IOException(e);
             }
-        } catch (VersionRangeResolutionException e) {
-            throw new IOException(e);
+            artifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "war", version);
         }
     }
 
@@ -215,11 +224,11 @@ public class Application {
         return base().join("ROOT.war");
     }
 
-    private FileNode futureFile() throws MkdirException {
-        return (FileNode) stageDirectory.join(".refresh").mkdirsOpt().join(name() + ".war.next");
+    private FileNode futureFile() {
+        return refresh().join(name() + ".war.next");
     }
 
     private FileNode backupFile() {
-        return stageDirectory.join(".refresh").join(name() + ".war.backup");
+        return refresh().join(name() + ".war.backup");
     }
 }

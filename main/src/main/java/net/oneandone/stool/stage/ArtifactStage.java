@@ -102,7 +102,7 @@ public class ArtifactStage extends Stage {
         getGavFile().writeString(url);
 
         for (Application application : applications.applications()) {
-            application.base().mkdir();
+            application.populate();
         }
         refreshPending(console);
         executeRefresh(console);
