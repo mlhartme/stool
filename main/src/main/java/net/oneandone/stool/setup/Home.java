@@ -39,19 +39,17 @@ public class Home {
 
     private final Console console;
     private final FileNode home;
-    private final String user;
     private final String group;
     private final boolean shared;
     private final Map<String, String> globalProperties;
 
     public Home(Console console, FileNode home, boolean shared, Map<String, String> globalProperties) {
-        this(console, home, "stool", "stool", shared, globalProperties);
+        this(console, home, "stool", shared, globalProperties);
     }
 
-    public Home(Console console, FileNode home, String user, String group, boolean shared, Map<String, String> globalProperties) {
+    public Home(Console console, FileNode home, String group, boolean shared, Map<String, String> globalProperties) {
         this.console = console;
         this.home = home;
-        this.user = user;
         this.group = group;
         this.shared = shared;
         this.globalProperties = globalProperties;
@@ -170,7 +168,6 @@ public class Home {
             }
         }
         pool.save();
-        exec("chown", user, pool.getFile().getAbsolute());
     }
 
     private void doUpgrade(Object stoolMapper, Object stageMapper) throws IOException {

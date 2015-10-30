@@ -135,7 +135,7 @@ public class DebianSetup extends Debian {
     public void setupHome() throws IOException {
         Home h;
 
-        h = new Home(console, home, user, group, true, new HashMap<>());
+        h = new Home(console, home, group, true, new HashMap<>());
         if (home.exists()) {
             h.upgrade();
             echo("home: " + home.getAbsolute() + " (upgraded)");
