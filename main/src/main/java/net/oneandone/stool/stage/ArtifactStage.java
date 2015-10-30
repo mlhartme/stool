@@ -177,7 +177,7 @@ public class ArtifactStage extends Stage {
         WarFile candidate;
         Changes changes;
 
-        candidate = sourceFor(application).resolve();
+        candidate = new MavenSource(application.artifact(), maven()).resolve();
         if (candidate.equals(application.currentWarFile())) {
             return false;
         }
@@ -201,10 +201,6 @@ public class ArtifactStage extends Stage {
             console.info.println(change.getMessage());
         }
         return true;
-    }
-
-    public MavenSource sourceFor(Application application) throws IOException {
-        return new MavenSource(application.artifact(), maven());
     }
 
     private String getGavs() {
