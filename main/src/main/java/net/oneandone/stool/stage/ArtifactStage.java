@@ -20,7 +20,6 @@ import net.oneandone.stool.stage.artifact.Application;
 import net.oneandone.stool.stage.artifact.Applications;
 import net.oneandone.stool.stage.artifact.Change;
 import net.oneandone.stool.stage.artifact.Changes;
-import net.oneandone.stool.stage.artifact.MavenSource;
 import net.oneandone.stool.stage.artifact.WarFile;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -29,7 +28,9 @@ import net.oneandone.sushi.fs.MoveException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -174,14 +175,19 @@ public class ArtifactStage extends Stage {
     }
 
     private boolean refreshWar(Console console, Application application) throws IOException {
+        final DefaultArtifact artifact;
         WarFile candidate;
         Changes changes;
 
-        candidate = new MavenSource(application.artifact(), maven()).resolve();
+        artifact = application.artifact();
+        try {
+            candidate = new WarFile(maven().resolve(artifact));
+        } catch (ArtifactResolutionException e) {
+            throw new FileNotFoundException("Artifact " + artifact + " not found.");
+        }
         if (candidate.equals(application.currentWarFile())) {
             return false;
         }
-
         if (candidate.equals(application.futureWarFile())) {
             return false;
         }
