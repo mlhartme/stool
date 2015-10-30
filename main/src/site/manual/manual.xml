@@ -1646,7 +1646,6 @@
         | |- stool-catalina.sh
         | '- stool-chown.sh
         |- man (*) documentation
-        |- inbox (to push jars into artifact stages with an inbox urls)
         |- extensions (for jars with Stool extensions)
         |- logs
         | |- stool.log

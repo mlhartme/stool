@@ -15,14 +15,12 @@
  */
 package net.oneandone.stool.stage;
 
-import net.oneandone.stool.Main;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.artifact.Application;
 import net.oneandone.stool.stage.artifact.Applications;
 import net.oneandone.stool.stage.artifact.ArtifactSource;
 import net.oneandone.stool.stage.artifact.Change;
 import net.oneandone.stool.stage.artifact.Changes;
-import net.oneandone.stool.stage.artifact.Inbox;
 import net.oneandone.stool.stage.artifact.Maven;
 import net.oneandone.stool.stage.artifact.WarFile;
 import net.oneandone.stool.util.Session;
@@ -207,14 +205,7 @@ public class ArtifactStage extends Stage {
     }
 
     public ArtifactSource sourceFor(Application application) throws IOException {
-        ArtifactSource source;
-
-        if ("@inbox".equals(application.artifact().getVersion())) {
-            source = new Inbox(application.name(), getName(), session.home.join(Main.INBOX));
-        } else {
-            source = new Maven(application.artifact(), maven());
-        }
-        return source;
+        return new Maven(application.artifact(), maven());
     }
 
     private String getGavs() {

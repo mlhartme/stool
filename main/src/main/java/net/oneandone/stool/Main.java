@@ -110,8 +110,6 @@ public class Main extends Cli implements Command {
         return result.toString();
     }
 
-    public static final String INBOX = "inbox";
-
     private final Logging logging;
     private final String user;
     private final String command;

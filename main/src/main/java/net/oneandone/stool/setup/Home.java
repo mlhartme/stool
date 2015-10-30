@@ -68,7 +68,7 @@ public class Home {
         Files.createStoolDirectoryOpt(console.verbose, conf.downloadCache).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
         conf.save(Session.gson(home.getWorld(), ExtensionsFactory.create(home.getWorld())), home);
 
-        for (String dir : new String[]{"extensions", "backstages", "inbox", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
+        for (String dir : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
             Files.createStoolDirectory(console.verbose, home.join(dir));
         }
         Files.stoolFile(home.join("run/locks").mkfile());
