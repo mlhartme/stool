@@ -21,7 +21,7 @@ import net.oneandone.stool.stage.artifact.Applications;
 import net.oneandone.stool.stage.artifact.ArtifactSource;
 import net.oneandone.stool.stage.artifact.Change;
 import net.oneandone.stool.stage.artifact.Changes;
-import net.oneandone.stool.stage.artifact.Maven;
+import net.oneandone.stool.stage.artifact.MavenSource;
 import net.oneandone.stool.stage.artifact.WarFile;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -205,7 +205,7 @@ public class ArtifactStage extends Stage {
     }
 
     public ArtifactSource sourceFor(Application application) throws IOException {
-        return new Maven(application.artifact(), maven());
+        return new MavenSource(application.artifact(), maven());
     }
 
     private String getGavs() {

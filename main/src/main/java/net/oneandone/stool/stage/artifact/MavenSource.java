@@ -21,12 +21,12 @@ import org.eclipse.aether.resolution.ArtifactResolutionException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class Maven implements ArtifactSource {
+public class MavenSource implements ArtifactSource {
 
     private final DefaultArtifact artifact;
     private final net.oneandone.maven.embedded.Maven maven;
 
-    public Maven(DefaultArtifact artifact, net.oneandone.maven.embedded.Maven maven) {
+    public MavenSource(DefaultArtifact artifact, net.oneandone.maven.embedded.Maven maven) {
         this.artifact = artifact;
         this.maven = maven;
     }
