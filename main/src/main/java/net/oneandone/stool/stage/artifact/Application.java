@@ -57,59 +57,55 @@ public class Application {
         return artifact.getArtifactId();
     }
 
-    private String name() {
-        return artifact.getArtifactId();
-    }
-
-    private DefaultArtifact updateArtifact() throws IOException {
-        String version;
-
-        try {
-            if (artifact.getVersion().equals("@latest")) {
-                version = maven.latestRelease(artifact);
-                artifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "war", version);
-            }
-        } catch (VersionRangeResolutionException e) {
-            throw new IOException(e);
-        }
-        return artifact;
-    }
-
-    private WarFile currentWarFile() {
-        if (currentWarFile == null) {
-            currentWarFile = new WarFile(currentFile());
-        }
-        return currentWarFile;
-    }
-
-    private WarFile futureWarFile() throws IOException {
-        if (futureWarFile == null) {
-            futureWarFile = new WarFile(futureFile());
-        }
-        return futureWarFile;
-    }
-
-    private WarFile backupWarFile() {
-        if (backupWarFile == null) {
-            backupWarFile = new WarFile(backupFile());
-        }
-        return backupWarFile;
-    }
-
     public FileNode base() {
         return stageDirectory.join(artifactId());
     }
 
-    private FileNode currentFile() {
-        return base().join("ROOT.war");
+    public boolean refreshWar(Session session, FileNode shared) throws IOException {
+        WarFile candidate;
+        Changes changes;
+
+        updateArtifact();
+        try {
+            candidate = new WarFile(maven.resolve(artifact));
+        } catch (ArtifactResolutionException e) {
+            throw new FileNotFoundException("Artifact " + artifact + " not found.");
+        }
+        if (candidate.equals(currentWarFile())) {
+            return false;
+        }
+        if (candidate.equals(futureWarFile())) {
+            return false;
+        }
+
+        futureWarFile = candidate.saveTo(futureFile());
+
+        try {
+            changes = changes(shared, session.users);
+        } catch (IOException e) {
+            // TODO
+            session.reportException("application.changes", e);
+            changes = new Changes();
+        }
+        session.console.verbose.println("Update for " + artifactId() + " prepared.");
+        for (Change change : changes) {
+            console.info.print(change.getUser());
+            console.info.print(" : ");
+            console.info.println(change.getMessage());
+        }
+        return true;
     }
 
-    private FileNode futureFile() throws MkdirException {
-        return (FileNode) stageDirectory.join(".refresh").mkdirsOpt().join(name() + ".war.next");
-    }
+    public boolean updateAvailable() throws IOException {
+        if (!futureFile().exists()) {
+            return false;
+        }
 
-    private FileNode backupFile() {
-        return stageDirectory.join(".refresh").join(name() + ".war.backup");
+        if (!currentFile().exists()) {
+            return true;
+        }
+
+        return true;
     }
 
     public void update() throws IOException {
@@ -129,6 +125,7 @@ public class Application {
         }
     }
 
+    //--
 
     private Changes changes(FileNode shared, Users users) throws IOException {
         FileNode file;
@@ -160,7 +157,8 @@ public class Application {
 
     private MavenProject pom() throws IOException {
         try {
-            return maven.loadPom(updateArtifact());
+            updateArtifact();
+            return maven.loadPom(artifact);
         } catch (RepositoryException | ProjectBuildingException e) {
             throw new IOException("Cannot load projects pom", e);
         }
@@ -173,53 +171,55 @@ public class Application {
         }
     }
 
-    public boolean updateAvailable() throws IOException {
-        if (!futureFile().exists()) {
-            return false;
-        }
-
-        if (!currentFile().exists()) {
-            return true;
-        }
-
-        return true;
-    }
-
     //--
 
-    public boolean refreshWar(Session session, FileNode shared) throws IOException {
-        final DefaultArtifact artifact;
-        WarFile candidate;
-        Changes changes;
+    private String name() {
+        return artifact.getArtifactId();
+    }
 
-        artifact = updateArtifact();
-        try {
-            candidate = new WarFile(maven.resolve(artifact));
-        } catch (ArtifactResolutionException e) {
-            throw new FileNotFoundException("Artifact " + artifact + " not found.");
-        }
-        if (candidate.equals(currentWarFile())) {
-            return false;
-        }
-        if (candidate.equals(futureWarFile())) {
-            return false;
-        }
-
-        futureWarFile = candidate.saveTo(futureFile());
+    private void updateArtifact() throws IOException {
+        String version;
 
         try {
-            changes = changes(shared, session.users);
-        } catch (IOException e) {
-            // TODO
-            session.reportException("application.changes", e);
-            changes = new Changes();
+            if (artifact.getVersion().equals("@latest")) {
+                version = maven.latestRelease(artifact);
+                artifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "war", version);
+            }
+        } catch (VersionRangeResolutionException e) {
+            throw new IOException(e);
         }
-        session.console.verbose.println("Update for " + artifactId() + " prepared.");
-        for (Change change : changes) {
-            console.info.print(change.getUser());
-            console.info.print(" : ");
-            console.info.println(change.getMessage());
+    }
+
+    private WarFile currentWarFile() {
+        if (currentWarFile == null) {
+            currentWarFile = new WarFile(currentFile());
         }
-        return true;
+        return currentWarFile;
+    }
+
+    private WarFile futureWarFile() throws IOException {
+        if (futureWarFile == null) {
+            futureWarFile = new WarFile(futureFile());
+        }
+        return futureWarFile;
+    }
+
+    private WarFile backupWarFile() {
+        if (backupWarFile == null) {
+            backupWarFile = new WarFile(backupFile());
+        }
+        return backupWarFile;
+    }
+
+    private FileNode currentFile() {
+        return base().join("ROOT.war");
+    }
+
+    private FileNode futureFile() throws MkdirException {
+        return (FileNode) stageDirectory.join(".refresh").mkdirsOpt().join(name() + ".war.next");
+    }
+
+    private FileNode backupFile() {
+        return stageDirectory.join(".refresh").join(name() + ".war.backup");
     }
 }
