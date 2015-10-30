@@ -43,14 +43,12 @@ public class DebianSetup extends Debian {
     private final FileNode bin;
     private final FileNode home;
     private final String group;
-    private final String user;
 
     public DebianSetup() {
         // this is not configurable, because the content comes from the package:
         bin = world.file("/usr/share/stool");
 
         home = world.file(get("home"));
-        user = get("user");
         group = get("group");
     }
 
@@ -59,10 +57,8 @@ public class DebianSetup extends Debian {
     @Override
     public void postinstConfigure() throws IOException {
         setupGroup();
-        setupUser();
         setupHome();
         home.link(bin.join("home"));
-        verbose(slurp("sudo", "-u", user, bin.join("stool-raw.sh").getAbsolute(), "chown", "-stage", "dashboard"));
         exec("update-rc.d", "stool", "defaults");
     }
 
@@ -111,24 +107,26 @@ public class DebianSetup extends Debian {
         }
     }
 
-    private void setupUser() throws IOException {
-        boolean existing;
-        boolean inGroup;
+    /* TODO: move into Dashboard Debian package
+       private void setupUser() throws IOException {
+                boolean existing;
+                boolean inGroup;
 
-        existing = test("id", "-u", user);
-        if (!existing) {
-            if (world.file("/home").join(user).isDirectory()) {
-                throw new IOException("cannot create user " + user + ": home directory already exists");
+                        existing = test("id", "-u", user);
+                if (!existing) {
+                        if (world.file("/home").join(user).isDirectory()) {
+                                throw new IOException("cannot create user " + user + ": home directory already exists");
+                            }
+                        verbose(slurp("adduser", "--system", "--ingroup", group, "--home", "/home/" + user, user));
+                    }
+
+                        inGroup = groups(user).contains(group);
+                if (!inGroup) {
+                        exec("usermod", "-a", "-G", group, user);
+                    }
+                echo("user: " + user + " (" + (existing ? "existing" : "created") + (inGroup ? "" : ", added to group" + group) + ")");
             }
-            verbose(slurp("adduser", "--system", "--ingroup", group, "--home", "/home/" + user, user));
-        }
-
-        inGroup = groups(user).contains(group);
-        if (!inGroup) {
-            exec("usermod", "-a", "-G", group, user);
-        }
-        echo("user: " + user + " (" + (existing ? "existing" : "created") + (inGroup ? "" : ", added to group" + group) + ")");
-    }
+    */
 
     //--
 

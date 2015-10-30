@@ -3,11 +3,6 @@ Type: string
 Default: /var/lib/stool
 Description: Where to place Stool's home directory.
 
-Template: stool/user
-Type: string
-Default: stool
-Description: Owns stool files.
-
 Template: stool/group
 Type: string
 Default: stool
