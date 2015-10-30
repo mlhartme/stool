@@ -76,6 +76,7 @@ public class Debian {
     public Debian() {
         world = new World();
         console = Console.create(world);
+        console.setVerbose(true);
         cwd = (FileNode) world.getWorking();
     }
 

@@ -1631,7 +1631,7 @@
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
         |- dashboard.properties (Dashboard configuration)
         |- run
-        | |- ports       (ports allocated for stages)
+        | |- locks       (holds all locking data)
         | |- sleep.json
         | '- users
         | |- (one file per user session)

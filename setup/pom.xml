@@ -179,6 +179,7 @@
                     public &lt;init>(...);
                 }
               </shrinkOptions>
+              <launcher>${basedir}/src/deb/control/launcher</launcher>
             </configuration>
             <id>debian-setup</id>
             <goals>
@@ -202,9 +203,9 @@
                 <copy todir="${project.build.directory}/deb/control/">
                   <fileset dir="${basedir}/src/deb/control"/>
                 </copy>
-                <copy file="${project.build.directory}/deb/control/template" tofile="${project.build.directory}/deb/control/preinst"/>
-                <copy file="${project.build.directory}/deb/control/template" tofile="${project.build.directory}/deb/control/postinst"/>
-                <copy file="${project.build.directory}/deb/control/template" tofile="${project.build.directory}/deb/control/prerm"/>
+                <copy file="${project.build.directory}/deb/control/launcher" tofile="${project.build.directory}/deb/control/preinst"/>
+                <copy file="${project.build.directory}/deb/control/launcher" tofile="${project.build.directory}/deb/control/postinst"/>
+                <move file="${project.build.directory}/deb/control/launcher" tofile="${project.build.directory}/deb/control/prerm"/>
                 <move file="${project.build.directory}/postrm" tofile="${project.build.directory}/deb/control/postrm.bin"/>
               </target>
             </configuration>

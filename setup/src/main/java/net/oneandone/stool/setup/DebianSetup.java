@@ -30,22 +30,28 @@ public class DebianSetup extends Debian {
 
     //--
 
+    private static String get(String name) {
+        String result;
+
+        result = System.getenv("STOOL_SETUP_" + name.toUpperCase());
+        if (result == null) {
+            throw new IllegalStateException(name);
+        }
+        return result;
+    }
+
     private final FileNode bin;
     private final FileNode home;
     private final String group;
     private final String user;
 
     public DebianSetup() {
+        // this is not configurable, because the content comes from the package:
         bin = world.file("/usr/share/stool");
-        // TODO replace this check by some kind of configuration
-        if (world.file("/opt/ui/opt/tools").isDirectory()) {
-            home = world.file("/opt/ui/opt/tools/stool");
-            group = "users";
-        } else {
-            home = world.file("/var/lib/stool");
-            group = "stool";
-        }
-        user = "stool";
+
+        home = world.file(get("home"));
+        user = get("user");
+        group = get("group");
     }
 
     //--
@@ -129,7 +135,7 @@ public class DebianSetup extends Debian {
     public void setupHome() throws IOException {
         Home h;
 
-        h = new Home(console, home, true, new HashMap<>());
+        h = new Home(console, home, user, group, true, new HashMap<>());
         if (home.exists()) {
             h.upgrade();
             echo("home: " + home.getAbsolute() + " (upgraded)");

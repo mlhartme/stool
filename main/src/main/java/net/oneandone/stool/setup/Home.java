@@ -39,12 +39,20 @@ public class Home {
 
     private final Console console;
     private final FileNode home;
+    private final String user;
+    private final String group;
     private final boolean shared;
     private final Map<String, String> globalProperties;
 
     public Home(Console console, FileNode home, boolean shared, Map<String, String> globalProperties) {
+        this(console, home, "stool", "stool", shared, globalProperties);
+    }
+
+    public Home(Console console, FileNode home, String user, String group, boolean shared, Map<String, String> globalProperties) {
         this.console = console;
         this.home = home;
+        this.user = user;
+        this.group = group;
         this.shared = shared;
         this.globalProperties = globalProperties;
     }
@@ -65,7 +73,7 @@ public class Home {
         for (String dir : new String[]{"extensions", "backstages", "inbox", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
             Files.createStoolDirectory(console.verbose, home.join(dir));
         }
-        Files.stoolFile(home.join("run/ports").mkfile());
+        Files.stoolFile(home.join("run/locks").mkfile());
     }
 
     private FileNode downloadCache() {
@@ -132,7 +140,7 @@ public class Home {
             exec("mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
             exec("mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
             exec("rm", "-rf", home.join("bin").getAbsolute());
-            exec("chgrp", "/opt/ui/opt/tools/stool".equals(home.getAbsolute()) ? "users" : "stool", ".");
+            exec("chgrp", group, ".");
             doUpgrade(stool31_32(), stage31_32());
         }
     }
@@ -162,7 +170,7 @@ public class Home {
             }
         }
         pool.save();
-        exec("chown", "stool", pool.getFile().getAbsolute());
+        exec("chown", user, pool.getFile().getAbsolute());
     }
 
     private void doUpgrade(Object stoolMapper, Object stageMapper) throws IOException {
