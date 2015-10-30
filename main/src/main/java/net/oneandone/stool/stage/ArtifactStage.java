@@ -119,7 +119,7 @@ public class ArtifactStage extends Stage {
 
         result = false;
         for (Application application : applications.applications()) {
-            if (refreshWar(console, application)) {
+            if (application.refreshWar(session, shared())) {
                 result = true;
             }
         }
@@ -172,41 +172,6 @@ public class ArtifactStage extends Stage {
         }
 
         return result;
-    }
-
-    private boolean refreshWar(Console console, Application application) throws IOException {
-        final DefaultArtifact artifact;
-        WarFile candidate;
-        Changes changes;
-
-        artifact = application.artifact();
-        try {
-            candidate = new WarFile(maven().resolve(artifact));
-        } catch (ArtifactResolutionException e) {
-            throw new FileNotFoundException("Artifact " + artifact + " not found.");
-        }
-        if (candidate.equals(application.currentWarFile())) {
-            return false;
-        }
-        if (candidate.equals(application.futureWarFile())) {
-            return false;
-        }
-
-        application.replaceFutureWarFile(candidate);
-        try {
-            changes = application.changes(shared(), session.users);
-        } catch (IOException e) {
-            // TODO
-            session.reportException("application.changes", e);
-            changes = new Changes();
-        }
-        console.verbose.println("Update for " + application.artifactId() + " prepared.");
-        for (Change change : changes) {
-            console.info.print(change.getUser());
-            console.info.print(" : ");
-            console.info.println(change.getMessage());
-        }
-        return true;
     }
 
     private String getGavs() {

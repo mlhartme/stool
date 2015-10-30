@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Files;
+import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -26,8 +27,10 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.eclipse.aether.resolution.VersionRangeResolutionException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 
@@ -178,6 +181,43 @@ public class Application {
             return true;
         }
 
+        return true;
+    }
+
+    //--
+
+    public boolean refreshWar(Session session, FileNode shared) throws IOException {
+        final DefaultArtifact artifact;
+        WarFile candidate;
+        Changes changes;
+
+        artifact = artifact();
+        try {
+            candidate = new WarFile(maven.resolve(artifact));
+        } catch (ArtifactResolutionException e) {
+            throw new FileNotFoundException("Artifact " + artifact + " not found.");
+        }
+        if (candidate.equals(currentWarFile())) {
+            return false;
+        }
+        if (candidate.equals(futureWarFile())) {
+            return false;
+        }
+
+        replaceFutureWarFile(candidate);
+        try {
+            changes = changes(shared, session.users);
+        } catch (IOException e) {
+            // TODO
+            session.reportException("application.changes", e);
+            changes = new Changes();
+        }
+        session.console.verbose.println("Update for " + artifactId() + " prepared.");
+        for (Change change : changes) {
+            console.info.print(change.getUser());
+            console.info.print(" : ");
+            console.info.println(change.getMessage());
+        }
         return true;
     }
 }
