@@ -41,17 +41,6 @@ public class Applications {
         return Collections.unmodifiableList(apps);
     }
 
-    public List<DefaultArtifact> artifacts() throws IOException {
-        List<DefaultArtifact> artifacts;
-
-        artifacts = new ArrayList<>();
-
-        for (Application app : apps) {
-            artifacts.add(app.artifact());
-        }
-        return Collections.unmodifiableList(artifacts);
-    }
-
     public Changes changes(FileNode shared, Users users) {
         if (lazyChanges == null) {
             lazyChanges = new Changes();
@@ -61,5 +50,9 @@ public class Applications {
             }*/
         }
         return lazyChanges;
+    }
+
+    public int size() {
+        return apps.size();
     }
 }

@@ -61,7 +61,7 @@ public class Application {
         return artifact.getArtifactId();
     }
 
-    public DefaultArtifact artifact() throws IOException {
+    private DefaultArtifact updateArtifact() throws IOException {
         String version;
 
         try {
@@ -156,7 +156,7 @@ public class Application {
 
     private MavenProject pom() throws IOException {
         try {
-            return maven.loadPom(artifact());
+            return maven.loadPom(updateArtifact());
         } catch (RepositoryException | ProjectBuildingException e) {
             throw new IOException("Cannot load projects pom", e);
         }
@@ -188,7 +188,7 @@ public class Application {
         WarFile candidate;
         Changes changes;
 
-        artifact = artifact();
+        artifact = updateArtifact();
         try {
             candidate = new WarFile(maven.resolve(artifact));
         } catch (ArtifactResolutionException e) {

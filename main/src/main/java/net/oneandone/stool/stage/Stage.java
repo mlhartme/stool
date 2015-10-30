@@ -299,9 +299,8 @@ public abstract class Stage {
                 config().suffixes);
     }
 
-
-    /** @return null when not supported. Otherwise, file must not be null, but does not have to exist. */
-    public abstract List<DefaultArtifact> scanWars() throws IOException;
+    /** @return nummer of applications */
+    public abstract int size() throws IOException;
 
     public abstract String getDefaultBuildCommand();
 
@@ -474,20 +473,14 @@ public abstract class Stage {
     //--
 
     public void tuneConfiguration() throws IOException {
-        List<DefaultArtifact> tmp;
-        int wars;
+        int size;
 
-        tmp = scanWars();
-        if (tmp == null) {
-            wars = 4;
-        } else {
-            wars = tmp.size();
-        }
+        size = size();
         if (configuration.tomcatHeap == 0 || configuration.tomcatHeap == 200) {
-            configuration.tomcatHeap = Math.min(4096, 150 + wars * session.configuration.baseHeap);
+            configuration.tomcatHeap = Math.min(4096, 150 + size * session.configuration.baseHeap);
         }
         if (configuration.tomcatPerm == 0 || configuration.tomcatPerm == 64) {
-            configuration.tomcatPerm = Math.min(1024, 100 + wars * session.configuration.basePerm);
+            configuration.tomcatPerm = Math.min(1024, 100 + size * session.configuration.basePerm);
         }
         if (configuration.build.isEmpty() || configuration.build.equals("false")) {
             configuration.build = getDefaultBuildCommand();

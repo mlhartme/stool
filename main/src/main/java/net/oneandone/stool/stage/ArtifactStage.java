@@ -85,8 +85,8 @@ public class ArtifactStage extends Stage {
     }
 
     @Override
-    public List<DefaultArtifact> scanWars() throws IOException {
-        return applications.artifacts();
+    public int size() throws IOException {
+        return applications.size();
     }
 
     @Override

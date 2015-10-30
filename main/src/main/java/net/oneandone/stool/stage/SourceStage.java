@@ -66,17 +66,8 @@ public class SourceStage extends Stage {
     }
 
     @Override
-    public List<DefaultArtifact> scanWars() throws IOException {
-        List<DefaultArtifact> result;
-        DefaultArtifact artifact;
-
-        result = new ArrayList<>();
-        for (MavenProject project : wars()) {
-            artifact = new DefaultArtifact(project.getGroupId(), project.getArtifactId(), "war", project.getVersion());
-            artifact = (DefaultArtifact) artifact.setFile(warFile(project).toPath().toFile());
-            result.add(artifact);
-        }
-        return result;
+    public int size() throws IOException {
+        return wars().size();
     }
 
     @Override
