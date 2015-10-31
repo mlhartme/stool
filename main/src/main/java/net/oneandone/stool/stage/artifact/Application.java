@@ -162,7 +162,6 @@ public class Application {
 
     private MavenProject pom() throws IOException {
         try {
-            updateArtifact();
             return maven.loadPom(artifact);
         } catch (RepositoryException | ProjectBuildingException e) {
             throw new IOException("Cannot load projects pom", e);
