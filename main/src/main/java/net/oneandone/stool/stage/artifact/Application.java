@@ -140,9 +140,6 @@ public class Application {
         String svnurl;
         Changes changes;
 
-        if (artifact.getVersion().equals("@dashboard")) {
-            return new Changes();
-        }
         if (!future.exists() || !current.exists()) {
             return new Changes();
         }
