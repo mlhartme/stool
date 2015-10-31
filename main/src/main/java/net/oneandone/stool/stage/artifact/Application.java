@@ -41,9 +41,9 @@ public class Application {
     private final Maven maven;
     private final Console console;
 
-    private WarFile backupWarFile;
-    private WarFile currentWarFile;
-    private WarFile futureWarFile;
+    private final WarFile backup;
+    private final WarFile current;
+    private final WarFile future;
 
     public Application(Gson gson, DefaultArtifact artifact, FileNode stageDirectory, Maven maven, Console console) {
         this.gson = gson;
@@ -51,9 +51,9 @@ public class Application {
         this.stageDirectory = stageDirectory;
         this.maven = maven;
         this.console = console;
-        this.backupWarFile = new WarFile(refresh().join(name() + ".war.backup"));
-        this.currentWarFile = new WarFile(base().join("ROOT.war"));
-        this.futureWarFile = new WarFile(refresh().join(name() + ".war.next"));
+        this.backup = new WarFile(refresh().join(name() + ".war.backup"));
+        this.current = new WarFile(base().join("ROOT.war"));
+        this.future = new WarFile(refresh().join(name() + ".war.next"));
 
     }
 
@@ -84,15 +84,14 @@ public class Application {
         } catch (ArtifactResolutionException e) {
             throw new FileNotFoundException("Artifact " + artifact + " not found.");
         }
-        if (candidate.equals(currentWarFile)) {
+        if (candidate.equals(current)) {
             return false;
         }
-        if (candidate.equals(futureWarFile)) {
+        if (candidate.equals(future)) {
             return false;
         }
 
-        futureWarFile = candidate.saveTo(futureWarFile.file());
-
+        candidate.saveTo(future);
         try {
             changes = changes(shared, session.users);
         } catch (IOException e) {
@@ -110,11 +109,11 @@ public class Application {
     }
 
     public boolean updateAvailable() throws IOException {
-        if (!futureWarFile.exists()) {
+        if (!future.exists()) {
             return false;
         }
 
-        if (!currentWarFile.exists()) {
+        if (!current.exists()) {
             return true;
         }
 
@@ -123,15 +122,15 @@ public class Application {
 
     public void update() throws IOException {
         backup();
-        currentWarFile = futureWarFile.saveTo(currentWarFile.file());
+        future.saveTo(current);
         console.verbose.println("Update for " + artifactId() + " executed.");
-        currentWarFile.file().getParent().join("ROOT").deleteTreeOpt();
+        current.file().getParent().join("ROOT").deleteTreeOpt();
     }
 
     public void restore() throws IOException {
-        if (backupWarFile.exists()) {
+        if (backup.exists()) {
             console.info.println("Restoring backup of  " + artifactId());
-            currentWarFile = backupWarFile.saveTo(currentWarFile.file());
+            backup.saveTo(current);
             console.info.println("Restored.");
         } else {
             console.info.println("No backup available for " + artifactId());
@@ -148,10 +147,10 @@ public class Application {
         if (artifact.getVersion().equals("@dashboard")) {
             return new Changes();
         }
-        if (!futureWarFile.exists() || !currentWarFile.exists()) {
+        if (!future.exists() || !current.exists()) {
             return new Changes();
         }
-        file = shared.join("changes").join(futureWarFile.file().md5() + ".changes");
+        file = shared.join("changes").join(future.file().md5() + ".changes");
         if (file.exists()) {
             try (Reader src = file.createReader()) {
                 return gson.fromJson(src, Changes.class);
@@ -159,9 +158,9 @@ public class Application {
         }
         svnurl = pom().getScm().getUrl();
         if (svnurl.contains("tags")) {
-            changes = new XMLChangeCollector(currentWarFile, futureWarFile).collect();
+            changes = new XMLChangeCollector(current, future).collect();
         } else {
-            changes = SCMChangeCollector.run(currentWarFile, futureWarFile, users, svnurl);
+            changes = SCMChangeCollector.run(current, future, users, svnurl);
         }
         Files.createStoolDirectoryOpt(console.verbose, file.getParent());
         Files.stoolFile(file.writeString(gson.toJson(changes)));
@@ -178,8 +177,8 @@ public class Application {
     }
 
     private void backup() throws IOException {
-        if (currentWarFile.exists()) {
-            currentWarFile.file().copy(backupWarFile.file());
+        if (current.exists()) {
+            current.file().copy(backup.file());
             console.info.println("Backup for " + artifactId() + " created.");
         }
     }

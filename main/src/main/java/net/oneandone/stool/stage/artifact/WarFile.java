@@ -37,11 +37,8 @@ public class WarFile {
         return file.exists();
     }
 
-    public WarFile saveTo(FileNode destination) throws CopyException, MkdirException {
-        if (!destination.getParent().exists()) {
-            destination.getParent().mkdir();
-        }
-        return new WarFile((FileNode) file.copyFile(destination));
+    public void saveTo(WarFile destination) throws CopyException, MkdirException {
+        file.copyFile(destination.file);
     }
 
     private String md5() {
