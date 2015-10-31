@@ -51,6 +51,10 @@ public class Application {
         this.stageDirectory = stageDirectory;
         this.maven = maven;
         this.console = console;
+        this.backupWarFile = new WarFile(refresh().join(name() + ".war.backup"));
+        this.currentWarFile = new WarFile(base().join("ROOT.war"));
+        this.futureWarFile = new WarFile(refresh().join(name() + ".war.next"));
+
     }
 
     public String artifactId() {
@@ -80,14 +84,14 @@ public class Application {
         } catch (ArtifactResolutionException e) {
             throw new FileNotFoundException("Artifact " + artifact + " not found.");
         }
-        if (candidate.equals(currentWarFile())) {
+        if (candidate.equals(currentWarFile)) {
             return false;
         }
-        if (candidate.equals(futureWarFile())) {
+        if (candidate.equals(futureWarFile)) {
             return false;
         }
 
-        futureWarFile = candidate.saveTo(futureFile());
+        futureWarFile = candidate.saveTo(futureWarFile.file());
 
         try {
             changes = changes(shared, session.users);
@@ -106,11 +110,11 @@ public class Application {
     }
 
     public boolean updateAvailable() throws IOException {
-        if (!futureFile().exists()) {
+        if (!futureWarFile.exists()) {
             return false;
         }
 
-        if (!currentFile().exists()) {
+        if (!currentWarFile.exists()) {
             return true;
         }
 
@@ -119,15 +123,15 @@ public class Application {
 
     public void update() throws IOException {
         backup();
-        currentWarFile = futureWarFile().saveTo(currentFile());
+        currentWarFile = futureWarFile.saveTo(currentWarFile.file());
         console.verbose.println("Update for " + artifactId() + " executed.");
-        currentFile().getParent().join("ROOT").deleteTreeOpt();
+        currentWarFile.file().getParent().join("ROOT").deleteTreeOpt();
     }
 
     public void restore() throws IOException {
-        if (backupFile().exists()) {
+        if (backupWarFile.exists()) {
             console.info.println("Restoring backup of  " + artifactId());
-            currentWarFile = backupWarFile().saveTo(currentFile());
+            currentWarFile = backupWarFile.saveTo(currentWarFile.file());
             console.info.println("Restored.");
         } else {
             console.info.println("No backup available for " + artifactId());
@@ -144,10 +148,10 @@ public class Application {
         if (artifact.getVersion().equals("@dashboard")) {
             return new Changes();
         }
-        if (!futureWarFile().exists() || !currentWarFile().exists()) {
+        if (!futureWarFile.exists() || !currentWarFile.exists()) {
             return new Changes();
         }
-        file = shared.join("changes").join(futureFile().md5() + ".changes");
+        file = shared.join("changes").join(futureWarFile.file().md5() + ".changes");
         if (file.exists()) {
             try (Reader src = file.createReader()) {
                 return gson.fromJson(src, Changes.class);
@@ -155,9 +159,9 @@ public class Application {
         }
         svnurl = pom().getScm().getUrl();
         if (svnurl.contains("tags")) {
-            changes = new XMLChangeCollector(currentWarFile(), futureWarFile()).collect();
+            changes = new XMLChangeCollector(currentWarFile, futureWarFile).collect();
         } else {
-            changes = SCMChangeCollector.run(currentWarFile(), futureWarFile(), users, svnurl);
+            changes = SCMChangeCollector.run(currentWarFile, futureWarFile, users, svnurl);
         }
         Files.createStoolDirectoryOpt(console.verbose, file.getParent());
         Files.stoolFile(file.writeString(gson.toJson(changes)));
@@ -174,8 +178,8 @@ public class Application {
     }
 
     private void backup() throws IOException {
-        if (currentFile().exists()) {
-            currentFile().copy(backupFile());
+        if (currentWarFile.exists()) {
+            currentWarFile.file().copy(backupWarFile.file());
             console.info.println("Backup for " + artifactId() + " created.");
         }
     }
@@ -197,38 +201,5 @@ public class Application {
             }
             artifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "war", version);
         }
-    }
-
-    private WarFile currentWarFile() {
-        if (currentWarFile == null) {
-            currentWarFile = new WarFile(currentFile());
-        }
-        return currentWarFile;
-    }
-
-    private WarFile futureWarFile() throws IOException {
-        if (futureWarFile == null) {
-            futureWarFile = new WarFile(futureFile());
-        }
-        return futureWarFile;
-    }
-
-    private WarFile backupWarFile() {
-        if (backupWarFile == null) {
-            backupWarFile = new WarFile(backupFile());
-        }
-        return backupWarFile;
-    }
-
-    private FileNode currentFile() {
-        return base().join("ROOT.war");
-    }
-
-    private FileNode futureFile() {
-        return refresh().join(name() + ".war.next");
-    }
-
-    private FileNode backupFile() {
-        return refresh().join(name() + ".war.backup");
     }
 }

@@ -39,7 +39,7 @@ public class WarFile {
 
     public WarFile saveTo(FileNode destination) throws CopyException, MkdirException {
         if (!destination.getParent().exists()) {
-            destination.getParent().mkdirs();
+            destination.getParent().mkdir();
         }
         return new WarFile((FileNode) file.copyFile(destination));
     }
@@ -53,6 +53,10 @@ public class WarFile {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public FileNode file() {
+        return file;
     }
 
     public long revision() throws IOException {
@@ -107,6 +111,5 @@ public class WarFile {
         WarFile other = (WarFile) obj;
 
         return (other.exists() && exists()) && md5().equals(other.md5());
-
     }
 }
