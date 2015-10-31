@@ -49,6 +49,9 @@ public class ArtifactStage extends Stage {
         String artifactId;
         String name;
         int idx;
+        String version;
+        FileNode source;
+
         applications = new Applications();
         names = new HashSet<>();
 
@@ -68,8 +71,16 @@ public class ArtifactStage extends Stage {
             if (!names.add(name)) {
                 throw new ArgumentException("duplicate name: " + name + "\nTry groupId:artifactId=othername:version in your url.");
             }
-            artifact = new DefaultArtifact(coords[0], artifactId, "war", coords[2]);
-            applications.add(new Application(session.gson, (DefaultArtifact) artifact.setFile(directory.join(name, "ROOT.war").toPath().toFile()),
+            version = coords[2];
+            if (version.startsWith("@")) {
+                source = session.console.world.file(version.substring(1));
+                source.checkFile();
+                version = "FILE";
+            } else {
+                source = null;
+            }
+            artifact = new DefaultArtifact(coords[0], artifactId, "war", version);
+            applications.add(new Application(session.gson, name, artifact, source,
               directory, maven(), session.console));
         }
 

@@ -23,7 +23,6 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
-import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.artifact.DefaultArtifact;
@@ -36,8 +35,10 @@ import java.io.Reader;
 
 public class Application {
     private final Gson gson;
-    private final FileNode stageDirectory;
+    private final String name;
     private DefaultArtifact artifact;
+    private final FileNode source;
+    private final FileNode stageDirectory;
     private final Maven maven;
     private final Console console;
 
@@ -45,9 +46,12 @@ public class Application {
     private final WarFile current;
     private final WarFile future;
 
-    public Application(Gson gson, DefaultArtifact artifact, FileNode stageDirectory, Maven maven, Console console) {
+    public Application(Gson gson, String name, DefaultArtifact artifact, FileNode source,
+                       FileNode stageDirectory, Maven maven, Console console) {
         this.gson = gson;
+        this.name = name;
         this.artifact = artifact;
+        this.source = source;
         this.stageDirectory = stageDirectory;
         this.maven = maven;
         this.console = console;
@@ -78,11 +82,18 @@ public class Application {
         WarFile candidate;
         Changes changes;
 
-        updateArtifact();
-        try {
-            candidate = new WarFile(maven.resolve(artifact));
-        } catch (ArtifactResolutionException e) {
-            throw new FileNotFoundException("Artifact " + artifact + " not found.");
+        if (source == null) {
+            updateArtifact();
+            try {
+                candidate = new WarFile(maven.resolve(artifact));
+            } catch (ArtifactResolutionException e) {
+                throw new FileNotFoundException("Artifact " + artifact + " not found.");
+            }
+        } else {
+            candidate = new WarFile(source);
+            if (candidate.exists()) {
+                return false;
+            }
         }
         if (candidate.equals(current)) {
             return false;
@@ -140,7 +151,7 @@ public class Application {
         String svnurl;
         Changes changes;
 
-        if (!future.exists() || !current.exists()) {
+        if (source != null || !future.exists() || !current.exists()) {
             return new Changes();
         }
         file = shared.join("changes").join(future.file().md5() + ".changes");
@@ -149,7 +160,11 @@ public class Application {
                 return gson.fromJson(src, Changes.class);
             }
         }
-        svnurl = pom().getScm().getUrl();
+        try {
+            svnurl = maven.loadPom(artifact).getScm().getUrl();
+        } catch (ProjectBuildingException | RepositoryException e) {
+            throw new IOException(e.getMessage(), e);
+        }
         if (svnurl.contains("tags")) {
             changes = new XMLChangeCollector(current, future).collect();
         } else {
@@ -158,14 +173,6 @@ public class Application {
         Files.createStoolDirectoryOpt(console.verbose, file.getParent());
         Files.stoolFile(file.writeString(gson.toJson(changes)));
         return changes;
-    }
-
-    private MavenProject pom() throws IOException {
-        try {
-            return maven.loadPom(artifact);
-        } catch (RepositoryException | ProjectBuildingException e) {
-            throw new IOException("Cannot load projects pom", e);
-        }
     }
 
     private void backup() throws IOException {
@@ -178,13 +185,13 @@ public class Application {
     //--
 
     private String name() {
-        return artifact.getArtifactId();
+        return name;
     }
 
     private void updateArtifact() throws IOException {
         String version;
 
-        if (artifact.getVersion().equals("@latest")) {
+        if (source == null && artifact.getVersion().equals("@latest")) {
             try {
                 version = maven.latestRelease(artifact);
             } catch (VersionRangeResolutionException e) {
