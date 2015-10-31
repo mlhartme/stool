@@ -74,7 +74,7 @@ public class Application {
         return stageDirectory.join(artifactId());
     }
 
-    public boolean refreshWar(Session session, FileNode shared) throws IOException {
+    public boolean refreshFuture(Session session, FileNode shared) throws IOException {
         WarFile candidate;
         Changes changes;
 
@@ -91,7 +91,7 @@ public class Application {
             return false;
         }
 
-        candidate.saveTo(future);
+        candidate.copyTo(future);
         try {
             changes = changes(shared, session.users);
         } catch (IOException e) {
@@ -113,16 +113,12 @@ public class Application {
             return false;
         }
 
-        if (!current.exists()) {
-            return true;
-        }
-
         return true;
     }
 
     public void update() throws IOException {
         backup();
-        future.saveTo(current);
+        future.copyTo(current);
         console.verbose.println("Update for " + artifactId() + " executed.");
         current.file().getParent().join("ROOT").deleteTreeOpt();
     }
@@ -130,7 +126,7 @@ public class Application {
     public void restore() throws IOException {
         if (backup.exists()) {
             console.info.println("Restoring backup of  " + artifactId());
-            backup.saveTo(current);
+            backup.copyTo(current);
             console.info.println("Restored.");
         } else {
             console.info.println("No backup available for " + artifactId());

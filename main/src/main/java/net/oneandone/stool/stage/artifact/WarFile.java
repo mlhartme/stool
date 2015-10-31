@@ -25,7 +25,6 @@ import java.util.Properties;
 
 public class WarFile {
     private final FileNode file;
-    private String md5;
     private String version;
     private long revision;
 
@@ -33,54 +32,41 @@ public class WarFile {
         this.file = file;
     }
 
-    public boolean exists() {
-        return file.exists();
-    }
-
-    public void saveTo(WarFile destination) throws CopyException, MkdirException {
-        file.copyFile(destination.file);
-    }
-
-    private String md5() {
-        try {
-            if (null == md5) {
-                md5 = file.md5();
-            }
-            return md5;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public FileNode file() {
         return file;
     }
 
+    public boolean exists() {
+        return file.exists();
+    }
+
+    public void copyTo(WarFile destination) throws CopyException, MkdirException {
+        file.copyFile(destination.file);
+    }
+
     public long revision() throws IOException {
-        if (0L != revision) {
-            return revision;
+        if (revision == 0) {
+            readPomInfo();
         }
-        readPomInfo();
         return revision;
     }
 
     public String version() throws IOException {
-        if (null != version) {
-            return version;
+        if (version == null) {
+            readPomInfo();
         }
-        readPomInfo();
         return version;
     }
 
-    public void readPomInfo() throws IOException {
+    private void readPomInfo() throws IOException {
         Node pominfo;
+        Properties properties;
 
         // TODO - pominfo plugin is not publically available
         pominfo = file.openZip().join("WEB-INF", "classes", "META-INF", "pominfo.properties");
         if (!pominfo.exists()) {
             throw new IOException("No pominfo.properties available. Parent Pom is too old. Please update.");
         }
-        Properties properties;
         properties = pominfo.readProperties();
         if (properties.get("scmConnection") == null || properties.get("build.revision") == null) {
             throw new IOException("Parent Pom is too old to assemble Changes. Please update.");
@@ -96,17 +82,18 @@ public class WarFile {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (null == obj) {
-            return false;
-        }
-        if (!(obj instanceof WarFile)) {
-            return false;
-        }
-        WarFile other = (WarFile) obj;
+        WarFile other;
 
-        return (other.exists() && exists()) && md5().equals(other.md5());
+        if (obj instanceof WarFile) {
+            other = (WarFile) obj;
+            try {
+                return other.exists() && exists() && (file.length() == other.file.length())
+                        && file.md5().equals(other.file.md5());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return false;
     }
+
 }

@@ -114,7 +114,7 @@ public class ArtifactStage extends Stage {
 
         result = false;
         for (Application application : applications.applications()) {
-            if (application.refreshWar(session, shared())) {
+            if (application.refreshFuture(session, shared())) {
                 result = true;
             }
         }
