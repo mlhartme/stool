@@ -22,9 +22,11 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.management.ManagementFactory;
 import java.nio.channels.FileLock;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Thread-save and save against concurrent processes */
-public class LockManager {
+public class LockManager implements Runnable {
     public static LockManager create(FileNode file, String comment, int timeout) {
         return new LockManager(file, new Process(pid(), comment), timeout);
     }
@@ -42,18 +44,23 @@ public class LockManager {
         return Integer.parseInt(str.substring(0, idx));
     }
 
+    private final List<Lock> active;
     private final FileNode file;
     private final Process self;
     /** seconds */
     private final int timeout;
 
     public LockManager(FileNode file, Process self, int timeout) {
+        this.active = new ArrayList<>();
         this.file = file;
         this.self = self;
         this.timeout = timeout;
+        Runtime.getRuntime().addShutdownHook(new Thread(this));
     }
 
     public Lock acquire(String name, Console console, Mode mode) throws IOException {
+        Lock result;
+
         switch (mode) {
             case NONE:
                 break;
@@ -66,7 +73,9 @@ public class LockManager {
             default:
                 throw new IllegalStateException(mode.toString());
         }
-        return new Lock(this, name, mode);
+        result = new Lock(this, name, mode);
+        active.add(result);
+        return result;
     }
 
     /** for testing */
@@ -127,10 +136,11 @@ public class LockManager {
 
     }
 
-    public void release(String name, Mode mode) throws IOException {
+    public void release(Lock lock) throws IOException {
         boolean exclusive;
 
-        switch (mode) {
+        active.remove(lock);
+        switch (lock.mode) {
             case NONE:
                 return;
             case SHARED:
@@ -140,14 +150,14 @@ public class LockManager {
                 exclusive = true;
                 break;
             default:
-                throw new IllegalStateException(mode.toString());
+                throw new IllegalStateException(lock.mode.toString());
         }
         Store lf;
 
         try (RandomAccessFile raf = new RandomAccessFile(file.toPath().toFile(), "rw");
-             FileLock lock = raf.getChannel().lock()) {
+             FileLock l = raf.getChannel().lock()) {
             lf = Store.load(raf);
-            lf.release(name, exclusive, self);
+            lf.release(lock.name, exclusive, self);
             lf.save(raf);
         }
     }
@@ -178,6 +188,21 @@ public class LockManager {
                 }
             }
             return false;
+        }
+    }
+
+    @Override
+    public void run() {
+        Lock lock;
+
+        while (!active.isEmpty()) {
+            lock = active.get(0);
+            System.err.println("shutdown: unlocking " + lock.name);
+            try {
+                lock.close(); // does not need sushi
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 }

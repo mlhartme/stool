@@ -33,7 +33,7 @@ public class Lock implements AutoCloseable {
 
     @Override
     public void close() throws IOException {
-        locks.release(name, mode);
+        locks.release(this);
     }
 
     public String toString() {
