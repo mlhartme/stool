@@ -142,7 +142,7 @@
           <execution>
             <configuration>
               <name>mainpostrm</name>
-              <main>net.oneandone.stool.setup.DebianSetup</main>
+              <main>net.oneandone.stool.setup.DebianMainSetup</main>
               <shrink>true</shrink>
               <shrinkOptions>
                 -dontoptimize # because of proguard bug

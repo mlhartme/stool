@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class DebianSetup extends Debian {
+public class DebianMainSetup extends Debian {
     public static void main(String[] args) {
-        System.exit(new DebianSetup().run(args));
+        System.exit(new DebianMainSetup().run(args));
     }
 
     //--
@@ -44,7 +44,7 @@ public class DebianSetup extends Debian {
     private final FileNode home;
     private final String group;
 
-    public DebianSetup() {
+    public DebianMainSetup() {
         // this is not configurable, because the content comes from the package:
         bin = world.file("/usr/share/stool");
 

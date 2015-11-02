@@ -22,6 +22,6 @@ fi
 # STOOL_SETUP_OPTS is a hook to add e.g. debugging options
 # +e to get the log file written in case of an error
 set +e
-java $STOOL_SETUP_OPTS -cp ${jar} net.oneandone.stool.setup.DebianSetup "$@" >/tmp/stool-setup-$DPKG_MAINTSCRIPT_NAME.log
+java $STOOL_SETUP_OPTS -cp ${jar} net.oneandone.stool.setup.DebianMainSetup "$@" >/tmp/stool-setup-$DPKG_MAINTSCRIPT_NAME.log
 # make sure to exit, because we might append a jar file.
 exit $?
