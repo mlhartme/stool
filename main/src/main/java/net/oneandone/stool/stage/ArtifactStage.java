@@ -19,15 +19,18 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.artifact.Application;
 import net.oneandone.stool.stage.artifact.Applications;
 import net.oneandone.stool.stage.artifact.Changes;
+import net.oneandone.stool.stage.artifact.FileLocator;
+import net.oneandone.stool.stage.artifact.GavLocator;
+import net.oneandone.stool.stage.artifact.Locator;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.MoveException;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Strings;
 import org.eclipse.aether.artifact.DefaultArtifact;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -43,51 +46,55 @@ public class ArtifactStage extends Stage {
       throws IOException {
         super(session, url, backstage, directory, configuration);
 
-        DefaultArtifact artifact;
-        Set<String> names;
-        String[] coords;
-        String artifactId;
         String name;
+        Locator locator;
+        Set<String> names;
         int idx;
-        String version;
-        FileNode source;
 
         applications = new Applications();
         names = new HashSet<>();
-
-        for (String gav : getGavs().split(",")) {
-            coords = gav.split(":");
-            if (coords.length != 3) {
-                throw new ArgumentException("invalid gav url: " + gav);
-            }
-            artifactId = coords[1];
-            idx = artifactId.indexOf('=');
+        for (String part : url.split(",")) {
+            idx = part.indexOf('=');
             if (idx == -1) {
-                name = artifactId;
+                locator = locator(part);
+                name = locator.defaultName();
             } else {
-                name = artifactId.substring(idx + 1);
-                artifactId = artifactId.substring(0, idx);
+                name = part.substring(idx + 1);
+                locator = locator(part.substring(0, idx));
             }
             if (!names.add(name)) {
-                throw new ArgumentException("duplicate name: " + name + "\nTry groupId:artifactId=othername:version in your url.");
+                throw new ArgumentException("duplicate name: " + name);
             }
-            version = coords[2];
-            if (version.startsWith("@")) {
-                source = session.console.world.file(version.substring(1));
-                source.checkFile();
-                version = "FILE";
-            } else {
-                source = null;
-            }
-            artifact = new DefaultArtifact(coords[0], artifactId, "war", version);
-            applications.add(new Application(session.gson, name, artifact, source,
-              directory, maven(), session.console));
+            applications.add(new Application(session.gson, name, locator, directory, session.console));
         }
+    }
 
+    private Locator locator(String locator) throws IOException {
+        String[] coords;
+        String artifactId;
+        String version;
+
+        if (locator.startsWith("gav:")) {
+            coords = locator.substring(4).split(":");
+            if (coords.length != 3) {
+                throw new ArgumentException("invalid gav url: " + locator);
+            }
+            artifactId = coords[1];
+            version = coords[2];
+            return new GavLocator(maven(), new DefaultArtifact(coords[0], artifactId, "war", version));
+        } else if (locator.startsWith("file:")) {
+            try {
+                return new FileLocator((FileNode) session.console.world.node(locator));
+            } catch (URISyntaxException e) {
+                throw new ArgumentException(locator + ": invalid file locator: " + e.getMessage(), e);
+            }
+        } else {
+            throw new ArgumentException("unknown locator: " + locator);
+        }
     }
 
     public static boolean isArtifact(String url) {
-        return url.startsWith("gav:");
+        return url.startsWith("gav:") || url.startsWith("file:");
     }
 
     public static FileNode gavFile(FileNode directory) {
@@ -178,10 +185,6 @@ public class ArtifactStage extends Stage {
         }
 
         return result;
-    }
-
-    private String getGavs() {
-        return Strings.removeLeft(url, "gav:");
     }
 
     private FileNode getGavFile() {

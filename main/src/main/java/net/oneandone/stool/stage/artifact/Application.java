@@ -16,53 +16,37 @@
 package net.oneandone.stool.stage.artifact;
 
 import com.google.gson.Gson;
-import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
-import org.apache.maven.project.ProjectBuildingException;
-import org.eclipse.aether.RepositoryException;
-import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.eclipse.aether.resolution.VersionRangeResolutionException;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 
 public class Application {
     private final Gson gson;
     private final String name;
-    private DefaultArtifact artifact;
-    private final FileNode source;
+    private final Locator location;
     private final FileNode stageDirectory;
-    private final Maven maven;
     private final Console console;
 
     private final WarFile backup;
     private final WarFile current;
     private final WarFile future;
 
-    public Application(Gson gson, String name, DefaultArtifact artifact, FileNode source,
-                       FileNode stageDirectory, Maven maven, Console console) {
+    public Application(Gson gson, String name, Locator location, FileNode stageDirectory, Console console) {
         this.gson = gson;
         this.name = name;
-        this.artifact = artifact;
-        this.source = source;
+        this.location = location;
         this.stageDirectory = stageDirectory;
-        this.maven = maven;
         this.console = console;
         this.backup = new WarFile(refresh().join(name() + ".war.backup"));
         this.current = new WarFile(base().join("ROOT.war"));
         this.future = new WarFile(refresh().join(name() + ".war.next"));
 
-    }
-
-    public String artifactId() {
-        return artifact.getArtifactId();
     }
 
     public void populate() throws MkdirException {
@@ -75,25 +59,16 @@ public class Application {
     }
 
     public FileNode base() {
-        return stageDirectory.join(artifactId());
+        return stageDirectory.join(name);
     }
 
     public boolean refreshFuture(Session session, FileNode shared) throws IOException {
         WarFile candidate;
         Changes changes;
 
-        if (source == null) {
-            updateArtifact();
-            try {
-                candidate = new WarFile(maven.resolve(artifact));
-            } catch (ArtifactResolutionException e) {
-                throw new FileNotFoundException("Artifact " + artifact + " not found.");
-            }
-        } else {
-            candidate = new WarFile(source);
-            if (candidate.exists()) {
-                return false;
-            }
+        candidate = location.resolve();
+        if (candidate == null) {
+            return false;
         }
         if (candidate.equals(current)) {
             return false;
@@ -110,7 +85,7 @@ public class Application {
             session.reportException("application.changes", e);
             changes = new Changes();
         }
-        session.console.verbose.println("Update for " + artifactId() + " prepared.");
+        session.console.verbose.println("Update for " + null + " prepared.");
         for (Change change : changes) {
             console.info.print(change.getUser());
             console.info.print(" : ");
@@ -130,28 +105,28 @@ public class Application {
     public void update() throws IOException {
         backup();
         future.copyTo(current);
-        console.verbose.println("Update for " + artifactId() + " executed.");
+        console.verbose.println("Update for " + name + " executed.");
         current.file().getParent().join("ROOT").deleteTreeOpt();
     }
 
     public void restore() throws IOException {
         if (backup.exists()) {
-            console.info.println("Restoring backup of  " + artifactId());
+            console.info.println("Restoring backup of  " + name);
             backup.copyTo(current);
             console.info.println("Restored.");
         } else {
-            console.info.println("No backup available for " + artifactId());
+            console.info.println("No backup available for " + name);
         }
     }
 
     //--
 
     private Changes changes(FileNode shared, Users users) throws IOException {
-        FileNode file;
         String svnurl;
+        FileNode file;
         Changes changes;
 
-        if (source != null || !future.exists() || !current.exists()) {
+        if (!future.exists() || !current.exists()) {
             return new Changes();
         }
         file = shared.join("changes").join(future.file().md5() + ".changes");
@@ -160,11 +135,11 @@ public class Application {
                 return gson.fromJson(src, Changes.class);
             }
         }
-        try {
-            svnurl = maven.loadPom(artifact).getScm().getUrl();
-        } catch (ProjectBuildingException | RepositoryException e) {
-            throw new IOException(e.getMessage(), e);
+        svnurl = location.svnurl();
+        if (svnurl == null) {
+            return new Changes();
         }
+
         if (svnurl.contains("tags")) {
             changes = new XMLChangeCollector(current, future).collect();
         } else {
@@ -178,7 +153,7 @@ public class Application {
     private void backup() throws IOException {
         if (current.exists()) {
             current.file().copy(backup.file());
-            console.info.println("Backup for " + artifactId() + " created.");
+            console.info.println("Backup for " + name + " created.");
         }
     }
 
@@ -186,18 +161,5 @@ public class Application {
 
     private String name() {
         return name;
-    }
-
-    private void updateArtifact() throws IOException {
-        String version;
-
-        if (source == null && artifact.getVersion().equals("@latest")) {
-            try {
-                version = maven.latestRelease(artifact);
-            } catch (VersionRangeResolutionException e) {
-                throw new IOException(e);
-            }
-            artifact = new DefaultArtifact(artifact.getGroupId(), artifact.getArtifactId(), "war", version);
-        }
     }
 }

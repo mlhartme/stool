@@ -2,7 +2,7 @@
   <body>
     <release version="3.3.0" date="2015-11-01">
       <action date="2015-10-30" dev="mlhartme" type="add">
-        You can create artifact stages from arbitrary files now: specify @&lt;path> instead of a version.
+        You can create artifact stages from either gav: or file: urls now. You can specify multiple comma-separates urls.
       </action>
       <action date="2015-10-30" dev="mlhartme" type="update">
         Improved setup: debian package is configurable with debconf now. And the package size is much smaller now.
