@@ -46,13 +46,17 @@ public class FileLocator extends Locator {
 
     public WarFile resolve() {
         if (source.exists()) {
-            return null;
-        } else {
             return new WarFile(source);
+        } else {
+            return null;
         }
     }
 
     public String svnurl() {
         return null;
+    }
+
+    public String toString() {
+        return source.getURI().toString();
     }
 }

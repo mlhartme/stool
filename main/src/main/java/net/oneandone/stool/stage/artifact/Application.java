@@ -29,7 +29,7 @@ import java.io.Reader;
 public class Application {
     private final Gson gson;
     private final String name;
-    private final Locator location;
+    public final Locator location;
     private final FileNode stageDirectory;
     private final Console console;
 

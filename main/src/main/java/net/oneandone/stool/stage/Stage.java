@@ -82,7 +82,7 @@ public abstract class Stage {
             throw new IllegalArgumentException();
         }
         directory.checkDirectory();
-        if (url.startsWith("gav:")) {
+        if (url.startsWith("gav:") || url.startsWith("file:")) {
             return new ArtifactStage(session, url, backstage, directory, configuration);
         }
         if (directory.join(configuration.pom).exists()) {
@@ -694,16 +694,19 @@ public abstract class Stage {
     public static String nameForUrl(String url) {
         if (url.startsWith("gav:")) {
             return nameForGavUrl(url);
+        } else if (url.startsWith("file:")) {
+            return nameForFileUrl(url);
         } else {
             return nameForSvnUrl(url);
         }
 
     }
 
-    public static String nameForGavUrl(String url) {
+    private static String nameForGavUrl(String url) {
         int end;
         int start;
 
+        url = one(url);
         end = url.lastIndexOf(':');
         if (end == -1) {
             return "stage";
@@ -715,7 +718,38 @@ public abstract class Stage {
         return url.substring(start + 1, end);
     }
 
-    public static String nameForSvnUrl(String url) {
+    private static String nameForFileUrl(String url) {
+        int idx;
+
+        url = one(url);
+        idx = url.lastIndexOf('/');
+        if (idx == -1) {
+            return "idx";
+        }
+        url = url.substring(idx + 1);
+        idx = url.lastIndexOf('.');
+        if (idx == -1) {
+            return url;
+        } else {
+            return url.substring(0, idx);
+        }
+    }
+
+    private static String one(String url) {
+        int end;
+
+        end = url.lastIndexOf(',');
+        if (end != -1) {
+            url = url.substring(0, end);
+        }
+        end = url.lastIndexOf('=');
+        if (end != -1) {
+            url = url.substring(0, end);
+        }
+        return url;
+    }
+
+    private static String nameForSvnUrl(String url) {
         String result;
         int idx;
 

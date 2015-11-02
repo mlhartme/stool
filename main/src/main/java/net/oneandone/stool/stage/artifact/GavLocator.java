@@ -65,4 +65,8 @@ public class GavLocator extends Locator {
         }
 
     }
+
+    public String toString() {
+        return artifact.toString();
+    }
 }

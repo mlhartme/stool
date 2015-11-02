@@ -121,8 +121,10 @@ public class ArtifactStage extends Stage {
 
         for (Application application : applications.applications()) {
             application.populate();
+            if (!application.refreshFuture(session, shared())) {
+                throw new IOException("application not found: " + application.location);
+            }
         }
-        refreshPending(console);
         executeRefresh(console);
     }
 
