@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.setup.JavaSetup;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
@@ -24,6 +25,7 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiOutputStream;
 import net.oneandone.sushi.util.Strings;
+import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -89,8 +91,16 @@ public class StoolIT {
 
 
     @Test
-    public void turnaroundArtifact() throws IOException {
+    public void turnaroundGavArtifact() throws IOException {
         turnaround("gav:net.oneandone:hellowar:1.0.2");
+    }
+
+    @Test
+    public void turnaroundFileArtifact() throws IOException, ArtifactResolutionException {
+        FileNode file;
+
+        file = Maven.withSettings(world).resolve("net.oneandone", "hellowar", "war", "1.0.2");
+        turnaround(file.getURI().toString());
     }
 
     @Test
