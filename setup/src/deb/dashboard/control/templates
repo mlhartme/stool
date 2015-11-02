@@ -2,3 +2,13 @@ Template: stool/user
 Type: string
 Default: stool
 Description: The user to own the dashboard.
+
+Template: stool/svnuser
+Type: string
+Default:
+Description: User for svn operations.
+
+Template: stool/svnpassword
+Type: password
+Default:
+Description: Password for svn operations.

@@ -17,6 +17,7 @@ package net.oneandone.stool.setup;
 
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,19 +44,38 @@ public class DebianDashboardSetup extends Debian {
     private final FileNode home;
     private final String group;
     private final String user;
+    private final String svnuser;
+    private final String svnpassword;
 
     public DebianDashboardSetup() {
         home = world.file(get("home"));
         group = get("group");
         user = get("user");
+        svnuser = get("svnuser");
+        svnpassword = get("svnpassword");
     }
 
     @Override
     public void postinstConfigure() throws IOException {
         setupUser();
-        echo(slurp("sudo", "-u", user, "/usr/share/stool/stool-raw.sh", "create",
-                "file:///usr/share/stool-dashboard/dashboard.war", home.join("dashboard").getAbsolute()));
-        echo(slurp("sudo", "-u", user, "/usr/share/stool/stool-raw.sh", "start", "-stage", "dashboard"));
+        echo(stool("create", "file:///usr/share/stool-dashboard/dashboard.war", home.join("dashboard").getAbsolute()));
+        properties();
+        echo(stool("start", "-stage", "dashboard"));
+    }
+
+    private String stool(String ... cmd) throws IOException {
+        return slurp(Strings.append(new String[] {"sudo", "-u", user, "/usr/share/stool/stool-raw.sh"}, cmd));
+    }
+
+    private void properties() throws IOException {
+        FileNode properties;
+        properties = home.join("overview.properties");
+        properties.writeLines(
+                "svnuser=" + svnuser,
+                "svnpassword=" + svnpassword
+        );
+        exec("chown", user, properties.getAbsolute());
+        exec("chmod", "600", properties.getAbsolute());
     }
 
     private void setupUser() throws IOException {
