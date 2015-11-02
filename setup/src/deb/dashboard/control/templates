@@ -12,3 +12,8 @@ Template: stool/svnpassword
 Type: password
 Default:
 Description: Password for svn operations.
+
+Template: stool/dashboardport
+Type: string
+Default:
+Description: Port for dashboard stage.

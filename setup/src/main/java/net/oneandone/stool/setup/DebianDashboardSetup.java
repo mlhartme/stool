@@ -46,6 +46,7 @@ public class DebianDashboardSetup extends Debian {
     private final String user;
     private final String svnuser;
     private final String svnpassword;
+    private final String dashboardPort;
 
     public DebianDashboardSetup() {
         home = world.file(get("home"));
@@ -53,12 +54,16 @@ public class DebianDashboardSetup extends Debian {
         user = get("user");
         svnuser = get("svnuser");
         svnpassword = get("svnpassword");
+        dashboardPort = get("dashboardport");
     }
 
     @Override
     public void postinstConfigure() throws IOException {
         setupUser();
         echo(stool("create", "file:///usr/share/stool-dashboard/dashboard.war", home.join("dashboard").getAbsolute()));
+        if (!dashboardPort.isEmpty()) {
+            echo(stool("port", "-stage", "dashboard", "dashboard:" + dashboardPort));
+        }
         properties();
         echo(stool("start", "-stage", "dashboard"));
     }

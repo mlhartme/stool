@@ -12,6 +12,8 @@ db_get stool/svnuser
 export STOOL_SETUP_SVNUSER=$RET
 db_get stool/svnpassword
 export STOOL_SETUP_SVNPASSWORD=$RET
+db_get stool/dashboardport
+export STOOL_SETUP_DASHBOARDPORT=$RET
 
 # echo "$DPKG_MAINTSCRIPT_NAME: home: $STOOL_SETUP_HOME user: $STOOL_SETUP_USER group: $STOOL_SETUP_GROUP" >> /tmp/stool-vars
 
