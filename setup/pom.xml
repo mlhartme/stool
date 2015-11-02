@@ -141,7 +141,7 @@
           </execution>
           <execution>
             <configuration>
-              <name>postrm</name>
+              <name>mainpostrm</name>
               <main>net.oneandone.stool.setup.DebianSetup</main>
               <shrink>true</shrink>
               <shrinkOptions>
@@ -179,7 +179,7 @@
                     public &lt;init>(...);
                 }
               </shrinkOptions>
-              <launcher>${basedir}/src/deb/control/launcher</launcher>
+              <launcher>${basedir}/src/deb/main/control/launcher</launcher>
             </configuration>
             <id>debian-setup</id>
             <goals>
@@ -198,15 +198,15 @@
               <target>
                 <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/setup-stool" fork="false"
                     failonerror="true">
-                  <arg path="${project.build.directory}/debfiles" />
+                  <arg path="${project.build.directory}/debfiles-main" />
                 </java>
-                <copy todir="${project.build.directory}/deb/control/">
-                  <fileset dir="${basedir}/src/deb/control"/>
+                <copy todir="${project.build.directory}/deb/main/control/">
+                  <fileset dir="${basedir}/src/deb/main/control"/>
                 </copy>
-                <copy file="${project.build.directory}/deb/control/launcher" tofile="${project.build.directory}/deb/control/preinst"/>
-                <copy file="${project.build.directory}/deb/control/launcher" tofile="${project.build.directory}/deb/control/postinst"/>
-                <move file="${project.build.directory}/deb/control/launcher" tofile="${project.build.directory}/deb/control/prerm"/>
-                <move file="${project.build.directory}/postrm" tofile="${project.build.directory}/deb/control/postrm.bin"/>
+                <copy file="${project.build.directory}/deb/main/control/launcher" tofile="${project.build.directory}/deb/main/control/preinst"/>
+                <copy file="${project.build.directory}/deb/main/control/launcher" tofile="${project.build.directory}/deb/main/control/postinst"/>
+                <move file="${project.build.directory}/deb/main/control/launcher" tofile="${project.build.directory}/deb/main/control/prerm"/>
+                <move file="${project.build.directory}/mainpostrm" tofile="${project.build.directory}/deb/main/control/postrm.bin"/>
               </target>
             </configuration>
             <goals>
@@ -226,7 +226,7 @@
               <goal>jdeb</goal>
             </goals>
             <configuration>
-              <controlDir>${project.build.directory}/deb/control</controlDir>
+              <controlDir>${project.build.directory}/deb/main/control</controlDir>
               <!-- override deb and changes out because the artifact id is not suitable -->
               <deb>${basedir}/target/stool_[[version]]_all.deb</deb>
               <changesOut>${basedir}/target/stool_[[version]]_all.changes</changesOut>
@@ -235,7 +235,7 @@
               <snapshotExpand>true</snapshotExpand>
               <dataSet>
                 <data>
-                  <src>${project.build.directory}/debfiles</src>
+                  <src>${project.build.directory}/debfiles-main</src>
                   <dst>/usr/share</dst>
                   <type>directory</type>
                   <excludes>**/*.sh</excludes>
@@ -248,7 +248,7 @@
                   </mapper>
                 </data>
                 <data>
-                  <src>${project.build.directory}/debfiles</src>
+                  <src>${project.build.directory}/debfiles-main</src>
                   <dst>/usr/share</dst>
                   <type>directory</type>
                   <includes>**/*.sh</includes>
@@ -261,7 +261,7 @@
                   </mapper>
                 </data>
                 <data>
-                  <src>${basedir}/src/deb/profile</src>
+                  <src>${basedir}/src/deb/main/profile</src>
                   <dst>/etc/profile.d/stool.sh</dst>
                   <conffile>true</conffile>
                   <type>file</type>
@@ -273,7 +273,7 @@
                   </mapper>
                 </data>
                 <data>
-                  <src>${basedir}/src/deb/sudoers</src>
+                  <src>${basedir}/src/deb/main/sudoers</src>
                   <dst>/etc/sudoers.d/stool</dst>
                   <conffile>true</conffile>
                   <type>file</type>
@@ -285,7 +285,7 @@
                   </mapper>
                 </data>
                 <data>
-                  <src>${basedir}/src/deb/cron</src>
+                  <src>${basedir}/src/deb/main/cron</src>
                   <dst>/etc/cron.d/stool</dst>
                   <type>file</type>
                   <conffile>true</conffile>
@@ -297,7 +297,7 @@
                   </mapper>
                 </data>
                 <data>
-                  <src>${basedir}/src/deb/service</src>
+                  <src>${basedir}/src/deb/main/service</src>
                   <dst>/etc/init.d/stool</dst>
                   <conffile>true</conffile>
                   <type>file</type>
