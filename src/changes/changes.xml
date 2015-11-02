@@ -11,6 +11,9 @@
         refresh: Removed implicit re-chowning and re-starting. If you need this functionality, invoke refresh with the new auto options
         for stage commands: invoke 'stool refresh -autorechown -autorestart' to get the old behavior.
       </action>
+      <action date="2015-11-02" dev="mlhartme" type="update">
+        remove: Removed implicit stopping. If you need this functionality, invoke remove -autostop.
+      </action>
       <action date="2015-10-27" dev="mlhartme" type="update">
         Changed 'suffix' stage property to 'suffixes', it holds a list now.
       <action date="2015-10-27" dev="mlhartme" type="update">

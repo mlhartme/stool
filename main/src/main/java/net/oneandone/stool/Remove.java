@@ -42,19 +42,15 @@ public class Remove extends StageCommand {
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
+        stage.checkNotUp();
         stage.checkOwnership();
-
         if (!force) {
             checkCommitted(stage);
-        }
-        if (stage.state() == Stage.State.UP) {
-            stage.stop(console);
         }
         if (!batch) {
             console.info.println("Ready to delete " + stage.getDirectory().getAbsolute() + "?");
             console.pressReturn();
         }
-
         stage.backstage.deleteTree();
         if (backstageOnly) {
             console.info.println("Removed backstage for " + stage.getDirectory().getAbsolute());
