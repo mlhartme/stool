@@ -6,4 +6,11 @@ Description: Where to place Stool's home directory.
 Template: stool/group
 Type: string
 Default: stool
-Description: Group.
+Description: Group for all uses that share stages with Stool.
+ If this group does not exist, it is created with a local users.
+
+Template: stool/config
+Type: string
+Default:
+Description: Initial configuration for stool.
+ If empty, Stool uses reasonable defaults.

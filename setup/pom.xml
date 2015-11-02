@@ -181,7 +181,54 @@
               </shrinkOptions>
               <launcher>${basedir}/src/deb/main/control/launcher</launcher>
             </configuration>
-            <id>debian-setup</id>
+            <id>debian-main-setup</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+          <execution>
+            <configuration>
+              <name>dashboardpostrm</name>
+              <main>net.oneandone.stool.setup.DebianDashboardSetup</main>
+              <shrink>true</shrink>
+              <shrinkOptions>
+                -dontoptimize # because of proguard bug
+                -keepattributes *Annotation*
+                -ignorewarnings
+
+                -dontnote com.sun.mail.**
+                -dontnote javax.annotation.*
+                -dontwarn javax.enterprise.**
+                -dontnote javax.enterprise.**
+                -dontnote org.apache.maven.**
+                -dontwarn org.apache.maven.**
+                -dontnote net.oneandone.stool.**
+                -dontnote ch.qos.logback.**
+                -dontwarn ch.qos.logback.**
+                -dontnote org.apache.commons.**
+                -dontwarn org.apache.commons.**
+                -dontnote org.apache.http.**
+                -dontwarn org.apache.http.**
+                -dontnote com.google.**
+                -dontwarn com.google.**
+                -dontnote org.eclipse.**
+                -dontwarn org.eclipse.**
+                -dontnote org.codehaus.**
+                -dontwarn org.codehaus.**
+                -dontnote net.oneandone.sushi.**
+                -dontwarn net.oneandone.sushi.**
+
+                -keep public class ** implements net.oneandone.stool.extensions.Extension {
+                public &lt;init>(...);
+                }
+
+                -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
+                public &lt;init>(...);
+                }
+              </shrinkOptions>
+              <launcher>${basedir}/src/deb/dashboard/control/launcher</launcher>
+            </configuration>
+            <id>debian-dashboard-setup</id>
             <goals>
               <goal>generate</goal>
             </goals>
@@ -196,8 +243,9 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/setup-stool" fork="false"
-                    failonerror="true">
+                <!-- main -->
+                <property name="cp" refid="maven.runtime.classpath"/>
+                <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/setup-stool"  fork="false" failonerror="true">
                   <arg path="${project.build.directory}/debfiles-main" />
                 </java>
                 <copy todir="${project.build.directory}/deb/main/control/">
@@ -207,6 +255,18 @@
                 <copy file="${project.build.directory}/deb/main/control/launcher" tofile="${project.build.directory}/deb/main/control/postinst"/>
                 <move file="${project.build.directory}/deb/main/control/launcher" tofile="${project.build.directory}/deb/main/control/prerm"/>
                 <move file="${project.build.directory}/mainpostrm" tofile="${project.build.directory}/deb/main/control/postrm.bin"/>
+
+                <!-- dashboard -->
+                <java classname="net.oneandone.stool.setup.Dashboard" classpath="${cp}" fork="false" failonerror="true">
+                  <arg path="${project.build.directory}/debfiles-dashboard" />
+                </java>
+                <copy todir="${project.build.directory}/deb/dashboard/control/">
+                  <fileset dir="${basedir}/src/deb/dashboard/control"/>
+                </copy>
+                <copy file="${project.build.directory}/deb/dashboard/control/launcher" tofile="${project.build.directory}/deb/dashboard/control/preinst"/>
+                <copy file="${project.build.directory}/deb/dashboard/control/launcher" tofile="${project.build.directory}/deb/dashboard/control/postinst"/>
+                <move file="${project.build.directory}/deb/dashboard/control/launcher" tofile="${project.build.directory}/deb/dashboard/control/prerm"/>
+                <move file="${project.build.directory}/dashboardpostrm" tofile="${project.build.directory}/deb/dashboard/control/postrm.bin"/>
               </target>
             </configuration>
             <goals>
@@ -221,6 +281,7 @@
         <version>1.4.1</version>
         <executions>
           <execution>
+            <id>jdeb-main</id>
             <phase>package</phase>
             <goals>
               <goal>jdeb</goal>
@@ -306,6 +367,35 @@
                     <user>root</user>
                     <group>root</group>
                     <filemode>755</filemode>
+                  </mapper>
+                </data>
+              </dataSet>
+            </configuration>
+          </execution>
+          <execution>
+            <id>jdeb-dashboard</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jdeb</goal>
+            </goals>
+            <configuration>
+              <controlDir>${project.build.directory}/deb/dashboard/control</controlDir>
+              <!-- override deb and changes out because the artifact id is not suitable -->
+              <deb>${basedir}/target/stool-dashboard_[[version]]_all.deb</deb>
+              <changesOut>${basedir}/target/stool-dashboard_[[version]]_all.changes</changesOut>
+              <name>stool-dashboard</name>
+              <compression>bz2</compression>
+              <snapshotExpand>true</snapshotExpand>
+              <dataSet>
+                <data>
+                  <src>${project.build.directory}/debfiles-dashboard/dashboard.war</src>
+                  <dst>/usr/share/stool-dashboard/dashboard.war</dst>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>644</filemode>
                   </mapper>
                 </data>
               </dataSet>

@@ -6,8 +6,8 @@ db_get stool/home
 export STOOL_SETUP_HOME=$RET
 db_get stool/group
 export STOOL_SETUP_GROUP=$RET
-db_get stool/config
-export STOOL_SETUP_CONFIG=$RET
+db_get stool/user
+export STOOL_SETUP_USER=$RET
 
 # echo "$DPKG_MAINTSCRIPT_NAME: home: $STOOL_SETUP_HOME user: $STOOL_SETUP_USER group: $STOOL_SETUP_GROUP" >> /tmp/stool-vars
 

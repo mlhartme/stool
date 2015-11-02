@@ -1,0 +1,4 @@
+Template: stool/user
+Type: string
+Default: stool
+Description: The user to own the dashboard.

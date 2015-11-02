@@ -4,9 +4,9 @@ Section: misc
 Priority: optional
 Architecture: all
 # because Java is invoked by postinst:
-Pre-Depends: java8-jdk, debconf
+Pre-Depends: java8-jdk, adduser, debconf
 # because otherwise jdeb add this field with java 6 defaults:
-Depends: java8-jdk
+Depends: java8-jdk, adduser, stool-[[version]]
 Maintainer: CISO Operating <ciso-ops@1und1.de>
 Description: [[description]]
 Distribution: wheezy

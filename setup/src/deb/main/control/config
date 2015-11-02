@@ -4,6 +4,6 @@
 db_version 2.0
 
 db_input low stool/home || true
-db_input low stool/user || true
 db_input low stool/group || true
+db_input low stool/config || true
 db_go
