@@ -107,27 +107,6 @@ public class DebianMainSetup extends Debian {
         }
     }
 
-    /* TODO: move into Dashboard Debian package
-       private void setupUser() throws IOException {
-                boolean existing;
-                boolean inGroup;
-
-                        existing = test("id", "-u", user);
-                if (!existing) {
-                        if (world.file("/home").join(user).isDirectory()) {
-                                throw new IOException("cannot create user " + user + ": home directory already exists");
-                            }
-                        verbose(slurp("adduser", "--system", "--ingroup", group, "--home", "/home/" + user, user));
-                    }
-
-                        inGroup = groups(user).contains(group);
-                if (!inGroup) {
-                        exec("usermod", "-a", "-G", group, user);
-                    }
-                echo("user: " + user + " (" + (existing ? "existing" : "created") + (inGroup ? "" : ", added to group" + group) + ")");
-            }
-    */
-
     //--
 
     public void setupHome() throws IOException {

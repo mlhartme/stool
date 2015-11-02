@@ -53,6 +53,9 @@ public class DebianDashboardSetup extends Debian {
     @Override
     public void postinstConfigure() throws IOException {
         setupUser();
+        echo(slurp("sudo", "-u", user, "/usr/share/stool/stool-raw.sh", "create",
+                "file:///usr/share/stool-dashboard/dashboard.war", home.join("dashboard").getAbsolute()));
+        echo(slurp("sudo", "-u", user, "/usr/share/stool/stool-raw.sh", "start", "-stage", "dashboard"));
     }
 
     private void setupUser() throws IOException {
