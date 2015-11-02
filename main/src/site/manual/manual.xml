@@ -730,6 +730,10 @@
             <literal>-quiet</literal>
             option is specified.
           </para>
+          <para>
+            To create an artifact stage, specify a GAV url or a file url. You may specify multiple comma-separated urls, and you may
+            specify <literal>=</literal><replaceable>name</replaceable> if you want to assign a non-default vhost.
+          </para>
           <para>Instead of a
             <replaceable>url</replaceable>
             you can specify
@@ -776,6 +780,12 @@
           <title>Examples</title>
           <para>Create an artifact stage:
             <literal>stool create gav:net.oneandone:hellowar:1.0.2</literal>
+          </para>
+          <para>Create an artifact stage from a file:
+            <literal>stool create file:///my/path/to/artifact.war</literal>
+          </para>
+          <para>Create an artifact stage with multiple applications:
+            <literal>stool create gav:net.oneandone:hellowar:1.0.1,gav:net.oneandone:hellowar:1.0.2=second</literal>
           </para>
           <para>Create a source stage:
             <literal>stool create https://github.com/mlhartme/hellowar/trunk</literal>
