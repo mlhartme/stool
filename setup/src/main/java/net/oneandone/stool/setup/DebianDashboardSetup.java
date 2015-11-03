@@ -16,13 +16,9 @@
 package net.oneandone.stool.setup;
 
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class DebianDashboardSetup extends Debian {
     public static void main(String[] args) {
@@ -34,7 +30,7 @@ public class DebianDashboardSetup extends Debian {
     private static String get(String name) {
         String result;
 
-        result = System.getenv("STOOL_SETUP_" + name.toUpperCase());
+        result = System.getenv("STOOL_DASHBOARD_SETUP_" + name.toUpperCase());
         if (result == null) {
             throw new IllegalStateException(name);
         }
@@ -44,25 +40,26 @@ public class DebianDashboardSetup extends Debian {
     private final FileNode home;
     private final String group;
     private final String user;
+    private final String port;
     private final String svnuser;
     private final String svnpassword;
-    private final String dashboardPort;
 
     public DebianDashboardSetup() {
         home = world.file(get("home"));
         group = get("group");
+
+        port = get("port");
         user = get("user");
         svnuser = get("svnuser");
         svnpassword = get("svnpassword");
-        dashboardPort = get("dashboardport");
     }
 
     @Override
     public void postinstConfigure() throws IOException {
         setupUser();
         echo(stool("create", "file:///usr/share/stool-dashboard/dashboard.war", home.join("dashboard").getAbsolute()));
-        if (!dashboardPort.isEmpty()) {
-            echo(stool("port", "-stage", "dashboard", "dashboard:" + dashboardPort));
+        if (!port.isEmpty()) {
+            echo(stool("port", "-stage", "dashboard", "dashboard:" + port));
         }
         properties();
         echo(stool("start", "-stage", "dashboard"));

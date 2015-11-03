@@ -141,6 +141,13 @@ public class Pool {
                 result.add(found);
             }
         }
+
+        // gc this stage, i.e. remove all vhosts that are now unused
+        for (int i = vhosts.size() - 1; i >= 0; i--) {
+            if (stageName.equals(vhosts.get(i).stage) && !result.contains(vhosts.get(i))) {
+                vhosts.remove(i);
+            }
+        }
         save();
         return new Ports(result);
     }

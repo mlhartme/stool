@@ -1379,7 +1379,9 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Allocates the specified ports for this stage. <replaceable>name</replaceable> specifies the vhost to use this port for.</para>
+          <para>Allocates the specified ports for this stage. <replaceable>name</replaceable> specifies the vhost to use this port for.
+            When starting a stage, unused allocated ports are freed.
+          </para>
         </refsect1>
       </refentry>
 
