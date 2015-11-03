@@ -79,17 +79,22 @@ public class Config extends StageCommand {
     public void doInvoke(Stage stage) throws Exception {
         StageConfiguration configuration;
         boolean error;
+        Property prop;
+        String value;
 
         configuration = stage.config();
         if (set) {
             stage.checkOwnership();
             error = false;
             for (Map.Entry<Property, String> entry : selected.entrySet()) {
+                prop = entry.getKey();
+                value = entry.getValue();
+                value = value.replace("{}", prop.get(configuration));
                 try {
-                    entry.getKey().set(configuration, entry.getValue());
-                    console.info.println(entry.getKey().name + "=" + entry.getValue());
-                } catch (Exception e) {
-                    console.info.println("invalid value for property " + entry.getKey().name + " : " + e.getMessage());
+                    prop.set(configuration, value);
+                    console.info.println(prop.name + "=" + value);
+                } catch (RuntimeException e) {
+                    console.info.println("invalid value for property " + prop.name + " : " + e.getMessage());
                     e.printStackTrace(console.verbose);
                     error = true;
                 }

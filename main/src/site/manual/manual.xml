@@ -1262,6 +1262,9 @@
           </para>
           <para>When invoked with one or more assignments, the respective properties are changed.
           </para>
+          <para>Property values may contain {} to refer to the previous value. You can use this, e.g., to append to a property:
+            <literal>stool config "tomcat.opts={} -Dfoo=bar"</literal>.
+          </para>
           <para>If you want to set a property to a value with spaces, you have to use quotes around the key-value pair.
             Otherwise, the shell does not see what belongs to your value.
           </para>

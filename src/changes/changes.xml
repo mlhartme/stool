@@ -2,6 +2,10 @@
   <body>
     <release version="3.3.0" date="2015-11-03">
       <action date="2015-11-03" dev="mlhartme" type="fix">
+        stool config now supports a "{}" place holder to refer to the previous value. You can use this e.g. to append to a property:
+        stool config "tomcat.opts={} -Dfoo=bar".
+      </action>
+      <action date="2015-11-03" dev="mlhartme" type="fix">
         Fixed exception if history argument is not a number. Issue proper error message now.
       </action>
       <action date="2015-11-02" dev="mlhartme" type="add">
