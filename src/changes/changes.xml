@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
-    <release version="3.3.0" date="2015-11-01">
-      <action date="2015-10-30" dev="mlhartme" type="add">
+    <release version="3.3.0" date="2015-11-03">
+      <action date="2015-11-03" dev="mlhartme" type="fix">
+        Fixed exception if history argument is not a number. Issue proper error message now.
+      </action>
+      <action date="2015-11-02" dev="mlhartme" type="add">
         You can create artifact stages from either gav: or file: urls now. You can specify multiple comma-separates urls.
       </action>
       <action date="2015-10-30" dev="mlhartme" type="update">

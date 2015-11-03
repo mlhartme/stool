@@ -45,7 +45,11 @@ public class History extends StageCommand {
 
         idx = str.indexOf('-');
         if (idx == -1) {
-            details.add(Integer.parseInt(str));
+            try {
+                details.add(Integer.parseInt(str));
+            } catch (NumberFormatException e) {
+                throw new ArgumentException("number expected, got " + str);
+            }
         } else {
             first = idx == 0 ? 1 : Integer.parseInt(str.substring(0, idx));
             last = idx == str.length() - 1 ? max : Integer.parseInt(str.substring(idx + 1));
