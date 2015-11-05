@@ -58,7 +58,7 @@ public class DebianMainSetup extends Debian {
 
     @Override
     public void postrmRemove() throws IOException {
-        echo(slurp("service", "stool", "stop"));
+        log(slurp("service", "stool", "stop"));
     }
 
     @Override
@@ -79,7 +79,7 @@ public class DebianMainSetup extends Debian {
         List<String> result;
 
         if (test("getent", "group", group)) {
-            echo("group: " + group + " (existing)");
+            log("group: " + group + " (existing)");
         } else {
             result = new ArrayList<>();
             exec("groupadd", group);
@@ -92,7 +92,7 @@ public class DebianMainSetup extends Debian {
                     }
                 }
             }
-            echo("group: " + group + " (created with " + Separator.SPACE.join(result) + ")");
+            log("group: " + group + " (created with " + Separator.SPACE.join(result) + ")");
         }
     }
 
@@ -104,7 +104,7 @@ public class DebianMainSetup extends Debian {
         h = new Home(console, home, group, config.trim().isEmpty() ? null : config, true, new HashMap<>());
         if (home.exists()) {
             h.upgrade();
-            echo("home: " + home.getAbsolute() + " (upgraded)");
+            log("home: " + home.getAbsolute() + " (upgraded)");
         } else {
             console.info.println("creating home: " + home);
             try {

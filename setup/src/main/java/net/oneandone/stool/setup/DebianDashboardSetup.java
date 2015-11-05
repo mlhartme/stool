@@ -19,7 +19,6 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.util.Map;
 
 public class DebianDashboardSetup extends Debian {
     public static void main(String[] args) throws IOException {
@@ -37,11 +36,6 @@ public class DebianDashboardSetup extends Debian {
 
     public DebianDashboardSetup() throws IOException {
         super("stool"); // share log file with stool, to see timing
-        for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
-            if (entry.getKey().startsWith("DPKG_")) {
-                verbose("env: " + entry.getKey() + "=" + entry.getValue());
-            }
-        }
         home = world.file(db_get("stool/home"));
         group = db_get("stool/group");
 
@@ -53,7 +47,7 @@ public class DebianDashboardSetup extends Debian {
 
     @Override
     public void prermRemove() throws IOException {
-        echo(stool("remove", "-autostop", "-batch", "-stage", "dashboard"));
+        log(stool("remove", "-autostop", "-batch", "-stage", "dashboard"));
     }
 
     @Override
@@ -64,12 +58,12 @@ public class DebianDashboardSetup extends Debian {
     @Override
     public void postinstConfigure() throws IOException {
         setupUser();
-        echo(stool("create", "file:///usr/share/stool-dashboard/dashboard.war", home.join("dashboard").getAbsolute()));
+        log(stool("create", "file:///usr/share/stool-dashboard/dashboard.war", home.join("dashboard").getAbsolute()));
         if (!port.isEmpty()) {
-            echo(stool("port", "-stage", "dashboard", "dashboard:" + port));
+            log(stool("port", "-stage", "dashboard", "dashboard:" + port));
         }
         properties();
-        echo(stool("start", "-stage", "dashboard"));
+        log(stool("start", "-stage", "dashboard"));
     }
 
     //--
@@ -83,7 +77,7 @@ public class DebianDashboardSetup extends Debian {
 
         properties = home.join("dashboard.properties");
         if (properties.isFile()) {
-            echo("reusing existing configuration: " + properties);
+            log("reusing existing configuration: " + properties);
         } else {
             properties.writeLines(
                     "svnuser=" + svnuser,
@@ -103,13 +97,13 @@ public class DebianDashboardSetup extends Debian {
             if (world.file("/home").join(user).isDirectory()) {
                 throw new IOException("cannot create user " + user + ": home directory already exists");
             }
-            verbose(slurp("adduser", "--system", "--ingroup", group, "--home", "/home/" + user, user));
+            log(slurp("adduser", "--system", "--ingroup", group, "--home", "/home/" + user, user));
         }
 
         inGroup = groups(user).contains(group);
         if (!inGroup) {
             exec("usermod", "-a", "-G", group, user);
         }
-        echo("user: " + user + " (" + (existing ? "existing" : "created") + (inGroup ? "" : ", added to group" + group) + ")");
+        log("user: " + user + " (" + (existing ? "existing" : "created") + (inGroup ? "" : ", added to group" + group) + ")");
     }
 }

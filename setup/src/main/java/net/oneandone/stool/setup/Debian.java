@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Called by Debian Maintainer scripts.
@@ -42,13 +43,18 @@ public class Debian {
         PrintWriter out;
 
         out = new PrintWriter(new FileOutputStream("/tmp/dpkg-" + logname + ".log", true));
-        out.println("###");
-        out.println("### " + new Date() + ": " + System.getenv("DPKG_MAINTSCRIPT_NAME"));
-        out.println("###");
         world = new World();
         console = new Console(world, out, out, System.in);
         console.setVerbose(true);
         cwd = (FileNode) world.getWorking();
+        log("#");
+        log("# " + new Date());
+        for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
+            if (entry.getKey().startsWith("DPKG_")) {
+                log("# " + entry.getKey() + "=" + entry.getValue());
+            }
+        }
+        log("#");
 
         // initialize here, because derived classes usually read variables in their constructor
         db_version("2.0");
@@ -65,7 +71,7 @@ public class Debian {
         // depending of the current setup state.
         script = System.getenv("DPKG_MAINTSCRIPT_NAME");
         all = script + ": " + Separator.SPACE.join(args);
-        verbose(all);
+        log(all);
         try {
             switch (script) {
                 case "preinst":
@@ -81,8 +87,8 @@ public class Debian {
                     postrm(args);
                     break;
                 default:
-                    echo("env: " + System.getenv());
-                    echo("jar: " + world.locateClasspathItem(Debian.class));
+                    log("env: " + System.getenv());
+                    log("jar: " + world.locateClasspathItem(Debian.class));
                     throw new IllegalArgumentException(all);
             }
         } catch (IOException e) {
@@ -90,7 +96,7 @@ public class Debian {
             e.printStackTrace(console.verbose);
             return 1;
         }
-        verbose(all + ": ok");
+        log(all + ": ok");
         return 0;
     }
 
@@ -223,12 +229,8 @@ public class Debian {
 
     //--
 
-    public void echo(String str) {
+    public void log(String str) {
         console.info.println(str);
-    }
-
-    public void verbose(String str) {
-        console.verbose.println(str);
     }
 
     public String slurp(String ... args) throws IOException {
@@ -303,7 +305,6 @@ public class Debian {
         int c;
         String result;
 
-        verbose("db_communicate: " + query);
         System.out.println(query);
         buffer = new StringBuffer();
         while (true) {
@@ -314,7 +315,7 @@ public class Debian {
             buffer.append((char) c);
         }
         result = buffer.toString();
-        verbose("db_communicate: " + result);
+        log("db_communicate: '" + query + "' -> '" + result + "'");
         return result;
     }
 }
