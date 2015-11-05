@@ -22,11 +22,30 @@ import net.oneandone.sushi.launcher.ExitCode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 /** Called by Debian Maintainer scripts https://www.debian.org/doc/debian-policy/ch-maintainerscripts.html */
 public class Debian {
+    //--
+
+    protected final World world;
+    protected final Console console;
+    protected final FileNode cwd;
+
+    public Debian(String name) throws FileNotFoundException {
+        FileOutputStream out;
+
+        out = new FileOutputStream("/tmp/" + name + "." + System.getenv("DPKG_MAINTSCRIPT_NAME") + ".log");
+        world = new World();
+        console = new Console(world, new PrintWriter(out, true), new PrintWriter(out, true), System.in);
+        console.setVerbose(true);
+        cwd = (FileNode) world.getWorking();
+    }
+
     public int run(String ... args) {
         String all;
         String script;
@@ -40,6 +59,7 @@ public class Debian {
         all = script + ": " + Separator.SPACE.join(args);
         verbose(all);
         try {
+            db_version("2.0");
             switch (script) {
                 case "preinst":
                     preinst(args);
@@ -65,19 +85,6 @@ public class Debian {
         }
         verbose(all + ": ok");
         return 0;
-    }
-
-    //--
-
-    protected final World world;
-    protected final Console console;
-    protected final FileNode cwd;
-
-    public Debian() {
-        world = new World();
-        console = Console.create(world);
-        console.setVerbose(true);
-        cwd = (FileNode) world.getWorking();
     }
 
     //--
@@ -169,6 +176,7 @@ public class Debian {
                 postrmRemove();
                 break;
             case "purge":
+                db_purge();
                 postrmPurge();
                 break;
             case "upgrade":
@@ -242,4 +250,60 @@ public class Debian {
         return Separator.SPACE.split(output);
     }
 
+    //--
+
+    protected String db_get(String variable) throws IOException {
+        return db_communicate("get " + variable);
+    }
+
+    protected void db_purge() throws IOException {
+        db_communicate("purge");
+    }
+
+    protected void db_version(String version) throws IOException {
+        String result;
+
+        result = db_communicate("version " + version);
+        if (!result.equals(version)) {
+            throw new IOException("version mismatch: " + version + " vs " + result);
+        }
+    }
+
+    protected String db_communicate(String query) throws IOException {
+        String line;
+        int idx;
+        int code;
+
+        line = db_communicate_raw(query);
+        idx = line.indexOf(' ');
+        if (idx == -1) {
+            throw new IOException("unexpected response: " + line);
+        }
+        code = Integer.parseInt(line.substring(0, idx));
+        if (code != 0) {
+            throw new IOException("'" + query + "' failed: " + line);
+        }
+        line = line.substring(idx + 1).trim();
+        return line;
+    }
+
+    private String db_communicate_raw(String query) throws IOException {
+        StringBuffer buffer;
+        int c;
+        String result;
+
+        verbose("db_communicate: " + query);
+        System.out.println(query);
+        buffer = new StringBuffer();
+        while (true) {
+            c = System.in.read();
+            if (c == -1 || c == '\n') {
+                break;
+            }
+            buffer.append((char) c);
+        }
+        result = buffer.toString();
+        verbose("db_communicate -> " + result);
+        return result;
+    }
 }

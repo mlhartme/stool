@@ -21,21 +21,11 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 
 public class DebianDashboardSetup extends Debian {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         System.exit(new DebianDashboardSetup().run(args));
     }
 
     //--
-
-    private static String get(String name) {
-        String result;
-
-        result = System.getenv("STOOL_DASHBOARD_SETUP_" + name.toUpperCase());
-        if (result == null) {
-            throw new IllegalStateException(name);
-        }
-        return result;
-    }
 
     private final FileNode home;
     private final String group;
@@ -44,14 +34,15 @@ public class DebianDashboardSetup extends Debian {
     private final String svnuser;
     private final String svnpassword;
 
-    public DebianDashboardSetup() {
-        home = world.file(get("home"));
-        group = get("group");
+    public DebianDashboardSetup() throws IOException {
+        super("stool-dashboard");
+        home = world.file(db_get("stool/home"));
+        group = db_get("stool/group");
 
-        port = get("port");
-        user = get("user");
-        svnuser = get("svnuser");
-        svnpassword = get("svnpassword");
+        user = db_get("stool-dashboard/user");
+        port = db_get("stool-dashboard/port");
+        svnuser = db_get("stool-dashboard/svnuser");
+        svnpassword = db_get("stool-dashboard/svnpassword");
     }
 
     @Override

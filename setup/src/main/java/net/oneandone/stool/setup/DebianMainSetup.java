@@ -24,32 +24,23 @@ import java.util.HashMap;
 import java.util.List;
 
 public class DebianMainSetup extends Debian {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         System.exit(new DebianMainSetup().run(args));
     }
 
     //--
 
-    private static String get(String name) {
-        String result;
-
-        result = System.getenv("STOOL_SETUP_" + name.toUpperCase());
-        if (result == null) {
-            throw new IllegalStateException(name);
-        }
-        return result;
-    }
-
     private final FileNode bin;
     private final FileNode home;
     private final String group;
 
-    public DebianMainSetup() {
+    public DebianMainSetup() throws IOException {
+        super("stool");
         // this is not configurable, because the content comes from the package:
         bin = world.file("/usr/share/stool");
 
-        home = world.file(get("home"));
-        group = get("group");
+        home = world.file(db_get("stool/home"));
+        group = db_get("stool/group");
     }
 
     //--

@@ -26,9 +26,9 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Generates bin- and man directories. Used at build time (for Debian Package) or runtime (Java Installer) */
+/** Generates bin- and man directories. Used at build time (for Debian package) or runtime (Java installer) */
 public class BinMan {
-    /** generate file hierarchie for debian installer */
+    /** generate file hierarchy for Debian package */
     public static void main(String[] args) throws Exception {
         World world;
         Console console;

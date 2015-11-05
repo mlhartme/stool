@@ -179,7 +179,7 @@
                     public &lt;init>(...);
                 }
               </shrinkOptions>
-              <launcher>${basedir}/src/deb/main/control/launcher</launcher>
+              <launcher>${basedir}/src/deb/launcher</launcher>
             </configuration>
             <id>debian-main-setup</id>
             <goals>
@@ -226,7 +226,7 @@
                 public &lt;init>(...);
                 }
               </shrinkOptions>
-              <launcher>${basedir}/src/deb/dashboard/control/launcher</launcher>
+              <launcher>${basedir}/src/deb/launcher</launcher>
             </configuration>
             <id>debian-dashboard-setup</id>
             <goals>
@@ -248,25 +248,21 @@
                 <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/setup-stool"  fork="false" failonerror="true">
                   <arg path="${project.build.directory}/debfiles-main" />
                 </java>
-                <copy todir="${project.build.directory}/deb/main/control/">
-                  <fileset dir="${basedir}/src/deb/main/control"/>
-                </copy>
-                <copy file="${project.build.directory}/deb/main/control/launcher" tofile="${project.build.directory}/deb/main/control/preinst"/>
-                <copy file="${project.build.directory}/deb/main/control/launcher" tofile="${project.build.directory}/deb/main/control/postinst"/>
-                <move file="${project.build.directory}/deb/main/control/launcher" tofile="${project.build.directory}/deb/main/control/prerm"/>
-                <move file="${project.build.directory}/mainpostrm" tofile="${project.build.directory}/deb/main/control/postrm.bin"/>
+                <java classname="net.oneandone.stool.setup.Control" classpath="${cp}}" fork="false" failonerror="true">
+                  <arg path="${basedir}/src/deb/main/control/"/>
+                  <arg path="${project.build.directory}/mainpostrm"/>
+                  <arg path="${project.build.directory}/control-main"/>
+                </java>
 
                 <!-- dashboard -->
                 <java classname="net.oneandone.stool.setup.Dashboard" classpath="${cp}" fork="false" failonerror="true">
                   <arg path="${project.build.directory}/debfiles-dashboard" />
                 </java>
-                <copy todir="${project.build.directory}/deb/dashboard/control/">
-                  <fileset dir="${basedir}/src/deb/dashboard/control"/>
-                </copy>
-                <copy file="${project.build.directory}/deb/dashboard/control/launcher" tofile="${project.build.directory}/deb/dashboard/control/preinst"/>
-                <copy file="${project.build.directory}/deb/dashboard/control/launcher" tofile="${project.build.directory}/deb/dashboard/control/postinst"/>
-                <move file="${project.build.directory}/deb/dashboard/control/launcher" tofile="${project.build.directory}/deb/dashboard/control/prerm"/>
-                <move file="${project.build.directory}/dashboardpostrm" tofile="${project.build.directory}/deb/dashboard/control/postrm.bin"/>
+                <java classname="net.oneandone.stool.setup.Control" classpath="${cp}}" fork="false" failonerror="true">
+                  <arg path="${basedir}/src/deb/dashboard/control/"/>
+                  <arg path="${project.build.directory}/dashboardpostrm"/>
+                  <arg path="${project.build.directory}/control-dashboard"/>
+                </java>
               </target>
             </configuration>
             <goals>
@@ -287,7 +283,7 @@
               <goal>jdeb</goal>
             </goals>
             <configuration>
-              <controlDir>${project.build.directory}/deb/main/control</controlDir>
+              <controlDir>${project.build.directory}/control-main</controlDir>
               <!-- override deb and changes out because the artifact id is not suitable -->
               <deb>${basedir}/target/stool_[[version]]_all.deb</deb>
               <changesOut>${basedir}/target/stool_[[version]]_all.changes</changesOut>
@@ -379,7 +375,7 @@
               <goal>jdeb</goal>
             </goals>
             <configuration>
-              <controlDir>${project.build.directory}/deb/dashboard/control</controlDir>
+              <controlDir>${project.build.directory}/control-dashboard</controlDir>
               <!-- override deb and changes out because the artifact id is not suitable -->
               <deb>${basedir}/target/stool-dashboard_[[version]]_all.deb</deb>
               <changesOut>${basedir}/target/stool-dashboard_[[version]]_all.changes</changesOut>
