@@ -74,6 +74,7 @@ public class Home {
             conf = new StoolConfiguration(downloadCache());
         } else {
             initial = console.world.getTemp().createTempFile();
+            Util.downloadFile(console.verbose, initialConfig, initial);
             conf = StoolConfiguration.loadFile(gson, initial);
         }
         conf.shared = shared;
