@@ -53,6 +53,7 @@ public class DebianMainSetup extends Debian {
         setupHome();
         home.link(bin.join("home"));
         exec("update-rc.d", "stool", "defaults");
+        exec("service", "stool", "start");
     }
 
     @Override
