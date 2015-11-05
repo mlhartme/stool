@@ -66,6 +66,8 @@ public class Home {
         gson = Session.gson(world, ExtensionsFactory.create(world));
         Files.createStoolDirectory(console.verbose, home);
         exec("chgrp", group, home.getAbsolute());
+        // chgrp overwrites the permission - thus, i have to re-set permissions
+        exec("chmod", "2775", home.getAbsolute());
 
         world.resource("templates/maven-settings.xml").copyFile(home.join("maven-settings.xml"));
         if (initialConfig == null) {
