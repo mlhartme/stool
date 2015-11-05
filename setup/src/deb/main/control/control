@@ -8,5 +8,4 @@ Pre-Depends: java8-jdk, debconf
 Depends: java8-jdk
 Maintainer: CISO Operating <ciso-ops@1und1.de>
 Description: [[description]]
-Distribution: wheezy
 Homepage: [[url]]

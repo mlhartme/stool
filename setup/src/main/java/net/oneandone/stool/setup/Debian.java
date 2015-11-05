@@ -38,10 +38,10 @@ public class Debian {
     protected final Console console;
     protected final FileNode cwd;
 
-    public Debian(String name) throws IOException {
+    public Debian(String logname) throws IOException {
         PrintWriter out;
 
-        out = new PrintWriter(new FileOutputStream("/tmp/dpkg-" + name + ".log", true));
+        out = new PrintWriter(new FileOutputStream("/tmp/dpkg-" + logname + ".log", true));
         out.println("###");
         out.println("### " + new Date() + ": " + System.getenv("DPKG_MAINTSCRIPT_NAME"));
         out.println("###");

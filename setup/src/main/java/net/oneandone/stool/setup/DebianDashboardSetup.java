@@ -19,6 +19,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
+import java.util.Map;
 
 public class DebianDashboardSetup extends Debian {
     public static void main(String[] args) throws IOException {
@@ -35,7 +36,12 @@ public class DebianDashboardSetup extends Debian {
     private final String svnpassword;
 
     public DebianDashboardSetup() throws IOException {
-        super("stool-dashboard");
+        super("stool"); // share log file with stool, to see timing
+        for (Map.Entry<String, String> entry : System.getenv().entrySet()) {
+            if (entry.getKey().startsWith("DPKG_")) {
+                verbose("env: " + entry.getKey() + "=" + entry.getValue());
+            }
+        }
         home = world.file(db_get("stool/home"));
         group = db_get("stool/group");
 

@@ -6,6 +6,5 @@ Architecture: all
 Pre-Depends: java8-jdk, adduser, debconf
 Depends: java8-jdk, stool (=[[version]]), adduser
 Maintainer: CISO Operating <ciso-ops@1und1.de>
-Description: [[description]]
-Distribution: wheezy
+Description: A special stage to control Stool via browser.
 Homepage: [[url]]
