@@ -161,7 +161,11 @@ public class StoolConfiguration {
     }
 
     public static StoolConfiguration load(Gson gson, FileNode home) throws IOException {
-        return gson.fromJson(configurationFile(home).readString(), StoolConfiguration.class);
+        return loadFile(gson, configurationFile(home));
+    }
+
+    public static StoolConfiguration loadFile(Gson gson, FileNode file) throws IOException {
+        return gson.fromJson(file.readString(), StoolConfiguration.class);
     }
 
     public void save(Gson gson, FileNode home) throws IOException {

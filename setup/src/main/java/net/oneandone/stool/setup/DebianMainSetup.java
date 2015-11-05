@@ -32,6 +32,7 @@ public class DebianMainSetup extends Debian {
 
     private final FileNode bin;
     private final FileNode home;
+    private final String config;
     private final String group;
 
     public DebianMainSetup() throws IOException {
@@ -40,6 +41,7 @@ public class DebianMainSetup extends Debian {
         bin = world.file("/usr/share/stool");
 
         home = world.file(db_get("stool/home"));
+        config = db_get("stool/config");
         group = db_get("stool/group");
     }
 
@@ -102,7 +104,7 @@ public class DebianMainSetup extends Debian {
     public void setupHome() throws IOException {
         Home h;
 
-        h = new Home(console, home, group, true, new HashMap<>());
+        h = new Home(console, home, group, config.trim().isEmpty() ? null : config, true, new HashMap<>());
         if (home.exists()) {
             h.upgrade();
             echo("home: " + home.getAbsolute() + " (upgraded)");
@@ -119,8 +121,6 @@ public class DebianMainSetup extends Debian {
                 }
                 throw e;
             }
-            exec("chmod", "g+s", "-R", home.getAbsolute());
-            exec("chgrp", group, "-R", home.getAbsolute());
         }
     }
 }

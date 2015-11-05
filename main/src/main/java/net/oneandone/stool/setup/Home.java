@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.setup;
 
+import com.google.gson.Gson;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
@@ -24,6 +25,7 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.util.Diff;
@@ -40,33 +42,43 @@ public class Home {
     private final Console console;
     private final FileNode home;
     private final String group;
+    /** url, optional */
+    private final String initialConfig;
     private final boolean shared;
-    private final Map<String, String> globalProperties;
+    private final Map<String, String> parameterProperties;
 
-    public Home(Console console, FileNode home, boolean shared, Map<String, String> globalProperties) {
-        this(console, home, "stool", shared, globalProperties);
-    }
-
-    public Home(Console console, FileNode home, String group, boolean shared, Map<String, String> globalProperties) {
+    public Home(Console console, FileNode home, String group, String initialConfig, boolean shared, Map<String, String> parameterProperties) {
         this.console = console;
         this.home = home;
         this.group = group;
+        this.initialConfig = initialConfig;
         this.shared = shared;
-        this.globalProperties = globalProperties;
+        this.parameterProperties = parameterProperties;
     }
 
     public void create() throws IOException {
+        World world;
+        Gson gson;
         StoolConfiguration conf;
+        FileNode initial;
 
-        home.getParent().mkdirsOpt();
+        world = home.getWorld();
+        gson = Session.gson(world, ExtensionsFactory.create(world));
         Files.createStoolDirectory(console.verbose, home);
-        home.getWorld().resource("templates/maven-settings.xml").copyFile(home.join("maven-settings.xml"));
-        conf = new StoolConfiguration(downloadCache());
+        exec("chgrp", group, home.getAbsolute());
+
+        world.resource("templates/maven-settings.xml").copyFile(home.join("maven-settings.xml"));
+        if (initialConfig == null) {
+            conf = new StoolConfiguration(downloadCache());
+        } else {
+            initial = console.world.getTemp().createTempFile();
+            conf = StoolConfiguration.loadFile(gson, initial);
+        }
         conf.shared = shared;
         tuneHostname(conf);
         tuneExplicit(conf);
         Files.createStoolDirectoryOpt(console.verbose, conf.downloadCache).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
-        conf.save(Session.gson(home.getWorld(), ExtensionsFactory.create(home.getWorld())), home);
+        conf.save(gson, home);
 
         for (String dir : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
             Files.createStoolDirectory(console.verbose, home.join(dir));
@@ -101,7 +113,7 @@ public class Home {
 
         properties = StoolConfiguration.properties();
         error = false;
-        for (Map.Entry<String, String> entry : globalProperties.entrySet()) {
+        for (Map.Entry<String, String> entry : parameterProperties.entrySet()) {
             property = properties.get(entry.getKey());
             if (property == null) {
                 console.info.println("property not found: " + entry.getKey());

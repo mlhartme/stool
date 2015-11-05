@@ -17,6 +17,7 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.locking.Mode;
+import net.oneandone.stool.setup.Util;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Ports;
@@ -165,25 +166,6 @@ public class Start extends StageCommand {
         }
     }
 
-    //TODO: work-around for sushi http problem with proxies
-    // TODO: race condition for simultaneous downloads
-    public static void downloadFile(PrintWriter log, String url, FileNode dest) throws IOException {
-        log.println("downloading " + url + " ...");
-        try {
-            if (OS.CURRENT != OS.MAC) {
-                // don't use sushi, it's not proxy-aware
-                dest.getParent().exec("wget", "--tries=1", "--connect-timeout=5", "-q", "-O", dest.getName(), url);
-            } else {
-                // wget not available on Mac, but Mac usually have no proxy
-                dest.getWorld().validNode(url).copyFile(dest);
-            }
-        } catch (IOException e) {
-            throw new IOException("download failed: " + url
-                    + "\nAs a work-around, you can download it manually an place it at " + dest.getAbsolute()
-                    + "\nDetails: " + e.getMessage(), e);
-        }
-    }
-
     public void copyTemplate(Stage stage, Ports ports) throws Exception {
         FileNode shared;
 
@@ -204,7 +186,7 @@ public class Start extends StageCommand {
         name = tomcatName(version);
         download = session.downloadCache().join(name + ".tar.gz");
         if (!download.exists()) {
-            downloadFile(console.info, subst(session.configuration.downloadTomcat, version), download);
+            downloadFile(subst(session.configuration.downloadTomcat, version), download);
             download.checkFile();
         }
         base = session.home.join("tomcat", name);
@@ -236,13 +218,25 @@ public class Start extends StageCommand {
         name = serviceWrapperName(version);
         download = session.downloadCache().join(name + ".tar.gz");
         if (!download.exists()) {
-            downloadFile(console.info, subst(session.configuration.downloadServiceWrapper, version), download);
+            downloadFile(subst(session.configuration.downloadServiceWrapper, version), download);
             download.checkFile();
         }
         base = session.home.join("service-wrapper", name);
         if (!base.exists()) {
             tar(base.getParent(), "zxf", download.getAbsolute());
             base.checkDirectory();
+        }
+    }
+    //TODO: work-around for sushi http problem with proxies
+    // TODO: race condition for simultaneous downloads by different users
+    public void downloadFile(String url, FileNode dest) throws IOException {
+        console.info.println("downloading " + url + " ...");
+        try {
+            Util.downloadFile(console.info, url, dest);
+        } catch (IOException e) {
+            throw new IOException("download failed: " + url
+                    + "\nAs a work-around, you can download it manually an place it at " + dest.getAbsolute()
+                    + "\nDetails: " + e.getMessage(), e);
         }
     }
 

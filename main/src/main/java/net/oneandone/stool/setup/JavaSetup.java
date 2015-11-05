@@ -25,6 +25,7 @@ import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.cli.Value;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -45,7 +46,7 @@ public class JavaSetup extends Cli implements Command {
         cleanup = new RmRfThread(console);
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
-        new Home(console, home, false, globalProperties).create();
+        home(console, home, globalProperties).create();
         bin = home.join("bin");
         BinMan.java(console, withJar, bin, home.join("man")).create();
         bin.join("home").mklink(home.getAbsolute());
@@ -104,7 +105,7 @@ public class JavaSetup extends Cli implements Command {
                 console.info.println("Ready to upgrade " + home.getAbsolute() + " to Stool " + versionObject());
                 console.pressReturn();
             }
-            new Home(console, home, false, config).upgrade();
+            home(console, home, config).upgrade();
             bm = BinMan.java(console, true, home.join("bin"), home.join("man"));
             bm.remove();
             bm.create();
@@ -131,5 +132,19 @@ public class JavaSetup extends Cli implements Command {
 
         str = JavaSetup.class.getPackage().getSpecificationVersion();
         return Version.valueOf(str);
+    }
+
+    private static Home home(Console console, FileNode home, Map<String, String> config) throws IOException {
+        return new Home(console, home, group(console.world), null, false, config);
+    }
+
+    private static String group(World world) throws IOException {
+        FileNode file;
+        String result;
+
+        file = world.getTemp().createTempFile();
+        result = file.getGroup().toString();
+        file.deleteFile();
+        return result;
     }
 }

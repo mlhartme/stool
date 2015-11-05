@@ -21,6 +21,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.Start;
+import net.oneandone.stool.setup.Util;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -90,7 +91,7 @@ public class Update {
 
         result = new ArrayList<>();
         tmp = console.world.getTemp().createTempFile();
-        Start.downloadFile(console.verbose, "https://api.github.com/repos/mlhartme/stool/releases", tmp);
+        Util.downloadFile(console.verbose, "https://api.github.com/repos/mlhartme/stool/releases", tmp);
         releases = (JsonArray) new JsonParser().parse(tmp.readString());
         for (JsonElement element : releases) {
             release = (JsonObject) element;

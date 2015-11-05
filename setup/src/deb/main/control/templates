@@ -12,5 +12,5 @@ Description: Group for all uses that share stages with Stool.
 Template: stool/config
 Type: string
 Default:
-Description: Initial configuration for stool.
+Description: URL pointing to initial configuration for stool.
  If empty, Stool uses reasonable defaults.

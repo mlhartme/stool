@@ -41,7 +41,7 @@ import java.util.Map;
  *   If the running application can change files with an built-in editor, these files are considered source files,
  *   even though they were changed by the application
  * * Stool files
- *   * group: stool or users
+ *   * group: stool group
  *   * directories have the setgid bit set
  *   * permissions are rw-rw-r--
  *   everything written by stool - in particular file to configure the running application. All stool files reside in
@@ -53,7 +53,7 @@ import java.util.Map;
  *
  * Technically important:
  * * the setgid bit is used to add the proper group to backstage files
- * * when overwriting files in Java, Java changes the content, but not the ower, group or permissions
+ * * when overwriting files in Java, Java changes the content, but not the owner, group or permissions
  */
 public final class Files {
     /** Creates a directory that's readable for all stool group users. */
@@ -77,7 +77,7 @@ public final class Files {
         return directory;
     }
 
-    /** Creates a directory with mode 2775  */
+    /** Creates a directory with mode 2775. Caution - does not work for the stool home because the group is not set  */
     public static Node createStoolDirectory(PrintWriter log, FileNode directory) throws IOException {
         // The code
         //    directory.mkdir();
