@@ -731,8 +731,8 @@
             option is specified.
           </para>
           <para>
-            To create an artifact stage, specify a GAV url or a file url. You may specify multiple comma-separated urls, and you may
-            specify <literal>=</literal><replaceable>name</replaceable> if you want to assign a non-default vhost.
+            To create an artifact stage, specify a war file, a file url or a GAV url. You may specify multiple comma-separated urls, and
+            you may specify <literal>=</literal><replaceable>name</replaceable> if you want to assign a non-default vhost.
           </para>
           <para>Instead of a
             <replaceable>url</replaceable>
@@ -938,7 +938,7 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Removes the stage, i.e. deletes the stage directory and the backstage directory.</para>
+          <para>Removes the stage, i.e. deletes the stage directory and the backstage directory. Reports an error is the stage is up.</para>
           <para>Before deleting anything, this command checks if there are uncommitted changes or if the stage is started.
             If so, the command is aborted with an error. In this case, stop the stage and inspect the uncommitted changes; either
             commit them or revert them. Alternatively, you can disable this check with the
@@ -1094,33 +1094,12 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool refresh</command>
-            <group>
-              <arg choice="plain">-debug</arg>
-              <arg choice="plain">-suspend</arg>
-            </group>
-            <arg>-build</arg>
-            <arg>-stop</arg>
-            <arg>-own</arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>First stops the stage if it is started. Then chowns that stage to the current user (unless stage owner
-            and current user are the same). Then updates artifact stages or - if
-            <literal>-build</literal>
-            is specified -
-            invokes the command specified by the refresh property on source stages.
-          </para>
-          <para>Next, if the owner was changed, the stage is chowned back to the original owner. (Specify
-            <literal>-own</literal>
-            to skip this step.)
-          </para>
-          <para>And finally, if the stage was initially started,
-            <literal>refresh</literal>
-            starts the stage again.
-            (Specify
-            <literal>-stop</literal>
-            to skip this.)
+          <para>Updates artifact stages or - if <literal>-build</literal> is specified -
+            invokes the command specified by the refresh property on source stages. Reports an error if the stage is not owned or is up.
           </para>
         </refsect1>
       </refentry>
@@ -1151,12 +1130,11 @@
             confirmation before changing ownership. You can skip confirmation by specifying<literal>-batch</literal>.
           </para>
           <para>Reports an error if the stage is up. In this case, you can specify
-            <literal>-autorestart</literal>
-            to stop the stage before changing ownership and also start it afterwards.
+            <literal>-autostop</literal> or <literal>-autorestart</literal> to stop the stage before changing
+            ownership and also start it afterwards.
           </para>
           <para>
-            <replaceable>user</replaceable>
-            defaults to the current user.
+            <replaceable>user</replaceable> defaults to the current user.
           </para>
         </refsect1>
       </refentry>

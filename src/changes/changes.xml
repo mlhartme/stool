@@ -22,7 +22,8 @@
         remove: Removed implicit stopping. If you need this functionality, invoke remove -autostop.
       </action>
       <action date="2015-10-27" dev="mlhartme" type="update">
-        Changed 'suffix' stage property to 'suffixes', it holds a list now.
+        Changed the 'suffix' stage property to 'suffixes', it holds a list now.
+      </action>
       <action date="2015-10-27" dev="mlhartme" type="update">
         Improved locking: replace the old global and stage semaphores by one global read/write lock, and per-stage a backstage read/write lock
         and a directory read/write lock.

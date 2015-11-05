@@ -51,7 +51,7 @@ public class Create extends SessionCommand {
     private String name = null;
 
     @Value(name = "url", position = 1)
-    private String urlOrSearch;
+    private String urlOrFileOrSearch;
 
     private FileNode directory;
 
@@ -71,7 +71,7 @@ public class Create extends SessionCommand {
         this(session);
         this.quiet = quiet;
         this.name = name;
-        this.urlOrSearch = urlOrSearch;
+        this.urlOrFileOrSearch = urlOrSearch;
         this.directory = directory;
         this.stageConfiguration = stageConfiguration;
     }
@@ -131,16 +131,21 @@ public class Create extends SessionCommand {
     }
 
     private String url() throws IOException {
+        FileNode file;
         String substring;
         List<String> urls;
         String input;
         int no;
 
-        if (!urlOrSearch.startsWith("%")) {
-            return Strings.removeRightOpt(urlOrSearch, "/");
+        file = world.file(urlOrFileOrSearch);
+        if (file.isFile()) {
+            return file.getURI().toString();
+        }
+        if (!urlOrFileOrSearch.startsWith("%")) {
+            return Strings.removeRightOpt(urlOrFileOrSearch, "/");
         }
         console.info.println("Searching pommes ...");
-        substring = urlOrSearch.substring(1);
+        substring = urlOrFileOrSearch.substring(1);
         urls = pommes(console.world, substring);
         if (urls.size() == 0) {
             throw new ArgumentException("not found: " + substring);
