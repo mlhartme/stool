@@ -146,7 +146,12 @@ public class Home {
     private void upgrade_32_33(FileNode home) throws IOException {
         if (home.join("overview.properties").isFile()) {
             console.info.println("upgrading 3.2 -> 3.3");
+
+            // remove the old overview, but keep it's configuration
+            exec("rm", "-rf", home.join("backstages/overview").getAbsolute());
+            exec("rm", "-rf", home.join("overview").getAbsolute());
             exec("mv", home.join("overview.properties").getAbsolute(), home.join("dashboard.properties").getAbsolute());
+
             ports_32_33(home);
             doUpgrade(stool32_33(), stage32_33());
         }

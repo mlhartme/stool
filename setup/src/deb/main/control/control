@@ -3,7 +3,6 @@ Version: [[version]]
 Section: misc
 Priority: optional
 Architecture: all
-# because Java is invoked by postinst:
 Pre-Depends: java8-jdk, debconf
 # because otherwise jdeb add this field with java 6 defaults:
 Depends: java8-jdk

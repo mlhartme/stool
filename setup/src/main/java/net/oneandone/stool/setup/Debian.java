@@ -25,6 +25,7 @@ import net.oneandone.sushi.util.Strings;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,22 +34,23 @@ import java.util.List;
  * and https://wiki.debian.org/MaintainerScripts
  */
 public class Debian {
-    //--
-
     protected final World world;
     protected final Console console;
     protected final FileNode cwd;
 
     public Debian(String name) throws IOException {
-        FileOutputStream out;
+        PrintWriter out;
 
-        out = new FileOutputStream("/tmp/" + name + "." + System.getenv("DPKG_MAINTSCRIPT_NAME") + ".log");
+        out = new PrintWriter(new FileOutputStream("/tmp/dpkg-" + name + ".log", true));
+        out.println("###");
+        out.println("### " + new Date() + ": " + System.getenv("DPKG_MAINTSCRIPT_NAME"));
+        out.println("###");
         world = new World();
-        console = new Console(world, new PrintWriter(out, true), new PrintWriter(out, true), System.in);
+        console = new Console(world, out, out, System.in);
         console.setVerbose(true);
         cwd = (FileNode) world.getWorking();
 
-        // initialize here, because derived classes usually read variables in the constructor
+        // initialize here, because derived classes usually read variables in their constructor
         db_version("2.0");
     }
 
@@ -312,7 +314,7 @@ public class Debian {
             buffer.append((char) c);
         }
         result = buffer.toString();
-        verbose("db_communicate -> " + result);
+        verbose("db_communicate: " + result);
         return result;
     }
 }

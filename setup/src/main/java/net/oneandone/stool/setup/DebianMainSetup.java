@@ -54,24 +54,23 @@ public class DebianMainSetup extends Debian {
     }
 
     @Override
-    public void prermRemove() throws IOException {
+    public void postrmRemove() throws IOException {
         echo(slurp("service", "stool", "stop"));
+        exec("update-rc.d", "stool", "remove");
         bin.join("home").deleteDirectory();
     }
 
     @Override
-    public void prermUpgrade() throws IOException {
+    public void postrmUpgrade() throws IOException {
         // TODO: upgrade could be much cheaper:
         // * block new stool invocations
         // * stop stool dashboard
 
-        // may fail if setup did not complete properly
-        prermRemove();
+        postrmRemove();
     }
 
     @Override
     public void postrmPurge() throws IOException {
-        exec("update-rc.d", "stool", "remove");
         home.deleteTree();
     }
 

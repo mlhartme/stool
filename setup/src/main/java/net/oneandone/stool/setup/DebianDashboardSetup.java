@@ -46,6 +46,16 @@ public class DebianDashboardSetup extends Debian {
     }
 
     @Override
+    public void postrmRemove() throws IOException {
+        echo(stool("remove", "-autostop", "-batch", "-stage", "dashboard"));
+    }
+
+    @Override
+    public void postrmUpgrade() throws IOException {
+        postrmRemove();
+    }
+
+    @Override
     public void postinstConfigure() throws IOException {
         setupUser();
         echo(stool("create", "file:///usr/share/stool-dashboard/dashboard.war", home.join("dashboard").getAbsolute()));
@@ -56,17 +66,6 @@ public class DebianDashboardSetup extends Debian {
         echo(stool("start", "-stage", "dashboard"));
     }
 
-    @Override
-    public void prermUpgrade() throws IOException {
-        echo(stool("stop", "-stage", "dashboard"));
-    }
-
-    @Override
-    public void postinstAbortUpgrade() throws IOException {
-        echo(stool("start", "-stage", "dashboard"));
-    }
-
-
     //--
 
     private String stool(String ... cmd) throws IOException {
@@ -75,13 +74,18 @@ public class DebianDashboardSetup extends Debian {
 
     private void properties() throws IOException {
         FileNode properties;
-        properties = home.join("overview.properties");
-        properties.writeLines(
-                "svnuser=" + svnuser,
-                "svnpassword=" + svnpassword
-        );
-        exec("chown", user, properties.getAbsolute());
-        exec("chmod", "600", properties.getAbsolute());
+
+        properties = home.join("dashboard.properties");
+        if (properties.isFile()) {
+            echo("reusing existing configuration: " + properties);
+        } else {
+            properties.writeLines(
+                    "svnuser=" + svnuser,
+                    "svnpassword=" + svnpassword
+            );
+            exec("chown", user, properties.getAbsolute());
+            exec("chmod", "600", properties.getAbsolute());
+        }
     }
 
     private void setupUser() throws IOException {
