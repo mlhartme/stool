@@ -56,6 +56,19 @@ public class DebianDashboardSetup extends Debian {
         echo(stool("start", "-stage", "dashboard"));
     }
 
+    @Override
+    public void prermUpgrade() throws IOException {
+        echo(stool("stop", "-stage", "dashboard"));
+    }
+
+    @Override
+    public void postinstAbortUpgrade() throws IOException {
+        echo(stool("start", "-stage", "dashboard"));
+    }
+
+
+    //--
+
     private String stool(String ... cmd) throws IOException {
         return slurp(Strings.append(new String[] {"sudo", "-u", user, "/usr/share/stool/stool-raw.sh"}, cmd));
     }

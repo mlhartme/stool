@@ -22,13 +22,16 @@ import net.oneandone.sushi.launcher.ExitCode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-/** Called by Debian Maintainer scripts https://www.debian.org/doc/debian-policy/ch-maintainerscripts.html */
+/**
+ * Called by Debian Maintainer scripts.
+ * See https://www.debian.org/doc/debian-policy/ch-maintainerscripts.html
+ * and https://wiki.debian.org/MaintainerScripts
+ */
 public class Debian {
     //--
 
@@ -36,7 +39,7 @@ public class Debian {
     protected final Console console;
     protected final FileNode cwd;
 
-    public Debian(String name) throws FileNotFoundException {
+    public Debian(String name) throws IOException {
         FileOutputStream out;
 
         out = new FileOutputStream("/tmp/" + name + "." + System.getenv("DPKG_MAINTSCRIPT_NAME") + ".log");
@@ -44,6 +47,9 @@ public class Debian {
         console = new Console(world, new PrintWriter(out, true), new PrintWriter(out, true), System.in);
         console.setVerbose(true);
         cwd = (FileNode) world.getWorking();
+
+        // initialize here, because derived classes usually read variables in the constructor
+        db_version("2.0");
     }
 
     public int run(String ... args) {
@@ -59,7 +65,6 @@ public class Debian {
         all = script + ": " + Separator.SPACE.join(args);
         verbose(all);
         try {
-            db_version("2.0");
             switch (script) {
                 case "preinst":
                     preinst(args);
@@ -252,14 +257,6 @@ public class Debian {
 
     //--
 
-    protected String db_get(String variable) throws IOException {
-        return db_communicate("get " + variable);
-    }
-
-    protected void db_purge() throws IOException {
-        db_communicate("purge");
-    }
-
     protected void db_version(String version) throws IOException {
         String result;
 
@@ -269,22 +266,34 @@ public class Debian {
         }
     }
 
+    protected String db_get(String variable) throws IOException {
+        return db_communicate("get " + variable);
+    }
+
+    protected void db_purge() throws IOException {
+        db_communicate("purge");
+    }
+
+
     protected String db_communicate(String query) throws IOException {
         String line;
         int idx;
         int code;
+        String result;
 
         line = db_communicate_raw(query);
         idx = line.indexOf(' ');
         if (idx == -1) {
-            throw new IOException("unexpected response: " + line);
+            idx = line.length();
+            result = "";
+        } else {
+            result = line.substring(idx + 1).trim();
         }
         code = Integer.parseInt(line.substring(0, idx));
         if (code != 0) {
             throw new IOException("'" + query + "' failed: " + line);
         }
-        line = line.substring(idx + 1).trim();
-        return line;
+        return result;
     }
 
     private String db_communicate_raw(String query) throws IOException {
