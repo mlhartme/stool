@@ -46,13 +46,13 @@ public class DebianDashboardSetup extends Debian {
     }
 
     @Override
-    public void postrmRemove() throws IOException {
+    public void prermRemove() throws IOException {
         echo(stool("remove", "-autostop", "-batch", "-stage", "dashboard"));
     }
 
     @Override
-    public void postrmUpgrade() throws IOException {
-        postrmRemove();
+    public void prermUpgrade() throws IOException {
+        prermRemove();
     }
 
     @Override

@@ -1,4 +1,4 @@
-if [ $USER != "root" ] ; then
+if [ "$USER" != "root" ] ; then
   export STOOL_OPTS="-Xms128m -Xmx1024m"
   . /usr/share/stool/stool-function
   stool reselect
