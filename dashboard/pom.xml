@@ -11,6 +11,8 @@
   <artifactId>dashboard</artifactId>
   <packaging>war</packaging>
 
+  <description>A special stage to control Stool via browser.</description>
+
   <properties>
     <spring.version>4.1.3.RELEASE</spring.version>
     <spring.security.version>4.0.0.RELEASE</spring.security.version>

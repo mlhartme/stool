@@ -10,8 +10,6 @@
   <name>Stool Setup</name>
   <artifactId>setup</artifactId>
   <packaging>jar</packaging>
-  <description>Special stage to control stool via browser.
-  </description>
 
   <dependencies>
     <dependency>
