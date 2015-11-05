@@ -38,7 +38,7 @@ public class JavaSetup extends Cli implements Command {
         System.exit(new JavaSetup().run(args));
     }
 
-    public static void standalone(Console console, boolean withJar, FileNode home, Map<String, String> globalProperties) throws Exception {
+    public static void standalone(Console console, boolean withJar, FileNode home, String initialConfig, Map<String, String> globalProperties) throws Exception {
         RmRfThread cleanup;
         FileNode bin;
 
@@ -46,7 +46,7 @@ public class JavaSetup extends Cli implements Command {
         cleanup = new RmRfThread(console);
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
-        home(console, home, globalProperties).create();
+        home(console, home, initialConfig, globalProperties).create();
         bin = home.join("bin");
         BinMan.java(console, withJar, bin, home.join("man")).create();
         bin.join("home").mklink(home.getAbsolute());
@@ -64,6 +64,8 @@ public class JavaSetup extends Cli implements Command {
     @Option("batch")
     private boolean batch;
 
+    private String initialConfig;
+
     private final Environment environment;
 
     /** maps to String or Map<String, String> */
@@ -78,11 +80,18 @@ public class JavaSetup extends Cli implements Command {
     public void remaining(String str) throws IOException {
         int idx;
 
-        idx = str.indexOf('=');
-        if (idx == -1) {
-            throw new ArgumentException("too many directories");
+        if (str.startsWith("@")) {
+            if (initialConfig != null) {
+                throw new ArgumentException("duplicate initialConfig: " + str + " vs " + initialConfig);
+            }
+            initialConfig = str.substring(1);
+        } else {
+            idx = str.indexOf('=');
+            if (idx == -1) {
+                throw new ArgumentException("<key>=<value> expected, got " + str);
+            }
+            config.put(str.substring(0, idx), str.substring(idx + 1));
         }
-        config.put(str.substring(0, idx), str.substring(idx + 1));
     }
 
     @Override
@@ -105,7 +114,7 @@ public class JavaSetup extends Cli implements Command {
                 console.info.println("Ready to upgrade " + home.getAbsolute() + " to Stool " + versionObject());
                 console.pressReturn();
             }
-            home(console, home, config).upgrade();
+            home(console, home, initialConfig, config).upgrade();
             bm = BinMan.java(console, true, home.join("bin"), home.join("man"));
             bm.remove();
             bm.create();
@@ -118,7 +127,7 @@ public class JavaSetup extends Cli implements Command {
                 console.info.println("Ready to install Stool " + versionObject() + " to " + home.getAbsolute());
                 console.pressReturn();
             }
-            standalone(console, true, home, config);
+            standalone(console, true, home, initialConfig, config);
             console.info.println("Done. To complete the installation:");
             console.info.println("1. add");
             console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
@@ -134,8 +143,8 @@ public class JavaSetup extends Cli implements Command {
         return Version.valueOf(str);
     }
 
-    private static Home home(Console console, FileNode home, Map<String, String> config) throws IOException {
-        return new Home(console, home, group(console.world), null, false, config);
+    private static Home home(Console console, FileNode home, String initialConfig, Map<String, String> config) throws IOException {
+        return new Home(console, home, group(console.world), initialConfig, false, config);
     }
 
     private static String group(World world) throws IOException {
