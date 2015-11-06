@@ -21,7 +21,6 @@ import net.oneandone.sushi.util.Separator;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class DebianMainSetup extends Debian {
@@ -110,7 +109,7 @@ public class DebianMainSetup extends Debian {
     public void setupHome() throws IOException {
         Home h;
 
-        h = new Home(console, home, group, config.trim().isEmpty() ? null : config, true, new HashMap<>());
+        h = new Home(console, home, group, config.trim().isEmpty() ? null : config, true);
         if (home.exists()) {
             h.upgrade();
             log("home: " + home.getAbsolute() + " (upgraded)");

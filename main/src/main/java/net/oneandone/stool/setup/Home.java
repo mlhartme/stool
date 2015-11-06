@@ -16,13 +16,11 @@
 package net.oneandone.stool.setup;
 
 import com.google.gson.Gson;
-import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Pool;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
@@ -34,7 +32,6 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Map;
 
 public class Home {
     public static final String STOOL_UPDATE_CHECKED = ".stool.update.checked";
@@ -43,17 +40,15 @@ public class Home {
     private final FileNode home;
     private final String group;
     /** json, may be null */
-    private final String initialConfig;
+    private final String explicitConfig;
     private final boolean shared;
-    private final Map<String, String> parameterProperties;
 
-    public Home(Console console, FileNode home, String group, String initialConfig, boolean shared, Map<String, String> parameterProperties) {
+    public Home(Console console, FileNode home, String group, String explicitConfig, boolean shared) {
         this.console = console;
         this.home = home;
         this.group = group;
-        this.initialConfig = initialConfig;
+        this.explicitConfig = explicitConfig;
         this.shared = shared;
-        this.parameterProperties = parameterProperties;
     }
 
     public void create() throws IOException {
@@ -70,12 +65,11 @@ public class Home {
 
         world.resource("templates/maven-settings.xml").copyFile(home.join("maven-settings.xml"));
         conf = new StoolConfiguration(downloadCache());
-        if (initialConfig != null) {
-            conf = conf.createPatched(gson, initialConfig);
-        }
         conf.shared = shared;
         tuneHostname(conf);
-        tuneExplicit(conf);
+        if (explicitConfig != null) {
+            conf = conf.createPatched(gson, explicitConfig);
+        }
         Files.createStoolDirectoryOpt(console.verbose, conf.downloadCache).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
         conf.save(gson, home);
 
@@ -102,33 +96,6 @@ public class Home {
             conf.hostname = InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {
             console.info.println("WARNING: cannot configure hostname: " + e.getMessage() + ". Using " + conf.hostname);
-        }
-    }
-
-    private void tuneExplicit(StoolConfiguration conf) {
-        boolean error;
-        Map<String, Property> properties;
-        Property property;
-
-        properties = StoolConfiguration.properties();
-        error = false;
-        for (Map.Entry<String, String> entry : parameterProperties.entrySet()) {
-            property = properties.get(entry.getKey());
-            if (property == null) {
-                console.info.println("property not found: " + entry.getKey());
-                error = true;
-            } else {
-                try {
-                    property.set(conf, entry.getValue());
-                } catch (Exception e) {
-                    console.info.println("invalid value for property " + entry.getKey() + " : " + e.getMessage());
-                    e.printStackTrace(console.verbose);
-                    error = true;
-                }
-            }
-        }
-        if (error) {
-            throw new ArgumentException("invalid configuration");
         }
     }
 

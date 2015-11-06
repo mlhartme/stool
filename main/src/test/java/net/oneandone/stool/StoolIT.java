@@ -33,7 +33,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.fail;
@@ -71,11 +70,7 @@ public class StoolIT {
         system = Environment.loadSystem();
         system.setStoolBin(home.join("bin"));
         system.set(Environment.PS1, "prompt");
-        config = new HashMap<>();
-        config.put("diskMin", "500");
-        config.put("portFirst", start.toString());
-        config.put("portLast", end.toString());
-        JavaSetup.standalone(Console.create(world), false, home, null, config);
+        JavaSetup.standalone(Console.create(world), false, home, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
         stages = home.getParent().join("stages");
         stages.deleteTreeOpt();
         stages.mkdir();
