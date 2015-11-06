@@ -1,9 +1,10 @@
-apt::source { 'backports':
-  location          => 'http://http.debian.net/debian',
-  release => "jessie-backports",
-  repos   => 'main',
-}
-->
+# TODO: jessie only, for Java packages
+# apt::source { 'backports':
+#   location          => 'http://http.debian.net/debian',
+#   release => "jessie-backports",
+#   repos   => 'main',
+# }
+# ->
 apt::source { 'ciso':
   location => 'http://reposrv.loc.lan/1and1/ciso/contrib',
   architecture => 'all',
