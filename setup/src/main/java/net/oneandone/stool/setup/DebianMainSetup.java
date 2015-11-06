@@ -19,6 +19,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,10 +49,18 @@ public class DebianMainSetup extends Debian {
     //--
 
     @Override
-    public void postinstConfigure() throws IOException {
+    public void postinstConfigure(String previous) throws IOException {
+        FileNode binHome;
+
         setupGroup();
         setupHome();
-        home.link(bin.join("home"));
+        binHome = bin.join("home");
+        if (previous != null) {
+            if (Files.deleteIfExists(binHome.toPath())) {
+                log("cleaned previous home: " + home);
+            }
+        }
+        home.link(binHome);
         exec("update-rc.d", "stool", "defaults");
         exec("service", "stool", "start");
     }
@@ -68,9 +77,9 @@ public class DebianMainSetup extends Debian {
 
     @Override
     public void postrmPurge() throws IOException {
-        home.deleteTree();
         exec("update-rc.d", "stool", "remove"); // Debian considers this a configuration file!?
         bin.join("home").deleteDirectory();
+        home.deleteTree();
     }
 
     //--

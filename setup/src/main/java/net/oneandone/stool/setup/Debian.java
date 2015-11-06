@@ -130,8 +130,10 @@ public class Debian {
     public void postinst(String ... args) throws IOException {
         switch (args[0]) {
             case "configure":
-                postinstConfigure();
-                break;
+                if (args.length != 2) {
+                    throw new IllegalStateException(Strings.toList(args).toString());
+                }
+                postinstConfigure(empty(args[1]));
             case "abort-upgrade":
                 postinstAbortUpgrade();
                 break;
@@ -146,7 +148,12 @@ public class Debian {
         }
     }
 
-    protected void postinstConfigure() throws IOException {
+    private static String empty(String str) {
+        return str.isEmpty() ? null : "";
+    }
+
+    /** @param previous null for fresh install */
+    protected void postinstConfigure(String previous) throws IOException {
     }
     protected void postinstAbortUpgrade() throws IOException {
     }
@@ -189,8 +196,8 @@ public class Debian {
                 postrmRemove();
                 break;
             case "purge":
-                db_purge();
                 postrmPurge();
+                db_purge();
                 break;
             case "upgrade":
                 postrmUpgrade();
