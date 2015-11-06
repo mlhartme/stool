@@ -128,7 +128,7 @@ public class JavaSetup extends Cli implements Command {
     }
 
     private static Home home(Console console, FileNode home, String config) throws IOException {
-        return new Home(console, home, group(console.world), config, false);
+        return new Home(console, home, group(console.world), config);
     }
 
     private static String group(World world) throws IOException {

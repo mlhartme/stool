@@ -109,7 +109,7 @@ public class DebianMainSetup extends Debian {
     public void setupHome() throws IOException {
         Home h;
 
-        h = new Home(console, home, group, config.trim().isEmpty() ? null : config, true);
+        h = new Home(console, home, group, config.trim().isEmpty() ? null : config);
         if (home.exists()) {
             h.upgrade();
             log("home: " + home.getAbsolute() + " (upgraded)");

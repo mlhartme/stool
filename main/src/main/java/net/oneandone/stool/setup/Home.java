@@ -41,14 +41,12 @@ public class Home {
     private final String group;
     /** json, may be null */
     private final String explicitConfig;
-    private final boolean shared;
 
-    public Home(Console console, FileNode home, String group, String explicitConfig, boolean shared) {
+    public Home(Console console, FileNode home, String group, String explicitConfig) {
         this.console = console;
         this.home = home;
         this.group = group;
         this.explicitConfig = explicitConfig;
-        this.shared = shared;
     }
 
     public void create() throws IOException {
@@ -65,7 +63,6 @@ public class Home {
 
         world.resource("templates/maven-settings.xml").copyFile(home.join("maven-settings.xml"));
         conf = new StoolConfiguration(downloadCache());
-        conf.shared = shared;
         tuneHostname(conf);
         if (explicitConfig != null) {
             conf = conf.createPatched(gson, explicitConfig);
