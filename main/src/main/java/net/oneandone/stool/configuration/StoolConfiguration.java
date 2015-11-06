@@ -16,6 +16,9 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
@@ -186,6 +189,21 @@ public class StoolConfiguration {
                 }
             }
         }
+    }
+
+    public StoolConfiguration createPatched(Gson gson, String str) {
+        JsonObject changes;
+        JsonObject dest;
+
+        dest = (JsonObject) gson.toJsonTree(this);
+        changes = (JsonObject) new JsonParser().parse(str);
+        for (Map.Entry<String, JsonElement> entry : changes.entrySet()) {
+            if (!dest.has(entry.getKey())) {
+                throw new IllegalStateException("unknown property: " + entry.getKey());
+            }
+            dest.add(entry.getKey(), entry.getValue());
+        }
+        return gson.fromJson(dest, StoolConfiguration.class);
     }
 
     public Mailer mailer() {

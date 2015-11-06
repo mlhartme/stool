@@ -42,7 +42,7 @@ public class Home {
     private final Console console;
     private final FileNode home;
     private final String group;
-    /** url, optional */
+    /** json, may be null */
     private final String initialConfig;
     private final boolean shared;
     private final Map<String, String> parameterProperties;
@@ -60,7 +60,6 @@ public class Home {
         World world;
         Gson gson;
         StoolConfiguration conf;
-        FileNode initial;
 
         world = home.getWorld();
         gson = Session.gson(world, ExtensionsFactory.create(world));
@@ -70,12 +69,9 @@ public class Home {
         exec("chmod", "2775", home.getAbsolute());
 
         world.resource("templates/maven-settings.xml").copyFile(home.join("maven-settings.xml"));
-        if (initialConfig == null) {
-            conf = new StoolConfiguration(downloadCache());
-        } else {
-            initial = console.world.getTemp().createTempFile();
-            Util.downloadFile(console.verbose, initialConfig, initial);
-            conf = StoolConfiguration.loadFile(gson, initial);
+        conf = new StoolConfiguration(downloadCache());
+        if (initialConfig != null) {
+            conf = conf.createPatched(gson, initialConfig);
         }
         conf.shared = shared;
         tuneHostname(conf);
