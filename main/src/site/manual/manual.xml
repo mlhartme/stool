@@ -1628,8 +1628,8 @@
         | |- locks       (holds all locking data)
         | |- sleep.json
         | '- users
-        | |- (one file per user session)
-        | :
+        |    |- (one file per user session)
+        |    :
         |- downloads (caches Tomcat- and Service Wrapper downloads)
         |- bin (*) binary- and script stuff
         | |- home (symlink to home directory)
