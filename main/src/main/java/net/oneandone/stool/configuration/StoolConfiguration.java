@@ -25,6 +25,7 @@ import net.oneandone.sushi.io.OS;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -88,7 +89,7 @@ public class StoolConfiguration {
     public Map<String, String> macros;
 
     // preserve order!
-    public LinkedHashMap<String, Map<String, String>> defaults = new LinkedHashMap<>();
+    public LinkedHashMap<String, Map<String, String>> defaults;
 
     /**
      * Base value to calculate ram per application
@@ -140,6 +141,8 @@ public class StoolConfiguration {
         autoRemove = -1;
         shared = false;
         committed = false;
+        defaults = new LinkedHashMap<>();
+        defaults.put("", new HashMap<>());
         macros = new LinkedHashMap<>();
         ldapUrl = "";
         ldapPrincipal = "";

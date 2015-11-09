@@ -19,6 +19,7 @@ Vagrant.configure(2) do |config|
 
 	config.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
     config.vm.synced_folder "../../", "/home/vagrant/stool"
+    config.vm.synced_folder "/Users/mhm/.m2/", "/home/vagrant/.m2/"
     config.vm.provision "shell", inline: $script
     config.vm.provision "puppet" do |puppet|
 		puppet.manifests_path = "vagrant/puppet/manifests"
