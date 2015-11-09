@@ -87,10 +87,11 @@ public class Host32 {
         this.docroot = docroot;
     }
 
-    public Vhost upgrade(Node stage) throws ExistsException, DirectoryNotFoundException {
+    public Vhost upgrade(Node backstage) throws IOException {
         int idx;
         String name;
         String stageName;
+        FileNode stage;
         FileNode dr;
 
         idx = vhost.indexOf('.');
@@ -99,13 +100,14 @@ public class Host32 {
         }
         name = vhost.substring(0, idx);
         stageName = vhost.substring(idx + 1);
-        if (!stage.getName().equals(stageName)) {
-            throw new IllegalStateException(stageName + " vs " + stage.getName());
+        if (!backstage.getName().equals(stageName)) {
+            throw new IllegalStateException(stageName + " vs " + backstage.getName());
         }
+        stage = (FileNode) backstage.join("anchor").resolveLink();
         if (docroot == null) {
             dr = null;
         } else {
-            dr = (FileNode) stage.join(docroot);
+            dr = stage.join(docroot);
             dr.checkDirectory();
         }
         return new Vhost(even, name, stageName, dr);

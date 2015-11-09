@@ -204,7 +204,7 @@ public class SystemImport extends SessionCommand {
         stage.tuneConfiguration();
         stage.initialize();
         tmpConfig = tmpBackstage.join("config.json");
-        tmp = Transform.transform(oldBackstage.join("config.json").readString(), Lib.stage32_33()); // TODO: other versions
+        tmp = Transform.transform(oldBackstage.join("config.json").readString(), new Object()); // TODO: conversion
         tmpConfig.writeString(tmp);
         explicit(tmpConfig);
         msg = Diff.diff(oldBackstage.join("config.json").readString(), tmp);

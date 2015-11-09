@@ -16,6 +16,10 @@
 package net.oneandone.stool.setup;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.stage.ArtifactStage;
@@ -28,11 +32,14 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.util.Diff;
+import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 /** Stool's library directory. Lib is an install directory without man and bin. */
 public class Lib {
@@ -162,6 +169,7 @@ public class Lib {
         FileNode backstages;
         FileNode file;
         String str;
+        StringBuffer buffer;
 
         backstages = lib.join("backstages");
         for (FileNode stage : backstages.list()) {
@@ -172,7 +180,12 @@ public class Lib {
                     throw new IOException("don't know how to migrate inbox stages: " + str);
                 }
                 if (str.contains(",")) {
-                    throw new IOException("don't know how to migrate artifact stage with multiple artifacts: " + str);
+                    buffer = new StringBuffer();
+                    for (String item : Separator.COMMA.split(Strings.removeLeft(str, "gav:"))) {
+                        buffer.append("gav:" + item);
+                    }
+                    str = buffer.toString();
+                    file.writeString(str);
                 }
                 file.move(ArtifactStage.urlFile(file.getParent()));
             }
@@ -186,30 +199,29 @@ public class Lib {
 
         backstages = lib.join("backstages");
         pool = new Pool(lib.join("run/ports"), 2, Integer.MAX_VALUE, backstages);
-        for (Node stage : backstages.list()) {
-            ports32 = stage.join("ports");
+        for (Node backstage : backstages.list()) {
+            ports32 = backstage.join("ports");
             if (ports32.isFile()) {
                 for (Host32 host32 : Host32.load(ports32)) {
-                    pool.add(host32.upgrade(stage));
+                    pool.add(host32.upgrade(backstage));
                 }
             }
         }
         pool.save();
     }
 
+    private static FileNode upgradeBackstage = null;
     private void doUpgrade(Object stoolMapper, Object stageMapper) throws IOException {
         doUpgradeStool(stoolMapper);
-        doUpgradeStage(stageMapper);
+        for (FileNode oldBackstage : dir.join("backstages").list()) {
+            // TODO
+            upgradeBackstage = oldBackstage;
+            transform(oldBackstage.join("config.json"), stageMapper);
+        }
     }
 
     private void doUpgradeStool(Object stoolMapper) throws IOException {
         transform(dir.join("config.json"), stoolMapper);
-    }
-
-    private void doUpgradeStage(Object stageMapper) throws IOException {
-        for (FileNode oldBackstage : dir.join("backstages").list()) {
-            transform(oldBackstage.join("config.json"), stageMapper);
-        }
     }
 
     private void transform(FileNode json, Object mapper) throws IOException {
@@ -252,8 +264,53 @@ public class Lib {
         };
     }
 
-    public static Object stage32_33() {
+    public Object stage32_33() {
         return new Object() {
+            JsonElement tomcatEnvTransform(JsonElement e) throws IOException {
+                return toTomcatEnvMap((JsonArray) e, upgradeBackstage.getOwner().toString());
+            }
         };
+    }
+
+    private JsonObject toTomcatEnvMap(JsonArray array, String user) throws IOException {
+        Map<String, String> env;
+        JsonObject result;
+        String name;
+        String value;
+
+        env = getenv(user);
+        result = new JsonObject();
+        for (JsonElement element : array) {
+            name = element.getAsString();
+            if (name.equals("USER") || name.equals("HOME")) {
+                continue;
+            }
+            value = env.get(name);
+            if (value == null) {
+                throw new IOException("user '" + user + "' has no environment variable " + name);
+            }
+            result.add(name, new JsonPrimitive(value));
+        }
+        return result;
+    }
+
+    private Map<String, String> getenv(String user) throws IOException {
+        String str;
+        Map<String, String> result;
+        int idx;
+
+        str = dir.exec("sudo", "-i", "-u", user, "env");
+        result = new HashMap<>();
+        for (String line : Separator.RAW_LINE.split(str)) {
+            line = line.trim();
+            if (!line.isEmpty()) {
+                idx = line.indexOf('=');
+                if (idx == -1) {
+                    throw new IOException(user + ": unexpected environment line: " + line);
+                }
+                result.put(line.substring(0, idx), line.substring(idx + 1));
+            }
+        }
+        return result;
     }
 }

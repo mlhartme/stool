@@ -96,7 +96,7 @@ public abstract class Stage {
         Node artifactGav;
 
         directory.checkDirectory();
-        artifactGav = ArtifactStage.gavFile(directory);
+        artifactGav = ArtifactStage.urlFile(directory);
         if (artifactGav.exists()) {
             return artifactGav.readString().trim();
         }
