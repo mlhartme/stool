@@ -44,10 +44,10 @@ public class JavaSetup extends Cli implements Command {
         cleanup = new RmRfThread(console);
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
-        home(console, home, config).create();
+        lib(console, home, config).create();
         bin = home.join("bin");
         BinMan.java(console, withJar, bin, home.join("man")).create();
-        bin.join("home").mklink(home.getAbsolute());
+        bin.join("lib").mklink(home.getAbsolute());
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
@@ -98,7 +98,7 @@ public class JavaSetup extends Cli implements Command {
                 console.info.println("Ready to upgrade " + home.getAbsolute() + " to Stool " + versionObject());
                 console.pressReturn();
             }
-            home(console, home, config).upgrade();
+            lib(console, home, config).upgrade();
             bm = BinMan.java(console, true, home.join("bin"), home.join("man"));
             bm.remove();
             bm.create();
@@ -127,8 +127,8 @@ public class JavaSetup extends Cli implements Command {
         return Version.valueOf(str);
     }
 
-    private static Home home(Console console, FileNode home, String config) throws IOException {
-        return new Home(console, home, group(console.world), config);
+    private static Lib lib(Console console, FileNode home, String config) throws IOException {
+        return new Lib(console, home, group(console.world), config);
     }
 
     private static String group(World world) throws IOException {

@@ -27,7 +27,7 @@ public class DebianDashboardSetup extends Debian {
 
     //--
 
-    private final FileNode home;
+    private final FileNode lib;
     private final String group;
     private final String user;
     private final String port;
@@ -36,7 +36,7 @@ public class DebianDashboardSetup extends Debian {
 
     public DebianDashboardSetup() throws IOException {
         super("stool"); // share log file with stool, to see timing
-        home = world.file(db_get("stool/home"));
+        lib = world.file(db_get("stool/lib"));
         group = db_get("stool/group");
 
         user = db_get("stool-dashboard/user");
@@ -58,7 +58,7 @@ public class DebianDashboardSetup extends Debian {
     @Override
     public void postinstConfigure(String previous) throws IOException {
         setupUser();
-        log(stool("create", "file:///usr/share/stool-dashboard/dashboard.war", home.join("dashboard").getAbsolute(), "until=reserved"));
+        log(stool("create", "file:///usr/share/stool-dashboard/dashboard.war", lib.join("dashboard").getAbsolute(), "until=reserved"));
         if (!port.isEmpty()) {
             log(stool("port", "-stage", "dashboard", "dashboard:" + port));
         }
@@ -75,7 +75,7 @@ public class DebianDashboardSetup extends Debian {
     private void properties() throws IOException {
         FileNode properties;
 
-        properties = home.join("dashboard.properties");
+        properties = lib.join("dashboard.properties");
         if (properties.isFile()) {
             log("reusing existing configuration: " + properties);
         } else {

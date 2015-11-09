@@ -19,7 +19,7 @@ import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.setup.Home;
+import net.oneandone.stool.setup.Lib;
 import net.oneandone.stool.setup.Transform;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
@@ -56,13 +56,13 @@ public class SystemImport extends SessionCommand {
         this(session, null);
     }
 
-    public SystemImport(Session session, FileNode oldHome) {
+    public SystemImport(Session session, FileNode oldLib) {
         super(session, Mode.EXCLUSIVE);
-        this.oldHome = oldHome;
+        this.oldLib = oldLib;
     }
 
-    @Value(name = "oldHome", position = 1)
-    private FileNode oldHome;
+    @Value(name = "oldLib", position = 1)
+    private FileNode oldLib;
 
     @Option("include")
     private Include include = Include.ALL;
@@ -80,7 +80,7 @@ public class SystemImport extends SessionCommand {
 
         idx = str.indexOf('=');
         if (idx == -1) {
-            backstage = oldHome.join("backstages", str);
+            backstage = oldLib.join("backstages", str);
             if (!backstage.isDirectory()) {
                 throw new ArgumentException("old stage not found: " + backstage.getAbsolute());
             }
@@ -105,13 +105,13 @@ public class SystemImport extends SessionCommand {
         Iterator<Patch> iter;
         Patch patch;
 
-        oldHome.checkDirectory();
-        if (oldHome.equals(session.home)) {
+        oldLib.checkDirectory();
+        if (oldLib.equals(session.lib)) {
             throw new ArgumentException("cannot import from myself");
         }
         console.info.println();
-        oldBedroom = Bedroom.loadOrCreateDir(session.gson, oldHome);
-        newBedroom = Bedroom.loadOrCreate(session.gson, session.home);
+        oldBedroom = Bedroom.loadOrCreateDir(session.gson, oldLib);
+        newBedroom = Bedroom.loadOrCreate(session.gson, session.lib);
         newBedroomOrig = newBedroom.stages().toString();
         patches = new ArrayList<>();
         if (include.withConfig) {
@@ -119,7 +119,7 @@ public class SystemImport extends SessionCommand {
         }
         if (include.withStages) {
             if (oldBackstages.isEmpty()) {
-                for (FileNode oldBackstage : oldHome.join("backstages").list()) {
+                for (FileNode oldBackstage : oldLib.join("backstages").list()) {
                     name = oldBackstage.getName();
                     if (session.backstages.join(name).exists()) {
                         console.info.println("ignoring stage that already exists: " + name);
@@ -169,9 +169,9 @@ public class SystemImport extends SessionCommand {
         final String result;
         String diff;
 
-        dest = session.home.join(path);
+        dest = session.lib.join(path);
         current = dest.readString();
-        result = Transform.transform(oldHome.join(path).readString(), Home.stool32_33());// TODO: other versions ...
+        result = Transform.transform(oldLib.join(path).readString(), Lib.stool32_33());// TODO: other versions ...
         diff = Diff.diff(current, result);
         return new Patch("M " + dest.getAbsolute(), diff) {
             public void apply() throws IOException {
@@ -204,7 +204,7 @@ public class SystemImport extends SessionCommand {
         stage.tuneConfiguration();
         stage.initialize();
         tmpConfig = tmpBackstage.join("config.json");
-        tmp = Transform.transform(oldBackstage.join("config.json").readString(), Home.stage32_33()); // TODO: other verions
+        tmp = Transform.transform(oldBackstage.join("config.json").readString(), Lib.stage32_33()); // TODO: other versions
         tmpConfig.writeString(tmp);
         explicit(tmpConfig);
         msg = Diff.diff(oldBackstage.join("config.json").readString(), tmp);

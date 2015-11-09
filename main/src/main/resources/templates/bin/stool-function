@@ -1,7 +1,7 @@
 # Stool shell functions for bash
 # Source this file in your ~/.bashrc
 
-export STOOL_INVOCATION=${{stool.bin}}/home/run/users/.stool-invocation-$$-$(date +%N)
+export STOOL_INVOCATION=${{stool.bin}}/lib/run/users/.stool-invocation-$$-$(date +%N)
 ${{man.path}}
 
 stool() {
@@ -28,11 +28,11 @@ stool() {
     esac
   done
   if [ $command = "reselect" ]; then
-    if [ -f $bin/home/run/users/$USER ]; then
+    if [ -f $bin/lib/run/users/$USER ]; then
       if $verbose ; then
         echo "reselect"
       fi
-      . $bin/home/run/users/$USER
+      . $bin/lib/run/users/$USER
     else
       if $verbose ; then
         echo "reselect none"
@@ -49,7 +49,7 @@ stool() {
         return
       fi
     fi
-    for jar in $bin/home/extensions/*.jar; do
+    for jar in $bin/lib/extensions/*.jar; do
       # caution: if the extensions directory is empty, $jar is the pattern ...
       if [ -f $jar ] ; then
         cp="$cp:$jar"
@@ -60,7 +60,7 @@ stool() {
     if [ -f $STOOL_INVOCATION ] ; then
       . $STOOL_INVOCATION
       # I've seen an empty $USER when running stool from a cron jobs
-      mv -f $STOOL_INVOCATION $bin/home/run/users/$USER || echo '$USER variable is not set'
+      mv -f $STOOL_INVOCATION $bin/lib/run/users/$USER || echo '$USER variable is not set'
     fi
   fi
 
@@ -73,7 +73,7 @@ stool() {
 stoolIndicatorColor() {
     local RED="\033[0;31m"
     local BLUE_BACKGROUND="\033[44;1;37m"
-    local DIR=${{stool.bin}}/home/backstages/$STOOL_SELECTED/anchor
+    local DIR=${{stool.bin}}/lib/backstages/$STOOL_SELECTED/anchor
     if [ ! -e $DIR ] ; then
       echo -e "$BLUE_BACKGROUND"
     else

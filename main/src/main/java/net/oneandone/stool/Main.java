@@ -43,7 +43,7 @@ public class Main extends Cli implements Command {
         String user;
         World world;
         Environment environment;
-        FileNode home;
+        FileNode lib;
         Logging logging;
         String command;
         Console console;
@@ -52,9 +52,9 @@ public class Main extends Cli implements Command {
         world = new World();
         user = System.getProperty("user.name");
         environment = Environment.loadSystem();
-        home = Session.locateHome(environment.stoolBin(world));
-        home.checkDirectory();
-        logging = Logging.forStool(home, user);
+        lib = Session.locateLib(environment.stoolBin(world));
+        lib.checkDirectory();
+        logging = Logging.forStool(lib, user);
         command = "stool " + command(args);
         logging.logger("COMMAND").info(command);
         console = console(world, logging, System.out, System.err);

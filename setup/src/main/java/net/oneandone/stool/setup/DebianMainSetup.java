@@ -31,7 +31,7 @@ public class DebianMainSetup extends Debian {
     //--
 
     private final FileNode bin;
-    private final FileNode home;
+    private final FileNode lib;
     private final String config;
     private final String group;
 
@@ -40,7 +40,7 @@ public class DebianMainSetup extends Debian {
         // this is not configurable, because the content comes from the package:
         bin = world.file("/usr/share/stool");
 
-        home = world.file(db_get("stool/home"));
+        lib = world.file(db_get("stool/lib"));
         config = db_get("stool/config");
         group = db_get("stool/group");
     }
@@ -49,17 +49,17 @@ public class DebianMainSetup extends Debian {
 
     @Override
     public void postinstConfigure(String previous) throws IOException {
-        FileNode binHome;
+        FileNode binLib;
 
         setupGroup();
-        setupHome();
-        binHome = bin.join("home");
+        setupLib();
+        binLib = bin.join("lib");
         if (previous != null) {
-            if (Files.deleteIfExists(binHome.toPath())) {
-                log("cleaned previous home: " + home);
+            if (Files.deleteIfExists(binLib.toPath())) {
+                log("cleaned previous lib: " + lib);
             }
         }
-        home.link(binHome);
+        lib.link(binLib);
         exec("update-rc.d", "stool", "defaults");
         exec("service", "stool", "start");
     }
@@ -77,8 +77,8 @@ public class DebianMainSetup extends Debian {
     @Override
     public void postrmPurge() throws IOException {
         exec("update-rc.d", "stool", "remove"); // Debian considers this a configuration file!?
-        bin.join("home").deleteDirectory();
-        home.deleteTree();
+        bin.join("lib").deleteDirectory();
+        bin.deleteTree();
     }
 
     //--
@@ -106,21 +106,21 @@ public class DebianMainSetup extends Debian {
 
     //--
 
-    public void setupHome() throws IOException {
-        Home h;
+    public void setupLib() throws IOException {
+        Lib h;
 
-        h = new Home(console, home, group, config.trim().isEmpty() ? null : config);
-        if (home.exists()) {
+        h = new Lib(console, lib, group, config.trim().isEmpty() ? null : config);
+        if (lib.exists()) {
             h.upgrade();
-            log("home: " + home.getAbsolute() + " (upgraded)");
+            log("lib: " + lib.getAbsolute() + " (upgraded)");
         } else {
-            console.info.println("creating home: " + home);
+            console.info.println("creating lib: " + lib);
             try {
                 h.create();
             } catch (IOException e) {
-                // make sure we don't leave any undefined home directory;
+                // make sure we don't leave any undefined lib directory;
                 try {
-                    home.deleteTreeOpt();
+                    lib.deleteTreeOpt();
                 } catch (IOException suppressed) {
                     e.addSuppressed(suppressed);
                 }

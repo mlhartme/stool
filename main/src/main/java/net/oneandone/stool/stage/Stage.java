@@ -308,7 +308,7 @@ public abstract class Stage {
         return shared().join("run/tomcat.pid");
     }
     protected FileNode catalinaHome() {
-        return session.home.join("tomcat", Start.tomcatName(configuration.tomcatVersion));
+        return session.lib.join("tomcat", Start.tomcatName(configuration.tomcatVersion));
     }
 
     //-- tomcat helper
@@ -381,7 +381,7 @@ public abstract class Stage {
         launcher.arg(session.bin("service-wrapper.sh").getAbsolute());
         launcher.arg(catalinaHome().getAbsolute());
         launcher.arg(catalinaBase().getAbsolute());
-        launcher.arg(session.home.join("service-wrapper", Start.serviceWrapperName(config().tomcatService)).getAbsolute());
+        launcher.arg(session.lib.join("service-wrapper", Start.serviceWrapperName(config().tomcatService)).getAbsolute());
         launcher.arg(shared().join("conf/service-wrapper.conf").getAbsolute());
         launcher.arg(shared().join("run").getAbsolute());
         launcher.arg(action);
@@ -517,7 +517,7 @@ public abstract class Stage {
             world = session.console.world;
             mavenHome = config().mavenHome();
             if (mavenHome == null) {
-                settings = session.home.join("maven-settings.xml");
+                settings = session.lib.join("maven-settings.xml");
             } else {
                 settings = world.file(mavenHome).join("conf/settings.xml");
             }
@@ -617,7 +617,7 @@ public abstract class Stage {
     }
 
     public boolean isSystem() {
-        return session.home.equals(directory.getParent());
+        return session.lib.equals(directory.getParent());
     }
 
     public Changes changes() {

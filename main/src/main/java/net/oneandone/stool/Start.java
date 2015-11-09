@@ -189,7 +189,7 @@ public class Start extends StageCommand {
             downloadFile(subst(session.configuration.downloadTomcat, version), download);
             download.checkFile();
         }
-        base = session.home.join("tomcat", name);
+        base = session.lib.join("tomcat", name);
         if (!base.exists()) {
             tar(base.getParent(), "zxf", download.getAbsolute(), name + "/lib", name + "/bin");
             base.checkDirectory();
@@ -221,7 +221,7 @@ public class Start extends StageCommand {
             downloadFile(subst(session.configuration.downloadServiceWrapper, version), download);
             download.checkFile();
         }
-        base = session.home.join("service-wrapper", name);
+        base = session.lib.join("service-wrapper", name);
         if (!base.exists()) {
             tar(base.getParent(), "zxf", download.getAbsolute());
             base.checkDirectory();

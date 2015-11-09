@@ -47,8 +47,8 @@ public class Logging {
     private static final String EXTENSION = ".log";
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-");
 
-    public static Logging forStool(FileNode home, String user) throws IOException {
-        return create(home.join("logs"), "stool", user);
+    public static Logging forStool(FileNode lib, String user) throws IOException {
+        return create(lib.join("logs"), "stool", user);
     }
 
     public static Logging create(FileNode dir, String name, String user) throws IOException {

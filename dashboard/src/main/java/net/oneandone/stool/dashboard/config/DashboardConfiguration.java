@@ -47,8 +47,8 @@ public class DashboardConfiguration {
     }
 
     @Bean
-    public FileNode home() throws ReadLinkException {
-        return Session.locateHome(bin());
+    public FileNode lib() throws ReadLinkException {
+        return Session.locateLib(bin());
     }
 
     @Bean
@@ -69,7 +69,7 @@ public class DashboardConfiguration {
     @Bean
     public Session session() throws IOException {
         Environment system;
-        FileNode home;
+        FileNode lib;
         String user;
         FileNode props;
         Properties p;
@@ -77,8 +77,8 @@ public class DashboardConfiguration {
         String svnpassword;
 
         system = Environment.loadSystem();
-        home = home();
-        props = home.join("dashboard.properties");
+        lib = lib();
+        props = lib.join("dashboard.properties");
         if (props.exists()) {
             p = props.readProperties();
             svnuser = p.getProperty("svnuser");

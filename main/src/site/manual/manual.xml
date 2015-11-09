@@ -365,7 +365,7 @@
         e.g. the stage properties, Tomcat configuration and log files of the applications. The backstage directory is created when you
         create
         or import the stage. Backstage directories are created in
-        <literal>$STOOL_HOME/backstage</literal>
+        <literal>$STOOL_LIB/backstage</literal>
         and have the name of the stage;
         Stool uses this directory to iterate all stages.
       </para>
@@ -669,7 +669,7 @@
               </group>
             </arg>
             <arg choice="plain">
-              <replaceable>other-home</replaceable>
+              <replaceable>other-lib</replaceable>
             </arg>
             <group rep="repeat">
               <arg choice="plain">
@@ -683,7 +683,7 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Imports configuration and/or stages from a the specified Stool home<replaceable>directory</replaceable>. This command is
+          <para>Imports configuration and/or stages from a the specified Stool Lib <replaceable>directory</replaceable>. This command is
             useful
             to migrate stages from an older/different Stool installation.
           </para>
@@ -1012,7 +1012,7 @@
             directory
             specified by the
             <literal>downloadCache</literal>
-            property (default is<literal>$STOOL_HOME/downloads</literal>). Alternatively,
+            property (default is<literal>$STOOL_LIB/downloads</literal>). Alternatively,
             you can place customized Tomcats into this directory, provided they unpack to a directory that matches the base file name of
             the
             <literal>tar.gz</literal>
@@ -1558,7 +1558,7 @@
 
       <para>If you run a new
         <literal>stool-setup</literal>
-        on an existing $STOOL_HOME it perform an incremental or full upgrade.
+        on an existing $STOOL_HOME it performs an incremental or full upgrade.
         An incremental upgrade just updates<literal>stool.jar</literal>, it is used if only the micro version number has changed.
         A full upgrade is performed if the minor or major version of Stool has changed. In this case, a new $STOOL_HOME
         directory is created and the configuration and all stages from the old home directory is imported
@@ -1619,7 +1619,7 @@
       ... of files installed or managed by stool:
       <programlisting>
         (stage directory) (normal application files)
-        (stool home)
+        (stool home)   (the home directory is the lib directory with man and bin included)
         |- config.json (Stool configuration)
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
         |- dashboard.properties (Dashboard configuration)
@@ -1632,7 +1632,7 @@
         |    :
         |- downloads (caches Tomcat- and Service Wrapper downloads)
         |- bin (*) binary- and script stuff
-        | |- home (symlink to home directory)
+        | |- lib (symlink to lib directory)
         | |- stool-function
         | |- service-wrapper.sh
         | |- stool.jar

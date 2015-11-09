@@ -87,7 +87,7 @@ public class BinMan {
 
     //--
 
-    // CAUTION: does not generate the home symlink
+    // CAUTION: does not generate the lib symlink
     private void bin() throws IOException {
         final byte[] marker = "exit $?\n".getBytes(Settings.UTF_8);
         Map<String, String> variables;

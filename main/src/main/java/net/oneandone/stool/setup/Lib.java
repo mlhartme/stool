@@ -33,16 +33,17 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class Home {
+/** Lib is a home directory without man and bin. */
+public class Lib {
     private final Console console;
-    private final FileNode home;
+    private final FileNode dir;
     private final String group;
     /** json, may be null */
     private final String explicitConfig;
 
-    public Home(Console console, FileNode home, String group, String explicitConfig) {
+    public Lib(Console console, FileNode dir, String group, String explicitConfig) {
         this.console = console;
-        this.home = home;
+        this.dir = dir;
         this.group = group;
         this.explicitConfig = explicitConfig;
     }
@@ -52,25 +53,25 @@ public class Home {
         Gson gson;
         StoolConfiguration conf;
 
-        world = home.getWorld();
+        world = dir.getWorld();
         gson = Session.gson(world, ExtensionsFactory.create(world));
-        Files.createStoolDirectory(console.verbose, home);
-        exec("chgrp", group, home.getAbsolute());
+        Files.createStoolDirectory(console.verbose, dir);
+        exec("chgrp", group, dir.getAbsolute());
         // chgrp overwrites the permission - thus, i have to re-set permissions
-        exec("chmod", "2775", home.getAbsolute());
+        exec("chmod", "2775", dir.getAbsolute());
 
-        world.resource("templates/maven-settings.xml").copyFile(home.join("maven-settings.xml"));
+        world.resource("templates/maven-settings.xml").copyFile(dir.join("maven-settings.xml"));
         conf = new StoolConfiguration(downloadCache());
         tuneHostname(conf);
         if (explicitConfig != null) {
             conf = conf.createPatched(gson, explicitConfig);
         }
-        conf.save(gson, home);
+        conf.save(gson, dir);
 
-        for (String dir : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
-            Files.createStoolDirectory(console.verbose, home.join(dir));
+        for (String name : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
+            Files.createStoolDirectory(console.verbose, dir.join(name));
         }
-        Files.stoolFile(home.join("run/locks").mkfile());
+        Files.stoolFile(dir.join("run/locks").mkfile());
     }
 
     private FileNode downloadCache() {
@@ -82,7 +83,7 @@ public class Home {
                 return directory;
             }
         }
-        return home.join("downloads");
+        return dir.join("downloads");
     }
 
     private void tuneHostname(StoolConfiguration conf) {
@@ -100,7 +101,7 @@ public class Home {
         String oldVersion;
         String newVersion;
 
-        file = home.join("version");
+        file = dir.join("version");
         if (file.isFile()) {
             oldVersion = file.readString();
         } else {
@@ -109,10 +110,10 @@ public class Home {
         newVersion = JavaSetup.versionObject().toString();
         console.info.println("upgrade " + oldVersion + " -> " + newVersion);
         if (oldVersion.startsWith("3.1.")) {
-            upgrade_31_32(home);
-            upgrade_32_33(home);
+            upgrade_31_32(dir);
+            upgrade_32_33(dir);
         } else if (oldVersion.startsWith("3.2.")) {
-            upgrade_32_33(home);
+            upgrade_32_33(dir);
         } else if (oldVersion.startsWith(("3.3."))) {
             console.info.println("nothing to do");
         } else {
@@ -122,45 +123,45 @@ public class Home {
     }
 
     private String guessVersion() throws IOException {
-        if (home.join("bin").isDirectory() && !home.join("bin/home").isLink()) {
+        if (dir.join("bin").isDirectory() && !dir.join("bin/lib").isLink()) {
             return "3.1.x";
         }
-        if (home.join("overview.properties").isFile()) {
+        if (dir.join("overview.properties").isFile()) {
             return "3.2.x";
         }
-        throw new IOException("unknown version of home directory: " + home);
+        throw new IOException("unknown version of lib directory: " + dir);
     }
 
-    private void upgrade_31_32(FileNode home) throws IOException {
-        exec("mv", home.join("conf/overview.properties").getAbsolute(), home.join("overview.properties").getAbsolute());
+    private void upgrade_31_32(FileNode lib) throws IOException {
+        exec("mv", lib.join("conf/overview.properties").getAbsolute(), lib.join("overview.properties").getAbsolute());
         exec("sh", "-c", "find . -user servlet | xargs chown stool");
         exec("sh", "-c", "find . -perm 666 | xargs chmod 664");
         exec("sh", "-c", "find . -type d | xargs chmod g+s");
-        exec("mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
-        exec("mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
-        exec("rm", "-rf", home.join("bin").getAbsolute());
+        exec("mv", lib.join("conf").getAbsolute(), lib.join("run").getAbsolute());
+        exec("mv", lib.join("wrappers").getAbsolute(), lib.join("backstages").getAbsolute());
+        exec("rm", "-rf", lib.join("bin").getAbsolute());
         exec("chgrp", group, ".");
         doUpgrade(stool31_32(), stage31_32());
     }
 
-    private void upgrade_32_33(FileNode home) throws IOException {
+    private void upgrade_32_33(FileNode lib) throws IOException {
         // remove the old overview, but keep it's configuration
-        exec("rm", "-rf", home.join("backstages/overview").getAbsolute());
-        exec("rm", "-rf", home.join("overview").getAbsolute());
-        exec("mv", home.join("overview.properties").getAbsolute(), home.join("dashboard.properties").getAbsolute());
+        exec("rm", "-rf", lib.join("backstages/overview").getAbsolute());
+        exec("rm", "-rf", lib.join("overview").getAbsolute());
+        exec("mv", lib.join("overview.properties").getAbsolute(), lib.join("dashboard.properties").getAbsolute());
 
-        ports_32_33(home);
+        ports_32_33(lib);
         doUpgrade(stool32_33(), stage32_33());
     }
 
-    private void ports_32_33(FileNode home) throws IOException {
+    private void ports_32_33(FileNode lib) throws IOException {
         FileNode backstages;
         Node ports32;
         Pool pool;
 
-        backstages = home.join("backstages");
-        pool = new Pool(home.join("run/ports"), 2, Integer.MAX_VALUE, backstages);
-        for (Node stage : home.list()) {
+        backstages = lib.join("backstages");
+        pool = new Pool(lib.join("run/ports"), 2, Integer.MAX_VALUE, backstages);
+        for (Node stage : lib.list()) {
             ports32 = stage.join("ports");
             if (ports32.isFile()) {
                 for (Host32 host32 : Host32.load(ports32)) {
@@ -177,11 +178,11 @@ public class Home {
     }
 
     private void doUpgradeStool(Object stoolMapper) throws IOException {
-        transform(home.join("config.json"), stoolMapper);
+        transform(dir.join("config.json"), stoolMapper);
     }
 
     private void doUpgradeStage(Object stageMapper) throws IOException {
-        for (FileNode oldBackstage : home.join("backstages").list()) {
+        for (FileNode oldBackstage : dir.join("backstages").list()) {
             transform(oldBackstage.join("config.json"), stageMapper);
         }
     }
@@ -200,7 +201,7 @@ public class Home {
     }
 
     private void exec(String ... cmd) throws IOException {
-        Files.exec(console.info, home, cmd);
+        Files.exec(console.info, dir, cmd);
     }
 
     //--

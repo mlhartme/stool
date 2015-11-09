@@ -1,7 +1,7 @@
-Template: stool/home
+Template: stool/lib
 Type: string
 Default: /var/lib/stool
-Description: Where to place Stool's home directory.
+Description: Where to place Stool's lib directory.
 
 Template: stool/group
 Type: string

@@ -77,11 +77,11 @@ public final class Files {
         return directory;
     }
 
-    /** Creates a directory with mode 2775. Caution - does not work for the stool home because the group is not set  */
+    /** Creates a directory with mode 2775. Caution - does not work for the stool lib because the group is not set  */
     public static Node createStoolDirectory(PrintWriter log, FileNode directory) throws IOException {
         // The code
         //    directory.mkdir();
-        // would inherit the setgid flag from the home directory, fine. But
+        // would inherit the setgid flag from the lib directory, fine. But
         //     permissions(directory, "rwxrwxr-x");
         // would reset setgid. Thus, I have to do it expensively;
         exec(log, directory.getParent(), "mkdir", "-m", "2775", directory.getName());
@@ -106,7 +106,7 @@ public final class Files {
     public static FileNode stoolDirectory(PrintWriter log, FileNode dir) throws IOException {
         String old;
 
-        // TODO: this is expensive, but otherwise, the setgid bit inherited from the home directory is lost by the previous permissions call.
+        // TODO: this is expensive, but otherwise, the setgid bit inherited from the lib directory is lost by the previous permissions call.
         // see comments in createBackstageDirectory ...
         if (OS.CURRENT == OS.MAC) {
             old = dir.exec("stat", "-f", "%Op", ".");
@@ -162,9 +162,9 @@ public final class Files {
 
     //--
 
-    public static void exec(PrintWriter log, FileNode home, String ... cmd) throws IOException {
-        log.println("[" + home + "] " + Separator.SPACE.join(cmd));
-        home.execNoOutput(cmd);
+    public static void exec(PrintWriter log, FileNode lib, String ... cmd) throws IOException {
+        log.println("[" + lib + "] " + Separator.SPACE.join(cmd));
+        lib.execNoOutput(cmd);
     }
 
     //-- templates

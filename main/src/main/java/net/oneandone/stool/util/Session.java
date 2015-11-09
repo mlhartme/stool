@@ -74,7 +74,7 @@ public class Session {
         // My first thought was to watch for filesystem events to trigger backstage wiping.
         // But there's quite a big delay and rmdif+mkdir is reported as modification. Plus the code is quite complex and
         // I don't know how to handle overflow events.
-        // So I simple wipe thmm whenever I load stool home. That's a well-defined timing and that's before stool might
+        // So I simple wipe them whenever I load stool lib. That's a well-defined timing and that's before stool might
         // use a stale stage.
         session.wipeStaleBackstages();
         return session;
@@ -108,15 +108,15 @@ public class Session {
         console.verbose.println("wipeStaleBackstages done, ms=" + ((System.currentTimeMillis() - s)));
     }
 
-    public static FileNode locateHome(FileNode bin) throws ReadLinkException {
-        return (FileNode) bin.join("home").resolveLink();
+    public static FileNode locateLib(FileNode bin) throws ReadLinkException {
+        return (FileNode) bin.join("lib").resolveLink();
     }
 
     private static Session loadWithoutBackstageWipe(Logging logging, String user, String command, Environment environment, Console console,
                                                   FileNode invocationFile, String svnuser, String svnpassword) throws IOException {
         ExtensionsFactory factory;
         Gson gson;
-        FileNode home;
+        FileNode lib;
         FileNode bin;
         Session result;
 
@@ -124,9 +124,9 @@ public class Session {
         gson = gson(console.world, factory);
         bin = environment.stoolBin(console.world);
         bin.checkDirectory();
-        home = locateHome(bin);
-        result = new Session(factory, gson, logging, user, command, home, bin, console, environment, StoolConfiguration.load(gson, home),
-                Bedroom.loadOrCreate(gson, home), invocationFile, svnuser, svnpassword);
+        lib = locateLib(bin);
+        result = new Session(factory, gson, logging, user, command, lib, bin, console, environment, StoolConfiguration.load(gson, lib),
+                Bedroom.loadOrCreate(gson, lib), invocationFile, svnuser, svnpassword);
         result.selectedStageName = environment.getOpt(Environment.STOOL_SELECTED);
         return result;
     }
@@ -141,8 +141,7 @@ public class Session {
     public final String user;
     public final String command;
 
-    // TODO: rename to lib
-    public final FileNode home;
+    public final FileNode lib;
     public final FileNode bin;
     private String lazyGroup;
 
@@ -168,7 +167,7 @@ public class Session {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd");
 
-    public Session(ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command, FileNode home, FileNode bin,
+    public Session(ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command, FileNode lib, FileNode bin,
                    Console console, Environment environment, StoolConfiguration configuration,
                    Bedroom bedroom, FileNode invocationFile, String svnuser, String svnpassword) {
         this.extensionsFactory = extensionsFactory;
@@ -176,14 +175,14 @@ public class Session {
         this.logging = logging;
         this.user = user;
         this.command = command;
-        this.home = home;
+        this.lib = lib;
         this.bin = bin;
         this.lazyGroup = null;
         this.console = console;
         this.environment = environment;
         this.configuration = configuration;
         this.bedroom = bedroom;
-        this.backstages = home.join("backstages");
+        this.backstages = lib.join("backstages");
         this.selectedStageName = null;
         this.invocationFile = invocationFile;
         this.subversion = new Subversion(svnuser, svnpassword);
@@ -194,7 +193,7 @@ public class Session {
         } else {
             this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials);
         }
-        this.lockManager = LockManager.create(home.join("run/locks"), user + ":" + command, 10);
+        this.lockManager = LockManager.create(lib.join("run/locks"), user + ":" + command, 10);
         this.lazyPool= null;
     }
 
@@ -239,7 +238,7 @@ public class Session {
 
     public String group() throws ModeException {
         if (lazyGroup == null) {
-            lazyGroup = home.getGroup().toString();
+            lazyGroup = lib.getGroup().toString();
         }
         return lazyGroup;
     }
@@ -459,9 +458,9 @@ public class Session {
         }
     }
 
-    /** @return Free disk space in partition used for stool home. CAUTION: not necessarily the partition used for stages. */
+    /** @return Free disk space in partition used for stool lib. CAUTION: not necessarily the partition used for stages. */
     public int diskFree() {
-        return (int) (home.toPath().toFile().getUsableSpace() / 1024 / 1024);
+        return (int) (lib.toPath().toFile().getUsableSpace() / 1024 / 1024);
     }
 
     public List<FileNode> getBackstages() throws IOException {
@@ -493,7 +492,7 @@ public class Session {
     public void chown(String newOwner, FileNode ... dirs) throws Failure {
         Launcher launcher;
 
-        launcher = new Launcher(home, "sudo", bin("chowntree.sh").getAbsolute(), newOwner);
+        launcher = new Launcher(lib, "sudo", bin("chowntree.sh").getAbsolute(), newOwner);
         for (FileNode dir : dirs) {
             launcher.arg(dir.getAbsolute());
         }
@@ -501,7 +500,7 @@ public class Session {
     }
 
     public FileNode ports() {
-        return home.join("run/ports");
+        return lib.join("run/ports");
     }
 
     public boolean isSelected(Stage stage) {

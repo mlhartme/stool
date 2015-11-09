@@ -155,20 +155,20 @@ public class StoolConfiguration {
         this.downloadCache = downloadCache;
     }
 
-    public static FileNode configurationFile(FileNode home) {
-        return home.join("config.json");
+    public static FileNode configurationFile(FileNode lib) {
+        return lib.join("config.json");
     }
 
-    public static StoolConfiguration load(Gson gson, FileNode home) throws IOException {
-        return loadFile(gson, configurationFile(home));
+    public static StoolConfiguration load(Gson gson, FileNode lib) throws IOException {
+        return loadFile(gson, configurationFile(lib));
     }
 
     public static StoolConfiguration loadFile(Gson gson, FileNode file) throws IOException {
         return gson.fromJson(file.readString(), StoolConfiguration.class);
     }
 
-    public void save(Gson gson, FileNode home) throws IOException {
-        configurationFile(home).writeString(gson.toJson(this, StoolConfiguration.class));
+    public void save(Gson gson, FileNode lib) throws IOException {
+        configurationFile(lib).writeString(gson.toJson(this, StoolConfiguration.class));
     }
 
     public void setDefaults(Map<String, Property> properties, StageConfiguration configuration, String url) {

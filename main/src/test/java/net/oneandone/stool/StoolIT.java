@@ -53,7 +53,6 @@ public class StoolIT {
 
     @Before
     public void before() throws Exception {
-        Map<String, String> config;
         FileNode stages;
         Integer start = 1300;
         Integer end = 1319;
