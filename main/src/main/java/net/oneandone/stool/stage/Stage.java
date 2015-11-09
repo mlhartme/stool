@@ -617,7 +617,7 @@ public abstract class Stage {
     }
 
     public boolean isSystem() {
-        return directory.hasAnchestor(session.home);
+        return directory.hasAnchestor(session.bin);
     }
 
     public Changes changes() {
