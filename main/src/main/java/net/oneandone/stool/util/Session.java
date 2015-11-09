@@ -141,7 +141,7 @@ public class Session {
     public final String user;
     public final String command;
 
-    // TODO: redundant!
+    // TODO: rename to lib
     public final FileNode home;
     public final FileNode bin;
     private String lazyGroup;
