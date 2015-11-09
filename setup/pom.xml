@@ -114,6 +114,11 @@
                     @javax.inject.Inject *;
                 }
 
+                -keepclassmembers enum * {
+                public static **[] values();
+                public static ** valueOf(java.lang.String);
+                }
+
                 # Stool
                 -keep public class net.oneandone.stool.Main {
                 public static void main(java.lang.String[]);
