@@ -34,8 +34,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class Home {
-    public static final String STOOL_UPDATE_CHECKED = ".stool.update.checked";
-
     private final Console console;
     private final FileNode home;
     private final String group;
@@ -67,7 +65,6 @@ public class Home {
         if (explicitConfig != null) {
             conf = conf.createPatched(gson, explicitConfig);
         }
-        Files.createStoolDirectoryOpt(console.verbose, conf.downloadCache).join(STOOL_UPDATE_CHECKED).deleteFileOpt().mkfile();
         conf.save(gson, home);
 
         for (String dir : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
@@ -99,38 +96,61 @@ public class Home {
     //-- upgrade
 
     public void upgrade() throws IOException {
-        upgrade_31_32(home);
-        upgrade_32_33(home);
-        home.join("version").writeString(JavaSetup.versionObject().toString());
+        FileNode file;
+        String oldVersion;
+        String newVersion;
+
+        file = home.join("version");
+        if (file.isFile()) {
+            oldVersion = file.readString();
+        } else {
+            oldVersion = guessVersion();
+        }
+        newVersion = JavaSetup.versionObject().toString();
+        console.info.println("upgrade " + oldVersion + " -> " + newVersion);
+        if (oldVersion.startsWith("3.1.")) {
+            upgrade_31_32(home);
+            upgrade_32_33(home);
+        } else if (oldVersion.startsWith("3.2.")) {
+            upgrade_32_33(home);
+        } else if (oldVersion.startsWith(("3.3."))) {
+            console.info.println("nothing to do");
+        } else {
+            throw new IOException("don't know how to upgrade");
+        }
+        file.writeString(newVersion);
+    }
+
+    private String guessVersion() throws IOException {
+        if (home.join("bin").isDirectory() && !home.join("bin/home").isLink()) {
+            return "3.1.x";
+        }
+        if (home.join("overview.properties").isFile()) {
+            return "3.2.x";
+        }
+        throw new IOException("unknown version of home directory: " + home);
     }
 
     private void upgrade_31_32(FileNode home) throws IOException {
-        if (home.join("bin").isDirectory() && !home.join("bin/home").isLink()) {
-            console.info.println("upgrading 3.1 -> 3.2: " + home);
-            exec("mv", home.join("conf/overview.properties").getAbsolute(), home.join("overview.properties").getAbsolute());
-            exec("sh", "-c", "find . -user servlet | xargs chown stool");
-            exec("sh", "-c", "find . -perm 666 | xargs chmod 664");
-            exec("sh", "-c", "find . -type d | xargs chmod g+s");
-            exec("mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
-            exec("mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
-            exec("rm", "-rf", home.join("bin").getAbsolute());
-            exec("chgrp", group, ".");
-            doUpgrade(stool31_32(), stage31_32());
-        }
+        exec("mv", home.join("conf/overview.properties").getAbsolute(), home.join("overview.properties").getAbsolute());
+        exec("sh", "-c", "find . -user servlet | xargs chown stool");
+        exec("sh", "-c", "find . -perm 666 | xargs chmod 664");
+        exec("sh", "-c", "find . -type d | xargs chmod g+s");
+        exec("mv", home.join("conf").getAbsolute(), home.join("run").getAbsolute());
+        exec("mv", home.join("wrappers").getAbsolute(), home.join("backstages").getAbsolute());
+        exec("rm", "-rf", home.join("bin").getAbsolute());
+        exec("chgrp", group, ".");
+        doUpgrade(stool31_32(), stage31_32());
     }
 
     private void upgrade_32_33(FileNode home) throws IOException {
-        if (home.join("overview.properties").isFile()) {
-            console.info.println("upgrading 3.2 -> 3.3");
+        // remove the old overview, but keep it's configuration
+        exec("rm", "-rf", home.join("backstages/overview").getAbsolute());
+        exec("rm", "-rf", home.join("overview").getAbsolute());
+        exec("mv", home.join("overview.properties").getAbsolute(), home.join("dashboard.properties").getAbsolute());
 
-            // remove the old overview, but keep it's configuration
-            exec("rm", "-rf", home.join("backstages/overview").getAbsolute());
-            exec("rm", "-rf", home.join("overview").getAbsolute());
-            exec("mv", home.join("overview.properties").getAbsolute(), home.join("dashboard.properties").getAbsolute());
-
-            ports_32_33(home);
-            doUpgrade(stool32_33(), stage32_33());
-        }
+        ports_32_33(home);
+        doUpgrade(stool32_33(), stage32_33());
     }
 
     private void ports_32_33(FileNode home) throws IOException {
