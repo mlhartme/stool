@@ -29,7 +29,7 @@ public class TransformTest {
 
         result = Transform.transform(
                 "{\n  \"version\": \"3.0.0-SNAPSHOT\"\n}\n",
-                new Object() {
+                new Upgrade() {
                 });
         assertEquals("{\n  \"version\": \"3.0.0-SNAPSHOT\"\n}", result);
     }
@@ -40,7 +40,7 @@ public class TransformTest {
 
         result = Transform.transform(
                 "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\",\n  \"additional\": \"foo\"\n}\n",
-                new Object() {
+                new Upgrade() {
                     void additionalRemove() {
                     }
                 });
@@ -53,7 +53,7 @@ public class TransformTest {
 
         result = Transform.transform(
                 "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"before\": \"/Users/mhm\"\n}\n",
-                new Object() {
+                new Upgrade() {
                     String beforeRename() {
                         return "after";
                     }
@@ -67,7 +67,7 @@ public class TransformTest {
 
         result = Transform.transform(
                 "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": 5\n}\n",
-                new Object() {
+                new Upgrade() {
                     JsonElement stagesTransform(JsonElement orig) { return new JsonPrimitive(orig.getAsInt() * 2); }
                 });
         assertEquals("{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": 10\n}", result);
@@ -79,7 +79,7 @@ public class TransformTest {
 
         result = Transform.transform(
                 "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": 5\n}\n",
-                new Object() {
+                new Upgrade() {
                     void global(JsonObject src, JsonObject dest) {
                         dest.add("foo", new JsonPrimitive("bar"));
                     }

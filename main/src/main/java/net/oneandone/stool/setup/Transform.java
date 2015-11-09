@@ -16,7 +16,7 @@ import java.util.Map;
 
 /** Transform json */
 public class Transform {
-    public static String transform(String srcString, Object mapper) {
+    public static String transform(String srcString, Upgrade mapper) {
         JsonParser parser;
         JsonObject src;
         JsonObject dest;
@@ -55,7 +55,7 @@ public class Transform {
     /**
      * @return null to remove element; otherwise key/value pair (String/JsonObject)
      */
-    private static Object[] map(Object mapper, String name, JsonElement value) {
+    private static Object[] map(Upgrade mapper, String name, JsonElement value) {
         Class clazz;
         Method rename;
         Method transform;

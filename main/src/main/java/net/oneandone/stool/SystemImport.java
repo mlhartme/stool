@@ -21,6 +21,7 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.setup.Lib;
 import net.oneandone.stool.setup.Transform;
+import net.oneandone.stool.setup.Upgrade;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Session;
@@ -204,7 +205,7 @@ public class SystemImport extends SessionCommand {
         stage.tuneConfiguration();
         stage.initialize();
         tmpConfig = tmpBackstage.join("config.json");
-        tmp = Transform.transform(oldBackstage.join("config.json").readString(), new Object()); // TODO: conversion
+        tmp = Transform.transform(oldBackstage.join("config.json").readString(), new Upgrade() {}); // TODO: conversion
         tmpConfig.writeString(tmp);
         explicit(tmpConfig);
         msg = Diff.diff(oldBackstage.join("config.json").readString(), tmp);

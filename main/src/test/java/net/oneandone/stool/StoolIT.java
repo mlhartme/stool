@@ -160,7 +160,7 @@ public class StoolIT {
             System.out.println(" -> ok.");
         } else {
             System.out.println(" -> failed: " + result);
-            fail();
+            fail(command + " -> " + result);
         }
     }
 

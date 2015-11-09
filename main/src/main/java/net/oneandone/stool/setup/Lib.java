@@ -172,8 +172,8 @@ public class Lib {
         StringBuffer buffer;
 
         backstages = lib.join("backstages");
-        for (FileNode stage : backstages.list()) {
-            file = stage.join("gav.url");
+        for (FileNode backstage : backstages.list()) {
+            file = (FileNode) backstage.join("anchor").resolveLink().join("gav.url");
             if (file.exists()) {
                 str = file.readString().trim();
                 if (str.contains("@inbox")) {
@@ -182,6 +182,9 @@ public class Lib {
                 if (str.contains(",")) {
                     buffer = new StringBuffer();
                     for (String item : Separator.COMMA.split(Strings.removeLeft(str, "gav:"))) {
+                        if (buffer.length() > 0) {
+                            buffer.append(',');
+                        }
                         buffer.append("gav:" + item);
                     }
                     str = buffer.toString();
@@ -211,7 +214,8 @@ public class Lib {
     }
 
     private static FileNode upgradeBackstage = null;
-    private void doUpgrade(Object stoolMapper, Object stageMapper) throws IOException {
+
+    private void doUpgrade(Upgrade stoolMapper, Upgrade stageMapper) throws IOException {
         doUpgradeStool(stoolMapper);
         for (FileNode oldBackstage : dir.join("backstages").list()) {
             // TODO
@@ -220,11 +224,11 @@ public class Lib {
         }
     }
 
-    private void doUpgradeStool(Object stoolMapper) throws IOException {
+    private void doUpgradeStool(Upgrade stoolMapper) throws IOException {
         transform(dir.join("config.json"), stoolMapper);
     }
 
-    private void transform(FileNode json, Object mapper) throws IOException {
+    private void transform(FileNode json, Upgrade mapper) throws IOException {
         String in;
         String out;
 
@@ -243,29 +247,29 @@ public class Lib {
 
     //--
 
-    public static Object stool31_32() {
-        return new Object() {
+    public static Upgrade stool31_32() {
+        return new Upgrade() {
         };
     }
 
-    public static Object stage31_32() {
-        return new Object() {
+    public static Upgrade stage31_32() {
+        return new Upgrade() {
         };
     }
 
-    public static Object stool32_33() {
-        return new Object() {
-            void portDashboardRemove() {
+    public static Upgrade stool32_33() {
+        return new Upgrade() {
+            void portOverviewRemove() {
             }
             void errorToolRemove() {
             }
-            void updateInterval() {
+            void updateIntervalRemove() {
             }
         };
     }
 
-    public Object stage32_33() {
-        return new Object() {
+    public Upgrade stage32_33() {
+        return new Upgrade() {
             JsonElement tomcatEnvTransform(JsonElement e) throws IOException {
                 return toTomcatEnvMap((JsonArray) e, upgradeBackstage.getOwner().toString());
             }

@@ -119,6 +119,10 @@
                 public static ** valueOf(java.lang.String);
                 }
 
+                -keepclassmembers class ** implements net.oneandone.stool.setup.Upgrade {
+                *;
+                }
+
                 # Stool
                 -keep public class net.oneandone.stool.Main {
                 public static void main(java.lang.String[]);
@@ -182,6 +186,10 @@
 
                 -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
                     public &lt;init>(...);
+                }
+
+                -keep public class ** implements net.oneandone.stool.setup.Upgrade {
+                    *;
                 }
               </shrinkOptions>
               <launcher>${basedir}/src/deb/launcher</launcher>
