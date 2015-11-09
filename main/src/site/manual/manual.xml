@@ -1611,7 +1611,7 @@
   <chapter>
     <title>Directory Layout</title>
     <para>
-      ... of files installed or managed by stool:
+      ... of files installed or managed by Stool:
       <programlisting>
         (stage directory) (normal application files)
         (stool lib)       (install directory = stool lib + bin + man)
@@ -1648,7 +1648,7 @@
         | :
         '- backstage
           '- (stage name)
-            |- stage.url (only 
+            |- stage.url (only
             |- config.json (stage properties and some status fields)
             |- anchor (symlink to stage directory)
             '- shared
@@ -1659,8 +1659,8 @@
                |  '- service-wrapper.conf
                '- tomcat (tomcat for this stage)
                   |- conf (standard tomcat directory with generated server.xml)
-                  |- temp (standart tomcat)
-                  |- work (standard tomcat)
+                  |- temp (standard tomcat directory)
+                  |- work (standard tomcat directory)
                   '- logs
                      '- applogs (application log files for pustefix apps)
       </programlisting>
