@@ -30,24 +30,24 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
-/** Java installer. Creates a standalone stool directory with "bin" and "man" included. */
+/** Java installer. Creates an install directory (= "lib" with "bin" and "man") */
 public class JavaSetup extends Cli implements Command {
     public static void main(String[] args) throws Exception {
         System.exit(new JavaSetup().run(args));
     }
 
-    public static void standalone(Console console, boolean withJar, FileNode home, String config) throws Exception {
+    public static void standalone(Console console, boolean withJar, FileNode install, String config) throws Exception {
         RmRfThread cleanup;
         FileNode bin;
 
-        home.checkNotExists();
+        install.checkNotExists();
         cleanup = new RmRfThread(console);
-        cleanup.add(home);
+        cleanup.add(install);
         Runtime.getRuntime().addShutdownHook(cleanup);
-        lib(console, home, config).create();
-        bin = home.join("bin");
-        BinMan.java(console, withJar, bin, home.join("man")).create();
-        bin.join("lib").mklink(home.getAbsolute());
+        lib(console, install, config).create();
+        bin = install.join("bin");
+        BinMan.java(console, withJar, bin, install.join("man")).create();
+        bin.join("lib").mklink(install.getAbsolute());
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
@@ -55,8 +55,9 @@ public class JavaSetup extends Cli implements Command {
 
     //--
 
-    @Value(name = "home", position = 1)
-    private FileNode home;
+    /** Install directory */
+    @Value(name = "directory", position = 1)
+    private FileNode directory;
 
 
     @Option("batch")
@@ -81,9 +82,9 @@ public class JavaSetup extends Cli implements Command {
     @Override
     public void printHelp() {
         console.info.println("Setup stool " + versionObject());
-        console.info.println("usage: setup-stool <home> [<json>]");
-        console.info.println("  Create a new <home> directory or upgrades an existing.");
-        console.info.println("  Does not modify anything outside the home directory.");
+        console.info.println("usage: setup-stool <directory> [<json>]");
+        console.info.println("  Create a new <directory> or upgrades an existing.");
+        console.info.println("  Does not modify anything outside the <directory>.");
         console.info.println("documentation:");
         console.info.println("  https://github.com/mlhartme/stool");
     }
@@ -92,29 +93,29 @@ public class JavaSetup extends Cli implements Command {
     public void invoke() throws Exception {
         BinMan bm;
 
-        environment.setStoolBin(home.join("bin"));
-        if (home.exists()) {
+        environment.setStoolBin(directory.join("bin"));
+        if (directory.exists()) {
             if (!batch) {
-                console.info.println("Ready to upgrade " + home.getAbsolute() + " to Stool " + versionObject());
+                console.info.println("Ready to upgrade " + directory.getAbsolute() + " to Stool " + versionObject());
                 console.pressReturn();
             }
-            lib(console, home, config).upgrade();
-            bm = BinMan.java(console, true, home.join("bin"), home.join("man"));
+            lib(console, directory, config).upgrade();
+            bm = BinMan.java(console, true, directory.join("bin"), directory.join("man"));
             bm.remove();
             bm.create();
             console.info.println("Done. To complete the installation:");
             console.info.println("1. change your ~/.bashrc to");
-            console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
+            console.info.println("       source " + directory.join("bin/stool-function").getAbsolute());
             console.info.println("2. restart your shell");
         } else {
             if (!batch) {
-                console.info.println("Ready to install Stool " + versionObject() + " to " + home.getAbsolute());
+                console.info.println("Ready to install Stool " + versionObject() + " to " + directory.getAbsolute());
                 console.pressReturn();
             }
-            standalone(console, true, home, config);
+            standalone(console, true, directory, config);
             console.info.println("Done. To complete the installation:");
             console.info.println("1. add");
-            console.info.println("       source " + home.join("bin/stool-function").getAbsolute());
+            console.info.println("       source " + directory.join("bin/stool-function").getAbsolute());
             console.info.println("   to your ~/.bashrc");
             console.info.println("2. restart your shell");
         }
@@ -127,8 +128,8 @@ public class JavaSetup extends Cli implements Command {
         return Version.valueOf(str);
     }
 
-    private static Lib lib(Console console, FileNode home, String config) throws IOException {
-        return new Lib(console, home, group(console.world), config);
+    private static Lib lib(Console console, FileNode lib, String config) throws IOException {
+        return new Lib(console, lib, group(console.world), config);
     }
 
     private static String group(World world) throws IOException {

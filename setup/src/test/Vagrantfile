@@ -1,5 +1,6 @@
 $script = <<SHELL
        apt-get install -y puppet
+       apt-get install -y subversion
        puppet module install puppetlabs-apt
 SHELL
 

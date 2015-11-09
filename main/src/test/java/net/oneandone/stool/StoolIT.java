@@ -46,7 +46,7 @@ public class StoolIT {
     private World world;
     private Logging logging;
     private Environment system;
-    private FileNode home;
+    private FileNode install;
 
     public StoolIT() {
     }
@@ -62,19 +62,19 @@ public class StoolIT {
             Pool.checkFree(even + 1);
         }
         world = new World();
-        home = world.guessProjectHome(StoolIT.class).join("target/it/home");
-        home.getParent().mkdirsOpt();
-        home.deleteTreeOpt();
+        install = world.guessProjectHome(StoolIT.class).join("target/it/install");
+        install.getParent().mkdirsOpt();
+        install.deleteTreeOpt();
 
         system = Environment.loadSystem();
-        system.setStoolBin(home.join("bin"));
+        system.setStoolBin(install.join("bin"));
         system.set(Environment.PS1, "prompt");
-        JavaSetup.standalone(Console.create(world), false, home, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
-        stages = home.getParent().join("stages");
+        JavaSetup.standalone(Console.create(world), false, install, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
+        stages = install.getParent().join("stages");
         stages.deleteTreeOpt();
         stages.mkdir();
         world.setWorking(stages);
-        logging = Logging.forStool(home, TESTUSER);
+        logging = Logging.forStool(install, TESTUSER);
         stool("system-start");
     }
 
@@ -133,7 +133,7 @@ public class StoolIT {
         stool("history");
         stool("chown");
         stool("rename", "renamed");
-        stool("move", home.getParent().join("movedStages").getAbsolute());
+        stool("move", install.getParent().join("movedStages").getAbsolute());
         stool("remove", "-batch");
     }
 

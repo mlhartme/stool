@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-/** Lib is a home directory without man and bin. */
+/** Lib is an install directory without man and bin. */
 public class Lib {
     private final Console console;
     private final FileNode dir;

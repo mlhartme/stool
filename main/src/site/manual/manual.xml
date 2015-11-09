@@ -1485,12 +1485,12 @@
           </para>
         </listitem>
         <listitem>
-          <para>Actually install Stool: run<literal>/YOUR/DOWNLOADS/setup-stool /PATH/TO/STOOL/HOME</literal>.
+          <para>Actually install Stool: run<literal>/YOUR/DOWNLOADS/setup-stool /PATH/TO/STOOL/INSTALL/DIRECTORY</literal>.
           </para>
         </listitem>
         <listitem>
           <para>Add the line
-            <literal>source /PATH/TO/STOOL/HOME/bin/stool-function</literal>
+            <literal>source /PATH/TO/STOOL/INSTALL/DIRECTORY/bin/stool-function</literal>
             to your $HOME/.bashrc file. This defines the shell
             function
             <literal>stool</literal>
@@ -1502,9 +1502,9 @@
             <literal>shared</literal>
             mode, you also need the following sudo rules:
             <programlisting>
-              %users ALL = (%users) NOPASSWD: /PATH/TO/STOOL/HOME/bin/stool-raw.sh
-              %users ALL = (%users) NOPASSWD:SETENV: /PATH/TO/STOOL/HOME/bin/service-wrapper.sh
-              %users ALL = (root) NOPASSWD: /PATH/TO/STOOL/HOME/bin/chowntree.sh
+              %users ALL = (%users) NOPASSWD: /PATH/TO/STOOL/INSTALL/DIRECTORY/bin/stool-raw.sh
+              %users ALL = (%users) NOPASSWD:SETENV: /PATH/TO/STOOL/INSTALL/DIRECTORY/bin/service-wrapper.sh
+              %users ALL = (root) NOPASSWD: /PATH/TO/STOOL/INSTALL/DIRECTORY/bin/chowntree.sh
             </programlisting>
             TODO: what about the stool group.
           </para>
@@ -1512,7 +1512,7 @@
         <listitem>
           <para>If you want Stage expiring and auto-removal of stages, you also need the following cron job:
             <programlisting>
-              1 4 * * * stool /PATH/TO/STOOL/HOME/bin/stool-raw.sh validate -all -email -stop > /dev/null
+              1 4 * * * stool /PATH/TO/STOOL/INSTALL/DIRECTORY/bin/stool-raw.sh validate -all -email -stop > /dev/null
             </programlisting>
           </para>
         </listitem>
@@ -1546,7 +1546,7 @@
           <para>Run
             <literal>stool system-stop</literal>
           </para>
-          <para>Remove the $STOOL_HOME directory.</para>
+          <para>Remove the install directory.</para>
           <para>Remove the initialization code from your shell files.</para>
         </listitem>
       </itemizedlist>
@@ -1558,12 +1558,7 @@
 
       <para>If you run a new
         <literal>stool-setup</literal>
-        on an existing $STOOL_HOME it performs an incremental or full upgrade.
-        An incremental upgrade just updates<literal>stool.jar</literal>, it is used if only the micro version number has changed.
-        A full upgrade is performed if the minor or major version of Stool has changed. In this case, a new $STOOL_HOME
-        directory is created and the configuration and all stages from the old home directory is imported
-        (shows a diff before changing anything). You can remove the old home directory after a full upgrade when you
-        no longer need the old directory (e.g. for log files).
+        on an existing install directory it performs an upgrade.
       </para>
 
       <para>Here's the best practice to roll-out a new version (unless it's only an incremental upgrade) on a machine:
@@ -1577,7 +1572,7 @@
           <listitem>
             <para>Make sure there are no other shells open when you run setup-stool. This is crucial because existing
               shells (in particular those of other users!) continue to access the old stool version, and this will usually
-              cause problems with the upgraded home directory.
+              cause problems with the upgraded install directory.
             </para>
           </listitem>
           <listitem>
@@ -1619,11 +1614,11 @@
       ... of files installed or managed by stool:
       <programlisting>
         (stage directory) (normal application files)
-        (stool home)   (the home directory is the lib directory with man and bin included)
+        (stool lib)       (install directory = stool lib + bin + man)
         |- config.json (Stool configuration)
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
         |- dashboard.properties (Dashboard configuration)
-        |- version (Stool version that created of upgraded the home directory)
+        |- version (Stool version that created of upgraded the lib directory)
         |- run
         | |- locks       (holds all locking data)
         | |- sleep.json
