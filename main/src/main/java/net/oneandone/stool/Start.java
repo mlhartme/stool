@@ -17,7 +17,6 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.setup.Util;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Ports;
@@ -37,7 +36,6 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -232,11 +230,23 @@ public class Start extends StageCommand {
     public void downloadFile(String url, FileNode dest) throws IOException {
         console.info.println("downloading " + url + " ...");
         try {
-            Util.downloadFile(console.info, url, dest);
+            doDownload(url, dest);
         } catch (IOException e) {
             throw new IOException("download failed: " + url
                     + "\nAs a work-around, you can download it manually an place it at " + dest.getAbsolute()
                     + "\nDetails: " + e.getMessage(), e);
+        }
+    }
+
+    //TODO: work-around for sushi http problem with proxies
+    // TODO: race condition for simultaneous downloads by different users
+    public static void doDownload(String url, FileNode dest) throws IOException {
+        if (OS.CURRENT != OS.MAC) {
+            // don't use sushi, it's not proxy-aware
+            dest.getParent().exec("wget", "--tries=1", "--connect-timeout=5", "-q", "-O", dest.getName(), url);
+        } else {
+            // wget not available on Mac, but Mac usually have no proxy
+            dest.getWorld().validNode(url).copyFile(dest);
         }
     }
 

@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-/** Lib is an install directory without man and bin. */
+/** Stool's library directory. Lib is an install directory without man and bin. */
 public class Lib {
     private final Console console;
     private final FileNode dir;
@@ -67,7 +67,9 @@ public class Lib {
             conf = conf.createPatched(gson, explicitConfig);
         }
         conf.save(gson, dir);
-
+        if (!conf.downloadCache.exists()) {
+            Files.createStoolDirectory(console.verbose, conf.downloadCache);
+        }
         for (String name : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
             Files.createStoolDirectory(console.verbose, dir.join(name));
         }
@@ -218,6 +220,12 @@ public class Lib {
 
     public static Object stool32_33() {
         return new Object() {
+            void portDashboardRemove() {
+            }
+            void errorToolRemove() {
+            }
+            void updateInterval() {
+            }
         };
     }
 
