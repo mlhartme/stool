@@ -117,9 +117,6 @@ public class StoolConfiguration {
 
     public String ldapSso;
 
-    // number of days between up-to-data checks
-    public int updateInterval;
-
     /**
      * Number of days to wait before removing an expired stage.
      */
@@ -152,7 +149,6 @@ public class StoolConfiguration {
         mailUsername = "";
         mailPassword = "";
         certificates = "";
-        updateInterval = 10;
         downloadTomcat =  "http://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz";
         downloadServiceWrapper = "http://wrapper.tanukisoftware.com/download/${version}/wrapper-"
                 + (OS.CURRENT == OS.LINUX ? "linux-x86-64" : "macosx-universal-64") + "-${version}.tar.gz";

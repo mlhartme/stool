@@ -15,19 +15,13 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.setup.Home;
-import net.oneandone.stool.setup.JavaSetup;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Files;
 import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.Update;
 import net.oneandone.sushi.cli.Command;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Option;
-import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -37,7 +31,6 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.List;
 
 public abstract class SessionCommand implements Command {
     protected final Console console;
@@ -55,13 +48,8 @@ public abstract class SessionCommand implements Command {
     @Option("nolock")
     protected boolean noLock;
 
-
-    @Option("updateCheck")
-    private boolean updateCheck;
-
     @Override
     public void invoke() throws Exception {
-        updateCheck();
         try (Lock lock = createLock("ports", globalLock)) {
             doInvoke();
         }
@@ -129,33 +117,5 @@ public abstract class SessionCommand implements Command {
 
     protected void newline() {
         console.info.println();
-    }
-
-    //--
-
-    private static final long MILLIS_PER_DAY = 1000 * 60 * 60 * 24;
-
-    public void updateCheck() throws IOException {
-        List<FileNode> updates;
-        FileNode checked;
-
-        checked = session.downloadCache().join(Home.STOOL_UPDATE_CHECKED);
-        if (updateCheck || ((session.configuration.updateInterval > 0) && updateCheckPending(checked))) {
-            updates = Update.check(console, JavaSetup.versionObject(), session.home, session.downloadCache());
-            for (FileNode file : updates) {
-                console.info.println("UPDATE: Found a new Stool version.");
-                console.info.println("UPDATE: See https://github.com/mlhartme/stool/releases for details");
-                console.info.println("UPDATE: Install this update by running " + file);
-            }
-            if (!updates.isEmpty()) {
-                console.info.println("UPDATE: (you can disable this up-to-date check in " + StoolConfiguration.configurationFile(session.home) + ", set 'updateInterval' to 0)");
-            }
-            checked.writeBytes();
-            Files.stoolFile(checked);
-        }
-    }
-
-    private boolean updateCheckPending(FileNode marker) throws GetLastModifiedException {
-        return !marker.exists() || ((System.currentTimeMillis() - marker.getLastModified()) > session.configuration.updateInterval * MILLIS_PER_DAY);
     }
 }
