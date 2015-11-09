@@ -1648,6 +1648,7 @@
         | :
         '- backstage
           '- (stage name)
+            |- stage.url (only 
             |- config.json (stage properties and some status fields)
             |- anchor (symlink to stage directory)
             '- shared

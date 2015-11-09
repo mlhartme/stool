@@ -18,6 +18,7 @@ package net.oneandone.stool.setup;
 import com.google.gson.Gson;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
+import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Pool;
 import net.oneandone.stool.util.Session;
@@ -153,7 +154,29 @@ public class Lib {
         exec("mv", lib.join("overview.properties").getAbsolute(), lib.join("dashboard.properties").getAbsolute());
 
         ports_32_33(lib);
+        gavs_32_33(lib);
         doUpgrade(stool32_33(), stage32_33());
+    }
+
+    private void gavs_32_33(FileNode lib) throws IOException {
+        FileNode backstages;
+        FileNode file;
+        String str;
+
+        backstages = lib.join("backstages");
+        for (FileNode stage : backstages.list()) {
+            file = stage.join("gav.url");
+            if (file.exists()) {
+                str = file.readString().trim();
+                if (str.contains("@inbox")) {
+                    throw new IOException("don't know how to migrate inbox stages: " + str);
+                }
+                if (str.contains(",")) {
+                    throw new IOException("don't know how to migrate artifact stage with multiple artifacts: " + str);
+                }
+                file.move(ArtifactStage.urlFile(file.getParent()));
+            }
+        }
     }
 
     private void ports_32_33(FileNode lib) throws IOException {
@@ -163,7 +186,7 @@ public class Lib {
 
         backstages = lib.join("backstages");
         pool = new Pool(lib.join("run/ports"), 2, Integer.MAX_VALUE, backstages);
-        for (Node stage : lib.list()) {
+        for (Node stage : backstages.list()) {
             ports32 = stage.join("ports");
             if (ports32.isFile()) {
                 for (Host32 host32 : Host32.load(ports32)) {

@@ -97,8 +97,8 @@ public class ArtifactStage extends Stage {
         return url.startsWith("gav:") || url.startsWith("file:");
     }
 
-    public static FileNode gavFile(FileNode directory) {
-        return directory.join("gav.url");
+    public static FileNode urlFile(FileNode directory) {
+        return directory.join("stage.url");
     }
 
     @Override
@@ -190,7 +190,7 @@ public class ArtifactStage extends Stage {
     }
 
     private FileNode getGavFile() {
-        return gavFile(directory);
+        return urlFile(directory);
     }
 
     @Override
