@@ -1623,6 +1623,7 @@
         |- config.json (Stool configuration)
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
         |- dashboard.properties (Dashboard configuration)
+        |- version (Stool version that created of upgraded the home directory)
         |- run
         | |- locks       (holds all locking data)
         | |- sleep.json

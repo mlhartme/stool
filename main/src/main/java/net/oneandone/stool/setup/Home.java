@@ -101,10 +101,11 @@ public class Home {
     public void upgrade() throws IOException {
         upgrade_31_32(home);
         upgrade_32_33(home);
+        home.join("version").writeString(JavaSetup.versionObject().toString());
     }
 
     private void upgrade_31_32(FileNode home) throws IOException {
-        if (home.join("bin").isDirectory()) {
+        if (home.join("bin").isDirectory() && !home.join("bin/home").isLink()) {
             console.info.println("upgrading 3.1 -> 3.2: " + home);
             exec("mv", home.join("conf/overview.properties").getAbsolute(), home.join("overview.properties").getAbsolute());
             exec("sh", "-c", "find . -user servlet | xargs chown stool");
