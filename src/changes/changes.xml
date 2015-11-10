@@ -2,7 +2,7 @@
   <body>
     <release version="3.3.0" date="2015-11-03">
       <action date="2015-11-09" dev="mlhartme" type="remove">
-        Remove update-checks, the packaging system of the OS should solve this.
+        Remove update-checks, the packaging system is responsible for this.
       </action>
       <action date="2015-11-03" dev="mlhartme" type="fix">
         stool config now supports a "{}" place holder to refer to the previous value. You can use this e.g. to append to a property:
@@ -15,7 +15,7 @@
         You can create artifact stages from either gav: or file: urls now. You can specify multiple comma-separates urls.
       </action>
       <action date="2015-10-30" dev="mlhartme" type="update">
-        Improved setup: debian package is configurable with debconf now. And the package size is much smaller now.
+        Improved setup: Debian package is configurable with debconf now. And the package size is much smaller now.
       </action>
       <action date="2015-10-27" dev="mlhartme" type="update">
         refresh: Removed implicit re-chowning and re-starting. If you need this functionality, invoke refresh with the new auto options

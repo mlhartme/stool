@@ -107,14 +107,24 @@ public class Ports {
 
     public Map<String, String> urlMap(boolean https, boolean vhosts, String hostname, List<String> suffixes) {
         Map<String, String> result;
+        List<String> list;
+        String name;
+        int no;
 
         result = new LinkedHashMap<>();
         for (Vhost vhost : vhosts()) {
             if (vhost.isWebapp()) {
-                for (String suffix : suffixes.isEmpty() ? Collections.singletonList("") : suffixes) {
-                    result.put(vhost.name, vhost.httpUrl(vhosts, hostname) + suffix);
+                list = suffixes.isEmpty() ? Collections.singletonList("") : suffixes;
+                no = 1;
+                for (String suffix : list) {
+                    name = vhost.name;
+                    if (list.size() > 1) {
+                        name = vhost.name + "-" + no;
+                        no++;
+                    }
+                    result.put(name, vhost.httpUrl(vhosts, hostname) + suffix);
                     if (https) {
-                        result.put(vhost.name + " SSL", vhost.httpsUrl(vhosts, hostname) + suffix);
+                        result.put(name + " SSL", vhost.httpsUrl(vhosts, hostname) + suffix);
                     }
                 }
             }
