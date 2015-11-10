@@ -31,11 +31,13 @@ import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
+import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Diff;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.HashMap;
@@ -299,13 +301,24 @@ public class Lib {
     }
 
     private Map<String, String> getenv(String user) throws IOException {
-        String str;
+        Launcher launcher;
+        StringWriter out;
+        StringWriter err;
+        String errString;
         Map<String, String> result;
         int idx;
 
-        str = dir.exec("sudo", "-i", "-u", user, "env");
+        launcher = new Launcher(dir, "sudo", "-i", "-u", user, "env");
+        out = new StringWriter();
+        err = new StringWriter();
+        launcher.exec(out, err);
+        errString = err.toString();
+        if (!errString.isEmpty()) {
+            console.verbose.println("ignoring error output in environment of user " + user + ":");
+            console.verbose.println(err.toString());
+        }
         result = new HashMap<>();
-        for (String line : Separator.RAW_LINE.split(str)) {
+        for (String line : Separator.RAW_LINE.split(out.toString())) {
             line = line.trim();
             if (!line.isEmpty()) {
                 idx = line.indexOf('=');

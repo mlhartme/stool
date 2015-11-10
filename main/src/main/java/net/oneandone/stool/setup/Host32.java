@@ -88,26 +88,25 @@ public class Host32 {
     }
 
     public Vhost upgrade(Node backstage) throws IOException {
-        int idx;
         String name;
         String stageName;
         FileNode stage;
         FileNode dr;
 
-        idx = vhost.indexOf('.');
-        if (idx == -1) {
-            throw new IllegalStateException(vhost);
+        stageName = backstage.getName();
+        if (!vhost.endsWith("." + stageName)) {
+            throw new IllegalStateException(vhost + " does not end with " + stageName);
         }
-        name = vhost.substring(0, idx);
-        stageName = vhost.substring(idx + 1);
-        if (!backstage.getName().equals(stageName)) {
-            throw new IllegalStateException(stageName + " vs " + backstage.getName());
-        }
+        name = vhost.substring(0, vhost.length() - stageName.length() - 1);
         stage = (FileNode) backstage.join("anchor").resolveLink();
         if (docroot == null) {
             dr = null;
         } else {
-            dr = stage.join(docroot);
+            if (docroot.startsWith("/")) {
+                dr = stage.getWorld().file(docroot);
+            } else {
+                dr = stage.join(docroot);
+            }
             dr.checkDirectory();
         }
         return new Vhost(even, name, stageName, dr);
