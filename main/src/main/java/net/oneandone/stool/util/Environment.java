@@ -227,7 +227,6 @@ public class Environment {
                 // CAUTION: single quotes protect the '|' within catalina's start script.
                 for (String entry : Separator.COMMA.split(noProxy)) {
                     if (first) {
-                        result.append(' ');
                         result.append("-D").append(prefix).append(".nonProxyHosts=");
                         first = false;
                     } else {

@@ -336,7 +336,7 @@ public class Lib {
         for (FileNode backstage : dir.join("backstages").list()) {
             env = getenv(backstage.getOwner().toString());
             result = env.proxyOpts();
-            if (result != null) {
+            if (!result.isEmpty()) {
                 return result;
             }
         }
