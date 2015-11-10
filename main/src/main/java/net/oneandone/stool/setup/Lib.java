@@ -216,6 +216,7 @@ public class Lib {
                 for (Host32 host32 : Host32.load(ports32)) {
                     pool.add(host32.upgrade(backstage));
                 }
+                ports32.deleteFile();
             }
         }
         pool.save();
@@ -329,9 +330,11 @@ public class Lib {
             if (!line.isEmpty()) {
                 idx = line.indexOf('=');
                 if (idx == -1) {
-                    throw new IOException(user + ": unexpected environment line: " + line);
+                    console.info.println("ignoring strange environment line of user " + user + ":");
+                    console.info.println(line);
+                } else {
+                    result.put(line.substring(0, idx), line.substring(idx + 1));
                 }
-                result.put(line.substring(0, idx), line.substring(idx + 1));
             }
         }
         return result;
