@@ -129,7 +129,7 @@ public class Lib {
         } else if (oldVersion.startsWith(("3.3."))) {
             console.info.println("nothing to do");
         } else {
-            throw new IOException("don't know how to upgrade");
+            throw new IOException("don't know how to upgrade " + oldVersion + " -> " + newVersion);
         }
         file.writeString(newVersion);
     }
