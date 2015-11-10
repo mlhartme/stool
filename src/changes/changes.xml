@@ -15,14 +15,8 @@
         You can create artifact stages from either gav: or file: urls now. You can specify multiple comma-separates urls.
       </action>
       <action date="2015-10-30" dev="mlhartme" type="update">
-        Improved setup: Debian package is configurable with debconf now. And the package size is much smaller now.
-      </action>
-      <action date="2015-10-27" dev="mlhartme" type="update">
-        refresh: Removed implicit re-chowning and re-starting. If you need this functionality, invoke refresh with the new auto options
-        for stage commands: invoke 'stool refresh -autorechown -autorestart' to get the old behavior.
-      </action>
-      <action date="2015-11-02" dev="mlhartme" type="update">
-        remove: Removed implicit stopping. If you need this functionality, invoke remove -autostop.
+        Improved setup: Debian package is configurable with debconf now, the package size is much smaller now, and the dashboard is
+        a separate package now.
       </action>
       <action date="2015-10-27" dev="mlhartme" type="update">
         Changed the 'suffix' stage property to 'suffixes', it holds a list now.
@@ -35,7 +29,14 @@
         Stool restart: remove 5 second sleep.
       </action>
       <action date="2015-10-26" dev="mlhartme" type="add">
-        Added -autostop, -autorestart, -autochown and -autorechown options for all stage commands.
+        Added '-autostop', '-autorestart', '-autochown' and '-autorechown' options for all stage commands.
+      </action>
+      <action date="2015-10-27" dev="mlhartme" type="update">
+        refresh: Removed implicit re-chowning and re-starting. If you need this functionality, invoke refresh with the new auto options
+        for stage commands: invoke 'stool refresh -autorechown -autorestart' to get the old behavior.
+      </action>
+      <action date="2015-11-02" dev="mlhartme" type="update">
+        remove: Removed implicit stopping. If you need this functionality, invoke 'stool remove -autostop'.
       </action>
       <action date="2015-10-26" dev="mlhartme" type="update">
         Adjusted the chown command for the new -autorestart options: chown now reports an error, if the start is up. Use  '-autorestart'
@@ -50,7 +51,7 @@
       <action date="2015-10-26" dev="mlhartme" type="removed">
         Removed allowLinking in server.xml. Because it's no longer needed for Controlpanel and it's configured differently in Tomcat 8.
       </action>
-      <action date="2015-10-26" dev="mlhartme" type="update">
+      <action date="2015-10-26" dev="mlhartme" type="fix">
         Fixed host alias in server.xml.
       </action>
       <action date="2015-10-14" dev="mlhartme" type="update">
@@ -77,7 +78,7 @@
         Fixed illegal argument exception if an absolute path is passed to 'stool select'.
       </action>
       <action date="2015-10-01" dev="mlhartme" type="update">
-        Removed global portDashboard property.
+        Removed global portOverview property.
       </action>
       <action date="2015-10-01" dev="mlhartme" type="update">
         Updated default tomcat version from 7.0.57 to 8.0.26.

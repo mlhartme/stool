@@ -282,6 +282,18 @@ public class Lib {
             JsonElement tomcatEnvTransform(JsonElement e) throws IOException {
                 return toTomcatEnvMap((JsonArray) e, upgradeBackstage.getOwner().toString());
             }
+            String suffixRename() {
+                return "suffixes";
+            }
+            JsonElement suffixTransform(JsonElement e) {
+                JsonArray result;
+
+                result = new JsonArray();
+                if (!e.getAsString().isEmpty()) {
+                    result.add(e);
+                }
+                return result;
+            }
         };
     }
 
