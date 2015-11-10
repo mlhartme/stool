@@ -107,7 +107,7 @@ public class Host32 {
             } else {
                 dr = stage.join(docroot);
             }
-            dr.checkDirectory();
+            // dr does not necessarily exists (e.g. if the war is currently not built
         }
         return new Vhost(even, name, stageName, dr);
     }

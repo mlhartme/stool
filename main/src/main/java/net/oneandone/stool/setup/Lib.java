@@ -41,8 +41,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.Map;
 
 /** Stool's library directory. Lib is an install directory without man and bin. */
 public class Lib {
