@@ -157,7 +157,13 @@ public class Lib {
     }
 
     private void upgrade_32_33(FileNode lib) throws IOException {
-        // remove the old overview, but keep it's configuration
+        FileNode tomcat;
+
+        tomcat = lib.join("backstages/overview/shared/run/tomcat.pid");
+        if (tomcat.exists()) {
+            console.info.println("stopping old overview");
+            exec("kill", tomcat.readString().trim());
+        }
         exec("rm", "-rf", lib.join("backstages/overview").getAbsolute());
         exec("rm", "-rf", lib.join("overview").getAbsolute());
         exec("mv", lib.join("overview.properties").getAbsolute(), lib.join("dashboard.properties").getAbsolute());
