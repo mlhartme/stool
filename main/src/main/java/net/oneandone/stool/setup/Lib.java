@@ -23,6 +23,7 @@ import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.stage.ArtifactStage;
+import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Pool;
 import net.oneandone.stool.util.Session;
@@ -222,9 +223,11 @@ public class Lib {
         pool.save();
     }
 
+    private static Lib upgradeLib = null;
     private static FileNode upgradeBackstage = null;
 
     private void doUpgrade(Upgrade stoolMapper, Upgrade stageMapper) throws IOException {
+        upgradeLib = this;
         doUpgradeStool(stoolMapper);
         for (FileNode oldBackstage : dir.join("backstages").list()) {
             // TODO
@@ -274,6 +277,15 @@ public class Lib {
             }
             void updateIntervalRemove() {
             }
+            JsonElement macrosTransform(JsonElement map) throws IOException {
+                String opts;
+
+                opts = upgradeLib.proxyOpts();
+                if (opts != null) {
+                    ((JsonObject) map).add("proxyOpts", new JsonPrimitive(opts));
+                }
+                return map;
+            }
         };
     }
 
@@ -298,7 +310,7 @@ public class Lib {
     }
 
     private JsonObject toTomcatEnvMap(JsonArray array, String user) throws IOException {
-        Map<String, String> env;
+        Environment env;
         JsonObject result;
         String name;
         String value;
@@ -319,12 +331,26 @@ public class Lib {
         return result;
     }
 
-    private Map<String, String> getenv(String user) throws IOException {
+    private String proxyOpts() throws IOException {
+        Environment env;
+        String result;
+
+        for (FileNode backstage : dir.join("backstages").list()) {
+            env = getenv(backstage.getOwner().toString());
+            result = env.proxyOpts();
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
+    }
+
+    private Environment getenv(String user) throws IOException {
         Launcher launcher;
         StringWriter out;
         StringWriter err;
         String errString;
-        Map<String, String> result;
+        Environment result;
         int idx;
 
         launcher = new Launcher(dir, "sudo", "-i", "-u", user, "env");
@@ -336,7 +362,7 @@ public class Lib {
             console.verbose.println("ignoring error output in environment of user " + user + ":");
             console.verbose.println(err.toString());
         }
-        result = new HashMap<>();
+        result = new Environment();
         for (String line : Separator.RAW_LINE.split(out.toString())) {
             line = line.trim();
             if (!line.isEmpty()) {
@@ -345,7 +371,7 @@ public class Lib {
                     console.info.println("ignoring strange environment line of user " + user + ":");
                     console.info.println(line);
                 } else {
-                    result.put(line.substring(0, idx), line.substring(idx + 1));
+                    result.set(line.substring(0, idx), line.substring(idx + 1));
                 }
             }
         }

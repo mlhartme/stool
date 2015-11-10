@@ -108,7 +108,7 @@ public class StageConfiguration {
     private String mavenHome;
 
     @Option(key = "maven.opts",
-      description = "MAVEN_OPTS when building this stage. Supported variables: @trustStore@, @proxyOpts@ and @localRepository@")
+      description = "MAVEN_OPTS when building this stage. Supports macros")
     public String mavenOpts;
 
     @Option(key = "until", description = "YYYY-MM-DD")

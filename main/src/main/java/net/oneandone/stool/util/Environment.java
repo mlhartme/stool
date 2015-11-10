@@ -29,6 +29,11 @@ import java.util.Set;
 
 /** Used instead of System.getenv. Allows to track changes and provides a simple mocking mechanism for integration tests */
 public class Environment {
+    // helper
+    public static void main(String[] args) {
+        System.out.println(loadSystem().proxyOpts());
+    }
+
     /**
      * To handle special shell variables like PS1 (which is private and cannot be exported on Mac OS), the launch script exports
      * them with this prefix.
@@ -181,7 +186,7 @@ public class Environment {
     //-- proxyOpts
 
     public String proxyOpts() {
-        return proxyOpts(false, getOpt("http_proxy"), getOpt("https_proxy"), getOpt("no_proxy"));
+        return proxyOpts(getOpt("http_proxy"), getOpt("https_proxy"), getOpt("no_proxy"));
     }
 
     /**
@@ -190,18 +195,17 @@ public class Environment {
      * - http://info4tech.wordpress.com/2007/05/04/java-http-proxy-settings/
      * - http://download.oracle.com/javase/6/docs/technotes/guides/net/proxies.html
      * - http://docs.oracle.com/javase/7/docs/api/java/net/doc-files/net-properties.html#Proxies
-     * @param quote is for tomcat 7 - it evals the command line
      */
-    public static String proxyOpts(boolean quote, String httpProxy, String httpsProxy, String noProxy) {
+    public static String proxyOpts(String httpProxy, String httpsProxy, String noProxy) {
         StringBuilder result;
 
         result = new StringBuilder();
-        proxy("http", quote, httpProxy, noProxy, result);
-        proxy("https", quote, httpsProxy, noProxy, result);
+        proxy("http", httpProxy, noProxy, result);
+        proxy("https", httpsProxy, noProxy, result);
         return result.toString();
     }
 
-    private static void proxy(String prefix, boolean quote, String proxy, String noProxy, StringBuilder result) {
+    public static void proxy(String prefix, String proxy, String noProxy, StringBuilder result) {
         URI uri;
         int port;
         boolean first;
@@ -224,9 +228,6 @@ public class Environment {
                 for (String entry : Separator.COMMA.split(noProxy)) {
                     if (first) {
                         result.append(' ');
-                        if (quote) {
-                            result.append('\'');
-                        }
                         result.append("-D").append(prefix).append(".nonProxyHosts=");
                         first = false;
                     } else {
@@ -236,9 +237,6 @@ public class Environment {
                         result.append('*');
                     }
                     result.append(entry);
-                }
-                if (!first && quote) {
-                    result.append('\'');
                 }
             }
         }

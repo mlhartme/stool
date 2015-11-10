@@ -560,7 +560,6 @@ public abstract class Stage {
             lazyMacros.addAll(session.configuration.macros);
             lazyMacros.add("directory", getDirectory().getAbsolute());
             lazyMacros.add("localRepository", localRepository().getAbsolute());
-            lazyMacros.add("proxyOpts", session.environment.proxyOpts());
             lazyMacros.add("svnCredentials", Separator.SPACE.join(session.subversion().svnCredentials()));
             lazyMacros.add("stoolSvnCredentials", stoolSvnCredentials());
         }
