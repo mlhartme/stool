@@ -8,14 +8,14 @@ Vagrant.configure(2) do |config|
 	# see https://atlas.hashicorp.com/boxes/search
     #
 
-    config.vm.box = "ubuntu/wily64" # Ubuntu 15.10
-    config.vm.box_version = "20151029.0.0"
+#    config.vm.box = "ubuntu/wily64" # Ubuntu 15.10
+#    config.vm.box_version = "20151029.0.0"
 
 #    config.vm.box = "ubuntu/vivid64" # Ubuntu 15.04
 #    config.vm.box_version = "20151030.0.0"
 
-#	config.vm.box = "debian/jessie64"
-#	config.vm.box_version = "8.2.1"
+ 	config.vm.box = "debian/jessie64"
+ 	config.vm.box_version = "8.2.1"
 
 	config.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
     config.vm.synced_folder "../../", "/home/vagrant/stool"
