@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.users;
 
+import javax.naming.CommunicationException;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -131,6 +132,25 @@ public class Ldap {
     }
 
     private NamingEnumeration<SearchResult> search(String name, Attributes matchAttrs) throws NamingException {
+        try {
+            return searchWithoutRetry(name, matchAttrs);
+        } catch (CommunicationException first) {
+            // I've seen ldap queries fail occasionally with a CommunicationException "connection closed". So try it twice.
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                // fall-through
+            }
+            try {
+                return searchWithoutRetry(name, matchAttrs);
+            } catch (NamingException second) {
+                second.addSuppressed(first);
+                throw second;
+            }
+        }
+    }
+
+    private NamingEnumeration<SearchResult> searchWithoutRetry(String name, Attributes matchAttrs) throws NamingException {
         if (lazyContext == null) {
             // caution: creating this context is expensive
             lazyContext = new InitialLdapContext(environment, null);
