@@ -40,7 +40,7 @@ public class Environment {
      */
     private static final String EXPORTED = "EXPORTED_";
 
-    public static final String STOOL_BIN = "STOOL_BIN";
+    private static final String STOOL_BIN = "STOOL_BIN";
     public static final String STOOL_SELECTED = "STOOL_SELECTED";
     // TODO: dump when pws uses stagehost instead
     public static final String MACHINE = "MACHINE";
@@ -196,7 +196,7 @@ public class Environment {
      * - http://download.oracle.com/javase/6/docs/technotes/guides/net/proxies.html
      * - http://docs.oracle.com/javase/7/docs/api/java/net/doc-files/net-properties.html#Proxies
      */
-    public static String proxyOpts(String httpProxy, String httpsProxy, String noProxy) {
+    private static String proxyOpts(String httpProxy, String httpsProxy, String noProxy) {
         StringBuilder result;
 
         result = new StringBuilder();
@@ -205,7 +205,7 @@ public class Environment {
         return result.toString();
     }
 
-    public static void proxy(String prefix, String proxy, String noProxy, StringBuilder result) {
+    private static void proxy(String prefix, String proxy, String noProxy, StringBuilder result) {
         URI uri;
         int port;
         boolean first;
@@ -270,7 +270,7 @@ public class Environment {
         return builder.toString();
     }
 
-    public int behind(String str, int idx) {
+    private int behind(String str, int idx) {
         int max;
         char c;
 

@@ -40,7 +40,7 @@ public class WarFile {
         return file.exists();
     }
 
-    public void copyTo(WarFile destination) throws CopyException, MkdirException {
+    public void copyTo(WarFile destination) throws CopyException {
         file.copyFile(destination.file);
     }
 

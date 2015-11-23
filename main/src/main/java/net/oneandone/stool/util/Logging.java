@@ -88,7 +88,7 @@ public class Logging {
         stageName = name;
     }
 
-    public void configureRootLogger() {
+    private void configureRootLogger() {
         Logger root;
 
         // adjust the default configuration
@@ -278,7 +278,7 @@ public class Logging {
         return file;
     }
 
-    public FileNode directory() {
+    private FileNode directory() {
         return file.getParent();
     }
 

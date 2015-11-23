@@ -51,7 +51,7 @@ public class Host32 {
         }
     }
 
-    public static Host32 forLine(String line) throws IOException {
+    private static Host32 forLine(String line) throws IOException {
         List<String> parts;
         String docroot;
 
@@ -69,16 +69,16 @@ public class Host32 {
         return new Host32(Integer.parseInt(parts.get(0)), parts.get(1), parts.get(2), docroot);
     }
 
-    public final int even;
+    private final int even;
 
-    public final String vhost;
+    private final String vhost;
 
-    public final String hostname;
+    private final String hostname;
 
     /**
      * null for ports that have no domain
      */
-    public final String docroot;
+    private final String docroot;
 
     public Host32(int even, String vhost, String hostname, String docroot) {
         this.even = even;

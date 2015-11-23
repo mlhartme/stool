@@ -164,7 +164,7 @@ public class Start extends StageCommand {
         }
     }
 
-    public void copyTemplate(Stage stage, Ports ports) throws Exception {
+    private void copyTemplate(Stage stage, Ports ports) throws Exception {
         FileNode shared;
 
         shared = stage.shared();
@@ -176,7 +176,7 @@ public class Start extends StageCommand {
         }
     }
 
-    public FileNode tomcatOpt(String version) throws IOException {
+    private FileNode tomcatOpt(String version) throws IOException {
         FileNode download;
         String name;
         FileNode base;
@@ -208,7 +208,7 @@ public class Start extends StageCommand {
         }
     }
 
-    public void serviceWrapperOpt(String version) throws IOException {
+    private void serviceWrapperOpt(String version) throws IOException {
         FileNode download;
         String name;
         FileNode base;
@@ -227,7 +227,7 @@ public class Start extends StageCommand {
     }
     //TODO: work-around for sushi http problem with proxies
     // TODO: race condition for simultaneous downloads by different users
-    public void downloadFile(String url, FileNode dest) throws IOException {
+    private void downloadFile(String url, FileNode dest) throws IOException {
         console.info.println("downloading " + url + " ...");
         try {
             doDownload(url, dest);
@@ -240,7 +240,7 @@ public class Start extends StageCommand {
 
     //TODO: work-around for sushi http problem with proxies
     // TODO: race condition for simultaneous downloads by different users
-    public static void doDownload(String url, FileNode dest) throws IOException {
+    private static void doDownload(String url, FileNode dest) throws IOException {
         if (OS.CURRENT != OS.MAC) {
             // don't use sushi, it's not proxy-aware
             dest.getParent().exec("wget", "--tries=1", "--connect-timeout=5", "-q", "-O", dest.getName(), url);
@@ -269,7 +269,7 @@ public class Start extends StageCommand {
         }
     }
 
-    public void copyTomcatBaseOpt(FileNode download, FileNode shared, String version) throws IOException, SAXException {
+    private void copyTomcatBaseOpt(FileNode download, FileNode shared, String version) throws IOException, SAXException {
         String name;
         FileNode src;
         FileNode dest;

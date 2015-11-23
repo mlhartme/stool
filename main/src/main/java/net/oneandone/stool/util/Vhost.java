@@ -19,7 +19,6 @@ package net.oneandone.stool.util;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.io.IOException;
 import java.util.Objects;
 
 /** immutable */
@@ -27,7 +26,7 @@ public class Vhost {
     private static final char SEP = ' ';
 
     // parses   <even> <name> <stage> [<docroot>]
-    public static Vhost forLine(World world, String line) throws IOException {
+    public static Vhost forLine(World world, String line) {
         int afterEven;
         int afterName;
         int afterStage;

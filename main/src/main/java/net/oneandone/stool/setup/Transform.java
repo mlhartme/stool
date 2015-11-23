@@ -114,7 +114,7 @@ public class Transform {
         }
     }
 
-    public static String toString(JsonObject obj) {
+    private static String toString(JsonObject obj) {
         try {
             StringWriter stringWriter = new StringWriter();
             JsonWriter jsonWriter = new JsonWriter(stringWriter);

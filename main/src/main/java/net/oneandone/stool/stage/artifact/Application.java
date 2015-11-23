@@ -94,7 +94,7 @@ public class Application {
         return true;
     }
 
-    public boolean updateAvailable() throws IOException {
+    public boolean updateAvailable() {
         return future.exists();
 
     }

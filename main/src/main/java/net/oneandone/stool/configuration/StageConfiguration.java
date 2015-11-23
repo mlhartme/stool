@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 
 public class StageConfiguration {
-    public static FileNode file(FileNode backstage) throws ExistsException {
+    public static FileNode file(FileNode backstage) {
         return backstage.join("config.json");
     }
 

@@ -3,7 +3,7 @@ package net.oneandone.stool.locking;
 /** Process id with a comment. Internal class */
 class Process {
     public final int id;
-    public final String comment;
+    private final String comment;
 
     public static Process parse(String line) {
         int idx;

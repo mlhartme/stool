@@ -167,7 +167,7 @@ public class ServerXml {
 
     }
 
-    public void contexts(Stage stage, int httpPort, Element service, boolean cookies, FileNode webinf) throws XmlException {
+    private void contexts(Stage stage, int httpPort, Element service, boolean cookies, FileNode webinf) throws XmlException {
         Element context;
         Element manager;
         Map<String, String> map;

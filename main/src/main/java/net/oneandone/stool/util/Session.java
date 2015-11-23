@@ -139,7 +139,7 @@ public class Session {
     public final Gson gson;
     public final Logging logging;
     public final String user;
-    public final String command;
+    private final String command;
 
     public final FileNode lib;
     public final FileNode bin;
@@ -537,7 +537,7 @@ public class Session {
         return lazyPool;
     }
 
-    public StageConfiguration createStageConfiguration(String url) throws IOException {
+    public StageConfiguration createStageConfiguration(String url) {
         String mavenHome;
         StageConfiguration stage;
 

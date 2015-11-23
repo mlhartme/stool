@@ -132,7 +132,7 @@ public abstract class Stage {
     public FileNode backstage;
     /** user visible directory */
     protected FileNode directory;
-    protected final StageConfiguration configuration;
+    private final StageConfiguration configuration;
     private Maven lazyMaven;
 
     //--

@@ -43,9 +43,7 @@ public class LogReader implements AutoCloseable {
                 iter.remove();
             }
         }
-        Collections.sort(files, (left, right) -> {
-                return left.getName().compareTo(right.getName());
-        });
+        Collections.sort(files, (left, right) -> left.getName().compareTo(right.getName()));
         return new LogReader(files);
     }
 

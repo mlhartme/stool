@@ -195,7 +195,7 @@ public final class Files {
 
     //--
 
-    public static final Substitution S = new Substitution("${{", "}}", '\\');
+    private static final Substitution S = new Substitution("${{", "}}", '\\');
 
     public static void template(PrintWriter log, Node src, FileNode dest, Map<String, String> variables) throws IOException {
         Filter selection;

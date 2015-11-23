@@ -32,7 +32,7 @@ import java.io.IOException;
 
 /** Java installer. Creates an install directory (= "lib" with "bin" and "man") */
 public class JavaSetup extends Cli implements Command {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) {
         System.exit(new JavaSetup().run(args));
     }
 
@@ -72,7 +72,7 @@ public class JavaSetup extends Cli implements Command {
     }
 
     @Remaining
-    public void remaining(String str) throws IOException {
+    public void remaining(String str) {
         if (config != null) {
             throw new ArgumentException("duplicate initialConfig: " + str + " vs " + config);
         }

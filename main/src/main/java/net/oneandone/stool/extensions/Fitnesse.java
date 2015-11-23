@@ -116,7 +116,7 @@ public class Fitnesse implements Extension {
         }
     }
 
-    public boolean isFitnesseServerUp(String urlPrm, Console console) throws IOException {
+    private boolean isFitnesseServerUp(String urlPrm, Console console) throws IOException {
         URL url = new URL(urlPrm);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");

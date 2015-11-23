@@ -39,7 +39,7 @@ public class Macros {
         return replace(string, '@', '@');
     }
 
-    public String replace(String string, Character prefix, Character suffix) {
+    private String replace(String string, Character prefix, Character suffix) {
         String result;
         String key;
 

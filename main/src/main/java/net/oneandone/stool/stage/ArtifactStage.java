@@ -143,14 +143,10 @@ public class ArtifactStage extends Stage {
 
     @Override
     public boolean updateAvailable() {
-        try {
-            for (Application application : applications.applications()) {
-                if (application.updateAvailable()) {
-                    return true;
-                }
+        for (Application application : applications.applications()) {
+            if (application.updateAvailable()) {
+                return true;
             }
-        } catch (IOException e) {
-            return false;
         }
         return false;
     }

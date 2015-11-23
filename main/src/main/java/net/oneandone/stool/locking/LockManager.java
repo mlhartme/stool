@@ -88,7 +88,6 @@ public class LockManager implements Runnable {
     }
 
 
-    /** @return null for success, problematic queue otherwise */
     private void awaitLock(String name, boolean exclusive, Console console) throws IOException {
         Queue problem;
         int seconds;

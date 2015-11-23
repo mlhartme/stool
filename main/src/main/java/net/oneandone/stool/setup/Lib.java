@@ -192,7 +192,7 @@ public class Lib {
                         if (buffer.length() > 0) {
                             buffer.append(',');
                         }
-                        buffer.append("gav:" + item);
+                        buffer.append("gav:").append(item);
                     }
                     str = buffer.toString();
                     file.writeString(str);

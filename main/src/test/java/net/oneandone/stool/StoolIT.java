@@ -41,7 +41,7 @@ import static org.junit.Assert.fail;
  * Integration test for stool.
  */
 public class StoolIT {
-    public static final String TESTUSER = System.getProperty("user.name");
+    private static final String TESTUSER = System.getProperty("user.name");
 
     private World world;
     private Logging logging;
