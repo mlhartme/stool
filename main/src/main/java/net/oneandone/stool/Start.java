@@ -335,7 +335,7 @@ public class Start extends StageCommand {
         opts.addAll(Separator.SPACE.split(tomcatOpts));
 
         opts.add("-Xmx" + stage.config().tomcatHeap + "m");
-        opts.add("-XX:MaxPermSize=" + stage.config().tomcatHeap + "m");
+        opts.add("-XX:MaxPermSize=" + stage.config().tomcatPerm + "m");
 
         // see http://docs.oracle.com/javase/7/docs/technotes/guides/management/agent.html
         opts.add("-Dcom.sun.management.jmxremote.authenticate=false");

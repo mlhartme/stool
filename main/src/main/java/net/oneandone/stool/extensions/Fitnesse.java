@@ -105,9 +105,13 @@ public class Fitnesse implements Extension {
 
         for (String vhost : stage.vhosts().keySet()) {
             host = ports.lookup(FITNESSSE_PREFIX + vhost);
-            String url = findUrl(stage, host);
-            if (isFitnesseServerUp(url, console)) {
-                stage.launcher("curl", url + "?responder=shutdown").exec(console.verbose);
+            if (host == null) {
+                // ignore: fitnesse was started for an already running stage
+            } else {
+                String url = findUrl(stage, host);
+                if (isFitnesseServerUp(url, console)) {
+                    stage.launcher("curl", url + "?responder=shutdown").exec(console.verbose);
+                }
             }
         }
     }

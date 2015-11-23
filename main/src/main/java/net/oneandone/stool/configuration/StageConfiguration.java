@@ -87,16 +87,16 @@ public class StageConfiguration {
     @Option(key = "tomcat.service", description = "Java Service Wrapper version to use around Tomcat.")
     public String tomcatService;
 
-    @Option(key = "tomcat.heap", description = "memory in mb")
+    @Option(key = "tomcat.heap", description = "heap memory in mb")
     public Integer tomcatHeap;
 
-    @Option(key = "tomcat.perm", description = "memory in mb")
+    @Option(key = "tomcat.perm", description = "perm memory in mb")
     public Integer tomcatPerm;
 
     @Option(key = "tomcat.select", description = "hostnames to start - empty for all")
     public List<String> tomcatSelect;
 
-    @Option(key = "tomcat.env", description = "Environment variables passes to applications. The current envionment is "
+    @Option(key = "tomcat.env", description = "Environment variables passes to applications. The current environment is "
             + "intentionally unavailable for the running application; this is to make things reproducible.")
     public Map<String, String> tomcatEnv;
 

@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.3.0" date="2015-11-03">
+      <action date="2015-11-23" dev="mlhartme" type="fix">
+        Fitnesse extension: Fixed NPE during stage stop when fitnesse is enabled while tomcat is running.
+      </action>
+      <action date="2015-11-23" dev="mlhartme" type="fix">
+        Fixed tomcat.perm configuration.
+      </action>
       <action date="2015-11-10" dev="mlhartme" type="upgrade">
         @proxyOpts@ is a normal macro now, if you need it, you defined it in the global configuration.
         It is no longer computed from the stage owner's environment.
@@ -26,8 +32,8 @@
         Changed the 'suffix' stage property to 'suffixes', it holds a list now.
       </action>
       <action date="2015-10-27" dev="mlhartme" type="update">
-        Improved locking: replace the old global- and stage-semaphores by one global read/write lock, and per-stage a backstage read/write lock
-        and a directory read/write lock.
+        Improved locking (i.e. less waiting for lock messages): replace the old global- and stage-semaphores by one global read/write lock,
+        and per-stage a backstage read/write lock and a directory read/write lock.
       </action>
       <action date="2015-10-26" dev="mlhartme" type="update">
         'stool restart': remove 5 seconds sleep.
