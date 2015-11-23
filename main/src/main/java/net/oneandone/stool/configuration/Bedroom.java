@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Bedroom {
-    public static final String FILENAME = "sleep.json";
+    private static final String FILENAME = "sleep.json";
 
     public static Bedroom loadOrCreate(Gson gson, FileNode lib) throws IOException {
         return loadOrCreateDir(gson, lib.join("run"));
@@ -48,7 +48,7 @@ public class Bedroom {
 
     //--
 
-    public final List<String> sleep;
+    private final List<String> sleep;
 
     private transient FileNode file;
 

@@ -37,11 +37,11 @@ public class Cleanup extends StageCommand {
     @Override
     public void doInvoke(Stage stage) throws Exception {
         stage.checkOwnership();
-        cleanupMavenReposity(stage);
+        cleanupMavenRepository(stage);
         rotateLogs(stage);
     }
 
-    public void cleanupMavenReposity(Stage stage) throws NodeNotFoundException, DeleteException {
+    private void cleanupMavenRepository(Stage stage) throws NodeNotFoundException, DeleteException {
         FileNode repository;
         repository = stage.getBackstage().join(".m2");
         if (repository.exists()) {
@@ -52,7 +52,7 @@ public class Cleanup extends StageCommand {
         }
     }
 
-    public void rotateLogs(Stage stage) throws IOException {
+    private void rotateLogs(Stage stage) throws IOException {
         Node archivedLog;
         for (Node logfile : stage.getBackstage().find("**/*.log")) {
             archivedLog = archiveDirectory(logfile).join(logfile.getName() + ".gz");
@@ -65,7 +65,7 @@ public class Cleanup extends StageCommand {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
 
-    public Node archiveDirectory(Node node) throws MkdirException {
+    private Node archiveDirectory(Node node) throws MkdirException {
         return node.getParent().join("archive", FMT.format(LocalDateTime.now())).mkdirsOpt();
     }
 }

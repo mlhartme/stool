@@ -62,7 +62,7 @@ public class BinMan {
 
     // locations when installed on target machine
     private final FileNode installedMan;
-    public final FileNode installedBin;
+    private final FileNode installedBin;
     private final FileNode nowBin;
     private final FileNode nowMan;
 
@@ -119,7 +119,7 @@ public class BinMan {
 
     //--
 
-    public static int indexOf(byte[] array, byte[] sub) {
+    private static int indexOf(byte[] array, byte[] sub) {
         int j;
 
         for (int i = 0; i < array.length - sub.length; i++) {
