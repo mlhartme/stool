@@ -6,45 +6,45 @@
         It is no longer computed from the stage owner's environment.
       </action>
       <action date="2015-11-09" dev="mlhartme" type="remove">
-        Remove update-checks, the packaging system is responsible for this.
+        Remove Stool update-checks, the packaging system is responsible for this now.
       </action>
       <action date="2015-11-03" dev="mlhartme" type="fix">
-        stool config now supports a "{}" place holder to refer to the previous value. You can use this e.g. to append to a property:
-        stool config "tomcat.opts={} -Dfoo=bar".
+        'stool config' now supports a "{}" place holder to refer to the previous value. You can use this e.g. to append to a property:
+        'stool config "tomcat.opts={} -Dfoo=bar"'.
       </action>
       <action date="2015-11-03" dev="mlhartme" type="fix">
         Fixed exception if history argument is not a number. Issue proper error message now.
       </action>
       <action date="2015-11-02" dev="mlhartme" type="add">
-        You can create artifact stages from either gav: or file: urls now. You can specify multiple comma-separates urls.
+        You can create artifact stages from either gav: or file: urls now. You can specify multiple comma-separates urls (instead of the
+        previous multiple coordinates within one gav url).
       </action>
       <action date="2015-10-30" dev="mlhartme" type="update">
-        Improved setup: Debian package is configurable with debconf now, the package size is much smaller now, and the dashboard is
-        a separate package now.
+        Improved setup: Debian package is configurable with debconf now, and it's separated into a stool and a stool-dashboard backage now.
       </action>
       <action date="2015-10-27" dev="mlhartme" type="update">
         Changed the 'suffix' stage property to 'suffixes', it holds a list now.
       </action>
       <action date="2015-10-27" dev="mlhartme" type="update">
-        Improved locking: replace the old global and stage semaphores by one global read/write lock, and per-stage a backstage read/write lock
+        Improved locking: replace the old global- and stage-semaphores by one global read/write lock, and per-stage a backstage read/write lock
         and a directory read/write lock.
       </action>
       <action date="2015-10-26" dev="mlhartme" type="update">
-        Stool restart: remove 5 second sleep.
+        'stool restart': remove 5 seconds sleep.
       </action>
       <action date="2015-10-26" dev="mlhartme" type="add">
         Added '-autostop', '-autorestart', '-autochown' and '-autorechown' options for all stage commands.
       </action>
       <action date="2015-10-27" dev="mlhartme" type="update">
-        refresh: Removed implicit re-chowning and re-starting. If you need this functionality, invoke refresh with the new auto options
+        'stool refresh': Removed implicit re-chowning and re-starting. If you need this functionality, invoke refresh with the new auto options
         for stage commands: invoke 'stool refresh -autorechown -autorestart' to get the old behavior.
       </action>
       <action date="2015-11-02" dev="mlhartme" type="update">
-        remove: Removed implicit stopping. If you need this functionality, invoke 'stool remove -autostop'.
+        'stool remove': Removed implicit stopping. If you need this functionality, invoke 'stool remove -autostop'.
       </action>
       <action date="2015-10-26" dev="mlhartme" type="update">
-        Adjusted the chown command for the new -autorestart options: chown now reports an error, if the start is up. Use  '-autorestart'
-        to get the old behavior. The old -stop option is gone.
+        Adjusted the 'chown' command for the new '-autorestart' options: 'chown' now reports an error, if the start is up. Use  '-autorestart'
+        to get the old behavior. The old '-stop' option is gone.
       </action>
       <action date="2015-10-26" dev="mlhartme" type="remove">
         Removed the 'build -restart' option, use '-autorestart' instead.
@@ -53,36 +53,37 @@
         Simplified cwd handling: only the following commands change the current directory: create, remove, select and cd.
       </action>
       <action date="2015-10-26" dev="mlhartme" type="removed">
-        Removed allowLinking in server.xml. Because it's no longer needed for Controlpanel and it's configured differently in Tomcat 8.
+        Removed allowLinking in server.xml. Because it's no longer needed for Controlpanel and the configuration differs between
+        Tomcat 7 and Tomcat 8.
       </action>
       <action date="2015-10-26" dev="mlhartme" type="fix">
-        Fixed host alias in server.xml.
+        Fixed wrong capitalization in server.xml for element host alias.
       </action>
       <action date="2015-10-14" dev="mlhartme" type="update">
         Merged all {stage}/ports files into one {home}/run/ports file.
       </action>
       <action date="2015-10-06" dev="mlhartme" type="update">
-        Support stages with empty MAVEN_HOME: Stool includes ${home}/maven-settings.xml now, they are used to resovle dependencies if
+        Support stages with empty MAVEN_HOME: Stool includes ${home}/maven-settings.xml now, they are used to resolve dependencies if
         the current user has no MAVEN_HOME.
       </action>
       <action date="2015-10-02" dev="mlhartme" type="update">
         The separator for list property values is "," now, space is no longer supported.
       </action>
       <action date="2015-10-02" dev="mlhartme" type="fix">
-        Display properties as strings, not as json objects.
+        'stool config': Display properties as strings, not as json objects.
       </action>
       <action date="2015-10-02" dev="mlhartme" type="update">
-        The tomcat.env property is a map now, it defines the environment for applications.
-        Because the old white-listing is hard to debug and problematic when starting an application as a different user.
+        The 'tomcat.env' property is a map now, it defines the environment for applications.
+        (Because the old white-listing is hard to debug and problematic when starting an application as a different user.)
       </action>
       <action date="2015-10-02" dev="mlhartme" type="fix">
-        Removed global errorTool parameter, send emails to configured admin instead.
+        Removed the global 'errorTool' property, report problems to configured 'adminEmail' instead.
       </action>
       <action date="2015-10-02" dev="mlhartme" type="fix">
-        Fixed illegal argument exception if an absolute path is passed to 'stool select'.
+        'stool select': Fixed illegal argument exception if the use specified an absolute path instead of stage name.
       </action>
       <action date="2015-10-01" dev="mlhartme" type="update">
-        Removed global portOverview property.
+        Removed global 'portOverview' property.
       </action>
       <action date="2015-10-01" dev="mlhartme" type="update">
         Updated default tomcat version from 7.0.57 to 8.0.26.
