@@ -27,6 +27,7 @@ import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.cli.Value;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.metadata.simpletypes.CharacterType;
 
 import java.io.IOException;
 
@@ -63,6 +64,7 @@ public class JavaSetup extends Cli implements Command {
     @Option("batch")
     private boolean batch;
 
+    /** Name of a json file with global config fragment. */
     private String config;
 
     private final Environment environment;
@@ -72,11 +74,48 @@ public class JavaSetup extends Cli implements Command {
     }
 
     @Remaining
-    public void remaining(String str) {
+    public void remaining(String str) throws IOException {
         if (config != null) {
             throw new ArgumentException("duplicate initialConfig: " + str + " vs " + config);
         }
-        config = str;
+        config = subst(console.world.file(str).readString());
+    }
+
+    private static String subst(String str) {
+        StringBuilder builder;
+        String name;
+        char c;
+
+        builder = new StringBuilder(str.length());
+        for (int i = 0, len = str.length(); i < len; i++) {
+            c = str.charAt(i);
+            switch (c) {
+                case '$':
+                    name = name(str, i + 1);
+                    i += name.length();
+                    builder.append(System.getenv(name));
+                    break;
+                default:
+                    builder.append(c);
+                    break;
+            }
+        }
+        return builder.toString();
+    }
+
+    private static String name(String str, int start) {
+        int c;
+        int idx;
+
+
+        idx = start;
+        while (true) {
+            c = str.charAt(idx);
+            if (!Character.isAlphabetic(c) && c != '_') {
+                return str.substring(start, idx);
+            }
+            idx++;
+        }
     }
 
     @Override

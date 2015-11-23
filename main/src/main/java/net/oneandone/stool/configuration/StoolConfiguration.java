@@ -195,7 +195,7 @@ public class StoolConfiguration {
         JsonObject dest;
 
         dest = (JsonObject) gson.toJsonTree(this);
-        changes = (JsonObject) new JsonParser().parse(str);
+        changes = new JsonParser().parse(str).getAsJsonObject();
         for (Map.Entry<String, JsonElement> entry : changes.entrySet()) {
             if (!dest.has(entry.getKey())) {
                 throw new IllegalStateException("unknown property: " + entry.getKey());
