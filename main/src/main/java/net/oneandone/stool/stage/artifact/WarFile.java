@@ -71,8 +71,8 @@ public class WarFile {
         if (properties.get("scmConnection") == null || properties.get("build.revision") == null) {
             throw new IOException("Parent Pom is too old to assemble Changes. Please update.");
         }
-        version = String.valueOf(properties.get("version"));
-        revision = Long.valueOf(String.valueOf(properties.get("build.revision")));
+        version = properties.getProperty("version");
+        revision = Long.parseLong(properties.getProperty("build.revision"));
     }
 
     @Override

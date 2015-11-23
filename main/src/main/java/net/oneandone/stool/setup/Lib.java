@@ -320,10 +320,7 @@ public class Lib {
             if (name.equals("USER") || name.equals("HOME")) {
                 continue;
             }
-            value = env.get(name);
-            if (value == null) {
-                throw new IOException("user '" + user + "' has no environment variable " + name);
-            }
+            value = env.get(name); // never null
             result.add(name, new JsonPrimitive(value));
         }
         return result;

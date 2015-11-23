@@ -241,7 +241,16 @@ public class Pool {
     }
 
     private int forName(String name, String stage) {
-        return ((Math.abs((name + stage).hashCode()) % (last - first + 1)) + first) & 0xfffffffe;
+        int result;
+
+        result = (name + stage).hashCode();
+        if (result < 0) {
+            result = -result;
+            if (result < 0) { // happens for Integer.MIN_VALUE
+                result = 0;
+            }
+        }
+        return ((result % (last - first + 1)) + first) & 0xfffffffe;
     }
 
     //--
