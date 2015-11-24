@@ -48,6 +48,19 @@ public class DebianMainSetup extends Debian {
     //--
 
     @Override
+    public void preinstUpgrade(String version) throws IOException {
+        if (version != null && (version.startsWith("3.1.") || version.startsWith("3.2."))) {
+            if (world.file("/opt/ui/opt/tools").isDirectory()) {
+                log("upgrade stool config settings from version " + version);
+                db_set("stool/lib", "/opt/ui/opt/tools/stool");
+                db_set("stool/group", "users");
+            } else {
+                log("upgrade from version " + version);
+            }
+        }
+    }
+
+    @Override
     public void postinstConfigure(String previous) throws IOException {
         FileNode binLib;
 

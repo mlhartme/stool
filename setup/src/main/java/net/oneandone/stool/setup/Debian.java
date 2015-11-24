@@ -108,7 +108,10 @@ public class Debian {
                 preinstInstall();
                 break;
             case "upgrade":
-                preinstUpgrade();
+                if (args.length != 2) {
+                    throw new IllegalStateException(Strings.toList(args).toString());
+                }
+                preinstUpgrade(empty(args[1]));
                 break;
             case "abort-upgrade":
                 preinstAbortUpgrade();
@@ -121,7 +124,7 @@ public class Debian {
     protected void preinstInstall() throws IOException {
     }
 
-    protected void preinstUpgrade() throws IOException {
+    protected void preinstUpgrade(String version) throws IOException {
     }
 
     protected void preinstAbortUpgrade() throws IOException {
@@ -279,6 +282,10 @@ public class Debian {
 
     protected String db_get(String variable) throws IOException {
         return db_communicate("get " + variable);
+    }
+
+    protected String db_set(String variable, String value) throws IOException {
+        return db_communicate("set " + variable + " " + value);
     }
 
     protected void db_purge() throws IOException {
