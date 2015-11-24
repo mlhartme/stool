@@ -241,6 +241,7 @@ public class Debian {
 
     public void log(String str) {
         console.info.println(str);
+        console.info.flush(); // auto-flush doesn't seem to work because the file descriptor is redirected by the calling bash script.
     }
 
     public String slurp(String ... args) throws IOException {

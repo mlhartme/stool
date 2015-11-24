@@ -164,7 +164,7 @@ public class JavaSetup extends Cli implements Command {
         String str;
 
         str = JavaSetup.class.getPackage().getSpecificationVersion();
-        return Version.valueOf(str);
+        return str == null ? null : Version.valueOf(str);
     }
 
     private static Lib lib(Console console, FileNode lib, String config) throws IOException {

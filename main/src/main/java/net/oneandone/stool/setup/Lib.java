@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.setup;
 
+import com.github.zafarkhaja.semver.Version;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -83,6 +84,18 @@ public class Lib {
             Files.createStoolDirectory(console.verbose, dir.join(name));
         }
         Files.stoolFile(dir.join("run/locks").mkfile());
+        versionFile().writeString(versionString());
+    }
+
+    private FileNode versionFile() {
+        return dir.join("version");
+    }
+
+    private String versionString() {
+        Version version;
+
+        version = JavaSetup.versionObject();
+        return version == null ? "devel" : version.toString();
     }
 
     private FileNode downloadCache() {
@@ -110,16 +123,14 @@ public class Lib {
     public void upgrade() throws IOException {
         FileNode file;
         String oldVersion;
-        String newVersion;
 
-        file = dir.join("version");
+        file = versionFile();
         if (file.isFile()) {
             oldVersion = file.readString();
         } else {
             oldVersion = guessVersion();
         }
-        newVersion = JavaSetup.versionObject().toString();
-        console.info.println("upgrade " + oldVersion + " -> " + newVersion);
+        console.info.println("upgrade " + oldVersion + " -> " + versionString());
         if (oldVersion.startsWith("3.1.")) {
             upgrade_31_32(dir);
             upgrade_32_33(dir);
@@ -128,9 +139,9 @@ public class Lib {
         } else if (oldVersion.startsWith(("3.3."))) {
             console.info.println("nothing to do");
         } else {
-            throw new IOException("don't know how to upgrade " + oldVersion + " -> " + newVersion);
+            throw new IOException("don't know how to upgrade " + oldVersion + " -> " + versionString());
         }
-        file.writeString(newVersion);
+        file.writeString(versionString());
     }
 
     private String guessVersion() throws IOException {

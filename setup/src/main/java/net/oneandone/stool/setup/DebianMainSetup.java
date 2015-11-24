@@ -49,13 +49,13 @@ public class DebianMainSetup extends Debian {
 
     @Override
     public void preinstUpgrade(String version) throws IOException {
-        if (version != null && (version.startsWith("3.1.") || version.startsWith("3.2."))) {
+        log("preinst upgrade " + version);
+        if (version != null && (version.startsWith("3.1.") || version.startsWith("3.2.")
+                || version.equals("3.3.0~20151124103733") /* a rebuilt version of stool 3.2 with a 3.3 version to make it visible in our legacy debian repository */ )) {
             if (world.file("/opt/ui/opt/tools").isDirectory()) {
                 log("upgrade stool config settings from version " + version);
                 db_set("stool/lib", "/opt/ui/opt/tools/stool");
                 db_set("stool/group", "users");
-            } else {
-                log("upgrade from version " + version);
             }
         }
     }
