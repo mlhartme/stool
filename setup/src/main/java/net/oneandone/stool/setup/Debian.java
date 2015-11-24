@@ -152,7 +152,7 @@ public class Debian {
     }
 
     private static String empty(String str) {
-        return str.isEmpty() ? null : "";
+        return str.isEmpty() ? null : str;
     }
 
     /** @param previous null for fresh install */
