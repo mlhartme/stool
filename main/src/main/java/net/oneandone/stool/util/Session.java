@@ -211,7 +211,7 @@ public class Session {
         if (!configuration.contactAdmin.isEmpty()) {
             subject = "[stool exception] " + e.getMessage();
             body = new StringWriter();
-            body.write("stool: " + JavaSetup.versionObject().toString() + "\n");
+            body.write("stool: " + JavaSetup.versionString() + "\n");
             body.write("command: " + command + "\n");
             body.write("context: " + context + "\n");
             body.write("user: " + user + "\n");

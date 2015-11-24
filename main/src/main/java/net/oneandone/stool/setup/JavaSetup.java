@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.setup;
 
-import com.github.zafarkhaja.semver.Version;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.sushi.cli.ArgumentException;
@@ -27,7 +26,6 @@ import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.cli.Value;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.metadata.simpletypes.CharacterType;
 
 import java.io.IOException;
 
@@ -120,7 +118,7 @@ public class JavaSetup extends Cli implements Command {
 
     @Override
     public void printHelp() {
-        console.info.println("Setup stool " + versionObject());
+        console.info.println("Setup stool " + version());
         console.info.println("usage: setup-stool <directory> [<json>]");
         console.info.println("  Create a new <directory> or upgrades an existing.");
         console.info.println("  Does not modify anything outside the <directory>.");
@@ -135,7 +133,7 @@ public class JavaSetup extends Cli implements Command {
         environment.setStoolBin(directory.join("bin"));
         if (directory.exists()) {
             if (!batch) {
-                console.info.println("Ready to upgrade " + directory.getAbsolute() + " to Stool " + versionObject());
+                console.info.println("Ready to upgrade " + directory.getAbsolute() + " to Stool " + version());
                 console.pressReturn();
             }
             lib(console, directory, config).upgrade();
@@ -148,7 +146,7 @@ public class JavaSetup extends Cli implements Command {
             console.info.println("2. restart your shell");
         } else {
             if (!batch) {
-                console.info.println("Ready to install Stool " + versionObject() + " to " + directory.getAbsolute());
+                console.info.println("Ready to install Stool " + version() + " to " + directory.getAbsolute());
                 console.pressReturn();
             }
             standalone(console, true, directory, config);
@@ -160,11 +158,12 @@ public class JavaSetup extends Cli implements Command {
         }
     }
 
-    public static Version versionObject() {
+
+    public static String versionString() {
         String str;
 
         str = JavaSetup.class.getPackage().getSpecificationVersion();
-        return str == null ? null : Version.valueOf(str);
+        return str == null ? "devel" : str;
     }
 
     private static Lib lib(Console console, FileNode lib, String config) throws IOException {
