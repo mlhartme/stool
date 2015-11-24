@@ -60,8 +60,8 @@ public class DebianMainSetup extends Debian {
             }
         }
         lib.link(binLib);
-        exec("update-rc.d", "stool", "defaults");
-        exec("service", "stool", "start");
+        log("setup service:\n" + slurp("update-rc.d", "stool", "defaults"));
+        log("start service:\n" + slurp("service", "stool", "start"));
     }
 
     @Override
