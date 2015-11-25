@@ -226,7 +226,7 @@ public abstract class Stage {
     //-- pid file handling
 
     public boolean isWorking() throws IOException {
-        return !session.lockManager.hasExclusiveLocks(directoryLock(), backstageLock());
+        return session.lockManager.hasExclusiveLocks(directoryLock(), backstageLock());
     }
 
     public State state() throws IOException {

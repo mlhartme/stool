@@ -17,6 +17,7 @@ package net.oneandone.stool.extensions;
 
 import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.cli.Console;
@@ -24,7 +25,6 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -55,6 +55,7 @@ public class Fitnesse implements Extension {
         Vhost host;
         int port;
         String url;
+        FileNode log;
         Launcher launcher;
 
         console = stage.session.console;
@@ -63,25 +64,18 @@ public class Fitnesse implements Extension {
             host = ports.lookup(FITNESSSE_PREFIX + vhost);
             port = host.httpPort();
             url = findUrl(stage, host);
-            String projectDir = findProjectDir(ports, host);
             launcher = stage.launcher("mvn",
                     "uk.co.javahelp.fitnesse:fitnesse-launcher-maven-plugin:wiki",
                     "-Dfitnesse.port=" + port);
             launcher.dir(console.world.file(findProjectDir(ports, host)));
 
-            File output = new File(projectDir + "/target/fitness-" + port + ".out");
-            File error = new File(projectDir + "/target/fitness-" + port + ".err");
-            if (!output.exists()) {
-                if (!output.createNewFile()) {
-                    throw new IOException("cannot create file: " + output);
-                }
-                if (!error.createNewFile()) {
-                    throw new IOException("cannot create file: " + error);
-                }
+            log = stage.shared().join("tomcat/logs/fitness-" + port + ".log");
+            if (!log.exists()) {
+                log.mkfile();
+                Files.stoolFile(log);
             }
-
-            launcher.getBuilder().redirectOutput(output);
-            launcher.getBuilder().redirectError(error);
+            launcher.getBuilder().redirectOutput(log.toPath().toFile());
+            launcher.getBuilder().redirectError(log.toPath().toFile());
             launcher.getBuilder().start();
             console.info.println(vhost + " fitnesse started: " + url);
         }
