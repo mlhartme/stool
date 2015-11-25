@@ -113,17 +113,11 @@ public class Lib {
     //-- upgrade
 
     public void upgrade() throws IOException {
-        FileNode file;
         String oldVersion;
         String newVersion;
 
+        oldVersion = directoryVersion();
         newVersion = JavaSetup.versionString();
-        file = versionFile();
-        if (file.isFile()) {
-            oldVersion = file.readString();
-        } else {
-            oldVersion = guessVersion();
-        }
         console.info.println("upgrade " + oldVersion + " -> " + newVersion);
         if (oldVersion.startsWith("3.1.")) {
             upgrade_31_32(dir);
@@ -135,10 +129,16 @@ public class Lib {
         } else {
             throw new IOException("don't know how to upgrade " + oldVersion + " -> " + newVersion);
         }
-        file.writeString(newVersion);
+        versionFile().writeString(newVersion);
     }
 
-    private String guessVersion() throws IOException {
+    private String directoryVersion() throws IOException {
+        FileNode file;
+
+        file = versionFile();
+        if (file.isFile()) {
+            return file.readString();
+        }
         if (dir.join("bin").isDirectory() && !dir.join("bin/lib").isLink()) {
             return "3.1.x";
         }
@@ -242,6 +242,7 @@ public class Lib {
         upgradeLib = this;
         doUpgradeStool(stoolMapper);
         for (FileNode oldBackstage : dir.join("backstages").list()) {
+            console.info.println("upgrade " + oldBackstage);
             // TODO
             upgradeBackstage = oldBackstage;
             transform(oldBackstage.join("config.json"), stageMapper);
@@ -256,6 +257,7 @@ public class Lib {
         String in;
         String out;
 
+        console.verbose.println("transform " + json.getAbsolute());
         in = json.readString();
         out = Transform.transform(in, mapper);
         if (!in.equals(out)) {

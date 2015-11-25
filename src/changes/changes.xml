@@ -177,8 +177,6 @@
       <action date="2015-06-29" dev="mlhartme" type="update">
         Build Debian packages.
       </action>
-    </release>
-    <release version="3.1.1"><!-- was never released -->
       <action date="2015-05-22" dev="mlhartme" type="update">
         Improved expiration messages and emails.
       </action>
