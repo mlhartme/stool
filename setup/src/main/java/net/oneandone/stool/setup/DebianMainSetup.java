@@ -100,7 +100,8 @@ public class DebianMainSetup extends Debian {
     public void postrmPurge() throws IOException {
         exec("update-rc.d", "stool", "remove"); // Debian considers this a configuration file!?
         bin.join("lib").deleteDirectory();
-        bin.deleteTree();
+        // bin itself is not deleted, it's removed by the package manager
+        lib.deleteTree();
     }
 
     //--
