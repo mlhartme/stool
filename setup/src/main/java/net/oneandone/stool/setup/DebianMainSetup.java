@@ -18,14 +18,21 @@ package net.oneandone.stool.setup;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
 public class DebianMainSetup extends Debian {
     public static void main(String[] args) throws IOException {
-        System.exit(new DebianMainSetup().run(args));
+        int result;
+
+        try (PrintWriter out = new PrintWriter(new FileOutputStream("/tmp/dpkg-stool.log", true))) {
+            result = new DebianMainSetup(out).run(args);
+        }
+        System.exit(result);
     }
 
     //--
@@ -35,8 +42,8 @@ public class DebianMainSetup extends Debian {
     private final String config;
     private final String group;
 
-    public DebianMainSetup() throws IOException {
-        super("stool");
+    public DebianMainSetup(PrintWriter log) throws IOException {
+        super(log);
         // this is not configurable, because the content comes from the package:
         bin = world.file("/usr/share/stool");
 
@@ -56,6 +63,8 @@ public class DebianMainSetup extends Debian {
                 log("upgrade stool config settings from version " + version);
                 db_set("stool/lib", "/opt/ui/opt/tools/stool");
                 db_set("stool/group", "users");
+            } else {
+                log("no upgrade required for config settings");
             }
         }
     }

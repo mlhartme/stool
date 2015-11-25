@@ -22,7 +22,6 @@ import net.oneandone.sushi.launcher.ExitCode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
@@ -39,12 +38,9 @@ public class Debian {
     protected final Console console;
     protected final FileNode cwd;
 
-    public Debian(String logname) throws IOException {
-        PrintWriter out;
-
-        out = new PrintWriter(new FileOutputStream("/tmp/dpkg-" + logname + ".log", true));
+    public Debian(PrintWriter log) throws IOException {
         world = new World();
-        console = new Console(world, out, out, System.in);
+        console = new Console(world, log, log, System.in);
         console.setVerbose(true);
         cwd = (FileNode) world.getWorking();
         log("#");
@@ -241,7 +237,6 @@ public class Debian {
 
     public void log(String str) {
         console.info.println(str);
-        console.info.flush(); // auto-flush doesn't seem to work because the file descriptor is redirected by the calling bash script.
     }
 
     public String slurp(String ... args) throws IOException {

@@ -18,11 +18,18 @@ package net.oneandone.stool.setup;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 public class DebianDashboardSetup extends Debian {
     public static void main(String[] args) throws IOException {
-        System.exit(new DebianDashboardSetup().run(args));
+        int result;
+
+        try (PrintWriter out = new PrintWriter(new FileOutputStream("/tmp/dpkg-stool.log", true))) {
+            result = new DebianDashboardSetup(out).run(args);
+        }
+        System.exit(result);
     }
 
     //--
@@ -34,8 +41,8 @@ public class DebianDashboardSetup extends Debian {
     private final String svnuser;
     private final String svnpassword;
 
-    public DebianDashboardSetup() throws IOException {
-        super("stool"); // share log file with stool, to see timing
+    public DebianDashboardSetup(PrintWriter out) throws IOException {
+        super(out); // share log file with stool, to see timing
         lib = world.file(db_get("stool/lib"));
         group = db_get("stool/group");
 

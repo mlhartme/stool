@@ -142,14 +142,19 @@ public class Lib {
         if (dir.join("bin").isDirectory() && !dir.join("bin/lib").isLink()) {
             return "3.1.x";
         }
-        if (dir.join("overview.properties").isFile()) {
+        if (dir.join("overview").isDirectory()) {
             return "3.2.x";
         }
         throw new IOException("unknown version of lib directory: " + dir);
     }
 
     private void upgrade_31_32(FileNode lib) throws IOException {
-        exec("mv", lib.join("conf/overview.properties").getAbsolute(), lib.join("overview.properties").getAbsolute());
+        FileNode overviewProperties;
+
+        overviewProperties = lib.join("conf/overview.properties");
+        if (overviewProperties.exists()) {
+            exec("mv", overviewProperties.getAbsolute(), lib.join("overview.properties").getAbsolute());
+        }
         exec("sh", "-c", "find . -user servlet | xargs chown stool");
         exec("sh", "-c", "find . -perm 666 | xargs chmod 664");
         exec("sh", "-c", "find . -type d | xargs chmod g+s");
@@ -162,6 +167,7 @@ public class Lib {
 
     private void upgrade_32_33(FileNode lib) throws IOException {
         FileNode tomcat;
+        FileNode overviewProperties;
 
         tomcat = lib.join("backstages/overview/shared/run/tomcat.pid");
         if (tomcat.exists()) {
@@ -170,8 +176,11 @@ public class Lib {
         }
         exec("rm", "-rf", lib.join("backstages/overview").getAbsolute());
         exec("rm", "-rf", lib.join("overview").getAbsolute());
-        exec("mv", lib.join("overview.properties").getAbsolute(), lib.join("dashboard.properties").getAbsolute());
-
+        overviewProperties = lib.join("overview.properties");
+        if (overviewProperties.exists()) {
+            exec("mv", overviewProperties.getAbsolute(), lib.join("dashboard.properties").getAbsolute());
+        }
+        Files.stoolFile(dir.join("run/locks").mkfile());
         ports_32_33(lib);
         gavs_32_33(lib);
         doUpgrade(stool32_33(), stage32_33());

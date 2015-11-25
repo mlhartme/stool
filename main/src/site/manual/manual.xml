@@ -1651,6 +1651,7 @@
             |- stage.url (only
             |- config.json (stage properties and some status fields)
             |- anchor (symlink to stage directory)
+            |- .m2 (Maven repository for this stage)
             '- shared
                |- buildstats.json
                |- ssl (generated certs, if any)
