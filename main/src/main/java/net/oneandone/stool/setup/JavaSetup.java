@@ -28,6 +28,7 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.nio.file.Files;
 
 /** Java installer. Creates an install directory (= "lib" with "bin" and "man") */
 public class JavaSetup extends Cli implements Command {
@@ -118,7 +119,7 @@ public class JavaSetup extends Cli implements Command {
 
     @Override
     public void printHelp() {
-        console.info.println("Setup stool " + version());
+        console.info.println("Setup stool " + versionString());
         console.info.println("usage: setup-stool <directory> [<json>]");
         console.info.println("  Create a new <directory> or upgrades an existing.");
         console.info.println("  Does not modify anything outside the <directory>.");
@@ -128,25 +129,33 @@ public class JavaSetup extends Cli implements Command {
 
     @Override
     public void invoke() throws Exception {
+        FileNode bin;
+        FileNode binLib;
         BinMan bm;
 
         environment.setStoolBin(directory.join("bin"));
         if (directory.exists()) {
             if (!batch) {
-                console.info.println("Ready to upgrade " + directory.getAbsolute() + " to Stool " + version());
+                console.info.println("Ready to upgrade " + directory.getAbsolute() + " to Stool " + versionString());
                 console.pressReturn();
             }
             lib(console, directory, config).upgrade();
-            bm = BinMan.java(console, true, directory.join("bin"), directory.join("man"));
+            bin = directory.join("bin");
+            binLib = bin.join("lib");
+            bm = BinMan.java(console, true, bin, directory.join("man"));
             bm.remove();
             bm.create();
+            if (Files.deleteIfExists(binLib.toPath())) {
+                console.info.println("cleaned previous lib: " + binLib);
+            }
+            binLib.mklink(directory.getAbsolute());
             console.info.println("Done. To complete the installation:");
             console.info.println("1. change your ~/.bashrc to");
             console.info.println("       source " + directory.join("bin/stool-function").getAbsolute());
             console.info.println("2. restart your shell");
         } else {
             if (!batch) {
-                console.info.println("Ready to install Stool " + version() + " to " + directory.getAbsolute());
+                console.info.println("Ready to install Stool " + versionString() + " to " + directory.getAbsolute());
                 console.pressReturn();
             }
             standalone(console, true, directory, config);

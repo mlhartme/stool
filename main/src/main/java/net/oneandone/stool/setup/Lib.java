@@ -139,7 +139,7 @@ public class Lib {
         if (file.isFile()) {
             return file.readString();
         }
-        if (dir.join("bin").isDirectory() && !dir.join("bin/lib").isLink()) {
+        if (dir.join("conf").isDirectory()) {
             return "3.1.x";
         }
         if (dir.join("overview").isDirectory()) {
