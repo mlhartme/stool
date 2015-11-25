@@ -173,6 +173,11 @@ public class Lib {
         if (tomcat.exists()) {
             console.info.println("stopping old overview");
             exec("kill", tomcat.readString().trim());
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                // fall-through
+            }
         }
         exec("rm", "-rf", lib.join("backstages/overview").getAbsolute());
         exec("rm", "-rf", lib.join("overview").getAbsolute());

@@ -134,7 +134,7 @@ public class DebianMainSetup extends Debian {
 
         h = new Lib(console, lib, group, config.trim().isEmpty() ? null : config);
         if (lib.exists()) {
-            h.upgrade(bin);
+            h.upgrade();
             log("lib: " + lib.getAbsolute() + " (upgraded)");
         } else {
             console.info.println("creating lib: " + lib);

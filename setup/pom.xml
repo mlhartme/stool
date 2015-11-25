@@ -191,8 +191,8 @@
                     public &lt;init>(...);
                 }
 
-                -keep public class ** implements net.oneandone.stool.setup.Upgrade {
-                    *;
+                -keepclassmembers class ** implements net.oneandone.stool.setup.Upgrade {
+                *;
                 }
               </shrinkOptions>
               <launcher>${basedir}/src/deb/launcher</launcher>
