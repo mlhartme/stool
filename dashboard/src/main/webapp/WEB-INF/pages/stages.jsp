@@ -30,10 +30,9 @@
         <td class="user">${stage.owner}</td>
         <td class="option refresh">
             <button type="button" data-action="refresh" data-estimate="${stage.stats.avgRefresh}" data-stage="${stage.name}"
-                    data-option="build" class="btn ${stage.updateAvailable ? "btn-primary" : "btn-default"} btn-xs"
+                    data-options="build,autorechown,autorestart" class="btn ${stage.updateAvailable ? "btn-primary" : "btn-default"} btn-xs"
                     <c:if test="${stage.updateAvailable}">data-container="body" data-toggle="popover" data-placement="right"
                     data-title="${stage.changes.exception ? "Warning" : "Update Available"}" data-trigger="hover" data-html="true"
-                    data-option="usePrepared"
                     data-content="${stage.changes}"</c:if>><span
                     class="glyphicon glyphicon-refresh"></span> Refresh
             </button>
@@ -55,9 +54,9 @@
                            data-stage="${stage.name}">Stop</a></li>
                     <li><a href="#dashboard" data-estimate="${stage.stats.avgRestart}" data-action="restart" data-stage="${stage.name}">Restart</a>
                     </li>
-                    <li><a href="#dashboard" data-option="restart" data-estimate="${stage.stats.avgBuild}" data-action="build"
+                    <li><a href="#dashboard" data-options="restart" data-estimate="${stage.stats.avgBuild}" data-action="build"
                            data-stage="${stage.name}">Build</a></li>
-                    <li><a href="#dashboard" data-action="refresh" data-option="restore" data-stage="${stage.name}">Rollback</a></li>
+                    <li><a href="#dashboard" data-action="refresh" data-options="restore" data-stage="${stage.name}">Rollback</a></li>
                 </ul>
             </div>
         </td>

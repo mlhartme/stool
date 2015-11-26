@@ -23,6 +23,8 @@ import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.NodeNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -146,10 +148,16 @@ public class StageController {
         return execute(stageName, action);
     }
 
-    @RequestMapping(value = "{name}/{action}/{option1}", method = RequestMethod.POST)
+    @RequestMapping(value = "{name}/{action}/{options}", method = RequestMethod.POST)
     public String action(@PathVariable(value = "name") String stageName, @PathVariable(value = "action") String action,
-        @PathVariable(value = "option1") String option1) throws Exception {
-           return execute(stageName, action, option1);
+        @PathVariable(value = "options") String options) throws Exception {
+        List<String> lst;
+
+        lst = Separator.COMMA.split(options);
+        for (int i = 0; i < lst.size(); i++) {
+            lst.set(i, "-" + lst.get(i));
+        }
+        return execute(stageName, action, Strings.toArray(lst));
     }
 
     @ExceptionHandler(Exception.class)
