@@ -31,20 +31,19 @@ import java.net.URLEncoder;
 import java.util.Map;
 
 public class StageInfo {
-    public String name;
-    public StageConfiguration configuration;
-    public String extractionUrl;
+    private String name;
+    private StageConfiguration configuration;
+    private String extractionUrl;
     /** Maps name to actual url */
-    public Map<String, String> urls;
-    public Stage.State running;
-    public String owner;
-    public boolean updateAvailable;
-    public Until until;
-    public Changes changes;
-    public BuildStats stats;
-    public String category;
-    public String state;
-
+    private Map<String, String> urls;
+    private Stage.State running;
+    private String owner;
+    private boolean updateAvailable;
+    private Until until;
+    private Changes changes;
+    private BuildStats stats;
+    private String category;
+    private String state;
 
     public static StageInfo fromStage(FileNode logDir, Stage stage, Users users) throws IOException, UserNotFound, NamingException {
         StageInfo stageInfo;
@@ -55,9 +54,7 @@ public class StageInfo {
         stageInfo.configuration = stage.config();
         stageInfo.extractionUrl = stage.getUrl();
         stageInfo.running = stage.isWorking() ? Stage.State.WORKING : stage.state();
-        if (stageInfo.running == Stage.State.UP) {
-            stageInfo.urls = stage.urlMap();
-        }
+        stageInfo.urls = stage.urlMap();
         stageInfo.owner = users.byLogin(stage.owner()).name;
         stageInfo.updateAvailable = stage.updateAvailable();
         stageInfo.until = stage.config().until;

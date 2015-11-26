@@ -349,7 +349,7 @@ public class Lib {
                     }
                 }
                 return upgradeLib.toTomcatEnvMap(array, upgradeBackstage == null ?
-                        /* TODO */ System.getProperty("user.name") : upgradeBackstage.getOwner().toString());
+                        defaultUser() : upgradeBackstage.getOwner().toString());
             }
             String suffixRename() {
                 return "suffixes";
@@ -364,6 +364,25 @@ public class Lib {
                 return result;
             }
         };
+    }
+
+    /**
+     * This user's environment is checked to migrate tomcatEnv defaults in the global config.
+     * The problem is that root does not have the proper setup ...
+     * TODO: what if the root users performs the install?
+     */
+    private static String defaultUser() {
+        String result;
+
+        result = System.getProperty("user.name");
+        if (!"root".equals(result)) {
+            return result;
+        }
+        result = System.getenv("SUDO_USER");
+        if (result != null) {
+            return result;
+        }
+        return "stool";
     }
 
     private JsonObject toTomcatEnvMap(JsonArray array, String user) throws IOException {

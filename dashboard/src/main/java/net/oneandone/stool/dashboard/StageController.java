@@ -98,7 +98,7 @@ public class StageController {
         List<StageInfo> stageInfos = new ArrayList<>();
         modelAndView.setViewName("stages");
         for (StageInfo stageInfo : stages.get(logs, session, users)) {
-            if (stageName.equals(stageInfo.name)) {
+            if (stageName.equals(stageInfo.getName())) {
                 stageInfos.add(stageInfo);
             }
         }

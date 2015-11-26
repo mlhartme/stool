@@ -38,6 +38,7 @@ public class StageInfoCache {
         if (System.currentTimeMillis() - lastCacheRenew > 4000) {
             stages.clear();
             session.wipeStaleBackstages();
+            session.updatePool();
             for (Stage stage : session.listWithoutSystem()) {
                 try {
                     stages.add(StageInfo.fromStage(logs, stage, users));

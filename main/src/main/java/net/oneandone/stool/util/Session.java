@@ -537,6 +537,10 @@ public class Session {
         return lazyPool;
     }
 
+    public void updatePool() { // TODO: hack to see updates application urls
+        lazyPool = null;
+    }
+
     public StageConfiguration createStageConfiguration(String url) {
         String mavenHome;
         StageConfiguration stage;
