@@ -172,7 +172,7 @@ public class SystemImport extends SessionCommand {
 
         dest = session.lib.join(path);
         current = dest.readString();
-        result = Transform.transform(oldLib.join(path).readString(), Lib.stool32_33());// TODO: other versions ...
+        result = Transform.transform(oldLib.join(path).readString(), Lib.stool32_33(Lib.stage32_33()));// TODO: other versions ...
         diff = Diff.diff(current, result);
         return new Patch("M " + dest.getAbsolute(), diff) {
             public void apply() throws IOException {

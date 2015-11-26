@@ -31,9 +31,12 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Subversion;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
+import net.oneandone.sushi.fs.DirectoryNotFoundException;
+import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -104,6 +107,7 @@ public abstract class Stage {
             return subversion.checkoutUrl(directory);
         } catch (Failure e) {
             // not a working copy or working-copy version is not readable with out svn version
+            // TODO: working copy could from a different svn version - this should be reported as an error
             return null;
         }
     }
@@ -370,13 +374,17 @@ public abstract class Stage {
      * action: start | stop -force
      */
     private Launcher catalina(String ... action) throws IOException {
+        String owner;
         Launcher launcher;
 
+        owner = owner();
         launcher = new Launcher(getDirectory());
         launcher.getBuilder().environment().clear();
         launcher.getBuilder().environment().putAll(configuration.tomcatEnv);
+        launcher.getBuilder().environment().put("HOME", homeOf(owner).getAbsolute());
+        launcher.getBuilder().environment().put("USER", owner);
         if (session.configuration.shared) {
-            launcher.arg("sudo", "-u", owner(), "-E");
+            launcher.arg("sudo", "-u", owner, "-E");
         }
         launcher.arg(session.bin("service-wrapper.sh").getAbsolute());
         launcher.arg(catalinaHome().getAbsolute());
@@ -386,6 +394,19 @@ public abstract class Stage {
         launcher.arg(shared().join("run").getAbsolute());
         launcher.arg(action);
         return launcher;
+    }
+
+    private FileNode homeOf(String user) throws IOException {
+        FileNode result;
+
+        if (OS.CURRENT == OS.MAC) {
+            result = directory.getWorld().file("/Users");
+        } else {
+            result = directory.getWorld().file("/home");
+        }
+        result = result.join(user);
+        result.checkDirectory();
+        return result;
     }
 
     private void checkMemory() throws IOException {

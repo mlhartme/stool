@@ -224,10 +224,9 @@ public class Environment {
             result.append(" -D").append(prefix).append(".proxyPort=").append(port);
             if (noProxy != null) {
                 first = true;
-                // CAUTION: single quotes protect the '|' within catalina's start script.
                 for (String entry : Separator.COMMA.split(noProxy)) {
                     if (first) {
-                        result.append("-D").append(prefix).append(".nonProxyHosts=");
+                        result.append(" -D").append(prefix).append(".nonProxyHosts=");
                         first = false;
                     } else {
                         result.append("|");

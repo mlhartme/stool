@@ -21,6 +21,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
 import net.oneandone.sushi.cli.ArgumentException;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -52,6 +53,18 @@ public class Transform {
         return toString(dest);
     }
 
+    // TODO: needed to transform property names in defaults into camel case */
+    private static String dotless(String name) {
+        int idx;
+
+        idx = name.indexOf('.');
+        if (idx == -1) {
+            return name;
+        } else {
+            return name.substring(0, idx) + Strings.capitalize(name.substring(idx + 1));
+        }
+    }
+
     private static void mapGlobal(Object mapper, JsonElement left, JsonElement right) {
         Method m;
 
@@ -74,13 +87,15 @@ public class Transform {
         Class clazz;
         Method rename;
         Method transform;
+        String dotless;
 
+        dotless = dotless(name);
         clazz = mapper.getClass();
-        if (method(clazz, name + "Remove") != null) {
+        if (method(clazz, dotless + "Remove") != null) {
             return null;
         }
-        rename = method(clazz, name + "Rename");
-        transform = method(clazz, name + "Transform", JsonElement.class);
+        rename = method(clazz, dotless + "Rename");
+        transform = method(clazz, dotless + "Transform", JsonElement.class);
         return new Object[] { rename(rename, mapper, name), transform(transform, mapper, value) };
     }
 
@@ -129,7 +144,7 @@ public class Transform {
         }
     }
 
-    private static String toString(JsonObject obj) {
+    public static String toString(JsonObject obj) {
         try {
             StringWriter stringWriter = new StringWriter();
             JsonWriter jsonWriter = new JsonWriter(stringWriter);

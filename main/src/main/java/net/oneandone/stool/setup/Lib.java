@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
@@ -41,6 +42,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Map;
 
 /** Stool's library directory. Lib is an install directory without man and bin. */
 public class Lib {
@@ -168,6 +170,7 @@ public class Lib {
     private void upgrade_32_33(FileNode lib) throws IOException {
         FileNode tomcat;
         FileNode overviewProperties;
+        Upgrade stage32_33;
 
         tomcat = lib.join("backstages/overview/shared/run/tomcat.pid");
         if (tomcat.exists()) {
@@ -188,7 +191,8 @@ public class Lib {
         Files.stoolFile(dir.join("run/locks").mkfile());
         ports_32_33(lib);
         gavs_32_33(lib);
-        doUpgrade(stool32_33(), stage32_33());
+        stage32_33 = stage32_33();
+        doUpgrade(stool32_33(stage32_33), stage32_33);
     }
 
     private void gavs_32_33(FileNode lib) throws IOException {
@@ -288,7 +292,7 @@ public class Lib {
         };
     }
 
-    public static Upgrade stool32_33() {
+    public static Upgrade stool32_33(final Upgrade stage32_33) {
         return new Upgrade() {
             void portOverviewRemove() {
             }
@@ -305,13 +309,47 @@ public class Lib {
                 }
                 return map;
             }
+            JsonElement defaultsTransform(JsonElement element) throws IOException {
+                JsonObject obj;
+                String url;
+                JsonObject defaults;
+                JsonObject result;
+
+                result = new JsonObject();
+                obj = element.getAsJsonObject();
+                for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+                    url = entry.getKey();
+                    defaults = entry.getValue().getAsJsonObject();
+                    result.add(url, migrate(defaults));
+                }
+                return result;
+            }
+
+            private JsonObject migrate(JsonObject e) {
+                String str;
+
+                str = Transform.transform(Transform.toString(e), stage32_33);
+                return new JsonParser().parse(str).getAsJsonObject();
+            }
         };
     }
 
-    public Upgrade stage32_33() {
+    public static Upgrade stage32_33() {
         return new Upgrade() {
             JsonElement tomcatEnvTransform(JsonElement e) throws IOException {
-                return toTomcatEnvMap((JsonArray) e, upgradeBackstage.getOwner().toString());
+                JsonArray array;
+
+                if (e instanceof JsonArray) {
+                    array = (JsonArray) e;
+                } else {
+                    // to transform defaults
+                    array = new JsonArray();
+                    for (String s : Separator.COMMA.split(e.getAsString())) {
+                        array.add(new JsonPrimitive(s));
+                    }
+                }
+                return upgradeLib.toTomcatEnvMap(array, upgradeBackstage == null ?
+                        /* TODO */ System.getProperty("user.name") : upgradeBackstage.getOwner().toString());
             }
             String suffixRename() {
                 return "suffixes";
