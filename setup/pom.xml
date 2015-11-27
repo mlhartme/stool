@@ -4,7 +4,7 @@
   <parent>
     <groupId>net.oneandone.stool</groupId>
     <artifactId>stool</artifactId>
-    <version>3.3.1-SNAPSHOT</version>
+    <version>3.3.0-SNAPSHOT</version>
   </parent>
 
   <name>Stool Setup</name>
@@ -134,7 +134,7 @@
                 public static void main(java.lang.String[]);
                 }
                 -keep public class ** implements net.oneandone.stool.extensions.Extension {
-                public &lt;init&gt;(...);
+                public &lt;init>(...);
                 }
 
                 # Sushi
@@ -142,7 +142,7 @@
                     @net.oneandone.sushi.cli.* *;
                 }
                 -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
-                public &lt;init&gt;(...);
+                public &lt;init>(...);
                 }
               </shrinkOptions>
             </configuration>
@@ -184,11 +184,11 @@
                 -dontwarn net.oneandone.sushi.**
 
                 -keep public class ** implements net.oneandone.stool.extensions.Extension {
-                    public &lt;init&gt;(...);
+                    public &lt;init>(...);
                 }
 
                 -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
-                    public &lt;init&gt;(...);
+                    public &lt;init>(...);
                 }
 
                 -keepclassmembers class ** implements net.oneandone.stool.setup.Upgrade {
@@ -235,11 +235,11 @@
                 -dontwarn net.oneandone.sushi.**
 
                 -keep public class ** implements net.oneandone.stool.extensions.Extension {
-                public &lt;init&gt;(...);
+                public &lt;init>(...);
                 }
 
                 -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
-                public &lt;init&gt;(...);
+                public &lt;init>(...);
                 }
               </shrinkOptions>
               <launcher>${basedir}/src/deb/launcher</launcher>
@@ -260,14 +260,14 @@
             <configuration>
               <target>
                 <!-- main -->
-                <property name="cp" refid="maven.runtime.classpath" />
-                <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/setup-stool" fork="false" failonerror="true">
+                <property name="cp" refid="maven.runtime.classpath"/>
+                <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/setup-stool"  fork="false" failonerror="true">
                   <arg path="${project.build.directory}/debfiles-main" />
                 </java>
                 <java classname="net.oneandone.stool.setup.Control" classpath="${cp}}" fork="false" failonerror="true">
-                  <arg path="${basedir}/src/deb/main/control/" />
-                  <arg path="${project.build.directory}/mainpostrm" />
-                  <arg path="${project.build.directory}/control-main" />
+                  <arg path="${basedir}/src/deb/main/control/"/>
+                  <arg path="${project.build.directory}/mainpostrm"/>
+                  <arg path="${project.build.directory}/control-main"/>
                 </java>
 
                 <!-- dashboard -->
@@ -275,9 +275,9 @@
                   <arg path="${project.build.directory}/debfiles-dashboard" />
                 </java>
                 <java classname="net.oneandone.stool.setup.Control" classpath="${cp}}" fork="false" failonerror="true">
-                  <arg path="${basedir}/src/deb/dashboard/control/" />
-                  <arg path="${project.build.directory}/dashboardpostrm" />
-                  <arg path="${project.build.directory}/control-dashboard" />
+                  <arg path="${basedir}/src/deb/dashboard/control/"/>
+                  <arg path="${project.build.directory}/dashboardpostrm"/>
+                  <arg path="${project.build.directory}/control-dashboard"/>
                 </java>
               </target>
             </configuration>
