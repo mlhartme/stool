@@ -40,7 +40,7 @@
       <plugin>
         <groupId>net.oneandone.maven.plugins</groupId>
         <artifactId>application</artifactId>
-        <version>1.6.0-SNAPSHOT</version>
+        <version>1.6.0</version>
         <configuration>
           <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
           <overwrite>org/apache/commons/logging/**/*</overwrite>
