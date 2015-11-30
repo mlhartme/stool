@@ -306,7 +306,8 @@
               <name>stool</name>
               <compression>bz2</compression>
               <snapshotExpand>true</snapshotExpand>
-              <classifier>main</classifier>
+              <!-- caution: don't use <classifier>main</classifier> because it's alphabetically after dashboard which causes
+                   problems with dpkg -i *.deb -->
               <dataSet>
                 <data>
                   <src>${project.build.directory}/debfiles-main</src>
