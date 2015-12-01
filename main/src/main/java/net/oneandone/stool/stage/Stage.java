@@ -396,6 +396,7 @@ public abstract class Stage {
         return launcher;
     }
 
+    // TODO: only works for most basic setup ...
     private FileNode homeOf(String user) throws IOException {
         FileNode result;
 
