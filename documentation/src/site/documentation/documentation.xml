@@ -112,7 +112,8 @@
           </para>
         </listitem>
       </itemizedlist>
-    </sect1>
+      <para>Thus, a stage is not a micro service - all stages shared the same container and os.</para>
+   </sect1>
   </chapter>
 
   <chapter>
