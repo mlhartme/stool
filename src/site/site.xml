@@ -10,8 +10,7 @@
 
   <body>
     <links>
-      <item name="Manual" href="main/manual.html"/>
-      <!-- item name="Manual (Pdf)" href="manual.pdf"/-->
+      <item name="Manual" href="manual/manual.html"/>
       <item name="Changes" href="changes-report.html"/>
     </links>
     <menu ref="reports"/>
