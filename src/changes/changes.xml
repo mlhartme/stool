@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.3.0" date="2015-11-30">
+      <action date="2015-10-01" dev="mlhartme" type="update">
+        Renamed overview to dashboard.
+      </action>
+      <action date="2015-10-26" dev="mlhartme" type="add">
+        Added '-autostop', '-autorestart', '-autochown' and '-autorechown' options for all stage commands.
+      </action>
+      <action date="2015-10-27" dev="mlhartme" type="update">
+        'stool refresh': Removed implicit re-chowning and re-starting. If you need this functionality, invoke 'refresh' with the new auto
+        options for stage commands: use 'stool refresh -autorechown -autorestart' to get the old behavior.
+      </action>
+      <action date="2015-11-02" dev="mlhartme" type="update">
+        'stool remove': Removed implicit stopping. If you need this functionality, invoke 'stool remove -autostop'.
+      </action>
+      <action date="2015-10-26" dev="mlhartme" type="update">
+        Adjusted the 'chown' command for the new '-autorestart' options: 'chown' now reports an error, if the stage is up.
+        Use  '-autorestart' to get the old behavior. The old '-stop' option is gone.
+      </action>
+      <action date="2015-10-26" dev="mlhartme" type="remove">
+        Removed the 'build -restart' option, use '-autorestart' instead.
+      </action>
+      <action date="2015-10-01" dev="mlhartme" type="update">
+        Updated default tomcat version from 7.0.57 to 8.0.26.
+      </action>
       <action date="2015-11-25" dev="mlhartme" type="fix">
         Fixed permission problem on Fitnesse log files; all output is written to backstage/shared/tomcat/logs/fitnesse.log now.
       </action>
@@ -13,23 +36,23 @@
       <action date="2015-11-23" dev="mlhartme" type="fix">
         Fixed tomcat.perm configuration.
       </action>
-      <action date="2015-11-10" dev="mlhartme" type="upgrade">
-        @proxyOpts@ is a normal macro now, if you need it, you defined it in the global configuration.
-        It is no longer computed from the stage owner's environment.
+      <action date="2015-11-10" dev="mlhartme" type="update">
+        @proxyOpts@ is a normal macro now, and it is no longer computed from the stage owner's environment. If you need proxy configuration,
+        you defined it in the global configuration and adjust your stage defaults to use it for all stages.
       </action>
       <action date="2015-11-09" dev="mlhartme" type="remove">
-        Remove Stool update-checks, the packaging system is responsible for this now.
+        Removed Stool update-checks, the packaging system is responsible for this now.
       </action>
       <action date="2015-11-03" dev="mlhartme" type="fix">
         'stool config' now supports a "{}" place holder to refer to the previous value. You can use this e.g. to append to a property:
-        'stool config "tomcat.opts={} -Dfoo=bar"'.
+        'stool config "tomcat.opts={} -Dfoo=bar".
       </action>
       <action date="2015-11-03" dev="mlhartme" type="fix">
         Fixed exception if history argument is not a number. Issue proper error message now.
       </action>
       <action date="2015-11-02" dev="mlhartme" type="add">
-        You can create artifact stages from either gav: or file: urls now. You can specify multiple comma-separates urls (instead of the
-        previous multiple coordinates within one gav url).
+        You can create artifact stages from either gav: or file: urls now. Example: 'stool create file:///path/to/my.war'.
+        You can specify multiple comma-separates urls (instead of the previous multiple coordinates within one gav url).
       </action>
       <action date="2015-10-30" dev="mlhartme" type="update">
         Improved setup: Debian package is configurable with debconf now, and it's separated into a stool and a stool-dashboard package now.
@@ -43,23 +66,6 @@
       </action>
       <action date="2015-10-26" dev="mlhartme" type="update">
         'stool restart': remove 5 seconds sleep.
-      </action>
-      <action date="2015-10-26" dev="mlhartme" type="add">
-        Added '-autostop', '-autorestart', '-autochown' and '-autorechown' options for all stage commands.
-      </action>
-      <action date="2015-10-27" dev="mlhartme" type="update">
-        'stool refresh': Removed implicit re-chowning and re-starting. If you need this functionality, invoke refresh with the new auto options
-        for stage commands: invoke 'stool refresh -autorechown -autorestart' to get the old behavior.
-      </action>
-      <action date="2015-11-02" dev="mlhartme" type="update">
-        'stool remove': Removed implicit stopping. If you need this functionality, invoke 'stool remove -autostop'.
-      </action>
-      <action date="2015-10-26" dev="mlhartme" type="update">
-        Adjusted the 'chown' command for the new '-autorestart' options: 'chown' now reports an error, if the start is up. Use  '-autorestart'
-        to get the old behavior. The old '-stop' option is gone.
-      </action>
-      <action date="2015-10-26" dev="mlhartme" type="remove">
-        Removed the 'build -restart' option, use '-autorestart' instead.
       </action>
       <action date="2015-10-26" dev="mlhartme" type="update">
         Simplified cwd handling: only the following commands change the current directory: create, remove, select and cd.
@@ -96,12 +102,6 @@
       </action>
       <action date="2015-10-01" dev="mlhartme" type="update">
         Removed global 'portOverview' property.
-      </action>
-      <action date="2015-10-01" dev="mlhartme" type="update">
-        Updated default tomcat version from 7.0.57 to 8.0.26.
-      </action>
-      <action date="2015-10-01" dev="mlhartme" type="update">
-        Renamed overview to dashboard.
       </action>
     </release>
     <release version="3.2.0" date="2015-08-09">
