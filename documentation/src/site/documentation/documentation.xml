@@ -272,6 +272,12 @@
     </sect1>
 
     <sect1>
+      <title>System Stages</title>
+
+      <para>A stage whose stage directory is placed in Stool's lib directory is a system stage. System stages a not listed by the Dashboard.
+      The Dashboard is itself a system stage.</para>
+    </sect1>
+    <sect1>
       <title>Stage owner</title>
 
       <para>Stool has a
