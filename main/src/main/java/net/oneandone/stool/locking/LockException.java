@@ -22,6 +22,6 @@ import java.io.IOException;
  */
 public class LockException extends IOException {
     public LockException(String lock, Queue problem) {
-        super("cannot acquire lock " + lock + ": " + problem.problem());
+        super("cannot acquire lock '" + lock + "': " + problem.problem());
     }
 }
