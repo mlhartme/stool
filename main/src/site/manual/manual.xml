@@ -3,6 +3,7 @@
       xmlns="http://docbook.org/ns/docbook"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
       xsi:schemaLocation="http://docbook.org/ns/docbook http://www.docbook.org/xml/5.0/xsd/docbook.xsd
         http://www.w3.org/2001/XInclude http://www.w3.org/2001/XInclude/XInclude.xsd">
   <!-- Conventions
@@ -1453,11 +1454,12 @@
   <chapter>
     <title>Setup</title>
 
-    <para>Stool is distributed via Debian packages on <link href="http://central.sonatype.org">Maven Central</link>. To install Stool:</para>
+    <para>Stool is distributed via Debian packages on <link xlink:href="http://central.sonatype.org">Maven Central</link>
+      (I'd like to have a public Debian repository instead, by I don't know who would host this for free). To install Stool:</para>
     <itemizedlist>
       <listitem>
-        <para>Install Java 8:<literal>sudo apt-get install java8-jdk</literal>. This is prerequisite for Stool because it's implemented
-          with Java 8. Ubuntu provides Java 8 since 15.04, Debian has it in =strech= or in =jessie= with backports.</para>
+        <para>Install Java 8:<literal>sudo apt-get install java8-jdk</literal>. This is prerequisite because Stool implemented
+          in Java 8. Ubuntu provides Java 8 since 15.04, Debian has it in =strech= or in =jessie= with backports.</para>
       </listitem>
       <listitem>
         <para>
@@ -1465,7 +1467,10 @@
           http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22setup%22</para>
       </listitem>
       <listitem>
-        <para>Run <literal>dpkg -i setup-x.y.z.deb setup-dashboard.deb</literal></para>
+        <para>Run <literal>dpkg -i setup-x.y.z.deb setup-x.y.z-dashboard.deb</literal></para>
+      </listitem>
+      <listitem>
+        <para>Adjust <literal>/var/lib/stool/config.json</literal>.</para>
       </listitem>
       <listitem>
         <para>Open a new shell window.</para>
@@ -1482,11 +1487,11 @@
       <literal>stool</literal>
       is a shell function, so
       <literal>which stool</literal>
-      cannot find it (you can see if with
+      cannot find it (you can see the function with
       <literal>declare</literal>). This is the reason why you have to start a new shell after installing stool.
       <literal>stool</literal>
       is not a binary because it has to adjust your environment variables (e.g. to set MAVEN_OPTS
-      depending on you current stage) - this is possible in a shell function, but not in a binary.
+      depending on your current stage) - this is possible in a shell function, but not in a binary.
     </para>
   </chapter>
 
