@@ -83,7 +83,7 @@
   </issueManagement>
 
   <modules>
-    <module>manual</module>
+    <module>documentation</module>
     <module>main</module>
     <module>dashboard</module>
     <module>setup</module>

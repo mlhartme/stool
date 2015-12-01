@@ -10,7 +10,7 @@
 
   <body>
     <links>
-      <item name="Manual" href="manual.html"/>
+      <item name="Documentation" href="documentation.html"/>
     </links>
     <menu ref="reports"/>
   </body>

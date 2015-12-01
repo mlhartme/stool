@@ -538,7 +538,7 @@
         <refsect1>
           <title>See Also</title>
           <para>Homepage: https://github.com/mlhartme/stool</para>
-          <para>Documentation: http://mlhartme.github.io/stool/manual.html</para>
+          <para>Documentation: http://mlhartme.github.io/stool/documentation/documentation.html</para>
           <para>Invoke
             <literal>stool help</literal>
             <replaceable>command</replaceable>
