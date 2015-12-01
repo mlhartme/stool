@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>net.oneandone.stool</groupId>
+    <artifactId>stool</artifactId>
+    <version>3.3.1-SNAPSHOT</version>
+  </parent>
+
+  <name>Stool Manual</name>
+  <artifactId>manual</artifactId>
+  <packaging>jar</packaging>
+  <description>Stool Manual</description>
+
+  <build>
+    <plugins>
+      <plugin>
+        <!-- Documentation: http://code.google.com/p/docbkx-tools/ -->
+        <groupId>com.agilejava.docbkx</groupId>
+        <artifactId>docbkx-maven-plugin</artifactId>
+        <version>2.0.16</version>
+        <dependencies>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-trax</artifactId>
+            <version>1.7.0</version>
+          </dependency>
+          <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant-nodeps</artifactId>
+            <version>1.7.0</version>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <sourceDirectory>src/site/manual</sourceDirectory>
+          <includes>manual.xml</includes>
+          <xincludeSupported>true</xincludeSupported>
+        </configuration>
+        <executions>
+          <execution>
+            <id>manual-manpages</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>generate-manpages</goal>
+            </goals>
+            <configuration>
+              <!-- see http://docbook.sourceforge.net/release/xsl/1.76.1/doc/param.html -->
+              <manAuthorsSectionEnabled>false</manAuthorsSectionEnabled>
+              <targetDirectory>${project.build.directory}/classes/templates/man</targetDirectory>
+              <preProcess>
+                <tstamp>
+                  <format pattern="yyyy-MM-d" property="now" />
+                </tstamp>
+                <mkdir dir="${project.build.directory}/site/manual" />
+                <echo file="${project.build.directory}/now.txt">${now}</echo>
+                <xslt processor="trax" in="${basedir}/src/site/manual/manual.xml" out="${project.build.directory}/synopsis.xml" style="${basedir}/src/site/synopsis.xsl">
+                </xslt>
+                <schemavalidate file="${basedir}/src/site/manual/manual.xml">
+                  <attribute name="http://apache.org/xml/features/xinclude" value="true" />
+                </schemavalidate>
+              </preProcess>
+              <postProcess>
+                <apply executable="gzip">
+                  <arg value="-9" />
+                  <fileset dir="${project.build.directory}/classes/templates/man">
+                    <patternset>
+                      <include name="**/*" />
+                    </patternset>
+                  </fileset>
+                </apply>
+              </postProcess>
+            </configuration>
+          </execution>
+          <execution>
+            <id>manual-html</id>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>generate-html</goal>
+            </goals>
+            <configuration>
+              <targetDirectory>${basedir}/target/site</targetDirectory>
+              <chunkedOutput>false</chunkedOutput>
+              <sectionLabelIncludesComponentLabel>true</sectionLabelIncludesComponentLabel>
+              <sectionAutolabel>true</sectionAutolabel>
+            </configuration>
+          </execution>
+          <!-- look ugly, too many page breaks: execution>
+            <id>manual-pdf</id>
+            <phase>pre-site</phase>
+            <goals>
+              <goal>generate-pdf</goal>
+            </goals>
+            <configuration>
+              <targetDirectory>${basedir}/target/site</targetDirectory>
+            </configuration>
+          </execution -->
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
