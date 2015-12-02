@@ -111,9 +111,7 @@ public class Config extends StageCommand {
             }
         } else {
             for (Property property : all.values()) {
-                console.info.println("# " + property.description);
                 console.info.println(property.name + "=" + property.get(configuration));
-                console.info.println();
             }
         }
     }

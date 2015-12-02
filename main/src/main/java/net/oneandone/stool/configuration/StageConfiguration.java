@@ -51,7 +51,7 @@ public class StageConfiguration {
         for (Field field : StageConfiguration.class.getFields()) {
             option = field.getAnnotation(Option.class);
             if (option != null && !option.readOnly()) {
-                result.put(option.key(), new Property(option.key(), option.description(), field, null));
+                result.put(option.key(), new Property(option.key(), field, null));
             }
         }
         extensions.fields(result);
@@ -60,70 +60,68 @@ public class StageConfiguration {
 
     //--
 
-    @Option(key = "id", description = "unique identifier for this stage", readOnly = true)
+    @Option(key = "id", readOnly = true)
     public final String id;
 
-    @Option(key = "cookies", description = "use cookies for tomcat")
+    @Option(key = "cookies")
     public Boolean cookies;
 
-    @Option(key = "prepare", description = "execute this after checkout")
+    @Option(key = "prepare")
     public String prepare;
 
-    @Option(key = "build", description = "arbitrary build command line. Supported variables: @directory@")
+    @Option(key = "build")
     public String build;
 
-    @Option(key = "refresh", description = "execute this for refresh")
+    @Option(key = "refresh")
     public String refresh;
 
-    @Option(key = "pom", description = "pom file name")
+    @Option(key = "pom")
     public String pom;
 
-    @Option(key = "tomcat.opts", description = "CATALINA_OPTS without heap/perm settings")
+    @Option(key = "tomcat.opts")
     public String tomcatOpts;
 
-    @Option(key = "tomcat.version", description = "Tomcat version to use.")
+    @Option(key = "tomcat.version")
     public String tomcatVersion;
 
-    @Option(key = "tomcat.service", description = "Java Service Wrapper version to use around Tomcat.")
+    @Option(key = "tomcat.service")
     public String tomcatService;
 
-    @Option(key = "tomcat.heap", description = "heap memory in mb")
+    @Option(key = "tomcat.heap")
     public Integer tomcatHeap;
 
-    @Option(key = "tomcat.perm", description = "perm memory in mb")
+    @Option(key = "tomcat.perm")
     public Integer tomcatPerm;
 
-    @Option(key = "tomcat.select", description = "hostnames to start - empty for all")
+    @Option(key = "tomcat.select")
     public List<String> tomcatSelect;
 
-    @Option(key = "tomcat.env", description = "Environment variables passes to applications. The current environment is "
-            + "intentionally unavailable for the running application; this is to make things reproducible.")
+    @Option(key = "tomcat.env")
     public Map<String, String> tomcatEnv;
 
-    @Option(key = "java.home", description = "jdk or jre directory")
+    @Option(key = "java.home")
     public String javaHome;
 
     // never null
-    @Option(key = "maven.home", description = "Maven home")
+    @Option(key = "maven.home")
     private String mavenHome;
 
-    @Option(key = "maven.opts",
-      description = "MAVEN_OPTS when building this stage. Supports macros")
+    @Option(key = "maven.opts")
     public String mavenOpts;
 
-    @Option(key = "until", description = "YYYY-MM-DD")
+    @Option(key = "until")
     public Until until;
 
-    @Option(key = "suffixes", description = "suffixes for the link eg. http://1and1.com/{suffix}")
+    @Option(key = "suffixes")
     public List<String> suffixes;
 
-    @Option(key = "sslUrl", description = "overrides the default url for certificate creation")
+    @Option(key = "sslUrl")
     public String sslUrl;
 
-    @Option(key = "autoRefresh", description = "true if a stage should care about refreshing by itself")
+    @Option(key = "autoRefresh")
     public Boolean autoRefresh;
 
-    @Option(key = "comment", description = "a comment")
+    @Option(key = "comment")
     public String comment;
 
     public final Extensions extensions;

@@ -885,10 +885,9 @@
           </para>
           <para>You can see the configured build command with<literal>stool config build</literal>, and you can change it with
             <literal>stool config "build="</literal>
-            <replaceable>command to build</replaceable>
+            <replaceable>your command command</replaceable>
             <literal>"</literal>
-            (the quotes are
-            mandatory if your command contains spaces).
+            The quotes are mandatory if your command contains spaces.
           </para>
           <para>
             <command>stool build</command>
@@ -1253,11 +1252,9 @@
         <refsect1>
           <title>Description</title>
           <para>Gets or sets stage properties. A property is a key-value pair that configures the respective stage.</para>
-          <para>When invoked without arguments, all stage properties are printed with documentation.</para>
-          <para>When invoked with one or more<replaceable>key</replaceable>s, the respective properties are printed.
-          </para>
-          <para>When invoked with one or more assignments, the respective properties are changed.
-          </para>
+          <para>When invoked without arguments, all stage properties are printed.</para>
+          <para>When invoked with one or more <replaceable>key</replaceable>s, the respective properties are printed.</para>
+          <para>When invoked with one or more assignments, the respective properties are changed.</para>
           <para>Property values may contain {} to refer to the previous value. You can use this, e.g., to append to a property:
             <literal>stool config "tomcat.opts={} -Dfoo=bar"</literal>.
           </para>
@@ -1265,21 +1262,156 @@
             Otherwise, the shell does not see what belongs to your value.
           </para>
           <para>If you change a property, you have to invoke the necessary re-builds or re-starts to make the changes
-            effective. E.g. if you change<literal>tomcat.heap</literal>, you have to run
-            <literal>stool restart</literal>
+            effective. E.g. if you change<literal>tomcat.heap</literal>, you have to run <literal>stool restart</literal>
             to make the change effective.
           </para>
-          <para>Date properties have the form<replaceable>yyyy-mm-dd</replaceable>, so a valid value for
-            <literal>until</literal>
-            is - e.g. -<literal>2013-12-31</literal>.
-          </para>
-          <para>List properties (e.g.<literal>tomcat.select</literal>) are separated by commas.
-          </para>
-          <para>Map properties (e.g.<literal>tomcat.env</literal>) separate entries by commas, and each entry separates key and value
-            by a colon. Example
-            <literal>PATH:/bin, HOME:/home/me</literal>
+          <para>Properties have a type: boolean, number, date, string, list of strings, or map of strings.</para>
+          <para>Boolean properties have the values <literal>true</literal> or <literal>false</literal>.</para>
+          <para>Date properties have the form <replaceable>yyyy-mm-dd</replaceable>, so a valid value for
+            <literal>until</literal> is - e.g. -<literal>2013-12-31</literal>.</para>
+          <para>List properties (e.g.<literal>tomcat.select</literal>) are separated by commas, whitespace before and after is ignored. </para>
+          <para>Map properties (e.g.<literal>tomcat.env</literal>) separate entries by commas, whitespace before and after is ignored.
+            Each entry separates key and value by a colon. Example <literal>PATH:/bin, HOME:/home/me</literal>
           </para>
           <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
+        </refsect1>
+        <refsect1>
+          <title>Available stage properties</title>
+          <para>Note that the default values below might be overwritten by global defaults on your system. </para>
+          <variablelist>
+            <varlistentry>
+              <term>autoRefresh</term>
+              <listitem>
+                <para>True if you want the Dashboard to automatically refresh the stage every minute. Type boolean.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>build</term>
+              <listitem>
+                <para>Shell command executed if the user invokes stool build.
+                  Type string. Default value: <literal>mvn -B -U clean package</literal></para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>comment</term>
+              <listitem>
+                <para>Arbitrary comment for this stage. Stool only stores this value, it has no effect. Type string.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>cookies</term>
+              <listitem>
+                <para>Enable or disable cookies. Type boolean. Default value: <literal>true</literal></para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>id</term>
+              <listitem>
+                <para>Unique identifier for this stage. Set when the stage is created. Read-only. Type string.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>java.home</term>
+              <listitem>
+                <para>Install directory of the JDK used to build and run this stage. Type string.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>maven.home</term>
+              <listitem>
+                <para>Home directory of Maven used to build this stage. Type string. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>maven.opts</term>
+              <listitem>
+                <para>MAVEN_OPTS when building this stage. Type string. Default value: (empty)</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>pom</term>
+              <listitem>
+                <para>Path of the pom file in the stage directory.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>prepare</term>
+              <listitem>
+                <para>Shell command executed after initial checkout of a source stage. Type string.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>refresh</term>
+              <listitem>
+                <para>Shell command executed for source stage if the user invokes stool refresh. Type string.
+                  Default value: <literal>svn @svnCredentials@ up</literal></para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>sslUrl</term>
+              <listitem>
+                <para>Overrides the default url for certificate creation. Type string.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>suffixes</term>
+              <listitem>
+                <para>List of url suffixes to append to the application urls. Type list of strings.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>tomcat.env</term>
+              <listitem>
+                <para>The environment to start Tomcat with. This is intentionally not the environment of the current user
+                  because any user must be able to start the stage and get the same behavior.
+                </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>tomcat.opts</term>
+              <listitem>
+                <para>CATALINA_OPTS without heap/perm settings. Default value: <literal></literal> (empty)</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>tomcat.perm</term>
+              <listitem>
+                <para>Java permanemt memory in mb when running Tomcat. Type number.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>tomcat.heap</term>
+              <listitem>
+                <para>Java heap memory in mb when running Tomcat. Type number.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>tomcat.select</term>
+              <listitem>
+                <para>List of selected applications. When starting a stage, stool only thats the selected applications.
+                  If none is selected (which is the default), Stool start all stages. Type list of strings.
+                  Default value: <literal></literal> (empty)</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>tomcat.service</term>
+              <listitem>
+                <para>Version of the Java service wrapper to use. Type string.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>tomcat.version</term>
+              <listitem>
+                <para>Tomcat version to use. Type string. Default value: <literal>8.0.26</literal></para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>until</term>
+              <listitem>
+                <para>When this stage expires. Type date.</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
         </refsect1>
         <refsect1>
           <title>Examples</title>

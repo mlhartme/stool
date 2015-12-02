@@ -29,13 +29,11 @@ import java.util.Map;
 /** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
 public class Property {
     public final String name;
-    public final String description;
     private final Field field;
     private final String extension;
 
-    public Property(String name, String description, Field field, String extension) {
+    public Property(String name, Field field, String extension) {
         this.name = name;
-        this.description = description;
         this.field = field;
         this.extension = extension;
         field.setAccessible(true);

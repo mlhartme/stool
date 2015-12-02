@@ -91,12 +91,12 @@ public class ExtensionsFactory {
         for (Map.Entry<String, Class<? extends Extension>> entry : types.entrySet()) {
             name = entry.getKey();
             extension = entry.getValue();
-            result.put(name, new Property(name, "enable extension", Switch.FIELD, name));
+            result.put(name, new Property(name, Switch.FIELD, name));
             for (Field field : extension.getDeclaredFields()) {
                 modifiers = field.getModifiers();
                 if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {
                     fullName = name + "." + field.getName();
-                    result.put(fullName, new Property(fullName, "extension field", field, name));
+                    result.put(fullName, new Property(fullName, field, name));
                 }
             }
         }
