@@ -28,7 +28,6 @@ import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Pool;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
@@ -43,7 +42,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
 import java.util.Map;
 
 /** Stool's library directory. Lib is an install directory without man and bin. */
@@ -172,7 +170,6 @@ public class Lib {
     private void upgrade_32_33(FileNode lib) throws IOException {
         FileNode tomcat;
         FileNode overviewProperties;
-        Upgrade stage32_33;
 
         tomcat = lib.join("backstages/overview/shared/run/tomcat.pid");
         if (tomcat.exists()) {
@@ -193,8 +190,7 @@ public class Lib {
         Files.stoolFile(dir.join("run/locks").mkfile());
         ports_32_33(lib);
         gavs_32_33(lib);
-        stage32_33 = stage32_33();
-        doUpgrade(stool32_33(stage32_33), stage32_33);
+        doUpgrade(stool32_33(new UpgradeStage32_33(true)), new UpgradeStage32_33(false));
     }
 
     private void gavs_32_33(FileNode lib) throws IOException {
@@ -336,55 +332,6 @@ public class Lib {
         };
     }
 
-    public static Upgrade stage32_33() {
-        return new Upgrade() {
-            JsonElement tomcatEnvTransform(JsonElement e) throws IOException {
-                JsonArray array;
-                JsonObject result;
-                StringBuilder builder;
-
-                if (e instanceof JsonArray) {
-                    array = (JsonArray) e;
-                } else {
-                    // to transform defaults
-                    array = new JsonArray();
-                    for (String s : Separator.COMMA.split(e.getAsString())) {
-                        array.add(new JsonPrimitive(s));
-                    }
-                }
-                result = upgradeLib.toTomcatEnvMap(array, upgradeBackstage == null ?
-                        defaultUser() : upgradeBackstage.getOwner().toString());
-                if (e instanceof JsonArray) {
-                    return result;
-                } else {
-                    // special case to convert tomcatEnv in defaults
-                    builder = new StringBuilder();
-                    for (Map.Entry<String, JsonElement> item : result.entrySet()) {
-                        if (builder.length() > 0) {
-                            builder.append(',');
-                        }
-                        builder.append(item.getKey());
-                        builder.append(':');
-                        builder.append(item.getValue().getAsString());
-                    }
-                    return new JsonPrimitive(builder.toString());
-                }
-            }
-            String suffixRename() {
-                return "suffixes";
-            }
-            JsonElement suffixTransform(JsonElement e) {
-                JsonArray result;
-
-                result = new JsonArray();
-                if (!e.getAsString().isEmpty()) {
-                    result.add(e);
-                }
-                return result;
-            }
-        };
-    }
-
     /**
      * This user's environment is checked to migrate tomcatEnv defaults in the global config.
      * The problem is that root does not have the proper setup ...
@@ -468,5 +415,63 @@ public class Lib {
             }
         }
         return result;
+    }
+
+    public static class UpgradeStage32_33 implements Upgrade {
+        private final boolean defaults;
+
+        public UpgradeStage32_33(boolean defaults) {
+            this.defaults = defaults;
+        }
+
+        JsonElement tomcatEnvTransform(JsonElement e) throws IOException {
+            JsonArray array;
+            JsonObject result;
+            StringBuilder builder;
+
+            if (defaults) {
+                array = new JsonArray();
+                for (String s : Separator.COMMA.split(e.getAsString())) {
+                    array.add(new JsonPrimitive(s));
+                }
+            } else {
+                array = (JsonArray) e;
+            }
+            result = upgradeLib.toTomcatEnvMap(array, upgradeBackstage == null ?
+                    defaultUser() : upgradeBackstage.getOwner().toString());
+            if (defaults) {
+                // special case to convert tomcatEnv in defaults
+                builder = new StringBuilder();
+                for (Map.Entry<String, JsonElement> item : result.entrySet()) {
+                    if (builder.length() > 0) {
+                        builder.append(',');
+                    }
+                    builder.append(item.getKey());
+                    builder.append(':');
+                    builder.append(item.getValue().getAsString());
+                }
+                return new JsonPrimitive(builder.toString());
+            } else {
+                return result;
+            }
+        }
+
+        String suffixRename() {
+            return "suffixes";
+        }
+
+        JsonElement suffixTransform(JsonElement e) {
+            JsonArray result;
+
+            if (defaults) {
+                return e;
+            } else {
+                result = new JsonArray();
+                if (!e.getAsString().isEmpty()) {
+                    result.add(e);
+                }
+                return result;
+            }
+        }
     }
 }
