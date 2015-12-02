@@ -536,7 +536,7 @@
             <varlistentry>
               <term>ldapUrl</term>
               <listitem>
-                <para>Ldap url for user information.</para>
+                <para>Ldap url for user information. Empty string to disable ldap. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
