@@ -223,56 +223,6 @@
     </sect1>
 
     <sect1>
-      <title>Stage commands</title>
-
-      <para>Most Stool commands are stage commands, i.e. they operate on (an arbitrary number of) stages. Typical
-        stage commands are<literal>status</literal>,<literal>build</literal>,<literal>start</literal>, and<literal>stop</literal>.
-        Note that
-        <literal>create</literal>
-        is not a stage command because it does not initially have a stage to operate on (although it
-        results in a new (and selected) stage).
-      </para>
-
-      <para>By default, stage commands operate on the selected stage. You can change this by specifying one of the
-        selection options
-        <literal>-all</literal>
-        (to operate on all stages) or
-        <literal>-stage</literal>
-        <replaceable>expr</replaceable>
-        to operate on stages that match<replaceable>expr</replaceable>. E.g.
-        <literal>stool status -stage owner=mhm</literal>
-        prints the status of all stages owned by user<literal>mhm</literal>. Or you can print the configuration of stage
-        <literal>foo</literal>
-        with
-        <literal>stool config -stage foo</literal>
-        without changing the selected stage.
-      </para>
-
-      <para>Stage commands have a failure mode, configurable with
-        <literal>-fail</literal>
-        <replaceable>mode</replaceable>, to specify how to
-        deal with broken stages and failed stage commands. Mode
-        <literal>normal</literal>
-        reports problems as soon as they are detected; this is
-        the default.
-        <literal>after</literal>
-        reports problems after the actual command was invoked on all matching stages.
-        And finally
-        <literal>never</literal>
-        is similar to<literal>after</literal>, but reports warnings instead of errors (and thus,
-        Stool always returns with error code 0).
-      </para>
-
-      <para>All stage commands provide 4 auto options do deal with stages that are not stopped or not own by the current user:
-        <literal>-autochown</literal>, <literal>-autorechown</literal>, <literal>-autostop</literal>, <literal>-autorestart</literal>. </para>
-      <para>With <literal>-autorechown</literal>, Stool checks the owner of a stage. If it is not the current user, it temporarily
-        chowns the stage to the current user, invokes the actual command, and chown the stage back to the original
-        owner. <literal>-autochown</literal> is similar, the stage is not chowned back.</para>
-      <para>With <literal>-autorestart</literal>, Stool checks the state of a stage. It the stage is up, Stool stops the stage,
-        invokes the actual command, and starts the stage. <literal>-autostop</literal> is similar, but the stage is not started again.</para>
-    </sect1>
-
-    <sect1>
       <title>System Stages</title>
 
       <para>A stage whose stage directory is placed in Stool's lib directory is a system stage. System stages a not listed by the Dashboard.
@@ -437,7 +387,7 @@
         <refsect1>
           <title>Description</title>
           <para>Stool is a command line tool that provides a lifecycle for stages: create, configure, build, run and remove.
-            A stage contains web applications built from source or downloaded as artifacts.
+            A stage contains web applications built from source or available as artifacts.
             <replaceable>command</replaceable>
             defaults to
             <literal>help</literal>.
@@ -475,72 +425,6 @@
               </listitem>
             </itemizedlist>
           </refsect2>
-          <refsect2>
-            <title>Failure mode for stage commands</title>
-            <variablelist>
-              <varlistentry>
-                <term>-fail normal</term>
-                <listitem>
-                  <para>fail immediately</para>
-                </listitem>
-              </varlistentry>
-              <varlistentry>
-                <term>-fail after</term>
-                <listitem>
-                  <para>fail after iterating all stages</para>
-                </listitem>
-              </varlistentry>
-              <varlistentry>
-                <term>-fail never</term>
-                <listitem>
-                  <para>don't fail, report errors as warning</para>
-                </listitem>
-              </varlistentry>
-            </variablelist>
-          </refsect2>
-          <refsect2>
-            <title>Select options for stage commands</title>
-            <variablelist>
-              <varlistentry>
-                <term>(no selection)</term>
-                <listitem>
-                  <para>operate on the selected stage</para>
-                </listitem>
-              </varlistentry>
-              <varlistentry>
-                <term>
-                  <literal>-all</literal>
-                </term>
-                <listitem>
-                  <para>operate on all stages</para>
-                </listitem>
-              </varlistentry>
-              <varlistentry>
-                <term>
-                  <literal>-stage</literal>
-                  <replaceable>predicate></replaceable>
-                </term>
-                <listitem>
-                  <para>operate on all stages matching the specified
-                    <replaceable>predicate</replaceable>
-                  </para>
-                </listitem>
-              </varlistentry>
-            </variablelist>
-          </refsect2>
-          <refsect2>
-            <title>Selection predicates</title>
-            <programlisting>
-              or = and {',' and}
-              and = cmp {'+' cmp}
-              cmp = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring)
-              prefix = VALUE '*'
-              suffix = '*' VALUE
-              substring = '*' VALUE '*'
-              FIELD # status field
-              PROPERTY # configuration property
-            </programlisting>
-          </refsect2>
         </refsect1>
         <refsect1>
           <title>See Also</title>
@@ -549,7 +433,7 @@
           <para>Invoke
             <literal>stool help</literal>
             <replaceable>command</replaceable>
-            to see more details.
+            to get help for the specified command.
           </para>
         </refsect1>
       </refentry>
@@ -884,8 +768,101 @@
     <section>
       <title>Stage Commands</title>
 
-      <para>All stage commands provide auto options (see above).</para>
+      <para>Most Stool commands are stage commands, i.e. they operate on (an arbitrary number of) stages. Typical
+        stage commands are<literal>status</literal>,<literal>build</literal>,<literal>start</literal>, and<literal>stop</literal>.
+        Note that <literal>create</literal> is not a stage command because it does not initially have a stage to operate on (although it
+        results in a new (and selected) stage).
+      </para>
 
+      <para>All stage commands provide stage options, invoke <literal>stool help stage-options</literal> for documentation.</para>
+
+      <refentry>
+        <refnamediv>
+          <refname>stool-stage-options</refname>
+          <refpurpose>Options available for all stage command</refpurpose>
+        </refnamediv>
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool</command>
+            <arg choice="plain">
+              <replaceable>stage-command</replaceable>
+            </arg>
+            <group>
+              <arg choice="plain">-all</arg>
+              <arg choice="plain">-stage <replaceable>predicate</replaceable></arg>
+            </group>
+            <group>
+              <arg choice="plain">-fail <replaceable>mode</replaceable></arg>
+            </group>
+            <group>
+              <arg choice="plain">-autochown</arg>
+              <arg choice="plain">-autorechown</arg>
+              <arg choice="plain">-autostop</arg>
+              <arg choice="plain">-autorestop</arg>
+            </group>
+            <arg choice="plain">command-options</arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1>
+          <title>Selection options</title>
+
+          <para>By default, stage commands operate on the selected stage (as shown in the stage indicator). You can change this by specifying
+           a selection option.</para>
+          <para><literal>-all</literal> operates on all stages</para>
+          <para><literal>-stage</literal> <replaceable>predicate</replaceable> operates on matching stages.
+            The syntax for predicates is as follows:
+            <programlisting>
+              or = and {',' and}
+              and = expr {'+' expr}
+              expr = NAME | cmp
+              cmp = (FIELD | PROPERTY) ('=' | '!=') (VALUE | prefix | suffix | substring)
+              prefix = VALUE '*'
+              suffix = '*' VALUE
+              substring = '*' VALUE '*'
+              NAME       # name of a stage
+              FIELD      # name of a status field
+              PROPERTY   # name of configuration property
+              VALUE      # arbitrary string
+            </programlisting>
+          </para>
+          <para>The most basic predicate is a simple <literal>NAME</literal>. It matches only on the specified stage. This is handy
+            to invoke one command for a stage without changing the selected stage.</para>
+          <para>Next, a predicates <replaceable>FIELD</replaceable><literal>=</literal><replaceable>VALUE</replaceable> matches
+            stages who's status field has the specified value.</para>
+          <para><replaceable>PROPERTY</replaceable><literal>=</literal><replaceable>VALUE</replaceable> is similar, it matches
+            configuration properties.</para>
+        </refsect1>
+        <refsect1>
+          <title>Failure mode</title>
+          <para>Since stage commands operate on an arbitrary number of stages, you might want to specify what to do if the command fails on
+            some stages. That's what <literal>-fail</literal><replaceable>mode</replaceable> is for.</para>
+          <para>Mode <literal>normal</literal> reports problems immediately and aborts execution, Stool does not try to
+            invoke the command on remaining. This is the default.</para>
+          <para><literal>after</literal> reports problems after the actual command was invoked on all matching stages. Thus, the command
+            is invoked on all stages.</para>
+          <para><literal>never</literal> is similar to<literal>after</literal>, but reports warnings instead of errors
+            (and thus, Stool always returns with error code 0).
+          </para>
+        </refsect1>
+        <refsect1>
+          <title>Auto options</title>
+          <para>Stage commands provide auto options do deal with stages that are not stopped or not owned by the current user.</para>
+          <para>With <literal>-autorechown</literal>, Stool checks the owner of a stage. If it is not the current user, it temporarily
+            chowns the stage to the current user, invokes the actual command, and chowns the stage back to the original
+            owner. <literal>-autochown</literal> is similar, the stage is not chowned back.</para>
+          <para>With <literal>-autorestart</literal>, Stool checks the state of a stage. It the stage is up, Stool stops the stage,
+            invokes the actual command, and starts the stage again. <literal>-autostop</literal> is similar, but the stage is not started
+            again.</para>
+        </refsect1>
+        <refsect1>
+          <title>Examples</title>
+          <para><literal>stool status -stage foo</literal> prints the status of stage <literal>foo</literal>.</para>
+          <para><literal>stool config -stage tomcat.version!=7.0.57 tomcat.version</literal> to print all Tomcat versions other than 7.0.57.</para>
+          <para><literal>stool stop -stage stage=up</literal> stops all stages currently running, but aborts immediately on stage fails to stop</para>
+          <para><literal>stool start -all -fail after</literal> starts all stages. Without <literal>-all</literal>, the command would abort
+          after the first stage that cannot be started (e.g. because it's already running).</para>
+        </refsect1>
+      </refentry>
       <refentry>
         <refnamediv>
           <refname>stool-build</refname>
@@ -895,6 +872,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool build</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1>
@@ -927,6 +907,7 @@
             from the dashboard application, the build command executes in the environment
             of the user who started the dashboard stage.
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
 
@@ -939,6 +920,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool remove</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
             <arg>-force</arg>
             <arg>-batch</arg>
             <arg>-backstage</arg>
@@ -964,6 +948,7 @@
             This is useful to "unimport" a stage, i.e. revert the effect of<literal>stool import</literal>.
           </para>
           <para>Changes the current directory to the parent of the now deleted stage directory.</para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
 
@@ -976,6 +961,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool start</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
             <group>
               <arg choice="plain">-debug</arg>
               <arg choice="plain">-suspend</arg>
@@ -1035,6 +1023,7 @@
             addition, Stool defines a <literal>USER</literal> variable set to the stage owner and a <literal>HOME</literal> variable
             pointing to the owner's home directory.
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
 
@@ -1047,6 +1036,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool stop</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
             <arg>-sleep</arg>
           </cmdsynopsis>
         </refsynopsisdiv>
@@ -1056,6 +1048,7 @@
             <literal>-sleep</literal>
             is specified, the stage is also marked as sleeping.
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
 
@@ -1068,6 +1061,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool restart</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
             <group>
               <arg choice="plain">-debug</arg>
               <arg choice="plain">-suspend</arg>
@@ -1083,6 +1079,7 @@
             <literal>stool start</literal>
             with the specified options.
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
 
@@ -1096,6 +1093,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool refresh</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1>
@@ -1103,6 +1103,7 @@
           <para>Updates artifact stages or - if <literal>-build</literal> is specified -
             invokes the command specified by the refresh property on source stages. Reports an error if the stage is not owned or is up.
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
 
@@ -1115,6 +1116,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool chown</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
             <group>
               <arg>-batch</arg>
               <arg>
@@ -1138,6 +1142,7 @@
           <para>
             <replaceable>user</replaceable> defaults to the current user.
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
 
@@ -1150,6 +1155,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool history</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
             <arg>-max
               <replaceable>n</replaceable>
             </arg>
@@ -1170,6 +1178,7 @@
             <replaceable>n</replaceable>
             defauls is 999).
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
 
@@ -1182,6 +1191,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool cd</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
             <arg>
               <replaceable>target</replaceable>
             </arg>
@@ -1202,6 +1214,7 @@
               </listitem>
             </itemizedlist>
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
         <refsect1>
           <title>Example</title>
@@ -1224,6 +1237,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool config</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
             <group rep="repeat">
               <arg>
                 <replaceable>key</replaceable>
@@ -1263,6 +1279,7 @@
             by a colon. Example
             <literal>PATH:/bin, HOME:/home/me</literal>
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
         <refsect1>
           <title>Examples</title>
@@ -1301,6 +1318,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool rename</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
             <arg choice="plain">
               <replaceable>name</replaceable>
             </arg>
@@ -1311,6 +1331,7 @@
           <para>Changes the stage name without changing the stage directory. If the stage is up, you have to restart it
             to reflect this change in your application url(s).
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
 
@@ -1323,6 +1344,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool move</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
             <arg choice="plain">
               <replaceable>dest</replaceable>
             </arg>
@@ -1341,6 +1365,7 @@
           <para>You might have to re-build your application after moving the stage if you have development tools that store
             absolute paths (e.g. Lavender ...).
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
 
@@ -1352,6 +1377,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool port</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
             <group>
               <arg><replaceable>name</replaceable>:<replaceable>port</replaceable></arg>
             </group>
@@ -1362,6 +1390,7 @@
           <para>Allocates the specified ports for this stage. <replaceable>name</replaceable> specifies the vhost to use this port for.
             When starting a stage, unused allocated ports are freed.
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
 
@@ -1374,6 +1403,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool list</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1>
@@ -1381,6 +1413,7 @@
           <para>Prints a short status of the selected stages; default selection is
             <literal>-all</literal>
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
 
@@ -1393,11 +1426,15 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool cleanup</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
           <para>Removes the Maven repository and rotates *.log info an archive.</para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
 
@@ -1410,6 +1447,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool status</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
             <arg choice="plain">
               <replaceable>field</replaceable>
             </arg>
@@ -1420,6 +1460,7 @@
           <para>Prints the specified status<replaceable>field</replaceable>s of the stage.
             Default: print all fields.
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
 
@@ -1432,6 +1473,9 @@
         <refsynopsisdiv>
           <cmdsynopsis>
             <command>stool validate</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
             <arg>-stop</arg>
             <arg>-email</arg>
           </cmdsynopsis>
@@ -1447,6 +1491,7 @@
             is specified, a notification mail is
             sent to the stage owner.
           </para>
+          <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
         </refsect1>
       </refentry>
     </section>
