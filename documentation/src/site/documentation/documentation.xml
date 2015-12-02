@@ -39,13 +39,13 @@
     <title>Introduction</title>
 
     <para>Stool is a command line tool that provides a lifecycle for stages: create, run, remove.
-      A stage is a Tomcat with web applications built from source or downloaded as artifacts.
+      A stage is a Tomcat with web applications built from sources or downloaded as artifacts.
     </para>
 
     <sect1>
       <title>Quick Tour</title>
       <para>Here's an example, what you can do with Stool.
-        (The following assumes that Stool has been installed properly - see the respective section below)
+        (The following assumes that Stool has been installed properly - see the setup section below)
       </para>
 
       <para>Create a new stage by checking out an application:
@@ -60,7 +60,7 @@
 
         <programlisting>stool start</programlisting>
 
-        To see the running application, point your browser to the url printed by the start command.
+        To see the running application, point your browser to the url printed by the <literal>start</literal> command.
       </para>
 
       <para>You can invoke
@@ -91,13 +91,15 @@
       <para>
         You can get help with
         <programlisting>stool help</programlisting>
-        to see a list of available Stool commands. You can append a command to get more help on that, e.g.
+        to see a list of available commands. You can append a command to get more help on that, e.g.
         <programlisting>stool help create</programlisting>
-        prints help about the create command.
+        prints help about the <literal>create</literal> command.
       </para>
     </sect1>
     <sect1>
       <title>Rationale</title>
+      <para>Why not setup Tomcat by hand or via the admin application? Because Stool makes it simpler, more robust,
+        it deals with port allocation, different users sharing their stages, etc. </para>
       <para>Why not use virtual machines instead of creating stages with Stool? Stool offers the following benefits:</para>
       <itemizedlist>
         <listitem>
@@ -128,10 +130,17 @@
           <listitem>
             <formalpara>
               <title>directory</title>
-              <para>Where the stage is stored in your file system. This is where you usually work with your stage.
-                It holds the source code or the war files of this stage. The directory is determined when you create a
-                stage. You can change the stage directory with<literal>stool move</literal>.
+              <para>Where the stage is stored in your file system, it holds the source code or the war files of this stage.
+                This is where you usually work with your stage. The directory is determined when you create a
+                stage. You can change the stage directory with <literal>stool move</literal>.
               </para>
+            </formalpara>
+          </listitem>
+          <listitem>
+            <formalpara>
+              <title>system stage</title>
+              <para>A stage whose stage directory is placed in Stool's lib directory is called a system stage. System
+                stages are not listed by the Dashboard. </para>
             </formalpara>
           </listitem>
           <listitem>
@@ -139,19 +148,21 @@
               <title>name</title>
               <para>Unique identifier for a stage. The name of the selected stage is shown in your shell prompt, you
                 use it to switch between stages, and it's part of the application url(s).
-                The name is determined when you create a stage (in most cases it's implicitly the name of the stage directory);
+                The name is determined when you create a stage (in most cases it's simply the name of the stage directory);
                 you'll get an error message if it's not unique.
-                You can change the name with<literal>stool rename</literal>.
+                You can change the name with <literal>stool rename</literal>.
               </para>
             </formalpara>
           </listitem>
           <listitem>
             <formalpara>
               <title>url</title>
-              <para>Specifies where the web applications come from: A Subversion URL or Maven coordinates.
-                <programlisting>Examples
+              <para>Specifies where the web applications come from: A Subversion URL, Maven coordinates, or a file url
+                pointing to a war file.
+                <programlisting>Examples:
                   https://github.com/mlhartme/hellowar/trunk
                   gav:net.oneandone:hellowar:1.0.2
+                  file:///home/mhm/foo.war
                 </programlisting>
               </para>
             </formalpara>
@@ -159,7 +170,7 @@
           <listitem>
             <formalpara>
               <title>type</title>
-              <para>How the stage contains the web application(s): source - checkout of a Maven project, or artifact - a Maven artifact.
+              <para>How the stage contains the application(s): source - checkout of a Maven project, or artifact - a Maven artifact.
                 The stage url implies the stage type.
               </para>
             </formalpara>
@@ -168,31 +179,36 @@
             <formalpara>
               <title>state</title>
               <para>one of
-                <itemizedlist>
-                  <listitem>
-                    <para>up: stage is running, applications can be access via application url(s). This is the state after successful start
-                      or restart
-                    </para>
-                  </listitem>
-                  <listitem>
-                    <para>down: stage is not running, applciations cannot be accessed. This is the initial state after creation or after
-                      it was stopped
-                    </para>
-                  </listitem>
-                  <listitem>
-                    <para>sleeping: stage is temporarily not running; state after stage was stopped with<literal>-sleep</literal>.
-                      This state is used e.g. when a machine is rebooted, it flags the stages that should be started once the machine
-                      is up again.
-                    </para>
-                  </listitem>
-                </itemizedlist>
+                <variablelist>
+                  <varlistentry>
+                    <term>up</term>
+                    <listitem>
+                      <para>stage is running, applications can be access via application url(s). This is the state after successful start
+                        or restart
+                      </para>
+                    </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>down</term>
+                    <listitem>
+                      <para>stage is not running, applciations cannot be accessed. This is the initial state after creation or after
+                        it was stopped.
+                      </para>
+                    </listitem>
+                  </varlistentry>
+                  <varlistentry>
+                    <term>sleeping</term>
+                    <listitem>
+                      <para>stage is temporarily not running; state after stage was stopped with<literal>-sleep</literal>.
+                        This state is used e.g. when a machine is rebooted, it flags the stages that should be started once the machine
+                        is up again.
+                      </para>
+                    </listitem>
+                  </varlistentry>
+                </variablelist>
               </para>
             </formalpara>
-            <para>You can check the state with
-              <literal>stool status</literal>
-              or
-              <literal>stool list</literal>
-            </para>
+            <para>You can check the state with <literal>stool status</literal> or <literal>stool list</literal>.</para>
           </listitem>
           <listitem>
             <formalpara>
@@ -208,11 +224,9 @@
       <title>Selected stage and stage indicator</title>
 
       <para>Usually you have one stage you're working with: the selected stage, which is shown in the stage
-        indicator in your prompt:<literal>{somestage}</literal>. After creating a stage, it
+        indicator in your prompt: <literal>{somestage}</literal>. After creating a stage, it
         automatically becomes the selected stage, subsequent Stool commands work with this stage. If you want to work
-        with a different stage, you use
-        <literal>stool select</literal>
-        to switch to it. If you remove the current stage,
+        with a different stage, you use <literal>stool select</literal> to switch to it. If you remove the current stage,
         you no longer have a selected stage and the stage indicator vanishes.
       </para>
 
@@ -222,26 +236,14 @@
       </para>
     </sect1>
 
-    <sect1>
-      <title>System Stages</title>
-
-      <para>A stage whose stage directory is placed in Stool's lib directory is a system stage. System stages a not listed by the Dashboard.
-      The Dashboard is itself a system stage.</para>
-    </sect1>
-    <sect1>
+    <sect1 xml:id="stageOwner">
       <title>Stage owner</title>
 
-      <para>Stool has a
-        <literal>shared</literal>
-        configuration property. If you run Stool on your own machine
-        and you are the only user, you'll set it to
-        <literal>false</literal>
-        - you can skip the rest of this section. On the other
-        hand, if Stool is used by multiple users, you have to comply with company security rules. Set
-        <literal>shared</literal>
-        to
-        <literal>true</literal>
-        to use Stool as described below.
+      <para>Stool has a configuration property <literal>shared</literal>. If you run Stool on your own machine
+        and you are the only user, you'll set it to <literal>false</literal>
+        - you can skip the rest of this section. On the other hand, if Stool is used by multiple users and you want
+        all users to work on all stages, you'll set <literal>shared</literal> to <literal>true</literal>
+        to use Stool as described in this sections.
       </para>
 
       <para>If you create a new stage, you become the owner of this stage. You own the files in the stage directory
@@ -258,11 +260,8 @@
         actually issued the start command. Thus, any user can start and stop a stage, not only the owner.
       </para>
 
-      <para>If a different user has to make changes to stage files, he/she has to use the
-        <literal>chown</literal>
-        command to become
-        owner of the stage and thus get the necessary permissions to change files.
-      </para>
+      <para>If a different user has to make changes to stage files, he/she has to use the <literal>chown</literal>
+        command to become owner of the stage and thus get the necessary permissions to change files.</para>
 
       <para>Example: If user
         <literal>mhm</literal>
@@ -282,8 +281,7 @@
               <literal>servlet</literal>
               or
               <literal>stage5</literal>
-              have to be replaced by personalized logins
-              (security guideline).
+              have to be replaced by personalized logins (security guideline).
             </para>
           </listitem>
           <listitem>
@@ -302,18 +300,19 @@
         <literal>chown</literal>
         command internally uses
         <literal>sudo</literal>
-        to elevate the current user's
-        permissions to start/stop processes or change file ownership. Note that some files have to be group-writable, because arbitrary
-        users have to create them: the global lock and things generated by<literal>stool start</literal>). All users of Stool have to be
-        in the group<literal>stool</literal>.
+        to elevate the current user's permissions to start/stop processes or change file ownership. Note that some files
+        have to be group-writable, because arbitrary users have to create them: the global lock and things generated
+        by<literal>stool start</literal>). All users of Stool have to be in the group<literal>stool</literal>.
       </para>
     </sect1>
 
     <sect1>
       <title>Properties</title>
-      <para>Stool is configured via Stool properties and stage properties. Stool properties are global settings that apply to all stages,
-        they are usually adjusted by system administration. Stage properties configure the respective stage only, every stage has its own
-        set of stage properties. The owner of a stage can adjust stage properties with<command>stool config</command>.
+      <para>A property is a key/value pair. Stool is configured via Stool properties and stage properties. Stool
+        properties are global settings that apply to all stages, they are usually adjusted by system administration
+        (see <link linkend="stoolProperties">stool properties</link>).
+        Stage properties configure the respective stage only, every stage has its own set of stage properties. The owner
+        of a stage can adjust stage properties with <link linkend="stoolConfig"><literal>stool config</literal></link>.
       </para>
     </sect1>
 
@@ -355,6 +354,11 @@
       </para>
     </sect1>
 
+    <sect1>
+      <title>Dashboard</title>
+
+      <para>The dashboard is a stage you can install to control stages via browser.</para>
+    </sect1>
   </chapter>
 
   <chapter>
@@ -426,7 +430,7 @@
             </itemizedlist>
           </refsect2>
         </refsect1>
-        <refsect1>
+        <refsect1 xml:id="stoolProperties">
           <title>Stool properties</title>
           <para>Stool's global configuration is defined by the following Stool properties. (Stool distinguishes Stool properties and stage
             properties; use 'stool help config' to see the available stage properties.) </para>
@@ -573,7 +577,8 @@
             <varlistentry>
               <term>shared</term>
               <listitem>
-                <para>true if multiple user may work on stages.</para>
+                <para><literal>true</literal> if multiple user may work on stages. See <link linkend="stageOwner">stage owner</link>
+                for details.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -1386,7 +1391,7 @@
         </refsect1>
       </refentry>
 
-      <refentry>
+      <refentry xml:id="stoolConfig">
         <refnamediv>
           <refname>stool-config</refname>
           <refpurpose>Manage stage properties</refpurpose>
