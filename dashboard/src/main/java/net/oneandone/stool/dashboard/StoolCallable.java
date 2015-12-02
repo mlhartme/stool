@@ -76,10 +76,6 @@ public class StoolCallable implements Callable<Failure> {
             launcher.arg("-svnpassword", subversion.password);
         }
         launcher.arg(command, "-stage", stage.getName());
-        if (command.equals("refresh")) {
-            launcher.arg("-autorechown");
-            launcher.arg("-autorestart");
-        }
         launcher.arg(options);
         try (PrintWriter writer = new PrintWriter(logDir.join(id + ".log").createWriter())) {
             writer.println(hide(hide(launcher.toString(), subversion.password), subversion.username));

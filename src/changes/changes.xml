@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.3.1" date="2015-12-30">
-      <action date="2015-10-01" dev="mlhartme" type="update">
+      <action date="2015-12-02" dev="mlhartme" type="update">
+        Fixed duplicate -autorechown/-autorestart options in dashboard refresh.
+      </action>
+      <action date="2015-12-02" dev="mlhartme" type="update">
         Moved stage property description from the config command to the documentation (man stool-config).
+      </action>
+      <action date="2015-12-02" dev="mlhartme" type="update">
+        Improved documentation.
       </action>
     </release>
     <release version="3.3.0" date="2015-11-30">
