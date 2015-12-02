@@ -427,6 +427,164 @@
           </refsect2>
         </refsect1>
         <refsect1>
+          <title>Stool properties</title>
+          <para>Stool's global configuration is defined by the following Stool properties. (Stool distinguishes Stool properties and stage
+            properties; use 'stool help config' to see the available stage properties.) </para>
+          <variablelist>
+            <varlistentry>
+              <term>portFirst</term>
+              <listitem>
+                <para>First port available for stages.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>portLast</term>
+              <listitem>
+                <para>Last port available for stages. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>baseHeap</term>
+              <listitem>
+                <para>Base value to calculate ram per application. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>basePerm</term>
+              <listitem>
+                <para>Base value to calculate ram per application. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>certificates</term>
+              <listitem>
+                <para>Url to generate certificates to make stages available via https. Empty to disable https.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>committed</term>
+              <listitem>
+                <para>true if users have to commit all source changes before stool allows them to start the stage. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>contactAdmin</term>
+              <listitem>
+                <para>Email of the person to receive validation failures and exception mails.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>autoRemove</term>
+              <listitem>
+                <para>Number of days to wait before removing an expired stage.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>defaults</term>
+              <listitem>
+                <para>Default value for stage properties. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>diskMin</term>
+              <listitem>
+                <para>Minimum mb free space. If less space is available, Stool refuses to create more stages. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>downloadTomcat</term>
+              <listitem>
+                <para>Url pattern where to download Tomcat. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>downloadServiceWrapper</term>
+              <listitem>
+                <para>Url pattern where to download Java Service Wrapper. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>downloadCache</term>
+              <listitem>
+                <para>Directory where to store Tomcat or Service wrapper downloads.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>hostname</term>
+              <listitem>
+                <para>Hostname used to refer to this machine in application urls and emails.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>ldapCredentials</term>
+              <listitem>
+                <para>Password for Ldap authentication. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>ldapPrincipal</term>
+              <listitem>
+                <para>User for Ldap authentication. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>ldapSso</term>
+              <listitem>
+                <para>To authenticate Dashboard users. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>ldapUrl</term>
+              <listitem>
+                <para>Ldap url for user information.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>macros</term>
+              <listitem>
+                <para>String replacements for stage properties.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>mailHost</term>
+              <listitem>
+                <para>Smtp Host name to deliver emails.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>mailUsername</term>
+              <listitem>
+                <para>Username for mailHost. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>mailPassword</term>
+              <listitem>
+                <para>Password for mailHost. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>prompt</term>
+              <listitem>
+                <para>ps1 shell string to use if a stage is selected.
+                  Supports extra variables: \\+ for stage indicator, \\= for original prompt. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>shared</term>
+              <listitem>
+                <para>true if multiple user may work on stages.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>vhosts</term>
+              <listitem>
+                <para>false to use ports to distinguish stages and applications. true to use vhosts and ports.</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </refsect1>
+        <refsect1>
           <title>See Also</title>
           <para>Homepage: https://github.com/mlhartme/stool</para>
           <para>Documentation: http://mlhartme.github.io/stool/documentation/documentation.html</para>
@@ -1251,7 +1409,8 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Gets or sets stage properties. A property is a key-value pair that configures the respective stage.</para>
+          <para>This command sets or sets stage properties. (Stool distinguishes stage properties and stool properties. See 'stool help'
+            for a description of stool properties.) A property is a key-value pair that configures the respective stage.</para>
           <para>When invoked without arguments, all stage properties are printed.</para>
           <para>When invoked with one or more <replaceable>key</replaceable>s, the respective properties are printed.</para>
           <para>When invoked with one or more assignments, the respective properties are changed.</para>
