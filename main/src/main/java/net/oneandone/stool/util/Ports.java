@@ -122,13 +122,30 @@ public class Ports {
                         name = vhost.name + "-" + no;
                         no++;
                     }
-                    result.put(name, vhost.httpUrl(vhosts, hostname) + suffix);
+                    result.put(name, "http://" + subst(vhost.fqdnHttpPort(vhosts, hostname), suffix));
                     if (https) {
-                        result.put(name + " SSL", vhost.httpsUrl(vhosts, hostname) + suffix);
+                        result.put(name + " SSL", "https://" + subst(vhost.fqdnHttpsPort(vhosts, hostname), suffix));
                     }
                 }
             }
         }
         return result;
+    }
+
+    private static final String MARKER = "[]";
+
+    private static String subst(String fqdnPort, String suffix) {
+        int idx;
+
+        if (suffix.isEmpty()) {
+            return fqdnPort;
+        }
+        idx = suffix.indexOf(MARKER);
+        if (idx == -1) {
+            // old-style suffix
+            return fqdnPort + suffix;
+        }
+        // new suffix
+        return suffix.substring(0, idx) + fqdnPort + suffix.substring(idx + MARKER.length());
     }
 }

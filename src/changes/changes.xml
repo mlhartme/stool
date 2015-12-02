@@ -2,6 +2,9 @@
   <body>
     <release version="3.3.1" date="2015-12-30">
       <action date="2015-12-02" dev="mlhartme" type="update">
+        Generalized suffixed: if a suffix contains [], the resulting application url is the suffix with [] substituted by hostname:port.
+      </action>
+      <action date="2015-12-02" dev="mlhartme" type="update">
         Fixed duplicate -autorechown/-autorestart options in dashboard refresh.
       </action>
       <action date="2015-12-02" dev="mlhartme" type="update">

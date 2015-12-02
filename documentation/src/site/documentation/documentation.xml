@@ -579,7 +579,8 @@
             <varlistentry>
               <term>vhosts</term>
               <listitem>
-                <para>false to use ports to distinguish stages and applications. true to use vhosts and ports.</para>
+                <para>Type boolean. <literal>true</literal> to create application urls with ports and vhosts for application and stage name.
+                  <literal>false</literal> to create application urls with ports and without vhosts.</para>
               </listitem>
             </varlistentry>
           </variablelist>
@@ -1515,7 +1516,12 @@
             <varlistentry>
               <term>suffixes</term>
               <listitem>
-                <para>List of url suffixes to append to the application urls. Type list of strings.</para>
+                <para>A list of suffixes that define how to build the application urls reported to the user. Each suffix in the list
+                  defines one application url without the initial http:// or https://. An empty list of suffixes is treated as a single
+                  empty suffix.</para>
+                <para>If a suffix contains the placeholder "[]", the url is the suffix with the placeholder replaced by
+                  <replaceable>hostname:port</replaceable>; otherwise, the url is <replaceable>hostname:port</replaceable> with the
+                  suffix appended.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -1792,7 +1798,8 @@
     <title>Setup</title>
 
     <para>Stool is distributed via Debian packages on <link xlink:href="http://central.sonatype.org">Maven Central</link>
-      (I'd like to have a public Debian repository instead, by I don't know who would host this for free). To install Stool:</para>
+      (I'd like to have a public Debian repository instead, by I don't know who would host this for free). It is split into a <literal>stool</literal>
+      and a <literal>stool-dashboard</literal> package. The dashboard is optional. To install Stool:</para>
     <itemizedlist>
       <listitem>
         <para>Install Java 8:<literal>sudo apt-get install java8-jdk</literal>. This is prerequisite because Stool implemented
@@ -1800,14 +1807,17 @@
       </listitem>
       <listitem>
         <para>
-          Download the latest setup-x.y.z.deb and setup-x.y.z-dashboard.deb from
+          Download the latest setup-x.y.z.deb from
           http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22setup%22</para>
       </listitem>
       <listitem>
-        <para>Run <literal>dpkg -i setup-x.y.z.deb setup-x.y.z-dashboard.deb</literal></para>
+        <para>Run <literal>dpkg -i setup-x.y.z.deb</literal></para>
       </listitem>
       <listitem>
-        <para>Adjust <literal>/var/lib/stool/config.json</literal>.</para>
+        <para>Option, only if you want the dashboard: repeat the previous steps for setup-x.y.z-dashboard.deb</para>
+      </listitem>
+      <listitem>
+        <para>Adjust stool properties with <literal>sudo nano /var/lib/stool/config.json</literal>.</para>
       </listitem>
       <listitem>
         <para>Open a new shell window.</para>

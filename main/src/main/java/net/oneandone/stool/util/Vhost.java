@@ -110,11 +110,19 @@ public class Vhost {
     }
 
     public String httpUrl(boolean vhosts, String hostname) {
-        return "http://" + fqdn(vhosts, hostname) + ":" + httpPort();
+        return "http://" + fqdnHttpPort(vhosts, hostname);
+    }
+
+    public String fqdnHttpPort(boolean vhosts, String hostname) {
+        return fqdn(vhosts, hostname) + ":" + httpPort();
     }
 
     public String httpsUrl(boolean vhosts, String hostname) {
-        return "https://" + fqdn(vhosts, hostname) + ":" + httpsPort();
+        return "https://" + fqdnHttpsPort(vhosts, hostname);
+    }
+
+    public String fqdnHttpsPort(boolean vhosts, String hostname) {
+        return fqdn(vhosts, hostname) + ":" + httpsPort();
     }
 
     public String fqdn(boolean vhosts, String hostname) {
