@@ -37,9 +37,9 @@ public class Port extends StageCommand {
         int port;
         String vhost;
 
-        idx = str.indexOf(':');
+        idx = str.indexOf('=');
         if (idx == -1) {
-            throw new ArgumentException("missing : in argument '" + str + "'");
+            throw new ArgumentException("missing = in argument '" + str + "'");
         }
         vhost = str.substring(0, idx);
         port = Integer.parseInt(str.substring(idx + 1));

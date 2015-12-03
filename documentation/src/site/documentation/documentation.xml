@@ -1650,13 +1650,13 @@
               <replaceable>stage-option</replaceable>
             </arg>
             <group>
-              <arg><replaceable>name</replaceable>:<replaceable>port</replaceable></arg>
+              <arg><replaceable>name</replaceable>=<replaceable>port</replaceable></arg>
             </group>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Allocates the specified ports for this stage. <replaceable>name</replaceable> specifies the vhost to use this port for.
+          <para>Allocates the specified ports for this stage. <replaceable>name</replaceable> specifies the application to use this port.
             When starting a stage, unused allocated ports are freed.
           </para>
           <para>This is a stage command, invoke <literal>stool help stage-options</literal> to see available stage-options.</para>
