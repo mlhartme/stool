@@ -22,7 +22,9 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Remaining;
+import net.oneandone.sushi.util.Strings;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -81,6 +83,8 @@ public class Config extends StageCommand {
         boolean error;
         Property prop;
         String value;
+        Collection<Property> props;
+        int width;
 
         configuration = stage.config();
         if (set) {
@@ -105,13 +109,17 @@ public class Config extends StageCommand {
                     session.environment.setAll(session.environment(stage));
                 }
             }
-        } else if (get) {
-            for (Property property : selected.keySet()) {
-                console.info.println(property.name + "=" + property.get(configuration));
-            }
         } else {
-            for (Property property : all.values()) {
-                console.info.println(property.name + "=" + property.get(configuration));
+            props = get ? selected.keySet() : all.values();
+            width = 0 ;
+            if (props.size() > 1) {
+                for (Property property : props) {
+                    width = Math.max(width, property.name.length());
+                }
+                width += 3;
+            }
+            for (Property property : props) {
+                console.info.println(Strings.padLeft(property.name, width) + " : " + property.get(configuration));
             }
         }
     }
