@@ -17,12 +17,9 @@
 package net.oneandone.stool.setup;
 
 import net.oneandone.stool.util.Vhost;
-import net.oneandone.sushi.fs.DirectoryNotFoundException;
-import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.LineFormat;
 import net.oneandone.sushi.fs.LineReader;
 import net.oneandone.sushi.fs.Node;
-import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
@@ -90,25 +87,12 @@ public class Host32 {
     public Vhost upgrade(Node backstage) throws IOException {
         String name;
         String stageName;
-        FileNode stage;
-        FileNode dr;
 
         stageName = backstage.getName();
         if (!vhost.endsWith("." + stageName)) {
             throw new IllegalStateException(vhost + " does not end with " + stageName);
         }
         name = vhost.substring(0, vhost.length() - stageName.length() - 1);
-        stage = (FileNode) backstage.join("anchor").resolveLink();
-        if (docroot == null) {
-            dr = null;
-        } else {
-            if (docroot.startsWith("/")) {
-                dr = stage.getWorld().file(docroot);
-            } else {
-                dr = stage.join(docroot);
-            }
-            // dr does not necessarily exists (e.g. if the war is currently not built
-        }
-        return new Vhost(even, name, stageName, dr);
+        return new Vhost(even, name, stageName, null);
     }
 }

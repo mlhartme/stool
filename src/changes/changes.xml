@@ -5,7 +5,7 @@
         Changed the port command to separate application and port by '=' (indead of ':').
       </action>
       <action date="2015-12-02" dev="mlhartme" type="fix">
-        Fixed Stool 3.2.x upgrade code to properly migrate suffixes in global defaults.
+        Fixed Stool 3.2.x upgrade code to properly migrate ports of workspaces and suffixes in global defaults.
       </action>
       <action date="2015-12-02" dev="mlhartme" type="update">
         Generalized suffixes: if a suffix contains [], the resulting application url is the suffix with [] substituted by hostname:port.
