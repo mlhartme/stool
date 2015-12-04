@@ -1815,14 +1815,11 @@
     </para>
   </chapter>
 
-
   <chapter>
     <title>Directory Layout</title>
     <para>
-      ... of files installed or managed by Stool:
+      ... of $STOOL_LIB. Default location is <literal>/usr/share/stool</literal>.
       <programlisting>
-        (stage directory) (normal application files)
-        (stool lib)       (install directory = stool lib + bin + man)
         |- config.json (Stool configuration)
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
         |- dashboard.properties (Dashboard configuration)
@@ -1834,15 +1831,6 @@
         |    |- (one file per user session)
         |    :
         |- downloads (caches Tomcat- and Service Wrapper downloads)
-        |- bin (*) binary- and script stuff
-        | |- lib (symlink to lib directory)
-        | |- stool-function
-        | |- service-wrapper.sh
-        | |- stool.jar
-        | |- stool-(timestamp).jar (optional incremental updates)
-        | |- stool-catalina.sh
-        | '- stool-chown.sh
-        |- man (*) documentation
         |- extensions (for jars with Stool extensions)
         |- logs
         | |- stool.log
@@ -1856,7 +1844,6 @@
         | :
         '- backstage
           '- (stage name)
-            |- stage.url (only
             |- config.json (stage properties and some status fields)
             |- anchor (symlink to stage directory)
             |- .m2 (Maven repository for this stage)
@@ -1873,7 +1860,6 @@
                   '- logs
                      '- applogs (application log files for pustefix apps)
       </programlisting>
-      (*) If you installed the Debian package: bin is placed at /usr/share/stool, man is placed at /usr/share/man.
     </para>
   </chapter>
 </book>
