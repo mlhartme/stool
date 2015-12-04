@@ -67,7 +67,7 @@ public class DebianDashboardSetup extends Debian {
         setupUser();
         log(stool("create", "file:///usr/share/stool-dashboard/dashboard.war", lib.join("dashboard").getAbsolute(), "until=reserved"));
         if (!port.isEmpty()) {
-            log(stool("port", "-stage", "dashboard", "dashboard:" + port));
+            log(stool("port", "-stage", "dashboard", "dashboard=" + port));
         }
         properties();
         log(stool("start", "-stage", "dashboard"));
