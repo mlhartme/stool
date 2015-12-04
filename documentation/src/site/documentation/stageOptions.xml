@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<para xmlns="http://docbook.org/ns/docbook">Note: This is a stage command, invoke <literal>stool help stage-options</literal> to see available
+  <link linkend="stageOptions">stage options</link>.</para>
