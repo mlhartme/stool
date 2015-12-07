@@ -16,6 +16,7 @@
 
 package net.oneandone.stool.setup;
 
+import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.LineFormat;
 import net.oneandone.sushi.fs.LineReader;
@@ -93,6 +94,11 @@ public class Host32 {
             throw new IllegalStateException(vhost + " does not end with " + stageName);
         }
         name = vhost.substring(0, vhost.length() - stageName.length() - 1);
+        if (name.equals("stop+wrapper")) {
+            name = Ports.STOP_WRAPPER;
+        } else if (name.equals("jmx+debug")) {
+            name = Ports.JMX_DEBUG;
+        }
         return new Vhost(even, name, stageName, null);
     }
 }
