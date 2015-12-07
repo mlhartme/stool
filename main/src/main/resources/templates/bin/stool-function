@@ -60,7 +60,7 @@ stool() {
     if [ -f $STOOL_INVOCATION ] ; then
       . $STOOL_INVOCATION
       # I've seen an empty $USER when running stool from a cron jobs
-      mv -f $STOOL_INVOCATION $bin/lib/run/users/$USER || (echo "cannot move invocation file, check USER variable: $USER'; rm $STOOL_INVOCATION)
+      mv -f $STOOL_INVOCATION $bin/lib/run/users/$USER || (echo "cannot move invocation file, check USER variable: $USER"; rm $STOOL_INVOCATION)
     fi
   fi
 
