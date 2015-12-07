@@ -70,6 +70,9 @@ public class Start extends StageCommand {
         FileNode download;
         Ports ports;
 
+        // to avoid running into a ping timeout below:
+        stage.session.configuration.verfiyHostname();
+
         serviceWrapperOpt(stage.config().tomcatService);
         download = tomcatOpt(stage.config().tomcatVersion);
         checkUntil(stage.config().until);
@@ -143,12 +146,14 @@ public class Start extends StageCommand {
         URI uri;
         Socket socket;
         InputStream in;
+        int count;
 
         console.info.println("Ping'n Applications.");
         for (String url : stage.urlMap().values()) {
             if (url.startsWith("http://")) {
                 uri = new URI(url);
                 console.verbose.println("Ping'n " + url);
+                count = 0;
                 while (true) {
                     try {
                         socket = new Socket(uri.getHost(), uri.getPort());
@@ -158,6 +163,10 @@ public class Start extends StageCommand {
                     } catch (IOException e) {
                         console.verbose.println("port not ready yet: " + e.getCause());
                         Thread.sleep(100);
+                        count++;
+                        if (count > 10 * 60 * 5) {
+                            throw new IOException(url + ": ping timed out");
+                        }
                     }
                 }
             }
