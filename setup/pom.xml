@@ -89,6 +89,10 @@
                 -dontnote net.oneandone.sushi.**
                 -dontwarn net.oneandone.sushi.**
 
+                -keep class ** extends javax.mail.Transport {
+                public &lt;init&gt;(...);
+                }
+
                 -keep public class ** implements org.eclipse.aether.spi.locator.Service {
                 }
 
