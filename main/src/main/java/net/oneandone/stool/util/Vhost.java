@@ -149,6 +149,6 @@ public class Vhost {
         if (Objects.equals(this.docroot, newDocroot) && (newEven == null || newEven == even)) {
             return null;
         }
-        return new Vhost(newEven == null ? even : newEven, name, stage, docroot);
+        return new Vhost(newEven == null ? even : newEven, name, stage, newDocroot);
     }
 }
