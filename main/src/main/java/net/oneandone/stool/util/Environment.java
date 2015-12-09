@@ -105,11 +105,15 @@ public class Environment {
     public String get(String key) {
         String value;
 
-        value = properties.get(key);
+        value = lookup(key);
         if (value == null) {
             throw new IllegalStateException("property not found: " + key);
         }
         return value;
+    }
+
+    public String lookup(String key) {
+        return properties.get(key);
     }
 
     public String getOpt(String key) {

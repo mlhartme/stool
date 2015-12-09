@@ -364,7 +364,10 @@ public class Lib {
             if (name.equals("USER") || name.equals("HOME")) {
                 continue;
             }
-            value = env.get(name); // never null
+            value = env.lookup(name);
+            if (value == null) {
+                throw new IOException("user " + user + ": env variable not found:" + name);
+            }
             result.add(name, new JsonPrimitive(value));
         }
         return result;
