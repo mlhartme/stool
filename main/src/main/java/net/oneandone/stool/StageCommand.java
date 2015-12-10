@@ -348,12 +348,17 @@ public abstract class StageCommand extends SessionCommand {
                 boolean result;
                 Object obj;
                 String str;
+                Property p;
 
                 if (constField != null) {
                     status = Status.status(stage);
                     obj = status.get(constField);
                 } else {
-                    obj = properties.get(constProperty).get(stage.config());
+                    p = properties.get(constProperty);
+                    if (p == null) {
+                        throw new PredicateException("property or status field not found: " + constProperty);
+                    }
+                    obj = p.get(stage.config());
                 }
                 if (obj == null) {
                     str = "";
