@@ -337,9 +337,13 @@ public class Lib {
      * The problem is that root does not have the proper setup ...
      * TODO: what if the root users performs the install?
      */
-    private static String defaultUser() {
+    private static String upgradeUser() throws IOException {
         String result;
 
+        result = System.getenv("STOOL_UPGRADE_USER");
+        if (result != null) {
+            return result;
+        }
         result = System.getProperty("user.name");
         if (!"root".equals(result)) {
             return result;
@@ -348,7 +352,7 @@ public class Lib {
         if (result != null) {
             return result;
         }
-        return "stool";
+        throw new IOException("cannot determine upgrade user, please define an STOOL_UPGRADE_USER envionment variable");
     }
 
     private JsonObject toTomcatEnvMap(JsonArray array, String user) throws IOException {
@@ -441,7 +445,7 @@ public class Lib {
                 array = (JsonArray) e;
             }
             result = upgradeLib.toTomcatEnvMap(array, upgradeBackstage == null ?
-                    defaultUser() : upgradeBackstage.getOwner().toString());
+                    upgradeUser() : upgradeBackstage.getOwner().toString());
             if (defaults) {
                 // special case to convert tomcatEnv in defaults
                 builder = new StringBuilder();
