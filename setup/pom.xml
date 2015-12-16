@@ -187,6 +187,10 @@
                 -dontnote net.oneandone.sushi.**
                 -dontwarn net.oneandone.sushi.**
 
+                -keepclassmembers public class net.oneandone.stool.configuration.StoolConfiguration {
+                  !static !transient &lt;fields&gt;;
+                }
+
                 -keep public class ** implements net.oneandone.stool.extensions.Extension {
                     public &lt;init&gt;(...);
                 }
