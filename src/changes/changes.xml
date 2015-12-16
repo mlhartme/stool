@@ -17,7 +17,7 @@
         Fixed exception emails.
       </action>
       <action date="2015-12-07" dev="mlhartme" type="update">
-        'stool start' now reports an error if the hostname name cannot be resolved. And pinging the application became a 5 minutes timeout.
+        'stool start' now reports an error if the hostname name cannot be resolved. And pinging the application has a 5 minutes timeout now.
       </action>
       <action date="2015-12-03" dev="mlhartme" type="update">
         Changed the port command to separate application and port by '=' (indead of ':').
