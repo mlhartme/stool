@@ -16,7 +16,6 @@ stool() {
   # Special variable handling: they are private and you cannot export them on Mac OS.
   # We make them available to the java code under the EXPORTED_ prefix
   export EXPORTED_PS1="$PS1"
-  export EXPORTED_PWD="$PWD"
 
   # adjust this to configure a specific java version
   local java=java
@@ -73,7 +72,6 @@ stool() {
   fi
 
   unset EXPORTED_PS1
-  unset EXPORTED_PWD
 
   return $result
 }
