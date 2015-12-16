@@ -71,6 +71,7 @@ public class KeyStore {
               "-export", "-passout", "pass:" + password(), "-in", certificate.certificate().getAbsolute(),
               "-inkey", certificate.privateKey().getAbsolute(), "-out", keystore.getAbsolute(),
               "-name", "tomcat").exec();
+            Files.stoolFile(keystore);
             return keystore;
         } catch (Failure e) {
             throw new IOException(e);
