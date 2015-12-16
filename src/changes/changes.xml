@@ -2,6 +2,9 @@
   <body>
     <release version="3.3.1" date="2015-12-30">
       <action date="2015-12-16" dev="mlhartme" type="fix">
+        Fixed run/users/root with empty prompt - service stool calls no longer create this file.
+      </action>
+      <action date="2015-12-16" dev="mlhartme" type="fix">
         Fixed group permissions for backstage/shared/ssl/tomcat.p12.
       </action>
       <action date="2015-12-10" dev="mlhartme" type="fix">

@@ -13,12 +13,8 @@
 
 # Note: we need sssd to stop the stool service on stagehosts, otherwise sudo rejects unknown users
 
-STOOL=/usr/share/stool/stool-raw.sh
+STOOL="/usr/share/stool/stool-raw.sh -service"
 . /lib/lsb/init-functions
-
-# because stool-functions uses the 'user' variable, and services don't necessarily have it defined
-# (see http://refspecs.linuxbase.org/LSB_3.0.0/LSB-generic/LSB-generic/iniscrptact.html)
-export USER=$(whoami)
 
 case "$1" in
         start)
