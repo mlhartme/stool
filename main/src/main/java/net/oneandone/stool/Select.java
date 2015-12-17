@@ -30,7 +30,7 @@ public class Select extends SessionCommand {
     private String stageName;
 
     public Select(Session session) {
-        super(session, Mode.SHARED);
+        super(session, Mode.NONE);
     }
 
     @Remaining

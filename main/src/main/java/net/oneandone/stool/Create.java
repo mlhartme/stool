@@ -62,7 +62,7 @@ public class Create extends SessionCommand {
     private final Map<String, Property> properties;
 
     public Create(Session session) {
-        super(session, Mode.SHARED);
+        super(session, Mode.NONE);
         this.properties = StageConfiguration.properties(session.extensionsFactory);
     }
 

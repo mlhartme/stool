@@ -30,7 +30,7 @@ public class Ls extends StageCommand {
     private static final String NOT_SELECTED = "   ";
 
     public Ls(Session session) {
-        super(session, Mode.SHARED, Mode.SHARED, Mode.NONE);
+        super(session, Mode.NONE, Mode.SHARED, Mode.NONE);
     }
 
     @Override

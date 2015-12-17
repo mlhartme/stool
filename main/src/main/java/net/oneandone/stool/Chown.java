@@ -40,7 +40,7 @@ public class Chown extends StageCommand {
     }
 
     public Chown(Session session, boolean batch, String userArgument) {
-        super(session, Mode.SHARED, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
+        super(session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.batch = batch;
         this.userArgument = userArgument;
     }

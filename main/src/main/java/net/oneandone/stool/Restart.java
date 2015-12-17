@@ -28,7 +28,7 @@ public class Restart extends StageCommand {
     private boolean suspend = false;
 
     public Restart(Session session) {
-        super(session, Mode.SHARED, Mode.SHARED, Mode.NONE);
+        super(session, Mode.NONE, Mode.NONE, Mode.NONE);
     }
 
     @Override

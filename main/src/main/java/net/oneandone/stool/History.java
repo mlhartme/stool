@@ -28,7 +28,7 @@ import java.util.List;
 
 public class History extends StageCommand {
     public History(Session session) {
-        super(session, Mode.SHARED, Mode.SHARED, Mode.NONE);
+        super(session, Mode.NONE, Mode.SHARED, Mode.NONE);
     }
 
     @Option("max")

@@ -25,7 +25,7 @@ import java.io.IOException;
 
 public class Build extends StageCommand {
     public Build(Session session) {
-        super(session, Mode.SHARED, Mode.SHARED, Mode.EXCLUSIVE);
+        super(session, Mode.NONE, Mode.SHARED, Mode.EXCLUSIVE);
     }
 
     @Override
