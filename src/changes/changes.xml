@@ -8,7 +8,7 @@
         Fixed missing vhosts in global config.json.
       </action>
       <action date="2015-12-16" dev="mlhartme" type="fix">
-        Fixed run/users/root with empty prompt - service stool calls no longer create this file.
+        Fixed run/users/root with empty prompt - 'service stool &lt;cmd>' no longer creates this file.
       </action>
       <action date="2015-12-16" dev="mlhartme" type="fix">
         Fixed group permissions for backstage/shared/ssl/tomcat.p12.
