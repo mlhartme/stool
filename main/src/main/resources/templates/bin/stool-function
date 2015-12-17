@@ -97,5 +97,6 @@ stoolIndicatorColor() {
 }
 
 if [ "x$BASH" != "x" ] ; then
+  export -f stool stoolIndicatorColor
   . ${{stool.bin}}/stool-complete
 fi

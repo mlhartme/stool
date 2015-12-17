@@ -1775,8 +1775,8 @@
       and a <literal>stool-dashboard</literal> package. The dashboard is optional. To install Stool:</para>
     <itemizedlist>
       <listitem>
-        <para>Install Java 8:<literal>sudo apt-get install java8-jdk</literal>. This is prerequisite because Stool implemented
-          in Java 8. Ubuntu provides Java 8 since 15.04, Debian has it in =strech= or in =jessie= with backports.</para>
+        <para>Install Java 8:<literal>sudo apt-get install java8-jdk</literal>. This is prerequisite because Stool is implemented
+          in Java 8. Ubuntu provides Java 8 since 15.04, Debian has it in =stretch= or in =jessie= with backports.</para>
       </listitem>
       <listitem>
         <para>
@@ -1793,7 +1793,7 @@
         <para>Adjust stool properties with <literal>sudo nano /var/lib/stool/config.json</literal>.</para>
       </listitem>
       <listitem>
-        <para>Open a new shell window.</para>
+        <para>Restart your shell or re-login if you work on a VM/remote machine. (Otherwise, you'll get 'stool: commnd not found').</para>
       </listitem>
       <listitem>
         <para>Invoke

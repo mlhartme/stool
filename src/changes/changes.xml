@@ -2,6 +2,9 @@
   <body>
     <release version="3.3.1" date="2015-12-30">
       <action date="2015-12-16" dev="mlhartme" type="fix">
+        Fixed missing stool function in non-login shells.
+      </action>
+      <action date="2015-12-16" dev="mlhartme" type="fix">
         Fixed missing vhosts in global config.json.
       </action>
       <action date="2015-12-16" dev="mlhartme" type="fix">
