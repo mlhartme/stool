@@ -430,13 +430,13 @@
             <varlistentry>
               <term>portFirst</term>
               <listitem>
-                <para>First port available for stages. Type number. </para>
+                <para>First port available for stages. Has to be an even number >1024. Type number. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
               <term>portLast</term>
               <listitem>
-                <para>Last port available for stages. Type number.</para>
+                <para>Last port available for stages. Has to be an odd number >1024. Type number.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -449,8 +449,8 @@
             <varlistentry>
               <term>basePerm</term>
               <listitem>
-                <para>Defines how to compute the intial <literal>tomcat.perm</literal> value for new stages:
-                  <literal>basehPerm</literal> mb for every application. Type number. </para>
+                <para>Defines how to compute the initial <literal>tomcat.perm</literal> value for new stages:
+                  <literal>basePerm</literal> mb for every application. Type number. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -462,13 +462,13 @@
             <varlistentry>
               <term>committed</term>
               <listitem>
-                <para>true if users have to commit source changes before stool allows them to start the stage. Type boolean. </para>
+                <para>true if users have to commit source changes before Stool allows them to start the stage. Type boolean. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
               <term>contactAdmin</term>
               <listitem>
-                <para>Email of the person to receive validation failures and exception mails. Emty to disable emails.
+                <para>Email of the person to receive validation failures and exception mails. Empty to disable these emails.
                   Type string.</para>
               </listitem>
             </varlistentry>
@@ -481,7 +481,7 @@
             <varlistentry>
               <term>defaults</term>
               <listitem>
-                <para>Default value for stage properties. Type map.</para>
+                <para>Default values for stage properties. Type map.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
