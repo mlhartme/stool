@@ -15,16 +15,22 @@
  */
 package net.oneandone.stool.util;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 public class LogEntry {
-    public static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("HH:mm:ss,SSS");
+    public static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm:ss,SSS");
+    public static final DateTimeFormatter FULL_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
 
     public static LogEntry parse(String line) {
+        LocalTime timeObj;
+        LocalDate dateObj;
         int len;
         int date;
         int id;
+        String idStr;
         int logger;
         int user;
         int stageId;
@@ -45,8 +51,12 @@ public class LogEntry {
         if (line.charAt(len - 1) != '\n') {
             throw new IllegalArgumentException(line);
         }
-        return new LogEntry(LocalTime.parse(line.substring(0, date), FMT),
-                line.substring(date + 1, id),
+
+        // TODO: doesn't work for commands running during midnight ...
+        timeObj = LocalTime.parse(line.substring(0, date), TIME_FMT);
+        idStr = line.substring(date + 1, id);
+        dateObj = LocalDate.parse(idStr.substring(0, idStr.indexOf("-")), Logging.DATE_FORMAT);
+        return new LogEntry(LocalDateTime.of(dateObj, timeObj), idStr,
                 line.substring(id + 1, logger),
                 line.substring(logger + 1, user),
                 line.substring(user + 1, stageId),
@@ -76,7 +86,7 @@ public class LogEntry {
 
     //--
 
-    public final LocalTime dateTime;
+    public final LocalDateTime dateTime;
     public final String id;
     public final String logger;
     public final String user;
@@ -84,7 +94,7 @@ public class LogEntry {
     public final String stageName;
     public final String message;
 
-    public LogEntry(LocalTime dateTime, String id, String logger, String user, String stageId, String stageName, String message) {
+    public LogEntry(LocalDateTime dateTime, String id, String logger, String user, String stageId, String stageName, String message) {
         this.dateTime = dateTime;
         this.id = id;
         this.logger = logger;

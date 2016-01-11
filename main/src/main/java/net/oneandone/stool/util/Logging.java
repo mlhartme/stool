@@ -45,7 +45,7 @@ import java.util.Map;
 
 public class Logging {
     private static final String EXTENSION = ".log";
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-");
+    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
 
     public static Logging forStool(FileNode lib, String user) throws IOException {
         return create(lib.join("logs"), "stool", user);
@@ -57,7 +57,7 @@ public class Logging {
         Logging result;
 
         today = DATE_FORMAT.format(LocalDate.now());
-        id = today + Integer.toString(id(dir, today));
+        id = today + '-' + Integer.toString(id(dir, today));
         result = new Logging(id, dir.join(name + EXTENSION), user);
         result.configureRootLogger();
         return result;
@@ -182,7 +182,7 @@ public class Logging {
                 String message;
                 char c;
 
-                writer.append(LogEntry.FMT.format(LocalDateTime.now())).append('|');
+                writer.append(LogEntry.TIME_FMT.format(LocalDateTime.now())).append('|');
                 writer.append(id).append('|');
                 writer.append(logger).append('|');
                 writer.append(user).append('|');

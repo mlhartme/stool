@@ -81,7 +81,7 @@ public class History extends StageCommand {
         }
         counter = 0;
         for (LogEntry command : commands) {
-            console.info.println("[" + ++counter + "] " + LogEntry.FMT.format(command.dateTime) + " " + command.user + ": " + command.message);
+            console.info.println("[" + ++counter + "] " + LogEntry.FULL_FMT.format(command.dateTime) + " " + command.user + ": " + command.message);
             if (details.contains(counter)) {
                 for (LogEntry entry : session.logging.info(stageId, command.id)) {
                     console.info.println("     " + entry.message);

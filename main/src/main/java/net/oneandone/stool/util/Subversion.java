@@ -50,9 +50,9 @@ public class Subversion {
     /** Caution, does not work for nested directories */
     public String probeRootCheckoutUrl(FileNode dir) throws Failure {
         if (dir.join(".svn").isDirectory()) {
-            return null;
-        } else {
             return checkoutUrl(dir);
+        } else {
+            return null;
         }
     }
 

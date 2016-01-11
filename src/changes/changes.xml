@@ -2,6 +2,9 @@
   <body>
     <release version="3.3.1" date="">
       <action date="2016-01-11" dev="mlhartme" type="fix">
+        Fix missing date in history command.
+      </action>
+      <action date="2016-01-11" dev="mlhartme" type="fix">
         Fix lost exception when probing svn checkouts.
       </action>
     </release>
