@@ -100,13 +100,7 @@ public abstract class Stage {
         if (artifactGav.exists()) {
             return artifactGav.readString().trim();
         }
-        try {
-            return subversion.checkoutUrl(directory);
-        } catch (Failure e) {
-            // not a working copy or working-copy version is not readable with out svn version
-            // TODO: working copy could from a different svn version - this should be reported as an error
-            return null;
-        }
+        return subversion.probeRootCheckoutUrl(directory);
     }
 
     public static FileNode anchor(FileNode backstage) {

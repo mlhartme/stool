@@ -47,12 +47,21 @@ public class Subversion {
         return launcher.exec();
     }
 
-    public String checkoutUrl(FileNode cwd) throws Failure {
+    /** Caution, does not work for nested directories */
+    public String probeRootCheckoutUrl(FileNode dir) throws Failure {
+        if (dir.join(".svn").isDirectory()) {
+            return null;
+        } else {
+            return checkoutUrl(dir);
+        }
+    }
+
+    public String checkoutUrl(FileNode dir) throws Failure {
         Launcher launcher;
         String str;
         int idx;
 
-        launcher = launcher(cwd, "info");
+        launcher = launcher(dir, "info");
         launcher.env("LC_ALL", "C");
         str = launcher.exec();
         idx = str.indexOf("URL:") + 4;
