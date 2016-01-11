@@ -53,7 +53,7 @@ public class GavLocator extends Locator {
         try {
             return new WarFile(maven.resolve(artifact));
         } catch (ArtifactResolutionException e) {
-            throw new FileNotFoundException("Artifact " + artifact + " not found.");
+            throw (IOException) new FileNotFoundException("Artifact " + artifact + " not found: " + e.getMessage()).initCause(e);
         }
     }
 
