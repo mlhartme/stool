@@ -173,7 +173,7 @@ public class StageController {
         try {
             stage = session.load(stageName);
         } catch (IOException e) {
-            throw new ResourceNotFoundException();
+            throw (ResourceNotFoundException) new ResourceNotFoundException().initCause(e);
         }
         stage.setMaven(maven);
         return stage;
