@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.3.1" date="">
-      <action date="2016-01-11" dev="mlhartme" type="fix">
-        Fix "devel" version number in exception mails from dashboard.
+      <action date="2016-01-12" dev="mlhartme" type="fix">
+        Fixed "devel" version number in exception mails from dashboard.
       </action>
       <action date="2016-01-11" dev="mlhartme" type="fix">
-        stool create: Fix "Artifact x:y:z not found" error message to include the underlying Maven problem (in particular "Unauthorized").
+        stool create: Fixed "Artifact x:y:z not found" error message to include the underlying Maven problem (in particular "Unauthorized").
       </action>
       <action date="2016-01-11" dev="mlhartme" type="fix">
-        Fix missing date in history command.
+        Fixed missing date in history command.
       </action>
       <action date="2016-01-11" dev="mlhartme" type="fix">
-        Fix lost exception when probing svn checkouts.
+        Fixed lost exception when probing svn checkouts.
       </action>
     </release>
     <release version="3.3.1" date="2015-12-30">
