@@ -85,7 +85,7 @@ public class Lib {
             Files.createStoolDirectory(console.verbose, dir.join(name));
         }
         Files.stoolFile(dir.join("run/locks").mkfile());
-        versionFile().writeString(JavaSetup.versionString());
+        versionFile().writeString(JavaSetup.versionString(console.world));
     }
 
     private FileNode versionFile() {
@@ -119,7 +119,7 @@ public class Lib {
         String newVersion;
 
         oldVersion = directoryVersion();
-        newVersion = JavaSetup.versionString();
+        newVersion = JavaSetup.versionString(console.world);
         console.info.println("upgrade " + oldVersion + " -> " + newVersion);
         if (oldVersion.startsWith("3.1.")) {
             upgrade_31_32(dir);

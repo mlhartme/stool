@@ -2,6 +2,9 @@
   <body>
     <release version="3.3.1" date="">
       <action date="2016-01-11" dev="mlhartme" type="fix">
+        Fix "devel" version number in exception mails from dashboard.
+      </action>
+      <action date="2016-01-11" dev="mlhartme" type="fix">
         stool create: Fix "Artifact x:y:z not found" error message to include the underlying Maven problem (in particular "Unauthorized").
       </action>
       <action date="2016-01-11" dev="mlhartme" type="fix">

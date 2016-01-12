@@ -119,7 +119,7 @@ public class JavaSetup extends Cli implements Command {
 
     @Override
     public void printHelp() {
-        console.info.println("Setup stool " + versionString());
+        console.info.println("Setup stool " + versionString(console.world));
         console.info.println("usage: setup-stool <directory> [<json>]");
         console.info.println("  Create a new <directory> or upgrades an existing.");
         console.info.println("  Does not modify anything outside the <directory>.");
@@ -136,7 +136,7 @@ public class JavaSetup extends Cli implements Command {
         environment.setStoolBin(directory.join("bin"));
         if (directory.exists()) {
             if (!batch) {
-                console.info.println("Ready to upgrade " + directory.getAbsolute() + " to Stool " + versionString());
+                console.info.println("Ready to upgrade " + directory.getAbsolute() + " to Stool " + versionString(console.world));
                 console.pressReturn();
             }
             lib(console, directory, config).upgrade();
@@ -155,7 +155,7 @@ public class JavaSetup extends Cli implements Command {
             console.info.println("2. restart your shell");
         } else {
             if (!batch) {
-                console.info.println("Ready to install Stool " + versionString() + " to " + directory.getAbsolute());
+                console.info.println("Ready to install Stool " + versionString(console.world) + " to " + directory.getAbsolute());
                 console.pressReturn();
             }
             standalone(console, true, directory, config);
@@ -168,11 +168,15 @@ public class JavaSetup extends Cli implements Command {
     }
 
 
-    public static String versionString() {
-        String str;
-
-        str = JavaSetup.class.getPackage().getSpecificationVersion();
-        return str == null ? "devel" : str;
+    public static String versionString(World world) {
+        // don't use class.getPackage().getSpecificationVersion() because META-INF/META.MF
+        // 1) is not available in Webapps (in particular: dashboard)
+        // 2) is not available in test cases
+        try {
+            return world.resource("stool.version").readString().trim();
+        } catch (IOException e) {
+            throw new IllegalStateException("cannot determine version", e);
+        }
     }
 
     private static Lib lib(Console console, FileNode lib, String config) throws IOException {

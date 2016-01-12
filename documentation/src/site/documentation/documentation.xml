@@ -1548,7 +1548,8 @@
             <varlistentry>
               <term>tomcat.version</term>
               <listitem>
-                <para>Tomcat version to use. Type string. Default value: <literal>8.0.26</literal></para>
+                <para>Tomcat version to use. Type string. Default value: <literal>8.0.26</literal>. If you change this property,
+                  you have to stop tomcat, delete the <literal>backstage/shared/tomcat</literal> directory, and start Tomcat again. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
