@@ -19,7 +19,7 @@
 
   <groupId>net.oneandone.stool</groupId>
   <artifactId>stool</artifactId>
-  <version>3.3.2-SNAPSHOT</version>
+  <version>3.3.2</version>
 
   <packaging>pom</packaging>
 
@@ -74,7 +74,7 @@
     <connection>scm:git:ssh://git@github.com/mlhartme/stool.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/mlhartme/stool.git</developerConnection>
     <url>https://github.com/mlhartme/stool</url>
-    <tag>HEAD</tag>
+    <tag>stool-3.3.2</tag>
   </scm>
 
   <issueManagement>
