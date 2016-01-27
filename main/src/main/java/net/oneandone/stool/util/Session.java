@@ -88,11 +88,11 @@ public class Session {
         for (FileNode backstage : backstages.list()) {
             if (backstage.isDirectory()) {
                 FileNode anchor = backstage.join("anchor");
-                if (!anchor.isDirectory() && anchor.isLink()) {
+                if (!anchor.exists() || (!anchor.isDirectory() && anchor.isLink())) {  // anchor file has been removed or is a broken link
                     console.verbose.println("stale backstage detected: " + backstage);
                     for (Node pidfile : backstage.find("shared/run/*.pid")) {
                         pid = pidfile.readString().trim();
-                        console.verbose.println("killing tomcat with pid " + pid);
+                        console.verbose.println(pidfile.getName() + ": killing pid " + pid);
                         try {
                             // TODO: sudo ...
                             new Launcher(backstage, "kill", "-9", pid).execNoOutput();

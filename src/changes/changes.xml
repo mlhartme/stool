@@ -2,7 +2,7 @@
   <body>
     <release version="3.3.3" date="2015-01-27">
       <action date="2016-01-27" dev="mlhartme" type="update">
-        Improved error message if stale backstage wiper cannot kill tomcat.
+        Improved stale backstage wiper: wipe backstages without anchor file; improved error message if kill fails.
       </action>
     </release>
     <release version="3.3.2" date="2015-01-18">
