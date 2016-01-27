@@ -2,6 +2,9 @@
   <body>
     <release version="3.3.3" date="2015-01-27">
       <action date="2016-01-27" dev="mlhartme" type="update">
+        Service wrapper: don't restart on OutOfMemory, the user should have a look instead.
+      </action>
+      <action date="2016-01-27" dev="mlhartme" type="update">
         Improved stale backstage wiper: wipe backstages without anchor file; improved error message if kill fails.
       </action>
     </release>
