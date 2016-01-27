@@ -89,13 +89,22 @@ public class Session {
             if (backstage.isDirectory()) {
                 FileNode anchor = backstage.join("anchor");
                 if (!anchor.isDirectory() && anchor.isLink()) {
+                    console.verbose.println("stale backstage detected: " + backstage);
                     for (Node pidfile : backstage.find("shared/run/*.pid")) {
                         pid = pidfile.readString().trim();
-                        console.verbose.println("killing " + pid);
-                        // TODO: sudo ...
-                        new Launcher(backstage, "kill", "-9", pid).execNoOutput();
+                        console.verbose.println("killing tomcat with pid " + pid);
+                        try {
+                            // TODO: sudo ...
+                            new Launcher(backstage, "kill", "-9", pid).execNoOutput();
+                        } catch (IOException e) {
+                            try {
+                                pidfile.deleteFile(); // don't try again
+                            } catch (IOException e2) {
+                                e.addSuppressed(e2);
+                            }
+                            throw e;
+                        }
                     }
-                    console.verbose.println("stale backstage detected: " + backstage);
                     try {
                         backstage.deleteTree();
                     } catch (IOException e) {
