@@ -352,12 +352,7 @@ public abstract class Stage {
             throw new IOException("tomcat is not running.");
         }
         extensions().beforeStop(this);
-        serviceWrapper("stop", "-force").exec(console.verbose); // TODO: why force?
-        if (configuration.tomcatVersion.startsWith("6.")) {
-            file = catalinaPid();
-            file.deleteFile();
-            console.info.println("removed stale " + file);
-        }
+        serviceWrapper("stop").exec(console.verbose);
     }
 
     private Launcher serviceWrapper(String ... action) throws IOException {

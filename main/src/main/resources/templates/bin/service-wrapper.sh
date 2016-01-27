@@ -6,8 +6,8 @@
 #  $1    catalina_home
 #  $2    catalina_base
 #  $3    wrapper_home (${STOOL_HOME}/service-wrapper/${SERVICE_WRAPPER_NAME})
-#  $4    wrapper_conf (${STAGE_WRAPPER}/shared/conf/service-wrapper.conf)
-#  $5    piddir  (${STAGE_WRAPPER}/shared/run)
+#  $4    wrapper_conf (${BACKSTAGE}/shared/conf/service-wrapper.conf)
+#  $5    piddir  (${BACKSTAGE}/shared/run)
 #  (everything else goes to the orginal script)
 
 export CATALINA_HOME=$1 ; shift
