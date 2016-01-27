@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.EnumerationFailed;
+import net.oneandone.stool.Start;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
@@ -583,7 +584,6 @@ public class Session {
     public static String jdkHome() {
         return Strings.removeRightOpt(javaHome(), "/jre");
     }
-
 
     private DefaultPlexusContainer lazyPlexus;
 

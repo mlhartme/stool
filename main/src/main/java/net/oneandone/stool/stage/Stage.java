@@ -35,7 +35,6 @@ import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
-import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -331,7 +330,7 @@ public abstract class Stage {
         serverXml.configure(ports, keystore, config().cookies, this);
         serverXml.save(serverXml());
         extensions.beforeStart(this);
-        launcher = catalina("start");
+        launcher = serviceWrapper("start");
         console.verbose.println("executing: " + launcher);
         launcher.exec(console.verbose);
         pidFile = runningTomcat();
@@ -353,7 +352,7 @@ public abstract class Stage {
             throw new IOException("tomcat is not running.");
         }
         extensions().beforeStop(this);
-        catalina("stop", "-force").exec(console.verbose);
+        serviceWrapper("stop", "-force").exec(console.verbose); // TODO: why force?
         if (configuration.tomcatVersion.startsWith("6.")) {
             file = catalinaPid();
             file.deleteFile();
@@ -361,10 +360,7 @@ public abstract class Stage {
         }
     }
 
-    /**
-     * action: start | stop -force
-     */
-    private Launcher catalina(String ... action) throws IOException {
+    private Launcher serviceWrapper(String ... action) throws IOException {
         String owner;
         Launcher launcher;
 
