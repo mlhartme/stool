@@ -3,8 +3,8 @@ Version: [[version]]
 Section: misc
 Priority: optional
 Architecture: all
-Pre-Depends: java8-jdk, adduser, debconf
-Depends: java8-jdk, stool (=[[version]]), adduser
+Pre-Depends: java8-jdk|java8-sdk, adduser, debconf
+Depends: java8-jdk|java8-sdk, stool (=[[version]]), adduser
 Maintainer: CISO Operating <ciso-ops@1und1.de>
 Description: A special stage to control Stool via browser.
 Homepage: [[url]]
