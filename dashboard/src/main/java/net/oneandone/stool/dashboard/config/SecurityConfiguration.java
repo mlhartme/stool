@@ -86,6 +86,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         } else {
             http.authorizeRequests()
                     .antMatchers("/whoami").fullyAuthenticated()
+                    .antMatchers("/stages/*/").hasRole("ANONYMOUS")
                     .antMatchers("/**").hasRole("LOGIN");
         }
     }
