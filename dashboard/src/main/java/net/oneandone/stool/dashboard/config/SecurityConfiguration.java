@@ -82,12 +82,11 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
           .and()
           .addFilter(filter);
         if (session.configuration.ldapUrl.isEmpty()) {
-            http.authorizeRequests().antMatchers("/**").hasRole("ANONYMOUS");
+            http.authorizeRequests().antMatchers("/**").anonymous();
         } else {
             http.authorizeRequests()
-                    .antMatchers("/").anonymous()
                     .antMatchers("/whoami").fullyAuthenticated()
-                    .antMatchers("/stages/*/").hasRole("ANONYMOUS")
+                    .antMatchers("/stages/").anonymous()
                     .antMatchers("/**").hasRole("LOGIN");
         }
     }

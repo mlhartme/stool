@@ -52,13 +52,10 @@ public class IndexController {
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ModelAndView index(ModelAndView modelAndView) {
         Object username;
-        if (SecurityContextHolder.getContext().getAuthentication() != null) {
+
         username = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            if (username instanceof InetOrgPerson) {
-                username = ((InetOrgPerson) username).getDisplayName();
-            }
-        } else {
-            username = "Not logged in"
+        if (username instanceof InetOrgPerson) {
+            username = ((InetOrgPerson) username).getDisplayName();
         }
         modelAndView.setViewName("index");
         modelAndView.addObject("username", username);
