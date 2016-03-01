@@ -13,7 +13,6 @@
   <description>Stool's main Java library</description>
 
   <properties>
-    <maven-checkstyle-plugin.suppressionsLocation>${basedir}/src/conf/checkstyle-suppressions.xml</maven-checkstyle-plugin.suppressionsLocation>
     <aetherVersion>1.0.0.v20140518</aetherVersion>
     <guava.version>14.0.1</guava.version>
     <mavenVersion>3.2.5</mavenVersion>
