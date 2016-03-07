@@ -631,12 +631,6 @@ public abstract class Stage {
     public FileNode localRepository() {
         return session.configuration.shared ? backstage.join(".m2") : (FileNode) session.console.world.getHome().join(".m2/repository");
     }
-    protected FileNode warFile(MavenProject project) {
-        Build build;
-
-        build = project.getBuild();
-        return session.console.world.file(build.getDirectory()).join(build.getFinalName() + ".war");
-    }
 
     public Logs logs() {
         return new Logs(shared().join("tomcat/logs"));

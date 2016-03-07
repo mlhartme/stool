@@ -98,6 +98,8 @@ public class Session {
                             // TODO: sudo ...
                             new Launcher(backstage, "kill", "-9", pid).execNoOutput();
                         } catch (IOException e) {
+                            console.error.println("cannot stop stale backstage: " + e.getMessage());
+                            e.printStackTrace(console.verbose);
                             try {
                                 pidfile.deleteFile(); // don't try again
                             } catch (IOException e2) {
