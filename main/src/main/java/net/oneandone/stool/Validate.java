@@ -37,6 +37,8 @@ public class Validate extends StageCommand {
     @Option("stop")
     private boolean stop;
 
+    @Option("repair-locks")
+    private boolean repairLocks;
 
     // data shared for all stages
     private Mailer mailer;
@@ -47,26 +49,6 @@ public class Validate extends StageCommand {
     public Validate(Session session) {
         super(session, Mode.SHARED, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
     }
-    private static void daemons(Stage stage, Processes processes, List<String> problems) throws IOException {
-        tomcat(stage, processes, problems);
-    }
-
-    private static void tomcat(Stage stage, Processes processes, List<String> problems) throws IOException {
-        String filePid;
-        String psPid;
-
-        filePid = stage.runningTomcat();
-        psPid = processes.tomcatPid(stage.getBackstage());
-        if (filePid == null) {
-            filePid = "";
-        }
-        if (psPid == null) {
-            psPid = "";
-        }
-        if (!filePid.equals(psPid)) {
-            problems.add("Tomcat process mismatch: " + filePid + " vs " + psPid);
-        }
-    }
 
     @Override
     public void doInvoke() throws Exception {
@@ -75,6 +57,13 @@ public class Validate extends StageCommand {
         processes = Processes.create(console.world);
         if (email) {
             mailer = session.configuration.mailer();
+        }
+        for (Integer pid : session.lockManager.validate(processes, repairLocks)) {
+            if (repairLocks) {
+                console.info.println("repaired locks: removed stale lock(s) for process " + pid);
+            } else {
+                console.error.println("detected stale locks for process " + pid);
+            }
         }
         super.doInvoke();
     }
@@ -132,6 +121,7 @@ public class Validate extends StageCommand {
     }
 
     //--
+
     private String body(List<String> problems, String stopped) {
         StringBuilder body;
 
@@ -171,6 +161,27 @@ public class Validate extends StageCommand {
                 return new String[]{};
             }
             return new String[]{ owner };
+        }
+    }
+
+    private static void daemons(Stage stage, Processes processes, List<String> problems) throws IOException {
+        tomcat(stage, processes, problems);
+    }
+
+    private static void tomcat(Stage stage, Processes processes, List<String> problems) throws IOException {
+        String filePid;
+        String psPid;
+
+        filePid = stage.runningTomcat();
+        psPid = processes.tomcatPid(stage.getBackstage());
+        if (filePid == null) {
+            filePid = "";
+        }
+        if (psPid == null) {
+            psPid = "";
+        }
+        if (!filePid.equals(psPid)) {
+            problems.add("Tomcat process mismatch: " + filePid + " vs " + psPid);
         }
     }
 }

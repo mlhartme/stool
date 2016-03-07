@@ -47,6 +47,8 @@ public class Lock2Test {
     public void after() throws Exception {
         assertTrue(managerA.empty());
         assertTrue(managerB.empty());
+        managerA.close();
+        managerB.close();
     }
 
     @Test

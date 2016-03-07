@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.locking;
 
+import net.oneandone.stool.util.Processes;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -25,8 +26,11 @@ import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Thread-save and save against concurrent processes */
-public class LockManager implements Runnable {
+/**
+ * High-level management for the locks file.
+ * Thread-save and save against concurrent processes
+ */
+public class LockManager extends Thread implements AutoCloseable {
     public static LockManager create(FileNode file, String comment, int timeout) {
         return new LockManager(file, new Process(pid(), comment), timeout);
     }
@@ -35,7 +39,7 @@ public class LockManager implements Runnable {
         String str;
         int idx;
 
-        // see http://blog.igorminar.com/2007/03/how-java-application-can-discover-its.html?m=1
+        // see http://stackoverflow.com/questions/35842/how-can-a-java-program-get-its-own-process-id
         str = ManagementFactory.getRuntimeMXBean().getName();
         idx = str.indexOf('@');
         if (idx == -1) {
@@ -51,11 +55,12 @@ public class LockManager implements Runnable {
     private final int timeout;
 
     public LockManager(FileNode file, Process self, int timeout) {
+        super("LockManager Shutdown Hook");
         this.active = new ArrayList<>();
         this.file = file;
         this.self = self;
         this.timeout = timeout;
-        Runtime.getRuntime().addShutdownHook(new Thread(this));
+        Runtime.getRuntime().addShutdownHook(this);
     }
 
     public Lock acquire(String name, Console console, Mode mode) throws IOException {
@@ -122,8 +127,7 @@ public class LockManager implements Runnable {
         Store lf;
         Queue problem;
 
-        try (RandomAccessFile raf = new RandomAccessFile(file.toPath().toFile(), "rw");
-             FileLock lock = raf.getChannel().lock()) {
+        try (RandomAccessFile raf = new RandomAccessFile(file.toPath().toFile(), "rw"); FileLock lock = raf.getChannel().lock()) {
             lf = Store.load(raf);
             problem = lf.tryLock(name, exclusive, self);
             if (problem != null) {
@@ -137,6 +141,7 @@ public class LockManager implements Runnable {
 
     public void release(Lock lock) throws IOException {
         boolean exclusive;
+        Store lf;
 
         active.remove(lock);
         switch (lock.mode) {
@@ -151,14 +156,34 @@ public class LockManager implements Runnable {
             default:
                 throw new IllegalStateException(lock.mode.toString());
         }
-        Store lf;
-
-        try (RandomAccessFile raf = new RandomAccessFile(file.toPath().toFile(), "rw");
-             FileLock l = raf.getChannel().lock()) {
+        try (RandomAccessFile raf = new RandomAccessFile(file.toPath().toFile(), "rw"); FileLock l = raf.getChannel().lock()) {
             lf = Store.load(raf);
             lf.release(lock.name, exclusive, self);
             lf.save(raf);
         }
+    }
+
+    /** @return list of stale processes */
+    public List<Integer> validate(Processes running, boolean repair) throws IOException {
+        Store lf;
+        List<Integer> stale;
+
+        stale = new ArrayList<>();
+        try (RandomAccessFile raf = new RandomAccessFile(file.toPath().toFile(), "rw"); FileLock lock = raf.getChannel().lock()) {
+            lf = Store.load(raf);
+            for (Process process : lf.processes()) {
+                if (!running.hasPid(Integer.toString(process.id))) {
+                    stale.add(process.id);
+                    if (repair) {
+                        lf.releaseAll(process);
+                    }
+                }
+            }
+            if (repair) {
+                lf.save(raf);
+            }
+        }
+        return stale;
     }
 
     public synchronized boolean empty() throws IOException {
@@ -190,11 +215,23 @@ public class LockManager implements Runnable {
         }
     }
 
+    /** close explicitly on LockManager object */
+    public void close() {
+        Runtime.getRuntime().removeShutdownHook(this);
+        removeActive();
+    }
+
+    /** close implicitly during shutdown hook */
     @Override
     public void run() {
+        removeActive();
+    }
+
+    private void removeActive() {
         Lock lock;
 
         while (!active.isEmpty()) {
+            // caution: do no invoke active.remove(0) - lock.close() will remove it from the list
             lock = active.get(0);
             System.err.println("shutdown: unlocking " + lock.name);
             try {

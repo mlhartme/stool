@@ -119,6 +119,15 @@ public class Store {
         queue.release(exclusive, process);
     }
 
+    public void releaseAll(Process processExtern) {
+        Process process;
+
+        process = intern(processExtern);
+        for (Queue queue : queues) {
+            queue.releaseAll(process);
+        }
+    }
+
     private Process intern(Process extern) {
         for (Process intern : processes()) {
             if (intern.id == extern.id) {
@@ -153,7 +162,7 @@ public class Store {
         }
     }
 
-    private List<Process> processes() {
+    public List<Process> processes() {
         List<Process> result;
 
         result = new ArrayList<>();

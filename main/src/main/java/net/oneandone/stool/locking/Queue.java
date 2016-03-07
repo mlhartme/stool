@@ -66,7 +66,7 @@ class Queue {
 
     public void release(boolean exclusive, Process process) {
         if (exclusive) {
-            if (!process.equals(exclusiveProcess)) {
+            if (process != exclusiveProcess) {
                 throw new IllegalStateException();
             }
             if (exclusiveCount <= 0) {
@@ -81,6 +81,20 @@ class Queue {
                 }
             }
             throw new IllegalStateException();
+        }
+    }
+
+    public void releaseAll(Process process) {
+        if (process == exclusiveProcess) {
+            if (exclusiveCount <= 0) {
+                throw new IllegalStateException();
+            }
+            exclusiveCount--;
+        }
+        for (int i = shared.size() - 1; i >= 0; i--) {
+            if (process.equals(shared.get(i))) {
+                shared.remove(i);
+            }
         }
     }
 
