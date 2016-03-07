@@ -32,7 +32,7 @@ public class Store {
         Process last;
         Queue queue;
         char marker;
-        boolean exclusive;
+        Mode mode;
 
         result = new Store();
         raf.seek(0);
@@ -47,10 +47,10 @@ public class Store {
             } else {
                 switch (marker) {
                     case SHARED:
-                        exclusive = false;
+                        mode = Mode.SHARED;
                         break;
                     case EXCLUSIVE:
-                        exclusive = true;
+                        mode = Mode.EXCLUSIVE;
                         break;
                     default:
                         throw new IllegalStateException("unexpected marker: " + marker);
@@ -59,7 +59,7 @@ public class Store {
                     throw new IllegalStateException();
                 }
                 queue = result.getOrCreate(line.substring(1));
-                if (!queue.tryLock(exclusive, last)) {
+                if (!queue.tryLock(mode, last)) {
                     throw new IllegalStateException();
                 }
             }
@@ -87,7 +87,7 @@ public class Store {
     }
 
     /** @return null for success, problematic queue otherwise */
-    public Queue tryLock(String lock, boolean exclusive, Process processExtern) {
+    public Queue tryLock(String lock, Mode mode, Process processExtern) {
         Process process;
         Queue queue;
 
@@ -95,19 +95,19 @@ public class Store {
         queue = lookup(lock);
         if (queue == null) {
             queue = new Queue(lock);
-            if (!queue.tryLock(exclusive, process)) {
+            if (!queue.tryLock(mode, process)) {
                 throw new IllegalStateException();
             }
             queues.add(queue);
         } else {
-            if (!queue.tryLock(exclusive, process)) {
+            if (!queue.tryLock(mode, process)) {
                 return queue;
             }
         }
         return null;
     }
 
-    public void release(String lock, boolean exclusive, Process processExtern) {
+    public void release(String lock, Mode mode, Process processExtern) {
         Process process;
         Queue queue;
 
@@ -116,7 +116,7 @@ public class Store {
         if (queue == null) {
             throw new IllegalStateException(lock);
         }
-        queue.release(exclusive, process);
+        queue.release(mode, process);
     }
 
     public void releaseAll(Process processExtern) {

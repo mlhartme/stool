@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * High-level management for the locks file.
- * Thread-save and save against concurrent processes
+ * High-level management for the locks file. Factory for locks.
+ * Thread-save and save against concurrent processes.
  */
 public class LockManager extends Thread implements AutoCloseable {
     public static LockManager create(FileNode file, String comment, int timeout) {
@@ -63,28 +63,17 @@ public class LockManager extends Thread implements AutoCloseable {
         Runtime.getRuntime().addShutdownHook(this);
     }
 
-    public Lock acquire(String name, Console console, Mode mode) throws IOException {
+    public synchronized Lock acquire(String name, Console console, Mode mode) throws IOException {
         Lock result;
 
-        switch (mode) {
-            case NONE:
-                break;
-            case SHARED:
-                awaitLock(name, false, console);
-                break;
-            case EXCLUSIVE:
-                awaitLock(name, true, console);
-                break;
-            default:
-                throw new IllegalStateException(mode.toString());
-        }
+        awaitLock(name, mode, console);
         result = new Lock(this, name, mode);
         active.add(result);
         return result;
     }
 
     /** for testing */
-    public Lock acquireOpt(String name, Console console, Mode mode) throws IOException {
+    public synchronized Lock acquireOpt(String name, Console console, Mode mode) throws IOException {
         try {
             return acquire(name, console, mode);
         } catch (LockException e) {
@@ -93,14 +82,14 @@ public class LockManager extends Thread implements AutoCloseable {
     }
 
 
-    private void awaitLock(String name, boolean exclusive, Console console) throws IOException {
+    private void awaitLock(String name, Mode mode, Console console) throws IOException {
         Queue problem;
         int seconds;
 
         seconds = 0;
         while (true) {
             try {
-                problem = tryLock(name, exclusive);
+                problem = tryLock(name, mode);
             } catch (IOException e) {
                 throw new IOException("cannot acquire lock '" + name + "': " + e.getMessage(), e);
             }
@@ -123,13 +112,13 @@ public class LockManager extends Thread implements AutoCloseable {
     }
 
     /** @return null or problematic queue otherwise */
-    private Queue tryLock(String name, boolean exclusive) throws IOException {
+    private Queue tryLock(String name, Mode mode) throws IOException {
         Store lf;
         Queue problem;
 
         try (RandomAccessFile raf = new RandomAccessFile(file.toPath().toFile(), "rw"); FileLock lock = raf.getChannel().lock()) {
             lf = Store.load(raf);
-            problem = lf.tryLock(name, exclusive, self);
+            problem = lf.tryLock(name, mode, self);
             if (problem != null) {
                 return problem;
             }
@@ -139,32 +128,19 @@ public class LockManager extends Thread implements AutoCloseable {
 
     }
 
-    public void release(Lock lock) throws IOException {
-        boolean exclusive;
+    public synchronized void release(Lock lock) throws IOException {
         Store lf;
 
         active.remove(lock);
-        switch (lock.mode) {
-            case NONE:
-                return;
-            case SHARED:
-                exclusive = false;
-                break;
-            case EXCLUSIVE:
-                exclusive = true;
-                break;
-            default:
-                throw new IllegalStateException(lock.mode.toString());
-        }
         try (RandomAccessFile raf = new RandomAccessFile(file.toPath().toFile(), "rw"); FileLock l = raf.getChannel().lock()) {
             lf = Store.load(raf);
-            lf.release(lock.name, exclusive, self);
+            lf.release(lock.name, lock.mode, self);
             lf.save(raf);
         }
     }
 
     /** @return list of stale processes */
-    public List<Integer> validate(Processes running, boolean repair) throws IOException {
+    public synchronized List<Integer> validate(Processes running, boolean repair) throws IOException {
         Store lf;
         List<Integer> stale;
 
@@ -227,7 +203,7 @@ public class LockManager extends Thread implements AutoCloseable {
         removeActive();
     }
 
-    private void removeActive() {
+    private synchronized void removeActive() {
         Lock lock;
 
         while (!active.isEmpty()) {

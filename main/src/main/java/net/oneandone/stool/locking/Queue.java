@@ -43,8 +43,8 @@ class Queue {
         return lock.equals(cmp);
     }
 
-    public boolean tryLock(boolean exclusive, Process process) {
-        if (exclusive) {
+    public boolean tryLock(Mode mode, Process process) {
+        if (mode == Mode.EXCLUSIVE) {
             if (containsOther(process)) {
                 return false;
             } else {
@@ -64,8 +64,8 @@ class Queue {
         }
     }
 
-    public void release(boolean exclusive, Process process) {
-        if (exclusive) {
+    public void release(Mode mode, Process process) {
+        if (mode == Mode.EXCLUSIVE) {
             if (process != exclusiveProcess) {
                 throw new IllegalStateException();
             }
