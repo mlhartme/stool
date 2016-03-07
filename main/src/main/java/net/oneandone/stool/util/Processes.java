@@ -29,9 +29,9 @@ public class Processes {
     }
 
     // group 1: user
-    // group 2: prozess id
-    // group 3: der rest der Zeile
-    private static final Pattern TOMCAT_PATTERN = Pattern.compile("^(\\S+)\\s+(\\d+)\\s+(.+)$", Pattern.MULTILINE);
+    // group 2: process id
+    // group 3: rest of line
+    private static final Pattern PS_AUX_LINE = Pattern.compile("^(\\S+)\\s+(\\d+)\\s+(.+)$", Pattern.MULTILINE);
 
     private final String ps;
 
@@ -39,19 +39,32 @@ public class Processes {
         this.ps = ps;
     }
 
+    public boolean hasPid(String pid) {
+        Matcher matcher;
+
+
+        matcher = PS_AUX_LINE.matcher(ps);
+        while (matcher.find()) {
+            if (pid.equals(matcher.group(2))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public String tomcatPid(FileNode stageWrapper) {
         Matcher matcher;
         String result;
         String tmp;
         String key;
-        String rest;
+        String remaining;
 
-        matcher = TOMCAT_PATTERN.matcher(ps);
+        matcher = PS_AUX_LINE.matcher(ps);
         result = null;
         key = "wrapper.statusfile=" + stageWrapper.join("shared/run/tomcat.status").getAbsolute();
         while (matcher.find()) {
-            rest = matcher.group(3);
-            if (rest.contains(key)) {
+            remaining = matcher.group(3);
+            if (remaining.contains(key)) {
                 tmp = matcher.group(2);
                 if (result == null) {
                     result = tmp;
