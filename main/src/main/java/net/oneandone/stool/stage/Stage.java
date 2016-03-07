@@ -31,6 +31,7 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Subversion;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
+import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -46,6 +47,7 @@ import org.eclipse.aether.repository.RepositoryPolicy;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -638,6 +640,22 @@ public abstract class Stage {
 
     public Logs logs() {
         return new Logs(shared().join("tomcat/logs"));
+    }
+
+    public String uptime() throws GetLastModifiedException {
+        FileNode file;
+        long diff;
+        StringBuilder result;
+
+        file = tomcatPidFile();
+        if (!file.exists()) {
+            return "";
+        }
+        diff = System.currentTimeMillis() - file.getLastModified();
+        diff /= 1000;
+        result = new StringBuilder();
+        new Formatter(result).format("%02d:%02d:%02d (hh:mm:ss)", diff / 3600, diff / 60 % 3600, diff % 60);
+        return result.toString();
     }
 
     public enum State {
