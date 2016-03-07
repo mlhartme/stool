@@ -11,7 +11,7 @@
         Allow unauthenticated http://dashboard/stages requests.
       </action>
       <action date="2016-01-27" dev="mlhartme" type="fix">
-        Add java8-sdk as an alternative package dependency (to fix install problem with OpenJdks from PPA).
+        Add java8-sdk as an alternative package dependency (to fix install problem with OpenJdk from PPA).
       </action>
       <action date="2016-01-27" dev="mlhartme" type="update">
         Service wrapper: don't restart on OutOfMemory, the user should have a look instead.

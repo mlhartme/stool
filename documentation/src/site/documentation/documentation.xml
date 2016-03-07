@@ -1749,6 +1749,7 @@
             </arg>
             <arg>-stop</arg>
             <arg>-email</arg>
+            <arg>-repair-locks</arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1>
@@ -1762,6 +1763,7 @@
             is specified, a notification mail is
             sent to the stage owner.
           </para>
+          <para>Also checks Stool's locking system for stale locks and, if <literal>-repair-locks</literal> is specified, removed them.</para>
           <xi:include href="stageOptions.xml" parse="xml"/>
         </refsect1>
       </refentry>
