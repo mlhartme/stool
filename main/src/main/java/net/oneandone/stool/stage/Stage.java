@@ -654,7 +654,7 @@ public abstract class Stage {
         diff = System.currentTimeMillis() - file.getLastModified();
         diff /= 1000;
         result = new StringBuilder();
-        new Formatter(result).format("%02d:%02d:%02d (hh:mm:ss)", diff / 3600, diff / 60 % 3600, diff % 60);
+        new Formatter(result).format("%02d:%02d:%02d (hh:mm:ss)", diff / 3600, diff % 3600 / 60, diff % 60);
         return result.toString();
     }
 
