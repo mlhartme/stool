@@ -27,6 +27,7 @@ import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.MoveException;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
 import org.eclipse.aether.artifact.DefaultArtifact;
 
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class ArtifactStage extends Stage {
 
         applications = new Applications();
         names = new HashSet<>();
-        for (String part : url.split(",")) {
+        for (String part : Separator.COMMA.split(url)) {
             idx = part.indexOf('=');
             if (idx == -1) {
                 locator = locator(part);

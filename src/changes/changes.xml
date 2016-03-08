@@ -8,7 +8,7 @@
         Fixed synchronization issue in LockManager shutdown hook.
       </action>
       <action date="2016-03-07" dev="mlhartme" type="add">
-        Validate now detects stale locks and optionally removes them.
+        Validate now detects stale locks and optionally repairs them.
       </action>
       <action date="2016-01-27" dev="mlhartme" type="add">
         Allow unauthenticated http://dashboard/stages requests.
@@ -20,7 +20,7 @@
         Service wrapper: don't restart on OutOfMemory, the user should have a look instead.
       </action>
       <action date="2016-01-27" dev="mlhartme" type="update">
-        Improved stale backstage wiper: wipe backstages without anchor file; improved error message if kill fails.
+        Improved stale backstage wiper: stop with proper uses; wipe backstages without anchor file; improved error message if kill fails.
       </action>
     </release>
     <release version="3.3.2" date="2015-01-18">

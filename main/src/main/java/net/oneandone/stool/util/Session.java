@@ -30,6 +30,7 @@ import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.setup.JavaSetup;
+import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
@@ -84,19 +85,21 @@ public class Session {
     public void wipeStaleBackstages() throws IOException {
         long s;
         String pid;
+        Stage tmp;
 
         s = System.currentTimeMillis();
         for (FileNode backstage : backstages.list()) {
             if (backstage.isDirectory()) {
                 FileNode anchor = backstage.join("anchor");
                 if (!anchor.exists() || (!anchor.isDirectory() && anchor.isLink())) {  // anchor file has been removed or is a broken link
-                    console.verbose.println("stale backstage detected: " + backstage);
-                    for (Node pidfile : backstage.find("shared/run/*.pid")) {
+                    console.info.println("stale backstage detected: " + backstage);
+                    for (Node pidfile : backstage.find("shared/run/tomcat.pid")) {
                         pid = pidfile.readString().trim();
                         console.verbose.println(pidfile.getName() + ": killing pid " + pid);
                         try {
-                            // TODO: sudo ...
-                            new Launcher(backstage, "kill", "-9", pid).execNoOutput();
+                            tmp = new ArtifactStage(this, "" /* no apps */, backstage, backstage /* used to determin owner */,
+                                    loadStageConfiguration(backstage));
+                            tmp.stop(console);
                         } catch (IOException e) {
                             console.error.println("cannot stop stale backstage: " + e.getMessage());
                             e.printStackTrace(console.verbose);
