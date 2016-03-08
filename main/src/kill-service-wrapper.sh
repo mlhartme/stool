@@ -5,6 +5,11 @@
 # usage
 #   kill-service-wrapper.sh stageName
 
+# CAUTION: currently unused
+# TODO
+# * locate LIB
+# * Mac OS has different ps options
+
 set -e
 NAME=$1
 if [ -z "$NAME" ]; then
