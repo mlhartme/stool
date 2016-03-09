@@ -95,7 +95,7 @@ public class Session {
                     console.info.println("stale backstage detected: " + backstage);
                     for (Node pidfile : backstage.find("shared/run/tomcat.pid")) {
                         pid = pidfile.readString().trim();
-                        console.verbose.println(pidfile.getName() + ": killing pid " + pid);
+                        console.verbose.println(pidfile.getName() + ": stopping pid " + pid);
                         try {
                             tmp = new ArtifactStage(this, "" /* no apps */, backstage, backstage /* used to determin owner */,
                                     loadStageConfiguration(backstage));
