@@ -1793,7 +1793,9 @@
         <para>Option, only if you want the dashboard: repeat the previous steps for setup-x.y.z-dashboard.deb</para>
       </listitem>
       <listitem>
-        <para>Adjust stool properties with <literal>sudo nano /var/lib/stool/config.json</literal>.</para>
+        <para>Adjust stool properties with <literal>sudo nano /var/lib/stool/config.json</literal>. CAUTION: <literal>downloadTomcat</literal>
+          and <literal>downloadCache</literal> are security sensitive - if attackers can modify this location, they can execute code as
+          arbitrary users.</para>
       </listitem>
       <listitem>
         <para>Restart your shell or re-login if you work on a VM/remote machine. (Otherwise, you'll get 'stool: commnd not found').</para>
