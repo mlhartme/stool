@@ -583,11 +583,9 @@ public class Session {
             throw new IllegalStateException();
         }
         result = Strings.removeRightOpt(result, "/");
+        // prefer jdk, otherwise Java tools like jar while report an error on Mac OS ("unable to locate executable at $JAVA_HOME")
+        result = Strings.removeRightOpt(result, "/jre");
         return result;
-    }
-
-    public static String jdkHome() {
-        return Strings.removeRightOpt(javaHome(), "/jre");
     }
 
     private DefaultPlexusContainer lazyPlexus;
