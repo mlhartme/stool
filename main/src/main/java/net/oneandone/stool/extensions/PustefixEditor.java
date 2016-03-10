@@ -59,6 +59,9 @@ public class PustefixEditor implements Extension {
 
     @Override
     public void beforeStart(Stage stage) throws IOException {
+        // TODO:
+        throw new UnsupportedOperationException("pustefix editor is no longer supported");
+        /*
         Ports ports;
         Session session;
 
@@ -67,6 +70,7 @@ public class PustefixEditor implements Extension {
         session = stage.session;
         editorDirectory(stage, ports.urlMap(!session.configuration.certificates.isEmpty(), session.configuration.vhosts,
                 session.configuration.hostname, stage.config().suffixes).values());
+                */
     }
 
     @Override

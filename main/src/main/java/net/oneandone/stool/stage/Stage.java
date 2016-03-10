@@ -639,6 +639,7 @@ public abstract class Stage {
         FileNode file;
         long diff;
         StringBuilder result;
+        long hours;
 
         file = tomcatPidFile();
         if (!file.exists()) {
@@ -646,9 +647,14 @@ public abstract class Stage {
         }
         diff = System.currentTimeMillis() - file.getLastModified();
         diff /= 1000;
-        result = new StringBuilder();
-        new Formatter(result).format("%d:%02d:%02d (hh:mm:ss)", diff / 3600, diff % 3600 / 60, diff % 60);
-        return result.toString();
+        hours = diff / 3600;
+        if (hours >= 48) {
+            return (hours / 24) + " days";
+        } else {
+            result = new StringBuilder();
+            new Formatter(result).format("%d:%02d:%02d", hours, diff % 3600 / 60, diff % 60);
+            return result.toString();
+        }
     }
 
     public enum State {

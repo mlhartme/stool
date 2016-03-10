@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
+    <release version="3.3.4" date="2015-03-09">
+      <action date="2016-03-10" dev="mlhartme" type="update">
+        Print an error message if pustfix editor is started.
+      </action>
+      <action date="2016-03-10" dev="mlhartme" type="update">
+        Print uptime in days if it's more than 48 hours.
+      </action>
+    </release>
     <release version="3.3.3" date="2015-03-09">
       <action date="2016-03-07" dev="mlhartme" type="add">
         Added an uptime field to stool status.
@@ -20,7 +28,7 @@
         Service wrapper: don't restart on OutOfMemory, the user should have a look instead.
       </action>
       <action date="2016-01-27" dev="mlhartme" type="update">
-        Improved stale backstage wiper: stop with proper uses (and improved error message); wipe backstages without anchor file.
+        Improved stale backstage wiper: invoke stop with proper user (and improved error message); wipe backstages without anchor file.
       </action>
     </release>
     <release version="3.3.2" date="2015-01-18">
