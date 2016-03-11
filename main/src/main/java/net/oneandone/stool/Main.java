@@ -277,11 +277,6 @@ public class Main extends Cli implements Command {
         return new SystemStartStop(session(), false);
     }
 
-    @Child("system-validate")
-    public SystemValidate systemValidate() throws IOException {
-        return new SystemValidate(session());
-    }
-
     @Child("system-import")
     public SystemImport systemImport() throws IOException {
         return new SystemImport(session());

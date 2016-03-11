@@ -25,6 +25,9 @@ import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Option;
+import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Failure;
+import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 
 import javax.mail.MessagingException;
@@ -54,13 +57,8 @@ public class Validate extends StageCommand {
     public void doInvoke() throws Exception {
         processes = Processes.create(console.world);
         report = new Report();
-        for (Integer pid : session.lockManager.validate(processes, repair)) {
-            if (repair) {
-                report.admin("repaired locks: removed stale lock(s) for process id " + pid);
-            } else {
-                report.admin("detected stale locks for process id " + pid);
-            }
-        }
+        hostname();
+        locks();
         super.doInvoke();
         if (report.isEmpty()) {
             console.info.println("validate ok");
@@ -72,6 +70,38 @@ public class Validate extends StageCommand {
             console.info.println();
             console.info.println("validate failed");
         }
+    }
+
+    private void hostname() throws Failure {
+        String ip;
+        String subDomain;
+
+        ip = digIp(session.configuration.hostname);
+        if (ip.isEmpty()) {
+            report.admin("missing dns entry for " + session.configuration.hostname);
+        }
+        subDomain = digIp("foo." + session.configuration.hostname);
+        if (subDomain.isEmpty() || !subDomain.endsWith(ip)) {
+            report.admin("missing dns * entry for " + session.configuration.hostname + " (" + subDomain + ")");
+        }
+    }
+
+    private void locks() throws IOException {
+        for (Integer pid : session.lockManager.validate(processes, repair)) {
+            if (repair) {
+                report.admin("repaired locks: removed stale lock(s) for process id " + pid);
+            } else {
+                report.admin("detected stale locks for process id " + pid);
+            }
+        }
+
+    }
+
+    private String digIp(String name) throws Failure {
+        Launcher dig;
+
+        dig = new Launcher((FileNode) console.world.getWorking(), "dig", "+short", name);
+        return dig.exec().trim();
     }
 
     @Override

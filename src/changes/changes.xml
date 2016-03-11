@@ -2,6 +2,9 @@
   <body>
     <release version="3.3.4" date="2015-03-09">
       <action date="2016-03-11" dev="mlhartme" type="update">
+        Merged system-validate into the validate command.
+      </action>
+      <action date="2016-03-11" dev="mlhartme" type="update">
         Improved validate: send an email if you stage was removed; send on email per user, even for multiple broken stages; a single
         "-repair" option replaces the previous "-stop" and "-repair-locks" options.
       </action>

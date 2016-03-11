@@ -687,25 +687,6 @@
 
       <refentry>
         <refnamediv>
-          <refname>stool-system-validate</refname>
-          <refpurpose>Check system configuration</refpurpose>
-        </refnamediv>
-
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool system-validate</command>
-          </cmdsynopsis>
-        </refsynopsisdiv>
-        <refsect1>
-          <title>Description</title>
-          <para>
-            Checks DNS settings.
-          </para>
-        </refsect1>
-      </refentry>
-
-      <refentry>
-        <refnamediv>
           <refname>stool-system-import</refname>
           <refpurpose>Import from another stool installation</refpurpose>
         </refnamediv>
@@ -1761,6 +1742,7 @@
             <literal>-email</literal>
             is specified, a notification mail is sent to the stage owner.
           </para>
+          <para>Also checks DNS settings.</para>
           <para>Also checks Stool's locking system for stale locks and, if <literal>-repair</literal> is specified, removed them.</para>
           <xi:include href="stageOptions.xml" parse="xml"/>
         </refsect1>
