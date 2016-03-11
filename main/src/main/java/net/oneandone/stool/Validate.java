@@ -33,6 +33,9 @@ import net.oneandone.sushi.util.Separator;
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,7 +60,7 @@ public class Validate extends StageCommand {
     public void doInvoke() throws Exception {
         processes = Processes.create(console.world);
         report = new Report();
-        hostname();
+        dns();
         locks();
         super.doInvoke();
         if (report.isEmpty()) {
@@ -72,14 +75,24 @@ public class Validate extends StageCommand {
         }
     }
 
-    private void hostname() throws Failure {
+    private void dns() throws IOException {
         String ip;
         String subDomain;
+        ServerSocket socket;
 
         ip = digIp(session.configuration.hostname);
         if (ip.isEmpty()) {
             report.admin("missing dns entry for " + session.configuration.hostname);
         }
+
+        // make sure that hostname points to this machine. Help to detect actually adding the name of a different machine
+        try {
+            socket = new ServerSocket(session.configuration.portLast, 50, InetAddress.getByName(ip));
+            socket.close();
+        } catch (IOException e) {
+            report.admin("cannot open socket on machine " + session.configuration.hostname + ". Check the configured hostname.");
+        }
+
         subDomain = digIp("foo." + session.configuration.hostname);
         if (subDomain.isEmpty() || !subDomain.endsWith(ip)) {
             report.admin("missing dns * entry for " + session.configuration.hostname + " (" + subDomain + ")");

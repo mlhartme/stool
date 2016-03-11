@@ -6,7 +6,7 @@
       </action>
       <action date="2016-03-11" dev="mlhartme" type="update">
         Improved validate: send an email if you stage was removed; send on email per user, even for multiple broken stages; a single
-        "-repair" option replaces the previous "-stop" and "-repair-locks" options.
+        "-repair" option replaces the previous "-stop" and "-repair-locks" options; check that the configured hostname is this machine.
       </action>
       <action date="2016-03-11" dev="mlhartme" type="fix">
         Fixed stop problem when a stage is in debug mode: set timeout to 1h (instead of infinite).
