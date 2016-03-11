@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><document xmlns="http://maven.apache.org/changes/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/changes/1.0.0 http://maven.apache.org/xsd/changes-1.0.0.xsd http://maven.apache.org/changes/1.0.0 ">
   <body>
     <release version="3.3.4" date="2015-03-09">
+      <action date="2016-03-11" dev="mlhartme" type="fix">
+        Fixed stop problem when a stage is in debug mode: set timeout to 1h (instead of infinite).
+      </action>
       <action date="2016-03-10" dev="mlhartme" type="fix">
         Changed initial java.home to optionally remove the tailing /jre. This fixes a problem on Mac OS when invoking Java command line
         tools like jar.

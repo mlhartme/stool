@@ -317,7 +317,29 @@ public class Start extends StageCommand {
         result.put("java.home", stage.config().javaHome);
         result.put("wrapper.port", Integer.toString(ports.wrapper()));
         result.put("wrapper.java.additional", wrapperJavaAdditional(ports, stage));
+        result.put("wrapper.timeouts", wrapperTimeouts());
         return result;
+    }
+
+    private String wrapperTimeouts() {
+        StringBuilder result;
+
+        // because I know if a debugger is present, and I want special timeout settings
+        result = new StringBuilder("wrapper.java.detect_debug_jvm=FALSE\n");
+        if (debug) {
+            // long timeouts to give developers time for debugging;
+            // however: not infinite to avoid hanging stool validate runs.
+            result.append("wrapper.startup.timeout=3600\n");
+            result.append("wrapper.ping.timeout=3600\n");
+            result.append("wrapper.shutdown.timeout=3600\n");
+            result.append("wrapper.jvm_exit.timeout=3600\n");
+        } else {
+            // wait 5 minutes to make shutdown problem visible to users
+            result.append("wrapper.shutdown.timeout=300\n");
+            result.append("wrapper.jvm_exit.timeout=300\n");
+            // stick to defaults for other timeouts
+        }
+        return result.toString();
     }
 
     private String wrapperJavaAdditional(Ports ports, Stage stage) {
