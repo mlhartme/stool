@@ -22,29 +22,28 @@ import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.util.Separator;
 
+import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Validate extends StageCommand {
     @Option("email")
     private boolean email;
 
-    @Option("stop")
-    private boolean stop;
-
-    @Option("repair-locks")
-    private boolean repairLocks;
+    @Option("repair")
+    private boolean repair;
 
     // data shared for all stages
-    private Mailer mailer;
-    private String hostname;
     private Processes processes;
-
+    private Report report;
 
     public Validate(Session session) {
         super(session, Mode.SHARED, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
@@ -52,123 +51,76 @@ public class Validate extends StageCommand {
 
     @Override
     public void doInvoke() throws Exception {
-        hostname = session.configuration.hostname;
-        header("validate " + hostname);
         processes = Processes.create(console.world);
-        if (email) {
-            mailer = session.configuration.mailer();
-        }
-        for (Integer pid : session.lockManager.validate(processes, repairLocks)) {
-            if (repairLocks) {
-                console.info.println("repaired locks: removed stale lock(s) for process " + pid);
+        report = new Report();
+        for (Integer pid : session.lockManager.validate(processes, repair)) {
+            if (repair) {
+                report.admin("repaired locks: removed stale lock(s) for process id " + pid);
             } else {
-                console.error.println("detected stale locks for process " + pid);
+                report.admin("detected stale locks for process id " + pid);
             }
         }
         super.doInvoke();
+        if (report.isEmpty()) {
+            console.info.println("validate ok");
+        } else {
+            report.console(console);
+            if (email) {
+                report.email(session);
+            }
+            console.info.println();
+            console.info.println("validate failed");
+        }
     }
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
-        List<String> problems;
-        String[] stageEmails;
-        boolean wasStopped;
-
-        problems = new ArrayList<>();
-        daemons(stage, processes, problems);
-        until(stage.config().until, problems);
-        if (problems.isEmpty()) {
-            message("ok");
-        } else {
-            message("failed:");
-            for (String problem : problems) {
-                message("  " + problem);
-            }
-            wasStopped = false;
-            if (stop && stage.runningTomcat() != null) {
-                try {
-                    new Stop(session).doInvoke(stage);
-                    wasStopped = true;
-                } catch (Exception e) {
-                    message("stop failed:");
-                    e.printStackTrace(console.error);
-                }
-            }
-            if (session.configuration.autoRemove > -1
-              && stage.config().until.expiredDays() >= session.configuration.autoRemove) {
-                if (stage.state() == Stage.State.UP) {
-                    new Stop(session).doInvoke(stage);
-                }
-                if (!stage.owner().equals(session.user)) {
-                    new Chown(session, true, null).doInvoke(stage);
-                }
-                new Remove(session, true, true).doInvoke(stage);
-                message("Stage has been deleted.");
-                return;
-            }
-            if (mailer != null) {
-                stageEmails = stageEmails(stage);
-                if (stageEmails.length == 0) {
-                    message("cannot send email, there's nobody to send it to");
-                } else {
-                    message("sending email to " + Separator.SPACE.join(stageEmails));
-                    mailer.send("stool@" + hostname, stageEmails,
-                      "Validation for stage " + stage.getName() + "." + hostname + " failed",
-                      body(problems, (wasStopped ? "The stage has been stopped.\n" : "")));
-                }
-            }
-        }
+        tomcat(stage);
+        until(stage);
     }
 
     //--
 
-    private String body(List<String> problems, String stopped) {
-        StringBuilder body;
+    public void until(Stage stage) throws IOException {
+        Until until;
 
-        body = new StringBuilder();
-        body.append("Validation found ").append(problems.size()).append(" problem").append(problems.size() == 1 ? "" : "s").append("\n\n");
-        for (String problem : problems) {
-            body.append("     ").append(problem).append("\n");
+        until = stage.config().until;
+        if (!until.isExpired()) {
+            return;
         }
-        body.append("\nPlease fix this.").append("\n");
-        body.append(stopped).append("\n");
-        return body.toString();
-    }
 
-    public void until(Until until, List<String> problems) {
-        StringBuilder problem;
-
-        if (until.isExpired()) {
-            problem = new StringBuilder();
-            problem.append("stage has expired ").append(until).append(". Adjust the 'until' date or remove it:\n");
-            if (session.configuration.autoRemove > -1) {
-                problem.append("CAUTION: This stage will be removed automatically in ")
-                        .append(session.configuration.autoRemove - until.expiredDays()).append(" day(s)");
+        report.user(stage, "stage has expired " + until);
+        if (repair) {
+            if (stage.runningTomcat() != null) {
+                try {
+                    new Stop(session).doInvoke(stage);
+                    report.user(stage, "expired stage has been stopped");
+                } catch (Exception e) {
+                    report.user(stage, "expired stage failed to stop: " + e.getMessage());
+                    e.printStackTrace(console.verbose);
+                }
             }
-            problems.add(problem.toString());
-        }
-    }
-
-    private String[] stageEmails(Stage stage) throws IOException, NamingException {
-        String owner;
-
-        owner = stage.owner();
-        try {
-            return new String[]{ session.lookupUser(owner).email };
-        } catch (UserNotFound e) {
-            owner = session.configuration.contactAdmin;
-            if (owner.isEmpty()) {
-                return new String[]{};
+            if (session.configuration.autoRemove >= 0) {
+                if (stage.config().until.expiredDays() >= session.configuration.autoRemove) {
+                    try {
+                        if (!stage.owner().equals(session.user)) {
+                            new Chown(session, true, null).doInvoke(stage);
+                        }
+                        new Remove(session, true, true).doInvoke(stage);
+                        report.user(stage, "expired stage has been removed");
+                    } catch (Exception e) {
+                        report.user(stage, "failed to remove expired stage: " + e.getMessage());
+                        e.printStackTrace(console.verbose);
+                    }
+                } else {
+                    report.user(stage, "CAUTION: This stage will be removed automatically in "
+                            + (session.configuration.autoRemove - until.expiredDays()) + " day(s)");
+                }
             }
-            return new String[]{ owner };
         }
     }
 
-    private static void daemons(Stage stage, Processes processes, List<String> problems) throws IOException {
-        tomcat(stage, processes, problems);
-    }
-
-    private static void tomcat(Stage stage, Processes processes, List<String> problems) throws IOException {
+    private void tomcat(Stage stage) throws IOException {
         String filePid;
         String psPid;
 
@@ -181,7 +133,97 @@ public class Validate extends StageCommand {
             psPid = "";
         }
         if (!filePid.equals(psPid)) {
-            problems.add("Tomcat process mismatch: " + filePid + " vs " + psPid);
+            report.admin(stage, "Tomcat process mismatch: " + filePid + " vs " + psPid);
+        }
+    }
+
+    //--
+
+    public static class Report {
+        private Map<String, List<String>> users;
+
+        public Report() {
+            this.users = new HashMap<>();
+        }
+
+        public void admin(String problem) {
+            admin(null, problem);
+        }
+
+        public void admin(Stage stage, String problem) {
+            add(null, prefix(stage) + problem);
+        }
+
+        public void user(Stage stage, String problem) throws IOException {
+            add(stage.owner(), prefix(stage) + problem);
+        }
+
+        public void console(Console console) {
+            for (Map.Entry<String, List<String>> entry : users.entrySet()) {
+                for (String msg : entry.getValue()) {
+                    console.info.println(msg);
+                }
+            }
+        }
+
+        public void email(Session session) throws NamingException, MessagingException {
+            String hostname;
+            Mailer mailer;
+            Console console;
+            String user;
+            String email;
+            String body;
+
+            hostname = session.configuration.hostname;
+            mailer = session.configuration.mailer();
+            console = session.console;
+            for (Map.Entry<String, List<String>> entry : users.entrySet()) {
+                user = entry.getKey();
+                body = Separator.RAW_LINE.join(entry.getValue());
+                email = email(session, user);
+                if (email == null) {
+                    console.error.println("cannot send email, there's nobody to send it to.");
+                } else {
+                    console.info.println("sending email to " + email);
+                    mailer.send("stool@" + hostname, new String[] { email }, "Validation of your stage(s) on " + hostname + " failed", body);
+                }
+            }
+        }
+
+        private static String email(Session session, String user) throws NamingException {
+            String email;
+
+            if (user == null) {
+                email = session.configuration.contactAdmin;
+            } else {
+                try {
+                    email = session.lookupUser(user).email;
+                } catch (UserNotFound e) {
+                    email = session.configuration.contactAdmin;
+                }
+            }
+            return email.isEmpty() ? null : email;
+        }
+
+        public boolean isEmpty() {
+            return users.isEmpty();
+        }
+
+        //--
+
+        private static String prefix(Stage stage) {
+            return stage == null ? "" : "stage " + stage.getName() + ": ";
+        }
+
+        private void add(String user, String problem) {
+            List<String> problems;
+
+            problems = users.get(user);
+            if (problems == null) {
+                problems = new ArrayList<>();
+                users.put(user, problems);
+            }
+            problems.add(problem);
         }
     }
 }

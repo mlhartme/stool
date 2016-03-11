@@ -1747,9 +1747,8 @@
             <arg rep="repeat">
               <replaceable>stage-option</replaceable>
             </arg>
-            <arg>-stop</arg>
             <arg>-email</arg>
-            <arg>-repair-locks</arg>
+            <arg>-repair</arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1>
@@ -1757,13 +1756,12 @@
           <para>Checks if the
             <literal>until</literal>
             date of the stage has expired. If so, and
-            <literal>-stop</literal>
-            is specified, the stage is stopped. And if
+            <literal>-repair</literal>
+            is specified, the stage is stopped (and removed if autoremove days have passed). And if
             <literal>-email</literal>
-            is specified, a notification mail is
-            sent to the stage owner.
+            is specified, a notification mail is sent to the stage owner.
           </para>
-          <para>Also checks Stool's locking system for stale locks and, if <literal>-repair-locks</literal> is specified, removed them.</para>
+          <para>Also checks Stool's locking system for stale locks and, if <literal>-repair</literal> is specified, removed them.</para>
           <xi:include href="stageOptions.xml" parse="xml"/>
         </refsect1>
       </refentry>
