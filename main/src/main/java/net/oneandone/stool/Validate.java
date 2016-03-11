@@ -18,6 +18,7 @@ package net.oneandone.stool;
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Processes;
@@ -103,11 +104,12 @@ public class Validate extends StageCommand {
             if (session.configuration.autoRemove >= 0) {
                 if (stage.config().until.expiredDays() >= session.configuration.autoRemove) {
                     try {
+                        // CAUTION: do not place this behind "remove", stage.owner() would fail
+                        report.user(stage, "removing expired stage");
                         if (!stage.owner().equals(session.user)) {
                             new Chown(session, true, null).doInvoke(stage);
                         }
                         new Remove(session, true, true).doInvoke(stage);
-                        report.user(stage, "expired stage has been removed");
                     } catch (Exception e) {
                         report.user(stage, "failed to remove expired stage: " + e.getMessage());
                         e.printStackTrace(console.verbose);
@@ -191,13 +193,15 @@ public class Validate extends StageCommand {
         }
 
         private static String email(Session session, String user) throws NamingException {
+            User userobj;
             String email;
 
             if (user == null) {
                 email = session.configuration.contactAdmin;
             } else {
                 try {
-                    email = session.lookupUser(user).email;
+                    userobj = session.lookupUser(user);
+                    email = (userobj == null ? session.configuration.contactAdmin : userobj.email);
                 } catch (UserNotFound e) {
                     email = session.configuration.contactAdmin;
                 }
@@ -212,7 +216,7 @@ public class Validate extends StageCommand {
         //--
 
         private static String prefix(Stage stage) {
-            return stage == null ? "" : "stage " + stage.getName() + ": ";
+            return stage == null ? "" : stage.getName() + ": ";
         }
 
         private void add(String user, String problem) {
