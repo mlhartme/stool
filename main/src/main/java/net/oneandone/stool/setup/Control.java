@@ -19,35 +19,43 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
+/** Creates an directory with debian maintainer scripts. */
 public class Control {
     public static void main(String[] args) throws IOException {
         World world;
 
         if (args.length != 3) {
-            throw new IOException("usage: control a b c");
+            throw new IOException("usage: control srcdir application dest");
         }
         world = new World();
         run(world.file(args[0]), world.file(args[1]), world.file(args[2]));
         System.exit(0);
     }
 
-    public static void run(FileNode src, FileNode app, FileNode dest) throws IOException {
-        byte[] all;
+    public static void run(FileNode srcdir, FileNode application, FileNode dest) throws IOException {
+        byte[] launcher;
+        byte[] orig;
         int idx;
 
-        src.checkDirectory();
-        app.checkFile();
+        launcher = srcdir.getWorld().resource("templates/maintainer-launcher").readBytes();
+
+        srcdir.checkDirectory();
+        application.checkFile();
         dest.mkdir();
 
-        all = app.readBytes();
-        idx = endOfLauncher(all);
-        src.copyDirectory(dest);
-        dest.join("preinst").writeBytes(all, 0, idx, false);
-        dest.join("postinst").writeBytes(all, 0, idx, false);
-        dest.join("prerm").writeBytes(all, 0, idx, false);
-        dest.join("postrm.bin").writeBytes(all);
+        orig = application.readBytes();
+        idx = endOfLauncher(orig);
+        srcdir.copyDirectory(dest);
+        dest.join("preinst").writeBytes(launcher);
+        dest.join("postinst").writeBytes(launcher);
+        dest.join("prerm").writeBytes(launcher);
+        try (OutputStream out = dest.join("postrm.bin").createOutputStream()) {
+            out.write(orig, idx, orig.length - idx);
+            out.write(launcher);
+        }
     }
 
     private static int endOfLauncher(byte[] all) {

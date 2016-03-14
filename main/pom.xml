@@ -187,6 +187,10 @@
             }
 
             # Stool
+            -keep public class net.oneandone.stool.setup.DebianMainSetup {
+            public static void main(java.lang.String[]);
+            }
+
             -keep public class net.oneandone.stool.util.Environment {
             public static void main(java.lang.String[]);
             }
@@ -227,17 +231,6 @@
               <goal>generate</goal>
             </goals>
           </execution>
-          <execution>
-            <configuration>
-              <name>mainpostrm</name>
-              <main>net.oneandone.stool.setup.DebianMainSetup</main>
-              <launcher>${basedir}/src/deb/launcher</launcher>
-            </configuration>
-            <id>debian-main-setup</id>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -255,7 +248,7 @@
                 </java>
                 <java classname="net.oneandone.stool.setup.Control" classpath="${cp}}" fork="false" failonerror="true">
                   <arg path="${basedir}/src/deb/main/control/" />
-                  <arg path="${project.build.directory}/mainpostrm" />
+                  <arg path="${project.build.directory}/setup-stool" />
                   <arg path="${project.build.directory}/control-main" />
                 </java>
               </target>

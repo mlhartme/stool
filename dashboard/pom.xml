@@ -187,7 +187,6 @@
                 public &lt;init&gt;(...);
                 }
               </shrinkOptions>
-              <launcher>${basedir}/src/deb/launcher</launcher>
             </configuration>
             <id>debian-dashboard-setup</id>
             <goals>
