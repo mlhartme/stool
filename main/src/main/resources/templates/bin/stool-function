@@ -50,7 +50,7 @@ stool() {
       cp="$bin/stool.jar"
     else
       # for stool development
-      cp=$STOOL_SOURCE/setup/target/setup-stool
+      cp=$STOOL_SOURCE/target/setup-stool
       if [ ! -e $cp ] ; then
         echo "$cp not found. Check your STOOL_SOURCE variable and re-build."
         return
