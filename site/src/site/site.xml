@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="Stool">
+<project name="Stool Main">
   <version position="left"/>
   <bannerLeft>
     <name>Stool</name>
@@ -10,10 +10,9 @@
 
   <body>
     <links>
-      <item name="Documentation" href="documentation/documentation.html"/>
       <item name="Changes" href="changes-report.html"/>
+      <item name="Documentation" href="documentation.html"/>
     </links>
     <menu ref="reports"/>
-
   </body>
 </project>

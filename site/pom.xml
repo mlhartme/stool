@@ -7,10 +7,10 @@
     <version>3.3.4-SNAPSHOT</version>
   </parent>
 
-  <name>Stool Documentation</name>
-  <artifactId>documentation</artifactId>
+  <name>Stool Site</name>
+  <artifactId>site</artifactId>
   <packaging>jar</packaging>
-  <description>Stool Documentation</description>
+  <description>Stool Site</description>
 
   <build>
     <plugins>
