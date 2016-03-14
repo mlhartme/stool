@@ -22,7 +22,7 @@
   <dependencies>
     <dependency>
       <groupId>net.oneandone.stool</groupId>
-      <artifactId>documentation</artifactId>
+      <artifactId>site</artifactId>
       <version>${project.version}</version>
     </dependency>
     <dependency>

@@ -84,7 +84,7 @@
               <sectionAutolabel>true</sectionAutolabel>
             </configuration>
           </execution>
-          <!-- look ugly, too many page breaks: execution>
+          <!-- looks ugly, too many page breaks: execution>
             <id>pdf</id>
             <phase>pre-site</phase>
             <goals>
