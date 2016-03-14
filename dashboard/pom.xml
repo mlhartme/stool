@@ -135,23 +135,21 @@
         <groupId>net.oneandone.maven.plugins</groupId>
         <artifactId>application</artifactId>
         <version>1.6.0</version>
-        <configuration>
-          <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
-          <overwrite>org/apache/commons/logging/**/*</overwrite>
-          <remove>META-INF/maven/**/*,
-            META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
-            META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
-            readme.txt, changelog.txt, notice.txt, license.txt, licenses/*
-          </remove>
-          <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
-          <attach>false</attach>
-        </configuration>
         <executions>
           <execution>
             <configuration>
               <name>dashboardpostrm</name>
               <main>net.oneandone.stool.setup.DebianDashboardSetup</main>
               <shrink>true</shrink>
+              <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
+              <overwrite>org/apache/commons/logging/**/*</overwrite>
+              <remove>META-INF/maven/**/*,
+                META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
+                META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
+                readme.txt, changelog.txt, notice.txt, license.txt, licenses/*
+              </remove>
+              <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
+              <attach>false</attach>
               <shrinkOptions>
                 -dontoptimize # because of proguard bug
                 -keepattributes *Annotation*
