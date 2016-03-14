@@ -62,7 +62,6 @@
     <module>site</module>
     <module>main</module>
     <module>dashboard</module>
-    <module>setup</module>
   </modules>
 
   <distributionManagement>

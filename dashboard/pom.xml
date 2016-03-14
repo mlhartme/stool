@@ -36,7 +36,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
-      <version>1.1.2</version>
+      <version>1.1.3</version>
       <!-- TODO: needed to override inherited test scope -->
       <scope>compile</scope>
     </dependency>
@@ -44,7 +44,7 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.1.2</version>
+      <version>1.1.3</version>
       <!-- TODO: needed to override inherited test scope -->
       <scope>compile</scope>
     </dependency>
@@ -129,5 +129,136 @@
         </plugin>
       </plugins>
     </pluginManagement>
+
+    <plugins>
+      <plugin>
+        <groupId>net.oneandone.maven.plugins</groupId>
+        <artifactId>application</artifactId>
+        <version>1.6.0</version>
+        <configuration>
+          <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
+          <overwrite>org/apache/commons/logging/**/*</overwrite>
+          <remove>META-INF/maven/**/*,
+            META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
+            META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
+            readme.txt, changelog.txt, notice.txt, license.txt, licenses/*
+          </remove>
+          <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
+          <attach>false</attach>
+        </configuration>
+        <executions>
+          <execution>
+            <configuration>
+              <name>dashboardpostrm</name>
+              <main>net.oneandone.stool.setup.DebianDashboardSetup</main>
+              <shrink>true</shrink>
+              <shrinkOptions>
+                -dontoptimize # because of proguard bug
+                -keepattributes *Annotation*
+                -ignorewarnings
+
+                -dontnote com.sun.mail.**
+                -dontnote javax.annotation.*
+                -dontwarn javax.enterprise.**
+                -dontnote javax.enterprise.**
+                -dontnote org.apache.maven.**
+                -dontwarn org.apache.maven.**
+                -dontnote net.oneandone.stool.**
+                -dontnote ch.qos.logback.**
+                -dontwarn ch.qos.logback.**
+                -dontnote org.apache.commons.**
+                -dontwarn org.apache.commons.**
+                -dontnote org.apache.http.**
+                -dontwarn org.apache.http.**
+                -dontnote com.google.**
+                -dontwarn com.google.**
+                -dontnote org.eclipse.**
+                -dontwarn org.eclipse.**
+                -dontnote org.codehaus.**
+                -dontwarn org.codehaus.**
+                -dontnote net.oneandone.sushi.**
+                -dontwarn net.oneandone.sushi.**
+
+                -keep public class ** implements net.oneandone.stool.extensions.Extension {
+                public &lt;init&gt;(...);
+                }
+
+                -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
+                public &lt;init&gt;(...);
+                }
+              </shrinkOptions>
+              <launcher>${basedir}/src/deb/launcher</launcher>
+            </configuration>
+            <id>debian-dashboard-setup</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <configuration>
+              <target>
+                <!-- dashboard -->
+                <property name="cp" refid="maven.runtime.classpath" />
+                <java classname="net.oneandone.stool.setup.Dashboard" classpath="${cp}" fork="false" failonerror="true">
+                  <arg path="${project.build.directory}/debfiles-dashboard" />
+                </java>
+                <java classname="net.oneandone.stool.setup.Control" classpath="${cp}}" fork="false" failonerror="true">
+                  <arg path="${basedir}/src/deb/dashboard/control/" />
+                  <arg path="${project.build.directory}/dashboardpostrm" />
+                  <arg path="${project.build.directory}/control-dashboard" />
+                </java>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>jdeb</artifactId>
+        <groupId>org.vafer</groupId>
+        <version>1.4.1</version>
+        <executions>
+          <execution>
+            <id>jdeb-dashboard</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jdeb</goal>
+            </goals>
+            <configuration>
+              <controlDir>${project.build.directory}/control-dashboard</controlDir>
+              <!-- override deb and changes out because the artifact id is not suitable -->
+              <deb>${basedir}/target/stool-dashboard_[[version]]_all.deb</deb>
+              <changesOut>${basedir}/target/stool-dashboard_[[version]]_all.changes</changesOut>
+              <name>stool-dashboard</name>
+              <compression>bz2</compression>
+              <snapshotExpand>true</snapshotExpand>
+              <classifier>dashboard</classifier>
+              <dataSet>
+                <data>
+                  <src>${project.build.directory}/debfiles-dashboard/dashboard.war</src>
+                  <dst>/usr/share/stool-dashboard/dashboard.war</dst>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>644</filemode>
+                  </mapper>
+                </data>
+              </dataSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 </project>

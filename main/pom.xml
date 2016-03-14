@@ -102,5 +102,308 @@
         <filtering>true</filtering>
       </resource>
     </resources>
+
+    <plugins>
+      <plugin>
+        <groupId>net.oneandone.maven.plugins</groupId>
+        <artifactId>application</artifactId>
+        <version>1.6.0</version>
+        <configuration>
+          <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
+          <overwrite>org/apache/commons/logging/**/*</overwrite>
+          <remove>META-INF/maven/**/*,
+            META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
+            META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
+            readme.txt, changelog.txt, notice.txt, license.txt, licenses/*
+          </remove>
+          <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
+          <attach>false</attach>
+        </configuration>
+        <executions>
+          <execution>
+            <configuration>
+              <!-- JavaSetup is used as the setup tool *and* as the Jar file for the resulting stool installation. -->
+              <path>$PATH</path>
+              <options>-Djava.awt.headless=true</options>
+              <name>setup-stool</name>
+              <main>net.oneandone.stool.setup.JavaSetup</main>
+              <shrink>true</shrink>
+              <shrinkOptions>
+                -dontoptimize # because of proguard bug
+                -keepattributes *Annotation*
+                -keepdirectories
+                -ignorewarnings
+
+                -dontnote com.sun.mail.**
+                -dontnote javax.annotation.*
+                -dontwarn javax.enterprise.**
+                -dontnote javax.enterprise.**
+                -dontnote org.apache.maven.**
+                -dontwarn org.apache.maven.**
+                -dontnote net.oneandone.stool.**
+                -dontnote ch.qos.logback.**
+                -dontwarn ch.qos.logback.**
+                -dontnote org.apache.commons.**
+                -dontwarn org.apache.commons.**
+                -dontnote org.apache.http.**
+                -dontwarn org.apache.http.**
+                -dontnote com.google.**
+                -dontwarn com.google.**
+                -dontnote org.eclipse.**
+                -dontwarn org.eclipse.**
+                -dontnote org.codehaus.**
+                -dontwarn org.codehaus.**
+                -dontnote net.oneandone.sushi.**
+                -dontwarn net.oneandone.sushi.**
+
+                -keep class ** extends javax.mail.Transport {
+                public &lt;init&gt;(...);
+                }
+
+                -keep public class ** implements org.eclipse.aether.spi.locator.Service {
+                }
+
+                -keep @org.codehaus.plexus.component.annotations.Component class *
+                -keep @com.google.inject.Singleton class *
+                -keep @javax.inject.Named class *
+
+                -keep class org.apache.maven.repository.internal.Default* {
+                *;
+                }
+
+                -keep class org.eclipse.sisu.** {
+                *;
+                }
+
+                -keep public class ** implements org.sonatype.plexus.components.sec.dispatcher.SecDispatcher {
+                }
+
+                -keep public class ** implements org.sonatype.plexus.components.cipher.PlexusCipher {
+                }
+
+                -keepclassmembers class * {
+                @javax.inject.Inject *;
+                }
+
+                -keepclassmembers enum * {
+                public static **[] values();
+                public static ** valueOf(java.lang.String);
+                }
+
+                -keepclassmembers class ** implements net.oneandone.stool.setup.Upgrade {
+                *;
+                }
+
+                # Stool
+                -keep public class net.oneandone.stool.util.Environment {
+                public static void main(java.lang.String[]);
+                }
+                -keep public class net.oneandone.stool.Main {
+                public static void main(java.lang.String[]);
+                }
+                -keep public class net.oneandone.stool.setup.BinMan {
+                public static void main(java.lang.String[]);
+                }
+                -keep public class ** implements net.oneandone.stool.extensions.Extension {
+                public &lt;init&gt;(...);
+                }
+
+                # Sushi
+                -keepclassmembers class * {
+                @net.oneandone.sushi.cli.* *;
+                }
+                -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
+                public &lt;init&gt;(...);
+                }
+              </shrinkOptions>
+            </configuration>
+            <id>java-setup</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+          <execution>
+            <configuration>
+              <name>mainpostrm</name>
+              <main>net.oneandone.stool.setup.DebianMainSetup</main>
+              <shrink>true</shrink>
+              <shrinkOptions>
+                -dontoptimize # because of proguard bug
+                -keepattributes *Annotation*
+                -ignorewarnings
+
+                -dontnote com.sun.mail.**
+                -dontnote javax.annotation.*
+                -dontwarn javax.enterprise.**
+                -dontnote javax.enterprise.**
+                -dontnote org.apache.maven.**
+                -dontwarn org.apache.maven.**
+                -dontnote net.oneandone.stool.**
+                -dontnote ch.qos.logback.**
+                -dontwarn ch.qos.logback.**
+                -dontnote org.apache.commons.**
+                -dontwarn org.apache.commons.**
+                -dontnote org.apache.http.**
+                -dontwarn org.apache.http.**
+                -dontnote com.google.**
+                -dontwarn com.google.**
+                -dontnote org.eclipse.**
+                -dontwarn org.eclipse.**
+                -dontnote org.codehaus.**
+                -dontwarn org.codehaus.**
+                -dontnote net.oneandone.sushi.**
+                -dontwarn net.oneandone.sushi.**
+
+                -keepclassmembers public class net.oneandone.stool.configuration.StoolConfiguration {
+                !static !transient &lt;fields&gt;;
+                }
+
+                -keep public class ** implements net.oneandone.stool.extensions.Extension {
+                public &lt;init&gt;(...);
+                }
+
+                -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
+                public &lt;init&gt;(...);
+                }
+
+                -keepclassmembers class ** implements net.oneandone.stool.setup.Upgrade {
+                *;
+                }
+              </shrinkOptions>
+              <launcher>${basedir}/src/deb/launcher</launcher>
+            </configuration>
+            <id>debian-main-setup</id>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <configuration>
+              <target>
+                <!-- main -->
+                <property name="cp" refid="maven.runtime.classpath" />
+                <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/setup-stool" fork="false" failonerror="true">
+                  <arg path="${project.build.directory}/debfiles-main" />
+                </java>
+                <java classname="net.oneandone.stool.setup.Control" classpath="${cp}}" fork="false" failonerror="true">
+                  <arg path="${basedir}/src/deb/main/control/" />
+                  <arg path="${project.build.directory}/mainpostrm" />
+                  <arg path="${project.build.directory}/control-main" />
+                </java>
+              </target>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>jdeb</artifactId>
+        <groupId>org.vafer</groupId>
+        <version>1.4.1</version>
+        <executions>
+          <execution>
+            <id>jdeb-main</id>
+            <phase>package</phase>
+            <goals>
+              <goal>jdeb</goal>
+            </goals>
+            <configuration>
+              <controlDir>${project.build.directory}/control-main</controlDir>
+              <!-- override deb and changes out because the artifact id is not suitable -->
+              <deb>${basedir}/target/stool_[[version]]_all.deb</deb>
+              <changesOut>${basedir}/target/stool_[[version]]_all.changes</changesOut>
+              <name>stool</name>
+              <compression>bz2</compression>
+              <snapshotExpand>true</snapshotExpand>
+              <dataSet>
+                <data>
+                  <src>${project.build.directory}/debfiles-main</src>
+                  <dst>/usr/share</dst>
+                  <type>directory</type>
+                  <excludes>**/*.sh</excludes>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share</prefix>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>644</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${project.build.directory}/debfiles-main</src>
+                  <dst>/usr/share</dst>
+                  <type>directory</type>
+                  <includes>**/*.sh</includes>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share</prefix>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>755</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/src/deb/main/profile</src>
+                  <dst>/etc/profile.d/stool.sh</dst>
+                  <conffile>true</conffile>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>644</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/src/deb/main/sudoers</src>
+                  <dst>/etc/sudoers.d/stool</dst>
+                  <conffile>true</conffile>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>440</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/src/deb/main/cron</src>
+                  <dst>/etc/cron.d/stool</dst>
+                  <type>file</type>
+                  <conffile>true</conffile>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>644</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/src/deb/main/service</src>
+                  <dst>/etc/init.d/stool</dst>
+                  <conffile>true</conffile>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>755</filemode>
+                  </mapper>
+                </data>
+              </dataSet>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
   </build>
 </project>
