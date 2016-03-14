@@ -118,6 +118,100 @@
           </remove>
           <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
           <attach>false</attach>
+          <shrink>true</shrink>
+          <shrinkOptions>
+            -dontoptimize # because of proguard bug
+            -keepattributes *Annotation*
+            -keepdirectories
+            -ignorewarnings
+
+            -dontnote com.sun.mail.**
+            -dontnote javax.annotation.*
+            -dontwarn javax.enterprise.**
+            -dontnote javax.enterprise.**
+            -dontnote org.apache.maven.**
+            -dontwarn org.apache.maven.**
+            -dontnote net.oneandone.stool.**
+            -dontnote ch.qos.logback.**
+            -dontwarn ch.qos.logback.**
+            -dontnote org.apache.commons.**
+            -dontwarn org.apache.commons.**
+            -dontnote org.apache.http.**
+            -dontwarn org.apache.http.**
+            -dontnote com.google.**
+            -dontwarn com.google.**
+            -dontnote org.eclipse.**
+            -dontwarn org.eclipse.**
+            -dontnote org.codehaus.**
+            -dontwarn org.codehaus.**
+            -dontnote net.oneandone.sushi.**
+            -dontwarn net.oneandone.sushi.**
+
+
+            -keep class ** extends javax.mail.Transport {
+            public &lt;init&gt;(...);
+            }
+
+            -keep public class ** implements org.eclipse.aether.spi.locator.Service {
+            }
+
+            -keep @org.codehaus.plexus.component.annotations.Component class *
+            -keep @com.google.inject.Singleton class *
+            -keep @javax.inject.Named class *
+
+            -keep class org.apache.maven.repository.internal.Default* {
+            *;
+            }
+
+            -keep class org.eclipse.sisu.** {
+            *;
+            }
+
+            -keep public class ** implements org.sonatype.plexus.components.sec.dispatcher.SecDispatcher {
+            }
+
+            -keep public class ** implements org.sonatype.plexus.components.cipher.PlexusCipher {
+            }
+
+            -keepclassmembers class * {
+            @javax.inject.Inject *;
+            }
+
+            -keepclassmembers enum * {
+            public static **[] values();
+            public static ** valueOf(java.lang.String);
+            }
+
+            -keepclassmembers class ** implements net.oneandone.stool.setup.Upgrade {
+            *;
+            }
+
+            # Stool
+            -keep public class net.oneandone.stool.util.Environment {
+            public static void main(java.lang.String[]);
+            }
+            -keep public class net.oneandone.stool.Main {
+            public static void main(java.lang.String[]);
+            }
+            -keep public class net.oneandone.stool.setup.BinMan {
+            public static void main(java.lang.String[]);
+            }
+            -keep public class ** implements net.oneandone.stool.extensions.Extension {
+            public &lt;init&gt;(...);
+            }
+
+            # Sushi
+            -keepclassmembers class * {
+            @net.oneandone.sushi.cli.* *;
+            }
+            -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
+            public &lt;init&gt;(...);
+            }
+
+            -keepclassmembers public class net.oneandone.stool.configuration.StoolConfiguration {
+            !static !transient &lt;fields&gt;;
+            }
+          </shrinkOptions>
         </configuration>
         <executions>
           <execution>
@@ -127,95 +221,6 @@
               <options>-Djava.awt.headless=true</options>
               <name>setup-stool</name>
               <main>net.oneandone.stool.setup.JavaSetup</main>
-              <shrink>true</shrink>
-              <shrinkOptions>
-                -dontoptimize # because of proguard bug
-                -keepattributes *Annotation*
-                -keepdirectories
-                -ignorewarnings
-
-                -dontnote com.sun.mail.**
-                -dontnote javax.annotation.*
-                -dontwarn javax.enterprise.**
-                -dontnote javax.enterprise.**
-                -dontnote org.apache.maven.**
-                -dontwarn org.apache.maven.**
-                -dontnote net.oneandone.stool.**
-                -dontnote ch.qos.logback.**
-                -dontwarn ch.qos.logback.**
-                -dontnote org.apache.commons.**
-                -dontwarn org.apache.commons.**
-                -dontnote org.apache.http.**
-                -dontwarn org.apache.http.**
-                -dontnote com.google.**
-                -dontwarn com.google.**
-                -dontnote org.eclipse.**
-                -dontwarn org.eclipse.**
-                -dontnote org.codehaus.**
-                -dontwarn org.codehaus.**
-                -dontnote net.oneandone.sushi.**
-                -dontwarn net.oneandone.sushi.**
-
-                -keep class ** extends javax.mail.Transport {
-                public &lt;init&gt;(...);
-                }
-
-                -keep public class ** implements org.eclipse.aether.spi.locator.Service {
-                }
-
-                -keep @org.codehaus.plexus.component.annotations.Component class *
-                -keep @com.google.inject.Singleton class *
-                -keep @javax.inject.Named class *
-
-                -keep class org.apache.maven.repository.internal.Default* {
-                *;
-                }
-
-                -keep class org.eclipse.sisu.** {
-                *;
-                }
-
-                -keep public class ** implements org.sonatype.plexus.components.sec.dispatcher.SecDispatcher {
-                }
-
-                -keep public class ** implements org.sonatype.plexus.components.cipher.PlexusCipher {
-                }
-
-                -keepclassmembers class * {
-                @javax.inject.Inject *;
-                }
-
-                -keepclassmembers enum * {
-                public static **[] values();
-                public static ** valueOf(java.lang.String);
-                }
-
-                -keepclassmembers class ** implements net.oneandone.stool.setup.Upgrade {
-                *;
-                }
-
-                # Stool
-                -keep public class net.oneandone.stool.util.Environment {
-                public static void main(java.lang.String[]);
-                }
-                -keep public class net.oneandone.stool.Main {
-                public static void main(java.lang.String[]);
-                }
-                -keep public class net.oneandone.stool.setup.BinMan {
-                public static void main(java.lang.String[]);
-                }
-                -keep public class ** implements net.oneandone.stool.extensions.Extension {
-                public &lt;init&gt;(...);
-                }
-
-                # Sushi
-                -keepclassmembers class * {
-                @net.oneandone.sushi.cli.* *;
-                }
-                -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
-                public &lt;init&gt;(...);
-                }
-              </shrinkOptions>
             </configuration>
             <id>java-setup</id>
             <goals>
@@ -226,50 +231,6 @@
             <configuration>
               <name>mainpostrm</name>
               <main>net.oneandone.stool.setup.DebianMainSetup</main>
-              <shrink>true</shrink>
-              <shrinkOptions>
-                -dontoptimize # because of proguard bug
-                -keepattributes *Annotation*
-                -ignorewarnings
-
-                -dontnote com.sun.mail.**
-                -dontnote javax.annotation.*
-                -dontwarn javax.enterprise.**
-                -dontnote javax.enterprise.**
-                -dontnote org.apache.maven.**
-                -dontwarn org.apache.maven.**
-                -dontnote net.oneandone.stool.**
-                -dontnote ch.qos.logback.**
-                -dontwarn ch.qos.logback.**
-                -dontnote org.apache.commons.**
-                -dontwarn org.apache.commons.**
-                -dontnote org.apache.http.**
-                -dontwarn org.apache.http.**
-                -dontnote com.google.**
-                -dontwarn com.google.**
-                -dontnote org.eclipse.**
-                -dontwarn org.eclipse.**
-                -dontnote org.codehaus.**
-                -dontwarn org.codehaus.**
-                -dontnote net.oneandone.sushi.**
-                -dontwarn net.oneandone.sushi.**
-
-                -keepclassmembers public class net.oneandone.stool.configuration.StoolConfiguration {
-                !static !transient &lt;fields&gt;;
-                }
-
-                -keep public class ** implements net.oneandone.stool.extensions.Extension {
-                public &lt;init&gt;(...);
-                }
-
-                -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
-                public &lt;init&gt;(...);
-                }
-
-                -keepclassmembers class ** implements net.oneandone.stool.setup.Upgrade {
-                *;
-                }
-              </shrinkOptions>
               <launcher>${basedir}/src/deb/launcher</launcher>
             </configuration>
             <id>debian-main-setup</id>
