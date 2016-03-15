@@ -83,11 +83,12 @@ public class Validate extends StageCommand {
         ip = digIp(session.configuration.hostname);
         if (ip.isEmpty()) {
             report.admin("missing dns entry for " + session.configuration.hostname);
+            return;
         }
 
         // make sure that hostname points to this machine. Help to detect actually adding the name of a different machine
         try {
-            socket = new ServerSocket(session.configuration.portLast, 50, InetAddress.getByName(ip));
+            socket = new ServerSocket(session.pool().temp(), 50, InetAddress.getByName(session.configuration.hostname));
             socket.close();
         } catch (IOException e) {
             report.admin("cannot open socket on machine " + session.configuration.hostname + ". Check the configured hostname.");

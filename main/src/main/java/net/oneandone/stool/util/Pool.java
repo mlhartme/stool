@@ -227,6 +227,17 @@ public class Pool {
         throw new IOException("cannot find free port in range [" + first + ", " + last + "[");
     }
 
+    public int temp() throws IOException {
+        int current;
+
+        for (current = first; current <= last; current += 2) {
+            if (!used(current)) {
+                return current;
+            }
+        }
+        throw new IOException("cannot find free port in range [" + first + ", " + last + "[");
+    }
+
     public void add(Vhost vhost) {
         vhosts.add(vhost);
     }
@@ -296,4 +307,5 @@ public class Pool {
         }
         return result.isEmpty() ? null : new Ports(result);
     }
+
 }
