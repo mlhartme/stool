@@ -371,13 +371,21 @@ public abstract class Stage {
         }
         launcher.arg(session.bin("service-wrapper.sh").getAbsolute());
         launcher.arg(catalinaHome().getAbsolute());
-        launcher.arg(catalinaBase().getAbsolute());
-        launcher.arg(session.lib.join("service-wrapper", Start.serviceWrapperName(config().tomcatService)).getAbsolute());
-        launcher.arg(shared().join("conf/service-wrapper.conf").getAbsolute());
-        launcher.arg(shared().join("run").getAbsolute());
+        launcher.arg(serviceWrapperBase().getAbsolute());
+        launcher.arg(backstage.getAbsolute());
         launcher.arg(action);
         return launcher;
     }
+
+    public FileNode serviceWrapperBase() {
+        String platform;
+        String name;
+
+        platform = (OS.CURRENT == OS.LINUX) ? "linux-x86-64" : "macosx-universal-64";
+        name = "wrapper-" + platform + "-" + config().tomcatService;
+        return session.lib.join("service-wrapper", name);
+    }
+
 
     // TODO: only works for most basic setup ...
     private FileNode homeOf(String user) throws IOException {

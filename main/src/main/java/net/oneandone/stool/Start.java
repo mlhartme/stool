@@ -73,13 +73,14 @@ public class Start extends StageCommand {
         // to avoid running into a ping timeout below:
         stage.session.configuration.verfiyHostname();
 
-        serviceWrapperOpt(stage.config().tomcatService);
+        serviceWrapperOpt(stage);
         download = tomcatOpt(stage.config().tomcatVersion);
         checkUntil(stage.config().until);
         checkCommitted(stage);
         checkNotStarted(stage);
         ports = session.pool().allocate(stage, Collections.emptyMap());
         copyTemplate(stage, ports);
+        createServiceLauncher(stage);
         copyTomcatBaseOpt(download, stage.shared(), stage.config().tomcatVersion);
         if (session.bedroom.stages().contains(stage.getName())) {
             console.info.println("leaving sleeping state");
@@ -185,6 +186,35 @@ public class Start extends StageCommand {
         }
     }
 
+    private void createServiceLauncher(Stage stage) throws IOException {
+        FileNode base;
+        String content;
+        FileNode wrapper;
+
+        base = stage.serviceWrapperBase();
+        content = base.join("src/bin/sh.script.in").readString();
+        content = Strings.replace(content, "@app.name@", "tomcat");
+        content = Strings.replace(content, "@app.long.name@", "Stage " + stage.getName() + " Tomcat");
+        content = Strings.replace(content, "@app.description@", "Tomcat for stage " + stage.getName() + " managed by Stool.");
+        content = comment(content, "WRAPPER_CMD=\"./wrapper\"");
+        content = comment(content, "WRAPPER_CONF=\"../conf/wrapper.conf\"");
+        content = comment(content, "PIDDIR=\".\"");
+        wrapper = stage.shared().join("conf/service-wrapper.sh");
+        wrapper.writeString(content);
+        Files.stoolExecutable(wrapper);
+    }
+
+    private String comment(String str, String line) {
+        return replace1(str, line, "# " + line);
+    }
+
+    private String replace1(String str, String in, String out) {
+        if (Strings.count(str, in) != 1) {
+            throw new IllegalStateException(str);
+        }
+        return Strings.replace(str, in, out);
+    }
+
     private FileNode tomcatOpt(String version) throws IOException {
         FileNode download;
         String name;
@@ -217,25 +247,22 @@ public class Start extends StageCommand {
         }
     }
 
-    private void serviceWrapperOpt(String version) throws IOException {
+    private void serviceWrapperOpt(Stage stage) throws IOException {
         FileNode download;
-        String name;
         FileNode base;
 
-        name = serviceWrapperName(version);
-        download = session.downloadCache().join(name + ".tar.gz");
+        base = stage.serviceWrapperBase();
+        download = session.downloadCache().join(base.getName() + ".tar.gz");
         if (!download.exists()) {
-            downloadFile(subst(session.configuration.downloadServiceWrapper, version), download);
+            downloadFile(subst(session.configuration.downloadServiceWrapper, stage.config().tomcatService), download);
             download.checkFile();
         }
-        base = session.lib.join("service-wrapper", name);
         if (!base.exists()) {
             tar(base.getParent(), "zxf", download.getAbsolute());
             base.checkDirectory();
         }
     }
-    //TODO: work-around for sushi http problem with proxies
-    // TODO: race condition for simultaneous downloads by different users
+
     private void downloadFile(String url, FileNode dest) throws IOException {
         console.info.println("downloading " + url + " ...");
         try {
@@ -247,27 +274,16 @@ public class Start extends StageCommand {
         }
     }
 
-    //TODO: work-around for sushi http problem with proxies
     // TODO: race condition for simultaneous downloads by different users
     private static void doDownload(String url, FileNode dest) throws IOException {
+        //TODO: wget work-around for sushi http problem with proxies
         if (OS.CURRENT != OS.MAC) {
-            // don't use sushi, it's not proxy-aware
             dest.getParent().exec("wget", "--tries=1", "--connect-timeout=5", "-q", "-O", dest.getName(), url);
         } else {
             // wget not available on Mac, but Mac usually have no proxy
             dest.getWorld().validNode(url).copyFile(dest);
         }
     }
-
-    public static String serviceWrapperName(String version) {
-        String platform;
-        String name;
-
-        platform = (OS.CURRENT == OS.LINUX) ? "linux-x86-64" : "macosx-universal-64";
-        name = "wrapper-" + platform + "-" + version;
-        return name;
-    }
-
 
     private void tar(FileNode directory, String... args) throws IOException {
         String output;

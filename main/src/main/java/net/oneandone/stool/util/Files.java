@@ -125,7 +125,7 @@ public final class Files {
      * CAUTION: assumes that the files is owned by the current user (usually because it was just created by us) or otherwise
      * already has the proper permissions.
      */
-    private static Node stoolExecutable(Node file) throws IOException {
+    public static Node stoolExecutable(Node file) throws IOException {
         permissions(file, "rwxrwxr-x");
         return file;
     }
