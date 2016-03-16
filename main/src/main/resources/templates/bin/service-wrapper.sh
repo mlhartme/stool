@@ -6,7 +6,7 @@
 #  $1    catalina_home
 #  $2    wrapper_home (${STOOL_HOME}/service-wrapper/${SERVICE_WRAPPER_NAME})
 #  $3    backstage    (${BACKSTAGE})
-#  (everything else goes to the orginal script)
+#  (everything else goes to the original script)
 
 CATALINA_HOME=$1 ; shift
 WRAPPER_HOME=$1 ; shift

@@ -31,7 +31,7 @@ PID=$(cat $FILE)
 CMD=$(ps --no-headers --format args $PID)
 
 case "$CMD" in
-  $LIB/service-wrapper/wrapper-linux-x86-64-3.5.26/bin/wrapper*)
+  $LIB/service-wrapper/wrapper-linux-x86-64-3.5.TODO/bin/wrapper*)
     echo "ok"
     ;;
   *)

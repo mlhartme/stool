@@ -135,7 +135,7 @@ public class StageConfiguration {
         this.pom = "pom.xml";
         this.tomcatOpts = "";
         this.tomcatVersion = "8.0.26";
-        this.tomcatService = "3.5.26";
+        this.tomcatService = "3.5.29";
         this.tomcatHeap = 200;
         this.tomcatPerm = 64;
         this.tomcatSelect = new ArrayList<>();
