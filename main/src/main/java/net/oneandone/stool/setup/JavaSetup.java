@@ -31,8 +31,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 
 /**
- * Java installer for Mac OS and integration tests.
- * Creates an install directory (= "lib" with "bin" and "man")
+ * Creates an install directory (= "lib" + "bin" + "man")
+ * Uses for integration tests and as Java installer for Mac OS.
+ * And for Unix systems if you don't have (or don't want to use) sudo.
  */
 public class JavaSetup extends Cli implements Command {
     public static void main(String[] args) {
@@ -47,7 +48,7 @@ public class JavaSetup extends Cli implements Command {
         cleanup = new RmRfThread(console);
         cleanup.add(install);
         Runtime.getRuntime().addShutdownHook(cleanup);
-        new Lib(console, install, group(console.world), config).create();
+        Lib.withDefaultGroup(console, install, config).create();
         bin = install.join("bin");
         BinMan.java(console, withJar, bin, install.join("man")).create();
         bin.join("lib").mklink(install.getAbsolute());
@@ -142,7 +143,7 @@ public class JavaSetup extends Cli implements Command {
                 console.info.println("Ready to upgrade " + directory.getAbsolute() + " to Stool " + versionString(console.world));
                 console.pressReturn();
             }
-            new Lib(console, directory, group(console.world), config).upgrade();
+            Lib.withDefaultGroup(console, directory, config).upgrade();
             bin = directory.join("bin");
             binLib = bin.join("lib");
             bm = BinMan.java(console, true, bin, directory.join("man"));
@@ -180,15 +181,5 @@ public class JavaSetup extends Cli implements Command {
         } catch (IOException e) {
             throw new IllegalStateException("cannot determine version", e);
         }
-    }
-
-    private static String group(World world) throws IOException {
-        FileNode file;
-        String result;
-
-        file = world.getTemp().createTempFile();
-        result = file.getGroup().toString();
-        file.deleteFile();
-        return result;
     }
 }

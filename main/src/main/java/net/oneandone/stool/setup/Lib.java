@@ -44,8 +44,25 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
 
-/** Stool's library directory. Lib is an install directory without man and bin. */
+/**
+ * Stool's library directory. Lib holds the stool-maintained files like backstages and downloads;
+ * it's an install directory without man and bin.
+ */
 public class Lib {
+    public static Lib withDefaultGroup(Console console, FileNode dir, String explicitConfig) throws IOException {
+        return new Lib(console, dir, group(console.world), explicitConfig);
+    }
+
+    private static String group(World world) throws IOException {
+        FileNode file;
+        String result;
+
+        file = world.getTemp().createTempFile();
+        result = file.getGroup().toString();
+        file.deleteFile();
+        return result;
+    }
+
     private final Console console;
     private final FileNode dir;
     private final String group;
