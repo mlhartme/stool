@@ -19,7 +19,6 @@ import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.setup.Lib;
 import net.oneandone.stool.setup.Transform;
 import net.oneandone.stool.setup.Upgrade;
 import net.oneandone.stool.stage.Stage;
@@ -172,7 +171,7 @@ public class SystemImport extends SessionCommand {
 
         dest = session.lib.join(path);
         current = dest.readString();
-        result = Transform.transform(oldLib.join(path).readString(), Lib.stool32_33(new Lib.UpgradeStage32_33(false)));// TODO: other versions ...
+        result = Transform.transform(oldLib.join(path).readString(), null);// TODO
         diff = Diff.diff(current, result);
         return new Patch("M " + dest.getAbsolute(), diff) {
             public void apply() throws IOException {

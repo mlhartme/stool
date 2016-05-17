@@ -16,17 +16,9 @@
 package net.oneandone.stool.setup;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
-import net.oneandone.stool.stage.ArtifactStage;
-import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Files;
-import net.oneandone.stool.util.Pool;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.Node;
@@ -102,11 +94,6 @@ public class Lib {
             Files.createStoolDirectory(console.verbose, dir.join(name));
         }
         Files.stoolFile(dir.join("run/locks").mkfile());
-        versionFile().writeString(JavaSetup.versionString(console.world));
-    }
-
-    private FileNode versionFile() {
-        return dir.join("version");
     }
 
     private FileNode downloadCache() {
@@ -138,125 +125,26 @@ public class Lib {
         oldVersion = directoryVersion();
         newVersion = JavaSetup.versionString(console.world);
         console.info.println("upgrade " + oldVersion + " -> " + newVersion);
-        if (oldVersion.startsWith("3.1.")) {
-            upgrade_31_32(dir);
-            upgrade_32_33(dir);
-        } else if (oldVersion.startsWith("3.2.")) {
-            upgrade_32_33(dir);
-        } else if (oldVersion.startsWith(("3.3."))) {
+        if (oldVersion.startsWith("3.3.")) {
+            upgrade_33_34(dir);
+        } else if (oldVersion.startsWith(("3.4."))) {
             console.info.println("nothing to do");
         } else {
             throw new IOException("don't know how to upgrade " + oldVersion + " -> " + newVersion);
         }
-        versionFile().writeString(newVersion);
     }
 
     private String directoryVersion() throws IOException {
-        FileNode file;
-
-        file = versionFile();
-        if (file.isFile()) {
-            return file.readString();
-        }
-        if (dir.join("conf").isDirectory()) {
-            return "3.1.x";
-        }
-        if (dir.join("overview").isDirectory()) {
-            return "3.2.x";
-        }
-        throw new IOException("unknown version of lib directory: " + dir);
-    }
-
-    private void upgrade_31_32(FileNode lib) throws IOException {
-        FileNode overviewProperties;
-
-        overviewProperties = lib.join("conf/overview.properties");
-        if (overviewProperties.exists()) {
-            exec("mv", overviewProperties.getAbsolute(), lib.join("overview.properties").getAbsolute());
-        }
-        exec("sh", "-c", "find . -user servlet | xargs chown stool");
-        exec("sh", "-c", "find . -perm 666 | xargs chmod 664");
-        exec("sh", "-c", "find . -type d | xargs chmod g+s");
-        exec("mv", lib.join("conf").getAbsolute(), lib.join("run").getAbsolute());
-        exec("mv", lib.join("wrappers").getAbsolute(), lib.join("backstages").getAbsolute());
-        exec("rm", "-rf", lib.join("bin").getAbsolute());
-        exec("chgrp", group, ".");
-        doUpgrade(stool31_32(), stage31_32());
-    }
-
-    private void upgrade_32_33(FileNode lib) throws IOException {
-        FileNode tomcat;
-        FileNode overviewProperties;
-
-        tomcat = lib.join("backstages/overview/shared/run/tomcat.pid");
-        if (tomcat.exists()) {
-            console.info.println("stopping old overview");
-            exec("kill", tomcat.readString().trim());
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                // fall-through
-            }
-        }
-        exec("rm", "-rf", lib.join("backstages/overview").getAbsolute());
-        exec("rm", "-rf", lib.join("overview").getAbsolute());
-        overviewProperties = lib.join("overview.properties");
-        if (overviewProperties.exists()) {
-            exec("mv", overviewProperties.getAbsolute(), lib.join("dashboard.properties").getAbsolute());
-        }
-        Files.stoolFile(dir.join("run/locks").mkfile());
-        ports_32_33(lib);
-        gavs_32_33(lib);
-        doUpgrade(stool32_33(new UpgradeStage32_33(true)), new UpgradeStage32_33(false));
-    }
-
-    private void gavs_32_33(FileNode lib) throws IOException {
-        FileNode backstages;
-        FileNode file;
-        String str;
-        StringBuffer buffer;
-
-        backstages = lib.join("backstages");
-        for (FileNode backstage : backstages.list()) {
-            file = (FileNode) backstage.join("anchor").resolveLink().join("gav.url");
-            if (file.exists()) {
-                str = file.readString().trim();
-                if (str.contains("@inbox")) {
-                    throw new IOException("don't know how to migrate inbox stages: " + str);
-                }
-                if (str.contains(",")) {
-                    buffer = new StringBuffer();
-                    for (String item : Separator.COMMA.split(Strings.removeLeft(str, "gav:"))) {
-                        if (buffer.length() > 0) {
-                            buffer.append(',');
-                        }
-                        buffer.append("gav:").append(item);
-                    }
-                    str = buffer.toString();
-                    file.writeString(str);
-                }
-                file.move(ArtifactStage.urlFile(file.getParent()));
-            }
+        try {
+            return dir.join("bin/stool.jar").openJar().join("stool.version").readString().trim();
+        } catch (IOException e) {
+            throw new IOException("unknown version of lib directory: " + dir, e);
         }
     }
 
-    private void ports_32_33(FileNode lib) throws IOException {
-        FileNode backstages;
-        Node ports32;
-        Pool pool;
-
-        backstages = lib.join("backstages");
-        pool = new Pool(lib.join("run/ports"), 2, Integer.MAX_VALUE, backstages);
-        for (Node backstage : backstages.list()) {
-            ports32 = backstage.join("ports");
-            if (ports32.isFile()) {
-                for (Host32 host32 : Host32.load(ports32)) {
-                    pool.add(host32.upgrade(backstage));
-                }
-                ports32.deleteFile();
-            }
-        }
-        pool.save();
+    private void upgrade_33_34(FileNode lib) throws IOException {
+        exec("rm", lib.join("version").getAbsolute());
+        doUpgrade(stool33_34(), stage33_34());
     }
 
     private static Lib upgradeLib = null;
@@ -297,205 +185,13 @@ public class Lib {
 
     //--
 
-    public static Upgrade stool31_32() {
+    public static Upgrade stool33_34() {
         return new Upgrade() {
         };
     }
 
-    public static Upgrade stage31_32() {
+    public static Upgrade stage33_34() {
         return new Upgrade() {
         };
-    }
-
-    public static Upgrade stool32_33(final Upgrade stage32_33) {
-        return new Upgrade() {
-            void portOverviewRemove() {
-            }
-            void errorToolRemove() {
-            }
-            void updateIntervalRemove() {
-            }
-            JsonElement macrosTransform(JsonElement map) throws IOException {
-                String opts;
-
-                opts = upgradeLib.proxyOpts();
-                if (opts != null) {
-                    ((JsonObject) map).add("proxyOpts", new JsonPrimitive(opts));
-                }
-                return map;
-            }
-            JsonElement defaultsTransform(JsonElement element) throws IOException {
-                JsonObject obj;
-                String url;
-                JsonObject defaults;
-                JsonObject result;
-
-                result = new JsonObject();
-                obj = element.getAsJsonObject();
-                for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
-                    url = entry.getKey();
-                    defaults = entry.getValue().getAsJsonObject();
-                    result.add(url, migrate(defaults));
-                }
-                return result;
-            }
-
-            private JsonObject migrate(JsonObject e) {
-                String str;
-
-                str = Transform.transform(Transform.toString(e), stage32_33);
-                return new JsonParser().parse(str).getAsJsonObject();
-            }
-        };
-    }
-
-    /**
-     * This user's environment is checked to migrate tomcatEnv defaults in the global config.
-     * The problem is that root does not have the proper setup ...
-     * TODO: what if the root users performs the install?
-     */
-    private static String upgradeUser() throws IOException {
-        String result;
-
-        result = System.getenv("STOOL_UPGRADE_USER");
-        if (result != null) {
-            return result;
-        }
-        result = System.getProperty("user.name");
-        if (!"root".equals(result)) {
-            return result;
-        }
-        result = System.getenv("SUDO_USER");
-        if (result != null) {
-            return result;
-        }
-        throw new IOException("cannot determine upgrade user, please define an STOOL_UPGRADE_USER envionment variable");
-    }
-
-    private JsonObject toTomcatEnvMap(JsonArray array, String user) throws IOException {
-        Environment env;
-        JsonObject result;
-        String name;
-        String value;
-
-        env = getenv(user);
-        result = new JsonObject();
-        for (JsonElement element : array) {
-            name = element.getAsString();
-            if (name.equals("USER") || name.equals("HOME")) {
-                continue;
-            }
-            value = env.lookup(name);
-            if (value == null) {
-                throw new IOException("user " + user + ": env variable not found:" + name);
-            }
-            result.add(name, new JsonPrimitive(value));
-        }
-        return result;
-    }
-
-    private String proxyOpts() throws IOException {
-        Environment env;
-        String result;
-
-        for (FileNode backstage : dir.join("backstages").list()) {
-            env = getenv(backstage.getOwner().toString());
-            result = env.proxyOpts();
-            if (!result.isEmpty()) {
-                return result;
-            }
-        }
-        return null;
-    }
-
-    private Environment getenv(String user) throws IOException {
-        Launcher launcher;
-        StringWriter out;
-        StringWriter err;
-        String errString;
-        Environment result;
-        int idx;
-
-        launcher = new Launcher(dir, "sudo", "-i", "-u", user, "env");
-        out = new StringWriter();
-        err = new StringWriter();
-        launcher.exec(out, err);
-        errString = err.toString();
-        if (!errString.isEmpty()) {
-            console.verbose.println("ignoring error output in environment of user " + user + ":");
-            console.verbose.println(err.toString());
-        }
-        result = new Environment();
-        for (String line : Separator.RAW_LINE.split(out.toString())) {
-            line = line.trim();
-            if (!line.isEmpty()) {
-                idx = line.indexOf('=');
-                if (idx == -1) {
-                    console.info.println("ignoring strange environment line of user " + user + ":");
-                    console.info.println(line);
-                } else {
-                    result.set(line.substring(0, idx), line.substring(idx + 1));
-                }
-            }
-        }
-        return result;
-    }
-
-    public static class UpgradeStage32_33 implements Upgrade {
-        private final boolean defaults;
-
-        public UpgradeStage32_33(boolean defaults) {
-            this.defaults = defaults;
-        }
-
-        JsonElement tomcatEnvTransform(JsonElement e) throws IOException {
-            JsonArray array;
-            JsonObject result;
-            StringBuilder builder;
-
-            if (defaults) {
-                array = new JsonArray();
-                for (String s : Separator.COMMA.split(e.getAsString())) {
-                    array.add(new JsonPrimitive(s));
-                }
-            } else {
-                array = (JsonArray) e;
-            }
-            result = upgradeLib.toTomcatEnvMap(array, upgradeBackstage == null ?
-                    upgradeUser() : upgradeBackstage.getOwner().toString());
-            if (defaults) {
-                // special case to convert tomcatEnv in defaults
-                builder = new StringBuilder();
-                for (Map.Entry<String, JsonElement> item : result.entrySet()) {
-                    if (builder.length() > 0) {
-                        builder.append(',');
-                    }
-                    builder.append(item.getKey());
-                    builder.append(':');
-                    builder.append(item.getValue().getAsString());
-                }
-                return new JsonPrimitive(builder.toString());
-            } else {
-                return result;
-            }
-        }
-
-        String suffixRename() {
-            return "suffixes";
-        }
-
-        JsonElement suffixTransform(JsonElement e) {
-            JsonArray result;
-
-            if (defaults) {
-                return e;
-            } else {
-                result = new JsonArray();
-                if (!e.getAsString().isEmpty()) {
-                    result.add(e);
-                }
-                return result;
-            }
-        }
     }
 }
