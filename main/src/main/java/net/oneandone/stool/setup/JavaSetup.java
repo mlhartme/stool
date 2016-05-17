@@ -30,7 +30,10 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 import java.nio.file.Files;
 
-/** Java installer. Creates an install directory (= "lib" with "bin" and "man") */
+/**
+ * Java installer for Mac OS and integration tests.
+ * Creates an install directory (= "lib" with "bin" and "man")
+ */
 public class JavaSetup extends Cli implements Command {
     public static void main(String[] args) {
         System.exit(new JavaSetup().run(args));
@@ -44,7 +47,7 @@ public class JavaSetup extends Cli implements Command {
         cleanup = new RmRfThread(console);
         cleanup.add(install);
         Runtime.getRuntime().addShutdownHook(cleanup);
-        lib(console, install, config).create();
+        new Lib(console, install, group(console.world), config).create();
         bin = install.join("bin");
         BinMan.java(console, withJar, bin, install.join("man")).create();
         bin.join("lib").mklink(install.getAbsolute());
@@ -139,7 +142,7 @@ public class JavaSetup extends Cli implements Command {
                 console.info.println("Ready to upgrade " + directory.getAbsolute() + " to Stool " + versionString(console.world));
                 console.pressReturn();
             }
-            lib(console, directory, config).upgrade();
+            new Lib(console, directory, group(console.world), config).upgrade();
             bin = directory.join("bin");
             binLib = bin.join("lib");
             bm = BinMan.java(console, true, bin, directory.join("man"));
@@ -177,10 +180,6 @@ public class JavaSetup extends Cli implements Command {
         } catch (IOException e) {
             throw new IllegalStateException("cannot determine version", e);
         }
-    }
-
-    private static Lib lib(Console console, FileNode lib, String config) throws IOException {
-        return new Lib(console, lib, group(console.world), config);
     }
 
     private static String group(World world) throws IOException {

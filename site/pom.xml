@@ -10,7 +10,7 @@
   <name>Stool Site</name>
   <artifactId>site</artifactId>
   <packaging>jar</packaging>
-  <description>Stool Site</description>
+  <description>Stool Site. Includes manual and changes.</description>
 
   <build>
     <plugins>
