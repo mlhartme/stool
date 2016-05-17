@@ -19,9 +19,6 @@
       <author>
         <personname>Michael Hartmeier</personname>
       </author>
-      <author>
-        <personname>Maximilian Braun</personname>
-      </author>
     </authorgroup>
     <copyright>
       <year>2015</year>
@@ -1808,7 +1805,6 @@
         |- config.json (Stool configuration)
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
         |- dashboard.properties (Dashboard configuration)
-        |- version (Stool version that created of upgraded the lib directory)
         |- run
         | |- locks       (holds all locking data)
         | |- sleep.json
@@ -1844,6 +1840,14 @@
                   |- work (standard tomcat directory)
                   '- logs
                      '- applogs (application log files for pustefix apps)
+      </programlisting>
+      ... and $STOOL_BIN - default location is <literal>/usr/share/stool</literal>.
+      <programlisting>
+        stool.jar (Stool Java classes)
+        chowntree.sh
+        service-wrapper.sh
+        stool-function (Stool shell function)
+        stool-complete (for bash completion)
       </programlisting>
     </para>
   </chapter>
