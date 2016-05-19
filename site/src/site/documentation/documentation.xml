@@ -1795,6 +1795,10 @@
       is not a binary because it has to adjust your environment variables (e.g. to set MAVEN_OPTS
       depending on your current stage) - this is possible in a shell function, but not in a binary.
     </para>
+
+    <para>Upgrade note: updating an existing package is notoriously buggy. You might want to make a copy
+    of $STOOL_LIB before running the update. If it fails, you can roll-back (because Stool does not touch
+    files in you stage directory). </para>
   </chapter>
 
   <chapter>
