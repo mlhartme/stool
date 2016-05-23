@@ -222,7 +222,7 @@ public class Session {
         PrintWriter writer;
 
         LOG.error("[" + command + "] " + context + ": " + e.getMessage(), e);
-        if (!configuration.contactAdmin.isEmpty()) {
+        if (!configuration.admin.isEmpty()) {
             subject = "[stool exception] " + e.getMessage();
             body = new StringWriter();
             body.write("stool: " + JavaSetup.versionString(console.world) + "\n");
@@ -240,8 +240,7 @@ public class Session {
                 body.append("Caused by:\n");
             }
             try {
-                configuration.mailer().send(configuration.contactAdmin,
-                        new String[]{configuration.contactAdmin}, subject, body.toString());
+                configuration.mailer().send(configuration.admin, new String[]{configuration.admin}, subject, body.toString());
             } catch (MessagingException suppressed) {
                 LOG.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
             }

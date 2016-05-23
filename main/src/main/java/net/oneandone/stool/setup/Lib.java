@@ -177,6 +177,10 @@ public class Lib {
 
     public static Upgrade stool33_34() {
         return new Upgrade() {
+            String contactAdminRename() {
+                return "admin";
+            }
+
         };
     }
 

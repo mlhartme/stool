@@ -60,5 +60,6 @@ public class LibTest {
         lib.upgrade("3.3.4");
         stool = StoolConfiguration.load(Session.gson(console.world, ExtensionsFactory.create(console.world)), dir);
         assertEquals("cpgem1.ciso.server.lan", stool.hostname);
+        assertEquals("admin@email", stool.admin);
     }
 }

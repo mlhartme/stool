@@ -240,13 +240,13 @@ public class Validate extends StageCommand {
             String email;
 
             if (user == null) {
-                email = session.configuration.contactAdmin;
+                email = session.configuration.admin;
             } else {
                 try {
                     userobj = session.lookupUser(user);
-                    email = (userobj == null ? session.configuration.contactAdmin : userobj.email);
+                    email = (userobj == null ? session.configuration.admin : userobj.email);
                 } catch (UserNotFound e) {
-                    email = session.configuration.contactAdmin;
+                    email = session.configuration.admin;
                 }
             }
             return email.isEmpty() ? null : email;

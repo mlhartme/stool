@@ -5,12 +5,12 @@
   "hostname": "cpgem1.ciso.server.lan",
   "vhosts": true,
   "diskMin": 2000,
-  "contactAdmin": "Michael Hartmeier <michael.hartmeier@1und1.de>",
+  "contactAdmin": "admin@email",
   "shared": true,
   "committed": false,
   "macros": {
     "trustStore": "-Djavax.net.ssl.trustStore=/opt/ui/opt/tools/svn/cacerts",
-    "proxyOpts" : "-Dhttp.proxyHost=itproxy-dev.1and1.org -Dhttp.proxyPort=3128 -Dhttp.nonProxyHosts=localhost|*.vdlan.cinetic.de|*.server.lan|*.v976.gmx.net|*.v300.gmx.net|*.schlund.de|artifactory.1and1.org|svn.1and1.org|uas2.uilogin.de|spin.1und1.de|ac1ratings-service.1and1.com|intern.webservice.ocis.1und1.de|ac1.login.1and1.org|login.1and1.org|wsdservices.1und1.de|ac1-mcat-services.1and1.com|ac1www-int.qa.private.ipayment.de|ocisqaboss03.1und1.de|ac1www.private.ipayment.de -Dhttps.proxyHost=itproxy-dev.1and1.org -Dhttps.proxyPort=3128 -Dhttps.nonProxyHosts=localhost|*.vdlan.cinetic.de|*.websales.united.domain|*.server.lan|*.v976.gmx.net|*.v300.gmx.net|*.schlund.de|artifactory.1and1.org|svn.1and1.org|uas2.uilogin.de|spin.1und1.de|ac1ratings-service.1and1.com|intern.webservice.ocis.1und1.de|ac1.login.1and1.org|login.1and1.org|wsdservices.1und1.de|ac1-mcat-services.1and1.com|ac1www-int.qa.private.ipayment.de|ocisqaboss03.1und1.de|ac1www.private.ipayment.de"
+    "proxyOpts" : ""
   },
   "defaults": {
     "": {

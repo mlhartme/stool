@@ -73,7 +73,7 @@ public class StoolConfiguration {
     /**
      * Name + email. Used for problem reports, feedback emails,
      */
-    public String contactAdmin;
+    public String admin;
 
     /**
      * true if multiple users work on stages
@@ -139,7 +139,7 @@ public class StoolConfiguration {
         prompt = "{\\+} \\=";
         hostname = "localhost";
         diskMin = 2000;
-        contactAdmin = "";
+        admin = "";
         autoRemove = -1;
         shared = false;
         committed = false;
