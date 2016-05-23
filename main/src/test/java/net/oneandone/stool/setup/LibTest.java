@@ -41,4 +41,20 @@ public class LibTest {
         lib.create();
         assertNotNull(StoolConfiguration.load(Session.gson(console.world, ExtensionsFactory.create(console.world)), dir));
     }
+
+    @Test
+    public void upgrade() throws Exception {
+        Console console;
+        FileNode dir;
+        Lib lib;
+        String group;
+
+        console = Console.create(new World());
+        dir = console.world.getTemp().createTempDirectory();
+        dir.deleteDirectory();
+        console.world.guessProjectHome(getClass()).join("src/test/upgrade").copy(dir);
+        group = dir.getGroup().toString();
+        lib = new Lib(console, dir, group, null);
+        lib.upgrade();
+    }
 }

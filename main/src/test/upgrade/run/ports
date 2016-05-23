@@ -1,0 +1,14 @@
+8094 +stop+wrapper dashboard
+9426 +jmx+debug dashboard
+8000 dashboard dashboard /opt/ui/opt/tools/stool/dashboard/dashboard/ROOT
+9414 +stop+wrapper latest-release
+9026 +jmx+debug latest-release
+9544 controlpanel-de latest-release /opt/ui/opt/stages/latest-release/controlpanel-de/ROOT
+9698 controlpanel-uk latest-release /opt/ui/opt/stages/latest-release/controlpanel-uk/ROOT
+8754 controlpanel-mx latest-release /opt/ui/opt/stages/latest-release/controlpanel-mx/ROOT
+9564 controlpanel-fr latest-release /opt/ui/opt/stages/latest-release/controlpanel-fr/ROOT
+9988 controlpanel-ca latest-release /opt/ui/opt/stages/latest-release/controlpanel-ca/ROOT
+8300 controlpanel-pl latest-release /opt/ui/opt/stages/latest-release/controlpanel-pl/ROOT
+8180 controlpanel-us latest-release /opt/ui/opt/stages/latest-release/controlpanel-us/ROOT
+9522 controlpanel-it latest-release /opt/ui/opt/stages/latest-release/controlpanel-it/ROOT
+8420 controlpanel-es latest-release /opt/ui/opt/stages/latest-release/controlpanel-es/ROOT

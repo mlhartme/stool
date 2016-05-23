@@ -1,0 +1,54 @@
+{
+  "portFirst": 8000,
+  "portLast": 9999,
+  "prompt": "{\\+} \\=",
+  "hostname": "cpgem1.ciso.server.lan",
+  "vhosts": true,
+  "diskMin": 2000,
+  "contactAdmin": "Michael Hartmeier <michael.hartmeier@1und1.de>",
+  "shared": true,
+  "committed": false,
+  "macros": {
+    "trustStore": "-Djavax.net.ssl.trustStore=/opt/ui/opt/tools/svn/cacerts",
+    "proxyOpts" : "-Dhttp.proxyHost=itproxy-dev.1and1.org -Dhttp.proxyPort=3128 -Dhttp.nonProxyHosts=localhost|*.vdlan.cinetic.de|*.server.lan|*.v976.gmx.net|*.v300.gmx.net|*.schlund.de|artifactory.1and1.org|svn.1and1.org|uas2.uilogin.de|spin.1und1.de|ac1ratings-service.1and1.com|intern.webservice.ocis.1und1.de|ac1.login.1and1.org|login.1and1.org|wsdservices.1und1.de|ac1-mcat-services.1and1.com|ac1www-int.qa.private.ipayment.de|ocisqaboss03.1und1.de|ac1www.private.ipayment.de -Dhttps.proxyHost=itproxy-dev.1and1.org -Dhttps.proxyPort=3128 -Dhttps.nonProxyHosts=localhost|*.vdlan.cinetic.de|*.websales.united.domain|*.server.lan|*.v976.gmx.net|*.v300.gmx.net|*.schlund.de|artifactory.1and1.org|svn.1and1.org|uas2.uilogin.de|spin.1und1.de|ac1ratings-service.1and1.com|intern.webservice.ocis.1und1.de|ac1.login.1and1.org|login.1and1.org|wsdservices.1und1.de|ac1-mcat-services.1and1.com|ac1www-int.qa.private.ipayment.de|ocisqaboss03.1und1.de|ac1www.private.ipayment.de"
+  },
+  "defaults": {
+    "": {
+      "tomcat.opts": "@proxyOpts@ @trustStore@",
+      "tomcat.env": "PATH:/opt/ui/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/opt/ui/opt/tools/svn/bin:/opt/ui/opt/tools/svn/nodejs/bin,LAVENDER_PROPERTIES:/opt/ui/opt/tools/svn/lavender.properties,LAVENDER_SETTINGS:/opt/ui/opt/tools/svn/lavender.properties",
+      "maven.opts": "-Xmx1024m -Dmaven.repo.local=@localRepository@ @proxyOpts@ @trustStore@",
+      "pustefix": true,
+      "pustefix.mode": "test",
+      "pustefix.editor.version": "0.18.70",
+      "pustefix.editor.userdata": "https://svn.1and1.org/svn/sales/workspaces/editor/userdata.xml"
+    },
+    "https://svn.1and1.org/svn/controlpanel_app/controlpanel/": {
+      "build": "mvn clean install -Ppublish  -U -B -T2C",
+      "tomcat.heap": "2000",
+      "tomcat.perm": "512",
+      "suffixes": "/xml/config",
+      "maven.opts": "-Xmx2500m -XX:MaxPermSize=512m -Dmaven.repo.local=@localRepository@ @proxyOpts@ @trustStore@"
+    },
+    "https://svn.1and1.org/svn/sales/workspaces/": {
+      "prepare": "pwsraw open -init http://pws.ignores.this.url",
+      "pom": "workspace.xml",
+      "build": "pwsraw -U build",
+      "refresh": "pwsraw @stoolSvnCredentials@ up"
+    }, 'https://svn.1and1.org/svn/controlpanel_app/controlpanel/branches/appcenter-': {'mode': 'appcenter' }
+
+  },
+  "basePerm": 60,
+  "baseHeap": 200,
+  "mailHost": "mri.server.lan",
+  "mailUsername": "",
+  "mailPassword": "",
+  "certificates": "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=",
+  "ldapUrl": "ldaps://ldap.1and1.org:636/ou=ims_service,o=1und1,c=DE",
+  "ldapPrincipal": "uid=cisostages,ou=accounts,ou=ims_service,o=1und1,c=DE",
+  "ldapCredentials": "MzJmMWRhOG",
+  "ldapSso": "https://login.1and1.org/ims-sso",
+  "autoRemove": 5,
+  "downloadTomcat": "http://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz",
+  "downloadServiceWrapper": "http://wrapper.tanukisoftware.com/download/${version}/wrapper-linux-x86-64-${version}.tar.gz",
+  "downloadCache": "/opt/ui/opt/tools/stool/downloads"
+}
