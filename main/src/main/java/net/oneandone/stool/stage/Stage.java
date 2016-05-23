@@ -185,9 +185,7 @@ public abstract class Stage {
         sslDir = shared().join("ssl");
         keyStore = new KeyStore(sslDir);
         if (!keyStore.exists()) {
-            if (config().sslUrl != null && !config().sslUrl.isEmpty()) {
-                keyStore.download(session.configuration.certificates, config().sslUrl);
-            } else if (session.configuration.vhosts) {
+            if (session.configuration.vhosts) {
                 hostname = "*." + getName() + "." + session.configuration.hostname;
                 keyStore.download(session.configuration.certificates, hostname);
             } else {

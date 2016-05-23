@@ -186,6 +186,8 @@ public class Lib {
 
     public static Upgrade stage33_34() {
         return new Upgrade() {
+            void sslUrlRemove() {
+            }
             String suffixesRename() {
                 return "urls";
             }

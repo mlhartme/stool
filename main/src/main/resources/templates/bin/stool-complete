@@ -48,7 +48,7 @@ _stool_complete() {
             ;;
         config)
             compopt +o nospace &>/dev/null
-            local option="suffix until maven.opts sslUrl java.home tomcat.select tomcat.perm tomcat.heap tomcat.version tomcat.opts port.prefix build cookies pustefix.mode autoRefresh comment fitnesse pustefix.editor.version pustefix.editor.userdata pustefix.editor"
+            local option="suffix until maven.opts java.home tomcat.select tomcat.perm tomcat.heap tomcat.version tomcat.opts port.prefix build cookies pustefix.mode autoRefresh comment fitnesse pustefix.editor.version pustefix.editor.userdata pustefix.editor"
             COMPREPLY=( $(compgen -o nospace -W "${option}" -- ${cur}) )
             return 0
             ;;

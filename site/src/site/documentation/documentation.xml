@@ -1467,12 +1467,6 @@
               </listitem>
             </varlistentry>
             <varlistentry>
-              <term>sslUrl</term>
-              <listitem>
-                <para>Overrides the default url for certificate creation. Type string.</para>
-              </listitem>
-            </varlistentry>
-            <varlistentry>
               <term>urls</term>
               <listitem>
                 <para>A list of urls that define how to build the application urls. Each url in the list

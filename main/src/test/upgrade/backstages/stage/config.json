@@ -21,7 +21,7 @@
   "mavenOpts": "-Xmx1024m -Dmaven.repo.local=@localRepository@ @proxyOpts@ @trustStore@",
   "until": "reserved",
   "suffixes": [ "prefix-[]", "[]-suffix" ],
-  "sslUrl": "",
+  "sslUrl": "someSslUrl",
   "autoRefresh": false,
   "comment": "",
   "extensions": {

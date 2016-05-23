@@ -115,9 +115,6 @@ public class StageConfiguration {
     @Option(key = "urls")
     public List<String> urls;
 
-    @Option(key = "sslUrl")
-    public String sslUrl;
-
     @Option(key = "autoRefresh")
     public Boolean autoRefresh;
 
@@ -145,7 +142,6 @@ public class StageConfiguration {
         this.mavenOpts = "";
         this.until = Until.reserved();
         this.urls = new ArrayList<>();
-        this.sslUrl = "";
         this.comment = "";
         this.autoRefresh = false;
         this.extensions = extensions;
