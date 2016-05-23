@@ -277,11 +277,6 @@ public class Main extends Cli implements Command {
         return new SystemStartStop(session(), false);
     }
 
-    @Child("system-import")
-    public SystemImport systemImport() throws IOException {
-        return new SystemImport(session());
-    }
-
     @Override
     @Child("help")
     public Command help() {

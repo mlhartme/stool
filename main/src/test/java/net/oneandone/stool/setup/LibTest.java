@@ -70,6 +70,5 @@ public class LibTest {
         stage = StageConfiguration.load(gson, libDir.join("backstages/stage/config.json"));
         assertEquals("151204.151204-6.2", stage.id);
         assertEquals(Strings.toList("prefix-[]", "[]-suffix"), stage.urls);
-        assertEquals("151204.151204-6.2", stage.id);
     }
 }

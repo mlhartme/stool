@@ -2,6 +2,9 @@
   <body>
     <release version="3.4.0" date="2015-03-09">
       <action date="2016-05-23" dev="mlhartme" type="update">
+        Removed system-import command.
+      </action>
+      <action date="2016-05-23" dev="mlhartme" type="update">
         Stage configuration changes: dumped sslUrl; renamed suffixes to urls.
       </action>
       <action date="2016-05-23" dev="mlhartme" type="update">

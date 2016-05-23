@@ -21,20 +21,15 @@ import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
-import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
-import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Diff;
-import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Map;
 
 /**
  * Stool's library directory. Lib holds the stool-maintained files like backstages and downloads;
