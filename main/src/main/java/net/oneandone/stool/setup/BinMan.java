@@ -75,6 +75,14 @@ public class BinMan {
         this.nowMan = nowMan;
     }
 
+    public String version() throws IOException {
+        try {
+            return nowBin.join("stool.jar").openJar().join("stool.version").readString().trim();
+        } catch (IOException e) {
+            throw new IOException("unknown version of bin directory: " + nowBin, e);
+        }
+    }
+
     public void remove() throws IOException {
         nowBin.deleteTree();
         nowMan.deleteTree();

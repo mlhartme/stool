@@ -1847,6 +1847,7 @@
       </programlisting>
       ... and $STOOL_BIN - default location is <literal>/usr/share/stool</literal>.
       <programlisting>
+        lib (symlink to $STOOL_LIB)
         stool.jar (Stool Java classes)
         chowntree.sh
         service-wrapper.sh

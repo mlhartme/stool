@@ -74,7 +74,7 @@ public class DebianMainSetup extends Debian {
         FileNode binLib;
 
         setupGroup();
-        setupLib();
+        setupLib(previous);
         binLib = bin.join("lib");
         if (previous != null) {
             if (Files.deleteIfExists(binLib.toPath())) {
@@ -129,12 +129,12 @@ public class DebianMainSetup extends Debian {
 
     //--
 
-    public void setupLib() throws IOException {
+    public void setupLib(String previousVersion) throws IOException {
         Lib h;
 
         h = new Lib(console, lib, group, config.trim().isEmpty() ? null : config);
         if (lib.exists()) {
-            h.upgrade();
+            h.upgrade(previousVersion);
             log("lib: " + lib.getAbsolute() + " (upgraded)");
         } else {
             console.info.println("creating lib: " + lib);

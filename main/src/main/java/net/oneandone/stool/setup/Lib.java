@@ -118,11 +118,9 @@ public class Lib {
 
     //-- upgrade
 
-    public void upgrade() throws IOException {
-        String oldVersion;
+    public void upgrade(String oldVersion) throws IOException {
         String newVersion;
 
-        oldVersion = directoryVersion();
         newVersion = JavaSetup.versionString(console.world);
         console.info.println("upgrade " + oldVersion + " -> " + newVersion);
         if (oldVersion.startsWith("3.3.")) {
@@ -131,14 +129,6 @@ public class Lib {
             console.info.println("nothing to do");
         } else {
             throw new IOException("don't know how to upgrade " + oldVersion + " -> " + newVersion);
-        }
-    }
-
-    private String directoryVersion() throws IOException {
-        try {
-            return dir.join("bin/stool.jar").openJar().join("stool.version").readString().trim();
-        } catch (IOException e) {
-            throw new IOException("unknown version of lib directory: " + dir, e);
         }
     }
 

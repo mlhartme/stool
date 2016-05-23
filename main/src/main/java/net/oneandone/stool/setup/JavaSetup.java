@@ -143,10 +143,11 @@ public class JavaSetup extends Cli implements Command {
                 console.info.println("Ready to upgrade " + directory.getAbsolute() + " to Stool " + versionString(console.world));
                 console.pressReturn();
             }
-            Lib.withDefaultGroup(console, directory, config).upgrade();
+
             bin = directory.join("bin");
-            binLib = bin.join("lib");
             bm = BinMan.java(console, true, bin, directory.join("man"));
+            Lib.withDefaultGroup(console, directory, config).upgrade(bm.version());
+            binLib = bin.join("lib");
             bm.remove();
             bm.create();
             if (Files.deleteIfExists(binLib.toPath())) {

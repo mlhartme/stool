@@ -55,6 +55,6 @@ public class LibTest {
         console.world.guessProjectHome(getClass()).join("src/test/upgrade").copy(dir);
         group = dir.getGroup().toString();
         lib = new Lib(console, dir, group, null);
-        lib.upgrade();
+        lib.upgrade("3.3.4");
     }
 }
