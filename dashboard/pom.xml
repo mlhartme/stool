@@ -201,12 +201,11 @@
             <phase>package</phase>
             <configuration>
               <target>
-                <!-- dashboard -->
                 <property name="cp" refid="maven.runtime.classpath" />
                 <java classname="net.oneandone.stool.setup.Dashboard" classpath="${cp}" fork="false" failonerror="true">
                   <arg path="${project.build.directory}/debfiles-dashboard" />
                 </java>
-                <java classname="net.oneandone.stool.setup.Control" classpath="${cp}}" fork="false" failonerror="true">
+                <java classname="net.oneandone.stool.setup.Control" classpath="${cp}" fork="false" failonerror="true">
                   <arg path="${basedir}/src/deb/dashboard/control/" />
                   <arg path="${project.build.directory}/dashboardpostrm" />
                   <arg path="${project.build.directory}/control-dashboard" />
