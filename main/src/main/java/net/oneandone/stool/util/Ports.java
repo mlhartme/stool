@@ -104,7 +104,7 @@ public class Ports {
         return -1;
     }
 
-    public Map<String, String> urlMap(boolean https, boolean vhosts, String hostname, List<String> suffixes) {
+    public Map<String, String> urlMap(boolean https, boolean vhosts, String hostname, List<String> urls) {
         Map<String, String> result;
         List<String> list;
         String name;
@@ -113,17 +113,17 @@ public class Ports {
         result = new LinkedHashMap<>();
         for (Vhost vhost : vhosts()) {
             if (vhost.isWebapp()) {
-                list = suffixes.isEmpty() ? Collections.singletonList("") : suffixes;
+                list = urls.isEmpty() ? Collections.singletonList("") : urls;
                 no = 1;
-                for (String suffix : list) {
+                for (String url : list) {
                     name = vhost.name;
                     if (list.size() > 1) {
                         name = vhost.name + "-" + no;
                         no++;
                     }
-                    result.put(name, "http://" + subst(vhost.fqdnHttpPort(vhosts, hostname), suffix));
+                    result.put(name, "http://" + subst(vhost.fqdnHttpPort(vhosts, hostname), url));
                     if (https) {
-                        result.put(name + " SSL", "https://" + subst(vhost.fqdnHttpsPort(vhosts, hostname), suffix));
+                        result.put(name + " SSL", "https://" + subst(vhost.fqdnHttpsPort(vhosts, hostname), url));
                     }
                 }
             }
@@ -133,18 +133,18 @@ public class Ports {
 
     private static final String MARKER = "[]";
 
-    private static String subst(String fqdnPort, String suffix) {
+    private static String subst(String fqdnPort, String url) {
         int idx;
 
-        if (suffix.isEmpty()) {
+        if (url.isEmpty()) {
             return fqdnPort;
         }
-        idx = suffix.indexOf(MARKER);
+        idx = url.indexOf(MARKER);
         if (idx == -1) {
             // old-style suffix
-            return fqdnPort + suffix;
+            return fqdnPort + url;
         }
         // new suffix
-        return suffix.substring(0, idx) + fqdnPort + suffix.substring(idx + MARKER.length());
+        return url.substring(0, idx) + fqdnPort + url.substring(idx + MARKER.length());
     }
 }

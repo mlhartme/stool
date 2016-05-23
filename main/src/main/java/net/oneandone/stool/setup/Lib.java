@@ -186,6 +186,9 @@ public class Lib {
 
     public static Upgrade stage33_34() {
         return new Upgrade() {
+            String suffixesRename() {
+                return "urls";
+            }
         };
     }
 }

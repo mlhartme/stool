@@ -15,12 +15,15 @@
  */
 package net.oneandone.stool.setup;
 
+import com.google.gson.Gson;
+import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Strings;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -45,21 +48,27 @@ public class LibTest {
 
     @Test
     public void upgrade() throws Exception {
+        Gson gson;
         Console console;
-        FileNode dir;
+        FileNode libDir;
         Lib lib;
         String group;
         StoolConfiguration stool;
+        StageConfiguration stage;
 
         console = Console.create(new World());
-        dir = console.world.getTemp().createTempDirectory();
-        dir.deleteDirectory();
-        console.world.guessProjectHome(getClass()).join("src/test/upgrade").copy(dir);
-        group = dir.getGroup().toString();
-        lib = new Lib(console, dir, group, null);
+        gson = Session.gson(console.world, ExtensionsFactory.create(console.world));
+        libDir = console.world.getTemp().createTempDirectory();
+        libDir.deleteDirectory();
+        console.world.guessProjectHome(getClass()).join("src/test/upgrade").copy(libDir);
+        group = libDir.getGroup().toString();
+        lib = new Lib(console, libDir, group, null);
         lib.upgrade("3.3.4");
-        stool = StoolConfiguration.load(Session.gson(console.world, ExtensionsFactory.create(console.world)), dir);
+        stool = StoolConfiguration.load(gson, libDir);
         assertEquals("cpgem1.ciso.server.lan", stool.hostname);
         assertEquals("admin@email", stool.admin);
+        stage = StageConfiguration.load(gson, libDir.join("backstages/stage/config.json"));
+        assertEquals("151204.151204-6.2", stage.id);
+        assertEquals(Strings.toList("prefix-[]", "[]-suffix"), stage.urls);
     }
 }

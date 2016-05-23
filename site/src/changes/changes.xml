@@ -2,6 +2,9 @@
   <body>
     <release version="3.4.0" date="2015-03-09">
       <action date="2016-05-23" dev="mlhartme" type="update">
+        Stage configuration changes: renamed suffixes to urls.
+      </action>
+      <action date="2016-05-23" dev="mlhartme" type="update">
         Global configuration changes: renamed contactAdmin to admin.
       </action>
       <action date="2016-03-16" dev="mlhartme" type="update">

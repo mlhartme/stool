@@ -112,8 +112,8 @@ public class StageConfiguration {
     @Option(key = "until")
     public Until until;
 
-    @Option(key = "suffixes")
-    public List<String> suffixes;
+    @Option(key = "urls")
+    public List<String> urls;
 
     @Option(key = "sslUrl")
     public String sslUrl;
@@ -144,7 +144,7 @@ public class StageConfiguration {
         this.mavenHome = mavenHome;
         this.mavenOpts = "";
         this.until = Until.reserved();
-        this.suffixes = new ArrayList<>();
+        this.urls = new ArrayList<>();
         this.sslUrl = "";
         this.comment = "";
         this.autoRefresh = false;
