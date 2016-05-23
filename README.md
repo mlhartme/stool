@@ -1,4 +1,4 @@
-[![Maven Central](https://maven-badges.herokuapp.com/com.google.code.gson/gson/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.oneandone/stool)
+[![Maven Central](https://maven-badges.herokuapp.com/com.google.code.gson/gson/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.oneandone.stool/main)
 
 Homepage: https://github.com/mlhartme/stool
 
