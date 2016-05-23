@@ -23,6 +23,7 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class LibTest {
@@ -48,6 +49,7 @@ public class LibTest {
         FileNode dir;
         Lib lib;
         String group;
+        StoolConfiguration stool;
 
         console = Console.create(new World());
         dir = console.world.getTemp().createTempDirectory();
@@ -56,5 +58,7 @@ public class LibTest {
         group = dir.getGroup().toString();
         lib = new Lib(console, dir, group, null);
         lib.upgrade("3.3.4");
+        stool = StoolConfiguration.load(Session.gson(console.world, ExtensionsFactory.create(console.world)), dir);
+        assertEquals("cpgem1.ciso.server.lan", stool.hostname);
     }
 }
