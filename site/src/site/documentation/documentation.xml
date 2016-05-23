@@ -463,7 +463,7 @@
               </listitem>
             </varlistentry>
             <varlistentry>
-              <term>contactAdmin</term>
+              <term>admin</term>
               <listitem>
                 <para>Email of the person to receive validation failures and exception mails. Empty to disable these emails.
                   Type string.</para>
@@ -1473,14 +1473,13 @@
               </listitem>
             </varlistentry>
             <varlistentry>
-              <term>suffixes</term>
+              <term>urls</term>
               <listitem>
-                <para>A list of suffixes that define how to build the application urls. Each suffix in the list
-                  defines one application url without the initial http:// or https://. An empty list of suffixes is
-                  treated as a single empty suffix.</para>
-                <para>If a suffix contains the placeholder "[]", the url is the suffix with the placeholder replaced by
-                  <replaceable>hostname:port</replaceable>; otherwise, the url is <replaceable>hostname:port</replaceable>
-                  with the suffix appended.</para>
+                <para>A list of urls that define how to build the application urls. Each url in the list
+                  defines one application url without the initial http:// or https://. An empty list of urls is
+                  treated as a single empty url.</para>
+                <para>If a url contains the placeholder "[]", the url is the suffix with the placeholder replaced by
+                  <replaceable>hostname:port</replaceable>; otherwise, the url is <replaceable>hostname:port</replaceable>.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
