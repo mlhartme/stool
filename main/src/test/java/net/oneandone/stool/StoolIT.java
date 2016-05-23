@@ -97,7 +97,7 @@ public class StoolIT {
         turnaround(file.getURI().toString());
     }
 
-    @Ignore // TODO
+    @Test
     public void turnaroundSource() throws IOException {
         turnaround("https://github.com/mlhartme/hellowar/trunk");
     }
