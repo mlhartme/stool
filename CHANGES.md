@@ -1,5 +1,6 @@
 # Stool 3.4.0 
 
+* Atomic upgrade: creates a backup of the lib directory before upgrade; this is restored if the upgrade fails
 * Removed system-import command.
 * Stage configuration changes:
   * dumped sslUrl; renamed suffixes to urls.

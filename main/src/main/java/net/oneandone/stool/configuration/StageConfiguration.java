@@ -18,7 +18,6 @@ package net.oneandone.stool.configuration;
 import com.google.gson.Gson;
 import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.extensions.ExtensionsFactory;
-import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 

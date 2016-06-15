@@ -131,11 +131,25 @@ public class DebianMainSetup extends Debian {
 
     public void setupLib(String previousVersion) throws IOException {
         Lib lib;
+        FileNode tmp;
 
         lib = new Lib(console, libdir, group, config.trim().isEmpty() ? null : config);
         if (libdir.exists()) {
-            lib.upgrade(previousVersion);
+            tmp = libdir.getParent().join(libdir.getName() + ".upgrade");
+            tmp.checkNotExists();
+            log("creating backup ...");
+            exec("cp", "-a", libdir.getAbsolute(), tmp.getAbsolute());
+            try {
+                lib.upgrade(previousVersion);
+            } catch (Exception e) {
+                log("update failed, restoring ...");
+                exec("rm", "-rf", tmp.getAbsolute());
+                exec("mv", tmp.getAbsolute(), libdir.getAbsolute());
+                throw e;
+            }
             log("lib: " + libdir.getAbsolute() + " (upgraded)");
+            log("wiping backup ...");
+            exec("rm", "-rf", tmp.getAbsolute());
         } else {
             console.info.println("creating lib: " + libdir);
             try {
