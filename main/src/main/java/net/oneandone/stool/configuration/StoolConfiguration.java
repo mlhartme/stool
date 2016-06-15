@@ -161,7 +161,7 @@ public class StoolConfiguration {
         downloadServiceWrapper = "http://wrapper.tanukisoftware.com/download/${version}/wrapper-"
                 + (OS.CURRENT == OS.LINUX ? "linux-x86-64" : "macosx-universal-64") + "-${version}.tar.gz";
         this.downloadCache = downloadCache;
-        this.search = "pommes find () - %o";
+        this.search = "";
     }
 
     public static FileNode configurationFile(FileNode lib) {

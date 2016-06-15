@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/pommes")
-public class PommesController {
+@RequestMapping("/search")
+public class SearchController {
     @Autowired
     private Session session;
 
