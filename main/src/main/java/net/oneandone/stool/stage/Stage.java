@@ -20,6 +20,7 @@ import net.oneandone.stool.Start;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.extensions.Extensions;
+import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.KeyStore;
@@ -28,7 +29,6 @@ import net.oneandone.stool.util.OwnershipException;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.Subversion;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.GetLastModifiedException;
@@ -76,6 +76,18 @@ public abstract class Stage {
         return result;
     }
 
+    /** @return stage url or null if not a stage */
+    public static String probe(FileNode directory) throws IOException {
+        Node artifactGav;
+
+        directory.checkDirectory();
+        artifactGav = ArtifactStage.urlFile(directory);
+        if (artifactGav.exists()) {
+            return artifactGav.readString().trim();
+        }
+        return Scm.probeRootCheckoutUrl(directory);
+    }
+
     public static Stage createOpt(Session session, String url, StageConfiguration configuration, FileNode backstage,
                                 FileNode directory) throws IOException {
         if (configuration == null) {
@@ -89,18 +101,6 @@ public abstract class Stage {
             return SourceStage.forLocal(session, backstage, directory, configuration);
         }
         return null;
-    }
-
-    /** @return stage url or null if not a stage */
-    public static String probe(FileNode directory) throws IOException {
-        Node artifactGav;
-
-        directory.checkDirectory();
-        artifactGav = ArtifactStage.urlFile(directory);
-        if (artifactGav.exists()) {
-            return artifactGav.readString().trim();
-        }
-        return Subversion.probeRootCheckoutUrl(directory);
     }
 
     public static FileNode anchor(FileNode backstage) {
@@ -578,7 +578,7 @@ public abstract class Stage {
     }
 
     public boolean isCommitted() throws IOException {
-        return session.subversion(getUrl()).isCommitted(this);
+        return session.scm(getUrl()).isCommitted(this);
     }
 
     private void addProfilesAndProperties(Properties userProperties, List<String> profiles, String args) {

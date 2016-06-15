@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.util;
+package net.oneandone.stool.scm;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Credentials;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
@@ -24,25 +25,7 @@ import net.oneandone.sushi.util.Separator;
 import java.io.IOException;
 import java.io.Writer;
 
-public class Subversion {
-    public final Credentials credentials;
-
-    public Subversion(Credentials credentials) {
-        this.credentials = credentials;
-    }
-
-    public void checkout(FileNode cwd, String url, String name, Writer dest) throws Failure {
-        launcher(cwd, "co", url, name).exec(dest);
-    }
-
-    public String status(FileNode cwd) throws Failure {
-        Launcher launcher;
-
-        launcher = launcher(cwd, "status");
-        launcher.env("LC_ALL", "C");
-        return launcher.exec();
-    }
-
+public class Subversion extends Scm {
     /** Caution, does not work for nested directories */
     public static String probeRootCheckoutUrl(FileNode dir) throws Failure {
         if (dir.join(".svn").isDirectory()) {
@@ -64,8 +47,30 @@ public class Subversion {
         return str.substring(idx, str.indexOf("\n", idx)).trim();
     }
 
+
     //--
 
+    public final Credentials credentials;
+
+    public Subversion(Credentials credentials) {
+        this.credentials = credentials;
+    }
+
+    @Override
+    public void checkout(FileNode cwd, String url, String name, Writer dest) throws Failure {
+        launcher(cwd, "co", url, name).exec(dest);
+    }
+
+    @Override
+    public String status(FileNode cwd) throws Failure {
+        Launcher launcher;
+
+        launcher = launcher(cwd, "status");
+        launcher.env("LC_ALL", "C");
+        return launcher.exec();
+    }
+
+    @Override
     public boolean isCommitted(Stage stage) throws IOException {
         FileNode directory;
         String str;
@@ -90,8 +95,6 @@ public class Subversion {
         }
         return false;
     }
-
-    //--
 
     private Launcher launcher(FileNode cwd, String... args) {
         Launcher launcher;

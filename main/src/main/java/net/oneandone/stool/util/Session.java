@@ -28,6 +28,8 @@ import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.locking.LockManager;
+import net.oneandone.stool.scm.Scm;
+import net.oneandone.stool.scm.Subversion;
 import net.oneandone.stool.setup.JavaSetup;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.Stage;
@@ -376,7 +378,7 @@ public class Session {
         }
     }
 
-    public Subversion subversion(String url) {
+    public Scm scm(String url) {
         return new Subversion(svnCredentials);
     }
 

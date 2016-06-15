@@ -16,8 +16,8 @@
 package net.oneandone.stool.stage;
 
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.Subversion;
 import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -36,7 +36,7 @@ public class SourceStage extends Stage {
     }
     public static SourceStage forLocal(Session session, FileNode backstage, FileNode stage, StageConfiguration configuration)
             throws IOException {
-        return forUrl(session, backstage, stage, Subversion.checkoutUrl(stage), configuration);
+        return forUrl(session, backstage, stage, Scm.checkoutUrl(stage), configuration);
     }
 
     //--
