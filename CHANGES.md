@@ -10,7 +10,7 @@
 * Fixed tomcat.service to actually work for versions other than 3.5.26.
 * simplified multi-module build: STOOL_SOURCE now points to the main module.
 
-# Stool 3.3.4 (2016-03-16)
+# Stool 3.3.5 (2016-03-16)
 
 TODO: merge changes
 

@@ -38,7 +38,7 @@ public class DebianMainSetup extends Debian {
     //--
 
     private final FileNode bin;
-    private final FileNode lib;
+    private final FileNode libdir;
     private final String config;
     private final String group;
 
@@ -47,7 +47,7 @@ public class DebianMainSetup extends Debian {
         // this is not configurable, because the content comes from the package:
         bin = world.file("/usr/share/stool");
 
-        lib = world.file(db_get("stool/lib"));
+        libdir = world.file(db_get("stool/lib"));
         config = db_get("stool/config");
         group = db_get("stool/group");
     }
@@ -78,10 +78,10 @@ public class DebianMainSetup extends Debian {
         binLib = bin.join("lib");
         if (previous != null) {
             if (Files.deleteIfExists(binLib.toPath())) {
-                log("cleaned previous lib: " + lib);
+                log("cleaned previous lib: " + libdir);
             }
         }
-        lib.link(binLib);
+        libdir.link(binLib);
         log("setup service:\n" + slurp("update-rc.d", "stool", "defaults"));
         log("start service:\n" + slurp("service", "stool", "start"));
     }
@@ -101,7 +101,7 @@ public class DebianMainSetup extends Debian {
         exec("update-rc.d", "stool", "remove"); // Debian considers this a configuration file!?
         bin.join("lib").deleteDirectory();
         // bin itself is not deleted, it's removed by the package manager
-        lib.deleteTree();
+        libdir.deleteTree();
     }
 
     //--
@@ -130,20 +130,20 @@ public class DebianMainSetup extends Debian {
     //--
 
     public void setupLib(String previousVersion) throws IOException {
-        Lib h;
+        Lib lib;
 
-        h = new Lib(console, lib, group, config.trim().isEmpty() ? null : config);
-        if (lib.exists()) {
-            h.upgrade(previousVersion);
-            log("lib: " + lib.getAbsolute() + " (upgraded)");
+        lib = new Lib(console, libdir, group, config.trim().isEmpty() ? null : config);
+        if (libdir.exists()) {
+            lib.upgrade(previousVersion);
+            log("lib: " + libdir.getAbsolute() + " (upgraded)");
         } else {
-            console.info.println("creating lib: " + lib);
+            console.info.println("creating lib: " + libdir);
             try {
-                h.create();
+                lib.create();
             } catch (IOException e) {
                 // make sure we don't leave any undefined lib directory;
                 try {
-                    lib.deleteTreeOpt();
+                    libdir.deleteTreeOpt();
                 } catch (IOException suppressed) {
                     e.addSuppressed(suppressed);
                 }

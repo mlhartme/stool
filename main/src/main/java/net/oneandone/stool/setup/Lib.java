@@ -133,6 +133,8 @@ public class Lib {
         doUpgrade(stool33_34(), stage33_34());
     }
 
+    // TODO: ugly ...
+    
     private static Lib upgradeLib = null;
     private static FileNode upgradeBackstage = null;
 
