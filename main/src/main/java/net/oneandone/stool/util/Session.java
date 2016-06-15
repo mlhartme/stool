@@ -638,7 +638,7 @@ public class Session {
         cmd.set(idx, search);
         for (String line : Separator.RAW_LINE.split(working.exec(Strings.toArray(cmd)))) {
             line = line.trim();
-            line = Strings.removeRightOpt(line.trim(), "/pom.xml");
+            line = Strings.removeLeftOpt(line, "git:");
             line = Strings.removeLeftOpt(line, "svn:");
             result.add(line);
         }

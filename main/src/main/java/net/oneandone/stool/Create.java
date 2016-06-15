@@ -190,7 +190,6 @@ public class Create extends SessionCommand {
         session.checkDiskFree();
         if (name == null) {
             name = directory.getName();
-            name = Strings.removeRightOpt(name, ".git");
         }
         Stage.checkName(name);
         if (session.backstages.join(name).exists()) {

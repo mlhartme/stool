@@ -794,13 +794,13 @@
         <refsect1>
           <title>Examples</title>
           <para>Create an artifact stage:
-            <literal>stool create gav:net.oneandone:hellowar:1.0.2</literal>
+            <literal>stool create gav:net.oneandone:hellowar:1.0.3</literal>
           </para>
           <para>Create an artifact stage from a file:
             <literal>stool create file:///my/path/to/artifact.war</literal>
           </para>
           <para>Create an artifact stage with multiple applications:
-            <literal>stool create gav:net.oneandone:hellowar:1.0.1,gav:net.oneandone:hellowar:1.0.2=second</literal>
+            <literal>stool create gav:net.oneandone:hellowar:1.0.2,gav:net.oneandone:hellowar:1.0.3=second</literal>
           </para>
           <para>Create a source stage from git:
             <literal>stool create git@github.com:mlhartme/hellowar.git</literal>

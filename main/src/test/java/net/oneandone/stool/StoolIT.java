@@ -97,8 +97,13 @@ public class StoolIT {
     }
 
     @Test
-    public void turnaroundSource() throws IOException {
+    public void turnaroundSvnSource() throws IOException {
         turnaround("https://github.com/mlhartme/hellowar/trunk");
+    }
+
+    @Test
+    public void turnaroundGitSource() throws IOException {
+        turnaround("git@github.com:mlhartme/hellowar.git");
     }
 
     @Ignore // TODO

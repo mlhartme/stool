@@ -720,9 +720,8 @@ public abstract class Stage {
         } else if (url.startsWith("file:")) {
             return nameForFileUrl(url);
         } else {
-            return nameForSvnUrl(url);
+            return nameForSvnOrGitUrl(url);
         }
-
     }
 
     private static String nameForGavUrl(String url) {
@@ -772,7 +771,7 @@ public abstract class Stage {
         return url;
     }
 
-    private static String nameForSvnUrl(String url) {
+    private static String nameForSvnOrGitUrl(String url) {
         String result;
         int idx;
 
@@ -785,6 +784,7 @@ public abstract class Stage {
         result = Strings.removeRightOpt(result, "/trunk");
         idx = result.lastIndexOf('/');
         result = result.substring(idx + 1); // ok for -1
+        result = Strings.removeRightOpt(result, ".git");
         return result.isEmpty() ? "stage" : result;
     }
 
