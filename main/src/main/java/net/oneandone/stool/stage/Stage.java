@@ -65,7 +65,7 @@ public abstract class Stage {
         Stage result;
         String url;
 
-        url = probe(session.subversion(), directory);
+        url = probe(directory);
         if (url == null) {
             throw new IOException("cannot determine stage url: " + directory);
         }
@@ -92,7 +92,7 @@ public abstract class Stage {
     }
 
     /** @return stage url or null if not a stage */
-    public static String probe(Subversion subversion, FileNode directory) throws IOException {
+    public static String probe(FileNode directory) throws IOException {
         Node artifactGav;
 
         directory.checkDirectory();
@@ -100,7 +100,7 @@ public abstract class Stage {
         if (artifactGav.exists()) {
             return artifactGav.readString().trim();
         }
-        return subversion.probeRootCheckoutUrl(directory);
+        return Subversion.probeRootCheckoutUrl(directory);
     }
 
     public static FileNode anchor(FileNode backstage) {
@@ -571,17 +571,10 @@ public abstract class Stage {
             lazyMacros.addAll(session.configuration.macros);
             lazyMacros.add("directory", getDirectory().getAbsolute());
             lazyMacros.add("localRepository", localRepository().getAbsolute());
-            lazyMacros.add("svnCredentials", Separator.SPACE.join(session.subversion().svnCredentials()));
-            lazyMacros.add("stoolSvnCredentials", stoolSvnCredentials());
+            lazyMacros.add("svnCredentials", Separator.SPACE.join(session.svnCredentials().svnArguments()));
+            lazyMacros.add("stoolSvnCredentials", session.svnCredentials().stoolSvnArguments());
         }
         return lazyMacros;
-    }
-
-    private String stoolSvnCredentials() {
-        Subversion subversion;
-
-        subversion = session.subversion();
-        return subversion.username == null ? "" : "-svnuser " + subversion.username + " -svnpassword " + subversion.password;
     }
 
     private void addProfilesAndProperties(Properties userProperties, List<String> profiles, String args) {

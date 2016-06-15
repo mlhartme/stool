@@ -169,7 +169,7 @@ public class Session {
 
     /** may be null */
     private final FileNode invocationFile;
-    private final Subversion subversion;
+    private final Credentials svnCredentials;
 
     private String selectedStageName;
     private final String stageIdPrefix;
@@ -199,7 +199,7 @@ public class Session {
         this.backstages = lib.join("backstages");
         this.selectedStageName = null;
         this.invocationFile = invocationFile;
-        this.subversion = new Subversion(svnuser, svnpassword);
+        this.svnCredentials = new Credentials(svnuser, svnpassword);
         this.stageIdPrefix = FMT.format(LocalDate.now()) + "." + logging.id + ".";
         this.nextStageId = 0;
         if (configuration.ldapUrl.isEmpty()) {
@@ -375,9 +375,14 @@ public class Session {
         }
     }
 
-    public Subversion subversion() {
-        return subversion;
+    public Subversion subversion(String url) {
+        return new Subversion(svnCredentials);
     }
+
+    public Credentials svnCredentials() {
+        return svnCredentials;
+    }
+
     public Stage load(String stageName) throws IOException {
         FileNode backstage;
 

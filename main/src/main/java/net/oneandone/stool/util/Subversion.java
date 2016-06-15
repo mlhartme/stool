@@ -18,17 +18,14 @@ package net.oneandone.stool.util;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
-import net.oneandone.sushi.util.Strings;
 
 import java.io.Writer;
 
 public class Subversion {
-    public final String username;
-    public final String password;
+    public final Credentials credentials;
 
-    public Subversion(String username, String password) {
-        this.username = username;
-        this.password = password;
+    public Subversion(Credentials credentials) {
+        this.credentials = credentials;
     }
 
     public void checkout(FileNode cwd, String url, String name, Writer dest) throws Failure {
@@ -48,7 +45,7 @@ public class Subversion {
     }
 
     /** Caution, does not work for nested directories */
-    public String probeRootCheckoutUrl(FileNode dir) throws Failure {
+    public static String probeRootCheckoutUrl(FileNode dir) throws Failure {
         if (dir.join(".svn").isDirectory()) {
             return checkoutUrl(dir);
         } else {
@@ -56,12 +53,12 @@ public class Subversion {
         }
     }
 
-    public String checkoutUrl(FileNode dir) throws Failure {
+    public static String checkoutUrl(FileNode dir) throws Failure {
         Launcher launcher;
         String str;
         int idx;
 
-        launcher = launcher(dir, "info");
+        launcher = new Launcher(dir, "svn", "info");
         launcher.env("LC_ALL", "C");
         str = launcher.exec();
         idx = str.indexOf("URL:") + 4;
@@ -74,18 +71,9 @@ public class Subversion {
         Launcher launcher;
 
         launcher = new Launcher(cwd, "svn");
-        launcher.arg(svnCredentials());
+        launcher.arg(credentials.svnArguments());
         launcher.arg(args);
         return launcher;
-    }
-
-    public String[] svnCredentials() {
-        return username == null ? Strings.NONE : new String[] {
-                        "--no-auth-cache",
-                        "--non-interactive", // to avoid password question if svnpassword is wrong
-                        "--username", username,
-                        "--password", password,
-                };
     }
 }
 

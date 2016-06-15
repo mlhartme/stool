@@ -70,7 +70,7 @@ public abstract class SessionCommand implements Command {
         if (!directory.join(".svn").isDirectory()) {
             return; // artifact stage
         }
-        str = session.subversion().status(directory);
+        str = session.subversion(stage.getUrl()).status(directory);
         if (isModified(str)) {
             message(Strings.indent(str, "  "));
             throw new IOException(directory + ": checkout has modifications - aborted.\n You may run with -force");

@@ -16,6 +16,7 @@
 package net.oneandone.stool.dashboard;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Credentials;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Subversion;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -60,7 +61,7 @@ public class StoolCallable implements Callable<Failure> {
         Failure failure;
         long time;
         BuildStats buildStats;
-        Subversion subversion;
+        Credentials svnCredentials;
         FileNode running;
 
         failure = null;
@@ -70,15 +71,15 @@ public class StoolCallable implements Callable<Failure> {
             launcher.arg("sudo", "-u", runAs);
         }
         launcher.arg(stoolRaw.getAbsolute());
-        subversion = stage.session.subversion();
-        if (subversion.username != null) {
-            launcher.arg("-svnuser", subversion.username);
-            launcher.arg("-svnpassword", subversion.password);
+        svnCredentials = stage.session.svnCredentials();
+        if (svnCredentials.username != null) {
+            launcher.arg("-svnuser", svnCredentials.username);
+            launcher.arg("-svnpassword", svnCredentials.password);
         }
         launcher.arg(command, "-stage", stage.getName());
         launcher.arg(options);
         try (PrintWriter writer = new PrintWriter(logDir.join(id + ".log").createWriter())) {
-            writer.println(hide(hide(launcher.toString(), subversion.password), subversion.username));
+            writer.println(hide(hide(launcher.toString(), svnCredentials.password), svnCredentials.username));
             running = logDir.join(id + ".running").mkfile();
             try {
                 launcher.exec(writer);

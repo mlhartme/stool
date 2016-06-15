@@ -177,7 +177,7 @@ public class Import extends SessionCommand {
             return;
         }
 
-        url = Stage.probe(session.subversion(), parent);
+        url = Stage.probe(parent);
         if (url == null) {
             stage = null;
         } else {
