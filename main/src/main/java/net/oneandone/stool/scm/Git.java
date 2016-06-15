@@ -47,6 +47,7 @@ public class Git extends Scm {
     //--
 
     public Git() {
+        super("git pull");
     }
 
     @Override

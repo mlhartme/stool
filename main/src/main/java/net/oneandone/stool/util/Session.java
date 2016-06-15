@@ -571,7 +571,7 @@ public class Session {
         } catch (IOException e) {
             mavenHome = "";
         }
-        stage = new StageConfiguration(nextStageId(), javaHome(), mavenHome, extensionsFactory.newInstance());
+        stage = new StageConfiguration(nextStageId(), javaHome(), mavenHome, scm(url).refresh(), extensionsFactory.newInstance());
         configuration.setDefaults(StageConfiguration.properties(extensionsFactory), stage, url);
         return stage;
     }

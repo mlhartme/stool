@@ -53,6 +53,7 @@ public class Subversion extends Scm {
     public final Credentials credentials;
 
     public Subversion(Credentials credentials) {
+        super("svn @svnCredentials@ up");
         this.credentials = credentials;
     }
 

@@ -122,12 +122,12 @@ public class StageConfiguration {
 
     public final Extensions extensions;
 
-    public StageConfiguration(String id, String javaHome, String mavenHome, Extensions extensions) {
+    public StageConfiguration(String id, String javaHome, String mavenHome, String refresh, Extensions extensions) {
         this.id = id;
         this.cookies = true;
         this.prepare = "";
         this.build = "false";
-        this.refresh = "svn @svnCredentials@ up";
+        this.refresh = refresh;
         this.pom = "pom.xml";
         this.tomcatOpts = "";
         this.tomcatVersion = "8.0.32";

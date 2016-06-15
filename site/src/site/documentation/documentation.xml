@@ -802,7 +802,10 @@
           <para>Create an artifact stage with multiple applications:
             <literal>stool create gav:net.oneandone:hellowar:1.0.1,gav:net.oneandone:hellowar:1.0.2=second</literal>
           </para>
-          <para>Create a source stage:
+          <para>Create a source stage from git:
+            <literal>stool create git@github.com:mlhartme/hellowar.git</literal>
+          </para>
+          <para>Create a source stage from svn:
             <literal>stool create https://github.com/mlhartme/hellowar/trunk</literal>
           </para>
         </refsect1>

@@ -49,6 +49,12 @@ public abstract class Scm {
         return null;
     }
 
+    private final String refresh;
+
+    public Scm(String refresh) {
+        this.refresh = refresh;
+    }
+
     public abstract void checkout(String url, FileNode dir, Writer dest) throws Failure;
     public abstract boolean isCommitted(Stage stage) throws IOException;
 
@@ -58,6 +64,10 @@ public abstract class Scm {
         } else {
             return new Git();
         }
+    }
+
+    public String refresh() {
+        return refresh;
     }
 }
 
