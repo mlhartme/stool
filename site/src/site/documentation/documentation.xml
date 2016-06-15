@@ -574,6 +574,12 @@
               </listitem>
             </varlistentry>
             <varlistentry>
+              <term>search</term>
+              <listitem>
+                <para>Command line to execute if stool create is called with an % url. Default is empty.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
               <term>vhosts</term>
               <listitem>
                 <para><literal>true</literal> to create application urls with ports and vhosts for application and stage
@@ -761,8 +767,8 @@
             to assign a non-default vhost for an application.
           </para>
           <para>Instead of a <replaceable>url</replaceable> you can specify
-            <literal>%</literal><replaceable>searchstring</replaceable>. This will search Pommes for the specified
-            search string, show all matching svn urls, and ask you to select one.
+            <literal>%</literal><replaceable>searchstring</replaceable>. This will search the configured search tools for the specified
+            string, show all matching svn urls, and ask you to select one.
           </para>
           <para>
             <replaceable>directory</replaceable>

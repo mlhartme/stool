@@ -22,6 +22,7 @@ import com.google.gson.JsonParser;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -131,6 +132,8 @@ public class StoolConfiguration {
 
     public FileNode downloadCache;
 
+    public String search;
+
     public StoolConfiguration(FileNode downloadCache) {
         portFirst = 9000;
         portLast = 9999;
@@ -158,6 +161,7 @@ public class StoolConfiguration {
         downloadServiceWrapper = "http://wrapper.tanukisoftware.com/download/${version}/wrapper-"
                 + (OS.CURRENT == OS.LINUX ? "linux-x86-64" : "macosx-universal-64") + "-${version}.tar.gz";
         this.downloadCache = downloadCache;
+        this.search = "pommes find () - %o";
     }
 
     public static FileNode configurationFile(FileNode lib) {

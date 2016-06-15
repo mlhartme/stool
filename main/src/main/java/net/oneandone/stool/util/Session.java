@@ -43,6 +43,7 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.codehaus.plexus.DefaultPlexusContainer;
 import org.slf4j.Logger;
@@ -615,4 +616,31 @@ public class Session {
     public FileNode downloadCache() {
         return configuration.downloadCache;
     }
+
+    public List<String> search(String search) throws IOException {
+        FileNode working;
+        List<String> cmd;
+        List<String> result;
+        int idx;
+
+        working = (FileNode) this.console.world.getWorking();
+        result = new ArrayList<>();
+        if (configuration.search.isEmpty()) {
+            throw new IOException("no search tool configured");
+        }
+        cmd = Separator.SPACE.split(configuration.search);
+        idx = cmd.indexOf("()");
+        if (idx == -1) {
+            throw new IOException("search tool configured without () placeholder");
+        }
+        cmd.set(idx, search);
+        for (String line : Separator.RAW_LINE.split(working.exec(Strings.toArray(cmd)))) {
+            line = line.trim();
+            line = Strings.removeRightOpt(line.trim(), "/pom.xml");
+            line = Strings.removeLeftOpt(line, "svn:");
+            result.add(line);
+        }
+        return result;
+    }
+
 }

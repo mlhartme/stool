@@ -144,9 +144,9 @@ public class Create extends SessionCommand {
         if (!urlOrFileOrSearch.startsWith("%")) {
             return Strings.removeRightOpt(urlOrFileOrSearch, "/");
         }
-        console.info.println("Searching pommes ...");
+        console.info.println("Searching ...");
         substring = urlOrFileOrSearch.substring(1);
-        urls = pommes(console.world, substring);
+        urls = session.search(substring);
         if (urls.size() == 0) {
             throw new ArgumentException("not found: " + substring);
         }
@@ -157,7 +157,7 @@ public class Create extends SessionCommand {
             input = console.readline("Choose url [1-" + urls.size() + "]) or press ctrl-c to abort: \n");
             try {
                 no = Integer.parseInt(input);
-                return urls.get(no - 1);
+                return Strings.removeLeftOpt(Strings.removeLeftOpt(urls.get(no - 1), "scm:"), "svn:");
             } catch (NumberFormatException e) {
                 console.info.println("invalid input: " + e.getMessage());
             }
@@ -258,20 +258,5 @@ public class Create extends SessionCommand {
             }
         }
         return stage;
-    }
-
-    public static List<String> pommes(World world, String search) throws IOException {
-        FileNode working;
-        List<String> result;
-
-        working = (FileNode) world.getWorking();
-        result = new ArrayList<>();
-        for (String line : Separator.RAW_LINE.split(working.exec("bash", "--login", "-c", "pommes find -format %o " + search))) {
-            line = line.trim();
-            line = Strings.removeRightOpt(line.trim(), "/pom.xml");
-            line = Strings.removeLeftOpt(line, "svn:");
-            result.add(line);
-        }
-        return result;
     }
 }

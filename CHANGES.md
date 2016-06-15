@@ -1,5 +1,6 @@
 # Stool 3.4.0 
 
+* Pommes is no longer hard-wired, theres a global `search` property to configure arbitrary search tools.
 * Atomic upgrade: creates a backup of the lib directory before upgrade; this is restored if the upgrade fails
 * Removed system-import command.
 * Stage configuration changes:

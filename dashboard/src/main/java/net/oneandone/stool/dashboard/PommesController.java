@@ -15,8 +15,7 @@
  */
 package net.oneandone.stool.dashboard;
 
-import net.oneandone.stool.Create;
-import net.oneandone.sushi.fs.World;
+import net.oneandone.stool.util.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,16 +28,16 @@ import java.util.List;
 @RequestMapping("/pommes")
 public class PommesController {
     @Autowired
-    private World world;
+    private Session session;
 
     @RequestMapping("all")
     public List<String> allApplications() throws IOException {
-        return Create.pommes(world, "");
+        return session.search("");
     }
 
     @RequestMapping("{query}")
     public List<String> applicationLookup(@PathVariable(value = "query") String query) throws IOException {
-        return Create.pommes(world, query);
+        return session.search(query);
     }
 }
 
