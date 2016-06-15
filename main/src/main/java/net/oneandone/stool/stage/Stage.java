@@ -577,6 +577,10 @@ public abstract class Stage {
         return lazyMacros;
     }
 
+    public boolean isCommitted() throws IOException {
+        return session.subversion(getUrl()).isCommitted(this);
+    }
+
     private void addProfilesAndProperties(Properties userProperties, List<String> profiles, String args) {
         int idx;
 

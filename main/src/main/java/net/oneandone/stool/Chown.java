@@ -66,9 +66,7 @@ public class Chown extends StageCommand {
             return;
         }
         stage.checkNotUp();
-        try {
-            checkCommitted(stage);
-        } catch (IOException e) {
+        if (!stage.isCommitted()) {
             message(stage.getName() + ": checkout has modifications");
             newline();
             console.info.println("Those files will stay uncommitted and " + user + " will be the new owner of them.");

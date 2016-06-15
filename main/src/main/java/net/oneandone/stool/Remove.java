@@ -20,6 +20,8 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Option;
 
+import java.io.IOException;
+
 public class Remove extends StageCommand {
     @Option("batch")
     private boolean batch;
@@ -45,7 +47,9 @@ public class Remove extends StageCommand {
         stage.checkNotUp();
         stage.checkOwnership();
         if (!force) {
-            checkCommitted(stage);
+            if (!stage.isCommitted()) {
+                throw new IOException("checkout has modifications - aborted.\nYou may run with -force");
+            }
         }
         if (!batch) {
             console.info.println("Ready to delete " + stage.getDirectory().getAbsolute() + "?");

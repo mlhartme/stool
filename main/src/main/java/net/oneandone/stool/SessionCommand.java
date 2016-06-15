@@ -62,36 +62,6 @@ public abstract class SessionCommand implements Command {
 
     public abstract void doInvoke() throws Exception;
 
-    protected void checkCommitted(Stage stage) throws IOException {
-        FileNode directory;
-        String str;
-
-        directory = stage.getDirectory();
-        if (!directory.join(".svn").isDirectory()) {
-            return; // artifact stage
-        }
-        str = session.subversion(stage.getUrl()).status(directory);
-        if (isModified(str)) {
-            message(Strings.indent(str, "  "));
-            throw new IOException(directory + ": checkout has modifications - aborted.\n You may run with -force");
-        }
-    }
-
-    private static boolean isModified(String lines) {
-        for (String line : Separator.on("\n").split(lines)) {
-            if (line.trim().length() > 0) {
-                if (line.startsWith("X") || line.startsWith("Performing status on external item")) {
-                    // needed for external references
-                } else {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    //--
-
     protected void run(Launcher l, Node output) throws IOException {
         message(l, output instanceof FileNode ? " > " + output : "");
         runQuiet(l, output);

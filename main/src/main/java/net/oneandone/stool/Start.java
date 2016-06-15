@@ -76,7 +76,12 @@ public class Start extends StageCommand {
         serviceWrapperOpt(stage);
         download = tomcatOpt(stage.config().tomcatVersion);
         checkUntil(stage.config().until);
-        checkCommitted(stage);
+        if (session.configuration.committed) {
+            if (!stage.isCommitted()) {
+                throw new IOException("It's not allowed to start stages with local modifications.\n"
+                                + "Please commit your modified files in order to start the stage.");
+            }
+        }
         checkNotStarted(stage);
         ports = session.pool().allocate(stage, Collections.emptyMap());
         copyTemplate(stage, ports);
@@ -411,19 +416,6 @@ public class Start extends StageCommand {
     private void checkUntil(Until until) {
         if (until.isExpired()) {
             throw new ArgumentException("Stage expired " + until + ". To start it, you have to adjust the 'until' date.");
-        }
-    }
-
-    @Override
-    protected void checkCommitted(Stage stage) throws IOException {
-        if (session.configuration.committed) {
-            try {
-                super.checkCommitted(stage);
-            } catch (IOException e) {
-                throw new IOException(
-                  "It's not allowed to start stages with local modifications.\n"
-                    + "Please commit your modified files in order to start the stage.");
-            }
         }
     }
 }

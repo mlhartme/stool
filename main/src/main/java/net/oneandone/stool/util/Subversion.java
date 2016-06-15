@@ -15,10 +15,14 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.util.Strings;
 
+import java.io.IOException;
 import java.io.Writer;
 
 public class Subversion {
@@ -63,6 +67,33 @@ public class Subversion {
         str = launcher.exec();
         idx = str.indexOf("URL:") + 4;
         return str.substring(idx, str.indexOf("\n", idx)).trim();
+    }
+
+    //--
+
+    public boolean isCommitted(Stage stage) throws IOException {
+        FileNode directory;
+        String str;
+
+        directory = stage.getDirectory();
+        if (!directory.join(".svn").isDirectory()) {
+            return true; // artifact stage
+        }
+        str = status(directory);
+        return isModified(str);
+    }
+
+    private static boolean isModified(String lines) {
+        for (String line : Separator.on("\n").split(lines)) {
+            if (line.trim().length() > 0) {
+                if (line.startsWith("X") || line.startsWith("Performing status on external item")) {
+                    // needed for external references
+                } else {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     //--
