@@ -20,7 +20,6 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
-import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -34,10 +33,6 @@ public class Subversion {
 
     public void checkout(FileNode cwd, String url, String name, Writer dest) throws Failure {
         launcher(cwd, "co", url, name).exec(dest);
-    }
-
-    public void update(FileNode cwd, Writer output) throws Failure {
-        launcher(cwd, "up").exec(output);
     }
 
     public String status(FileNode cwd) throws Failure {

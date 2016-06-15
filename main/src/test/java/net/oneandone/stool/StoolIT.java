@@ -33,7 +33,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Map;
 
 import static org.junit.Assert.fail;
 

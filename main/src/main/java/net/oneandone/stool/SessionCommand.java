@@ -15,9 +15,8 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.locking.Lock;
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Command;
 import net.oneandone.sushi.cli.Console;

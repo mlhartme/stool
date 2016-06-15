@@ -16,14 +16,6 @@
 package net.oneandone.stool.stage.artifact;
 
 import net.oneandone.sushi.fs.file.FileNode;
-import org.apache.maven.project.ProjectBuildingException;
-import org.eclipse.aether.RepositoryException;
-import org.eclipse.aether.artifact.DefaultArtifact;
-import org.eclipse.aether.resolution.ArtifactResolutionException;
-import org.eclipse.aether.resolution.VersionRangeResolutionException;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
 
 public class FileLocator extends Locator {
     private final FileNode source;

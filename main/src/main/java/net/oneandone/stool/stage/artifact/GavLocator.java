@@ -16,7 +16,6 @@
 package net.oneandone.stool.stage.artifact;
 
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.sushi.fs.file.FileNode;
 import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.artifact.DefaultArtifact;

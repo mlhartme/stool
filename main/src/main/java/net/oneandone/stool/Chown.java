@@ -22,8 +22,6 @@ import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 
-import java.io.IOException;
-
 public class Chown extends StageCommand {
     private String userArgument;
 

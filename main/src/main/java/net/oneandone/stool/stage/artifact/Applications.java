@@ -17,9 +17,7 @@ package net.oneandone.stool.stage.artifact;
 
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.file.FileNode;
-import org.eclipse.aether.artifact.DefaultArtifact;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

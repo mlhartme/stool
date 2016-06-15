@@ -16,7 +16,6 @@
 package net.oneandone.stool.stage.artifact;
 
 import net.oneandone.sushi.fs.CopyException;
-import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
