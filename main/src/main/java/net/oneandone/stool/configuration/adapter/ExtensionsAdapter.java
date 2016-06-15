@@ -71,13 +71,18 @@ public class ExtensionsAdapter extends TypeAdapter<Extensions> {
         String str;
         String name;
         Extension extension;
+        Class<? extends Extension> clazz;
 
         extensions = new Extensions();
         in.beginObject();
         while (in.peek() == JsonToken.NAME) {
             str = in.nextName();
             name = str.substring(1);
-            extension = gson.fromJson(in, factory.type(name));
+            clazz = factory.type(name);
+            if (clazz == null) {
+                throw new IOException("extension not found: " + name);
+            }
+            extension = gson.fromJson(in, clazz);
             extensions.add(name, str.startsWith("+"), extension);
         }
         in.endObject();

@@ -16,6 +16,7 @@
 package net.oneandone.stool.setup;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Files;
@@ -181,6 +182,11 @@ public class Lib {
 
     public static Upgrade stage33_34() {
         return new Upgrade() {
+            JsonElement extensionsTransform(JsonElement e) {
+                e.getAsJsonObject().remove("-pustefix.editor");
+                e.getAsJsonObject().remove("+pustefix.editor");
+                return e;
+            }
             void sslUrlRemove() {
             }
             String suffixesRename() {
