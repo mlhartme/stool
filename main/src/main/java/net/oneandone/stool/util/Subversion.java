@@ -80,7 +80,7 @@ public class Subversion {
             return true; // artifact stage
         }
         str = status(directory);
-        return isModified(str);
+        return !isModified(str);
     }
 
     private static boolean isModified(String lines) {
