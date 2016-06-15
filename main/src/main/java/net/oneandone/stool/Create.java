@@ -244,7 +244,7 @@ public class Create extends SessionCommand {
         } else {
             url = Strings.removeRightOpt(url, "/");
             console.info.println("checking out " + directory);
-            session.scm(url).checkout(directory.getParent(), url, directory.getName(), quiet ? console.verbose : console.info);
+            session.scm(url).checkout(url, directory, quiet ? console.verbose : console.info);
             stage = SourceStage.forUrl(session, backstage, directory, url, stageConfiguration);
             // make sure to run in stage environment, e.g. to have proper repository settings
             prepare = stage.config().prepare;

@@ -16,6 +16,7 @@
 package net.oneandone.stool.scm;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Credentials;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 
@@ -23,17 +24,40 @@ import java.io.IOException;
 import java.io.Writer;
 
 public abstract class Scm {
+    public static String checkoutUrl(FileNode dir) throws IOException {
+        String result;
+
+        result = checkoutUrlOpt(dir);
+        if (result == null) {
+            throw new IOException("not a checkout: " + dir);
+        }
+        return result;
+    }
+
     /** Caution, does not work for nested directories */
-    public static String probeRootCheckoutUrl(FileNode dir) throws Failure {
-        return Subversion.probeRootCheckoutUrl(dir);
+    public static String checkoutUrlOpt(FileNode dir) throws Failure {
+        String result;
+
+        result = Subversion.svnCheckoutUrlOpt(dir);
+        if (result != null) {
+            return result;
+        }
+        result = Git.gitCheckoutUrlOpt(dir);
+        if (result != null) {
+            return result;
+        }
+        return null;
     }
 
-    public static String checkoutUrl(FileNode dir) throws Failure {
-        return Subversion.checkoutUrl(dir);
-    }
-
-    public abstract void checkout(FileNode cwd, String url, String name, Writer dest) throws Failure;
-    public abstract String status(FileNode cwd) throws Failure;
+    public abstract void checkout(String url, FileNode dir, Writer dest) throws Failure;
     public abstract boolean isCommitted(Stage stage) throws IOException;
+
+    public static Scm forUrl(String url, Credentials svnCredentials) {
+        if (url.startsWith("https:")) {
+            return new Subversion(svnCredentials);
+        } else {
+            return new Git();
+        }
+    }
 }
 

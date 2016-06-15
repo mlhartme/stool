@@ -85,7 +85,7 @@ public abstract class Stage {
         if (artifactGav.exists()) {
             return artifactGav.readString().trim();
         }
-        return Scm.probeRootCheckoutUrl(directory);
+        return Scm.checkoutUrlOpt(directory);
     }
 
     public static Stage createOpt(Session session, String url, StageConfiguration configuration, FileNode backstage,

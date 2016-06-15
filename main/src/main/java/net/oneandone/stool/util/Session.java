@@ -379,7 +379,7 @@ public class Session {
     }
 
     public Scm scm(String url) {
-        return new Subversion(svnCredentials);
+        return Scm.forUrl(url, svnCredentials);
     }
 
     public Credentials svnCredentials() {

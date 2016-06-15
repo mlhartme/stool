@@ -27,15 +27,15 @@ import java.io.Writer;
 
 public class Subversion extends Scm {
     /** Caution, does not work for nested directories */
-    public static String probeRootCheckoutUrl(FileNode dir) throws Failure {
+    public static String svnCheckoutUrlOpt(FileNode dir) throws Failure {
         if (dir.join(".svn").isDirectory()) {
-            return checkoutUrl(dir);
+            return svnCheckoutUrl(dir);
         } else {
             return null;
         }
     }
 
-    public static String checkoutUrl(FileNode dir) throws Failure {
+    private static String svnCheckoutUrl(FileNode dir) throws Failure {
         Launcher launcher;
         String str;
         int idx;
@@ -57,17 +57,8 @@ public class Subversion extends Scm {
     }
 
     @Override
-    public void checkout(FileNode cwd, String url, String name, Writer dest) throws Failure {
-        launcher(cwd, "co", url, name).exec(dest);
-    }
-
-    @Override
-    public String status(FileNode cwd) throws Failure {
-        Launcher launcher;
-
-        launcher = launcher(cwd, "status");
-        launcher.env("LC_ALL", "C");
-        return launcher.exec();
+    public void checkout(String url, FileNode dir, Writer dest) throws Failure {
+        launcher(dir.getParent(), "co", url, dir.getName()).exec(dest);
     }
 
     @Override
@@ -81,6 +72,14 @@ public class Subversion extends Scm {
         }
         str = status(directory);
         return !isModified(str);
+    }
+
+    private String status(FileNode cwd) throws Failure {
+        Launcher launcher;
+
+        launcher = launcher(cwd, "status");
+        launcher.env("LC_ALL", "C");
+        return launcher.exec();
     }
 
     private static boolean isModified(String lines) {
