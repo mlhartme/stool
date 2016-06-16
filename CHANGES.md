@@ -1,6 +1,8 @@
 # Stool 3.4.0 
 
-* Renamed -invocation argument to -shell
+* explace select by open/exit
+  * prompt no longer supports \= to reference the previous prompt
+  * Renamed -invocation argument to -shell
 * Added support for git urls.
 * Pommes is no longer hard-wired, theres a global `search` property to configure arbitrary search tools.
 * Atomic upgrade: creates a backup of the lib directory before upgrade; this is restored if the upgrade fails

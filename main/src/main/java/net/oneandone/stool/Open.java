@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.cli.Value;
@@ -25,23 +24,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Open extends SessionCommand {
+public class Open extends OpeningCommand {
     @Value(name = "stage", position = 1)
     private String stageName;
 
     public Open(Session session) {
-        super(session, Mode.NONE);
-    }
-
-    // TODO: ugly override
-    @Override
-    public void invoke() throws Exception {
-        doInvoke();
-        session.shellFileUpdate("bash -rcfile " + session.environment.stoolBin(world).join("bash.rc").getAbsolute());
+        super(session);
     }
 
     @Override
-    public void doInvoke() throws Exception {
+    public void doOpening() throws Exception {
         FileNode backstage;
         Stage stage;
 

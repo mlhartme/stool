@@ -441,7 +441,6 @@ public class Session {
         }
         prompt = configuration.prompt;
         prompt = Strings.replace(prompt, "\\+", stoolIndicator);
-        prompt = Strings.replace(prompt, "\\=", this.environment.getOpt(Environment.backupKey(Environment.PS1)));
         env.set(Environment.PS1, prompt);
         return env;
     }

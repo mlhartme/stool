@@ -34,12 +34,6 @@ public class Environment {
         System.out.println(loadSystem().proxyOpts());
     }
 
-    /**
-     * To handle special shell variables like PS1 (which is private and cannot be exported on Mac OS), the launch script exports
-     * them with this prefix.
-     */
-    private static final String EXPORTED = "EXPORTED_";
-
     public static final String STOOL_SELECTED = "STOOL_SELECTED";
     // TODO: dump when pws uses stagehost instead
     public static final String MACHINE = "MACHINE";
@@ -61,12 +55,6 @@ public class Environment {
         system = System.getenv();
         for (Map.Entry<String, String> entry : system.entrySet()) {
             key = entry.getKey();
-            if (key.startsWith(EXPORTED)) {
-                key = key.substring(EXPORTED.length());
-            } else if (system.containsKey(EXPORTED + key)) {
-                // skip this key - we'll use (or already have used) the exported key
-                continue;
-            }
             value = entry.getValue();
             oldValue = result.set(key, value);
             if (oldValue != null) {

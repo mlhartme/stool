@@ -17,7 +17,6 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
@@ -28,7 +27,6 @@ import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.cli.Value;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -38,12 +36,11 @@ import java.io.IOException;
 import java.nio.file.LinkOption;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.PosixFilePermission;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Create extends SessionCommand {
+public class Create extends OpeningCommand {
     @Option("quiet")
     private boolean quiet = false;
 
@@ -62,7 +59,7 @@ public class Create extends SessionCommand {
     private final Map<String, Property> properties;
 
     public Create(Session session) {
-        super(session, Mode.NONE);
+        super(session);
         this.properties = StageConfiguration.properties(session.extensionsFactory);
     }
 
@@ -103,7 +100,7 @@ public class Create extends SessionCommand {
     }
 
     @Override
-    public void doInvoke() throws Exception {
+    public void doOpening() throws Exception {
         FileNode backstage;
         Stage stage;
         String url;

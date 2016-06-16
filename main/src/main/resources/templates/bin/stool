@@ -19,6 +19,7 @@ OPTIONS=-Djava.awt.headless=true
 MAIN=net.oneandone.stool.Main
 
 SHELL_FILE=/tmp/.shell-file-$$-$(date +%N)
+
 $JAVA $OPTIONS $STOOL_OPTS -cp "$APP" $MAIN -shell $SHELL_FILE "$@"
 result=$?
 

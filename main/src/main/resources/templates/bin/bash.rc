@@ -4,10 +4,6 @@ export STOOL_SHELL_FILE=${{stool.bin}}/lib/run/users/.stool-shell-file-$$-$(date
 ${{man.path}}
 
 stool() {
-  # Special variable handling: they are private and you cannot export them on Mac OS.
-  # We make them available to the java code under the EXPORTED_ prefix
-  export EXPORTED_PS1="$PS1"
-
   # adjust this to configure a specific java version
   local java=java
   local bin=${{stool.bin}}
@@ -61,8 +57,6 @@ stool() {
       mv -f $STOOL_SHELL_FILE $bin/lib/run/users/$USER || (echo "cannot move shell file, check USER variable: $USER"; rm $STOOL_SHELL_FILE)
     fi
   fi
-
-  unset EXPORTED_PS1
 
   return $result
 }

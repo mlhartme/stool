@@ -52,11 +52,19 @@ public abstract class SessionCommand implements Command {
         try (Lock lock = createLock("ports", globalLock)) {
             doInvoke();
         }
-        session.shellFileUpdate();
+        session.shellFileUpdate(extraShellLines());
+    }
+
+    protected String[] extraShellLines() {
+        return new String[] {};
     }
 
     protected Lock createLock(String lock, Mode mode) throws IOException {
         return session.lockManager.acquire(lock, console, noLock ? Mode.NONE : mode);
+    }
+
+    public boolean inShell() {
+        return session.getSelectedStageName() != null;
     }
 
     public abstract void doInvoke() throws Exception;
