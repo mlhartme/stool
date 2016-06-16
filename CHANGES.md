@@ -1,9 +1,9 @@
 # Stool 3.4.0 
 
 * fixed timestamp in generated shell file name
-* replace select by open/exit
+* improved shell file handling: selecting a stage opens a sub-shell, selecting none exits this sub-shell
+  * you simply type exit instead of stool select none
   * JavaSetup no longer install man pages and bash completion
-  * Added an open command; select yields an error message now
   * prompt no longer supports \= to reference the previous prompt
   * Renamed -invocation argument to -shell
 * Added support for git urls.

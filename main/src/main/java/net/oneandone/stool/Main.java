@@ -217,11 +217,6 @@ public class Main extends Cli implements Command {
         return new Import(session());
     }
 
-    @Child("open")
-    public Open open() throws IOException {
-        return new Open(session());
-    }
-
     @Child("select")
     public Select select() throws IOException {
         return new Select(session());

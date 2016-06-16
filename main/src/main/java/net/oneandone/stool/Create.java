@@ -17,6 +17,7 @@ package net.oneandone.stool;
 
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
@@ -40,7 +41,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Create extends OpeningCommand {
+public class Create extends SessionCommand {
     @Option("quiet")
     private boolean quiet = false;
 
@@ -59,7 +60,7 @@ public class Create extends OpeningCommand {
     private final Map<String, Property> properties;
 
     public Create(Session session) {
-        super(session);
+        super(session, Mode.NONE);
         this.properties = StageConfiguration.properties(session.extensionsFactory);
     }
 
@@ -100,7 +101,7 @@ public class Create extends OpeningCommand {
     }
 
     @Override
-    public void doOpening() throws Exception {
+    public void doInvoke() throws Exception {
         FileNode backstage;
         Stage stage;
         String url;
@@ -119,6 +120,9 @@ public class Create extends OpeningCommand {
 
         Runtime.getRuntime().removeShutdownHook(cleanup);
 
+        if (!inShell()) {
+            openShell();
+        }
         console.info.println("stage created: " + name);
         session.select(stage);
         session.cd(stage.getDirectory());

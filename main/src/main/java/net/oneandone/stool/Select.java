@@ -72,11 +72,11 @@ public class Select extends SessionCommand {
         }
         console.verbose.println("selecting stage " + stageName);
         stage = Stage.load(session, backstage);
-        session.select(stage);
-        session.cd(stage.getDirectory());
         if (session.getSelectedStageName() == null) {
             openShell();
         }
+        session.select(stage);
+        session.cd(stage.getDirectory());
     }
 
     private String suggestion() throws IOException {
