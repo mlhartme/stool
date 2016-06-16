@@ -1,7 +1,6 @@
 # Stool shell functions for bash
 
-export STOOL_SHELL_FILE=${{stool.bin}}/lib/run/users/.stool-shell-file-$$-$(date +%N)
-${{man.path}}
+export STOOL_SHELL_FILE=${{stool.bin}}/lib/run/users/.stool-shell-file-$$-$(date +%s)
 
 stool() {
   # adjust this to configure a specific java version
@@ -80,8 +79,3 @@ stoolIndicatorColor() {
       fi
     fi
 }
-
-if [ "x$BASH" != "x" ] ; then
-  export -f stool stoolIndicatorColor
-  . ${{stool.bin}}/stool-complete
-fi

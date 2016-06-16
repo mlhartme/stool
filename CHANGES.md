@@ -1,6 +1,8 @@
 # Stool 3.4.0 
 
-* explace select by open/exit
+* fixed timestamp in generated shell file name
+* replace select by open/exit
+  * JavaSetup no longer install man pages and bash completion
   * Added an open command; select yields an error message now
   * prompt no longer supports \= to reference the previous prompt
   * Renamed -invocation argument to -shell

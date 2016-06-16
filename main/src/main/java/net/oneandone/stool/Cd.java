@@ -49,6 +49,9 @@ public class Cd extends StageCommand {
         Filter filter;
         StringBuilder message;
 
+        if (!session.isSelected(stage)) {
+            throw new ArgumentException("cd can only be used on the selected stage");
+        }
         if (target == null) {
             node = stage.getDirectory();
         } else if ("backstage".equals(target)) {

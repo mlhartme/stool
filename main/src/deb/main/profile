@@ -1,3 +1,5 @@
 export STOOL_OPTS="-Xms128m -Xmx1024m"
-. /usr/share/stool/bash.rc
+if [ "x$BASH" != "x" ] ; then
+  . ${{stool.bin}}/stool-complete
+fi
 stool reselect
