@@ -3,8 +3,6 @@
 export STOOL_SHELL_FILE=${{stool.bin}}/lib/run/users/.stool-shell-file-$$-$(date +%N)
 ${{man.path}}
 
-export PS1='hi> '
-
 stool() {
   # Special variable handling: they are private and you cannot export them on Mac OS.
   # We make them available to the java code under the EXPORTED_ prefix
