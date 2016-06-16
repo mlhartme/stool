@@ -67,10 +67,6 @@ public class Environment {
         return result;
     }
 
-    public static String backupKey(String key) {
-        return "STOOL_BACKUP_" + key;
-    }
-
     //--
 
     private final Map<String, String> properties;

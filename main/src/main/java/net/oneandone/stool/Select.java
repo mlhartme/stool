@@ -35,93 +35,26 @@ public class Select extends SessionCommand {
 
     @Remaining
     public Select stageToSelect(String stage) {
-        if (stageName != null) {
-            throw new ArgumentException("too many arguments");
-        }
         stageName = stage;
         return this;
     }
 
     @Override
     public void doInvoke() throws Exception {
-        FileNode backstage;
-        Stage stage;
+        String msg;
+        boolean none;
 
         if (stageName == null) {
-            console.info.println("currently selected: "
-              + (session.getSelectedStageName() == null ? "none" : session.getSelectedStageName()));
-            return;
-        }
-        if ("none".equals(stageName)) {
-            if (session.getSelectedStageName() == null) {
-                console.info.println("already selected: none");
+            msg = "";
+        } else {
+            none = "none".equals(stageName);
+            if (inShell()) {
+                msg = none ? "Try 'exit' instead." : "Use 'exit' and 'stool open " + stageName + "' instead.";
             } else {
-                console.verbose.println("selecting none");
-                session.resetEnvironment();
-            }
-            return;
-        }
-        try {
-            backstage = session.backstages.join(stageName);
-        } catch (IllegalArgumentException e) {
-            // user specified an apsolute path
-            throw new IOException("No such stage: " + stageName);
-        }
-        if (!backstage.isDirectory()) {
-            throw new IOException("No such stage: " + stageName + suggestion());
-        }
-        console.verbose.println("selecting stage " + stageName);
-        if (session.getSelectedStageName() == null) {
-            session.backupEnvironment();
-        }
-        stage = Stage.load(session, backstage);
-        session.select(stage);
-        session.cd(stage.getDirectory());
-    }
-
-    private String suggestion() throws IOException {
-        List<String> candidates;
-
-        candidates = candidates(session.stageNames(), stageName);
-        switch (candidates.size()) {
-            case 0:
-                return "";
-            case 1:
-                return "\nDid you mean " + candidates.get(0) + "?";
-            default:
-                return "\nDid you mean one of " + candidates + "?";
-        }
-    }
-
-    public static List<String> candidates(List<String> names, String search) {
-        String reduced;
-        List<String> result;
-
-        result = new ArrayList<>();
-        reduced = reduce(search);
-        for (String name : names) {
-            if (reduce(name).contains(reduced)) {
-                result.add(name);
+                msg = none ? "" : "Try 'stool open " + stageName + "' instead.";
             }
         }
-        return result;
-    }
 
-    private static String reduce(String name) {
-        StringBuilder builder;
-        char c;
-
-        builder = new StringBuilder();
-        for (int i = 0, max = name.length(); i < max; i++) {
-            c = name.charAt(i);
-            if (c >= '0' && c <= '9') {
-                builder.append(c);
-            } else if (c >= 'a' && c <= 'z') {
-                builder.append(c);
-            } else if (c >= 'A' && c <= 'Z') {
-                builder.append(Character.toLowerCase(c));
-            }
-        }
-        return builder.toString();
+        throw new ArgumentException("This command is no longer supported.\n" + msg);
     }
 }

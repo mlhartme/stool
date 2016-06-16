@@ -33,7 +33,7 @@ public class SelectTest {
     }
 
     private void check(List<String> expected, List<String> names, String search) {
-        assertEquals(expected, Select.candidates(names, search));
+        assertEquals(expected, Open.candidates(names, search));
     }
 
     private static List<String> lst(String ... elements) {

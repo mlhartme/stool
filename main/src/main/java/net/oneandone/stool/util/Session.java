@@ -323,34 +323,6 @@ public class Session {
         environment.setAll(environment(selected));
     }
 
-    public void backupEnvironment() {
-        String backupKey;
-        String backupValue;
-
-        for (String key : environment(null).keys()) {
-            backupKey = Environment.backupKey(key);
-            backupValue = environment.getOpt(backupKey);
-            if (backupValue != null) {
-                throw new ArgumentException("session already opened (environment variable already defined: " + backupKey + ")");
-            }
-            environment.set(backupKey, environment.getOpt(key));
-        }
-    }
-
-    public void resetEnvironment() {
-        Environment reset;
-        String backupKey;
-        String backupValue;
-
-        reset = environment(null);
-        for (String key : reset.keys()) {
-            backupKey = Environment.backupKey(key);
-            backupValue = environment.getOpt(backupKey);
-            environment.set(key, backupValue);
-            environment.set(backupKey, null);
-        }
-    }
-
     private FileNode cd;
 
     public void cd(FileNode dest) {
@@ -364,7 +336,6 @@ public class Session {
             lines = new ArrayList<>();
             for (String key : environment(null).keys()) {
                 lines.add(environment.code(key));
-                lines.add(environment.code(Environment.backupKey(key)));
             }
             if (cd != null) {
                 lines.add("cd '" + cd.getAbsolute() + "'");

@@ -120,9 +120,6 @@ public class Create extends OpeningCommand {
         Runtime.getRuntime().removeShutdownHook(cleanup);
 
         console.info.println("stage created: " + name);
-        if (session.getSelectedStageName() == null) {
-            session.backupEnvironment();
-        }
         session.select(stage);
         session.cd(stage.getDirectory());
     }

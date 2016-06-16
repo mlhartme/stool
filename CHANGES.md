@@ -1,6 +1,7 @@
 # Stool 3.4.0 
 
 * explace select by open/exit
+  * Added an open command; select yields an error message now
   * prompt no longer supports \= to reference the previous prompt
   * Renamed -invocation argument to -shell
 * Added support for git urls.

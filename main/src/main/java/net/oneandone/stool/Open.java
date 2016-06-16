@@ -47,9 +47,6 @@ public class Open extends OpeningCommand {
             throw new IOException("No such stage: " + stageName + suggestion());
         }
         console.verbose.println("open shell for stage " + stageName);
-        if (session.getSelectedStageName() == null) {
-            session.backupEnvironment();
-        }
         stage = Stage.load(session, backstage);
         session.select(stage);
         session.cd(stage.getDirectory());
