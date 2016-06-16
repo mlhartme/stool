@@ -76,7 +76,7 @@ public class Main extends Cli implements Command {
                 new InputLogStream(System.in, new Slf4jOutputStream(logging.logger("IN"), true)));
     }
 
-    /** hide invocation and svn arguments */
+    /** hide shell and svn arguments */
     private static String command(String[] args) {
         StringBuilder result;
         boolean options;
@@ -88,7 +88,7 @@ public class Main extends Cli implements Command {
             arg = args[i];
             if (options) {
                 switch (arg) {
-                    case "-invocation":
+                    case "-shell":
                         i++;
                         continue;
                     case "-svnuser":
@@ -125,8 +125,8 @@ public class Main extends Cli implements Command {
     @Option("exception")
     private boolean exception;
 
-    @Option("invocation")
-    private FileNode invocationFile;
+    @Option("shell")
+    private FileNode shellFile;
 
     public Main(Logging logging, String user, String command, Environment environment, Console console) {
         super(console);
@@ -295,7 +295,7 @@ public class Main extends Cli implements Command {
 
     private Session session() throws IOException {
         if (session == null) {
-            session = Session.load(logging, user, command, environment, console, invocationFile, svnuser, svnpassword);
+            session = Session.load(logging, user, command, environment, console, shellFile, svnuser, svnpassword);
         }
         return session;
     }

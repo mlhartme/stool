@@ -52,7 +52,7 @@ public abstract class SessionCommand implements Command {
         try (Lock lock = createLock("ports", globalLock)) {
             doInvoke();
         }
-        session.invocationFileUpdate();
+        session.shellFileUpdate();
     }
 
     protected Lock createLock(String lock, Mode mode) throws IOException {

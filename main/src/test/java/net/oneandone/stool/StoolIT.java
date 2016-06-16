@@ -146,7 +146,7 @@ public class StoolIT {
         OutputStream devNull;
         int result;
         Main main;
-        FileNode post;
+        FileNode shellFile;
         String command;
         Console console;
 
@@ -157,9 +157,9 @@ public class StoolIT {
         logging.logger("ITCOMMAND").info(command);
         main = new Main(logging, TESTUSER, command, system, console);
         System.out.print("  " + command);
-        post = world.getTemp().createTempFile();
-        result = main.run(Strings.append(new String[] { "-invocation", post.getAbsolute(), "-v" }, args));
-        post.deleteFile();
+        shellFile = world.getTemp().createTempFile();
+        result = main.run(Strings.append(new String[] { "-shell", shellFile.getAbsolute(), "-v" }, args));
+        shellFile.deleteFile();
         if (result == 0) {
             System.out.println();
         } else {

@@ -29,7 +29,6 @@ import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
-import net.oneandone.stool.scm.Subversion;
 import net.oneandone.stool.setup.JavaSetup;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.Stage;
@@ -68,10 +67,10 @@ import java.util.Map;
 
 public class Session {
     public static Session load(Logging logging, String user, String command, Environment environment, Console console,
-                               FileNode invocationFile, String svnuser, String svnpassword) throws IOException {
+                               FileNode shellFile, String svnuser, String svnpassword) throws IOException {
         Session session;
 
-        session = loadWithoutBackstageWipe(logging, user, command, environment, console, invocationFile, svnuser, svnpassword);
+        session = loadWithoutBackstageWipe(logging, user, command, environment, console, shellFile, svnuser, svnpassword);
 
         // Stale backstage wiping: how to detect backstages who's stage directory was removed.
         //
@@ -130,7 +129,7 @@ public class Session {
     }
 
     private static Session loadWithoutBackstageWipe(Logging logging, String user, String command, Environment environment, Console console,
-                                                  FileNode invocationFile, String svnuser, String svnpassword) throws IOException {
+                                                  FileNode shellFile, String svnuser, String svnpassword) throws IOException {
         ExtensionsFactory factory;
         Gson gson;
         FileNode lib;
@@ -143,7 +142,7 @@ public class Session {
         bin.checkDirectory();
         lib = locateLib(bin);
         result = new Session(factory, gson, logging, user, command, lib, bin, console, environment, StoolConfiguration.load(gson, lib),
-                Bedroom.loadOrCreate(gson, lib), invocationFile, svnuser, svnpassword);
+                Bedroom.loadOrCreate(gson, lib), shellFile, svnuser, svnpassword);
         result.selectedStageName = environment.getOpt(Environment.STOOL_SELECTED);
         return result;
     }
@@ -171,7 +170,7 @@ public class Session {
 
 
     /** may be null */
-    private final FileNode invocationFile;
+    private final FileNode shellFile;
     private final Credentials svnCredentials;
 
     private String selectedStageName;
@@ -186,7 +185,7 @@ public class Session {
 
     public Session(ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command, FileNode lib, FileNode bin,
                    Console console, Environment environment, StoolConfiguration configuration,
-                   Bedroom bedroom, FileNode invocationFile, String svnuser, String svnpassword) {
+                   Bedroom bedroom, FileNode shellFile, String svnuser, String svnpassword) {
         this.extensionsFactory = extensionsFactory;
         this.gson = gson;
         this.logging = logging;
@@ -201,7 +200,7 @@ public class Session {
         this.bedroom = bedroom;
         this.backstages = lib.join("backstages");
         this.selectedStageName = null;
-        this.invocationFile = invocationFile;
+        this.shellFile = shellFile;
         this.svnCredentials = new Credentials(svnuser, svnpassword);
         this.stageIdPrefix = FMT.format(LocalDate.now()) + "." + logging.id + ".";
         this.nextStageId = 0;
@@ -357,10 +356,10 @@ public class Session {
         cd = dest;
     }
 
-    public void invocationFileUpdate() throws IOException {
+    public void shellFileUpdate() throws IOException {
         List<String> lines;
 
-        if (invocationFile != null) {
+        if (shellFile != null) {
             lines = new ArrayList<>();
             for (String key : environment(null).keys()) {
                 lines.add(environment.code(key));
@@ -374,7 +373,7 @@ public class Session {
                     console.verbose.println("[env] " + line);
                 }
             }
-            invocationFile.writeLines(lines);
+            shellFile.writeLines(lines);
         }
     }
 
