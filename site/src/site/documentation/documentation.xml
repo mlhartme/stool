@@ -1853,7 +1853,7 @@
         stool (Stool Application file)
         chowntree.sh
         service-wrapper.sh
-        stool-function (Stool shell function)
+        bash.rc (for stool open)
         stool-complete (for bash completion)
       </programlisting>
     </para>

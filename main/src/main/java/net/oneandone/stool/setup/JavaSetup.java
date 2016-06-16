@@ -154,21 +154,14 @@ public class JavaSetup extends Cli implements Command {
                 console.info.println("cleaned previous lib: " + binLib);
             }
             binLib.mklink(directory.getAbsolute());
-            console.info.println("Done. To complete the installation:");
-            console.info.println("1. change your ~/.bashrc to");
-            console.info.println("       source " + directory.join("bin/stool-function").getAbsolute());
-            console.info.println("2. restart your shell");
+            console.info.println("Done.");
         } else {
             if (!batch) {
                 console.info.println("Ready to install Stool " + versionString(console.world) + " to " + directory.getAbsolute());
                 console.pressReturn();
             }
             standalone(console, true, directory, config);
-            console.info.println("Done. To complete the installation:");
-            console.info.println("1. add");
-            console.info.println("       source " + directory.join("bin/stool-function").getAbsolute());
-            console.info.println("   to your ~/.bashrc");
-            console.info.println("2. restart your shell");
+            console.info.println("Done.");
         }
     }
 

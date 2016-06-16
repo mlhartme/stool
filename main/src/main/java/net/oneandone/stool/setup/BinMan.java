@@ -95,20 +95,25 @@ public class BinMan {
 
     //--
 
-    // CAUTION: does not generate the lib symlink
-    private void bin() throws IOException {
-        final byte[] marker = "exit $?\n".getBytes(Settings.UTF_8);
+    public Map<String, String> variables() {
         Map<String, String> variables;
-        byte[] bytes;
-        int ofs;
 
         variables = new HashMap<>();
         variables.put("stool.bin", installedBin.getAbsolute());
         variables.put("man.path", "/usr/share/man".equals(installedMan.getAbsolute()) ? "" :
                 "# note that the empty entry instructs man to search locations.\n" +
                         "export MANPATH=" + installedMan.getAbsolute() + ":$MANPATH\n");
+        return variables;
+    }
+
+    // CAUTION: does not generate the lib symlink
+    private void bin() throws IOException {
+        final byte[] marker = "exit $?\n".getBytes(Settings.UTF_8);
+        byte[] bytes;
+        int ofs;
+
         Files.createStoolDirectory(console.verbose, nowBin);
-        Files.template(console.verbose, console.world.resource("templates/bin"), nowBin, variables);
+        Files.template(console.verbose, console.world.resource("templates/bin"), nowBin, variables());
 
         // strip launcher from application file
         if (withJar) {

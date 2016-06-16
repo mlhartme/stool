@@ -60,6 +60,7 @@ import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -356,7 +357,7 @@ public class Session {
         cd = dest;
     }
 
-    public void shellFileUpdate() throws IOException {
+    public void shellFileUpdate(String ... extraLines) throws IOException {
         List<String> lines;
 
         if (shellFile != null) {
@@ -373,6 +374,7 @@ public class Session {
                     console.verbose.println("[env] " + line);
                 }
             }
+            lines.addAll(Arrays.asList(extraLines));
             shellFile.writeLines(lines);
         }
     }
