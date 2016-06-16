@@ -13,7 +13,7 @@
 
 # Note: we need sssd to stop the stool service on stagehosts, otherwise sudo rejects unknown users
 
-STOOL="/usr/share/stool/stool-raw.sh -service"
+STOOL="/usr/share/stool/stool -service"
 . /lib/lsb/init-functions
 
 case "$1" in

@@ -109,10 +109,15 @@ public class BinMan {
                         "export MANPATH=" + installedMan.getAbsolute() + ":$MANPATH\n");
         Files.createStoolDirectory(console.verbose, nowBin);
         Files.template(console.verbose, console.world.resource("templates/bin"), nowBin, variables);
+
+        // strip launcher from application file
+        bytes = console.world.locateClasspathItem(getClass()).readBytes();
+        ofs = indexOf(bytes, marker) + marker.length;
+        try (OutputStream out = nowBin.join("stool").createAppendStream()) {
+            out.write(bytes, ofs, bytes.length - ofs);
+        }
+        nowBin.join("stool").setPermissions("rwxr-xr-x");
         if (withJar) {
-            // strip launcher from application file
-            bytes = console.world.locateClasspathItem(getClass()).readBytes();
-            ofs = indexOf(bytes, marker) + marker.length;
             try (OutputStream out = nowBin.join("stool.jar").createOutputStream()) {
                 out.write(bytes, ofs, bytes.length - ofs);
             }

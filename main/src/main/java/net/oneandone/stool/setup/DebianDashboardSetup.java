@@ -76,7 +76,7 @@ public class DebianDashboardSetup extends Debian {
     //--
 
     private String stool(String ... cmd) throws IOException {
-        return slurp(Strings.append(new String[] {"sudo", "-u", user, "/usr/share/stool/stool-raw.sh"}, cmd));
+        return slurp(Strings.append(new String[] {"sudo", "-u", user, "/usr/share/stool/stool"}, cmd));
     }
 
     private void properties() throws IOException {
