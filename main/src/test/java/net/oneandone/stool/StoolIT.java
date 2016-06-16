@@ -156,12 +156,12 @@ public class StoolIT {
         // CAUTION: don't use COMMAND here because history assumes unique ids for COMMAND log entries
         logging.logger("ITCOMMAND").info(command);
         main = new Main(logging, TESTUSER, command, system, console);
-        System.out.print("  Running: " + command);
+        System.out.print("  " + command);
         post = world.getTemp().createTempFile();
         result = main.run(Strings.append(new String[] { "-invocation", post.getAbsolute(), "-v" }, args));
         post.deleteFile();
         if (result == 0) {
-            System.out.println(" -> ok.");
+            System.out.println();
         } else {
             System.out.println(" -> failed: " + result);
             fail(command + " -> " + result);
