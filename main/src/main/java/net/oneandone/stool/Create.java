@@ -120,9 +120,6 @@ public class Create extends SessionCommand {
 
         Runtime.getRuntime().removeShutdownHook(cleanup);
 
-        if (!inShell()) {
-            openShell();
-        }
         console.info.println("stage created: " + name);
         session.select(stage);
         session.cd(stage.getDirectory());

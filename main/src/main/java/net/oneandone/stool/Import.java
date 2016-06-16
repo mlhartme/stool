@@ -67,9 +67,6 @@ public class Import extends SessionCommand {
         Stage stage;
         FileNode tmpBackstage;
 
-        if (inShell()) {
-            throw new IOException("Cannot open nested shells. Close the current shell first.");
-        }
         found = new ArrayList<>();
         if (includes.size() == 0) {
             includes.add((FileNode) console.world.getWorking());

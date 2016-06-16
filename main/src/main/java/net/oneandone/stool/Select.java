@@ -57,7 +57,7 @@ public class Select extends SessionCommand {
                 console.info.println("already selected: none");
             } else {
                 console.verbose.println("selecting none");
-                exitShell();
+                session.select(null);
             }
             return;
         }
@@ -72,9 +72,6 @@ public class Select extends SessionCommand {
         }
         console.verbose.println("selecting stage " + stageName);
         stage = Stage.load(session, backstage);
-        if (session.getSelectedStageName() == null) {
-            openShell();
-        }
         session.select(stage);
         session.cd(stage.getDirectory());
     }

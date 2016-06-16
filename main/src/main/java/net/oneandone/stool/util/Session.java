@@ -317,9 +317,10 @@ public class Session {
 
     public void select(Stage selected) {
         if (selected == null) {
-            throw new IllegalArgumentException();
+            selectedStageName = null;
+        } else {
+            selectedStageName = selected.getName();
         }
-        selectedStageName = selected.getName();
         environment.setAll(environment(selected));
     }
 

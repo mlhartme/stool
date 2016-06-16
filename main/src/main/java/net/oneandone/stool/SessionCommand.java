@@ -54,19 +54,31 @@ public abstract class SessionCommand implements Command {
 
     @Override
     public void invoke() throws Exception {
+        String wasSelected;
+
+        wasSelected = session.getSelectedStageName();
         try (Lock lock = createLock("ports", globalLock)) {
             doInvoke();
+        }
+        if (wasSelected == null) {
+            if (session.getSelectedStageName() != null) {
+                openShell();
+            }
+        } else {
+            if (session.getSelectedStageName() == null) {
+                exitShell();
+            }
         }
         session.shellFileUpdate(extraLines);
     }
 
     public abstract void doInvoke() throws Exception;
 
-    protected void openShell() {
+    private void openShell() {
         addExtraLines("bash -rcfile " + session.environment.stoolBin(world).join("bash.rc").getAbsolute());
     }
 
-    protected void exitShell() {
+    private void exitShell() {
         addExtraLines("exit");
     }
 
