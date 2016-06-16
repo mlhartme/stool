@@ -62,7 +62,7 @@ stool() {
         cp="$cp:$jar"
       fi
     done
-    STOOL_BIN=$bin $java $STOOL_OPTS -cp $cp net.oneandone.stool.Main $interactiveArgs "$@"
+    $java $STOOL_OPTS -cp $cp net.oneandone.stool.Main $interactiveArgs "$@"
     result=$?
     if [ -f $STOOL_SHELL_FILE ] ; then
       . $STOOL_SHELL_FILE

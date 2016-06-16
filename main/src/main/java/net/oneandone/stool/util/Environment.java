@@ -40,7 +40,6 @@ public class Environment {
      */
     private static final String EXPORTED = "EXPORTED_";
 
-    private static final String STOOL_BIN = "STOOL_BIN";
     public static final String STOOL_SELECTED = "STOOL_SELECTED";
     // TODO: dump when pws uses stagehost instead
     public static final String MACHINE = "MACHINE";
@@ -179,12 +178,17 @@ public class Environment {
         return Collections.unmodifiableMap(properties);
     }
 
+    private FileNode lazyBin = null;
+
     public FileNode stoolBin(World world) {
-        return world.file(get(STOOL_BIN));
+        if (lazyBin == null) {
+            lazyBin = world.locateClasspathItem(getClass()).getParent();
+        }
+        return lazyBin;
     }
 
     public void setStoolBin(FileNode bin) {
-        set(STOOL_BIN, bin.getAbsolute());
+        lazyBin = bin;
     }
 
     //-- proxyOpts
