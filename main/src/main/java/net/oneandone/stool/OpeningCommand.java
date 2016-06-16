@@ -16,14 +16,9 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.Value;
-import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class OpeningCommand extends SessionCommand {
     public OpeningCommand(Session session) {
@@ -36,11 +31,7 @@ public abstract class OpeningCommand extends SessionCommand {
             throw new IOException("This command opens a new shell, exit the current shell first.");
         }
         doOpening();
-    }
-
-    @Override
-    protected String[] extraShellLines() {
-        return new String[] { "bash -rcfile " + session.environment.stoolBin(world).join("bash.rc").getAbsolute() };
+        openShell();
     }
 
     public abstract void doOpening() throws Exception;

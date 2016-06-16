@@ -42,7 +42,6 @@ public class Remove extends StageCommand {
         super(session, Mode.EXCLUSIVE, Mode.NONE, Mode.NONE);
         this.batch = batch;
         this.force = force;
-        this.removedSelected = false;
     }
 
     @Override
@@ -66,14 +65,9 @@ public class Remove extends StageCommand {
             console.info.println("Removed " + stage.getDirectory().getAbsolute());
         }
         if (session.isSelected(stage)) {
-            removedSelected = true;
+            exitShell();
         }
         session.bedroom.remove(session.gson, stage.getName());
         session.cd(stage.getDirectory().getParent());
-    }
-
-    @Override
-    public String[] extraShellLines() {
-        return removedSelected ? new String[] { "exit" } : new String[]{};
     }
 }

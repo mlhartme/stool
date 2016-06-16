@@ -329,7 +329,7 @@ public class Session {
         cd = dest;
     }
 
-    public void shellFileUpdate(String ... extraLines) throws IOException {
+    public void shellFileUpdate(List<String> extraLines) throws IOException {
         List<String> lines;
 
         if (shellFile != null) {
@@ -345,7 +345,7 @@ public class Session {
                     console.verbose.println("[env] " + line);
                 }
             }
-            lines.addAll(Arrays.asList(extraLines));
+            lines.addAll(extraLines);
             shellFile.writeLines(lines);
         }
     }

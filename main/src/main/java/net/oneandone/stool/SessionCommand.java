@@ -30,18 +30,23 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public abstract class SessionCommand implements Command {
     protected final Console console;
     protected final World world;
     protected final Session session;
     private final Mode globalLock;
+    private final List<String> extraLines;
 
     public SessionCommand(Session session, Mode globalLock) {
         this.console = session.console;
         this.world = console.world;
         this.session = session;
         this.globalLock = globalLock;
+        this.extraLines = new ArrayList<>();
     }
 
     @Option("nolock")
@@ -52,11 +57,21 @@ public abstract class SessionCommand implements Command {
         try (Lock lock = createLock("ports", globalLock)) {
             doInvoke();
         }
-        session.shellFileUpdate(extraShellLines());
+        session.shellFileUpdate(extraLines);
     }
 
-    protected String[] extraShellLines() {
-        return new String[] {};
+    public abstract void doInvoke() throws Exception;
+
+    protected void openShell() {
+        addExtraLines("bash -rcfile " + session.environment.stoolBin(world).join("bash.rc").getAbsolute());
+    }
+
+    protected void exitShell() {
+        addExtraLines("exit");
+    }
+
+    private void addExtraLines(String line) {
+        extraLines.add(line);
     }
 
     protected Lock createLock(String lock, Mode mode) throws IOException {
@@ -66,8 +81,6 @@ public abstract class SessionCommand implements Command {
     public boolean inShell() {
         return session.getSelectedStageName() != null;
     }
-
-    public abstract void doInvoke() throws Exception;
 
     protected void run(Launcher l, Node output) throws IOException {
         message(l, output instanceof FileNode ? " > " + output : "");
