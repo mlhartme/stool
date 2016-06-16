@@ -5,14 +5,6 @@ export STOOL_SHELL_FILE=${{stool.bin}}/lib/run/users/.stool-shell-file-$$-$(date
 ${{man.path}}
 
 stool() {
-  if [ "$1" = "-service" ] ; then
-    # don't use shell file file because PS1 would be empty and USER is undefined
-    local interactiveArgs=""
-    shift
-  else
-    local interactiveArgs="-shell $STOOL_SHELL_FILE"
-  fi
-
   # Special variable handling: they are private and you cannot export them on Mac OS.
   # We make them available to the java code under the EXPORTED_ prefix
   export EXPORTED_PS1="$PS1"
@@ -62,7 +54,7 @@ stool() {
         cp="$cp:$jar"
       fi
     done
-    $java $STOOL_OPTS -cp $cp net.oneandone.stool.Main $interactiveArgs "$@"
+    $java $STOOL_OPTS -cp $cp net.oneandone.stool.Main -shell $STOOL_SHELL_FILE "$@"
     result=$?
     if [ -f $STOOL_SHELL_FILE ] ; then
       . $STOOL_SHELL_FILE
