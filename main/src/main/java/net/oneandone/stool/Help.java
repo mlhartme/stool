@@ -18,11 +18,14 @@ package net.oneandone.stool;
 import net.oneandone.sushi.cli.ArgumentException;
 import net.oneandone.sushi.cli.Command;
 import net.oneandone.sushi.cli.Remaining;
+import net.oneandone.sushi.fs.file.FileNode;
 
 public class Help implements Command {
     private String command = null;
+    private final FileNode manpath;
 
-    public Help() {
+    public Help(FileNode manpath) {
+        this.manpath = manpath;
     }
 
     @Remaining
@@ -39,6 +42,7 @@ public class Help implements Command {
         Process process;
 
         builder = new ProcessBuilder();
+        builder.environment().put("MANPATH", manpath.getAbsolute());
         builder.directory(null /* use current directory */);
         builder.command("man", command == null ? "stool" : "stool-" + command);
         builder.inheritIO();

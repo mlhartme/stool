@@ -31,7 +31,6 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public abstract class SessionCommand implements Command {
@@ -39,14 +38,12 @@ public abstract class SessionCommand implements Command {
     protected final World world;
     protected final Session session;
     private final Mode globalLock;
-    private final List<String> extraLines;
 
     public SessionCommand(Session session, Mode globalLock) {
         this.console = session.console;
         this.world = console.world;
         this.session = session;
         this.globalLock = globalLock;
-        this.extraLines = new ArrayList<>();
     }
 
     @Option("nolock")
@@ -55,18 +52,20 @@ public abstract class SessionCommand implements Command {
     @Override
     public void invoke() throws Exception {
         String wasSelected;
+        List<String> extraLines;
 
         wasSelected = session.getSelectedStageName();
+        extraLines = new ArrayList<>();
         try (Lock lock = createLock("ports", globalLock)) {
             doInvoke();
         }
         if (wasSelected == null) {
             if (session.getSelectedStageName() != null) {
-                openShell();
+                extraLines.add("bash -rcfile " + session.environment.stoolBin(world).join("bash.rc").getAbsolute());
             }
         } else {
             if (session.getSelectedStageName() == null) {
-                exitShell();
+                extraLines.add("exit");
             }
         }
         session.shellFileUpdate(extraLines);
@@ -74,24 +73,8 @@ public abstract class SessionCommand implements Command {
 
     public abstract void doInvoke() throws Exception;
 
-    private void openShell() {
-        addExtraLines("bash -rcfile " + session.environment.stoolBin(world).join("bash.rc").getAbsolute());
-    }
-
-    private void exitShell() {
-        addExtraLines("exit");
-    }
-
-    private void addExtraLines(String line) {
-        extraLines.add(line);
-    }
-
     protected Lock createLock(String lock, Mode mode) throws IOException {
         return session.lockManager.acquire(lock, console, noLock ? Mode.NONE : mode);
-    }
-
-    public boolean inShell() {
-        return session.getSelectedStageName() != null;
     }
 
     protected void run(Launcher l, Node output) throws IOException {

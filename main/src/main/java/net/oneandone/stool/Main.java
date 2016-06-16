@@ -280,7 +280,11 @@ public class Main extends Cli implements Command {
     @Override
     @Child("help")
     public Command help() {
-        return new Help();
+        try {
+            return new Help(session().lib.join("man"));
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     @Override
