@@ -57,7 +57,7 @@ public class BinMan {
 
     private final Console console;
 
-    /** to create bin directory with a stool jar. False in tests, when stool.jar is not in classpath */
+    /** to create bin directory with a stool file. False in tests because the classes are not yet available */
     private final boolean withJar;
 
     // locations when installed on target machine
@@ -77,7 +77,7 @@ public class BinMan {
 
     public String version() throws IOException {
         try {
-            return nowBin.join("stool.jar").openJar().join("stool.version").readString().trim();
+            return nowBin.join("stool").openJar().join("stool.version").readString().trim();
         } catch (IOException e) {
             throw new IOException("unknown version of bin directory: " + nowBin, e);
         }
@@ -118,9 +118,6 @@ public class BinMan {
                 out.write(bytes, ofs, bytes.length - ofs);
             }
             nowBin.join("stool").setPermissions("rwxr-xr-x");
-            try (OutputStream out = nowBin.join("stool.jar").createOutputStream()) {
-                out.write(bytes, ofs, bytes.length - ofs);
-            }
         }
     }
 

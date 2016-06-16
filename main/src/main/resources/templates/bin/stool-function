@@ -47,7 +47,7 @@ stool() {
     fi
   else
     if [ -z $STOOL_SOURCE ] ; then
-      cp="$bin/stool.jar"
+      cp="$bin/stool"
     else
       # for stool development
       cp=$STOOL_SOURCE/target/setup-stool
