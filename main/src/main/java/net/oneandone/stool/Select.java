@@ -33,7 +33,7 @@ public class Select extends SessionCommand {
     }
 
     @Override
-    public void doInvoke() throws Exception {
+    public void doRun() throws Exception {
         FileNode backstage;
         Stage stage;
 

@@ -58,7 +58,7 @@ public class Status extends StageCommand {
     }
 
     @Override
-    public void doInvoke(Stage stage) throws Exception {
+    public void doRun(Stage stage) throws Exception {
         List<Field> fields;
         Map<Field, Object> status;
         int width;

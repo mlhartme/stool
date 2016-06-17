@@ -32,7 +32,7 @@ public class Refresh extends StageCommand {
     }
 
     @Override
-    public void doInvoke(Stage stage) throws Exception {
+    public void doRun(Stage stage) throws Exception {
         if (restore) {
             stage.restoreFromBackup(console);
         } else {
@@ -51,7 +51,7 @@ public class Refresh extends StageCommand {
             stage.executeRefresh(console);
         }
         if (build) {
-            new Build(session).doInvoke(stage);
+            new Build(session).doRun(stage);
         }
     }
 }

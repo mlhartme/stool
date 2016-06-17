@@ -50,7 +50,7 @@ public class Port extends StageCommand {
     }
 
     @Override
-    public void doInvoke(Stage stage) throws Exception {
+    public void doRun(Stage stage) throws Exception {
         session.pool().allocate(stage, ports);
     }
 }

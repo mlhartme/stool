@@ -57,7 +57,7 @@ public abstract class SessionCommand {
         wasSelected = session.getSelectedStageName();
         extraLines = new ArrayList<>();
         try (Lock lock = createLock("ports", globalLock)) {
-            doInvoke();
+            doRun();
         }
         if (wasSelected == null) {
             if (session.getSelectedStageName() != null) {
@@ -71,7 +71,7 @@ public abstract class SessionCommand {
         session.shellFileUpdate(extraLines);
     }
 
-    public abstract void doInvoke() throws Exception;
+    public abstract void doRun() throws Exception;
 
     protected Lock createLock(String lock, Mode mode) throws IOException {
         return session.lockManager.acquire(lock, console, nolock ? Mode.NONE : mode);

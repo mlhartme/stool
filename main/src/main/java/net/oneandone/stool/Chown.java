@@ -34,7 +34,7 @@ public class Chown extends StageCommand {
     }
 
     @Override
-    public void doInvoke(Stage stage) throws Exception {
+    public void doRun(Stage stage) throws Exception {
         String user;
 
         user = userArgument != null ? userArgument : session.user;

@@ -65,7 +65,7 @@ public class Start extends StageCommand {
     }
 
     @Override
-    public void doInvoke(Stage stage) throws Exception {
+    public void doRun(Stage stage) throws Exception {
         FileNode download;
         Ports ports;
 

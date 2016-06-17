@@ -87,7 +87,7 @@ public abstract class StageCommand extends SessionCommand {
     }
 
     @Override
-    public void doInvoke() throws Exception {
+    public void doRun() throws Exception {
         int width;
         List<Stage> lst;
         EnumerationFailed failures;
@@ -222,31 +222,31 @@ public abstract class StageCommand extends SessionCommand {
         if ((autoRestart || autoStop) && stage.state() == Stage.State.UP) {
             postStart = autoRestart;
             Status.tomcatStatus(stage, status);
-            new Stop(session, false).doInvoke(stage);
+            new Stop(session, false).doRun(stage);
         } else {
             postStart = false;
         }
         if ((autoRechown || autoChown) && !stage.owner().equals(session.user)) {
             postChown = autoRechown ? stage.owner() : null;
-            new Chown(session, true, session.user).doInvoke(stage);
+            new Chown(session, true, session.user).doRun(stage);
         } else {
             postChown = null;
         }
 
-        doInvoke(stage);
+        doRun(stage);
 
         if (postChown != null) {
             // do NOT call session.chown to get property locking
-            new Chown(session, true, postChown).doInvoke(stage);
+            new Chown(session, true, postChown).doRun(stage);
         }
         if (postStart) {
             debug = status.get(Status.Field.DEBUGGER) != null;
             suspend = (Boolean) status.get(Status.Field.SUSPEND);
-            new Start(session, debug, suspend).doInvoke(stage);
+            new Start(session, debug, suspend).doRun(stage);
         }
     }
 
-    public abstract void doInvoke(Stage stage) throws Exception;
+    public abstract void doRun(Stage stage) throws Exception;
 
 
     //--

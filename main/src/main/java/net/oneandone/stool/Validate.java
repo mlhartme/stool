@@ -53,12 +53,12 @@ public class Validate extends StageCommand {
     }
 
     @Override
-    public void doInvoke() throws Exception {
+    public void doRun() throws Exception {
         processes = Processes.create(world);
         report = new Report();
         dns();
         locks();
-        super.doInvoke();
+        super.doRun();
         if (report.isEmpty()) {
             console.info.println("validate ok");
         } else {
@@ -114,7 +114,7 @@ public class Validate extends StageCommand {
     }
 
     @Override
-    public void doInvoke(Stage stage) throws Exception {
+    public void doRun(Stage stage) throws Exception {
         tomcat(stage);
         until(stage);
     }
@@ -133,7 +133,7 @@ public class Validate extends StageCommand {
         if (repair) {
             if (stage.runningTomcat() != null) {
                 try {
-                    new Stop(session, false).doInvoke(stage);
+                    new Stop(session, false).doRun(stage);
                     report.user(stage, "expired stage has been stopped");
                 } catch (Exception e) {
                     report.user(stage, "expired stage failed to stop: " + e.getMessage());
@@ -146,9 +146,9 @@ public class Validate extends StageCommand {
                         // CAUTION: do not place this behind "remove", stage.owner() would fail
                         report.user(stage, "removing expired stage");
                         if (!stage.owner().equals(session.user)) {
-                            new Chown(session, true, null).doInvoke(stage);
+                            new Chown(session, true, null).doRun(stage);
                         }
-                        new Remove(session, true, true).doInvoke(stage);
+                        new Remove(session, true, true).doRun(stage);
                     } catch (Exception e) {
                         report.user(stage, "failed to remove expired stage: " + e.getMessage());
                         e.printStackTrace(console.verbose);

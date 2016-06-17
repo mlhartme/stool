@@ -52,16 +52,16 @@ public class SystemStartStop extends StageCommand {
     }
 
     @Override
-    public void doInvoke(Stage stage) throws Exception {
+    public void doRun(Stage stage) throws Exception {
         if (start) {
             if (stage.isSystem() || stage.state() == Stage.State.SLEEPING) {
                 session.console.info.println("[" + stage.getName() + "]");
-                new Start(stage.session, false, false).doInvoke(stage);
+                new Start(stage.session, false, false).doRun(stage);
             }
         } else {
             if (stage.state() == Stage.State.UP) {
                 session.console.info.println("[" + stage.getName() + "]");
-                new Stop(stage.session, true).doInvoke(stage);
+                new Stop(stage.session, true).doRun(stage);
             }
         }
     }

@@ -30,14 +30,14 @@ public class Restart extends StageCommand {
     }
 
     @Override
-    public void doInvoke(Stage stage) throws Exception {
+    public void doRun(Stage stage) throws Exception {
         if (stage.state() == Stage.State.UP || stage.state() == Stage.State.WORKING) {
-            new Stop(session, false).doInvoke(stage);
+            new Stop(session, false).doRun(stage);
         } else {
             console.info.println("Tomcat is not running - starting a new instance.");
         }
 
-        new Start(session, debug, suspend).doInvoke(stage);
+        new Start(session, debug, suspend).doRun(stage);
         if (session.bedroom.stages().contains(stage.getName())) {
             console.info.println("stopped sleeping");
         }

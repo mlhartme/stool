@@ -60,7 +60,7 @@ public class History extends StageCommand {
     }
 
     @Override
-    public void doInvoke(Stage s) throws Exception {
+    public void doRun(Stage s) throws Exception {
         String stageId;
         int counter;
         int remove;

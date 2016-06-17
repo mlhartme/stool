@@ -38,7 +38,7 @@ public class Remove extends StageCommand {
     }
 
     @Override
-    public void doInvoke(Stage stage) throws Exception {
+    public void doRun(Stage stage) throws Exception {
         stage.checkNotUp();
         stage.checkOwnership();
         if (!force) {

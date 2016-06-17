@@ -76,7 +76,7 @@ public class Config extends StageCommand {
     }
 
     @Override
-    public void doInvoke(Stage stage) throws Exception {
+    public void doRun(Stage stage) throws Exception {
         StageConfiguration configuration;
         boolean error;
         Property prop;

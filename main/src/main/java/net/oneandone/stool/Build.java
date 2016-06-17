@@ -27,7 +27,7 @@ public class Build extends StageCommand {
     }
 
     @Override
-    public void doInvoke(Stage stage) throws Exception {
+    public void doRun(Stage stage) throws Exception {
         String command;
         Launcher launcher;
 
