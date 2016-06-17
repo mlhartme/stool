@@ -48,7 +48,7 @@ stool() {
         cp="$cp:$jar"
       fi
     done
-    $java $STOOL_OPTS -cp $cp net.oneandone.stool.Main -shell $STOOL_SHELL_FILE "$@"
+    $java $STOOL_OPTS -Dstool.shell=$STOOL_SHELL_FILE -cp $cp net.oneandone.stool.cli.Main "$@"
     result=$?
     if [ -f $STOOL_SHELL_FILE ] ; then
       . $STOOL_SHELL_FILE

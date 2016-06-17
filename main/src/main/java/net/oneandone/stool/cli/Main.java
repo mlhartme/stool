@@ -36,14 +36,18 @@ public class Main {
     public static int doRun(String[] args) throws IOException {
         String user;
         World world;
+        String shellFile;
         Environment environment;
         Cli cli;
         FileNode lib;
         Logging logging;
         String command;
         Console console;
+        Globals globals;
 
         world = World.create();
+        // TODO: 1 cannot pass this as an argument because inline cannot detect the command with it ...
+        shellFile = System.getProperty("stool.shell");
         user = System.getProperty("user.name");
         environment = Environment.loadSystem();
         lib = Session.locateLib(environment.stoolBin(world));
@@ -53,16 +57,15 @@ public class Main {
         logging.logger("COMMAND").info(command);
         console = console(logging, System.out, System.err);
 
-        cli = new Cli();
+        globals = new Globals(logging, user, command, environment, console, world, shellFile == null ? null : world.file(shellFile));
+        cli = new Cli(globals::handleException);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
         cli.begin(console, "-v -e  { setVerbose(v) setStacktraces(e) }");
-           cli.begin("globals", new Globals(logging, user, command, environment, console, world),
-                     "-svnuser -svnpassword -exception -shell " +
-                            "{ setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) setShellFile(shell) }");
+           cli.begin("globals", globals,  "-svnuser -svnpassword -exception { setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) }");
               cli.begin("globals.session", "");
                 cli.addDefault(Help.class, "help command?=null");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
-                    cli.add(Create.class, "create -quiet -name url directory property* { property*(property) }");
+                    cli.add(Create.class, "create -quiet -name=null url directory?=null property* { property*(property) }");
                     cli.add(Import.class, "import -name=null -max=40 dir* { dirs*(dir) setMax(max) setName(name) }");
                     cli.add(Select.class, "select name?=null");
                     cli.base(StageCommand.class, "-autorechown -autochown -autorestart -autostop -stage=null -all -fail "

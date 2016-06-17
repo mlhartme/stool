@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.cli;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
@@ -36,13 +37,14 @@ public class Globals {
     public String svnpassword;
     public FileNode shellFile;
 
-    public Globals(Logging logging, String user, String command, Environment environment, Console console, World world) {
+    public Globals(Logging logging, String user, String command, Environment environment, Console console, World world, FileNode shellFile) {
         this.logging = logging;
         this.user = user;
         this.command = command;
         this.environment = environment;
         this.console = console;
         this.world = world;
+        this.shellFile = shellFile;
     }
 
     public void setSvnuser(String svnuser) {
@@ -56,10 +58,6 @@ public class Globals {
             throw new RuntimeException("intentional exception");
         }
     }
-    public void setShellFile(FileNode file) {
-        this.shellFile = file;
-    }
-
 
     public Session session() throws IOException {
         return Session.load(logging, user, command, environment, console, world, shellFile, svnuser, svnpassword);
@@ -68,11 +66,13 @@ public class Globals {
     //--
 
     public int handleException(Throwable throwable) {
-        try {
-            session().reportException("RuntimeException", throwable);
-        } catch (IOException e) {
-            console.error.println("failed to report runtine exception: " + e.getMessage());
-            e.printStackTrace(console.verbose);
+        if ((throwable instanceof RuntimeException) && (!(throwable instanceof ArgumentException))) {
+            try {
+                session().reportException("RuntimeException", throwable);
+            } catch (IOException e) {
+                console.error.println("failed to report runtine exception: " + e.getMessage());
+                e.printStackTrace(console.verbose);
+            }
         }
         return console.handleException(throwable);
     }
