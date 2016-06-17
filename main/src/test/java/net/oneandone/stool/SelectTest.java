@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.cli.Select;
 import org.junit.Test;
 
 import java.util.ArrayList;

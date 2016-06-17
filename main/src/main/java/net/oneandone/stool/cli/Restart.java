@@ -13,30 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool;
+package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.launcher.Launcher;
-import net.oneandone.sushi.util.Separator;
 
-public class Build extends StageCommand {
-    public Build(Session session) {
-        super(session, Mode.NONE, Mode.SHARED, Mode.EXCLUSIVE);
+public class Restart extends StageCommand {
+    private final boolean debug;
+    private final boolean suspend;
+
+    public Restart(Session session, boolean debug, boolean suspend) {
+        super(session, Mode.NONE, Mode.NONE, Mode.NONE);
+        this.debug = debug;
+        this.suspend = suspend;
     }
 
     @Override
     public void doRun(Stage stage) throws Exception {
-        String command;
-        Launcher launcher;
+        if (stage.state() == Stage.State.UP || stage.state() == Stage.State.WORKING) {
+            new Stop(session, false).doRun(stage);
+        } else {
+            console.info.println("Tomcat is not running - starting a new instance.");
+        }
 
-        stage.checkOwnership();
-        stage.checkNotUp();
-        command = stage.getBuild();
-        console.info.println("[" + stage.getDirectory() + "] " + command);
-        launcher = stage.launcher();
-        launcher.args(Separator.SPACE.split(command));
-        launcher.exec(console.info);
+        new Start(session, debug, suspend).doRun(stage);
+        if (session.bedroom.stages().contains(stage.getName())) {
+            console.info.println("stopped sleeping");
+        }
     }
 }

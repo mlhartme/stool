@@ -16,9 +16,9 @@ APP="$APP/$NAME"
 PATH=$PATH
 JAVA=java
 OPTIONS=-Djava.awt.headless=true
-MAIN=net.oneandone.stool.Main
+MAIN=net.oneandone.stool.cli.Main
 
-SHELL_FILE=/tmp/.shell-file-$$-$(date +%N)
+SHELL_FILE=/tmp/.shell-file-$$-$(date +%s)
 
 $JAVA $OPTIONS $STOOL_OPTS -cp "$APP" $MAIN -shell $SHELL_FILE "$@"
 result=$?

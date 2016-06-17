@@ -13,44 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool;
+package net.oneandone.stool.cli;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.NodeAlreadyExistsException;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.io.IOException;
+public class Move extends StageCommand {
+    private FileNode dest;
 
-public class Rename extends StageCommand {
-    private final String name;
-
-    public Rename(Session session, String name) {
+    public Move(Session session, FileNode dest) {
         super(session, Mode.EXCLUSIVE, Mode.NONE, Mode.NONE);
-        this.name = name;
+        this.dest = dest;
     }
 
     @Override
     public void doRun(Stage stage) throws Exception {
-        boolean selected;
-        FileNode newWrapper;
-
         stage.checkOwnership();
         stage.checkNotUp();
 
-        selected = session.isSelected(stage);
-        stage.checkOwnership();
-        Stage.checkName(name);
-        newWrapper = session.backstages.join(name);
-        try {
-            newWrapper.checkNotExists();
-        } catch (NodeAlreadyExistsException e) {
-            throw new IOException("A stage with that name already exists. Please choose an other name.");
+        if (dest.exists()) {
+            dest.checkDirectory();
+            dest = dest.join(stage.getDirectory().getName());
+            dest.checkNotExists();
+        } else {
+            dest.getParent().checkDirectory();
         }
-        stage.backstage.move(newWrapper);
-        stage.backstage = newWrapper;
-        if (selected) {
+        if (dest.hasAnchestor(stage.getDirectory())) {
+            throw new ArgumentException("you cannot move a stage into a subdirectory of itself");
+        }
+
+        stage.move(dest);
+        console.info.println("done");
+        if (session.isSelected(stage)) {
             session.select(stage);
         }
     }

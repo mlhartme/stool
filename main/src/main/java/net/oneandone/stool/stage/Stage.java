@@ -18,7 +18,7 @@ package net.oneandone.stool.stage;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.stool.Start;
+import net.oneandone.stool.cli.Start;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.extensions.Extensions;

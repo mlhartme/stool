@@ -13,42 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool;
+package net.oneandone.stool.cli;
 
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Separator;
 
-public class Move extends StageCommand {
-    private FileNode dest;
-
-    public Move(Session session, FileNode dest) {
-        super(session, Mode.EXCLUSIVE, Mode.NONE, Mode.NONE);
-        this.dest = dest;
+public class Build extends StageCommand {
+    public Build(Session session) {
+        super(session, Mode.NONE, Mode.SHARED, Mode.EXCLUSIVE);
     }
 
     @Override
     public void doRun(Stage stage) throws Exception {
+        String command;
+        Launcher launcher;
+
         stage.checkOwnership();
         stage.checkNotUp();
-
-        if (dest.exists()) {
-            dest.checkDirectory();
-            dest = dest.join(stage.getDirectory().getName());
-            dest.checkNotExists();
-        } else {
-            dest.getParent().checkDirectory();
-        }
-        if (dest.hasAnchestor(stage.getDirectory())) {
-            throw new ArgumentException("you cannot move a stage into a subdirectory of itself");
-        }
-
-        stage.move(dest);
-        console.info.println("done");
-        if (session.isSelected(stage)) {
-            session.select(stage);
-        }
+        command = stage.getBuild();
+        console.info.println("[" + stage.getDirectory() + "] " + command);
+        launcher = stage.launcher();
+        launcher.args(Separator.SPACE.split(command));
+        launcher.exec(console.info);
     }
 }

@@ -200,7 +200,7 @@
                 -keep public class net.oneandone.stool.util.Environment {
                 public static void main(java.lang.String[]);
                 }
-                -keep public class net.oneandone.stool.Main {
+                -keep public class net.oneandone.stool.cli.Main {
                 public static void main(java.lang.String[]);
                 }
                 -keep public class net.oneandone.stool.setup.BinMan {

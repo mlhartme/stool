@@ -17,6 +17,7 @@ package net.oneandone.stool;
 
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
+import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.setup.JavaSetup;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
