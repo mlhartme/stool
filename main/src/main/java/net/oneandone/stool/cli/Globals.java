@@ -61,7 +61,7 @@ public class Globals {
     }
 
 
-    private Session session() throws IOException {
+    public Session session() throws IOException {
         return Session.load(logging, user, command, environment, console, world, shellFile, svnuser, svnpassword);
     }
 

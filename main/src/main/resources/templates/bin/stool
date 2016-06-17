@@ -20,7 +20,8 @@ MAIN=net.oneandone.stool.cli.Main
 
 SHELL_FILE=/tmp/.shell-file-$$-$(date +%s)
 
-$JAVA $OPTIONS $STOOL_OPTS -cp "$APP" $MAIN -shell $SHELL_FILE "$@"
+# TODO -shell $SHELL_FILE
+$JAVA $OPTIONS $STOOL_OPTS -cp "$APP" $MAIN "$@"
 result=$?
 
 if [ -f $SHELL_FILE ] ; then
