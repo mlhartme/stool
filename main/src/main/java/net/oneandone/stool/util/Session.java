@@ -21,7 +21,6 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.EnumerationFailed;
-import net.oneandone.stool.Globals;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
@@ -67,11 +66,11 @@ import java.util.List;
 import java.util.Map;
 
 public class Session {
-    public static Session load(Globals globals, String user, String command, Environment environment, Console console, World world,
+    public static Session load(Logging logging, String user, String command, Environment environment, Console console, World world,
                                FileNode shellFile, String svnuser, String svnpassword) throws IOException {
         Session session;
 
-        session = loadWithoutBackstageWipe(globals, user, command, environment, console, world, shellFile, svnuser, svnpassword);
+        session = loadWithoutBackstageWipe(logging, user, command, environment, console, world, shellFile, svnuser, svnpassword);
 
         // Stale backstage wiping: how to detect backstages who's stage directory was removed.
         //
@@ -129,7 +128,7 @@ public class Session {
         return (FileNode) bin.join("lib").resolveLink();
     }
 
-    private static Session loadWithoutBackstageWipe(Globals globals, String user, String command, Environment environment, Console console,
+    private static Session loadWithoutBackstageWipe(Logging logging, String user, String command, Environment environment, Console console,
                                                   World world, FileNode shellFile, String svnuser, String svnpassword) throws IOException {
         ExtensionsFactory factory;
         Gson gson;
@@ -142,7 +141,7 @@ public class Session {
         bin = environment.stoolBin(world);
         bin.checkDirectory();
         lib = locateLib(bin);
-        result = new Session(globals, factory, gson, user, command, lib, bin, console, world, environment, StoolConfiguration.load(gson, lib),
+        result = new Session(factory, gson, logging, user, command, lib, bin, console, world, environment, StoolConfiguration.load(gson, lib),
                 Bedroom.loadOrCreate(gson, lib), shellFile, svnuser, svnpassword);
         result.selectedStageName = environment.getOpt(Environment.STOOL_SELECTED);
         return result;
@@ -151,8 +150,6 @@ public class Session {
     private static final int MEM_RESERVED_OS = 500;
 
     //--
-
-    public final Globals globals;
 
     public final ExtensionsFactory extensionsFactory;
     public final Gson gson;
@@ -187,14 +184,13 @@ public class Session {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd");
 
-    public Session(Globals globals, ExtensionsFactory extensionsFactory, Gson gson, String user, String command,
+    public Session(ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command,
                    FileNode lib, FileNode bin,
                    Console console, World world, Environment environment, StoolConfiguration configuration,
                    Bedroom bedroom, FileNode shellFile, String svnuser, String svnpassword) {
-        this.globals = globals;
         this.extensionsFactory = extensionsFactory;
         this.gson = gson;
-        this.logging = globals.logging;
+        this.logging = logging;
         this.user = user;
         this.command = command;
         this.lib = lib;

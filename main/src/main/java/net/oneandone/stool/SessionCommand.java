@@ -36,12 +36,18 @@ public abstract class SessionCommand {
     protected final World world;
     protected final Session session;
     private final Mode globalLock;
+    private boolean nolock;
 
     public SessionCommand(Session session, Mode globalLock) {
         this.console = session.console;
         this.world = session.world;
         this.session = session;
         this.globalLock = globalLock;
+        this.nolock = false;
+    }
+
+    public void setNoLock(boolean nolock) {
+        this.nolock = nolock;
     }
 
     public void run() throws Exception {
@@ -68,7 +74,7 @@ public abstract class SessionCommand {
     public abstract void doInvoke() throws Exception;
 
     protected Lock createLock(String lock, Mode mode) throws IOException {
-        return session.lockManager.acquire(lock, console, session.globals.nolock ? Mode.NONE : mode);
+        return session.lockManager.acquire(lock, console, nolock ? Mode.NONE : mode);
     }
 
     protected void run(Launcher l, Node output) throws IOException {

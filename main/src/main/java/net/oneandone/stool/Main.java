@@ -60,30 +60,31 @@ public class Main {
                 "-nolock -svnuser -svnpassword -exception -shell " +
                         "{ setNoLock(nolock) setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) setShell(shell) ");
           cli.begin("globals.session", "");
-            cli.add(Help.class, "command?=null");
-            cli.add(Create.class, "-quiet -name url directory property* { property*(property) }");
-            cli.add(Import.class, "-name=null -max=40 dir* { dirs*(dir) setMax(max) setName(name) }");
-            cli.add(Select.class, "name?=null");
-            cli.base(StageCommand.class, "-autorechown -autochown -autorestart -autostop -stage=null -all -fail "
-                    + "{ setAutoRechown(autorechown) setAutoChown(autochown) setAutoRestart(autorestart) setAutoStop(autostop) "
-                    +   "setStage(stage) setAll(all) setFail(fail) }");
-              cli.add(Build.class, "");
-              cli.add(Cd.class, "target?=null { setTarget(target) }");
-              cli.add(Chown.class, "-batch user?=null");
-              cli.add(Cleanup.class, "");
-              cli.add(Config.class, "property* { property*(property) }");
-              cli.add(History.class, "-max=999 detail* { detail*(detail) }");
-              cli.add(Ls.class, "");
-              cli.add(Move.class, "dest");
-              cli.add(Port.class, "port { port*(port) }");
-              cli.add(Refresh.class, "-build -restore");
-              cli.add(Remove.class, "-batch -force -backstage { setBackstage(backstage) }");
-              cli.add(Rename.class, "name");
-              cli.add(Restart.class, "-debug -suspend { setDebug(debug) setSuspend(suspend) }");
-              cli.add(Start.class, "-debug -suspend -tail { setTail(tail) }");
-              cli.add(Status.class, "field* { field*(field) }");
-              cli.add(Stop.class, "-sleep");
-              cli.add(Validate.class, "-email -repair");
+            cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
+                cli.add(Help.class, "command?=null");
+                cli.add(Create.class, "-quiet -name url directory property* { property*(property) }");
+                cli.add(Import.class, "-name=null -max=40 dir* { dirs*(dir) setMax(max) setName(name) }");
+                cli.add(Select.class, "name?=null");
+                cli.base(StageCommand.class, "-autorechown -autochown -autorestart -autostop -stage=null -all -fail "
+                        + "{ setAutoRechown(autorechown) setAutoChown(autochown) setAutoRestart(autorestart) setAutoStop(autostop) "
+                        +   "setStage(stage) setAll(all) setFail(fail) }");
+                  cli.add(Build.class, "");
+                  cli.add(Cd.class, "target?=null { setTarget(target) }");
+                  cli.add(Chown.class, "-batch user?=null");
+                  cli.add(Cleanup.class, "");
+                  cli.add(Config.class, "property* { property*(property) }");
+                  cli.add(History.class, "-max=999 detail* { detail*(detail) }");
+                  cli.add(Ls.class, "");
+                  cli.add(Move.class, "dest");
+                  cli.add(Port.class, "port { port*(port) }");
+                  cli.add(Refresh.class, "-build -restore");
+                  cli.add(Remove.class, "-batch -force -backstage { setBackstage(backstage) }");
+                  cli.add(Rename.class, "name");
+                  cli.add(Restart.class, "-debug -suspend { setDebug(debug) setSuspend(suspend) }");
+                  cli.add(Start.class, "-debug -suspend -tail { setTail(tail) }");
+                  cli.add(Status.class, "field* { field*(field) }");
+                  cli.add(Stop.class, "-sleep");
+                  cli.add(Validate.class, "-email -repair");
 
         return cli.run(args);
     }

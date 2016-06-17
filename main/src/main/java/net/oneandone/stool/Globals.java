@@ -32,7 +32,6 @@ public class Globals {
     private final Console console;
     private final World world;
 
-    public boolean nolock;
     public String svnuser;
     public String svnpassword;
     public FileNode shellFile;
@@ -46,9 +45,6 @@ public class Globals {
         this.world = world;
     }
 
-    public void setNoLock(boolean nolock) {
-        this.nolock = nolock;
-    }
     public void setSvnuser(String svnuser) {
         this.svnuser = svnuser;
     }
@@ -66,7 +62,7 @@ public class Globals {
 
 
     private Session session() throws IOException {
-        return Session.load(this, user, command, environment, console, world, shellFile, svnuser, svnpassword);
+        return Session.load(logging, user, command, environment, console, world, shellFile, svnuser, svnpassword);
     }
 
     //--

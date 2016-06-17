@@ -91,7 +91,7 @@ public class DashboardConfiguration {
         user = user();
         system.setStoolBin(bin());
         globals = new Globals(Logging.create(logs(), "dashboard", user), user, "command", system, console(), world());
-        return Session.load(globals, user, "dashboard", system, console(), world(), null, svnuser, svnpassword);
+        return Session.load(globals.logging, user, "dashboard", system, console(), world(), null, svnuser, svnpassword);
     }
 
     @Bean
