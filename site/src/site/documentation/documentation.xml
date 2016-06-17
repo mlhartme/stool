@@ -690,43 +690,6 @@
 
       <refentry>
         <refnamediv>
-          <refname>stool-system-import</refname>
-          <refpurpose>Import from another stool installation</refpurpose>
-        </refnamediv>
-
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool system-import</command>
-            <arg>-include
-              <group>
-                <arg choice="plain">all</arg>
-                <arg choice="plain">config</arg>
-                <arg choice="plain">stages</arg>
-              </group>
-            </arg>
-            <arg choice="plain">
-              <replaceable>other-lib</replaceable>
-            </arg>
-            <group rep="repeat">
-              <arg choice="plain">
-                <replaceable>name</replaceable>
-              </arg>
-              <arg choice="plain">
-                <replaceable>key=value</replaceable>
-              </arg>
-            </group>
-          </cmdsynopsis>
-        </refsynopsisdiv>
-        <refsect1>
-          <title>Description</title>
-          <para>Imports configuration and/or stages from a the specified Stool Lib <replaceable>directory</replaceable>. This command is
-            useful to migrate stages from an older/different Stool installation.
-          </para>
-        </refsect1>
-      </refentry>
-
-      <refentry>
-        <refnamediv>
           <refname>stool-create</refname>
           <refpurpose>Create a new stage</refpurpose>
         </refnamediv>

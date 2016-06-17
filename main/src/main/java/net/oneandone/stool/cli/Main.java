@@ -55,40 +55,54 @@ public class Main {
 
         cli = new Cli();
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
-        // TODO: cli.begin(console, "-v -e  { setVerbose(v) setStacktraces(e) }");
-        cli.begin("globals", new Globals(logging, user, command, environment, console, world),
-                "-nolock -svnuser -svnpassword -exception -shell " +
-                        "{ setNoLock(nolock) setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) setShell(shell) ");
-          cli.begin("globals.session", "");
-            cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
-                cli.add(Help.class, "command?=null");
-                cli.add(Create.class, "-quiet -name url directory property* { property*(property) }");
-                cli.add(Import.class, "-name=null -max=40 dir* { dirs*(dir) setMax(max) setName(name) }");
-                cli.add(Select.class, "name?=null");
-                cli.base(StageCommand.class, "-autorechown -autochown -autorestart -autostop -stage=null -all -fail "
-                        + "{ setAutoRechown(autorechown) setAutoChown(autochown) setAutoRestart(autorestart) setAutoStop(autostop) "
-                        +   "setStage(stage) setAll(all) setFail(fail) }");
-                  cli.add(Build.class, "");
-                  cli.add(Cd.class, "target?=null { setTarget(target) }");
-                  cli.add(Chown.class, "-batch user?=null");
-                  cli.add(Cleanup.class, "");
-                  cli.add(Config.class, "property* { property*(property) }");
-                  cli.add(History.class, "-max=999 detail* { detail*(detail) }");
-                  cli.add(Ls.class, "");
-                  cli.add(Move.class, "dest");
-                  cli.add(Port.class, "port { port*(port) }");
-                  cli.add(Refresh.class, "-build -restore");
-                  cli.add(Remove.class, "-batch -force -backstage { setBackstage(backstage) }");
-                  cli.add(Rename.class, "name");
-                  cli.add(Restart.class, "-debug -suspend { setDebug(debug) setSuspend(suspend) }");
-                  cli.add(Start.class, "-debug -suspend -tail { setTail(tail) }");
-                  cli.add(Status.class, "field* { field*(field) }");
-                  cli.add(Stop.class, "-sleep");
-                  cli.add(Validate.class, "-email -repair");
+        cli.begin(console, "-v -e  { setVerbose(v) setStacktraces(e) }");
+           cli.begin("globals", new Globals(logging, user, command, environment, console, world),
+                     "-nolock -svnuser -svnpassword -exception -shell " +
+                            "{ setNoLock(nolock) setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) setShell(shell) ");
+              cli.begin("globals.session", "");
+                cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
+                    cli.add(Help.class, "help command?=null");
+                    cli.add(Create.class, "create -quiet -name url directory property* { property*(property) }");
+                    cli.add(Import.class, "import -name=null -max=40 dir* { dirs*(dir) setMax(max) setName(name) }");
+                    cli.add(Select.class, "select name?=null");
+                    cli.base(StageCommand.class, "-autorechown -autochown -autorestart -autostop -stage=null -all -fail "
+                            + "{ setAutoRechown(autorechown) setAutoChown(autochown) setAutoRestart(autorestart) setAutoStop(autostop) "
+                            +   "setStage(stage) setAll(all) setFail(fail) }");
+                      cli.add(Build.class, "build");
+                      cli.add(Cd.class, "cd target?=null { setTarget(target) }");
+                      cli.add(Chown.class, "chown -batch user?=null");
+                      cli.add(Cleanup.class, "cleanup");
+                      cli.add(Config.class, "config property* { property*(property) }");
+                      cli.add(History.class, "history -max=999 detail* { detail*(detail) }");
+                      cli.add(Ls.class, "ls");
+                      cli.add(Move.class, "move dest");
+                      cli.add(Port.class, "port port { port*(port) }");
+                      cli.add(Refresh.class, "refresh -build -restore");
+                      cli.add(Remove.class, "remove -batch -force -backstage { setBackstage(backstage) }");
+                      cli.add(Rename.class, "rename name");
+                      cli.add(Restart.class, "restart -debug -suspend { setDebug(debug) setSuspend(suspend) }");
+                      cli.add(Start.class, "start-debug -suspend -tail { setTail(tail) }");
+                      cli.add(Status.class, "status field* { field*(field) }");
+                      cli.add(Stop.class, "stop -sleep");
+                      cli.add(SystemStart.class, "system-start");
+                      cli.add(SystemStop.class, "system-stop");
+                      cli.add(Validate.class, "validate -email -repair");
+
 
         return cli.run(args);
     }
 
+    public static class SystemStart extends SystemStartStop {
+        public SystemStart(Session session) {
+            super(session, true);
+        }
+    }
+    public static class SystemStop extends SystemStartStop {
+        public SystemStop(Session session) {
+            super(session, false);
+        }
+
+    }
     public static Console console(Logging logging, OutputStream out, OutputStream err) {
         return new Console(logging.writer(out, "OUT"), logging.writer(err, "ERR"),
                 new InputLogStream(System.in, new Slf4jOutputStream(logging.logger("IN"), true)));
