@@ -15,9 +15,9 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.LineFormat;
 import net.oneandone.sushi.io.LineReader;
-import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.InputStream;

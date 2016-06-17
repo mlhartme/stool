@@ -15,16 +15,15 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.setup.JavaSetup;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Pool;
-import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiOutputStream;
-import net.oneandone.sushi.util.Strings;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.junit.After;
 import org.junit.Before;
@@ -33,8 +32,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
-
-import static org.junit.Assert.fail;
 
 /**
  * Integration test for stool.

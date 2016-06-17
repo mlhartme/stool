@@ -15,12 +15,12 @@
  */
 package net.oneandone.stool.extensions;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Vhost;
-import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;

@@ -17,6 +17,8 @@ package net.oneandone.stool.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.EnumerationFailed;
 import net.oneandone.stool.Globals;
@@ -36,8 +38,6 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
-import net.oneandone.inline.ArgumentException;
-import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.ReadLinkException;

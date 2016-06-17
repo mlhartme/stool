@@ -18,9 +18,9 @@ package net.oneandone.stool.setup;
 
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Vhost;
+import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.io.LineFormat;
 import net.oneandone.sushi.io.LineReader;
-import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;

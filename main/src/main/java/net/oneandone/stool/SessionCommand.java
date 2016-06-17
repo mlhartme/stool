@@ -15,10 +15,10 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.util.Session;
-import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;

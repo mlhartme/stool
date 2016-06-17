@@ -15,11 +15,11 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Session;
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;

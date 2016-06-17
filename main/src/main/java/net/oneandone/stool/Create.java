@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
@@ -24,7 +25,6 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;

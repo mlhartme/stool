@@ -22,7 +22,6 @@ import com.google.gson.JsonParser;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
-import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.lang.reflect.Field;

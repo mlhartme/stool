@@ -24,7 +24,6 @@ import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -110,7 +109,7 @@ public class Validate extends StageCommand {
     private String digIp(String name) throws Failure {
         Launcher dig;
 
-        dig = new Launcher((FileNode) world.getWorking(), "dig", "+short", name);
+        dig = new Launcher(world.getWorking(), "dig", "+short", name);
         return dig.exec().trim();
     }
 

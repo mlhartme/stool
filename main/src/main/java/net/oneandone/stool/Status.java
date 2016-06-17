@@ -15,12 +15,12 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;

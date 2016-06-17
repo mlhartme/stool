@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
@@ -22,7 +23,6 @@ import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;

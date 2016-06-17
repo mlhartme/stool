@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.stage;
 
+import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.Start;
 import net.oneandone.stool.configuration.StageConfiguration;
@@ -29,8 +31,6 @@ import net.oneandone.stool.util.OwnershipException;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
-import net.oneandone.inline.ArgumentException;
-import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;

@@ -15,10 +15,10 @@
  */
 package net.oneandone.stool.stage;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.util.Session;
-import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;

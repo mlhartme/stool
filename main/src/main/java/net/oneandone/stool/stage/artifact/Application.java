@@ -16,10 +16,10 @@
 package net.oneandone.stool.stage.artifact;
 
 import com.google.gson.Gson;
+import net.oneandone.inline.Console;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Session;
-import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
 

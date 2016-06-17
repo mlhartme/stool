@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.stage;
 
+import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.artifact.Application;
 import net.oneandone.stool.stage.artifact.Applications;
@@ -23,8 +25,6 @@ import net.oneandone.stool.stage.artifact.FileLocator;
 import net.oneandone.stool.stage.artifact.GavLocator;
 import net.oneandone.stool.stage.artifact.Locator;
 import net.oneandone.stool.util.Session;
-import net.oneandone.inline.ArgumentException;
-import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.MoveException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;

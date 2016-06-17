@@ -19,7 +19,6 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
 import net.oneandone.sushi.fs.filter.Predicate;
@@ -60,9 +59,9 @@ public class Cd extends StageCommand {
             lst = stage.shared().find(filter);
             node = null;
             message = new StringBuilder();
-            for (Node candidate : lst) {
+            for (FileNode candidate : lst) {
                 if (candidate.getName().equals(target)) {
-                    node = (FileNode) candidate;
+                    node = candidate;
                     break;
                 }
                 message.append(", ");

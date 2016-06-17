@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.configuration;
 
-import net.oneandone.stool.extensions.Switch;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.extensions.Switch;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

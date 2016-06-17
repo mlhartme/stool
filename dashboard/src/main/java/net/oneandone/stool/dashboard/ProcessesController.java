@@ -59,7 +59,7 @@ public class ProcessesController {
     @ResponseBody
     public ResponseEntity log(@PathVariable(value = "id") String id, @RequestParam(defaultValue = "0") Integer index)
       throws IOException, InterruptedException {
-        Node logfile;
+        Node<?> logfile;
         StringBuilder output;
         MultiValueMap<String, String> headers;
         output = new StringBuilder();

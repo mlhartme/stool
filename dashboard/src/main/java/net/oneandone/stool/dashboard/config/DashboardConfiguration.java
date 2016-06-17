@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.dashboard.config;
 
+import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.Globals;
 import net.oneandone.stool.dashboard.IndexController;
@@ -24,11 +25,9 @@ import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
-import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import org.eclipse.aether.repository.RepositoryPolicy;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -48,12 +47,12 @@ public class DashboardConfiguration {
     }
 
     @Bean
-    public FileNode lib() throws ReadLinkException {
+    public FileNode lib() throws IOException {
         return Session.locateLib(bin());
     }
 
     @Bean
-    public FileNode bin() {
+    public FileNode bin() throws IOException {
         return world().file(System.getProperty("stool.bin"));
     }
 
@@ -101,7 +100,7 @@ public class DashboardConfiguration {
     }
 
     @Bean
-    public FileNode logs() {
+    public FileNode logs() throws IOException {
         return world().file(System.getProperty("catalina.base")).join("logs");
     }
 

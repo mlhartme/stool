@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.locking;
 
-import net.oneandone.stool.util.Processes;
 import net.oneandone.inline.Console;
+import net.oneandone.stool.util.Processes;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;

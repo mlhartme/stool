@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 public class Processes {
     public static Processes create(World world) throws Failure {
-        return new Processes(new Launcher((FileNode) world.getWorking(), "ps", "aux").exec());
+        return new Processes(new Launcher(world.getWorking(), "ps", "aux").exec());
     }
 
     // group 1: user
