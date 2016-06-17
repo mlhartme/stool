@@ -39,7 +39,7 @@ public class WarFile {
         return file.exists();
     }
 
-    public void copyTo(WarFile destination) throws CopyException {
+    public void copyTo(WarFile destination) throws IOException {
         file.copyFile(destination.file);
     }
 
@@ -86,8 +86,7 @@ public class WarFile {
         if (obj instanceof WarFile) {
             other = (WarFile) obj;
             try {
-                return other.exists() && exists() && (file.length() == other.file.length())
-                        && file.md5().equals(other.file.md5());
+                return other.exists() && exists() && (file.size() == other.file.size()) && file.md5().equals(other.file.md5());
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }

@@ -22,8 +22,7 @@ import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Option;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -36,35 +35,52 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class StageCommand extends SessionCommand {
-    @Option("autorechown")
-    private boolean autoRechown;
-
-    @Option("autochown")
-    private boolean autoChown;
-
-    @Option("autorestart")
-    private boolean autoRestart;
-
-    @Option("autostop")
-    private boolean autoStop;
-
-    @Option("stage")
-    private String stageClause;
-
-    @Option("all")
-    private boolean all;
-
-    @Option("fail")
-    private Fail fail = Fail.NORMAL;
-
     private final Mode backstageLock;
     private final Mode directoryLock;
+
+    private boolean autoRechown;
+    private boolean autoChown;
+    private boolean autoRestart;
+    private boolean autoStop;
+    private String stageClause;
+    private boolean all;
+    private Fail fail = Fail.NORMAL;
 
     public StageCommand(Session session, Mode globalLock, Mode backstageLock, Mode directoryLock) {
         super(session, globalLock);
         this.backstageLock = backstageLock;
         this.directoryLock = directoryLock;
     }
+
+    public void setAutoRechown(boolean autoRechown) {
+        this.autoRechown = autoRechown;
+    }
+
+    public void setAutoChown(boolean autoChown) {
+        this.autoChown = autoChown;
+    }
+
+    public void setAutoRestart(boolean autoRestart) {
+        this.autoRestart = autoRestart;
+    }
+
+    public void setAutoStop(boolean autoStop) {
+        this.autoStop = autoStop;
+    }
+
+    public void setStage(String stageClause) {
+        this.stageClause = stageClause;
+    }
+
+    public void setAll(boolean all) {
+        this.all = all;
+    }
+
+    public void setFail(Fail fail) {
+        this.fail = fail;
+    }
+
+    //--
 
     public boolean isNoop(Stage stage) throws IOException {
         return false;
@@ -206,7 +222,7 @@ public abstract class StageCommand extends SessionCommand {
         if ((autoRestart || autoStop) && stage.state() == Stage.State.UP) {
             postStart = autoRestart;
             Status.tomcatStatus(stage, status);
-            new Stop(session).doInvoke(stage);
+            new Stop(session, false).doInvoke(stage);
         } else {
             postStart = false;
         }

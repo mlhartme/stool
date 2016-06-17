@@ -15,11 +15,10 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
@@ -32,20 +31,17 @@ public class Cd extends StageCommand {
 
     public Cd(Session session) {
         super(session, Mode.NONE, Mode.SHARED, Mode.NONE);
+        this.target = null;
     }
 
-    @Remaining
-    public void addTarget(String str) {
-        if (target != null) {
-            throw new ArgumentException("too many targets");
-        }
+    public void setTarget(String str) {
         this.target = str;
     }
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
         FileNode node;
-        List<Node> lst;
+        List<FileNode> lst;
         Filter filter;
         StringBuilder message;
 
@@ -57,7 +53,7 @@ public class Cd extends StageCommand {
         } else if ("backstage".equals(target)) {
             node = stage.getBackstage();
         } else {
-            filter = console.world.filter();
+            filter = world.filter();
             filter.includeAll();
             filter.maxDepth(2);
             filter.predicate(Predicate.DIRECTORY);

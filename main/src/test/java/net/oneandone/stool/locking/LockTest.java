@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.locking;
 
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.World;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,9 +31,9 @@ public class LockTest {
 
     @Before
     public void before() throws Exception {
-        world = new World();
+        world = World.create();
         manager = LockManager.create(world.getTemp().createTempFile(), "", 2);
-        console = Console.create(world);
+        console = Console.create();
     }
 
     //--

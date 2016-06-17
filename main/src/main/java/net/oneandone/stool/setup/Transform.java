@@ -20,7 +20,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
-import net.oneandone.sushi.cli.ArgumentException;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;

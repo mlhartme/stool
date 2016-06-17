@@ -18,19 +18,17 @@ package net.oneandone.stool;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.Option;
 
 import java.io.IOException;
 
 public class Refresh extends StageCommand {
-    @Option("build")
     private boolean build;
-
-    @Option("restore")
     private boolean restore;
 
-    public Refresh(Session session) {
+    public Refresh(Session session, boolean build, boolean restore) {
         super(session, Mode.NONE, Mode.SHARED, Mode.SHARED);
+        this.build = build;
+        this.restore = restore;
     }
 
     @Override

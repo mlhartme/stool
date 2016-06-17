@@ -18,40 +18,19 @@ package net.oneandone.stool;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Option;
-import net.oneandone.sushi.cli.Remaining;
+import net.oneandone.inline.ArgumentException;
 
 public class Chown extends StageCommand {
-    private String userArgument;
-
-    @Option("batch")
     private boolean batch;
-
-    /**
-     * Chown is a BaseCommand because it doesn't operate on the selected stage, but
-     * if we consider locking, it makes much more sense to check if the stage which
-     * should be chowned is currently locked.
-     */
-    public Chown(Session session) {
-        this(session, false, null);
-    }
+    private String userArgument;
 
     public Chown(Session session, boolean batch, String userArgument) {
         super(session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
-        this.batch = batch;
-        this.userArgument = userArgument;
-    }
-
-    @Remaining
-    public void user(String user) {
-        if (userArgument != null) {
-            throw new ArgumentException("too many users");
-        }
-        if ("root".equals(user)) {
+        if ("root".equals(userArgument)) {
             throw new ArgumentException("Root does not want to own stages.");
         }
-        this.userArgument = user;
+        this.userArgument = userArgument;
+        this.batch = batch;
     }
 
     @Override

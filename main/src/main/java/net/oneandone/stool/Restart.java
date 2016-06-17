@@ -18,23 +18,21 @@ package net.oneandone.stool;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.Option;
 
 public class Restart extends StageCommand {
-    @Option("debug")
-    private boolean debug = false;
+    private final boolean debug;
+    private final boolean suspend;
 
-    @Option("suspend")
-    private boolean suspend = false;
-
-    public Restart(Session session) {
+    public Restart(Session session, boolean debug, boolean suspend) {
         super(session, Mode.NONE, Mode.NONE, Mode.NONE);
+        this.debug = debug;
+        this.suspend = suspend;
     }
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
         if (stage.state() == Stage.State.UP || stage.state() == Stage.State.WORKING) {
-            new Stop(session).doInvoke(stage);
+            new Stop(session, false).doInvoke(stage);
         } else {
             console.info.println("Tomcat is not running - starting a new instance.");
         }

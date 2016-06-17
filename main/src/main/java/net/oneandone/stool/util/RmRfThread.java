@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.Node;
 
 import java.io.IOException;

@@ -16,6 +16,7 @@
 package net.oneandone.stool.dashboard.config;
 
 import net.oneandone.maven.embedded.Maven;
+import net.oneandone.stool.Globals;
 import net.oneandone.stool.dashboard.IndexController;
 import net.oneandone.stool.dashboard.StageInfoCache;
 import net.oneandone.stool.stage.Stage;
@@ -23,7 +24,7 @@ import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -42,8 +43,8 @@ import java.util.concurrent.Executors;
 @ComponentScan(basePackageClasses = {IndexController.class})
 public class DashboardConfiguration {
     @Bean
-    public World world() {
-        return new World();
+    public World world() throws IOException {
+        return World.create();
     }
 
     @Bean
@@ -63,7 +64,7 @@ public class DashboardConfiguration {
 
     @Bean
     public Console console() {
-        return Console.create(world());
+        return Console.create();
     }
 
     @Bean
@@ -75,6 +76,7 @@ public class DashboardConfiguration {
         Properties p;
         String svnuser;
         String svnpassword;
+        Globals globals;
 
         system = Environment.loadSystem();
         lib = lib();
@@ -89,7 +91,8 @@ public class DashboardConfiguration {
         }
         user = user();
         system.setStoolBin(bin());
-        return Session.load(Logging.create(logs(), "dashboard", user), user, "dashboard", system, console(), null, svnuser, svnpassword);
+        globals = new Globals(Logging.create(logs(), "dashboard", user), user, "command", system, console(), world());
+        return Session.load(globals, user, "dashboard", system, console(), world(), null, svnuser, svnpassword);
     }
 
     @Bean

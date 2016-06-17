@@ -20,8 +20,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Remaining;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -50,7 +49,6 @@ public class Status extends StageCommand {
         super(session, Mode.SHARED, Mode.SHARED, Mode.SHARED);
     }
 
-    @Remaining
     public void field(String str) {
         try {
             selected.add(Field.valueOf(str.toUpperCase()));

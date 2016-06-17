@@ -15,15 +15,10 @@
  */
 package net.oneandone.stool.setup;
 
+import net.oneandone.inline.Cli;
+import net.oneandone.inline.Console;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.RmRfThread;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Cli;
-import net.oneandone.sushi.cli.Command;
-import net.oneandone.sushi.cli.Console;
-import net.oneandone.sushi.cli.Option;
-import net.oneandone.sushi.cli.Remaining;
-import net.oneandone.sushi.cli.Value;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -35,9 +30,20 @@ import java.nio.file.Files;
  * Uses for integration tests and as Java installer for Mac OS.
  * And for Unix systems if you don't have (or don't want to use) sudo.
  */
-public class JavaSetup extends Cli implements Command {
-    public static void main(String[] args) {
-        System.exit(new JavaSetup().run(args));
+public class JavaSetup {
+    public static void main(String[] args) throws IOException {
+        Console console;
+        World world;
+        Cli cli;
+
+        world = World.create();
+        console = Console.create();
+        cli = new Cli();
+        cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
+        cli.begin(world);
+          cli.begin(console, "-v -e  { setVerbose(v) setStacktraces(e) }");
+            cli.add(JavaSetup.class, "ignored -batch directory?=null config?=null");
+        System.exit(cli.run(args));
     }
 
     public static void standalone(Console console, boolean withJar, FileNode install, String config) throws Exception {
@@ -59,29 +65,23 @@ public class JavaSetup extends Cli implements Command {
 
     //--
 
-    /** Install directory */
-    @Value(name = "directory", position = 1)
-    private FileNode directory;
-
-
-    @Option("batch")
+    private final World world;
+    private final FileNode directory;
     private boolean batch;
 
     /** Name of a json file with global config fragment. */
     private String config;
 
+    private final Console console;
     private final Environment environment;
 
-    private JavaSetup() {
-        environment = Environment.loadSystem();
-    }
-
-    @Remaining
-    public void remaining(String str) throws IOException {
-        if (config != null) {
-            throw new ArgumentException("duplicate initialConfig: " + str + " vs " + config);
-        }
-        config = subst(console.world.file(str).readString());
+    public JavaSetup(World world, Console console, boolean batch, FileNode directory, String config) throws IOException {
+        this.world = world;
+        this.console = console;
+        this.batch = batch;
+        this.directory = directory;
+        this.config = config == null ? null : subst(directory.getWorld().file(config).readString());
+        this.environment = Environment.loadSystem();
     }
 
     private static String subst(String str) {
@@ -121,26 +121,24 @@ public class JavaSetup extends Cli implements Command {
         }
     }
 
-    @Override
-    public void printHelp() {
-        console.info.println("Setup stool " + versionString(console.world));
-        console.info.println("usage: setup-stool <directory> [<json>]");
-        console.info.println("  Create a new <directory> or upgrades an existing.");
-        console.info.println("  Does not modify anything outside the <directory>.");
-        console.info.println("documentation:");
-        console.info.println("  https://github.com/mlhartme/stool");
-    }
-
-    @Override
-    public void invoke() throws Exception {
+    public void run() throws Exception {
         FileNode bin;
         FileNode binLib;
         BinMan bm;
 
+        if (directory == null) {
+            console.info.println("Setup stool " + versionString(world) + "\n"
+                + "usage: setup-stool '-batch'? <directory> <config>?"
+                + "  Create a new <directory> or upgrades an existing.\n"
+                + "  Does not modify anything outside the <directory>."
+                + "documentation:\n"
+                + "  https://github.com/mlhartme/stool");
+            return;
+        }
         environment.setStoolBin(directory.join("bin"));
         if (directory.exists()) {
             if (!batch) {
-                console.info.println("Ready to upgrade " + directory.getAbsolute() + " to Stool " + versionString(console.world));
+                console.info.println("Ready to upgrade " + directory.getAbsolute() + " to Stool " + versionString(directory.getWorld()));
                 console.pressReturn();
             }
 
@@ -157,7 +155,7 @@ public class JavaSetup extends Cli implements Command {
             console.info.println("Done.");
         } else {
             if (!batch) {
-                console.info.println("Ready to install Stool " + versionString(console.world) + " to " + directory.getAbsolute());
+                console.info.println("Ready to install Stool " + versionString(directory.getWorld()) + " to " + directory.getAbsolute());
                 console.pressReturn();
             }
             standalone(console, true, directory, config);

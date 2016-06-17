@@ -18,18 +18,17 @@ package net.oneandone.stool;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.Value;
 import net.oneandone.sushi.fs.NodeAlreadyExistsException;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
 public class Rename extends StageCommand {
-    @Value(name = "name", position = 1)
-    private String name;
+    private final String name;
 
-    public Rename(Session session) {
+    public Rename(Session session, String name) {
         super(session, Mode.EXCLUSIVE, Mode.NONE, Mode.NONE);
+        this.name = name;
     }
 
     @Override

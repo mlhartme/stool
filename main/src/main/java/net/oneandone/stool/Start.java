@@ -22,8 +22,7 @@ import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Option;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -46,19 +45,19 @@ import java.util.List;
 import java.util.Map;
 
 public class Start extends StageCommand {
-    @Option("debug")
-    private boolean debug = false;
-
-    @Option("suspend")
-    private boolean suspend = false;
-
-    @Option("tail")
-    private boolean tail = false;
+    private boolean debug;
+    private boolean suspend;
+    private boolean tail;
 
     public Start(Session session, boolean debug, boolean suspend) {
         super(session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);
         this.debug = debug;
         this.suspend = suspend;
+        this.tail = false;
+    }
+
+    public void setTail(boolean tail) {
+        this.tail = tail;
     }
 
     public static String tomcatName(String version) {
@@ -102,7 +101,7 @@ public class Start extends StageCommand {
     }
 
     private void doTail(Stage stage) throws IOException {
-        List<Node> logs;
+        List<FileNode> logs;
         int c;
         Node log;
 
@@ -120,7 +119,7 @@ public class Start extends StageCommand {
         log = logs.get(0);
         console.info.println("tail " + log);
         console.info.println("Press Ctrl-C to abort.");
-        try (InputStream src = log.createInputStream()) {
+        try (InputStream src = log.newInputStream()) {
             while (true) {
                 if (src.available() == 0) {
                     try {

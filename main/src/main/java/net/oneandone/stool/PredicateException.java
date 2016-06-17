@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.sushi.cli.ArgumentException;
+import net.oneandone.inline.ArgumentException;
 
 public class PredicateException extends ArgumentException {
     public PredicateException(String s) {

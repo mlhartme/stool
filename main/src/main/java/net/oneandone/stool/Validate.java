@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.Until;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
@@ -23,8 +24,6 @@ import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.Console;
-import net.oneandone.sushi.cli.Option;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
@@ -41,23 +40,22 @@ import java.util.List;
 import java.util.Map;
 
 public class Validate extends StageCommand {
-    @Option("email")
     private boolean email;
-
-    @Option("repair")
     private boolean repair;
 
     // data shared for all stages
     private Processes processes;
     private Report report;
 
-    public Validate(Session session) {
+    public Validate(Session session, boolean email, boolean repair) {
         super(session, Mode.SHARED, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
+        this.email = email;
+        this.repair = repair;
     }
 
     @Override
     public void doInvoke() throws Exception {
-        processes = Processes.create(console.world);
+        processes = Processes.create(world);
         report = new Report();
         dns();
         locks();
@@ -112,7 +110,7 @@ public class Validate extends StageCommand {
     private String digIp(String name) throws Failure {
         Launcher dig;
 
-        dig = new Launcher((FileNode) console.world.getWorking(), "dig", "+short", name);
+        dig = new Launcher((FileNode) world.getWorking(), "dig", "+short", name);
         return dig.exec().trim();
     }
 
@@ -136,7 +134,7 @@ public class Validate extends StageCommand {
         if (repair) {
             if (stage.runningTomcat() != null) {
                 try {
-                    new Stop(session).doInvoke(stage);
+                    new Stop(session, false).doInvoke(stage);
                     report.user(stage, "expired stage has been stopped");
                 } catch (Exception e) {
                     report.user(stage, "expired stage failed to stop: " + e.getMessage());

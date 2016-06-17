@@ -18,16 +18,15 @@ package net.oneandone.stool;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Value;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 
 public class Move extends StageCommand {
-    @Value(name = "dest", position = 1)
     private FileNode dest;
 
-    public Move(Session session) {
+    public Move(Session session, FileNode dest) {
         super(session, Mode.EXCLUSIVE, Mode.NONE, Mode.NONE);
+        this.dest = dest;
     }
 
     @Override

@@ -27,12 +27,12 @@ public class Dashboard {
         if (args.length != 1) {
             throw new IllegalArgumentException();
         }
-        world = new World();
+        world = World.create();
         target = world.file(args[0]);
         target.mkdir();
 
         // TODO
-        war = (FileNode) world.guessProjectHome(Dashboard.class).getParent().join("dashboard/target").findOne("*.war");
+        war = world.guessProjectHome(Dashboard.class).getParent().join("dashboard/target").findOne("*.war");
 
         war.copyFile(target.join("dashboard.war"));
         System.exit(0);

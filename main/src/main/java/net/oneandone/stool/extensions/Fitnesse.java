@@ -20,7 +20,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Vhost;
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
@@ -67,7 +67,7 @@ public class Fitnesse implements Extension {
             launcher = stage.launcher("mvn",
                     "uk.co.javahelp.fitnesse:fitnesse-launcher-maven-plugin:wiki",
                     "-Dfitnesse.port=" + port);
-            launcher.dir(console.world.file(findProjectDir(ports, host)));
+            launcher.dir(stage.session.world.file(findProjectDir(ports, host)));
 
             log = stage.shared().join("tomcat/logs/fitness-" + port + ".log");
             if (!log.exists()) {

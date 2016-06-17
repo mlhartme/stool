@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.locking;
 
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.After;
@@ -36,11 +36,11 @@ public class Lock2Test {
     public void before() throws Exception {
         FileNode tmp;
 
-        world = new World();
+        world = World.create();
         tmp = world.getTemp().createTempFile();
         managerA = LockManager.create(tmp, "a", 2);
         managerB = new LockManager(tmp, new Process(0, ""), 2);
-        console = Console.create(world);
+        console = Console.create();
     }
 
     @After

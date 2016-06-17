@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.sushi.fs.LineFormat;
-import net.oneandone.sushi.fs.LineReader;
+import net.oneandone.sushi.io.LineFormat;
+import net.oneandone.sushi.io.LineReader;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -66,7 +66,7 @@ public class LogReader implements AutoCloseable {
                     return null;
                 }
                 file = files.remove(0);
-                src = file.createInputStream();
+                src = file.newInputStream();
                 if (file.getName().endsWith(".gz")) {
                     src = new GZIPInputStream(src);
                 }

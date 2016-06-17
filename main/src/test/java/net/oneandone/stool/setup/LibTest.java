@@ -20,7 +20,7 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
@@ -32,23 +32,26 @@ import static org.junit.Assert.assertNotNull;
 public class LibTest {
     @Test
     public void create() throws Exception {
+        World world;
         Console console;
         FileNode dir;
         Lib lib;
         String group;
 
-        console = Console.create(new World());
-        dir = console.world.getTemp().createTempDirectory();
+        world = World.create();
+        dir = world.getTemp().createTempDirectory();
+        console = Console.create();
         group = dir.getGroup().toString();
         dir.deleteDirectory();
         lib = new Lib(console, dir, group, null);
         lib.create();
-        assertNotNull(StoolConfiguration.load(Session.gson(console.world, ExtensionsFactory.create(console.world)), dir));
+        assertNotNull(StoolConfiguration.load(Session.gson(world, ExtensionsFactory.create(world)), dir));
     }
 
     @Test
     public void upgrade() throws Exception {
         Gson gson;
+        World world;
         Console console;
         FileNode libDir;
         Lib lib;
@@ -56,11 +59,12 @@ public class LibTest {
         StoolConfiguration stool;
         StageConfiguration stage;
 
-        console = Console.create(new World());
-        gson = Session.gson(console.world, ExtensionsFactory.create(console.world));
-        libDir = console.world.getTemp().createTempDirectory();
+        world = World.create();
+        console = Console.create();
+        gson = Session.gson(world, ExtensionsFactory.create(world));
+        libDir = world.getTemp().createTempDirectory();
         libDir.deleteDirectory();
-        console.world.guessProjectHome(getClass()).join("src/test/upgrade").copy(libDir);
+        world.guessProjectHome(getClass()).join("src/test/upgrade").copy(libDir);
         group = libDir.getGroup().toString();
         lib = new Lib(console, libDir, group, null);
         lib.upgrade("3.3.4");

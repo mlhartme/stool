@@ -24,10 +24,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Option;
-import net.oneandone.sushi.cli.Remaining;
-import net.oneandone.sushi.cli.Value;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -42,13 +39,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Create extends SessionCommand {
-    @Option("quiet")
-    private boolean quiet = false;
-
-    @Option("name")
-    private String name = null;
-
-    @Value(name = "url", position = 1)
+    private final boolean quiet;
+    private String name;
     private String urlOrFileOrSearch;
 
     private FileNode directory;
@@ -59,44 +51,34 @@ public class Create extends SessionCommand {
 
     private final Map<String, Property> properties;
 
-    public Create(Session session) {
+    public Create(Session session, boolean quiet, String name, String urlOrFileOrSearch, FileNode directory) {
         super(session, Mode.NONE);
+        this.quiet = quiet;
+        this.name = name;
+        this.urlOrFileOrSearch = urlOrFileOrSearch;
+        this.directory = directory;
         this.properties = StageConfiguration.properties(session.extensionsFactory);
     }
 
-    public Create(Session session, boolean quiet, String name, String urlOrSearch, FileNode directory,
-                  StageConfiguration stageConfiguration) {
-        this(session);
-        this.quiet = quiet;
-        this.name = name;
-        this.urlOrFileOrSearch = urlOrSearch;
-        this.directory = directory;
-        this.stageConfiguration = stageConfiguration;
-    }
 
-    @Remaining
-    public void remaining(String str) {
+    public void property(String str) {
         int idx;
         String key;
         String value;
         Property property;
 
-        if (directory == null) {
-            this.directory = world.file(str);
-        } else {
-            idx = str.indexOf('=');
-            if (idx == -1) {
-                throw new ArgumentException("Invalid configuration argument. Expected <key>=<value>, got " + str);
-            }
-            key = str.substring(0, idx);
-            value = str.substring(idx + 1);
-            property = properties.get(key);
-            if (property == null) {
-                throw new ArgumentException("unknown property: " + key);
-            }
-            if (config.put(property, value) != null) {
-                throw new ArgumentException("already configured: " + key);
-            }
+        idx = str.indexOf('=');
+        if (idx == -1) {
+            throw new ArgumentException("Invalid configuration argument. Expected <key>=<value>, got " + str);
+        }
+        key = str.substring(0, idx);
+        value = str.substring(idx + 1);
+        property = properties.get(key);
+        if (property == null) {
+            throw new ArgumentException("unknown property: " + key);
+        }
+        if (config.put(property, value) != null) {
+            throw new ArgumentException("already configured: " + key);
         }
     }
 
@@ -134,7 +116,7 @@ public class Create extends SessionCommand {
 
         file = world.file(urlOrFileOrSearch);
         if (file.isFile()) {
-            return file.getURI().toString();
+            return file.getUri().toString();
         }
         if (!urlOrFileOrSearch.startsWith("%")) {
             return Strings.removeRightOpt(urlOrFileOrSearch, "/");
@@ -163,7 +145,7 @@ public class Create extends SessionCommand {
         FileNode parent;
 
         if (directory == null) {
-            directory = (FileNode) console.world.getWorking().join(Stage.nameForUrl(url));
+            directory = world.getWorking().join(Stage.nameForUrl(url));
         }
         parent = directory.getParent();
         if (session.stageDirectories().contains(parent)) {

@@ -19,26 +19,23 @@ import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.LogEntry;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Option;
-import net.oneandone.sushi.cli.Remaining;
+import net.oneandone.inline.ArgumentException;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class History extends StageCommand {
-    public History(Session session) {
-        super(session, Mode.NONE, Mode.SHARED, Mode.NONE);
-    }
-
-    @Option("max")
-    private int max = 999;
+    private int max;
 
     /** history entry to show details for */
     private List<Integer> details = new ArrayList<>();
 
-    @Remaining
-    public void remaining(String str) {
+    public History(Session session, int max) {
+        super(session, Mode.NONE, Mode.SHARED, Mode.NONE);
+        this.max = max;
+    }
+
+    public void detail(String str) {
         int idx;
         int first;
         int last;

@@ -30,7 +30,7 @@ public class Control {
         if (args.length != 3) {
             throw new IOException("usage: control srcdir application dest");
         }
-        world = new World();
+        world = World.create();
         run(world.file(args[0]), world.file(args[1]), world.file(args[2]));
         System.exit(0);
     }
@@ -52,7 +52,7 @@ public class Control {
         dest.join("preinst").writeBytes(launcher);
         dest.join("postinst").writeBytes(launcher);
         dest.join("prerm").writeBytes(launcher);
-        try (OutputStream out = dest.join("postrm.bin").createOutputStream()) {
+        try (OutputStream out = dest.join("postrm.bin").newOutputStream()) {
             out.write(orig, idx, orig.length - idx);
             out.write(launcher);
         }

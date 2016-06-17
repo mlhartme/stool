@@ -19,7 +19,7 @@ import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.NodeNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -180,7 +180,7 @@ public class StageController {
     }
 
     public Console console() {
-        return Console.create(world);
+        return Console.create();
     }
 
     public String execute(String stage, String command, String ... options) throws IOException {

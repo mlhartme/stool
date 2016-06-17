@@ -18,7 +18,7 @@ package net.oneandone.stool.stage;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
@@ -75,7 +75,7 @@ public class SourceStage extends Stage {
 
         applications = new LinkedHashMap<>();
         for (MavenProject project : wars()) {
-            applications.put(project.getArtifactId(), docroot(session.console.world, project));
+            applications.put(project.getArtifactId(), docroot(session.world, project));
         }
         return applications;
     }

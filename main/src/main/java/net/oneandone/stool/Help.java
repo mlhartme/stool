@@ -15,29 +15,19 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Command;
-import net.oneandone.sushi.cli.Remaining;
+import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
-public class Help implements Command {
-    private String command = null;
+public class Help {
     private final FileNode manpath;
+    private final String command;
 
-    public Help(FileNode manpath) {
-        this.manpath = manpath;
+    public Help(Session session, String command) {
+        this.manpath = session.lib.join("man");
+        this.command = command;
     }
 
-    @Remaining
-    public void remaining(String arg) {
-        if (command != null) {
-            throw new ArgumentException("too many arguments");
-        }
-        command = arg;
-    }
-
-    @Override
-    public void invoke() throws Exception {
+    public void run() throws Exception {
         ProcessBuilder builder;
         Process process;
 

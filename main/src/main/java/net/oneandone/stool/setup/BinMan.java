@@ -16,7 +16,7 @@
 package net.oneandone.stool.setup;
 
 import net.oneandone.stool.util.Files;
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.Settings;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -39,8 +39,8 @@ public class BinMan {
         if (args.length != 1) {
             throw new IllegalArgumentException();
         }
-        world = new World();
-        console = Console.create(world);
+        world = World.create();
+        console = Console.create();
         target = world.file(args[0]);
         target.mkdir();
         bin = world.file("/usr/share/stool");
@@ -108,18 +108,20 @@ public class BinMan {
 
     // CAUTION: does not generate the lib symlink
     private void bin() throws IOException {
+        World world;
         final byte[] marker = "exit $?\n".getBytes(Settings.UTF_8);
         byte[] bytes;
         int ofs;
 
+        world = nowBin.getWorld();
         Files.createStoolDirectory(console.verbose, nowBin);
-        Files.template(console.verbose, console.world.resource("templates/bin"), nowBin, variables());
+        Files.template(console.verbose, world.resource("templates/bin"), nowBin, variables());
 
         // strip launcher from application file
         if (withJar) {
-            bytes = console.world.locateClasspathItem(getClass()).readBytes();
+            bytes = world.locateClasspathItem(getClass()).readBytes();
             ofs = indexOf(bytes, marker) + marker.length;
-            try (OutputStream out = nowBin.join("stool").createAppendStream()) {
+            try (OutputStream out = nowBin.join("stool").newAppendStream()) {
                 out.write(bytes, ofs, bytes.length - ofs);
             }
             nowBin.join("stool").setPermissions("rwxr-xr-x");
@@ -128,7 +130,7 @@ public class BinMan {
 
     private void man() throws IOException {
         Files.createStoolDirectory(console.verbose, nowMan);
-        console.world.resource("templates/man").copyDirectory(nowMan);
+        nowMan.getWorld().resource("templates/man").copyDirectory(nowMan);
         Files.stoolTree(console.verbose, nowMan);
     }
 

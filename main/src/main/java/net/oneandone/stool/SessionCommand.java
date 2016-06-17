@@ -18,9 +18,7 @@ package net.oneandone.stool;
 import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.Command;
-import net.oneandone.sushi.cli.Console;
-import net.oneandone.sushi.cli.Option;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -33,7 +31,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class SessionCommand implements Command {
+public abstract class SessionCommand {
     protected final Console console;
     protected final World world;
     protected final Session session;
@@ -41,16 +39,12 @@ public abstract class SessionCommand implements Command {
 
     public SessionCommand(Session session, Mode globalLock) {
         this.console = session.console;
-        this.world = console.world;
+        this.world = session.world;
         this.session = session;
         this.globalLock = globalLock;
     }
 
-    @Option("nolock")
-    protected boolean noLock;
-
-    @Override
-    public void invoke() throws Exception {
+    public void run() throws Exception {
         String wasSelected;
         List<String> extraLines;
 
@@ -74,7 +68,7 @@ public abstract class SessionCommand implements Command {
     public abstract void doInvoke() throws Exception;
 
     protected Lock createLock(String lock, Mode mode) throws IOException {
-        return session.lockManager.acquire(lock, console, noLock ? Mode.NONE : mode);
+        return session.lockManager.acquire(lock, console, session.globals.nolock ? Mode.NONE : mode);
     }
 
     protected void run(Launcher l, Node output) throws IOException {
@@ -83,7 +77,7 @@ public abstract class SessionCommand implements Command {
     }
 
     protected void runQuiet(Launcher l, Node output) throws IOException {
-        try (Writer out = output.createWriter()) {
+        try (Writer out = output.newWriter()) {
             l.exec(out);
         }
     }

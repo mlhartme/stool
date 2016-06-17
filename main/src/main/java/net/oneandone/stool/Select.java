@@ -18,8 +18,6 @@ package net.oneandone.stool;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Remaining;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -29,17 +27,9 @@ import java.util.List;
 public class Select extends SessionCommand {
     private String stageName;
 
-    public Select(Session session) {
+    public Select(Session session, String stageName) {
         super(session, Mode.NONE);
-    }
-
-    @Remaining
-    public Select stageToSelect(String stage) {
-        if (stageName != null) {
-            throw new ArgumentException("too many arguments");
-        }
-        stageName = stage;
-        return this;
+        this.stageName = stageName;
     }
 
     @Override

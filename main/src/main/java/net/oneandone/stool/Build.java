@@ -30,15 +30,11 @@ public class Build extends StageCommand {
 
     @Override
     public void doInvoke(Stage stage) throws Exception {
-        stage.checkOwnership();
-        stage.checkNotUp();
-        build(stage);
-    }
-
-    protected void build(Stage stage) throws IOException {
         String command;
         Launcher launcher;
 
+        stage.checkOwnership();
+        stage.checkNotUp();
         command = stage.getBuild();
         console.info.println("[" + stage.getDirectory() + "] " + command);
         launcher = stage.launcher();

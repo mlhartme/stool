@@ -20,8 +20,7 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Remaining;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.util.Strings;
 
 import java.util.Collection;
@@ -41,7 +40,6 @@ public class Config extends StageCommand {
         selected = new HashMap<>();
     }
 
-    @Remaining
     public void property(String str) {
         int idx;
         String key;

@@ -19,7 +19,7 @@ import com.google.gson.Gson;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -128,7 +128,7 @@ public class Application {
         }
         file = shared.join("changes").join(future.file().md5() + ".changes");
         if (file.exists()) {
-            try (Reader src = file.createReader()) {
+            try (Reader src = file.newReader()) {
                 return gson.fromJson(src, Changes.class);
             }
         }

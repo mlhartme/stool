@@ -15,26 +15,20 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.inline.Cli;
+import net.oneandone.inline.Console;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Slf4jOutputStream;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Child;
-import net.oneandone.sushi.cli.Cli;
-import net.oneandone.sushi.cli.Command;
-import net.oneandone.sushi.cli.Console;
-import net.oneandone.sushi.cli.Option;
-import net.oneandone.sushi.cli.Parser;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.InputLogStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
 
-public class Main extends Cli implements Command {
+public class Main {
     public static void main(String[] args) throws IOException {
         System.exit(doRun(args));
     }
@@ -43,13 +37,13 @@ public class Main extends Cli implements Command {
         String user;
         World world;
         Environment environment;
+        Cli cli;
         FileNode lib;
         Logging logging;
         String command;
         Console console;
-        Main main;
 
-        world = new World();
+        world = World.create();
         user = System.getProperty("user.name");
         environment = Environment.loadSystem();
         lib = Session.locateLib(environment.stoolBin(world));
@@ -57,22 +51,45 @@ public class Main extends Cli implements Command {
         logging = Logging.forStool(lib, user);
         command = "stool " + command(args);
         logging.logger("COMMAND").info(command);
-        console = console(world, logging, System.out, System.err);
-        main = new Main(logging, user, command, environment, console);
+        console = console(logging, System.out, System.err);
 
-        try {
-            return main.run(args);
-        } catch (ArgumentException e) {
-            throw e;
-        } catch (RuntimeException e) {
-            // this is a bug
-            main.session().reportException("RuntimeException", e);
-            throw e;
-        }
+        cli = new Cli();
+        cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
+        // TODO: cli.begin(console, "-v -e  { setVerbose(v) setStacktraces(e) }");
+        cli.begin("globals", new Globals(logging, user, command, environment, console, world),
+                "-nolock -svnuser -svnpassword -exception -shell " +
+                        "{ setNoLock(nolock) setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) setShell(shell) ");
+          cli.begin("globals.session", "");
+            cli.add(Help.class, "command?=null");
+            cli.add(Create.class, "-quiet -name url directory property* { property*(property) }");
+            cli.add(Import.class, "-name=null -max=40 dir* { dirs*(dir) setMax(max) setName(name) }");
+            cli.add(Select.class, "name?=null");
+            cli.base(StageCommand.class, "-autorechown -autochown -autorestart -autostop -stage=null -all -fail "
+                    + "{ setAutoRechown(autorechown) setAutoChown(autochown) setAutoRestart(autorestart) setAutoStop(autostop) "
+                    +   "setStage(stage) setAll(all) setFail(fail) }");
+              cli.add(Build.class, "");
+              cli.add(Cd.class, "target?=null { setTarget(target) }");
+              cli.add(Chown.class, "-batch user?=null");
+              cli.add(Cleanup.class, "");
+              cli.add(Config.class, "property* { property*(property) }");
+              cli.add(History.class, "-max=999 detail* { detail*(detail) }");
+              cli.add(Ls.class, "");
+              cli.add(Move.class, "dest");
+              cli.add(Port.class, "port { port*(port) }");
+              cli.add(Refresh.class, "-build -restore");
+              cli.add(Remove.class, "-batch -force -backstage { setBackstage(backstage) }");
+              cli.add(Rename.class, "name");
+              cli.add(Restart.class, "-debug -suspend { setDebug(debug) setSuspend(suspend) }");
+              cli.add(Start.class, "-debug -suspend -tail { setTail(tail) }");
+              cli.add(Status.class, "field* { field*(field) }");
+              cli.add(Stop.class, "-sleep");
+              cli.add(Validate.class, "-email -repair");
+
+        return cli.run(args);
     }
 
-    public static Console console(World world, Logging logging, OutputStream out, OutputStream err) {
-        return new Console(world, logging.writer(out, "OUT"), logging.writer(err, "ERR"),
+    public static Console console(Logging logging, OutputStream out, OutputStream err) {
+        return new Console(logging.writer(out, "OUT"), logging.writer(err, "ERR"),
                 new InputLogStream(System.in, new Slf4jOutputStream(logging.logger("IN"), true)));
     }
 
@@ -108,207 +125,5 @@ public class Main extends Cli implements Command {
             result.append(arg);
         }
         return result.toString();
-    }
-
-    private final Logging logging;
-    private final String user;
-    private final String command;
-    private final Environment environment;
-    private Session session;
-
-    @Option("svnuser")
-    private String svnuser;
-
-    @Option("svnpassword")
-    private String svnpassword;
-
-    @Option("exception")
-    private boolean exception;
-
-    @Option("shell")
-    private FileNode shellFile;
-
-    public Main(Logging logging, String user, String command, Environment environment, Console console) {
-        super(console);
-        this.logging = logging;
-        this.user = user;
-        this.command = command;
-        this.environment = environment;
-        this.session = null;
-    }
-
-    // TODO: same as sushi's run method, but does not catch RuntimeExceptions
-    @Override
-    public int run(String... args) {
-        Parser parser;
-        Command command;
-
-        parser = Parser.create(schema, getClass());
-        try {
-            command = (Command) parser.run(this, args);
-            console.verbose.println("command line: " + Arrays.asList(args));
-            if (pretend) {
-                console.info.println("pretend-only, command " + command + " is not executed");
-            } else {
-                command.invoke();
-            }
-        } catch (ArgumentException e) {
-            console.error.println(e.getMessage());
-            console.info.println("Specify 'help' to get a usage message.");
-            e.printStackTrace(exception ? console.error : console.verbose);
-            return -1;
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            console.error.println(e.getMessage());
-            e.printStackTrace(exception ? console.error : console.verbose);
-            return -1;
-        }
-        return 0;
-    }
-
-    @Child("build")
-    public Build build() throws IOException {
-        return new Build(session());
-    }
-
-    @Child("start")
-    public Start start() throws IOException {
-        return new Start(session(), false, false);
-    }
-
-    @Child("stop")
-    public Stop stop() throws IOException {
-        return new Stop(session());
-    }
-
-    @Child("remove")
-    public Remove remove() throws IOException {
-        return new Remove(session());
-    }
-
-    @Child("move")
-    public Move move() throws IOException {
-        return new Move(session());
-    }
-
-    @Child("rename")
-    public Rename rename() throws IOException {
-        return new Rename(session());
-    }
-
-    @Child("restart")
-    public Restart restart() throws IOException {
-        return new Restart(session());
-    }
-
-    @Child("create")
-    public Create create() throws IOException {
-        return new Create(session());
-    }
-
-    @Child("port")
-    public Port port() throws IOException {
-        return new Port(session());
-    }
-
-    @Child("import")
-    public Import imprt() throws IOException {
-        return new Import(session());
-    }
-
-    @Child("select")
-    public Select select() throws IOException {
-        return new Select(session());
-    }
-
-    @Child("chown")
-    public Chown chown() throws IOException {
-        return new Chown(session());
-    }
-
-    @Child("refresh")
-    public Refresh refresh() throws IOException {
-        return new Refresh(session());
-    }
-
-    @Child("status")
-    public Status status() throws IOException {
-        return new Status(session());
-    }
-
-    @Child("config")
-    public Config config() throws IOException {
-        return new Config(session());
-    }
-
-    @Child("cleanup")
-    public Cleanup cleanup() throws IOException {
-        return new Cleanup(session());
-    }
-
-    @Child("list")
-    public Ls list() throws IOException {
-        return new Ls(session());
-    }
-
-    @Child("validate")
-    public Validate validate() throws IOException {
-        return new Validate(session());
-    }
-
-    @Child("history")
-    public History history() throws IOException {
-        return new History(session());
-    }
-
-    @Child("cd")
-    public Cd cd() throws IOException {
-        return new Cd(session());
-    }
-
-    @Child("system-start")
-    public SystemStartStop systemStart() throws IOException {
-        return new SystemStartStop(session(), true);
-    }
-
-    @Child("system-stop")
-    public SystemStartStop systemStop() throws IOException {
-        return new SystemStartStop(session(), false);
-    }
-
-    @Override
-    @Child("help")
-    public Command help() {
-        try {
-            return new Help(session().lib.join("man"));
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-    @Override
-    public void printHelp() {
-        try {
-            help().invoke();
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
-    }
-
-
-    private Session session() throws IOException {
-        if (session == null) {
-            session = Session.load(logging, user, command, environment, console, shellFile, svnuser, svnpassword);
-        }
-        return session;
-    }
-
-    @Override
-    public void invoke() throws Exception {
-        if (exception) {
-            throw new RuntimeException("intentional exception");
-        }
-        printHelp();
     }
 }

@@ -197,7 +197,7 @@ public final class Files {
 
     public static final Substitution S = new Substitution("${{", "}}", '\\');
 
-    public static void template(PrintWriter log, Node src, FileNode dest, Map<String, String> variables) throws IOException {
+    public static void template(PrintWriter log, Node<?> src, FileNode dest, Map<String, String> variables) throws IOException {
         Filter selection;
         List<Node> nodes;
 
@@ -222,7 +222,7 @@ public final class Files {
             }
         }
 
-        for (Node binary : src.find(selection)) {
+        for (Node<?> binary : src.find(selection)) {
             if (isBinary(binary.getName())) {
                 Files.stoolFile(binary.copyFile(dest.join(binary.getRelative(src))));
             }

@@ -18,30 +18,23 @@ package net.oneandone.stool;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.Option;
 
 import java.io.IOException;
 
 public class Remove extends StageCommand {
-    @Option("batch")
     private boolean batch;
-
-    @Option("force")
     private boolean force;
-
-    @Option("backstage")
     private boolean backstageOnly;
-
-    private boolean removedSelected;
-
-    public Remove(Session session) {
-        this(session, false, false);
-    }
 
     public Remove(Session session, boolean batch, boolean force) {
         super(session, Mode.EXCLUSIVE, Mode.NONE, Mode.NONE);
         this.batch = batch;
         this.force = force;
+        this.backstageOnly = false;
+    }
+
+    public void setBackstage(boolean backstageOnly) {
+        this.backstageOnly = backstageOnly;
     }
 
     @Override

@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.setup;
 
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.ExitCode;
@@ -39,10 +39,10 @@ public class Debian {
     protected final FileNode cwd;
 
     public Debian(PrintWriter log) throws IOException {
-        world = new World();
-        console = new Console(world, log, log, System.in);
+        world = World.create();
+        console = new Console(log, log, System.in);
         console.setVerbose(true);
-        cwd = (FileNode) world.getWorking();
+        cwd = world.getWorking();
         log("#");
         log("# " + new Date());
         for (Map.Entry<String, String> entry : System.getenv().entrySet()) {

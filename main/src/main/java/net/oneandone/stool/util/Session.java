@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.EnumerationFailed;
+import net.oneandone.stool.Globals;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
@@ -35,8 +36,8 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.ReadLinkException;
@@ -60,18 +61,17 @@ import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 public class Session {
-    public static Session load(Logging logging, String user, String command, Environment environment, Console console,
+    public static Session load(Globals globals, String user, String command, Environment environment, Console console, World world,
                                FileNode shellFile, String svnuser, String svnpassword) throws IOException {
         Session session;
 
-        session = loadWithoutBackstageWipe(logging, user, command, environment, console, shellFile, svnuser, svnpassword);
+        session = loadWithoutBackstageWipe(globals, user, command, environment, console, world, shellFile, svnuser, svnpassword);
 
         // Stale backstage wiping: how to detect backstages who's stage directory was removed.
         //
@@ -129,20 +129,20 @@ public class Session {
         return (FileNode) bin.join("lib").resolveLink();
     }
 
-    private static Session loadWithoutBackstageWipe(Logging logging, String user, String command, Environment environment, Console console,
-                                                  FileNode shellFile, String svnuser, String svnpassword) throws IOException {
+    private static Session loadWithoutBackstageWipe(Globals globals, String user, String command, Environment environment, Console console,
+                                                  World world, FileNode shellFile, String svnuser, String svnpassword) throws IOException {
         ExtensionsFactory factory;
         Gson gson;
         FileNode lib;
         FileNode bin;
         Session result;
 
-        factory = ExtensionsFactory.create(console.world);
-        gson = gson(console.world, factory);
-        bin = environment.stoolBin(console.world);
+        factory = ExtensionsFactory.create(world);
+        gson = gson(world, factory);
+        bin = environment.stoolBin(world);
         bin.checkDirectory();
         lib = locateLib(bin);
-        result = new Session(factory, gson, logging, user, command, lib, bin, console, environment, StoolConfiguration.load(gson, lib),
+        result = new Session(globals, factory, gson, user, command, lib, bin, console, world, environment, StoolConfiguration.load(gson, lib),
                 Bedroom.loadOrCreate(gson, lib), shellFile, svnuser, svnpassword);
         result.selectedStageName = environment.getOpt(Environment.STOOL_SELECTED);
         return result;
@@ -151,6 +151,8 @@ public class Session {
     private static final int MEM_RESERVED_OS = 500;
 
     //--
+
+    public final Globals globals;
 
     public final ExtensionsFactory extensionsFactory;
     public final Gson gson;
@@ -163,6 +165,7 @@ public class Session {
     private String lazyGroup;
 
     public final Console console;
+    public final World world;
     public final Environment environment;
     public final StoolConfiguration configuration;
     public final Bedroom bedroom;
@@ -184,18 +187,21 @@ public class Session {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd");
 
-    public Session(ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command, FileNode lib, FileNode bin,
-                   Console console, Environment environment, StoolConfiguration configuration,
+    public Session(Globals globals, ExtensionsFactory extensionsFactory, Gson gson, String user, String command,
+                   FileNode lib, FileNode bin,
+                   Console console, World world, Environment environment, StoolConfiguration configuration,
                    Bedroom bedroom, FileNode shellFile, String svnuser, String svnpassword) {
+        this.globals = globals;
         this.extensionsFactory = extensionsFactory;
         this.gson = gson;
-        this.logging = logging;
+        this.logging = globals.logging;
         this.user = user;
         this.command = command;
         this.lib = lib;
         this.bin = bin;
         this.lazyGroup = null;
         this.console = console;
+        this.world = world;
         this.environment = environment;
         this.configuration = configuration;
         this.bedroom = bedroom;
@@ -228,7 +234,7 @@ public class Session {
         if (!configuration.admin.isEmpty()) {
             subject = "[stool exception] " + e.getMessage();
             body = new StringWriter();
-            body.write("stool: " + JavaSetup.versionString(console.world) + "\n");
+            body.write("stool: " + JavaSetup.versionString(world) + "\n");
             body.write("command: " + command + "\n");
             body.write("context: " + context + "\n");
             body.write("user: " + user + "\n");
@@ -539,7 +545,7 @@ public class Session {
         StageConfiguration stage;
 
         try {
-            mavenHome = Maven.locateMaven(console.world).getAbsolute();
+            mavenHome = Maven.locateMaven(world).getAbsolute();
         } catch (IOException e) {
             mavenHome = "";
         }
@@ -597,7 +603,7 @@ public class Session {
         List<String> result;
         int idx;
 
-        working = (FileNode) this.console.world.getWorking();
+        working = world.getWorking();
         result = new ArrayList<>();
         if (configuration.search.isEmpty()) {
             throw new IOException("no search tool configured");

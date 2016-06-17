@@ -29,8 +29,8 @@ import net.oneandone.stool.util.OwnershipException;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
@@ -525,7 +525,7 @@ public abstract class Stage {
         FileNode settings;
 
         if (lazyMaven == null) {
-            world = session.console.world;
+            world = session.world;
             mavenHome = config().mavenHome();
             if (mavenHome == null) {
                 settings = session.lib.join("maven-settings.xml");
@@ -614,7 +614,7 @@ public abstract class Stage {
             result.add(root);
         } else {
             for (String module : root.getModules()) {
-                modulePom = session.console.world.file(root.getBasedir()).join(module);
+                modulePom = session.world.file(root.getBasedir()).join(module);
                 if (modulePom.isDirectory()) {
                     modulePom = modulePom.join("pom.xml");
                 }
@@ -631,7 +631,7 @@ public abstract class Stage {
         return new Changes();
     }
     public FileNode localRepository() {
-        return session.configuration.shared ? backstage.join(".m2") : (FileNode) session.console.world.getHome().join(".m2/repository");
+        return session.configuration.shared ? backstage.join(".m2") : session.world.getHome().join(".m2/repository");
     }
 
     public Logs logs() {

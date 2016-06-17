@@ -23,7 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class ProcessesTest {
-    private static final World WORLD = new World();
+    private static final World WORLD = World.createMinimal();
 
     @Test
     public void tomcat() {

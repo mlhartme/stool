@@ -19,9 +19,7 @@ import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Option;
-import net.oneandone.sushi.cli.Remaining;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -29,11 +27,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Import extends SessionCommand {
-    @Option("max")
-    private int max = 40;
-
-    @Option("name")
-    private String nameTemplate = "%d";
+    private int max;
+    private String nameTemplate;
 
     private final List<FileNode> includes;
     private final List<FileNode> excludes;
@@ -42,9 +37,18 @@ public class Import extends SessionCommand {
         super(session, Mode.EXCLUSIVE);
         includes = new ArrayList<>();
         excludes = new ArrayList<>();
+        max = 40;
+        nameTemplate = "%d";
     }
 
-    @Remaining
+    public void setMax(int max) {
+        this.max = max;
+    }
+
+    public void setName(String name) {
+        this.nameTemplate = name;
+    }
+
     public void dirs(String directory) {
         boolean exclude;
         FileNode node;
@@ -69,7 +73,7 @@ public class Import extends SessionCommand {
 
         found = new ArrayList<>();
         if (includes.size() == 0) {
-            includes.add((FileNode) console.world.getWorking());
+            includes.add(world.getWorking());
         }
         existing = session.stageDirectories();
 
@@ -91,7 +95,7 @@ public class Import extends SessionCommand {
                 stage = found.get(0);
                 console.info.println("Importing " + stage.getDirectory());
                 stage = doImport(stage, null);
-                new Select(session).stageToSelect(stage.getName()).invoke();
+                new Select(session, stage.getName()).run();
                 break;
             default:
                 interactiveImport(found);

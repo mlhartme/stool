@@ -49,6 +49,6 @@ public class FileLocator extends Locator {
     }
 
     public String toString() {
-        return source.getURI().toString();
+        return source.getUri().toString();
     }
 }

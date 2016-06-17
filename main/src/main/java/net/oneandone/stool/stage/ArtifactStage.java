@@ -23,8 +23,8 @@ import net.oneandone.stool.stage.artifact.FileLocator;
 import net.oneandone.stool.stage.artifact.GavLocator;
 import net.oneandone.stool.stage.artifact.Locator;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.cli.Console;
+import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.MoveException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -85,7 +85,7 @@ public class ArtifactStage extends Stage {
             return new GavLocator(maven(), new DefaultArtifact(coords[0], artifactId, "war", version));
         } else if (locator.startsWith("file:")) {
             try {
-                return new FileLocator((FileNode) session.console.world.node(locator));
+                return new FileLocator((FileNode) session.world.node(locator));
             } catch (URISyntaxException e) {
                 throw new ArgumentException(locator + ": invalid file locator: " + e.getMessage(), e);
             }

@@ -17,11 +17,11 @@ package net.oneandone.stool.setup;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.cli.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
@@ -38,7 +38,7 @@ import java.net.UnknownHostException;
  */
 public class Lib {
     public static Lib withDefaultGroup(Console console, FileNode dir, String explicitConfig) throws IOException {
-        return new Lib(console, dir, group(console.world), explicitConfig);
+        return new Lib(console, dir, group(dir.getWorld()), explicitConfig);
     }
 
     private static String group(World world) throws IOException {
@@ -96,7 +96,7 @@ public class Lib {
         FileNode directory;
 
         if (OS.CURRENT == OS.MAC) {
-            directory = (FileNode) console.world.getHome().join("Downloads");
+            directory = dir.getWorld().getHome().join("Downloads");
             if (directory.isDirectory()) {
                 return directory;
             }
@@ -117,7 +117,7 @@ public class Lib {
     public void upgrade(String oldVersion) throws IOException {
         String newVersion;
 
-        newVersion = JavaSetup.versionString(console.world);
+        newVersion = JavaSetup.versionString(dir.getWorld());
         console.info.println("upgrade " + oldVersion + " -> " + newVersion);
         if (oldVersion.startsWith("3.3.")) {
             upgrade_33_34(dir);

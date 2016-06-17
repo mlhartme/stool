@@ -83,8 +83,8 @@ public class ProcessesController {
         return new ResponseEntity<>(output.toString(), headers, HttpStatus.OK);
     }
 
-    public Node logFile(String id) throws InterruptedException, ExistsException {
-        Node logfile;
+    public FileNode logFile(String id) throws InterruptedException, ExistsException {
+        FileNode logfile;
 
         logfile = logs.join(id + ".log");
         int i = 0;

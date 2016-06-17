@@ -17,9 +17,9 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.sushi.cli.ArgumentException;
-import net.oneandone.sushi.fs.LineFormat;
-import net.oneandone.sushi.fs.LineReader;
+import net.oneandone.inline.ArgumentException;
+import net.oneandone.sushi.io.LineFormat;
+import net.oneandone.sushi.io.LineReader;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -42,7 +42,7 @@ public class Pool {
 
         result = new Pool(file, first, last, backstages);
         if (file.exists()) {
-            try (Reader in = file.createReader(); LineReader src = new LineReader(in, FMT)) {
+            try (Reader in = file.newReader(); LineReader src = new LineReader(in, FMT)) {
                 while (true) {
                     line = src.next();
                     if (line == null) {

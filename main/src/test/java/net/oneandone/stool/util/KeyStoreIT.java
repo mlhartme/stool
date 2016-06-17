@@ -26,7 +26,7 @@ public class KeyStoreIT {
         World world;
         KeyStore keyStore;
 
-        world = new World();
+        world = World.create();
         workDir = world.getTemp().createTempDirectory();
 
         keyStore = new KeyStore(workDir);

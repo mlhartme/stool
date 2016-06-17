@@ -16,7 +16,7 @@
 package net.oneandone.stool.configuration;
 
 import net.oneandone.stool.extensions.Switch;
-import net.oneandone.sushi.cli.ArgumentException;
+import net.oneandone.inline.ArgumentException;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

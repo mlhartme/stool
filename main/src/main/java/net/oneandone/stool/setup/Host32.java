@@ -18,8 +18,8 @@ package net.oneandone.stool.setup;
 
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Vhost;
-import net.oneandone.sushi.fs.LineFormat;
-import net.oneandone.sushi.fs.LineReader;
+import net.oneandone.sushi.io.LineFormat;
+import net.oneandone.sushi.io.LineReader;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.util.Separator;
 
@@ -37,7 +37,7 @@ public class Host32 {
         String line;
 
         result = new ArrayList<>();
-        try (Reader in = file.createReader(); LineReader src = new LineReader(in, FMT)) {
+        try (Reader in = file.newReader(); LineReader src = new LineReader(in, FMT)) {
             while (true) {
                 line = src.next();
                 if (line == null) {

@@ -33,7 +33,7 @@ public class StageConfigurationTest {
         StageConfiguration configuration;
         FileNode tmp;
 
-        world = new World();
+        world = World.create();
         factory = ExtensionsFactory.create(world);
         gson = Session.gson(world, factory);
         configuration = new StageConfiguration("a", "b", "c", "refresh", factory.newInstance());

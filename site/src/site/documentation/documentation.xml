@@ -924,7 +924,7 @@
               <arg choice="plain">-autochown</arg>
               <arg choice="plain">-autorechown</arg>
               <arg choice="plain">-autostop</arg>
-              <arg choice="plain">-autorestop</arg>
+              <arg choice="plain">-autorestart</arg>
             </group>
             <arg choice="plain">command-options</arg>
           </cmdsynopsis>
@@ -1222,6 +1222,10 @@
             <arg rep="repeat">
               <replaceable>stage-option</replaceable>
             </arg>
+            <group>
+              <arg choice="plain">-build</arg>
+              <arg choice="plain">-restore</arg>
+            </group>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1>
@@ -1631,7 +1635,7 @@
               <replaceable>stage-option</replaceable>
             </arg>
             <group>
-              <arg><replaceable>application</replaceable>=<replaceable>port</replaceable></arg>
+              <arg rep="repeat"><replaceable>application</replaceable>=<replaceable>port</replaceable></arg>
             </group>
           </cmdsynopsis>
         </refsynopsisdiv>
@@ -1701,7 +1705,7 @@
             <arg rep="repeat">
               <replaceable>stage-option</replaceable>
             </arg>
-            <arg choice="plain">
+            <arg rep="repeat" choice="plain">
               <replaceable>field</replaceable>
             </arg>
           </cmdsynopsis>

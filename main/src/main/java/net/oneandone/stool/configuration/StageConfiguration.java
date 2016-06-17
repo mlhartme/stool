@@ -37,7 +37,7 @@ public class StageConfiguration {
     }
 
     public static StageConfiguration load(Gson gson, Node file) throws IOException {
-        try (Reader reader = file.createReader()) {
+        try (Reader reader = file.newReader()) {
             return gson.fromJson(reader, StageConfiguration.class);
         }
     }
@@ -147,7 +147,7 @@ public class StageConfiguration {
     }
 
     public void save(Gson gson, Node file) throws IOException {
-        try (Writer writer = file.createWriter()) {
+        try (Writer writer = file.newWriter()) {
             gson.toJson(this, writer);
         }
     }

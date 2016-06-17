@@ -29,7 +29,7 @@ public class LogReaderTest {
         int count;
         LogEntry entry;
 
-        world = new World();
+        world = World.create();
         reader = LogReader.create((FileNode) world.resource("logs/stool.log").getParent());
         count = 0;
         while (true) {
