@@ -3,6 +3,7 @@
 * dependency updates:
   * Sushi 2.8.18 to 3.1.0 and inline 1.0.2
   * Maven Embedded 3.11.1 to 3.12.1
+  * slf4j-api 1.7.12 to 1.7.21
 * fixed timestamp in generated shell file name
 * improved shell file handling: selecting a stage opens a sub-shell, selecting none exits this sub-shell
   * you simply type exit instead of stool select none
