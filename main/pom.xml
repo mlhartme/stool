@@ -150,8 +150,15 @@
                 -dontnote net.oneandone.sushi.**
                 -dontwarn net.oneandone.sushi.**
 
-                -keep public class * {
-                public protected *;
+                # inline reflection
+                -keep public class net.oneandone.stool.cli.* {
+                public *;
+                }
+                -keep public class net.oneandone.inline.Console {
+                public *;
+                }
+                -keep public class net.oneandone.stool.setup.JavaSetup {
+                public *;
                 }
 
                 -keep class ** extends javax.mail.Transport {
