@@ -75,11 +75,11 @@ public class BinMan {
         this.nowMan = nowMan;
     }
 
-    public String version() throws IOException {
+    public static String version(FileNode bin) throws IOException {
         try {
-            return nowBin.join("stool").openJar().join("stool.version").readString().trim();
+            return bin.join("stool").openJar().join("stool.version").readString().trim();
         } catch (IOException e) {
-            throw new IOException("unknown version of bin directory: " + nowBin, e);
+            throw new IOException("unknown version of bin directory: " + bin, e);
         }
     }
 

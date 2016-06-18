@@ -110,8 +110,8 @@
               <!-- JavaSetup is used as the setup tool *and* as the Jar file for the resulting stool installation. -->
               <path>$PATH</path>
               <options>-Djava.awt.headless=true</options>
-              <name>setup-stool</name>
-              <main>net.oneandone.stool.setup.JavaSetup</main>
+              <name>stool</name>
+              <main>net.oneandone.stool.cli.Main</main>
               <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
               <overwrite>org/apache/commons/logging/**/*</overwrite>
               <remove>META-INF/maven/**/*,
@@ -247,12 +247,12 @@
               <target>
                 <!-- main -->
                 <property name="cp" refid="maven.runtime.classpath" />
-                <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/setup-stool" fork="false" failonerror="true">
+                <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/stool" fork="false" failonerror="true">
                   <arg path="${project.build.directory}/debfiles-main" />
                 </java>
                 <java classname="net.oneandone.stool.setup.Control" classpath="${cp}" fork="false" failonerror="true">
                   <arg path="${basedir}/src/deb/main/control/" />
-                  <arg path="${project.build.directory}/setup-stool" />
+                  <arg path="${project.build.directory}/stool" />
                   <arg path="${project.build.directory}/control-main" />
                 </java>
               </target>

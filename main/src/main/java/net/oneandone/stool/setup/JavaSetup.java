@@ -30,7 +30,7 @@ import java.io.IOException;
  * And for Unix systems if you don't have (or don't want to use) sudo.
  */
 public class JavaSetup {
-    public static void main(String[] args) throws IOException {
+    public static int doRun(String[] args) throws IOException {
         Console console;
         World world;
         Cli cli;
@@ -42,20 +42,17 @@ public class JavaSetup {
         cli.begin(world);
           cli.begin(console, "-v -e  { setVerbose(v) setStacktraces(e) }");
             cli.add(JavaSetup.class, "ignored -batch config?=null");
-        System.exit(cli.run(args));
+        return cli.run(args);
     }
 
-    public static void standalone(Console console, boolean withJar, FileNode install, String config) throws Exception {
+    public static void standalone(Console console, FileNode install, String config) throws Exception {
         RmRfThread cleanup;
-        FileNode bin;
 
         install.checkNotExists();
         cleanup = new RmRfThread(console);
         cleanup.add(install);
         Runtime.getRuntime().addShutdownHook(cleanup);
         Lib.withDefaultGroup(console, install, config).create();
-        bin = install.join("bin");
-        BinMan.java(console, withJar, bin, install.join("man")).create();
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
@@ -120,9 +117,6 @@ public class JavaSetup {
     }
 
     public void run() throws Exception {
-        FileNode bin;
-        BinMan bm;
-
         if (directory == null) {
             console.info.println("Setup stool " + versionString(world) + "\n"
                 + "usage: setup-stool '-batch'? <config>?"
@@ -137,19 +131,14 @@ public class JavaSetup {
                 console.info.println("Ready to upgrade " + directory.getAbsolute() + " to Stool " + versionString(directory.getWorld()));
                 console.pressReturn();
             }
-
-            bin = directory.join("bin");
-            bm = BinMan.java(console, true, bin, directory.join("man"));
-            Lib.withDefaultGroup(console, directory, config).upgrade(bm.version());
-            bm.remove();
-            bm.create();
+            Lib.withDefaultGroup(console, directory, config).upgrade("3.3.3");
             console.info.println("Done.");
         } else {
             if (!batch) {
                 console.info.println("Ready to install Stool " + versionString(directory.getWorld()) + " to " + directory.getAbsolute());
                 console.pressReturn();
             }
-            standalone(console, true, directory, config);
+            standalone(console, directory, config);
             console.info.println("Done.");
         }
     }

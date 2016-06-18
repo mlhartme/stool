@@ -17,6 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
+import net.oneandone.stool.setup.JavaSetup;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
@@ -30,7 +31,7 @@ import java.io.OutputStream;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        System.exit(doRun(args));
+        System.exit(System.getProperty("setup") == null ? doRun(args) : JavaSetup.doRun(args));
     }
 
     public static int doRun(String[] args) throws IOException {
