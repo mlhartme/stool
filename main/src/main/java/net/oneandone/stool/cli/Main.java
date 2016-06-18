@@ -31,7 +31,7 @@ import java.io.OutputStream;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        System.exit(System.getProperty("setup") == null ? doRun(args) : JavaSetup.doRun(args));
+        System.exit(doRun(args));
     }
 
     public static int doRun(String[] args) throws IOException {
@@ -52,11 +52,13 @@ public class Main {
         user = System.getProperty("user.name");
         environment = Environment.loadSystem();
         lib = Session.locateLib(environment.stoolJar(world).getParent());
-        lib.checkDirectory();
         logging = Logging.forStool(lib, user);
         command = "stool " + command(args);
         logging.logger("COMMAND").info(command);
         console = console(logging, System.out, System.err);
+        if (!lib.exists()) {
+            JavaSetup.standalone(console, lib, null);
+        }
 
         globals = new Globals(logging, user, command, environment, console, world, shellFile == null ? null : world.file(shellFile));
         cli = new Cli(globals::handleException);
