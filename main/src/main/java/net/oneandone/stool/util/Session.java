@@ -21,6 +21,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.EnumerationFailed;
+import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
@@ -31,7 +32,7 @@ import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
-import net.oneandone.stool.setup.JavaSetup;
+import net.oneandone.stool.setup.Lib;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
@@ -237,7 +238,7 @@ public class Session {
         if (!configuration.admin.isEmpty()) {
             subject = "[stool exception] " + e.getMessage();
             body = new StringWriter();
-            body.write("stool: " + JavaSetup.versionString(world) + "\n");
+            body.write("stool: " + Main.versionString(world) + "\n");
             body.write("command: " + command + "\n");
             body.write("context: " + context + "\n");
             body.write("user: " + user + "\n");

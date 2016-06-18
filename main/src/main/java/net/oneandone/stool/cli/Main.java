@@ -17,7 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
-import net.oneandone.stool.setup.JavaSetup;
+import net.oneandone.stool.setup.Lib;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
@@ -57,7 +57,7 @@ public class Main {
         logging.logger("COMMAND").info(command);
         console = console(logging, System.out, System.err);
         if (!lib.exists()) {
-            JavaSetup.standalone(console, lib, null);
+            Lib.create(console, lib, null);
         }
 
         globals = new Globals(logging, user, command, environment, console, world, shellFile == null ? null : world.file(shellFile));
@@ -145,5 +145,16 @@ public class Main {
             result.append(arg);
         }
         return result.toString();
+    }
+
+    public static String versionString(World world) {
+        // don't use class.getPackage().getSpecificationVersion() because META-INF/META.MF
+        // 1) is not available in Webapps (in particular: dashboard)
+        // 2) is not available in test cases
+        try {
+            return world.resource("stool.version").readString().trim();
+        } catch (IOException e) {
+            throw new IllegalStateException("cannot determine version", e);
+        }
     }
 }

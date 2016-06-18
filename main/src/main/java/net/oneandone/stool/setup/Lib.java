@@ -18,9 +18,11 @@ package net.oneandone.stool.setup;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import net.oneandone.inline.Console;
+import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Files;
+import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -39,8 +41,16 @@ import java.util.Map;
  * it's an install directory without man and bin.
  */
 public class Lib {
-    public static Lib withDefaultGroup(Console console, FileNode dir, String explicitConfig) throws IOException {
-        return new Lib(console, dir, group(dir.getWorld()), explicitConfig);
+    public static void create(Console console, FileNode lib, String config) throws IOException {
+        RmRfThread cleanup;
+
+        lib.checkNotExists();
+        cleanup = new RmRfThread(console);
+        cleanup.add(lib);
+        Runtime.getRuntime().addShutdownHook(cleanup);
+        new Lib(console, lib, group(lib.getWorld()), config).create();
+        // ok, no exceptions - we have a proper install directory: no cleanup
+        Runtime.getRuntime().removeShutdownHook(cleanup);
     }
 
     private static String group(World world) throws IOException {
@@ -126,7 +136,7 @@ public class Lib {
     public void upgrade(String oldVersion) throws IOException {
         String newVersion;
 
-        newVersion = JavaSetup.versionString(dir.getWorld());
+        newVersion = Main.versionString(dir.getWorld());
         console.info.println("upgrade " + oldVersion + " -> " + newVersion);
         if (oldVersion.startsWith("3.3.")) {
             upgrade_33_34(dir);

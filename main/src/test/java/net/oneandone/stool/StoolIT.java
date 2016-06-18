@@ -18,7 +18,7 @@ package net.oneandone.stool;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.Main;
-import net.oneandone.stool.setup.JavaSetup;
+import net.oneandone.stool.setup.Lib;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Pool;
@@ -65,7 +65,7 @@ public class StoolIT {
 
         system = Environment.loadSystem();
         system.set(Environment.PS1, "prompt");
-        JavaSetup.standalone(Console.create(), install, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
+        Lib.create(Console.create(), install, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
         stages = install.getParent().join("stages");
         stages.deleteTreeOpt();
         stages.mkdir();
