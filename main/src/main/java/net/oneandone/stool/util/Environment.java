@@ -162,17 +162,13 @@ public class Environment {
         return Collections.unmodifiableMap(properties);
     }
 
-    private FileNode lazyBin = null;
+    private FileNode lazyCp = null;
 
-    public FileNode stoolBin(World world) {
-        if (lazyBin == null) {
-            lazyBin = world.locateClasspathItem(getClass()).getParent();
+    public FileNode stoolJar(World world) {
+        if (lazyCp == null) {
+            lazyCp = world.locateClasspathItem(getClass());
         }
-        return lazyBin;
-    }
-
-    public void setStoolBin(FileNode bin) {
-        lazyBin = bin;
+        return lazyCp;
     }
 
     //-- proxyOpts

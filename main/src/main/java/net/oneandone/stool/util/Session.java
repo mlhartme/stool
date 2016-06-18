@@ -137,15 +137,18 @@ public class Session {
         ExtensionsFactory factory;
         Gson gson;
         FileNode lib;
+        FileNode jar;
         FileNode bin;
         Session result;
 
         factory = ExtensionsFactory.create(world);
         gson = gson(world, factory);
-        bin = environment.stoolBin(world);
+        jar = environment.stoolJar(world);
+        jar.checkFile();
+        bin = jar.getParent();
         bin.checkDirectory();
-        lib = locateLib(bin);
-        result = new Session(factory, gson, logging, user, command, lib, bin, console, world, environment, StoolConfiguration.load(gson, lib),
+        lib = locateLib(jar.getParent());
+        result = new Session(factory, gson, logging, user, command, lib, jar, console, world, environment, StoolConfiguration.load(gson, lib),
                 Bedroom.loadOrCreate(gson, lib), shellFile, svnuser, svnpassword);
         result.selectedStageName = environment.getOpt(Environment.STOOL_SELECTED);
         return result;
@@ -162,7 +165,7 @@ public class Session {
     private final String command;
 
     public final FileNode lib;
-    public final FileNode bin;
+    public final FileNode jar;
     private String lazyGroup;
 
     public final Console console;
@@ -189,7 +192,7 @@ public class Session {
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd");
 
     public Session(ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command,
-                   FileNode lib, FileNode bin,
+                   FileNode lib, FileNode jar,
                    Console console, World world, Environment environment, StoolConfiguration configuration,
                    Bedroom bedroom, FileNode shellFile, String svnuser, String svnpassword) {
         this.extensionsFactory = extensionsFactory;
@@ -198,7 +201,7 @@ public class Session {
         this.user = user;
         this.command = command;
         this.lib = lib;
-        this.bin = bin;
+        this.jar = jar;
         this.lazyGroup = null;
         this.console = console;
         this.world = world;
@@ -266,7 +269,7 @@ public class Session {
     }
 
     public FileNode bin(String name) {
-        return bin.join(name);
+        return jar.getParent().join(name);
     }
 
     //-- environment handling

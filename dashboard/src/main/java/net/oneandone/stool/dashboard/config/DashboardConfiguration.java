@@ -81,7 +81,7 @@ public class DashboardConfiguration {
             svnpassword = null;
         }
         user = user();
-        system.setStoolBin(bin());
+        // TODO system.setStoolBin(bin());
         return Session.load(Logging.create(logs(), "dashboard", user), user, "dashboard", system, console(), world(), null, svnuser, svnpassword);
     }
 

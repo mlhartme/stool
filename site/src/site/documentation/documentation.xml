@@ -1796,6 +1796,7 @@
         |- tomcat
         | |- apache-tomcat-x.y.z (installed Tomcat)
         | :
+        |- bash.rc (for stool open)
         '- backstage
           '- (stage name)
             |- config.json (stage properties and some status fields)
@@ -1819,7 +1820,6 @@
         stool (Stool Application file)
         chowntree.sh
         service-wrapper.sh
-        bash.rc (for stool open)
         stool-complete (for bash completion)
       </programlisting>
     </para>

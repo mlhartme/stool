@@ -31,6 +31,8 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Stool's library directory. Lib holds the stool-maintained files like backstages and downloads;
@@ -76,7 +78,7 @@ public class Lib {
         // chgrp overwrites the permission - thus, i have to re-set permissions
         exec("chmod", "2775", dir.getAbsolute());
 
-        world.resource("templates/maven-settings.xml").copyFile(dir.join("maven-settings.xml"));
+        Files.template(console.verbose, world.resource("templates/lib"), dir, variables());
         conf = new StoolConfiguration(downloadCache());
         tuneHostname(conf);
         if (explicitConfig != null) {
@@ -92,6 +94,13 @@ public class Lib {
         Files.stoolFile(dir.join("run/locks").mkfile());
     }
 
+    public Map<String, String> variables() {
+        Map<String, String> variables;
+
+        variables = new HashMap<>();
+        variables.put("stool.lib", dir.getAbsolute());
+        return variables;
+    }
     private FileNode downloadCache() {
         FileNode directory;
 

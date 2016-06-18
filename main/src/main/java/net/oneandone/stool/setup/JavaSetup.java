@@ -132,7 +132,6 @@ public class JavaSetup {
                 + "  https://github.com/mlhartme/stool");
             return;
         }
-        environment.setStoolBin(directory.join("bin"));
         if (directory.exists()) {
             if (!batch) {
                 console.info.println("Ready to upgrade " + directory.getAbsolute() + " to Stool " + versionString(directory.getWorld()));

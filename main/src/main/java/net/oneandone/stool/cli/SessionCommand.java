@@ -61,7 +61,8 @@ public abstract class SessionCommand {
         }
         if (wasSelected == null) {
             if (session.getSelectedStageName() != null) {
-                extraLines.add("bash -rcfile " + session.environment.stoolBin(world).join("bash.rc").getAbsolute());
+                extraLines.add("export STOOL_CP=" + session.jar.getAbsolute());
+                extraLines.add("bash -rcfile " + session.lib.join("bash.rc").getAbsolute());
             }
         } else {
             if (session.getSelectedStageName() == null) {

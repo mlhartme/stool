@@ -1,12 +1,11 @@
 # Stool shell functions for bash
 
-export STOOL_SHELL_FILE=${{stool.bin}}/lib/run/users/.stool-shell-file-$$-$(date +%s)
+export STOOL_SHELL_FILE=${{stool.lib}}/run/users/.stool-shell-file-$$-$(date +%s)
 
 stool() {
   # adjust this to configure a specific java version
   local java=java
-  local bin=${{stool.bin}}
-  local cp
+  local lib=${{stool.lib}}
   local verbose=false
   local command="empty"
   for arg in $* ; do
@@ -21,28 +20,19 @@ stool() {
     esac
   done
   if [ $command = "reselect" ]; then
-    if [ -f $bin/lib/run/users/$USER ]; then
+    if [ -f $lib/run/users/$USER ]; then
       if $verbose ; then
         echo "reselect"
       fi
-      . $bin/lib/run/users/$USER
+      . $lib/run/users/$USER
     else
       if $verbose ; then
         echo "reselect none"
       fi
     fi
   else
-    if [ -z $STOOL_SOURCE ] ; then
-      cp="$bin/stool"
-    else
-      # for stool development
-      cp=$STOOL_SOURCE/target/setup-stool
-      if [ ! -e $cp ] ; then
-        echo "$cp not found. Check your STOOL_SOURCE variable and re-build."
-        return
-      fi
-    fi
-    for jar in $bin/lib/extensions/*.jar; do
+    cp=$STOOL_CP
+    for jar in $lib/extensions/*.jar; do
       # caution: if the extensions directory is empty, $jar is the pattern ...
       if [ -f $jar ] ; then
         cp="$cp:$jar"
@@ -53,7 +43,7 @@ stool() {
     if [ -f $STOOL_SHELL_FILE ] ; then
       . $STOOL_SHELL_FILE
       # I've seen an empty $USER when running stool from a cron jobs
-      mv -f $STOOL_SHELL_FILE $bin/lib/run/users/$USER || (echo "cannot move shell file, check USER variable: $USER"; rm $STOOL_SHELL_FILE)
+      mv -f $STOOL_SHELL_FILE $lib/run/users/$USER || (echo "cannot move shell file, check USER variable: $USER"; rm $STOOL_SHELL_FILE)
     fi
   fi
 
@@ -63,7 +53,7 @@ stool() {
 stoolIndicatorColor() {
     local RED="\033[0;31m"
     local BLUE_BACKGROUND="\033[44;1;37m"
-    local DIR=${{stool.bin}}/lib/backstages/$STOOL_SELECTED/anchor
+    local DIR=${{stool.lib}}/backstages/$STOOL_SELECTED/anchor
     if [ ! -e $DIR ] ; then
       echo -e "$BLUE_BACKGROUND"
     else

@@ -50,7 +50,7 @@ public class Main {
         shellFile = System.getProperty("stool.shell");
         user = System.getProperty("user.name");
         environment = Environment.loadSystem();
-        lib = Session.locateLib(environment.stoolBin(world));
+        lib = Session.locateLib(environment.stoolJar(world).getParent());
         lib.checkDirectory();
         logging = Logging.forStool(lib, user);
         command = "stool " + command(args);
