@@ -1773,7 +1773,7 @@
   <chapter>
     <title>Directory Layout</title>
     <para>
-      ... of $STOOL_LIB. Default location is <literal>/usr/share/stool</literal>.
+      ... of $STOOL_LIB: either /usr/share/stool or ~/.stool
       <programlisting>
         |- config.json (Stool configuration)
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
@@ -1816,7 +1816,6 @@
       </programlisting>
       ... and $STOOL_BIN - default location is <literal>/usr/share/stool</literal>.
       <programlisting>
-        lib (symlink to $STOOL_LIB)
         stool (Stool Application file)
         chowntree.sh
         service-wrapper.sh

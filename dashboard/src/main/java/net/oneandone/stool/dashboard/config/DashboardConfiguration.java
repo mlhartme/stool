@@ -17,7 +17,6 @@ package net.oneandone.stool.dashboard.config;
 
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.stool.cli.Globals;
 import net.oneandone.stool.dashboard.IndexController;
 import net.oneandone.stool.dashboard.StageInfoCache;
 import net.oneandone.stool.stage.Stage;
@@ -46,11 +45,6 @@ public class DashboardConfiguration {
     }
 
     @Bean
-    public FileNode lib() throws IOException {
-        return Session.locateLib(bin());
-    }
-
-    @Bean
     public FileNode bin() throws IOException {
         return world().file(System.getProperty("stool.bin"));
     }
@@ -74,10 +68,9 @@ public class DashboardConfiguration {
         Properties p;
         String svnuser;
         String svnpassword;
-        Globals globals;
 
         system = Environment.loadSystem();
-        lib = lib();
+        lib = Session.locateLib(bin());
         props = lib.join("dashboard.properties");
         if (props.exists()) {
             p = props.readProperties();
@@ -89,8 +82,7 @@ public class DashboardConfiguration {
         }
         user = user();
         system.setStoolBin(bin());
-        globals = new Globals(Logging.create(logs(), "dashboard", user), user, "command", system, console(), world());
-        return Session.load(globals.logging, user, "dashboard", system, console(), world(), null, svnuser, svnpassword);
+        return Session.load(Logging.create(logs(), "dashboard", user), user, "dashboard", system, console(), world(), null, svnuser, svnpassword);
     }
 
     @Bean

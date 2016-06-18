@@ -23,7 +23,6 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 /**
  * Creates an install directory (= "lib" + "bin" + "man")
@@ -42,7 +41,7 @@ public class JavaSetup {
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
         cli.begin(world);
           cli.begin(console, "-v -e  { setVerbose(v) setStacktraces(e) }");
-            cli.add(JavaSetup.class, "ignored -batch directory?=null config?=null");
+            cli.add(JavaSetup.class, "ignored -batch config?=null");
         System.exit(cli.run(args));
     }
 
@@ -57,7 +56,6 @@ public class JavaSetup {
         Lib.withDefaultGroup(console, install, config).create();
         bin = install.join("bin");
         BinMan.java(console, withJar, bin, install.join("man")).create();
-        bin.join("lib").mklink(install.getAbsolute());
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
@@ -75,12 +73,12 @@ public class JavaSetup {
     private final Console console;
     private final Environment environment;
 
-    public JavaSetup(World world, Console console, boolean batch, FileNode directory, String config) throws IOException {
+    public JavaSetup(World world, Console console, boolean batch, String config) throws IOException {
         this.world = world;
         this.console = console;
         this.batch = batch;
-        this.directory = directory;
-        this.config = config == null ? null : subst(directory.getWorld().file(config).readString());
+        this.directory = world.getHome().join(".stool");
+        this.config = config == null ? null : subst(world.file(config).readString());
         this.environment = Environment.loadSystem();
     }
 
@@ -123,14 +121,13 @@ public class JavaSetup {
 
     public void run() throws Exception {
         FileNode bin;
-        FileNode binLib;
         BinMan bm;
 
         if (directory == null) {
             console.info.println("Setup stool " + versionString(world) + "\n"
-                + "usage: setup-stool '-batch'? <directory> <config>?"
-                + "  Create a new <directory> or upgrades an existing.\n"
-                + "  Does not modify anything outside the <directory>."
+                + "usage: setup-stool '-batch'? <config>?"
+                + "  Create a new ~/.stool directory or upgrades an existing.\n"
+                + "  Does not modify anything outside this directory."
                 + "documentation:\n"
                 + "  https://github.com/mlhartme/stool");
             return;
@@ -145,13 +142,8 @@ public class JavaSetup {
             bin = directory.join("bin");
             bm = BinMan.java(console, true, bin, directory.join("man"));
             Lib.withDefaultGroup(console, directory, config).upgrade(bm.version());
-            binLib = bin.join("lib");
             bm.remove();
             bm.create();
-            if (Files.deleteIfExists(binLib.toPath())) {
-                console.info.println("cleaned previous lib: " + binLib);
-            }
-            binLib.mklink(directory.getAbsolute());
             console.info.println("Done.");
         } else {
             if (!batch) {

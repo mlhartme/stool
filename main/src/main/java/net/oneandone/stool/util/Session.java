@@ -125,7 +125,11 @@ public class Session {
     }
 
     public static FileNode locateLib(FileNode bin) throws ReadLinkException {
-        return (FileNode) bin.join("lib").resolveLink();
+        if (bin.getPath().equals("usr/bin")) {
+            return bin.getWorld().file("usr/share/stool");
+        } else {
+            return bin.getWorld().getHome().join(".stool");
+        }
     }
 
     private static Session loadWithoutBackstageWipe(Logging logging, String user, String command, Environment environment, Console console,
@@ -453,7 +457,7 @@ public class Session {
         }
     }
 
-    /** @return Free disk space in partition used for stool lib. CAUTION: not necessarily the partition used for stages. */
+    /** @return Free disk space in partition used for stool lib. TODO: not necessarily the partition used for stages. */
     public int diskFree() {
         return (int) (lib.toPath().toFile().getUsableSpace() / 1024 / 1024);
     }
