@@ -135,7 +135,8 @@ public class DebianMainSetup extends Debian {
 
         lib = new Lib(console, libdir, group, config.trim().isEmpty() ? null : config);
         if (libdir.exists()) {
-            tmp = libdir.getParent().join(libdir.getName() + ".upgrade");
+            // with symlinks resolved
+            tmp = world.file(libdir.toPath().toFile().getCanonicalFile()).getParent().join(libdir.getName() + ".upgrade");
             tmp.checkNotExists();
             log("creating backup ...");
             exec("cp", "-a", libdir.getAbsolute(), tmp.getAbsolute());
