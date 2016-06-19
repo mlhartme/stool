@@ -27,7 +27,7 @@
 
 # Stool 3.3.5 (2016-03-16)
 
-TODO: merge changes
+* Fixed dns validation to use proper hostname and port.
 
 # Stool 3.3.4 (2016-03-15)
 
