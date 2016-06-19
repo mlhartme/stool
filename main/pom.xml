@@ -310,6 +310,54 @@
                   </mapper>
                 </data>
                 <data>
+                  <src>${basedir}/src/deb/main/stool-complete</src>
+                  <dst>/etc/bash-complete.d/stool</dst>
+                  <conffile>true</conffile>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>644</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/target/stool</src>
+                  <dst>/etc/bin/stool</dst>
+                  <conffile>true</conffile>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>755</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/src/deb/main/bin/chowntree.sh</src>
+                  <dst>/etc/bin/stool-chowntree.sh</dst>
+                  <conffile>true</conffile>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>755</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${basedir}/src/deb/main/bin/service-wrapper.sh</src>
+                  <dst>/etc/bin/stool-service-wrapper.sh</dst>
+                  <conffile>true</conffile>
+                  <type>file</type>
+                  <mapper>
+                    <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>755</filemode>
+                  </mapper>
+                </data>
+                <data>
                   <src>${basedir}/src/deb/main/profile</src>
                   <dst>/etc/profile.d/stool.sh</dst>
                   <conffile>true</conffile>

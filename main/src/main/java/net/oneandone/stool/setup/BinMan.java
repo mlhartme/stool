@@ -45,33 +45,17 @@ public class BinMan {
         target.mkdir();
         bin = world.file("/usr/share/stool");
         man = world.file("/usr/share/man");
-        new BinMan(console, true, bin, man, target.join(bin.getName()), target.join(man.getName())).create();
+        new BinMan(console, bin, man, target.join(bin.getName()), target.join(man.getName())).create();
         System.exit(0);
-    }
-
-    public static BinMan java(Console console, boolean withJar, FileNode installedBin, FileNode installedMan) {
-        return new BinMan(console, withJar, installedBin, installedMan, installedBin, installedMan);
     }
 
     //--
 
     private final Console console;
-
-    /** to create bin directory with a stool file. False in tests because the classes are not yet available */
-    private final boolean withJar;
-
-    // locations when installed on target machine
-    private final FileNode installedMan;
-    private final FileNode installedBin;
-    private final FileNode nowBin;
     private final FileNode nowMan;
 
-    private BinMan(Console console, boolean withJar, FileNode installedBin, FileNode installedMan, FileNode nowBin, FileNode nowMan) {
+    private BinMan(Console console, FileNode nowMan) {
         this.console = console;
-        this.withJar = withJar;
-        this.installedBin = installedBin;
-        this.installedMan = installedMan;
-        this.nowBin = nowBin;
         this.nowMan = nowMan;
     }
 
@@ -84,71 +68,18 @@ public class BinMan {
     }
 
     public void remove() throws IOException {
-        nowBin.deleteTree();
         nowMan.deleteTree();
     }
 
     public void create() throws IOException {
-        bin();
         man();
     }
 
     //--
 
-    public Map<String, String> variables() {
-        Map<String, String> variables;
-
-        variables = new HashMap<>();
-        variables.put("stool.bin", installedBin.getAbsolute());
-        variables.put("man.path", "/usr/share/man".equals(installedMan.getAbsolute()) ? "" :
-                "# note that the empty entry instructs man to search locations.\n" +
-                        "export MANPATH=" + installedMan.getAbsolute() + ":$MANPATH\n");
-        return variables;
-    }
-
-    // CAUTION: does not generate the lib symlink
-    private void bin() throws IOException {
-        World world;
-        final byte[] marker = "exit $?\n".getBytes(Settings.UTF_8);
-        byte[] bytes;
-        int ofs;
-
-        world = nowBin.getWorld();
-        Files.createStoolDirectory(console.verbose, nowBin);
-        Files.template(console.verbose, world.resource("templates/bin"), nowBin, variables());
-
-        // strip launcher from application file
-        if (withJar) {
-            bytes = world.locateClasspathItem(getClass()).readBytes();
-            ofs = indexOf(bytes, marker) + marker.length;
-            try (OutputStream out = nowBin.join("stool").newAppendStream()) {
-                out.write(bytes, ofs, bytes.length - ofs);
-            }
-            nowBin.join("stool").setPermissions("rwxr-xr-x");
-        }
-    }
-
     private void man() throws IOException {
         Files.createStoolDirectory(console.verbose, nowMan);
         nowMan.getWorld().resource("templates/man").copyDirectory(nowMan);
         Files.stoolTree(console.verbose, nowMan);
-    }
-
-    //--
-
-    private static int indexOf(byte[] array, byte[] sub) {
-        int j;
-
-        for (int i = 0; i < array.length - sub.length; i++) {
-            for (j = 0; j < sub.length; j++) {
-                if (sub[j] != array[i + j]) {
-                    break;
-                }
-            }
-            if (j == sub.length) {
-                return i;
-            }
-        }
-        throw new IllegalStateException();
     }
 }
