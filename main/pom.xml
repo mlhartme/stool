@@ -157,6 +157,9 @@
                 -keep public class net.oneandone.inline.Console {
                 public *;
                 }
+                -keep public class net.oneandone.inline.commands.PackageVersion {
+                public *;
+                }
 
                 -keep class ** extends javax.mail.Transport {
                 public &lt;init&gt;(...);

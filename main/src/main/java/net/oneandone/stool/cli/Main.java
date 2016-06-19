@@ -17,6 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
+import net.oneandone.inline.commands.PackageVersion;
 import net.oneandone.stool.setup.Lib;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
@@ -52,18 +53,19 @@ public class Main {
         user = System.getProperty("user.name");
         environment = Environment.loadSystem();
         lib = Session.locateLib(environment.stoolJar(world).getParent());
+        if (!lib.exists()) {
+            Lib.create(Console.create(), lib, null);
+        }
         logging = Logging.forStool(lib, user);
         command = "stool " + command(args);
         logging.logger("COMMAND").info(command);
         console = console(logging, System.out, System.err);
-        if (!lib.exists()) {
-            Lib.create(console, lib, null);
-        }
 
         globals = new Globals(logging, user, command, environment, console, world, shellFile == null ? null : world.file(shellFile));
         cli = new Cli(globals::handleException);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
         cli.begin(console, "-v -e  { setVerbose(v) setStacktraces(e) }");
+           cli.add(PackageVersion.class, "version");
            cli.begin("globals", globals,  "-svnuser -svnpassword -exception { setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) }");
               cli.begin("globals.session", "");
                 cli.addDefault(Help.class, "help command?=null");
