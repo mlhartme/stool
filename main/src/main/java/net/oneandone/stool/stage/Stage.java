@@ -367,7 +367,7 @@ public abstract class Stage {
         if (session.configuration.shared) {
             launcher.arg("sudo", "-u", owner, "-E");
         }
-        launcher.arg(session.bin("service-wrapper.sh").getAbsolute());
+        launcher.arg(session.bin("stool-service-wrapper.sh").getAbsolute());
         launcher.arg(catalinaHome().getAbsolute());
         launcher.arg(serviceWrapperBase().getAbsolute());
         launcher.arg(backstage.getAbsolute());

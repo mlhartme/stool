@@ -311,7 +311,7 @@
                 </data>
                 <data>
                   <src>${basedir}/src/deb/main/stool-complete</src>
-                  <dst>/etc/bash-complete.d/stool</dst>
+                  <dst>/etc/bash_completion.d/stool</dst>
                   <conffile>true</conffile>
                   <type>file</type>
                   <mapper>

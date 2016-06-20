@@ -71,7 +71,7 @@ public class Main {
                 cli.addDefault(Help.class, "help command?=null");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Create.class, "create -quiet -name=null url directory?=null property* { property*(property) }");
-                    cli.add(Import.class, "import -name=null -max=40 dir* { dirs*(dir) setMax(max) setName(name) }");
+                    cli.add(Import.class, "import -name=%d -max=40 dir* { dirs*(dir) setMax(max) setName(name) }");
                     cli.add(Select.class, "select name?=null");
                     cli.base(StageCommand.class, "-autorechown -autochown -autorestart -autostop -stage=null -all -fail "
                             + "{ setAutoRechown(autorechown) setAutoChown(autochown) setAutoRestart(autorestart) setAutoStop(autostop) "
