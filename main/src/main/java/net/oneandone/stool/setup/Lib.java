@@ -20,6 +20,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Main;
+import net.oneandone.stool.configuration.Autoconf;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Files;
@@ -27,19 +28,15 @@ import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.util.Diff;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Stool's library directory. Lib holds the stool-maintained files like backstages and downloads;
- * it's an install directory without man and bin.
+ * Stool's library directory. Lib holds the stool-maintained files like backstages and downloads.
  */
 public class Lib {
     public static void create(Console console, FileNode lib, String config) throws IOException {
@@ -90,11 +87,7 @@ public class Lib {
         exec("chmod", "2775", dir.getAbsolute());
 
         Files.template(console.verbose, world.resource("templates/lib"), dir, variables());
-        conf = new StoolConfiguration(downloadCache());
-        tuneHostname(conf);
-        if (explicitConfig != null) {
-            conf = conf.createPatched(gson, explicitConfig);
-        }
+        conf = Autoconf.stool(dir);
         conf.save(gson, dir);
         if (!conf.downloadCache.exists()) {
             Files.createStoolDirectory(console.verbose, conf.downloadCache);
@@ -111,25 +104,6 @@ public class Lib {
         variables = new HashMap<>();
         variables.put("stool.lib", dir.getAbsolute());
         return variables;
-    }
-    private FileNode downloadCache() {
-        FileNode directory;
-
-        if (OS.CURRENT == OS.MAC) {
-            directory = dir.getWorld().getHome().join("Downloads");
-            if (directory.isDirectory()) {
-                return directory;
-            }
-        }
-        return dir.join("downloads");
-    }
-
-    private void tuneHostname(StoolConfiguration conf) {
-        try {
-            conf.hostname = InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (UnknownHostException e) {
-            console.info.println("WARNING: cannot configure hostname: " + e.getMessage() + ". Using " + conf.hostname);
-        }
     }
 
     //-- upgrade
