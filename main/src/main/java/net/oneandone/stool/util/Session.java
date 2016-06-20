@@ -269,7 +269,7 @@ public class Session {
     }
 
     public FileNode bin(String name) {
-        return jar.getParent().join(name);
+        return lib.join("bin", name);
     }
 
     //-- environment handling
@@ -494,7 +494,7 @@ public class Session {
     public void chown(String newOwner, FileNode ... dirs) throws Failure {
         Launcher launcher;
 
-        launcher = new Launcher(lib, "sudo", bin("stool-chowntree.sh").getAbsolute(), newOwner);
+        launcher = new Launcher(lib, "sudo", bin("chowntree.sh").getAbsolute(), newOwner);
         for (FileNode dir : dirs) {
             launcher.arg(dir.getAbsolute());
         }

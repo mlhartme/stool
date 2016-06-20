@@ -1,6 +1,6 @@
-%users ALL = (%users) NOPASSWD: /usr/share/stool/stool
-%stool ALL = (%stool) NOPASSWD: /usr/share/stool/stool
-%users ALL = (%users) NOPASSWD:SETENV: /usr/bin/stool-service-wrapper.sh
-%stool ALL = (%stool) NOPASSWD:SETENV: /usr/bin/stool-service-wrapper.sh
-%users ALL = (root) NOPASSWD: /usr/bin/stool-chowntree.sh
-%stool ALL = (root) NOPASSWD: /usr/bin/stool-chowntree.sh
+%users ALL = (%users) NOPASSWD: /usr/bin/stool
+%stool ALL = (%stool) NOPASSWD: /usr/bin/stool
+%users ALL = (%users) NOPASSWD:SETENV: /usr/share/stool/bin/service-wrapper.sh
+%stool ALL = (%stool) NOPASSWD:SETENV: /usr/share/stool/bin/service-wrapper.sh
+%users ALL = (root) NOPASSWD: /usr/share/stool/bin/chowntree.sh
+%stool ALL = (root) NOPASSWD: /usr/share/stool/bin/chowntree.sh

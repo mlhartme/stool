@@ -1778,6 +1778,9 @@
         |- config.json (Stool configuration)
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
         |- dashboard.properties (Dashboard configuration)
+        |- bin
+        | |- chowntree.sh
+        | `- service-wrapper.sh
         |- run
         | |- locks       (holds all locking data)
         | |- sleep.json
@@ -1814,13 +1817,6 @@
                   |- work (standard tomcat directory)
                   '- logs
                      '- applogs (application log files for pustefix apps)
-      </programlisting>
-      ... and $STOOL_BIN - default location is <literal>/usr/share/stool</literal>.
-      <programlisting>
-        stool (Stool Application file)
-        chowntree.sh
-        service-wrapper.sh
-        stool-complete (for bash completion)
       </programlisting>
     </para>
   </chapter>

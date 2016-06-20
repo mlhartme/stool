@@ -31,7 +31,7 @@ public class StoolCallable implements Callable<Failure> {
         Session session;
 
         session = stage.session;
-        return new StoolCallable(session.bin("stool"), command, options, stage, id, logs, session.configuration.shared, stage.owner());
+        return new StoolCallable(session.jar, command, options, stage, id, logs, session.configuration.shared, stage.owner());
     }
 
     private final FileNode stoolRaw;

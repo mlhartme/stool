@@ -1,6 +1,6 @@
 #! /bin/sh
 # usage
-#   stool-chowntree newUser dir*
+#   chowntree newUser dir*
 
 SCRIPT=$(basename $0)
 NEWUSER=$1; shift
