@@ -40,14 +40,12 @@ public class Main {
         FileNode lib;
         String user;
         Logging logging;
-        Console console;
 
         world = World.create();
-        lib = Session.locateLib(stoolJar(world).getParent());
+        lib = Session.locateLib(stoolJar(world));
         user = System.getProperty("user.name");
         logging = Logging.forStool(lib, user);
-        console = console(logging, System.out, System.err);
-        return doRun(user, logging, console, lib, args);
+        return doRun(user, logging, null, lib, args);
     }
 
     public static int doRun(String user, Logging logging, Console console, FileNode lib, String[] args) throws IOException {
@@ -62,7 +60,11 @@ public class Main {
         // TODO: 1 cannot pass this as an argument because inline cannot detect the command with it ...
         shellFile = System.getProperty("stool.shell");
         if (!lib.exists()) {
-            Lib.create(console, lib, null);
+            Lib.create(console == null ? Console.create() : console, lib, null);
+        }
+        if (console == null) {
+            // i need a proper logs directory first ...
+            console = console(logging, System.out, System.err);
         }
         command = "stool " + command(args);
         logging.logger("COMMAND").info(command);

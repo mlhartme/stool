@@ -45,8 +45,8 @@ public class DashboardConfiguration {
     }
 
     @Bean
-    public FileNode bin() throws IOException {
-        return world().file(System.getProperty("stool.bin"));
+    public FileNode jar() throws IOException {
+        return world().file(System.getProperty("stool.jar"));
     }
 
     @Bean
@@ -70,7 +70,7 @@ public class DashboardConfiguration {
         String svnpassword;
 
         system = Environment.loadSystem();
-        lib = Session.locateLib(bin());
+        lib = Session.locateLib(jar());
         props = lib.join("dashboard.properties");
         if (props.exists()) {
             p = props.readProperties();

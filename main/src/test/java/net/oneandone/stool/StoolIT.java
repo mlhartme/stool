@@ -148,7 +148,7 @@ public class StoolIT {
         console = Main.console(logging, devNull, devNull);
         command = command(args);
         System.out.print("  " + command);
-        result = Main.doRun(lib.getOwner().toString(), logging, console, lib, args);
+        result = Main.doRun(TESTUSER, logging, console, lib, args);
         if (result == 0) {
             System.out.println();
         } else {

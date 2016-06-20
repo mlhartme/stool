@@ -124,11 +124,11 @@ public class Session {
         console.verbose.println("wipeStaleBackstages done, ms=" + ((System.currentTimeMillis() - s)));
     }
 
-    public static FileNode locateLib(FileNode bin) throws ReadLinkException {
-        if (bin.getPath().equals("usr/bin")) {
-            return bin.getWorld().file("usr/share/stool");
+    public static FileNode locateLib(FileNode jar) throws ReadLinkException {
+        if (jar.getParent().getPath().equals("usr/bin")) {
+            return jar.getWorld().file("usr/share/stool");
         } else {
-            return bin.getWorld().getHome().join(".stool");
+            return jar.getWorld().getHome().join(".stool");
         }
     }
 
@@ -138,16 +138,13 @@ public class Session {
         Gson gson;
         FileNode lib;
         FileNode jar;
-        FileNode bin;
         Session result;
 
         factory = ExtensionsFactory.create(world);
         gson = gson(world, factory);
         jar = Main.stoolJar(world);
         jar.checkFile();
-        bin = jar.getParent();
-        bin.checkDirectory();
-        lib = locateLib(jar.getParent());
+        lib = locateLib(jar);
         result = new Session(factory, gson, logging, user, command, lib, jar, console, world, environment, StoolConfiguration.load(gson, lib),
                 Bedroom.loadOrCreate(gson, lib), shellFile, svnuser, svnpassword);
         result.selectedStageName = environment.getOpt(Environment.STOOL_SELECTED);

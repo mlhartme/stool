@@ -1,5 +1,5 @@
 _stool_complete() {
-      local lib=${{stool.bin}}/lib
+      local lib=${{stool.lib}}
       local cur prev cmd
       local select_opts general_opts
       COMPREPLY=()
