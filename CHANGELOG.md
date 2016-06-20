@@ -23,7 +23,7 @@
 * Changed default tomcat version from 8.0.26 to 8.0.32
 * Changed default service wrapper version from 3.5.26 to 3.5.29
 * Fixed tomcat.service to actually work for versions other than 3.5.26.
-* simplified multi-module build: STOOL_SOURCE now points to the main module.
+* simplified multi-module build; dumped STOOLSOURCE variable.
 
 # Stool 3.3.5 (2016-03-16)
 
