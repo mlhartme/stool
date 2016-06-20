@@ -24,7 +24,6 @@ import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Pool;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.io.MultiOutputStream;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.junit.After;
 import org.junit.Before;
@@ -32,7 +31,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 import static org.junit.Assert.fail;
 
@@ -44,7 +42,6 @@ public class StoolIT {
 
     private World world;
     private Logging logging;
-    private Environment system;
     private FileNode lib;
 
     public StoolIT() {
@@ -64,15 +61,13 @@ public class StoolIT {
         lib = world.guessProjectHome(StoolIT.class).join("target/it/lib");
         lib.getParent().mkdirsOpt();
         lib.deleteTreeOpt();
-
-        system = Environment.loadSystem();
-        system.set(Environment.PS1, "prompt");
         Lib.create(Console.create(), lib, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
+        logging = Logging.forStool(lib, TESTUSER);
+
         stages = lib.getParent().join("stages");
         stages.deleteTreeOpt();
         stages.mkdir();
         world.setWorking(stages);
-        logging = Logging.forStool(lib, TESTUSER);
         stool("system-start");
     }
 
