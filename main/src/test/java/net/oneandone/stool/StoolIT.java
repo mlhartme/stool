@@ -139,16 +139,12 @@ public class StoolIT {
 
 
     private void stool(String... args) throws IOException {
-        OutputStream devNull;
         int result;
         String command;
-        Console console;
 
-        devNull = MultiOutputStream.createNullStream();
-        console = Main.console(logging, devNull, devNull);
         command = command(args);
         System.out.print("  " + command);
-        result = Main.doRun(TESTUSER, logging, console, lib, args);
+        result = Main.doRun(TESTUSER, logging, lib, args);
         if (result == 0) {
             System.out.println();
         } else {

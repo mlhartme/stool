@@ -26,6 +26,7 @@ import net.oneandone.stool.util.Slf4jOutputStream;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.InputLogStream;
+import net.oneandone.sushi.io.MultiOutputStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -39,32 +40,36 @@ public class Main {
         World world;
         FileNode lib;
         String user;
-        Logging logging;
 
         world = World.create();
         lib = Session.locateLib(stoolJar(world));
         user = System.getProperty("user.name");
-        logging = Logging.forStool(lib, user);
-        return doRun(user, logging, null, lib, args);
+        return doRun(user, null, lib, args);
     }
 
-    public static int doRun(String user, Logging logging, Console console, FileNode lib, String[] args) throws IOException {
+    public static int doRun(String user, Logging logging, FileNode lib, String[] args) throws IOException {
         World world;
         String shellFile;
         Environment environment;
         Cli cli;
         String command;
         Globals globals;
+        Console console;
 
         world = lib.getWorld();
         // TODO: 1 cannot pass this as an argument because inline cannot detect the command with it ...
         shellFile = System.getProperty("stool.shell");
         if (!lib.exists()) {
-            Lib.create(console == null ? Console.create() : console, lib, null);
+            Lib.create(Console.create(), lib, null);
         }
-        if (console == null) {
-            // i need a proper logs directory first ...
+        if (logging == null) {
+            // i need lib with a proper logs directory first ...
+            logging = Logging.forStool(lib, user);
             console = console(logging, System.out, System.err);
+        } else {
+            // for integration dests
+            OutputStream devNull = MultiOutputStream.createNullStream();
+            console = console(logging, devNull, devNull);
         }
         command = "stool " + command(args);
         logging.logger("COMMAND").info(command);
