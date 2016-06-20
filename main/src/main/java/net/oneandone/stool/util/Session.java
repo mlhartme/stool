@@ -32,7 +32,6 @@ import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
-import net.oneandone.stool.setup.Lib;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;

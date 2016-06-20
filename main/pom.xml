@@ -210,7 +210,7 @@
                 -keep public class net.oneandone.stool.cli.Main {
                 public static void main(java.lang.String[]);
                 }
-                -keep public class net.oneandone.stool.setup.BinMan {
+                -keep public class net.oneandone.stool.setup.Man {
                 public static void main(java.lang.String[]);
                 }
                 -keep public class ** implements net.oneandone.stool.extensions.Extension {
@@ -247,7 +247,7 @@
               <target>
                 <!-- main -->
                 <property name="cp" refid="maven.runtime.classpath" />
-                <java classname="net.oneandone.stool.setup.BinMan" classpath="${project.build.directory}/stool" fork="false" failonerror="true">
+                <java classname="net.oneandone.stool.setup.Man" classpath="${project.build.directory}/stool" fork="false" failonerror="true">
                   <arg path="${project.build.directory}/debfiles-main" />
                 </java>
                 <java classname="net.oneandone.stool.setup.Control" classpath="${cp}" fork="false" failonerror="true">
