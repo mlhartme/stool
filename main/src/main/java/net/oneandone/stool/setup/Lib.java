@@ -17,6 +17,7 @@ package net.oneandone.stool.setup;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.StoolConfiguration;
@@ -194,10 +195,17 @@ public class Lib {
 
     public static Upgrade stool33_34() {
         return new Upgrade() {
+            JsonElement promptTransform(JsonElement e) {
+                String str;
+
+                str = e.getAsString();
+                str = str.replace("\\=", "\\u@\\h \\w \\$ ");
+                return new JsonPrimitive(str);
+            }
+
             String contactAdminRename() {
                 return "admin";
             }
-
         };
     }
 
