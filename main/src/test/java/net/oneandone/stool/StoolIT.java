@@ -34,6 +34,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import static org.junit.Assert.fail;
+
 /**
  * Integration test for stool.
  */
@@ -43,7 +45,7 @@ public class StoolIT {
     private World world;
     private Logging logging;
     private Environment system;
-    private FileNode install;
+    private FileNode lib;
 
     public StoolIT() {
     }
@@ -59,18 +61,18 @@ public class StoolIT {
             Pool.checkFree(even + 1);
         }
         world = World.create();
-        install = world.guessProjectHome(StoolIT.class).join("target/it/install");
-        install.getParent().mkdirsOpt();
-        install.deleteTreeOpt();
+        lib = world.guessProjectHome(StoolIT.class).join("target/it/lib");
+        lib.getParent().mkdirsOpt();
+        lib.deleteTreeOpt();
 
         system = Environment.loadSystem();
         system.set(Environment.PS1, "prompt");
-        Lib.create(Console.create(), install, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
-        stages = install.getParent().join("stages");
+        Lib.create(Console.create(), lib, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
+        stages = lib.getParent().join("stages");
         stages.deleteTreeOpt();
         stages.mkdir();
         world.setWorking(stages);
-        logging = Logging.forStool(install, TESTUSER);
+        logging = Logging.forStool(lib, TESTUSER);
         stool("system-start");
     }
 
@@ -78,7 +80,6 @@ public class StoolIT {
     public void after() throws Exception {
         stool("system-stop");
     }
-
 
     @Test
     public void turnaroundGavArtifact() throws IOException {
@@ -112,57 +113,48 @@ public class StoolIT {
     private void turnaround(String url) throws IOException {
         System.out.println("\nurl: " + url);
         stool("create", "-quiet", url, "it");
-        stool("select", "none");
-        stool("select", "it");
-        stool("status");
-        stool("validate");
-        stool("build");
-        stool("config", "tomcat.opts=@trustStore@");
-        stool("config", "tomcat.heap=300");
-        stool("refresh");
-        stool("start");
-        stool("stop", "-sleep");
-        stool("start");
-        stool("status");
-        stool("validate");
-        stool("restart");
-        stool("refresh", "-build", "-autostop");
-        stool("start");
-        stool("stop");
-        stool("list");
-        stool("validate");
-        stool("history");
-        stool("chown");
-        stool("rename", "renamed");
-        stool("move", install.getParent().join("movedStages").getAbsolute());
-        stool("remove", "-batch");
+        stool("status", "-stage", "it");
+        stool("validate", "-stage", "it");
+        stool("build", "-stage", "it");
+        stool("config", "-stage", "it", "tomcat.opts=@trustStore@");
+        stool("config", "-stage", "it", "tomcat.heap=300");
+        stool("refresh", "-stage", "it");
+        stool("start", "-stage", "it");
+        stool("stop", "-stage", "it", "-sleep");
+        stool("start", "-stage", "it");
+        stool("status", "-stage", "it");
+        stool("validate", "-stage", "it");
+        stool("restart", "-stage", "it");
+        stool("refresh", "-stage", "it", "-build", "-autostop");
+        stool("start", "-stage", "it");
+        stool("stop", "-stage", "it");
+        stool("list", "-stage", "it");
+        stool("validate", "-stage", "it");
+        stool("history", "-stage", "it");
+        stool("chown", "-stage", "it");
+        stool("rename", "-stage", "it", "renamed");
+        stool("move", "-stage", "renamed", lib.getParent().join("movedStages").getAbsolute());
+        stool("remove", "-stage", "renamed", "-batch");
     }
 
 
     private void stool(String... args) throws IOException {
         OutputStream devNull;
         int result;
-        Main main;
-        FileNode shellFile;
         String command;
         Console console;
 
         devNull = MultiOutputStream.createNullStream();
         console = Main.console(logging, devNull, devNull);
         command = command(args);
-        // CAUTION: don't use COMMAND here because history assumes unique ids for COMMAND log entries
-        logging.logger("ITCOMMAND").info(command);
-       /* TODO main = new Main(logging, TESTUSER, command, system, console);
         System.out.print("  " + command);
-        shellFile = world.getTemp().createTempFile();
-        result = main.run(Strings.append(new String[] { "-shell", shellFile.getAbsolute(), "-v" }, args));
-        shellFile.deleteFile();
+        result = Main.doRun(lib.getOwner().toString(), logging, console, lib, args);
         if (result == 0) {
             System.out.println();
         } else {
             System.out.println(" -> failed: " + result);
             fail(command + " -> " + result);
-        }*/
+        }
     }
 
     private String command(String[] args) {

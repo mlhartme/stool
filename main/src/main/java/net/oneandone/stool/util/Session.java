@@ -143,7 +143,7 @@ public class Session {
 
         factory = ExtensionsFactory.create(world);
         gson = gson(world, factory);
-        jar = environment.stoolJar(world);
+        jar = Main.stoolJar(world);
         jar.checkFile();
         bin = jar.getParent();
         bin.checkDirectory();

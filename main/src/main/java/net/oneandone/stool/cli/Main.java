@@ -36,31 +36,37 @@ public class Main {
     }
 
     public static int doRun(String[] args) throws IOException {
+        World world;
+        FileNode lib;
         String user;
+        Logging logging;
+        Console console;
+
+        world = World.create();
+        lib = Session.locateLib(stoolJar(world).getParent());
+        user = System.getProperty("user.name");
+        logging = Logging.forStool(lib, user);
+        console = console(logging, System.out, System.err);
+        return doRun(user, logging, console, lib, args);
+    }
+
+    public static int doRun(String user, Logging logging, Console console, FileNode lib, String[] args) throws IOException {
         World world;
         String shellFile;
         Environment environment;
         Cli cli;
-        FileNode lib;
-        Logging logging;
         String command;
-        Console console;
         Globals globals;
 
-        world = World.create();
+        world = lib.getWorld();
         // TODO: 1 cannot pass this as an argument because inline cannot detect the command with it ...
         shellFile = System.getProperty("stool.shell");
-        user = System.getProperty("user.name");
-        environment = Environment.loadSystem();
-        lib = Session.locateLib(environment.stoolJar(world).getParent());
         if (!lib.exists()) {
-            Lib.create(Console.create(), lib, null);
+            Lib.create(console, lib, null);
         }
-        logging = Logging.forStool(lib, user);
         command = "stool " + command(args);
         logging.logger("COMMAND").info(command);
-        console = console(logging, System.out, System.err);
-
+        environment = Environment.loadSystem();
         globals = new Globals(logging, user, command, environment, console, world, shellFile == null ? null : world.file(shellFile));
         cli = new Cli(globals::handleException);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
@@ -158,5 +164,9 @@ public class Main {
         } catch (IOException e) {
             throw new IllegalStateException("cannot determine version", e);
         }
+    }
+
+    public static FileNode stoolJar(World world) {
+        return world.locateClasspathItem(world.getClass());
     }
 }

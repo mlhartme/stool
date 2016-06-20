@@ -162,15 +162,6 @@ public class Environment {
         return Collections.unmodifiableMap(properties);
     }
 
-    private FileNode lazyCp = null;
-
-    public FileNode stoolJar(World world) {
-        if (lazyCp == null) {
-            lazyCp = world.locateClasspathItem(getClass());
-        }
-        return lazyCp;
-    }
-
     //-- proxyOpts
 
     public String proxyOpts() {

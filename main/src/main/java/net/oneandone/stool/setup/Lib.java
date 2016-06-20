@@ -88,6 +88,9 @@ public class Lib {
 
         Files.template(console.verbose, world.resource("templates/lib"), dir, variables());
         conf = Autoconf.stool(dir);
+        if (explicitConfig != null) {
+            conf = conf.createPatched(gson, explicitConfig);
+        }
         conf.save(gson, dir);
         if (!conf.downloadCache.exists()) {
             Files.createStoolDirectory(console.verbose, conf.downloadCache);
