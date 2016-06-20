@@ -66,11 +66,11 @@ import java.util.List;
 import java.util.Map;
 
 public class Session {
-    public static Session load(Logging logging, String user, String command, Environment environment, Console console, World world,
+    public static Session load(Logging logging, String user, String command, Console console, World world,
                                FileNode shellFile, String svnuser, String svnpassword) throws IOException {
         Session session;
 
-        session = loadWithoutBackstageWipe(logging, user, command, environment, console, world, shellFile, svnuser, svnpassword);
+        session = loadWithoutBackstageWipe(logging, user, command, console, world, shellFile, svnuser, svnpassword);
 
         // Stale backstage wiping: how to detect backstages who's stage directory was removed.
         //
@@ -132,19 +132,21 @@ public class Session {
         }
     }
 
-    private static Session loadWithoutBackstageWipe(Logging logging, String user, String command, Environment environment, Console console,
+    private static Session loadWithoutBackstageWipe(Logging logging, String user, String command, Console console,
                                                   World world, FileNode shellFile, String svnuser, String svnpassword) throws IOException {
         ExtensionsFactory factory;
         Gson gson;
         FileNode lib;
         FileNode jar;
         Session result;
+        Environment environment;
 
         factory = ExtensionsFactory.create(world);
         gson = gson(world, factory);
         jar = Main.stoolJar(world);
         jar.checkFile();
         lib = locateLib(jar);
+        environment = Environment.loadSystem();
         result = new Session(factory, gson, logging, user, command, lib, jar, console, world, environment, StoolConfiguration.load(gson, lib),
                 Bedroom.loadOrCreate(gson, lib), shellFile, svnuser, svnpassword);
         result.selectedStageName = environment.getOpt(Environment.STOOL_SELECTED);

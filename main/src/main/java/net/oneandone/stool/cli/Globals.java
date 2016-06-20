@@ -29,7 +29,6 @@ public class Globals {
     public final Logging logging;
     private final String user;
     private final String command;
-    private final Environment environment;
     private final Console console;
     private final World world;
 
@@ -37,11 +36,10 @@ public class Globals {
     public String svnpassword;
     public FileNode shellFile;
 
-    public Globals(Logging logging, String user, String command, Environment environment, Console console, World world, FileNode shellFile) {
+    public Globals(Logging logging, String user, String command, Console console, World world, FileNode shellFile) {
         this.logging = logging;
         this.user = user;
         this.command = command;
-        this.environment = environment;
         this.console = console;
         this.world = world;
         this.shellFile = shellFile;
@@ -60,7 +58,7 @@ public class Globals {
     }
 
     public Session session() throws IOException {
-        return Session.load(logging, user, command, environment, console, world, shellFile, svnuser, svnpassword);
+        return Session.load(logging, user, command, console, world, shellFile, svnuser, svnpassword);
     }
 
     //--

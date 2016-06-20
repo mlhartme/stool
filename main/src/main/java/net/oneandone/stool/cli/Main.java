@@ -50,7 +50,6 @@ public class Main {
     public static int doRun(String user, Logging logging, FileNode lib, String[] args) throws IOException {
         World world;
         String shellFile;
-        Environment environment;
         Cli cli;
         String command;
         Globals globals;
@@ -73,8 +72,7 @@ public class Main {
         }
         command = "stool " + command(args);
         logging.logger("COMMAND").info(command);
-        environment = Environment.loadSystem();
-        globals = new Globals(logging, user, command, environment, console, world, shellFile == null ? null : world.file(shellFile));
+        globals = new Globals(logging, user, command, console, world, shellFile == null ? null : world.file(shellFile));
         cli = new Cli(globals::handleException);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
         cli.begin(console, "-v -e  { setVerbose(v) setStacktraces(e) }");

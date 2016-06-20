@@ -61,7 +61,6 @@ public class DashboardConfiguration {
 
     @Bean
     public Session session() throws IOException {
-        Environment system;
         FileNode lib;
         String user;
         FileNode props;
@@ -69,7 +68,6 @@ public class DashboardConfiguration {
         String svnuser;
         String svnpassword;
 
-        system = Environment.loadSystem();
         lib = Session.locateLib(jar());
         props = lib.join("dashboard.properties");
         if (props.exists()) {
@@ -82,7 +80,7 @@ public class DashboardConfiguration {
         }
         user = user();
         // TODO system.setStoolBin(bin());
-        return Session.load(Logging.create(logs(), "dashboard", user), user, "dashboard", system, console(), world(), null, svnuser, svnpassword);
+        return Session.load(Logging.create(logs(), "dashboard", user), user, "dashboard", console(), world(), null, svnuser, svnpassword);
     }
 
     @Bean
