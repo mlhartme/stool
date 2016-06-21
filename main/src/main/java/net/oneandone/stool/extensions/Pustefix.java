@@ -39,7 +39,7 @@ public class Pustefix implements Extension {
         return new HashMap<>();
     }
 
-    private static final String APPLOGS = "tomcat/logs/applogs";
+    public static final String APPLOGS = "tomcat/logs/applogs";
 
     @Override
     public void beforeStart(Stage stage) throws IOException {

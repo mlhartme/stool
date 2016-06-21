@@ -1,5 +1,7 @@
 # Stool 3.4.0 
 
+* Logstash extension
+* improved default configuration
 * dependency updates:
   * Sushi 2.8.18 to 3.1.0 and inline 1.0.2
   * Maven Embedded 3.11.1 to 3.12.1
