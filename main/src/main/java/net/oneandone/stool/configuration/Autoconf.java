@@ -46,6 +46,16 @@ public class Autoconf {
             dflt.put("maven.opts", "-Xmx1024m -Dmaven.repo.local=@localRepository@ @trustStore@");
             dflt.put("pustefix", "true");
             dflt.put("pustefix.mode", "test");
+            dflt.put("logstash.output",
+                    "output { \n" +
+                    "  redis {\n" +
+                    "    key => 'logstash_stagehost'\n" +
+                    "    data_type => 'list'\n" +
+                    "    shuffle_hosts => true\n" +
+                    "    workers => 4\n" +
+                    "    host => [ \"10.76.80.152\", \"10.76.80.153\", \"10.76.80.154\" ]\n" +
+                    "  }\n" +
+                    "}\n");
             dest.defaults.put("https://svn.1and1.org/svn/PFX/controlpanel/", cp());
             dest.defaults.put("https://svn.1and1.org/svn/sales/workspaces/", workspace());
         }

@@ -24,7 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Logstash implements Extension {
+    private final String output;
+
     public Logstash() {
+        this("output { stdout {} }");
+    }
+
+    public Logstash(String output) {
+        this.output = output;
     }
 
     @Override
@@ -56,17 +63,7 @@ public class Logstash implements Extension {
                 "  }\n" +
                 "}\n" +
                 "\n" +
-                "filter {}\n" +
-                "\n" +
-                "output { \n" +
-                "  redis {\n" +
-                "    key => 'logstash_" + stage.getName() + "_" + stage.session.configuration.hostname + "'\n" +
-                "    data_type => 'list'\n" +
-                "    shuffle_hosts => true\n" +
-                "    workers => 4\n" +
-                "    host => [ \"10.76.80.152\", \"10.76.80.153\", \"10.76.80.154\" ]\n" +
-                "  }\n" +
-                "}\n");
+                "filter {}\n" + output);
         Files.stoolFile(file);
         file.link(link(stage));
     }
