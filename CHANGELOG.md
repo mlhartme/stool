@@ -15,7 +15,7 @@
   * prompt no longer supports \= to reference the previous prompt
   * Renamed -invocation argument to -shell
 * Added support for git urls.
-* Pommes is no longer hard-wired, theres a global `search` property to configure arbitrary search tools.
+* Pommes is no longer hard-wired, there's a global `search` property to configure arbitrary search tools.
 * Atomic upgrade: creates a backup of the lib directory before upgrade; this is restored if the upgrade fails
 * Removed system-import command.
 * Stage configuration changes:
