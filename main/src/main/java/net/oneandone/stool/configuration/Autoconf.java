@@ -25,14 +25,19 @@ public class Autoconf {
     }
 
     private static void oneAndOne(StoolConfiguration dest) {
+        String tools;
         String lavender;
         Map<String, String> dflt;
 
-        if (System.getenv("CISOTOOLS_HOME") != null || System.getenv("WSDTOOLS_HOME") != null) {
+        tools = System.getenv("CISOTOOLS_HOME");
+        if (tools == null) {
+            tools = System.getenv("WSDTOOLS_HOME");
+        }
+        if (tools != null) {
             lavender = System.getenv("LAVENDER_PROPERTIES");
             dest.admin = "michael.hartmeier@1und1.de";
             dest.mailHost = "mri.server.lan";
-            dest.macros.put("trustStore", "-Djavax.net.ssl.trustStore=$CISOTOOLS_HOME/cacerts");
+            dest.macros.put("trustStore", "-Djavax.net.ssl.trustStore=" + tools + "/cacerts");
             // note: doesn't work on local machines, only for stages ...
             // dest.certificates = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
             dflt = dest.defaults.get("");
