@@ -29,6 +29,8 @@ import net.oneandone.sushi.io.MultiOutputStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Map;
+import java.util.Properties;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -73,6 +75,7 @@ public class Main {
         logging.log("COMMAND", command);
         globals = new Globals(logging, user, command, console, world, shellFile == null ? null : world.file(shellFile));
         cli = new Cli(globals::handleException);
+        loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
         cli.begin(console, "-v -e  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
@@ -107,6 +110,17 @@ public class Main {
                       cli.add(Validate.class, "validate -email -repair");
 
         return cli.run(args);
+    }
+
+    private static void loadDefaults(Cli cli, World world) throws IOException {
+        FileNode file;
+        Properties p;
+
+        file = world.getHome().join(".stool.defaults");
+        if (file.exists()) {
+            p = file.readProperties();
+            cli.defaults((Map) p);
+        }
     }
 
     public static class SystemStart extends SystemStartStop {

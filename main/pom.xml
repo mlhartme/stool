@@ -56,15 +56,6 @@
       <version>2.7</version>
     </dependency>
 
-    <!-- logging -->
-    <!-- TODO -->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <version>1.2</version>
-      <scope>compile</scope><!-- overrides 'provided' -->
-    </dependency>
-
     <!-- test -->
     <dependency>
       <groupId>junit</groupId>
@@ -145,11 +136,6 @@
                 }
                 -keep public class net.oneandone.inline.commands.PackageVersion {
                 public *;
-                }
-
-                # logging
-                -keep class org.apache.commons.logging.** {
-                  public *;
                 }
 
                 #
