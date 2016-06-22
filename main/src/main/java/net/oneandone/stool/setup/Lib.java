@@ -17,6 +17,8 @@ package net.oneandone.stool.setup;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Main;
@@ -126,8 +128,11 @@ public class Lib {
     }
 
     private void upgrade_33_34(FileNode lib) throws IOException {
+        Upgrade stage33_34;
+
         exec("rm", lib.join("version").getAbsolute());
-        doUpgrade(stool33_34(), stage33_34());
+        stage33_34 = stage33_34();
+        doUpgrade(stool33_34(stage33_34()), stage33_34);
     }
 
     // TODO: ugly ...
@@ -170,7 +175,7 @@ public class Lib {
 
     //--
 
-    public static Upgrade stool33_34() {
+    public static Upgrade stool33_34(Upgrade stage33_34) {
         return new Upgrade() {
             JsonElement promptTransform(JsonElement e) {
                 String str;
@@ -180,8 +185,33 @@ public class Lib {
                 return new JsonPrimitive(str);
             }
 
+            JsonElement defaultsTransform(JsonElement element) {
+                JsonObject result;
+                JsonObject obj;
+                String url;
+                JsonObject defaults;
+
+                result = new JsonObject();
+                obj = element.getAsJsonObject();
+                for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+                    url = entry.getKey();
+                    defaults = entry.getValue().getAsJsonObject();
+                    result.add(url, migrate(defaults));
+                }
+                return result;
+            }
+
             String contactAdminRename() {
                 return "admin";
+            }
+
+            //--
+
+            private JsonObject migrate(JsonObject e) {
+                String str;
+
+                str = Transform.transform(Transform.toString(e), stage33_34);
+                return new JsonParser().parse(str).getAsJsonObject();
             }
         };
     }
@@ -194,6 +224,8 @@ public class Lib {
                 return e;
             }
             void sslUrlRemove() {
+            }
+            void tomcatPermRemove() {
             }
             String suffixesRename() {
                 return "urls";

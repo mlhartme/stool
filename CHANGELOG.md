@@ -3,6 +3,9 @@
 * simplified setup
   * arbitrary location for Stool binary
   * lib is either ~/.stool or /usr/share/stool
+* removed perm configuration because it's ignored by Java 8.
+* Logstash extension
+* improved default configuration
 * dependency updates:
   * Sushi 2.8.18 to 3.1.0 and inline 1.0.2
   * Maven Embedded 3.11.1 to 3.12.1
@@ -16,7 +19,7 @@
   * prompt no longer supports \= to reference the previous prompt
   * Renamed -invocation argument to -shell
 * Added support for git urls.
-* Pommes is no longer hard-wired, theres a global `search` property to configure arbitrary search tools.
+* Pommes is no longer hard-wired, there's a global `search` property to configure arbitrary search tools.
 * Atomic upgrade: creates a backup of the lib directory before upgrade; this is restored if the upgrade fails
 * Removed system-import command.
 * Stage configuration changes:

@@ -89,9 +89,6 @@ public class StageConfiguration {
     @Option(key = "tomcat.heap")
     public Integer tomcatHeap;
 
-    @Option(key = "tomcat.perm")
-    public Integer tomcatPerm;
-
     @Option(key = "tomcat.select")
     public List<String> tomcatSelect;
 
@@ -133,7 +130,6 @@ public class StageConfiguration {
         this.tomcatVersion = "8.0.32";
         this.tomcatService = "3.5.29";
         this.tomcatHeap = 200;
-        this.tomcatPerm = 64;
         this.tomcatSelect = new ArrayList<>();
         this.tomcatEnv = new HashMap<>();
         this.javaHome = javaHome;

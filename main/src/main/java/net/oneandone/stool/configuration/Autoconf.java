@@ -25,14 +25,19 @@ public class Autoconf {
     }
 
     private static void oneAndOne(StoolConfiguration dest) {
+        String tools;
         String lavender;
         Map<String, String> dflt;
 
-        if (System.getenv("CISOTOOLS_HOME") != null || System.getenv("WSDTOOLS_HOME") != null) {
+        tools = System.getenv("CISOTOOLS_HOME");
+        if (tools == null) {
+            tools = System.getenv("WSDTOOLS_HOME");
+        }
+        if (tools != null) {
             lavender = System.getenv("LAVENDER_PROPERTIES");
             dest.admin = "michael.hartmeier@1und1.de";
             dest.mailHost = "mri.server.lan";
-            dest.macros.put("trustStore", "-Djavax.net.ssl.trustStore=$CISOTOOLS_HOME/cacerts");
+            dest.macros.put("trustStore", "-Djavax.net.ssl.trustStore=" + tools + "/cacerts");
             // note: doesn't work on local machines, only for stages ...
             // dest.certificates = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
             dflt = dest.defaults.get("");
@@ -41,6 +46,16 @@ public class Autoconf {
             dflt.put("maven.opts", "-Xmx1024m -Dmaven.repo.local=@localRepository@ @trustStore@");
             dflt.put("pustefix", "true");
             dflt.put("pustefix.mode", "test");
+            dflt.put("logstash.output",
+                    "output { \n" +
+                    "  redis {\n" +
+                    "    key => 'logstash_stagehost'\n" +
+                    "    data_type => 'list'\n" +
+                    "    shuffle_hosts => true\n" +
+                    "    workers => 4\n" +
+                    "    host => [ \"10.76.80.152\", \"10.76.80.153\", \"10.76.80.154\" ]\n" +
+                    "  }\n" +
+                    "}\n");
             dest.defaults.put("https://svn.1and1.org/svn/PFX/controlpanel/", cp());
             dest.defaults.put("https://svn.1and1.org/svn/sales/workspaces/", workspace());
         }
@@ -52,9 +67,8 @@ public class Autoconf {
         result = new LinkedHashMap<>();
         result.put("build", "mvn clean install -Ppublish -U -B -T2C");
         result.put("tomcat.heap", "2000");
-        result.put("tomcat.perm", "512");
         result.put("suffix", "/xml/config");
-        result.put("maven.opts", "-Xmx2500m -XX:MaxPermSize=512m -Dmaven.repo.local=@localRepository@ @trustStore@");
+        result.put("maven.opts", "-Xmx2500m -Dmaven.repo.local=@localRepository@ @trustStore@");
         return result;
     }
 

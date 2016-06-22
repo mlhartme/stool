@@ -95,11 +95,6 @@ public class StoolConfiguration {
     /**
      * Base value to calculate ram per application
      */
-    public int basePerm;
-
-    /**
-     * Base value to calculate ram per application
-     */
     public int baseHeap;
 
     public String mailHost;
@@ -136,7 +131,6 @@ public class StoolConfiguration {
         portFirst = 9000;
         portLast = 9999;
         baseHeap = 200;
-        basePerm = 60;
         prompt = "{\\+} \\u@\\h \\w \\$ ";
         hostname = "localhost";
         diskMin = 2000;

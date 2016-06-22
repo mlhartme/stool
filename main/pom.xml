@@ -50,33 +50,19 @@
       </exclusions>
     </dependency>
 
-    <!-- logging -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.21</version>
-    </dependency>
-
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-core</artifactId>
-      <version>1.1.7</version>
-      <!-- TODO: needed to override inherited test scope -->
-      <scope>compile</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
-      <version>1.1.7</version>
-      <!-- TODO: needed to override inherited test scope -->
-      <scope>compile</scope>
-    </dependency>
-
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
       <version>2.7</version>
+    </dependency>
+
+    <!-- logging -->
+    <!-- TODO -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <version>1.2</version>
+      <scope>compile</scope><!-- overrides 'provided' -->
     </dependency>
 
     <!-- test -->
@@ -114,7 +100,6 @@
               <launcher>${basedir}/src/launcher</launcher>
               <main>net.oneandone.stool.cli.Main</main>
               <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
-              <overwrite>org/apache/commons/logging/**/*</overwrite>
               <remove>META-INF/maven/**/*,
                 META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
                 META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
@@ -162,6 +147,12 @@
                 public *;
                 }
 
+                # logging
+                -keep class org.apache.commons.logging.** {
+                  public *;
+                }
+
+                #
                 -keep class ** extends javax.mail.Transport {
                 public &lt;init&gt;(...);
                 }
@@ -205,9 +196,6 @@
                 public static void main(java.lang.String[]);
                 }
 
-                -keep public class net.oneandone.stool.util.Environment {
-                public static void main(java.lang.String[]);
-                }
                 -keep public class net.oneandone.stool.cli.Main {
                 public static void main(java.lang.String[]);
                 }
@@ -219,9 +207,6 @@
                 }
 
                 # Sushi
-                -keepclassmembers class * {
-                @net.oneandone.sushi.cli.* *;
-                }
                 -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
                 public &lt;init&gt;(...);
                 }

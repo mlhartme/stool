@@ -23,15 +23,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Pustefix implements Extension {
-    private final String mode;
+public class Logstash implements Extension {
+    private final String output;
 
-    public Pustefix() {
-        this("test");
+    public Logstash() {
+        this("output { stdout {} }");
     }
 
-    public Pustefix(String mode) {
-        this.mode = mode;
+    public Logstash(String output) {
+        this.output = output;
     }
 
     @Override
@@ -39,23 +39,42 @@ public class Pustefix implements Extension {
         return new HashMap<>();
     }
 
-    public static final String APPLOGS = "tomcat/logs/applogs";
+    private FileNode conf(Stage stage) {
+        return stage.shared().join("conf/logstash.conf");
+    }
+
+    private FileNode link(Stage stage) {
+        return stage.getDirectory().getWorld().file("/etc/logstash/conf.d/" + stage.getName() + ".conf");
+    }
 
     @Override
     public void beforeStart(Stage stage) throws IOException {
-        Files.createStoolDirectoryOpt(stage.session.console.verbose, stage.shared().join(APPLOGS));
+        FileNode file;
+
+        file = conf(stage);
+        file.writeString(
+                "input {\n" +
+                "  file {\n" +
+                "    type => 'generic'\n" +
+                "    tags => ['" + stage.getName() + "']\n" +
+                "    start_position => beginning\n" +
+                "    ignore_older => 0\n" +
+                "    path => ['" + stage.shared().join(Pustefix.APPLOGS).getAbsolute() + "/*/*.log']\n" +
+                "  }\n" +
+                "}\n" +
+                "\n" +
+                "filter {}\n" + output);
+        Files.stoolFile(file);
+        file.link(link(stage));
     }
 
     @Override
     public void beforeStop(Stage stage) throws IOException {
+        link(stage).deleteFile();
+        conf(stage).deleteFile();
     }
 
     @Override
     public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) {
-        String app;
-
-        app = host.substring(0, host.indexOf('.'));
-        result.put("mode", mode);
-        result.put("logroot", stage.shared().join(APPLOGS, app).getAbsolute());
     }
 }

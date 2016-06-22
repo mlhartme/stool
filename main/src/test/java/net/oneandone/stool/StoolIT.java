@@ -19,7 +19,6 @@ import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.setup.Lib;
-import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Pool;
 import net.oneandone.sushi.fs.World;
@@ -41,10 +40,12 @@ public class StoolIT {
     private static final String TESTUSER = System.getProperty("user.name");
 
     private World world;
-    private Logging logging;
     private FileNode lib;
+    private String context;
+    private int no;
 
     public StoolIT() {
+        no = 0;
     }
 
     @Before
@@ -62,8 +63,6 @@ public class StoolIT {
         lib.getParent().mkdirsOpt();
         lib.deleteTreeOpt();
         Lib.create(Console.create(), lib, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
-        logging = Logging.forStool(lib, TESTUSER);
-
         stages = lib.getParent().join("stages");
         stages.deleteTreeOpt();
         stages.mkdir();
@@ -78,7 +77,7 @@ public class StoolIT {
 
     @Test
     public void turnaroundGavArtifact() throws IOException {
-        turnaround("gav:net.oneandone:hellowar:1.0.3");
+        turnaround("gav", "gav:net.oneandone:hellowar:1.0.3");
     }
 
     @Test
@@ -86,26 +85,26 @@ public class StoolIT {
         FileNode file;
 
         file = Maven.withSettings(world).resolve("net.oneandone", "hellowar", "war", "1.0.3");
-        turnaround(file.getUri().toString());
+        turnaround("file", file.getUri().toString());
     }
 
     @Test
     public void turnaroundSvnSource() throws IOException {
-        turnaround("https://github.com/mlhartme/hellowar/trunk");
+        turnaround("svn", "https://github.com/mlhartme/hellowar/trunk");
     }
 
     @Test
     public void turnaroundGitSource() throws IOException {
-        turnaround("git@github.com:mlhartme/hellowar.git");
+        turnaround("git", "git@github.com:mlhartme/hellowar.git");
     }
 
     @Ignore // TODO
     public void turnaroundSourceMultiModule() throws IOException {
-        turnaround("https://svn.code.sf.net/p/pustefix/code/tags/pustefixframework-0.18.84/pustefix-samples");
+        turnaround("multi", "https://svn.code.sf.net/p/pustefix/code/tags/pustefixframework-0.18.84/pustefix-samples");
     }
 
-
-    private void turnaround(String url) throws IOException {
+    private void turnaround(String context, String url) throws IOException {
+        this.context = context;
         System.out.println("\nurl: " + url);
         stool("create", "-quiet", url, "it");
         stool("status", "-stage", "it");
@@ -132,11 +131,16 @@ public class StoolIT {
         stool("remove", "-stage", "renamed", "-batch");
     }
 
-
     private void stool(String... args) throws IOException {
+        FileNode logdir;
+        Logging logging;
         int result;
         String command;
 
+        no++;
+        logdir = lib.getParent().join(context + "-" + args[0] + "-" + no);
+        logdir.mkdirOpt();
+        logging = Logging.create(logdir, "stool", TESTUSER);
         command = command(args);
         System.out.print("  " + command);
         result = Main.doRun(TESTUSER, logging, lib, args);

@@ -15,29 +15,17 @@
  */
 package net.oneandone.stool.util;
 
-import org.slf4j.Logger;
-
 import java.io.OutputStream;
 
-public class Slf4jOutputStream extends OutputStream {
-    private Logger logger;
+public class LogOutputStream extends OutputStream {
+    private final Logging logging;
+    private final String logger;
     private final StringBuilder mem;
-    private boolean logAsError;
 
-
-    public Slf4jOutputStream(Logger logger, boolean logAsError) {
-        setLogger(logger);
-        setLogAsError(logAsError);
-        mem = new StringBuilder();
-    }
-
-    public void setLogAsError(boolean error) {
-        this.logAsError = error;
-    }
-
-
-    public void setLogger(Logger logger) {
+    public LogOutputStream(Logging logging, String logger) {
+        this.logging = logging;
         this.logger = logger;
+        this.mem = new StringBuilder();
     }
 
     public void write(int b) {
@@ -48,18 +36,9 @@ public class Slf4jOutputStream extends OutputStream {
         }
     }
 
-    public boolean getLogAsError() {
-        return logAsError;
-    }
-
     private void writeLine() {
-        if (getLogAsError()) {
-            logger.error(mem.toString());
-        } else {
-            logger.info(mem.toString());
-        }
+        logging.log(logger, mem.toString());
         mem.setLength(0);
-
     }
 
     public void flush() {

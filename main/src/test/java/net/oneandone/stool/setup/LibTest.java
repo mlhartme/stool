@@ -75,5 +75,6 @@ public class LibTest {
         assertEquals("151204.151204-6.2", stage.id);
         assertEquals(Strings.toList("prefix-[]", "[]-suffix"), stage.urls);
         assertEquals("{\\+} \\u@\\h \\w \\$ ", stool.prompt);
+        assertEquals(null, stool.defaults.get("https://svn.1and1.org/svn/controlpanel_app/controlpanel/").get("tomcat.perm"));
     }
 }
