@@ -77,16 +77,16 @@ public class Main {
         cli = new Cli(globals::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
-        cli.begin(console, "-v -e  { setVerbose(v) setStacktraces(e) }");
+        cli.begin(console, "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
-           cli.begin("globals", globals,  "-svnuser=null -svnpassword=null -exception { setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) }");
+           cli.begin("globals", globals,  "-svnuser=@ -svnpassword=@ -exception { setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) }");
               cli.begin("globals.session", "");
                 cli.addDefault(Help.class, "help command?=null");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Create.class, "create -quiet -name=null url directory?=null property* { property*(property) }");
                     cli.add(Import.class, "import -name=%d -max=40 dir* { dirs*(dir) setMax(max) setName(name) }");
                     cli.add(Select.class, "select name?=null");
-                    cli.base(StageCommand.class, "-autorechown -autochown -autorestart -autostop -stage=null -all -fail "
+                    cli.base(StageCommand.class, "-autorechown=@ -autochown=@ -autorestart=@ -autostop=@ -stage=null -all -fail "
                             + "{ setAutoRechown(autorechown) setAutoChown(autochown) setAutoRestart(autorestart) setAutoStop(autostop) "
                             +   "setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Build.class, "build");
