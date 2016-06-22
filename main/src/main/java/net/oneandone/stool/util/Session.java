@@ -47,8 +47,6 @@ import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.codehaus.plexus.DefaultPlexusContainer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
@@ -224,15 +222,13 @@ public class Session {
 
     //--
 
-    private static final Logger LOG = LoggerFactory.getLogger(Session.class);
-
     /** logs an error for administrators, i.e. the user is not expected to understand/fix this problem. */
     public void reportException(String context, Throwable e) {
         String subject;
         StringWriter body;
         PrintWriter writer;
 
-        LOG.error("[" + command + "] " + context + ": " + e.getMessage(), e);
+        logging.error("[" + command + "] " + context + ": " + e.getMessage(), e);
         if (!configuration.admin.isEmpty()) {
             subject = "[stool exception] " + e.getMessage();
             body = new StringWriter();
@@ -253,7 +249,7 @@ public class Session {
             try {
                 configuration.mailer().send(configuration.admin, new String[]{configuration.admin}, subject, body.toString());
             } catch (MessagingException suppressed) {
-                LOG.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
+                logging.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
             }
         }
     }

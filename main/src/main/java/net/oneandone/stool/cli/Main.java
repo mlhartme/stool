@@ -21,7 +21,7 @@ import net.oneandone.inline.commands.PackageVersion;
 import net.oneandone.stool.setup.Lib;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.Slf4jOutputStream;
+import net.oneandone.stool.util.LogOutputStream;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.InputLogStream;
@@ -70,7 +70,7 @@ public class Main {
             console = console(logging, devNull, devNull);
         }
         command = "stool " + command(args);
-        logging.logger("COMMAND").info(command);
+        logging.log("COMMAND", command);
         globals = new Globals(logging, user, command, console, world, shellFile == null ? null : world.file(shellFile));
         cli = new Cli(globals::handleException);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
@@ -122,7 +122,7 @@ public class Main {
     }
     public static Console console(Logging logging, OutputStream out, OutputStream err) {
         return new Console(logging.writer(out, "OUT"), logging.writer(err, "ERR"),
-                new InputLogStream(System.in, new Slf4jOutputStream(logging.logger("IN"), true)));
+                new InputLogStream(System.in, new LogOutputStream(logging, "IN")));
     }
 
     /** hide shell and svn arguments */

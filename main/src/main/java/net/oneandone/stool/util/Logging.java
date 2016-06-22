@@ -15,26 +15,17 @@
  */
 package net.oneandone.stool.util;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.encoder.Encoder;
-import ch.qos.logback.core.encoder.EncoderBase;
-import ch.qos.logback.core.rolling.RollingFileAppender;
-import ch.qos.logback.core.rolling.TimeBasedRollingPolicy;
 import net.oneandone.sushi.fs.Settings;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiOutputStream;
 import net.oneandone.sushi.io.PrefixWriter;
-import net.oneandone.sushi.util.Strings;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -59,12 +50,10 @@ public class Logging {
         today = DATE_FORMAT.format(LocalDate.now());
         id = today + '-' + Integer.toString(id(dir, today));
         result = new Logging(id, dir.join(name + EXTENSION), user);
-        result.configureRootLogger();
         return result;
     }
 
     public final String id;
-    private final LoggerContext context;
     private final FileNode file;
     private final String user;
 
@@ -73,7 +62,6 @@ public class Logging {
 
     public Logging(String id, FileNode file, String user) throws IOException {
         this.id = id;
-        this.context = (LoggerContext) LoggerFactory.getILoggerFactory();
         this.file = file;
         this.user = user;
         setStage("", "");
@@ -88,22 +76,49 @@ public class Logging {
         stageName = name;
     }
 
-    private void configureRootLogger() {
-        Logger root;
+    public void log(String logger, String message) {
+        char c;
 
-        // adjust the default configuration
-        root = context.getLogger("ROOT");
-        root.detachAndStopAllAppenders();
-        root.addAppender(appender("OTHER"));
-        root.setLevel(Level.INFO);
+        try (Writer writer = file.newAppender()) {
+            writer.append(LogEntry.TIME_FMT.format(LocalDateTime.now())).append('|');
+            writer.append(id).append('|');
+            writer.append(logger).append('|');
+            writer.append(user).append('|');
+            writer.append(stageId).append('|');
+            writer.append(stageName).append('|');
+            for (int i = 0, max = message.length(); i < max; i++) {
+                c = message.charAt(i);
+                switch (c) {
+                    case '\r':
+                        writer.append("\\r");
+                        break;
+                    case '\n':
+                        writer.append("\\n");
+                        break;
+                    case '\\':
+                        writer.append("\\\\");
+                        break;
+                    default:
+                        writer.append(c);
+                        break;
+                }
+            }
+            writer.append('\n');
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void error(String message, Throwable throwable) {
+        log("ERROR", message);
+        //TODO: throwable
     }
 
     public PrintWriter writer(OutputStream stream, String logger) {
         PrintWriter result;
 
         try {
-            result = new PrintWriter(
-                    new OutputStreamWriter(MultiOutputStream.createTeeStream(stream, new Slf4jOutputStream(logger(logger), false)), Settings.UTF_8), true);
+            result = new PrintWriter(new OutputStreamWriter(MultiOutputStream.createTeeStream(stream, new LogOutputStream(this, logger)), Settings.UTF_8), true);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
         }
@@ -111,114 +126,6 @@ public class Logging {
         result = new PrefixWriter(result);
         return result;
     }
-
-    public Logger logger(String name) {
-        Logger result;
-
-        result = context.getLogger(name);
-        // important for test cases, where you might instantiate multiple Logging objects
-        result.detachAndStopAllAppenders();
-        result.setAdditive(false);
-        result.setLevel(Level.INFO);
-        result.addAppender(appender(name));
-        return result;
-    }
-
-    private RollingFileAppender appender(String logger) {
-        RollingFileAppender result;
-        TimeBasedRollingPolicy policy;
-
-        result = new RollingFileAppender() {
-            @Deprecated
-            public void rollover() {
-                super.rollover();
-                try {
-                    if (!file.exists()) {
-                        file.mkfile();
-                    }
-                    // Make sure the file is always group-writable, because all users share the same log file
-                    // (The archived log is not a problems, because it's written exactly one, all later access is reading)
-                    Files.stoolFile(file);
-                } catch (IOException e) {
-                    throw new RuntimeException("TODO", e);
-                }
-            }
-        };
-        result.setContext(context);
-        result.setName(logger + "-appender");
-        result.setEncoder(encoder(logger));
-        result.setAppend(true);
-        result.setFile(file.getAbsolute());
-
-        policy = new TimeBasedRollingPolicy();
-        policy.setContext(context);
-        policy.setParent(result);
-        policy.setFileNamePattern(file.getParent().getAbsolute() + "/" + Strings.removeRightOpt(file.getName(), EXTENSION)
-                + "-%d{yyyy-MM-dd}.log.gz");
-        policy.setMaxHistory(180);
-        policy.start();
-
-        result.setRollingPolicy(policy);
-        result.start();
-
-        return result;
-    }
-
-    private Encoder<ILoggingEvent> encoder(final String logger) {
-        return new EncoderBase<ILoggingEvent>() {
-            private PrintWriter writer;
-
-            @Override
-            public void init(OutputStream out) {
-                try {
-                    writer = new PrintWriter(new OutputStreamWriter(out, Settings.UTF_8));
-                } catch (UnsupportedEncodingException e) {
-                    throw new IllegalStateException(e);
-                }
-            }
-
-            @Override
-            public void doEncode(ILoggingEvent event) throws IOException {
-                String message;
-                char c;
-
-                writer.append(LogEntry.TIME_FMT.format(LocalDateTime.now())).append('|');
-                writer.append(id).append('|');
-                writer.append(logger).append('|');
-                writer.append(user).append('|');
-                writer.append(stageId).append('|');
-                writer.append(stageName).append('|');
-                message = event.getFormattedMessage();
-                for (int i = 0, max = message.length(); i < max; i++) {
-                    c = message.charAt(i);
-                    switch (c) {
-                        case '\r':
-                            writer.append("\\r");
-                            break;
-                        case '\n':
-                            writer.append("\\n");
-                            break;
-                        case '\\':
-                            writer.append("\\\\");
-                            break;
-                        default:
-                            writer.append(c);
-                            break;
-                    }
-                }
-                writer.append('\n');
-                writer.flush();
-            }
-
-            @Override
-            public void close() throws IOException {
-                if (writer != null) {
-                    writer.close();
-                }
-            }
-        };
-    }
-
 
     //--
 
@@ -312,6 +219,7 @@ public class Logging {
         }
         return result;
     }
+
     public List<LogEntry> info(String stageId, String id) throws Exception {
         LogEntry entry;
         List<LogEntry> result;
