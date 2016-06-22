@@ -442,7 +442,6 @@ public class Session {
             if (Stage.shared(backstage).join("run/tomcat.pid").exists()) {
                 stage = loadStageConfiguration(backstage);
                 reserved += stage.tomcatHeap;
-                reserved += stage.tomcatPerm;
             }
         }
         return reserved;

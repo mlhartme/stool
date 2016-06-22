@@ -402,7 +402,7 @@ public abstract class Stage {
     private void checkMemory() throws IOException {
         int requested;
 
-        requested = configuration.tomcatHeap + configuration.tomcatPerm;
+        requested = configuration.tomcatHeap;
         int unreserved = session.memUnreserved();
         if (requested > unreserved) {
             throw new ArgumentException("Cannot reserve memory:\n"
@@ -489,9 +489,6 @@ public abstract class Stage {
         size = size();
         if (configuration.tomcatHeap == 0 || configuration.tomcatHeap == 200) {
             configuration.tomcatHeap = Math.min(4096, 150 + size * session.configuration.baseHeap);
-        }
-        if (configuration.tomcatPerm == 0 || configuration.tomcatPerm == 64) {
-            configuration.tomcatPerm = Math.min(1024, 100 + size * session.configuration.basePerm);
         }
         if (configuration.build.isEmpty() || configuration.build.equals("false")) {
             configuration.build = getDefaultBuildCommand();

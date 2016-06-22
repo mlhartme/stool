@@ -67,9 +67,8 @@ public class Autoconf {
         result = new LinkedHashMap<>();
         result.put("build", "mvn clean install -Ppublish -U -B -T2C");
         result.put("tomcat.heap", "2000");
-        result.put("tomcat.perm", "512");
         result.put("suffix", "/xml/config");
-        result.put("maven.opts", "-Xmx2500m -XX:MaxPermSize=512m -Dmaven.repo.local=@localRepository@ @trustStore@");
+        result.put("maven.opts", "-Xmx2500m -Dmaven.repo.local=@localRepository@ @trustStore@");
         return result;
     }
 

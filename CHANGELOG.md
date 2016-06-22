@@ -1,5 +1,6 @@
 # Stool 3.4.0 
 
+* removed perm configuration because it's ignored by Java 8.
 * Logstash extension
 * improved default configuration
 * dependency updates:

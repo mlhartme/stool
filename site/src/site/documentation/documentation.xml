@@ -444,13 +444,6 @@
               </listitem>
             </varlistentry>
             <varlistentry>
-              <term>basePerm</term>
-              <listitem>
-                <para>Defines how to compute the initial <literal>tomcat.perm</literal> value for new stages:
-                  <literal>basePerm</literal> mb for every application. Type number. </para>
-              </listitem>
-            </varlistentry>
-            <varlistentry>
               <term>certificates</term>
               <listitem>
                 <para>Url to generate certificates to make stages available via https. Empty to disable https. Type string. </para>
@@ -1463,13 +1456,7 @@
             <varlistentry>
               <term>tomcat.opts</term>
               <listitem>
-                <para>CATALINA_OPTS without heap/perm settings. Type string. Default value: (empty)</para>
-              </listitem>
-            </varlistentry>
-            <varlistentry>
-              <term>tomcat.perm</term>
-              <listitem>
-                <para>Java permanent memory in mb when running Tomcat. Type number.</para>
+                <para>CATALINA_OPTS without heap settings. Type string. Default value: (empty)</para>
               </listitem>
             </varlistentry>
             <varlistentry>
