@@ -184,6 +184,7 @@ public class Lib {
                 str = str.replace("\\=", "\\u@\\h \\w \\$ ");
                 return new JsonPrimitive(str);
             }
+
             JsonElement defaultsTransform(JsonElement element) {
                 JsonObject result;
                 JsonObject obj;
