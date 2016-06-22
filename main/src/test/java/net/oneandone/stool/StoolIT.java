@@ -37,15 +37,14 @@ import static org.junit.Assert.fail;
  * Integration test for stool.
  */
 public class StoolIT {
+    private static int id = 0;
     private static final String TESTUSER = System.getProperty("user.name");
 
     private World world;
     private FileNode lib;
     private String context;
-    private int no;
 
     public StoolIT() {
-        no = 0;
     }
 
     @Before
@@ -137,17 +136,16 @@ public class StoolIT {
         int result;
         String command;
 
-        no++;
-        logdir = lib.getParent().join(context + "-" + args[0] + "-" + no);
-        logdir.mkdirOpt();
-        logging = Logging.create(logdir, "stool", TESTUSER);
+        logdir = lib.getParent();
+        id++;
+        logging = new Logging(Integer.toString(id), logdir.join(id + "-" + context + "-" + args[0]), TESTUSER);
         command = command(args);
         System.out.print("  " + command);
         result = Main.doRun(TESTUSER, logging, lib, args);
         if (result == 0) {
             System.out.println();
         } else {
-            System.out.println(" -> failed: " + result);
+            System.out.println(" -> failed: " + result + "(id " + id + ")");
             fail(command + " -> " + result);
         }
     }

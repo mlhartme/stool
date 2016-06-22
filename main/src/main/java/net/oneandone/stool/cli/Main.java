@@ -62,7 +62,7 @@ public class Main {
         }
         if (logging == null) {
             // i need lib with a proper logs directory first ...
-            logging = Logging.forStool(lib, user);
+            logging = Logging.forLib(lib, user);
             console = console(logging, System.out, System.err);
         } else {
             // for integration dests

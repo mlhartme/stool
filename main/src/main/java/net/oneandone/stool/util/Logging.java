@@ -38,7 +38,7 @@ public class Logging {
     private static final String EXTENSION = ".log";
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
 
-    public static Logging forStool(FileNode lib, String user) throws IOException {
+    public static Logging forLib(FileNode lib, String user) throws IOException {
         return create(lib.join("logs"), "stool", user);
     }
 
@@ -111,7 +111,7 @@ public class Logging {
 
     public void error(String message, Throwable throwable) {
         log("ERROR", message);
-        //TODO: throwable
+        // TODO: throwable is ignored
     }
 
     public PrintWriter writer(OutputStream stream, String logger) {
