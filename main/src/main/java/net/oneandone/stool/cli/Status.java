@@ -32,7 +32,7 @@ import java.util.TreeMap;
 
 public class Status extends StageCommand {
     public enum Field {
-        ID, NAME, DIRECTORY, BACKSTAGE, URL, TYPE, STATE, OWNER, UPTIME, TOMCAT, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
+        ID, NAME, DIRECTORY, BACKSTAGE, URL, DISK, TYPE, STATE, OWNER, UPTIME, TOMCAT, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
 
         public String toString() {
             return name().toLowerCase();
@@ -107,12 +107,14 @@ public class Status extends StageCommand {
         Ports ports;
         List<String> jmx;
         String url;
+        int disk;
 
         result = new TreeMap<>();
         result.put(Field.ID, stage.config().id);
         result.put(Field.NAME, stage.getName());
         result.put(Field.DIRECTORY, stage.getDirectory().getAbsolute());
         result.put(Field.BACKSTAGE, stage.backstage.getAbsolute());
+        result.put(Field.DISK, Integer.toString(stage.diskUsed()));
         result.put(Field.URL, stage.getUrl());
         result.put(Field.TYPE, stage.getType());
         result.put(Field.OWNER, stage.owner());

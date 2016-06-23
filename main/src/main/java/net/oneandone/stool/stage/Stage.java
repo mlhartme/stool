@@ -657,6 +657,21 @@ public abstract class Stage {
         }
     }
 
+    public int diskUsed() throws IOException {
+        return used(backstage) + used(directory);
+    }
+
+    /** @return megabytes */
+    private static int used(FileNode dir) throws IOException {
+        String str;
+
+        str = dir.exec("du", "-s", "-k", ".");
+        str = str.trim();
+        str = Strings.removeRight(str, ".");
+        str = str.trim();
+        return (Integer.parseInt(str) + 512) / 1024;
+    }
+
     public enum State {
         DOWN, SLEEPING, UP, WORKING;
 
