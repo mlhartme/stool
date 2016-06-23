@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.dashboard;
 
+import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Credentials;
 import net.oneandone.stool.util.Session;
@@ -29,12 +30,15 @@ import java.util.concurrent.Callable;
 public class StoolCallable implements Callable<Failure> {
     public static StoolCallable create(String id, FileNode logs, Stage stage, String command, String ... options) throws IOException {
         Session session;
+        FileNode stool;
 
         session = stage.session;
-        return new StoolCallable(session.jar, command, options, stage, id, logs, session.configuration.shared, stage.owner());
+        stool = Main.stoolCp(session.world);
+        stool.checkFile();
+        return new StoolCallable(stool, command, options, stage, id, logs, session.configuration.shared, stage.owner());
     }
 
-    private final FileNode stoolRaw;
+    private final FileNode stool;
     private final String command;
     private final String[] options;
     private final String id;
@@ -43,8 +47,8 @@ public class StoolCallable implements Callable<Failure> {
     private final boolean su;
     private final String runAs;
 
-    public StoolCallable(FileNode stoolRaw, String command, String[] options, Stage stage, String id, FileNode logDir, boolean su, String runAs) {
-        this.stoolRaw = stoolRaw;
+    public StoolCallable(FileNode stool, String command, String[] options, Stage stage, String id, FileNode logDir, boolean su, String runAs) {
+        this.stool = stool;
         this.command = command;
         this.options = options;
         this.id = id;
@@ -69,7 +73,7 @@ public class StoolCallable implements Callable<Failure> {
         if (su) {
             launcher.arg("sudo", "-u", runAs);
         }
-        launcher.arg(stoolRaw.getAbsolute());
+        launcher.arg(stool.getAbsolute());
         svnCredentials = stage.session.svnCredentials();
         if (svnCredentials.username != null) {
             launcher.arg("-svnuser", svnCredentials.username);

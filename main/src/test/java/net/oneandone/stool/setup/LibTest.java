@@ -78,5 +78,6 @@ public class LibTest {
         assertEquals(Expire.never(), stage.expire);
         assertEquals("{\\+} \\u@\\h \\w \\$ ", stool.prompt);
         assertEquals(null, stool.defaults.get("https://svn.1and1.org/svn/controlpanel_app/controlpanel/").get("tomcat.perm"));
+        assertEquals(Strings.toList(StageConfiguration.NOTIFY_OWNER), stage.notify);
     }
 }

@@ -22,6 +22,7 @@ import net.oneandone.stool.setup.Lib;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.LogOutputStream;
+import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.InputLogStream;
@@ -43,9 +44,20 @@ public class Main {
         String user;
 
         world = World.create();
-        lib = Session.locateLib(stoolJar(world));
+        lib = locateLib(world);
         user = System.getProperty("user.name");
         return doRun(user, null, lib, args);
+    }
+
+    public static FileNode locateLib(World world) throws ReadLinkException {
+        FileNode cp;
+
+        cp = stoolCp(world);
+        if (cp.getParent().getPath().equals("usr/bin")) {
+            return world.file("usr/share/stool");
+        } else {
+            return world.getHome().join(".stool");
+        }
     }
 
     public static int doRun(String user, Logging logging, FileNode lib, String[] args) throws IOException {
@@ -73,7 +85,7 @@ public class Main {
         }
         command = "stool " + command(args);
         logging.log("COMMAND", command);
-        globals = new Globals(logging, user, command, console, world, shellFile == null ? null : world.file(shellFile));
+        globals = new Globals(lib, logging, user, command, console, world, shellFile == null ? null : world.file(shellFile));
         cli = new Cli(globals::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
@@ -184,7 +196,7 @@ public class Main {
         }
     }
 
-    public static FileNode stoolJar(World world) {
+    public static FileNode stoolCp(World world) {
         return world.locateClasspathItem(world.getClass());
     }
 }

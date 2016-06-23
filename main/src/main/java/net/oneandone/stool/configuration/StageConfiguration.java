@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 
 public class StageConfiguration {
+    public static String NOTIFY_OWNER = "@owner";
+
     public static FileNode file(FileNode backstage) {
         return backstage.join("config.json");
     }
@@ -95,6 +97,9 @@ public class StageConfiguration {
     @Option(key = "tomcat.env")
     public Map<String, String> tomcatEnv;
 
+    @Option(key = "notify")
+    public List<String> notify;
+
     @Option(key = "java.home")
     public String javaHome;
 
@@ -125,6 +130,8 @@ public class StageConfiguration {
         this.prepare = "";
         this.build = "false";
         this.refresh = refresh;
+        this.notify = new ArrayList<>();
+        notify.add(NOTIFY_OWNER);
         this.pom = "pom.xml";
         this.tomcatOpts = "";
         this.tomcatVersion = "8.5.3";

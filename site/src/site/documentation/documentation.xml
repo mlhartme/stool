@@ -332,15 +332,15 @@
 
     <sect1 xml:id="stageExpiring">
       <title>Stage expiring</title>
-      <para>Every stage has an <literal>until</literal> property that specifies how long the stage is needed. You can
-        see the until date with<literal>stool config until</literal>. If this date has passed, the stage is called
+      <para>Every stage has an <literal>expire</literal> property that specifies how long the stage is needed. You can
+        see the expire date with<literal>stool config expire</literal>. If this date has passed, the stage is called
         expired, and it is automatically stopped, the owner gets an email notification and you cannot start it again
-        unless you specify a new date with <literal>stool config until=</literal><replaceable>yyyy-mm-dd</replaceable>.
+        unless you specify a new date with <literal>stool config expire=</literal><replaceable>yyyy-mm-dd</replaceable>.
       </para>
       <para>Depending on the <literal>autoRemove</literal> Stool property, the stage will automatically be removed after
         the configured number of days. Stage expiring helps to detect and remove unused stages, which is crucial for
         shared machines. If you receive an email notification that your stage has expired, please check if your stage
-        is still needed. If so, adjust the until data, otherwise remove the stage.
+        is still needed. If so, adjust the expire date, otherwise remove the stage.
       </para>
     </sect1>
 
@@ -1061,10 +1061,10 @@
           </para>
           <para>The process of a started stage belongs the stage owner.</para>
           <para>Startup is refused if your stage has expired. In this case, use
-            <literal>stool config until=</literal>
-            <replaceable>newdata</replaceable>
+            <literal>stool config expire=</literal>
+            <replaceable>newdate</replaceable>
             to configure a new
-            <literal>until</literal>
+            <literal>expire</literal>
             date.
           </para>
           <para>
@@ -1356,7 +1356,7 @@
           <para>Properties have a type: boolean, number, date, string, list of strings, or map of strings.</para>
           <para>Boolean properties have the values <literal>true</literal> or <literal>false</literal>.</para>
           <para>Date properties have the form <replaceable>yyyy-mm-dd</replaceable>, so a valid value for
-            <literal>until</literal> is - e.g. -<literal>2013-12-31</literal>.</para>
+            <literal>expire</literal> is - e.g. -<literal>2016-12-31</literal>.</para>
           <para>List properties (e.g.<literal>tomcat.select</literal>) are separated by commas, whitespace before and after is ignored. </para>
           <para>Map properties (e.g.<literal>tomcat.env</literal>) separate entries by commas, whitespace before and after is ignored.
             Each entry separates key and value by a colon. Example <literal>PATH:/bin, HOME:/home/me</literal>
@@ -1392,6 +1392,12 @@
               </listitem>
             </varlistentry>
             <varlistentry>
+              <term>expire</term>
+              <listitem>
+                <para>Defines when this stage <link linkend="stageExpiring">expires</link>. Type date.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
               <term>id</term>
               <listitem>
                 <para>Unique identifier for this stage. Set when the stage is created. Read-only. Type string.</para>
@@ -1413,6 +1419,12 @@
               <term>maven.opts</term>
               <listitem>
                 <para>MAVEN_OPTS when building this stage. Type string. Default value: (empty)</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>notify</term>
+              <listitem>
+                <para>List of Email Address or <literal>@owner</literal> to send notifications about this stage. Default value: @owner.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -1484,12 +1496,6 @@
               <listitem>
                 <para>Tomcat version to use. Type string. Default value: <literal>8.0.26</literal>. If you change this property,
                   you have to stop tomcat, delete the <literal>backstage/shared/tomcat</literal> directory, and start Tomcat again. </para>
-              </listitem>
-            </varlistentry>
-            <varlistentry>
-              <term>until</term>
-              <listitem>
-                <para>Defines when this stage <link linkend="stageExpiring">expires</link>. Type date.</para>
               </listitem>
             </varlistentry>
           </variablelist>

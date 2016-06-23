@@ -16,6 +16,7 @@
 package net.oneandone.stool.setup;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -23,6 +24,7 @@ import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Autoconf;
+import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Files;
@@ -138,15 +140,15 @@ public class Lib {
     // TODO: ugly ...
     
     private static Lib upgradeLib = null;
-    private static FileNode upgradeBackstage = null;
+    private static boolean upgradeDefaults = false;
 
     private void doUpgrade(Upgrade stoolMapper, Upgrade stageMapper) throws IOException {
         upgradeLib = this;
+        upgradeDefaults = true;
         doUpgradeStool(stoolMapper);
+        upgradeDefaults = false;
         for (FileNode oldBackstage : dir.join("backstages").list()) {
             console.info.println("upgrade " + oldBackstage);
-            // TODO
-            upgradeBackstage = oldBackstage;
             transform(oldBackstage.join("config.json"), stageMapper);
         }
     }
@@ -232,6 +234,16 @@ public class Lib {
             }
             String untilRename() {
                 return "expire";
+            }
+            void global(JsonObject src, JsonObject dest) {
+                JsonArray array;
+
+                if (upgradeDefaults) {
+                    return;
+                }
+                array = new JsonArray();
+                array.add(new JsonPrimitive(StageConfiguration.NOTIFY_OWNER));
+                dest.add("notify", array);
             }
         };
     }

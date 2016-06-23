@@ -368,7 +368,7 @@ public class Start extends StageCommand {
         opts.add("-Dcatalina.home=%CATALINA_HOME%");
 
         // this is a marker to indicate they are launched by stool; and this is used by the dashboard to locate stool
-        opts.add("-Dstool.bin=" + session.jar.getParent().getAbsolute());
+        opts.add("-Dstool.cp=" + Main.stoolCp(session.world).getAbsolute());
         opts.add("-Dstool.backstage=" + stage.backstage.getAbsolute());
 
         tomcatOpts = stage.macros().replace(stage.config().tomcatOpts);

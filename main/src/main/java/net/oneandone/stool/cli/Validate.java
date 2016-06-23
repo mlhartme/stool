@@ -17,6 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.Expire;
+import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
@@ -182,6 +183,7 @@ public class Validate extends StageCommand {
     //--
 
     public static class Report {
+        /** key is a userid or an emails address */
         private Map<String, List<String>> users;
 
         public Report() {
@@ -197,7 +199,9 @@ public class Validate extends StageCommand {
         }
 
         public void user(Stage stage, String problem) throws IOException {
-            add(stage.owner(), prefix(stage) + problem);
+            for (String user : stage.config().notify) {
+                add(StageConfiguration.NOTIFY_OWNER.equals(user) ? stage.owner() : user, prefix(stage) + problem);
+            }
         }
 
         public void console(Console console) {
@@ -239,6 +243,9 @@ public class Validate extends StageCommand {
             if (user == null) {
                 email = session.configuration.admin;
             } else {
+                if (user.contains("@")) {
+                    return user;
+                }
                 try {
                     userobj = session.lookupUser(user);
                     email = (userobj == null ? session.configuration.admin : userobj.email);

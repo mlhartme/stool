@@ -17,6 +17,7 @@ package net.oneandone.stool.dashboard.config;
 
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
+import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.dashboard.IndexController;
 import net.oneandone.stool.dashboard.StageInfoCache;
 import net.oneandone.stool.stage.Stage;
@@ -68,7 +69,7 @@ public class DashboardConfiguration {
         String svnuser;
         String svnpassword;
 
-        lib = Session.locateLib(jar());
+        lib = Main.locateLib(world());
         props = lib.join("dashboard.properties");
         if (props.exists()) {
             p = props.readProperties();
@@ -80,7 +81,7 @@ public class DashboardConfiguration {
         }
         user = user();
         // TODO system.setStoolBin(bin());
-        return Session.load(Logging.create(logs(), "dashboard", user), user, "dashboard", console(), world(), null, svnuser, svnpassword);
+        return Session.load(lib, Logging.create(logs(), "dashboard", user), user, "dashboard", console(), world(), null, svnuser, svnpassword);
     }
 
     @Bean

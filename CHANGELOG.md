@@ -2,6 +2,7 @@
 
 ### 3.4.0 (pending)
 
+* stool.bin property for running wars was changed to stool.cp
 * per-user defauls: Stool checks for a user's ~/.stool.defaults file. If it exists, Stool loads it as a properties 
   file and uses it as default values for options. For example, a property "build=true" causes the refresh command to
   build a stage. The following properties are availble:
@@ -24,6 +25,7 @@
 * removed perm configuration because it's ignored by Java 8.
 * Logstash extension
 * improved default configuration
+* Added stage property `notify` to configure email notifications.
 * dependency updates:
   * Sushi 2.8.18 to 3.1.0 and inline 1.0.2
   * Maven Embedded 3.11.1 to 3.12.1

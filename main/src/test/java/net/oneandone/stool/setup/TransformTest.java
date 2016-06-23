@@ -39,9 +39,9 @@ public class TransformTest {
         String result;
 
         result = Transform.transform(
-                "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\",\n  \"additional\": \"foo\"\n}\n",
+                "{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\",\n  \"field\": \"foo\"\n}\n",
                 new Upgrade() {
-                    void additionalRemove() {
+                    void fieldRemove() {
                     }
                 });
         assertEquals("{\n  \"version\": \"3.0.1-SNAPSHOT\",\n  \"stages\": \"/Users/mhm\"\n}", result);

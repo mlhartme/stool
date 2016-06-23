@@ -26,6 +26,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 
 public class Globals {
+    private final FileNode lib;
     public final Logging logging;
     private final String user;
     private final String command;
@@ -36,7 +37,8 @@ public class Globals {
     public String svnpassword;
     public FileNode shellFile;
 
-    public Globals(Logging logging, String user, String command, Console console, World world, FileNode shellFile) {
+    public Globals(FileNode lib, Logging logging, String user, String command, Console console, World world, FileNode shellFile) {
+        this.lib = lib;
         this.logging = logging;
         this.user = user;
         this.command = command;
@@ -58,7 +60,7 @@ public class Globals {
     }
 
     public Session session() throws IOException {
-        return Session.load(logging, user, command, console, world, shellFile, svnuser, svnpassword);
+        return Session.load(lib, logging, user, command, console, world, shellFile, svnuser, svnpassword);
     }
 
     //--
