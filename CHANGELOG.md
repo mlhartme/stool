@@ -1,5 +1,11 @@
 # Stool 3.4.0 
 
+* per-user defauls: Stool checks for a user's ~/.stool.defaults file. If it exists, Stool loads it as a properties 
+  file and uses it as default values for options. For example, a property "build=true" causes the refresh command to
+  build a stage.
+* simplified setup
+  * arbitrary location for Stool binary
+  * lib is either ~/.stool or /usr/share/stool
 * removed perm configuration because it's ignored by Java 8.
 * Logstash extension
 * improved default configuration
