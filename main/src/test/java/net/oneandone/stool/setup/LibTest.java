@@ -17,6 +17,7 @@ package net.oneandone.stool.setup;
 
 import com.google.gson.Gson;
 import net.oneandone.inline.Console;
+import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
@@ -74,6 +75,7 @@ public class LibTest {
         stage = StageConfiguration.load(gson, libDir.join("backstages/stage/config.json"));
         assertEquals("151204.151204-6.2", stage.id);
         assertEquals(Strings.toList("prefix-[]", "[]-suffix"), stage.urls);
+        assertEquals(Expire.never(), stage.expire);
         assertEquals("{\\+} \\u@\\h \\w \\$ ", stool.prompt);
         assertEquals(null, stool.defaults.get("https://svn.1and1.org/svn/controlpanel_app/controlpanel/").get("tomcat.perm"));
     }

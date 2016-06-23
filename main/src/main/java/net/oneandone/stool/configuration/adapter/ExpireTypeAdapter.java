@@ -18,18 +18,18 @@ package net.oneandone.stool.configuration.adapter;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import net.oneandone.stool.configuration.Until;
+import net.oneandone.stool.configuration.Expire;
 
 import java.io.IOException;
 
-public class UntilTypeAdapter extends TypeAdapter<Until> {
+public class ExpireTypeAdapter extends TypeAdapter<Expire> {
     @Override
-    public void write(JsonWriter out, Until value) throws IOException {
+    public void write(JsonWriter out, Expire value) throws IOException {
         out.value(value.toString());
     }
 
     @Override
-    public Until read(JsonReader in) throws IOException {
-        return Until.fromString(in.nextString());
+    public Expire read(JsonReader in) throws IOException {
+        return Expire.fromString(in.nextString());
     }
 }

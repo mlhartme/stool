@@ -115,8 +115,8 @@ public class Property {
                 map.put(item.substring(0, idx).trim(), item.substring(idx + 1).trim());
             }
             value = map;
-        } else if (type.equals(Until.class)) {
-            value = Until.fromHuman(str);
+        } else if (type.equals(Expire.class)) {
+            value = Expire.fromHuman(str);
         } else if (Map.class.isAssignableFrom(type)) {
             value = str;
         } else {

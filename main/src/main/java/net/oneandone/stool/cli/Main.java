@@ -79,14 +79,14 @@ public class Main {
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
         cli.begin(console, "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
-           cli.begin("globals", globals,  "-svnuser=@ -svnpassword=@ -exception { setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) }");
+           cli.begin("globals", globals,  "-svnuser=null -svnpassword=null -exception { setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) }");
               cli.begin("globals.session", "");
                 cli.addDefault(Help.class, "help command?=null");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Create.class, "create -quiet -name=null url directory?=null property* { property*(property) }");
-                    cli.add(Import.class, "import -name=%d -max=40 dir* { dirs*(dir) setMax(max) setName(name) }");
+                    cli.add(Import.class, "import -name=@import.name:%d -max=@import.max:40 dir* { dirs*(dir) setMax(max) setName(name) }");
                     cli.add(Select.class, "select name?=null");
-                    cli.base(StageCommand.class, "-autorechown=@ -autochown=@ -autorestart=@ -autostop=@ -stage=null -all -fail "
+                    cli.base(StageCommand.class, "-autorechown=@auto.rechown -autochown=@auto.chown -autorestart=@auto.restart -autostop=@auto.stop -stage=null -all -fail "
                             + "{ setAutoRechown(autorechown) setAutoChown(autochown) setAutoRestart(autorestart) setAutoStop(autostop) "
                             +   "setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Build.class, "build");
@@ -94,15 +94,15 @@ public class Main {
                       cli.add(Chown.class, "chown -batch user?=null");
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
-                      cli.add(History.class, "history -max=999 detail* { detail*(detail) }");
+                      cli.add(History.class, "history -max=@history.max:999 detail* { detail*(detail) }");
                       cli.add(Ls.class, "list");
                       cli.add(Move.class, "move dest");
                       cli.add(Port.class, "port port { port*(port) }");
-                      cli.add(Refresh.class, "refresh -build -restore");
+                      cli.add(Refresh.class, "refresh -build=@refresh.build -restore");
                       cli.add(Remove.class, "remove -batch -force -backstage { setBackstage(backstage) }");
                       cli.add(Rename.class, "rename name");
-                      cli.add(Restart.class, "restart -debug -suspend");
-                      cli.add(Start.class, "start -debug -suspend -tail { setTail(tail) }");
+                      cli.add(Restart.class, "restart -debug=@tomcat.debug -suspend=@tomcat.suspend");
+                      cli.add(Start.class, "start -debug=@tomcat.debug -suspend=@tomcat.suspend -tail { setTail(tail) }");
                       cli.add(Status.class, "status field* { field*(field) }");
                       cli.add(Stop.class, "stop -sleep");
                       cli.add(SystemStart.class, "system-start");

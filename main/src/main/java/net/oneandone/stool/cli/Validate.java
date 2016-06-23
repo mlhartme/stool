@@ -16,7 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.configuration.Until;
+import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
@@ -117,20 +117,20 @@ public class Validate extends StageCommand {
     @Override
     public void doRun(Stage stage) throws Exception {
         tomcat(stage);
-        until(stage);
+        expire(stage);
     }
 
     //--
 
-    public void until(Stage stage) throws IOException {
-        Until until;
+    public void expire(Stage stage) throws IOException {
+        Expire expire;
 
-        until = stage.config().until;
-        if (!until.isExpired()) {
+        expire = stage.config().expire;
+        if (!expire.isExpired()) {
             return;
         }
 
-        report.user(stage, "stage has expired " + until);
+        report.user(stage, "stage has expired " + expire);
         if (repair) {
             if (stage.runningTomcat() != null) {
                 try {
@@ -142,7 +142,7 @@ public class Validate extends StageCommand {
                 }
             }
             if (session.configuration.autoRemove >= 0) {
-                if (stage.config().until.expiredDays() >= session.configuration.autoRemove) {
+                if (stage.config().expire.expiredDays() >= session.configuration.autoRemove) {
                     try {
                         // CAUTION: do not place this behind "remove", stage.owner() would fail
                         report.user(stage, "removing expired stage");
@@ -156,7 +156,7 @@ public class Validate extends StageCommand {
                     }
                 } else {
                     report.user(stage, "CAUTION: This stage will be removed automatically in "
-                            + (session.configuration.autoRemove - until.expiredDays()) + " day(s)");
+                            + (session.configuration.autoRemove - expire.expiredDays()) + " day(s)");
                 }
             }
         }

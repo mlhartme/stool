@@ -2,7 +2,19 @@
 
 * per-user defauls: Stool checks for a user's ~/.stool.defaults file. If it exists, Stool loads it as a properties 
   file and uses it as default values for options. For example, a property "build=true" causes the refresh command to
-  build a stage.
+  build a stage. The following properties are availble:
+  * verbose
+  * exception
+  * auto.restart
+  * auto.stop
+  * auto.rechown
+  * auto.chown
+  * import.name
+  * import.max
+  * history.max
+  * refresh.build
+  * tomcat.debug
+  * tomcat.suspend
 * simplified setup
   * arbitrary location for Stool binary
   * lib is either ~/.stool or /usr/share/stool
@@ -27,6 +39,7 @@
 * Removed system-import command.
 * Stage configuration changes:
   * dumped sslUrl; renamed suffixes to urls.
+  * renamed until to expire (and reserved to never)
 * Global configuration changes:
   * renamed contactAdmin to admin.
 * Changed default tomcat version from 8.0.26 to 8.0.32

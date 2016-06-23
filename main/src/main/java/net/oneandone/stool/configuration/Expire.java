@@ -21,35 +21,37 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-public class Until {
-    public static Until reserved() {
-        return new Until(null);
+public class Expire {
+    private static final String NEVER = "never";
+
+    public static Expire never() {
+        return new Expire(null);
     }
 
-    public static Until withDefaultOffset() {
+    public static Expire withDefaultOffset() {
         return withOffset(7);
     }
 
-    public static Until withOffset(int days) {
-        return new Until(LocalDate.now().plusDays(days));
+    public static Expire withOffset(int days) {
+        return new Expire(LocalDate.now().plusDays(days));
     }
 
-    public static Until fromString(String input) {
-        if (input.equals("reserved")) {
-            return Until.reserved();
+    public static Expire fromString(String input) {
+        if (input.equals(NEVER)) {
+            return Expire.never();
         } else {
-            return new Until(parse(input));
+            return new Expire(parse(input));
         }
     }
 
-    public static Until fromHuman(String input) {
+    public static Expire fromHuman(String input) {
         if (null == input) {
             throw new IllegalArgumentException();
         }
-        if (input.equals("reserved")) {
-            return new Until(null);
+        if (input.equals(NEVER)) {
+            return new Expire(null);
         } else {
-            return new Until(parse(input));
+            return new Expire(parse(input));
         }
     }
 
@@ -58,7 +60,7 @@ public class Until {
     /** null stands for 'reserved' */
     private final LocalDate date;
 
-    public Until(LocalDate date) {
+    public Expire(LocalDate date) {
         this.date = date;
     }
 
@@ -81,10 +83,24 @@ public class Until {
     @Override
     public String toString() {
         if (isReserved()) {
-            return "reserved";
+            return NEVER;
         } else {
             return FORMAT.format(date);
         }
+    }
+
+    public boolean equals(Object obj) {
+        Expire expire;
+
+        if (obj instanceof Expire) {
+            expire = (Expire) obj;
+            if (date == null) {
+                return expire.date == null;
+            } else {
+                return date.equals(expire.date);
+            }
+        }
+        return false;
     }
 
     //--

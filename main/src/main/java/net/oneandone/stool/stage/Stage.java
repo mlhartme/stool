@@ -20,7 +20,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.Start;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.configuration.Until;
+import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.artifact.Changes;
@@ -495,9 +495,9 @@ public abstract class Stage {
         }
 
         if (session.configuration.shared) {
-            configuration.until = Until.withOffset(8);
+            configuration.expire = Expire.withOffset(8);
         } else {
-            configuration.until = Until.reserved();
+            configuration.expire = Expire.never();
         }
 
     }

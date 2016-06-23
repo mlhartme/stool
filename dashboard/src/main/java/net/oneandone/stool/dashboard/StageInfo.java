@@ -17,7 +17,7 @@ package net.oneandone.stool.dashboard;
 
 
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.configuration.Until;
+import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.users.UserNotFound;
@@ -39,7 +39,7 @@ public class StageInfo {
     private Stage.State running;
     private String owner;
     private boolean updateAvailable;
-    private Until until;
+    private Expire until;
     private Changes changes;
     private BuildStats stats;
     private String category;
@@ -57,7 +57,7 @@ public class StageInfo {
         stageInfo.urls = stage.urlMap();
         stageInfo.owner = users.byLogin(stage.owner()).name;
         stageInfo.updateAvailable = stage.updateAvailable();
-        stageInfo.until = stage.config().until;
+        stageInfo.until = stage.config().expire;
 
         changes = stage.changes();
         if (changes.size() > 0) {
@@ -87,7 +87,7 @@ public class StageInfo {
     }
 
 
-    public Until getUntil() {
+    public Expire getUntil() {
         return until;
     }
     public Changes getChanges() {

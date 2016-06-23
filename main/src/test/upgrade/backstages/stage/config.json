@@ -19,7 +19,7 @@
   "javaHome": "/usr/lib/jvm/java-8-openjdk-amd64/jre",
   "mavenHome": "/opt/ui/opt/tools/svn/maven/current",
   "mavenOpts": "-Xmx1024m -Dmaven.repo.local=@localRepository@ @proxyOpts@ @trustStore@",
-  "until": "reserved",
+  "expire": "never",
   "suffixes": [ "prefix-[]", "[]-suffix" ],
   "sslUrl": "someSslUrl",
   "autoRefresh": false,

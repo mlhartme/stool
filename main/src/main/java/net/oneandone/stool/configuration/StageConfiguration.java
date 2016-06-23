@@ -105,8 +105,8 @@ public class StageConfiguration {
     @Option(key = "maven.opts")
     public String mavenOpts;
 
-    @Option(key = "until")
-    public Until until;
+    @Option(key = "expire")
+    public Expire expire;
 
     @Option(key = "urls")
     public List<String> urls;
@@ -135,7 +135,7 @@ public class StageConfiguration {
         this.javaHome = javaHome;
         this.mavenHome = mavenHome;
         this.mavenOpts = "";
-        this.until = Until.reserved();
+        this.expire = Expire.never();
         this.urls = new ArrayList<>();
         this.comment = "";
         this.autoRefresh = false;

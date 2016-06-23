@@ -25,10 +25,10 @@ import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
-import net.oneandone.stool.configuration.Until;
+import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.adapter.ExtensionsAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
-import net.oneandone.stool.configuration.adapter.UntilTypeAdapter;
+import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
@@ -581,7 +581,7 @@ public class Session {
     public static Gson gson(World world, ExtensionsFactory factory) {
         return new GsonBuilder()
                 .registerTypeAdapter(FileNode.class, new FileNodeTypeAdapter(world))
-                .registerTypeAdapter(Until.class, new UntilTypeAdapter())
+                .registerTypeAdapter(Expire.class, new ExpireTypeAdapter())
                 .registerTypeAdapterFactory(ExtensionsAdapter.factory(factory))
                 .disableHtmlEscaping()
                 .serializeNulls()
