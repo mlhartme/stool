@@ -271,6 +271,7 @@ public class Start extends StageCommand {
         try {
             dest.getWorld().validNode(url).copyFile(dest);
         } catch (IOException e) {
+            dest.deleteFileOpt();
             throw new IOException("download failed: " + url
                     + "\nAs a work-around, you can download it manually an place it at " + dest.getAbsolute()
                     + "\nDetails: " + e.getMessage(), e);

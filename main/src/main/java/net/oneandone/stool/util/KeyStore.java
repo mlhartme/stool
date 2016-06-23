@@ -112,6 +112,7 @@ public class KeyStore {
         output = new StringWriter();
 
         tmp = workDir.getWorld().getTemp().createTempDirectory();
+        // TODO: use sushi instead
         launcher = tmp.launcher("wget", "--no-check-certificate", getUrl, "-O", tmp.join("cert.zip").getAbsolute());
         try {
             launcher.exec(output);

@@ -17,6 +17,7 @@
   * refresh.build
   * tomcat.debug
   * tomcat.suspend
+* replaced curl- (stop fitnesse) and wget (downloads) execs by sushi http.
 * simplified setup
   * arbitrary location for Stool binary
   * lib is either ~/.stool or /usr/share/stool

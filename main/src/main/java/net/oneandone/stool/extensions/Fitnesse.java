@@ -104,7 +104,7 @@ public class Fitnesse implements Extension {
             } else {
                 String url = findUrl(stage, host);
                 if (isFitnesseServerUp(url, console)) {
-                    stage.launcher("curl", url + "?responder=shutdown").exec(console.verbose);
+                    console.verbose.println(stage.session.world.validNode(url + "?responder=shutdown").readString());
                 }
             }
         }
