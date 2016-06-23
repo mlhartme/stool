@@ -127,7 +127,7 @@ public class StageConfiguration {
         this.refresh = refresh;
         this.pom = "pom.xml";
         this.tomcatOpts = "";
-        this.tomcatVersion = "8.0.36";
+        this.tomcatVersion = "8.5.3";
         this.tomcatService = "3.5.29";
         this.tomcatHeap = 200;
         this.tomcatSelect = new ArrayList<>();

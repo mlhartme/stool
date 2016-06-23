@@ -83,6 +83,7 @@
         <version>1.6.0</version>
         <executions>
           <execution>
+            <id>stool-application</id>
             <configuration>
               <!-- JavaSetup is used as the setup tool *and* as the Jar file for the resulting stool installation. -->
               <path>$PATH</path>
@@ -202,7 +203,6 @@
                 }
               </shrinkOptions>
             </configuration>
-            <id>java-setup</id>
             <goals>
               <goal>generate</goal>
             </goals>
