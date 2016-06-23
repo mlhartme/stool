@@ -1,4 +1,6 @@
-# Stool 3.4.0 
+## Changelog 
+
+### 3.4.0 (pending)
 
 * per-user defauls: Stool checks for a user's ~/.stool.defaults file. If it exists, Stool loads it as a properties 
   file and uses it as default values for options. For example, a property "build=true" causes the refresh command to
@@ -47,11 +49,13 @@
 * Fixed tomcat.service to actually work for versions other than 3.5.26.
 * simplified multi-module build; dumped STOOLSOURCE variable.
 
-# Stool 3.3.5 (2016-03-16)
+
+### 3.3.5 (2016-03-16)
 
 * Fixed dns validation to use proper hostname and port.
 
-# Stool 3.3.4 (2016-03-15)
+
+### 3.3.4 (2016-03-15)
 
 * Merged system-validate into the validate command.
 * Improved validate: send an email if your stage was removed; send on email per user, even for multiple broken stages; a single
@@ -61,7 +65,8 @@
 * Print an error message the user tries to start pustfix editor (to prepare to dump it)
 * Print uptime in days if it's more than 48 hours.
 
-# Stool 3.3.3 (2016-03-09)
+
+### 3.3.3 (2016-03-09)
 
 * Added an uptime field to stool status.
 * Fixed synchronization issue in LockManager shutdown hook.
@@ -71,14 +76,16 @@
 * Service wrapper: don't restart on OutOfMemory, the user should have a look instead.
 * Improved stale backstage wiper: invoke stop with proper user (and improved error message); wipe backstages without anchor file.
 
-# Stool 3.3.2 (2016-01-18)
+
+### 3.3.2 (2016-01-18)
 
 * Fixed "devel" version number in exception mails from dashboard.
 * stool create: Fixed "Artifact x:y:z not found" error message to include the underlying Maven problem (in particular "Unauthorized").
 * Fixed missing date in history command.
 * Fixed lost exception when probing svn checkouts.
 
-# Stool 3.3.1 (2015-12-21)
+
+### 3.3.1 (2015-12-21)
 
 * Fixed missing stool function in non-login shells.
 * Fixed missing vhosts in global config.json.
@@ -93,7 +100,8 @@
 * Fixed duplicate -autorechown/-autorestart options in dashboard refresh.
 * Moved stage property description from the config command to the documentation (man stool-config).
 
-# Stool 3.3.0 (2015-11-30)
+
+### 3.3.0 (2015-11-30)
 
 * Renamed overview to dashboard.
 * Added '-autostop', '-autorestart', '-autochown' and '-autorechown' options for all stage commands.
@@ -136,7 +144,8 @@
 * 'stool select': Fixed illegal argument exception if the use specified an absolute path instead of stage name.
 * Removed global 'portOverview' property.
 
-# Stool 3.2.0 (2015-08-09)
+
+### 3.2.0 (2015-08-09)
 
 * Fix persistent ldap connection problem in overview.
 * Renamed user "servlet" to "stool".

@@ -26,7 +26,6 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
@@ -270,22 +269,11 @@ public class Start extends StageCommand {
     private void downloadFile(String url, FileNode dest) throws IOException {
         console.info.println("downloading " + url + " ...");
         try {
-            doDownload(url, dest);
+            dest.getWorld().validNode(url).copyFile(dest);
         } catch (IOException e) {
             throw new IOException("download failed: " + url
                     + "\nAs a work-around, you can download it manually an place it at " + dest.getAbsolute()
                     + "\nDetails: " + e.getMessage(), e);
-        }
-    }
-
-    // TODO: race condition for simultaneous downloads by different users
-    private static void doDownload(String url, FileNode dest) throws IOException {
-        //TODO: wget work-around for sushi http problem with proxies
-        if (OS.CURRENT != OS.MAC) {
-            dest.getParent().exec("wget", "--tries=1", "--connect-timeout=5", "-q", "-O", dest.getName(), url);
-        } else {
-            // wget not available on Mac, but Mac usually have no proxy
-            dest.getWorld().validNode(url).copyFile(dest);
         }
     }
 
