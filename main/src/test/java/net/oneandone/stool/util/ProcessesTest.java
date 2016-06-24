@@ -18,6 +18,8 @@ package net.oneandone.stool.util;
 import net.oneandone.sushi.fs.World;
 import org.junit.Test;
 
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -26,35 +28,12 @@ public class ProcessesTest {
     private static final World WORLD = World.createMinimal();
 
     @Test
-    public void tomcat() {
+    public void tomcat() throws IOException {
         Processes p;
 
-        String psline = "mhm             56189   0.0  0.0  2465620    988   ??  S     1:06PM   0:00.25 "
-                + "/Users/mhm/Projects/oneandone/sales/tools/wrapper-macosx-universal-64-3.5.26/bin/wrapper "
-                + "/Users/mhm/.stool/backstages/dashboard/shared/conf/wrapper.conf wrapper.syslog.ident=tomcat "
-                + "wrapper.pidfile=/Users/mhm/.stool/backstages/dashboard/shared/run/tomcat.pid wrapper.name=tomcat "
-                + "wrapper.displayname=Stage dashboard Tomcat wrapper.daemonize=TRUE "
-                + "wrapper.statusfile=/Users/mhm/.stool/backstages/dashboard/shared/run/tomcat.status "
-                + "wrapper.java.statusfile=/Users/mhm/.stool/backstages/dashboard/shared/run/tomcat.java.status "
-                + "wrapper.script.version=3.5.22\n"
-                + "mhm             4711    0.0  0.0  2465620    988   ??  S     1:06PM   0:00.25 "
-                + "/Users/mhm/Projects/oneandone/sales/tools/wrapper-macosx-universal-64-3.5.26/bin/wrapper "
-                + "/Users/mhm/.stool/backstages/two/shared/conf/wrapper.conf wrapper.syslog.ident=tomcat "
-                + "wrapper.pidfile=/Users/mhm/.stool/backstages/two/shared/run/tomcat.pid wrapper.name=tomcat "
-                + "wrapper.displayname=Stage two Tomcat wrapper.daemonize=TRUE "
-                + "wrapper.statusfile=/Users/mhm/.stool/backstages/two/shared/run/tomcat.status "
-                + "wrapper.java.statusfile=/Users/mhm/.stool/backstages/two/shared/run/tomcat.java.status "
-                + "wrapper.script.version=3.5.22\n";
-        tomcat(null, "5", "");
-        tomcat("56189", "/Users/mhm/.stool/backstages/dashboard", psline);
-        tomcat("4711", "/Users/mhm/.stool/backstages/two", psline);
-        tomcat(null, "eue", psline);
-        p = new Processes(psline);
-        assertFalse(p.hasPid("56188"));
-        assertTrue(p.hasPid("56189"));
-    }
-
-    private void tomcat(String expected, String stageWrapper, String psline) {
-        assertEquals(expected, new Processes("foo\n" + psline + "bar\n").tomcatPid(WORLD.file(stageWrapper)));
+        p = Processes.create(WORLD.guessProjectHome(getClass()).join("src/test/psoutput").readString());
+        assertEquals(false, p.hasPid("4"));
+        assertEquals(true, p.hasPid("5"));
+        assertEquals("21785", p.servicePid(WORLD.file("/opt/ui/opt/tools/stool/backstages/maria-snapshots-new")));
     }
 }

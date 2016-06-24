@@ -1668,7 +1668,7 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Prints the specified status<replaceable>field</replaceable>s of the stage.
+          <para>Prints the specified status <replaceable>field</replaceable>s of the stage.
             Default: print all fields.
           </para>
           <xi:include href="stageOptions.xml" parse="xml"/>

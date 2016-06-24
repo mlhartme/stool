@@ -19,8 +19,12 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
+import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
+import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.launcher.Failure;
+import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -32,7 +36,7 @@ import java.util.TreeMap;
 
 public class Status extends StageCommand {
     public enum Field {
-        ID, NAME, DIRECTORY, BACKSTAGE, URL, DISK, TYPE, STATE, OWNER, UPTIME, SERVICE, TOMCAT, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
+        ID, NAME, DIRECTORY, BACKSTAGE, URL, TYPE, OWNER, DISK, STATE, UPTIME, CPU, MEM, SERVICE, TOMCAT, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
 
         public String toString() {
             return name().toLowerCase();
@@ -152,16 +156,22 @@ public class Status extends StageCommand {
     }
 
     public static Ports processStatus(Stage stage, Map<Field, Object> result) throws IOException {
+        Processes processes;
         String servicePid;
         String tomcatPid;
         String debug;
         boolean suspend;
         Ports ports;
         String config;
+        String cpu;
+        String mem;
 
         servicePid = stage.runningService();
         if (servicePid != null) {
+            processes = Processes.load(stage.getDirectory().getWorld());
             tomcatPid = stage.getDirectory().exec("pgrep", "-P", servicePid).trim();
+            cpu = Double.toString(processes.lookup(tomcatPid).cpu);
+            mem = Double.toString(processes.lookup(tomcatPid).mem);
             ports = stage.loadPortsOpt();
             if (ports == null) {
                 debug = null;
@@ -177,10 +187,14 @@ public class Status extends StageCommand {
             }
         } else {
             tomcatPid = null;
+            cpu = null;
+            mem = null;
             ports = null;
             debug = null;
             suspend = false;
         }
+        result.put(Field.CPU, cpu);
+        result.put(Field.MEM, mem);
         result.put(Field.SERVICE, servicePid);
         result.put(Field.TOMCAT, tomcatPid);
         result.put(Field.DEBUGGER, debug);

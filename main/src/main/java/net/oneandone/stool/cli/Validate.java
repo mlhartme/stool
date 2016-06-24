@@ -55,7 +55,7 @@ public class Validate extends StageCommand {
 
     @Override
     public void doRun() throws Exception {
-        processes = Processes.create(world);
+        processes = Processes.load(world);
         report = new Report();
         dns();
         locks();
@@ -168,7 +168,7 @@ public class Validate extends StageCommand {
         String psPid;
 
         filePid = stage.runningService();
-        psPid = processes.tomcatPid(stage.getBackstage());
+        psPid = processes.servicePid(stage.getBackstage());
         if (filePid == null) {
             filePid = "";
         }

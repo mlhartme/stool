@@ -2,8 +2,10 @@
 
 ### 3.4.0 (pending)
 
-* fixed status field `tomcat` to contain the tomcat pid, not the service wrapper pid; added a new `service` field to contain the 
-  service wrapper pid. 
+* status command
+  * added cpu and mem fields
+  * fixed status field `tomcat` to contain the tomcat pid, not the service wrapper pid; added a new `service` field to contain the 
+    service wrapper pid. 
 * stool.bin property for running wars was changed to stool.cp
 * per-user defauls: Stool checks for a user's ~/.stool.defaults file. If it exists, Stool loads it as a properties 
   file and uses it as default values for options. For example, a property "build=true" causes the refresh command to
