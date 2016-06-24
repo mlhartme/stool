@@ -22,7 +22,6 @@ import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
-import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -165,7 +164,7 @@ public class Status extends StageCommand {
 
         servicePid = stage.runningService();
         if (servicePid != null) {
-            tomcatPid = stage.getDirectory().exec("pgrep", "-P", servicePid).trim();
+            tomcatPid = Integer.toString(processes.oneChild(Integer.parseInt(servicePid)));
             cpu = Double.toString(processes.lookup(tomcatPid).cpu);
             mem = Double.toString(processes.lookup(tomcatPid).mem);
             ports = stage.loadPortsOpt();

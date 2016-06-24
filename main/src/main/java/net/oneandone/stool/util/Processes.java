@@ -21,26 +21,30 @@ import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Processes {
     // group 1: pid
-    // group 2: pcpu
-    // group 3: pmem
-    // group 4: command
-    private static final Pattern PS_LINE = Pattern.compile("^(\\d+)\\s+(\\S+)\\s+(\\S+)\\s+(.*)$");
+    // group 2: ppid
+    // group 3: pcpu
+    // group 4: pmem
+    // group 5: command
+    private static final Pattern PS_LINE = Pattern.compile("^(\\d+)\\s+(\\d+)\\s+(\\S+)\\s+(\\S+)\\s+(.*)$");
 
     public static Processes load(World world) throws Failure {
-        return create(new Launcher(world.getWorking(), "ps", "ax", "-o", "pid=,pcpu=,pmem=,command=").exec());
+        return create(new Launcher(world.getWorking(), "ps", "ax", "-o", "pid=,ppid=,pcpu=,pmem=,command=").exec());
     }
 
     public static Processes create(String str) throws Failure {
         Processes result;
         Matcher matcher;
         int pid;
+        int ppid;
         double cpu;
         double mem;
         String command;
@@ -53,29 +57,32 @@ public class Processes {
                 throw new IllegalArgumentException(line);
             }
             pid = Integer.parseInt(matcher.group(1));
-            cpu = Double.parseDouble(matcher.group(2));
-            mem = Double.parseDouble(matcher.group(3));
-            command = matcher.group(4);
-            result.add(new Data(pid, cpu, mem, command));
+            ppid = Integer.parseInt(matcher.group(2));
+            cpu = Double.parseDouble(matcher.group(3));
+            mem = Double.parseDouble(matcher.group(4));
+            command = matcher.group(5);
+            result.add(new Data(pid, ppid, cpu, mem, command));
         }
         return result;
     }
 
     public static class Data {
         public final int pid;
+        public final int ppid;
         public final double cpu;
         public final double mem;
         public final String command;
 
-        public Data(int pid, double cpu, double mem, String command) {
+        public Data(int pid, int ppid, double cpu, double mem, String command) {
             this.pid = pid;
+            this.ppid = ppid;
             this.cpu = cpu;
             this.mem = mem;
             this.command = command;
         }
 
         public String toString() {
-            return pid + " " + cpu + " " + mem + " " + command;
+            return pid + " " + ppid + " " + cpu + " " + mem + " " + command;
         }
     }
 
@@ -116,5 +123,31 @@ public class Processes {
             }
         }
         return result == 0 ? null : Integer.toString(result);
+    }
+
+    public int oneChild(int pid) {
+        List<Integer> lst;
+
+        lst = children(pid);
+        switch (lst.size()) {
+            case 0:
+                throw new IllegalArgumentException("no child process for pid " + pid);
+            case 1:
+                return lst.get(0);
+            default:
+                throw new IllegalArgumentException("too many child processes for pid " + pid);
+        }
+    }
+
+    public List<Integer> children(int pid) {
+        List<Integer> result;
+
+        result = new ArrayList<>();
+        for (Data data : all.values()) {
+            if (data.ppid == pid) {
+                result.add(data.pid);
+            }
+        }
+        return result;
     }
 }
