@@ -43,8 +43,6 @@ public class Validate extends StageCommand {
     private boolean email;
     private boolean repair;
 
-    // data shared for all stages
-    private Processes processes;
     private Report report;
 
     public Validate(Session session, boolean email, boolean repair) {
@@ -55,7 +53,6 @@ public class Validate extends StageCommand {
 
     @Override
     public void doRun() throws Exception {
-        processes = Processes.load(world);
         report = new Report();
         dns();
         locks();
@@ -98,7 +95,7 @@ public class Validate extends StageCommand {
     }
 
     private void locks() throws IOException {
-        for (Integer pid : session.lockManager.validate(processes, repair)) {
+        for (Integer pid : session.lockManager.validate(processes(), repair)) {
             if (repair) {
                 report.admin("repaired locks: removed stale lock(s) for process id " + pid);
             } else {
@@ -168,7 +165,7 @@ public class Validate extends StageCommand {
         String psPid;
 
         filePid = stage.runningService();
-        psPid = processes.servicePid(stage.getBackstage());
+        psPid = processes().servicePid(stage.getBackstage());
         if (filePid == null) {
             filePid = "";
         }

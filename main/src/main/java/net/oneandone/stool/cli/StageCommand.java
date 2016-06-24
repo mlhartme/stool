@@ -22,8 +22,10 @@ import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Predicate;
+import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.io.PrefixWriter;
+import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
@@ -207,7 +209,7 @@ public abstract class StageCommand extends SessionCommand {
     }
 
     /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
-    public boolean doBefore(List<Stage> stages, int indent) {
+    public boolean doBefore(List<Stage> stages, int indent) throws Failure {
         return stages.size() != 1;
     }
 
@@ -221,7 +223,7 @@ public abstract class StageCommand extends SessionCommand {
         status = new HashMap<>();
         if ((autoRestart || autoStop) && stage.state() == Stage.State.UP) {
             postStart = autoRestart;
-            Status.processStatus(stage, status);
+            Status.processStatus(processes(), stage, status);
             new Stop(session, false).doRun(stage);
         } else {
             postStart = false;
@@ -262,7 +264,7 @@ public abstract class StageCommand extends SessionCommand {
 
     //--
 
-    private static Predicate or(Map<String, Property> properties, String string) {
+    private Predicate or(Map<String, Property> properties, String string) {
         final List<Predicate> ops;
 
         ops = new ArrayList<>();
@@ -284,7 +286,7 @@ public abstract class StageCommand extends SessionCommand {
 
     private static final Separator AND = Separator.on('+');
 
-    private static Predicate and(Map<String, Property> properties, String string) {
+    private Predicate and(Map<String, Property> properties, String string) {
         final List<Predicate> ops;
 
         ops = new ArrayList<>();
@@ -305,7 +307,7 @@ public abstract class StageCommand extends SessionCommand {
     }
 
 
-    private static Predicate compare(final Map<String, Property> properties, final String string) {
+    private Predicate compare(final Map<String, Property> properties, final String string) {
         int idx;
         String name;
         final boolean eq;
@@ -367,7 +369,7 @@ public abstract class StageCommand extends SessionCommand {
                 Property p;
 
                 if (constField != null) {
-                    status = Status.status(stage);
+                    status = Status.status(processes(), stage);
                     obj = status.get(constField);
                 } else {
                     p = properties.get(constProperty);
@@ -393,5 +395,15 @@ public abstract class StageCommand extends SessionCommand {
                 return result == eq;
             }
         };
+    }
+
+    /** CAUTION: do not place this in a session, because it doesn't work long-lived sessions (dashboard!) */
+    private Processes lazyProcesses = null;
+
+    public Processes processes() throws Failure {
+        if (lazyProcesses == null) {
+            lazyProcesses = Processes.load(world);
+        }
+        return lazyProcesses;
     }
 }

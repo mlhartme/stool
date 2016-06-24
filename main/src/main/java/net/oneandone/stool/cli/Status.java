@@ -22,9 +22,7 @@ import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.launcher.Failure;
-import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -70,7 +68,7 @@ public class Status extends StageCommand {
         List<String> lst;
         boolean first;
 
-        status = status(stage);
+        status = status(processes(), stage);
         fields = selected.isEmpty() ? Arrays.asList(Field.values()) : selected;
         width = 0;
         for (Field field : fields) {
@@ -106,7 +104,7 @@ public class Status extends StageCommand {
         }
     }
 
-    public static Map<Field, Object> status(Stage stage) throws IOException {
+    public static Map<Field, Object> status(Processes processes, Stage stage) throws IOException {
         Map<Field, Object> result;
         Ports ports;
         List<String> jmx;
@@ -123,7 +121,7 @@ public class Status extends StageCommand {
         result.put(Field.OWNER, stage.owner());
         result.put(Field.UPTIME, stage.uptime());
         result.put(Field.STATE, stage.state().toString());
-        ports = processStatus(stage, result);
+        ports = processStatus(processes, stage, result);
         result.put(Field.APPS, stage.namedUrls());
         result.put(Field.OTHER, other(stage, ports));
         jmx = new ArrayList<>();
@@ -155,8 +153,7 @@ public class Status extends StageCommand {
         return result;
     }
 
-    public static Ports processStatus(Stage stage, Map<Field, Object> result) throws IOException {
-        Processes processes;
+    public static Ports processStatus(Processes processes, Stage stage, Map<Field, Object> result) throws IOException {
         String servicePid;
         String tomcatPid;
         String debug;
@@ -168,7 +165,6 @@ public class Status extends StageCommand {
 
         servicePid = stage.runningService();
         if (servicePid != null) {
-            processes = Processes.load(stage.getDirectory().getWorld());
             tomcatPid = stage.getDirectory().exec("pgrep", "-P", servicePid).trim();
             cpu = Double.toString(processes.lookup(tomcatPid).cpu);
             mem = Double.toString(processes.lookup(tomcatPid).mem);
