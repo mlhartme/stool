@@ -221,7 +221,7 @@ public abstract class StageCommand extends SessionCommand {
         status = new HashMap<>();
         if ((autoRestart || autoStop) && stage.state() == Stage.State.UP) {
             postStart = autoRestart;
-            Status.tomcatStatus(stage, status);
+            Status.processStatus(stage, status);
             new Stop(session, false).doRun(stage);
         } else {
             postStart = false;

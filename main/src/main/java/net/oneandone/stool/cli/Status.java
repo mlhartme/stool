@@ -32,7 +32,7 @@ import java.util.TreeMap;
 
 public class Status extends StageCommand {
     public enum Field {
-        ID, NAME, DIRECTORY, BACKSTAGE, URL, DISK, TYPE, STATE, OWNER, UPTIME, SERVICE, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
+        ID, NAME, DIRECTORY, BACKSTAGE, URL, DISK, TYPE, STATE, OWNER, UPTIME, SERVICE, TOMCAT, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
 
         public String toString() {
             return name().toLowerCase();
@@ -119,7 +119,7 @@ public class Status extends StageCommand {
         result.put(Field.OWNER, stage.owner());
         result.put(Field.UPTIME, stage.uptime());
         result.put(Field.STATE, stage.state().toString());
-        ports = tomcatStatus(stage, result);
+        ports = processStatus(stage, result);
         result.put(Field.APPS, stage.namedUrls());
         result.put(Field.OTHER, other(stage, ports));
         jmx = new ArrayList<>();
@@ -151,16 +151,17 @@ public class Status extends StageCommand {
         return result;
     }
 
-    public static Ports tomcatStatus(Stage stage, Map<Field, Object> result) throws IOException {
+    public static Ports processStatus(Stage stage, Map<Field, Object> result) throws IOException {
         String servicePid;
+        String tomcatPid;
         String debug;
         boolean suspend;
         Ports ports;
         String config;
 
         servicePid = stage.runningService();
-        result.put(Field.SERVICE, servicePid);
         if (servicePid != null) {
+            tomcatPid = stage.getDirectory().exec("pgrep", "-P", servicePid).trim();
             ports = stage.loadPortsOpt();
             if (ports == null) {
                 debug = null;
@@ -175,10 +176,13 @@ public class Status extends StageCommand {
                 suspend = debug != null && config.contains(",suspend=y");
             }
         } else {
+            tomcatPid = null;
             ports = null;
             debug = null;
             suspend = false;
         }
+        result.put(Field.SERVICE, servicePid);
+        result.put(Field.TOMCAT, tomcatPid);
         result.put(Field.DEBUGGER, debug);
         result.put(Field.SUSPEND, suspend);
         return ports;
