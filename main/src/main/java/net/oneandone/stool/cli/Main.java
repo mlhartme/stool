@@ -49,17 +49,6 @@ public class Main {
         return doRun(user, null, lib, args);
     }
 
-    public static FileNode locateLib(World world) throws ReadLinkException {
-        FileNode cp;
-
-        cp = stoolCp(world);
-        if (cp.getParent().getPath().equals("usr/bin")) {
-            return world.file("usr/share/stool");
-        } else {
-            return world.getHome().join(".stool");
-        }
-    }
-
     public static int doRun(String user, Logging logging, FileNode lib, String[] args) throws IOException {
         World world;
         String shellFile;
@@ -183,6 +172,19 @@ public class Main {
             result.append(arg);
         }
         return result.toString();
+    }
+
+    //--
+
+    public static FileNode locateLib(World world) throws ReadLinkException {
+        FileNode cp;
+
+        cp = stoolCp(world);
+        if (cp.getParent().getPath().equals("usr/bin")) {
+            return world.file("usr/share/stool");
+        } else {
+            return world.getHome().join(".stool");
+        }
     }
 
     public static String versionString(World world) {

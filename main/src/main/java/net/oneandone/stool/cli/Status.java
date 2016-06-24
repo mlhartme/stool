@@ -32,7 +32,7 @@ import java.util.TreeMap;
 
 public class Status extends StageCommand {
     public enum Field {
-        ID, NAME, DIRECTORY, BACKSTAGE, URL, DISK, TYPE, STATE, OWNER, UPTIME, TOMCAT, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
+        ID, NAME, DIRECTORY, BACKSTAGE, URL, DISK, TYPE, STATE, OWNER, UPTIME, SERVICE, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
 
         public String toString() {
             return name().toLowerCase();
@@ -107,7 +107,6 @@ public class Status extends StageCommand {
         Ports ports;
         List<String> jmx;
         String url;
-        int disk;
 
         result = new TreeMap<>();
         result.put(Field.ID, stage.config().id);
@@ -153,15 +152,15 @@ public class Status extends StageCommand {
     }
 
     public static Ports tomcatStatus(Stage stage, Map<Field, Object> result) throws IOException {
-        String tomcatPid;
+        String servicePid;
         String debug;
         boolean suspend;
         Ports ports;
         String config;
 
-        tomcatPid = stage.runningTomcat();
-        result.put(Field.TOMCAT, tomcatPid);
-        if (tomcatPid != null) {
+        servicePid = stage.runningService();
+        result.put(Field.SERVICE, servicePid);
+        if (servicePid != null) {
             ports = stage.loadPortsOpt();
             if (ports == null) {
                 debug = null;

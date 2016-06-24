@@ -225,7 +225,7 @@ public abstract class Stage {
     public State state() throws IOException {
         if (session.bedroom.stages().contains(getName())) {
             return State.SLEEPING;
-        } else if (runningTomcat() != null) {
+        } else if (runningService() != null) {
             return State.UP;
         } else {
             return State.DOWN;
@@ -233,12 +233,13 @@ public abstract class Stage {
 
     }
 
-    public String runningTomcat() throws IOException {
-        return readOpt(tomcatPidFile());
+    public String runningService() throws IOException {
+        return readOpt(servicePidFile());
     }
 
     /** @return pid or null */
-    public FileNode tomcatPidFile() {
+    public FileNode servicePidFile() {
+        // Yes, that's the service pid (tomcat is a child process of the service)
         return shared().join("run", "tomcat.pid");
     }
 
@@ -297,9 +298,6 @@ public abstract class Stage {
 
     public abstract String getDefaultBuildCommand();
 
-    public FileNode catalinaPid() {
-        return shared().join("run/tomcat.pid");
-    }
     protected FileNode catalinaHome() {
         return session.lib.join("tomcat", Start.tomcatName(configuration.tomcatVersion));
     }
@@ -332,7 +330,7 @@ public abstract class Stage {
         launcher = serviceWrapper("start");
         console.verbose.println("executing: " + launcher);
         launcher.exec(console.verbose);
-        pidFile = runningTomcat();
+        pidFile = runningService();
         if (pidFile == null) {
             throw new IOException("tomcat startup failed - no pid file found");
         }
@@ -344,10 +342,8 @@ public abstract class Stage {
 
     /** Fails if Tomcat is not running */
     public void stop(Console console) throws IOException {
-        FileNode file;
-
         console.info.println("stopping tomcat ...");
-        if (runningTomcat() == null) {
+        if (runningService() == null) {
             throw new IOException("tomcat is not running.");
         }
         extensions().beforeStop(this);
@@ -641,7 +637,7 @@ public abstract class Stage {
         StringBuilder result;
         long hours;
 
-        file = tomcatPidFile();
+        file = servicePidFile();
         if (!file.exists()) {
             return "";
         }

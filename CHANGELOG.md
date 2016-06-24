@@ -2,6 +2,7 @@
 
 ### 3.4.0 (pending)
 
+* renamed status field `tomcat` to `service` since its the pid of the service wrapper.
 * stool.bin property for running wars was changed to stool.cp
 * per-user defauls: Stool checks for a user's ~/.stool.defaults file. If it exists, Stool loads it as a properties 
   file and uses it as default values for options. For example, a property "build=true" causes the refresh command to

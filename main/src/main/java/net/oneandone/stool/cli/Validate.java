@@ -133,7 +133,7 @@ public class Validate extends StageCommand {
 
         report.user(stage, "stage has expired " + expire);
         if (repair) {
-            if (stage.runningTomcat() != null) {
+            if (stage.runningService() != null) {
                 try {
                     new Stop(session, false).doRun(stage);
                     report.user(stage, "expired stage has been stopped");
@@ -167,7 +167,7 @@ public class Validate extends StageCommand {
         String filePid;
         String psPid;
 
-        filePid = stage.runningTomcat();
+        filePid = stage.runningService();
         psPid = processes.tomcatPid(stage.getBackstage());
         if (filePid == null) {
             filePid = "";
