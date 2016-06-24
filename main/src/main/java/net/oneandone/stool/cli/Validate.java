@@ -139,7 +139,7 @@ public class Validate extends StageCommand {
                     e.printStackTrace(console.verbose);
                 }
             }
-            if (session.configuration.autoRemove >= 0) {
+            if (session.configuration.autoRemove >= 0 && stage.config().expire.expiredDays() >= 0) {
                 if (stage.config().expire.expiredDays() >= session.configuration.autoRemove) {
                     try {
                         // CAUTION: do not place this behind "remove", stage.owner() would fail

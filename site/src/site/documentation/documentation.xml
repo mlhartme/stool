@@ -1701,8 +1701,7 @@
           <title>Description</title>
           <para>Checks if the
             <literal>expire</literal> date of the stage has passes or the <literal>quota</literal> exceeded. If so, and
-            <literal>-repair</literal>
-            is specified, the stage is stopped (and removed if autoremove days have passed). And if
+            <literal>-repair</literal> is specified, the stage is stopped (and removed expired for more than autoremove days). And if
             <literal>-email</literal>
             is specified, a notification mail is sent to the stage owner.
           </para>
