@@ -88,27 +88,27 @@ public class Processes {
 
     //--
 
-    private final Map<String, Data> all;
+    private final Map<Integer, Data> all;
 
     public Processes() {
         all = new HashMap<>();
     }
 
     public void add(Data data) {
-        if (all.put(Integer.toString(data.pid), data) != null) {
+        if (all.put(data.pid, data) != null) {
             throw new IllegalArgumentException(data.toString());
         }
     }
 
-    public Data lookup(String pid) {
+    public Data lookup(int pid) {
         return all.get(pid);
     }
 
-    public boolean hasPid(String pid) {
+    public boolean hasPid(int pid) {
         return all.containsKey(pid);
     }
 
-    public String servicePid(FileNode backstage) {
+    public int servicePid(FileNode backstage) {
         String key;
         int result;
 
@@ -122,7 +122,7 @@ public class Processes {
                 result = data.pid;
             }
         }
-        return result == 0 ? null : Integer.toString(result);
+        return result;
     }
 
     public int oneChild(int pid) {

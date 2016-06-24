@@ -148,7 +148,7 @@ public class LockManager extends Thread implements AutoCloseable {
         try (RandomAccessFile raf = new RandomAccessFile(file.toPath().toFile(), "rw"); FileLock lock = raf.getChannel().lock()) {
             lf = Store.load(raf);
             for (Process process : lf.processes()) {
-                if (!running.hasPid(Integer.toString(process.id))) {
+                if (!running.hasPid(process.id)) {
                     stale.add(process.id);
                     if (repair) {
                         lf.releaseAll(process);

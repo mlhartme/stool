@@ -153,8 +153,8 @@ public class Status extends StageCommand {
     }
 
     public static Ports processStatus(Processes processes, Stage stage, Map<Field, Object> result) throws IOException {
-        String servicePid;
-        String tomcatPid;
+        int servicePid;
+        int tomcatPid;
         String debug;
         boolean suspend;
         Ports ports;
@@ -163,8 +163,8 @@ public class Status extends StageCommand {
         String mem;
 
         servicePid = stage.runningService();
-        if (servicePid != null) {
-            tomcatPid = Integer.toString(processes.oneChild(Integer.parseInt(servicePid)));
+        if (servicePid != 0) {
+            tomcatPid = processes.oneChild(servicePid);
             cpu = Double.toString(processes.lookup(tomcatPid).cpu);
             mem = Double.toString(processes.lookup(tomcatPid).mem);
             ports = stage.loadPortsOpt();
@@ -181,7 +181,7 @@ public class Status extends StageCommand {
                 suspend = debug != null && config.contains(",suspend=y");
             }
         } else {
-            tomcatPid = null;
+            tomcatPid = 0;
             cpu = null;
             mem = null;
             ports = null;

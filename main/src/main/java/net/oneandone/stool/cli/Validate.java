@@ -23,7 +23,6 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Mailer;
-import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
@@ -130,7 +129,7 @@ public class Validate extends StageCommand {
 
         report.user(stage, "stage has expired " + expire);
         if (repair) {
-            if (stage.runningService() != null) {
+            if (stage.runningService() != 0) {
                 try {
                     new Stop(session, false).doRun(stage);
                     report.user(stage, "expired stage has been stopped");
@@ -161,18 +160,12 @@ public class Validate extends StageCommand {
     }
 
     private void tomcat(Stage stage) throws IOException {
-        String filePid;
-        String psPid;
+        int filePid;
+        int psPid;
 
         filePid = stage.runningService();
         psPid = processes().servicePid(stage.getBackstage());
-        if (filePid == null) {
-            filePid = "";
-        }
-        if (psPid == null) {
-            psPid = "";
-        }
-        if (!filePid.equals(psPid)) {
+        if (filePid != psPid) {
             report.admin(stage, "Tomcat process mismatch: " + filePid + " vs " + psPid);
         }
     }

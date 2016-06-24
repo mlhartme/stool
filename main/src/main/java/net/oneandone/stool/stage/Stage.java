@@ -225,7 +225,7 @@ public abstract class Stage {
     public State state() throws IOException {
         if (session.bedroom.stages().contains(getName())) {
             return State.SLEEPING;
-        } else if (runningService() != null) {
+        } else if (runningService() != 0) {
             return State.UP;
         } else {
             return State.DOWN;
@@ -233,8 +233,8 @@ public abstract class Stage {
 
     }
 
-    public String runningService() throws IOException {
-        return readOpt(servicePidFile());
+    public int runningService() throws IOException {
+        return readPidOpt(servicePidFile());
     }
 
     /** @return pid or null */
@@ -306,7 +306,7 @@ public abstract class Stage {
 
     public void start(Console console, Ports ports) throws Exception {
         ServerXml serverXml;
-        String pidFile;
+        int pid;
         KeyStore keystore;
         Extensions extensions;
         Launcher launcher;
@@ -330,8 +330,8 @@ public abstract class Stage {
         launcher = serviceWrapper("start");
         console.verbose.println("executing: " + launcher);
         launcher.exec(console.verbose);
-        pidFile = runningService();
-        if (pidFile == null) {
+        pid = runningService();
+        if (pid == 0) {
             throw new IOException("tomcat startup failed - no pid file found");
         }
         console.info.println("Applications available:");
@@ -343,7 +343,7 @@ public abstract class Stage {
     /** Fails if Tomcat is not running */
     public void stop(Console console) throws IOException {
         console.info.println("stopping tomcat ...");
-        if (runningService() == null) {
+        if (runningService() == 0) {
             throw new IOException("tomcat is not running.");
         }
         extensions().beforeStop(this);
@@ -679,8 +679,8 @@ public abstract class Stage {
     //--
 
     /** @return pid or null */
-    private static String readOpt(FileNode file) throws IOException {
-        return file.exists() ? file.readString().trim() : null;
+    private static int readPidOpt(FileNode file) throws IOException {
+        return file.exists() ? Integer.parseInt(file.readString().trim()) : 0;
     }
 
     //-- stage name
