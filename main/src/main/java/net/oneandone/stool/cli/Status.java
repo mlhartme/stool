@@ -81,11 +81,7 @@ public class Status extends StageCommand {
             value = status.get(field);
             if (value == null) {
                 console.info.println();
-            } else if (value instanceof String) {
-                console.info.println(value);
-            } else if (value instanceof Boolean) {
-                console.info.println(value);
-            } else {
+            } else if (value instanceof List) {
                 first = true;
                 lst = (List<String>) value;
                 for (String item : lst) {
@@ -99,6 +95,8 @@ public class Status extends StageCommand {
                 if (first) {
                     console.info.println();
                 }
+            } else {
+                console.info.println(value);
             }
         }
     }
@@ -159,14 +157,14 @@ public class Status extends StageCommand {
         boolean suspend;
         Ports ports;
         String config;
-        String cpu;
-        String mem;
+        Double cpu;
+        Double mem;
 
         servicePid = stage.runningService();
         if (servicePid != 0) {
             tomcatPid = processes.oneChild(servicePid);
-            cpu = Double.toString(processes.lookup(tomcatPid).cpu);
-            mem = Double.toString(processes.lookup(tomcatPid).mem);
+            cpu = processes.lookup(tomcatPid).cpu;
+            mem = processes.lookup(tomcatPid).mem;
             ports = stage.loadPortsOpt();
             if (ports == null) {
                 debug = null;
