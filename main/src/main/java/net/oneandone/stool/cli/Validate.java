@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.cli;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
-import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
@@ -114,27 +114,28 @@ public class Validate extends StageCommand {
     @Override
     public void doRun(Stage stage) throws Exception {
         tomcat(stage);
-        expire(stage);
+        constraints(stage);
     }
 
     //--
 
-    public void expire(Stage stage) throws IOException {
-        Expire expire;
+    public void constraints(Stage stage) throws IOException {
+        String message;
 
-        expire = stage.config().expire;
-        if (!expire.isExpired()) {
+        try {
+            stage.checkConstraints();
             return;
+        } catch (ArgumentException e) {
+            message = e.getMessage();
         }
-
-        report.user(stage, "stage has expired " + expire);
+        report.user(stage, message);
         if (repair) {
             if (stage.runningService() != 0) {
                 try {
                     new Stop(session, false).doRun(stage);
-                    report.user(stage, "expired stage has been stopped");
+                    report.user(stage, "stage has been stopped");
                 } catch (Exception e) {
-                    report.user(stage, "expired stage failed to stop: " + e.getMessage());
+                    report.user(stage, "stage failed to stop: " + e.getMessage());
                     e.printStackTrace(console.verbose);
                 }
             }
@@ -153,7 +154,7 @@ public class Validate extends StageCommand {
                     }
                 } else {
                     report.user(stage, "CAUTION: This stage will be removed automatically in "
-                            + (session.configuration.autoRemove - expire.expiredDays()) + " day(s)");
+                            + (session.configuration.autoRemove - stage.config().expire.expiredDays()) + " day(s)");
                 }
             }
         }

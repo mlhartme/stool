@@ -2,6 +2,7 @@
 
 ### 3.4.0 (pending)
 
+* added Stage quota.
 * status command
   * added cpu and mem fields
   * fixed status field `tomcat` to contain the tomcat pid, not the service wrapper pid; added a new `service` field to contain the 

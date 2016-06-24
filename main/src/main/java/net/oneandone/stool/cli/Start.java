@@ -16,7 +16,6 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
@@ -73,7 +72,7 @@ public class Start extends StageCommand {
 
         serviceWrapperOpt(stage);
         download = tomcatOpt(stage.config().tomcatVersion);
-        checkExpired(stage.config().expire);
+        stage.checkConstraints();
         if (session.configuration.committed) {
             if (!stage.isCommitted()) {
                 throw new IOException("It's not allowed to start stages with local modifications.\n"
@@ -398,11 +397,5 @@ public class Start extends StageCommand {
             i++;
         }
         return result.toString();
-    }
-
-    private void checkExpired(Expire expire) {
-        if (expire.isExpired()) {
-            throw new ArgumentException("Stage expired " + expire + ". To start it, you have to adjust the 'expire' date.");
-        }
     }
 }

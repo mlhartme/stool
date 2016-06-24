@@ -79,6 +79,9 @@ public class StageConfiguration {
     @Option(key = "pom")
     public String pom;
 
+    @Option(key = "quota")
+    public int quota;
+
     @Option(key = "tomcat.opts")
     public String tomcatOpts;
 
@@ -131,8 +134,9 @@ public class StageConfiguration {
         this.build = "false";
         this.refresh = refresh;
         this.notify = new ArrayList<>();
-        notify.add(NOTIFY_OWNER);
+        this.notify.add(NOTIFY_OWNER);
         this.pom = "pom.xml";
+        this.quota = 0;
         this.tomcatOpts = "";
         this.tomcatVersion = "8.5.3";
         this.tomcatService = "3.5.29";

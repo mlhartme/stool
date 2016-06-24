@@ -801,4 +801,23 @@ public abstract class Stage {
     public Extensions extensions() {
         return configuration.extensions;
     }
+
+    //--
+
+    public void checkConstraints() throws IOException {
+        int used;
+        int quota;
+
+        if (config().expire.isExpired()) {
+            throw new ArgumentException("Stage expired " + config().expire + ". To start it, you have to adjust the 'expire' date.");
+        }
+        quota = config().quota;
+        if (quota != 0) {
+            used = diskUsed();
+            if (used > quota) {
+                throw new ArgumentException("Stage quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n" +
+                        "Consider running 'stool cleanup'.");
+            }
+        }
+    }
 }

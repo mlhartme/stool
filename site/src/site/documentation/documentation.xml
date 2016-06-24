@@ -1060,7 +1060,7 @@
             startup may take a while.
           </para>
           <para>The process of a started stage belongs the stage owner.</para>
-          <para>Startup is refused if your stage has expired. In this case, use
+          <para>Startup is refused if your stage has expired or your quota exceeded. In this case, use
             <literal>stool config expire=</literal>
             <replaceable>newdate</replaceable>
             to configure a new
@@ -1448,6 +1448,12 @@
               </listitem>
             </varlistentry>
             <varlistentry>
+              <term>quota</term>
+              <listitem>
+                <para>Max disk space for this stage in mb. You cannot start stages if this space exceeded.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
               <term>urls</term>
               <listitem>
                 <para>A list of urls that define how to build the application urls. Each url in the list
@@ -1694,8 +1700,7 @@
         <refsect1>
           <title>Description</title>
           <para>Checks if the
-            <literal>until</literal>
-            date of the stage has expired. If so, and
+            <literal>expire</literal> date of the stage has passes or the <literal>quota</literal> exceeded. If so, and
             <literal>-repair</literal>
             is specified, the stage is stopped (and removed if autoremove days have passed). And if
             <literal>-email</literal>
