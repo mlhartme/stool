@@ -34,7 +34,7 @@ public class Rename extends StageCommand {
     @Override
     public void doRun(Stage stage) throws Exception {
         boolean selected;
-        FileNode newWrapper;
+        FileNode newBackstage;
 
         stage.checkOwnership();
         stage.checkNotUp();
@@ -42,14 +42,14 @@ public class Rename extends StageCommand {
         selected = session.isSelected(stage);
         stage.checkOwnership();
         Stage.checkName(name);
-        newWrapper = session.backstages.join(name);
+        newBackstage = session.backstage(name);
         try {
-            newWrapper.checkNotExists();
+            newBackstage.checkNotExists();
         } catch (NodeAlreadyExistsException e) {
             throw new IOException("A stage with that name already exists. Please choose an other name.");
         }
-        stage.backstage.move(newWrapper);
-        stage.backstage = newWrapper;
+        stage.backstage.move(newBackstage);
+        stage.backstage = newBackstage;
         if (selected) {
             session.select(stage);
         }

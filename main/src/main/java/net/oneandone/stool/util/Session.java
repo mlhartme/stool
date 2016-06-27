@@ -157,7 +157,7 @@ public class Session {
     public final StoolConfiguration configuration;
     public final Bedroom bedroom;
 
-    public final FileNode backstages;
+    private final FileNode backstages;
 
 
     /** may be null */
@@ -202,6 +202,14 @@ public class Session {
         }
         this.lockManager = LockManager.create(lib.join("run/locks"), user + ":" + command, 10);
         this.lazyPool= null;
+    }
+
+    public FileNode backstage(String stageName) {
+        return backstages.join(stageName);
+    }
+
+    public boolean backstageContains(FileNode directory) {
+        return directory.hasDifferentAnchestor(backstages);
     }
 
     //--

@@ -77,7 +77,7 @@ public class Import extends SessionCommand {
         }
         existing = session.stageDirectories();
 
-        tmpBackstage = session.backstages.createTempDirectory();
+        tmpBackstage = session.backstage("tmp");
         try {
             for (FileNode directory : includes) {
                 scan(tmpBackstage, directory, found, existing);
@@ -211,7 +211,7 @@ public class Import extends SessionCommand {
 
         directory = candidate.getDirectory();
         Files.sourceTree(console.verbose, directory, session.group());
-        backstage = session.backstages.join(forceName != null ? forceName : name(directory));
+        backstage = session.backstage(forceName != null ? forceName : name(directory));
         return create(session, candidate.getUrl(), directory, backstage);
     }
 

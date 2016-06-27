@@ -52,7 +52,7 @@ public class Select extends SessionCommand {
             return;
         }
         try {
-            backstage = session.backstages.join(stageName);
+            backstage = session.backstage(stageName);
         } catch (IllegalArgumentException e) {
             // user specified an absolute path
             throw new IOException("No such stage: " + stageName);
@@ -61,7 +61,7 @@ public class Select extends SessionCommand {
             throw new IOException("No such stage: " + stageName + suggestion());
         }
         console.verbose.println("selecting stage " + stageName);
-        stage = Stage.load(session, backstage);
+        stage = Stage.  load(session, backstage);
         session.select(stage);
         session.cd(stage.getDirectory());
     }

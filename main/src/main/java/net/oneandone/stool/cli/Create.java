@@ -91,7 +91,7 @@ public class Create extends SessionCommand {
 
         url = url();
         defaults(url);
-        backstage = session.backstages.join(name);
+        backstage = session.backstage(name);
         cleanup = new RmRfThread(console);
         cleanup.add(directory);
         cleanup.add(backstage);
@@ -152,7 +152,7 @@ public class Create extends SessionCommand {
             directory = parent.getParent().join(directory.getName());
             console.verbose.println("warning: cannot create a stage within a stage. Changing directory to " + directory.getAbsolute());
         }
-        if (directory.hasDifferentAnchestor(session.backstages)) {
+        if (session.backstageContains(directory)) {
             throw new ArgumentException("you cannot create a stage in the backstages directory");
         }
         if (directory.isDirectory()) {
@@ -169,7 +169,7 @@ public class Create extends SessionCommand {
             name = directory.getName();
         }
         Stage.checkName(name);
-        if (session.backstages.join(name).exists()) {
+        if (session.backstage(name).exists()) {
             throw new ArgumentException("stage name already exists: " + name);
         }
         if (stageConfiguration == null) {
