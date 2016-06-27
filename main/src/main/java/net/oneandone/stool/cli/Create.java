@@ -169,7 +169,7 @@ public class Create extends SessionCommand {
             name = directory.getName();
         }
         Stage.checkName(name);
-        if (session.backstage(name).exists()) {
+        if (session.stageNames().contains(name)) {
             throw new ArgumentException("stage name already exists: " + name);
         }
         if (stageConfiguration == null) {

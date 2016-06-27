@@ -361,6 +361,7 @@ public class Session {
         backstage = backstages.join(stageName);
         return Stage.load(this, backstage);
     }
+
     public List<String> stageNames() throws IOException {
         List<FileNode> files;
         List<String> result;

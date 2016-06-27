@@ -55,7 +55,7 @@ public class GoController {
         }
         baseurl = httpServletRequest.getRequestURL().toString();
         baseurl = baseurl.substring(0, baseurl.indexOf('/', 8));
-        if (!session.backstage(stageName).exists()) {
+        if (!session.stageNames().contains(stageName)) {
             return new ModelAndView("redirect:" + baseurl + "/#!404:" + stageName);
         }
         stage = session.load(stageName);
