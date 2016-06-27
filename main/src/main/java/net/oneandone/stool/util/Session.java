@@ -426,7 +426,7 @@ public class Session {
         StageConfiguration stage;
 
         reserved = 0;
-        for (FileNode backstage : getBackstages()) {
+        for (FileNode backstage : backstages.list()) {
             if (Stage.shared(backstage).join("run/tomcat.pid").exists()) {
                 stage = loadStageConfiguration(backstage);
                 reserved += stage.tomcatHeap;
@@ -449,19 +449,6 @@ public class Session {
     /** @return Free disk space in partition used for stool lib. TODO: not necessarily the partition used for stages. */
     public int diskFree() {
         return (int) (lib.toPath().toFile().getUsableSpace() / 1024 / 1024);
-    }
-
-    public List<FileNode> getBackstages() throws IOException {
-        List<FileNode> lst;
-
-        lst = backstages.list();
-        Collections.sort(lst, new Comparator<Node>() {
-            @Override
-            public int compare(Node left, Node right) {
-                return left.getName().compareTo(right.getName());
-            }
-        });
-        return lst;
     }
 
     public User lookupUser(String login) throws NamingException, UserNotFound {
@@ -512,7 +499,7 @@ public class Session {
         List<FileNode> result;
 
         result = new ArrayList<>();
-        for (FileNode backstage : getBackstages()) {
+        for (FileNode backstage : backstages.list()) {
             result.add((FileNode) Stage.anchor(backstage).resolveLink());
         }
         return result;
