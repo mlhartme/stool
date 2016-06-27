@@ -196,11 +196,22 @@ public class Create extends SessionCommand {
 
     private Stage create(FileNode backstage, String url) throws Exception {
         Stage stage;
+        String prepare;
 
         Files.createSourceDirectory(console.verbose, directory, session.group());
-        // CAUTION: create backstage before running possible prepare commands -- e.g. pws already populates the local repository of the stage
-        Files.createStoolDirectory(console.verbose, backstage);
         stage = stage(backstage, url);
+        // CAUTION: create backstage before possible prepare commands -- e.g. pws already populates the local repository of the stage
+        Files.createStoolDirectory(console.verbose, backstage);
+        // make sure to run in stage environment, e.g. to have proper repository settings
+        prepare = stage.config().prepare;
+        if (!prepare.isEmpty()) {
+            Launcher l = stage.launcher(Strings.toArray(Separator.SPACE.split(prepare)));
+            if (quiet) {
+                l.exec();
+            } else {
+                l.exec(console.info);
+            }
+        }
         stage.tuneConfiguration();
         for (Map.Entry<Property, String> entry : config.entrySet()) {
             entry.getKey().set(stage.config(), entry.getValue());
@@ -212,7 +223,6 @@ public class Create extends SessionCommand {
     private Stage stage(FileNode backstage, String url) throws Exception {
         ArtifactStage artifactStage;
         Stage stage;
-        String prepare;
 
         if (ArtifactStage.isArtifact(url)) {
             artifactStage = new ArtifactStage(session, url, backstage, directory, stageConfiguration);
@@ -223,16 +233,6 @@ public class Create extends SessionCommand {
             console.info.println("checking out " + directory);
             session.scm(url).checkout(url, directory, quiet ? console.verbose : console.info);
             stage = SourceStage.forUrl(session, backstage, directory, url, stageConfiguration);
-            // make sure to run in stage environment, e.g. to have proper repository settings
-            prepare = stage.config().prepare;
-            if (!prepare.isEmpty()) {
-                Launcher l = stage.launcher(Strings.toArray(Separator.SPACE.split(prepare)));
-                if (quiet) {
-                    l.exec();
-                } else {
-                    l.exec(console.info);
-                }
-            }
         }
         return stage;
     }
