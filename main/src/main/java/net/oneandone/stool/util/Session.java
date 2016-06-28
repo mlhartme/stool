@@ -182,6 +182,21 @@ public class Session {
         return backstages.join(stageName).resolveLink();
     }
 
+    public FileNode findStageDirectory(FileNode dir) {
+        FileNode backstage;
+        do {
+            backstage = Stage.backstageDirectory(dir);
+            if (backstage.exists()) {
+                if (!backstage.equals(lib)) {
+                    return dir;
+                }
+            }
+            dir = dir.getParent();
+        } while (dir != null);
+        return null;
+    }
+
+
     //--
 
     /** logs an error for administrators, i.e. the user is not expected to understand/fix this problem. */
@@ -314,7 +329,7 @@ public class Session {
         FileNode bs;
 
         if (lazySelected == UNKNOWN) {
-            directory = Stage.findStageDirectory(world.getWorking());
+            directory = findStageDirectory(world.getWorking());
             if (directory == null) {
                 lazySelected = null;
             } else {

@@ -58,16 +58,6 @@ import java.util.Properties;
  * Concrete implementations are SourceStage or ArtifactStage.
  */
 public abstract class Stage {
-    public static FileNode findStageDirectory(FileNode dir) {
-        do {
-            if (backstageDirectory(dir).exists()) {
-                return dir;
-            }
-            dir = dir.getParent();
-        } while (dir != null);
-        return null;
-    }
-
     public static FileNode backstageDirectory(FileNode dir) {
         return dir.join(".stool");
     }
