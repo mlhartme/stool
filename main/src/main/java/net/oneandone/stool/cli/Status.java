@@ -111,7 +111,7 @@ public class Status extends StageCommand {
         result.put(Field.ID, stage.config().id);
         result.put(Field.NAME, stage.getName());
         result.put(Field.DIRECTORY, stage.getDirectory().getAbsolute());
-        result.put(Field.BACKSTAGE, stage.backstageResolved.getAbsolute());
+        result.put(Field.BACKSTAGE, stage.backstage.getAbsolute());
         result.put(Field.DISK, Integer.toString(stage.diskUsed()));
         result.put(Field.URL, stage.getUrl());
         result.put(Field.TYPE, stage.getType());

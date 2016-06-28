@@ -185,7 +185,7 @@ public class Import extends SessionCommand {
         if (url == null) {
             stage = null;
         } else {
-            stage = Stage.createOpt(session, url, session.createStageConfiguration(url), tmpBackstage, parent);
+            stage = Stage.createOpt(session, url, session.createStageConfiguration(url), tmpBackstage.getName(), parent);
         }
         if (stage != null) {
             // bingo
@@ -212,19 +212,19 @@ public class Import extends SessionCommand {
         directory = candidate.getDirectory();
         Files.sourceTree(console.verbose, directory, session.group());
         backstage = session.backstage(forceName != null ? forceName : name(directory));
-        return create(session, candidate.getUrl(), directory, backstage);
+        return create(session, candidate.getUrl(), backstage.getName(), directory, backstage);
     }
 
     /**
      * @param directory existing directory
      * @param backstage not existing directory
      */
-    private static Stage create(Session session, String url, FileNode directory, FileNode backstage) throws IOException {
+    private static Stage create(Session session, String url, String name, FileNode directory, FileNode backstage) throws IOException {
         Stage stage;
 
         directory.checkDirectory();
         Files.createStoolDirectory(session.console.verbose, backstage);
-        stage = Stage.createOpt(session, url, session.createStageConfiguration(url), backstage, directory);
+        stage = Stage.createOpt(session, url, session.createStageConfiguration(url), name, directory);
         stage.tuneConfiguration();
         stage.initialize();
         return stage;

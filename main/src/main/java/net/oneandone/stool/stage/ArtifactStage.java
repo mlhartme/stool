@@ -43,11 +43,11 @@ import java.util.Set;
 public class ArtifactStage extends Stage {
     private final Applications applications;
 
-    public ArtifactStage(Session session, String url, FileNode backstageLink, FileNode directory, StageConfiguration configuration)
+    public ArtifactStage(Session session, String url, String name, FileNode directory, StageConfiguration configuration)
       throws IOException {
-        super(session, url, backstageLink, directory, configuration);
+        super(session, url, name, directory, configuration);
 
-        String name;
+        String str;
         Locator locator;
         Set<String> names;
         int idx;
@@ -58,15 +58,15 @@ public class ArtifactStage extends Stage {
             idx = part.indexOf('=');
             if (idx == -1) {
                 locator = locator(part);
-                name = locator.defaultName();
+                str = locator.defaultName();
             } else {
-                name = part.substring(idx + 1);
+                str = part.substring(idx + 1);
                 locator = locator(part.substring(0, idx));
             }
-            if (!names.add(name)) {
-                throw new ArgumentException("duplicate name: " + name);
+            if (!names.add(str)) {
+                throw new ArgumentException("duplicate name: " + str);
             }
-            applications.add(new Application(session.gson, name, locator, directory, session.console));
+            applications.add(new Application(session.gson, str, locator, directory, session.console));
         }
     }
 

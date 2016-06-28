@@ -182,6 +182,10 @@ public class Session {
     }
 
     public FileNode backstage(String stageName) throws ReadLinkException {
+        return backstageLink(stageName).resolveLink();
+    }
+
+    public FileNode backstageLink(String stageName) throws ReadLinkException {
         return backstages.join(stageName).resolveLink();
     }
 
@@ -573,5 +577,4 @@ public class Session {
         }
         return result;
     }
-
 }

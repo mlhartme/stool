@@ -223,14 +223,14 @@ public class Create extends SessionCommand {
         Files.createStoolDirectory(console.verbose, backstageResolved);
         backstageLink = session.create(backstageResolved, name);
         if (ArtifactStage.isArtifact(url)) {
-            artifactStage = new ArtifactStage(session, url, backstageLink, directory, stageConfiguration);
+            artifactStage = new ArtifactStage(session, url, backstageLink.getName(), directory, stageConfiguration);
             artifactStage.populateDirectory(console);
             stage = artifactStage;
         } else {
             url = Strings.removeRightOpt(url, "/");
             console.info.println("checking out " + directory);
             session.scm(url).checkout(url, directory, quiet ? console.verbose : console.info);
-            stage = SourceStage.forUrl(session, backstageLink, directory, url, stageConfiguration);
+            stage = SourceStage.forUrl(session, backstageLink.getName(), directory, url, stageConfiguration);
         }
         return stage;
     }
