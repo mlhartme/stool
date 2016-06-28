@@ -2,6 +2,7 @@
 
 ### 3.4.0 (pending)
 
+* moved backstage directory into the stage directory. $LIB/backstages contains symlinks to backstage directories now.
 * added Stage quota.
 * status command
   * added cpu and mem fields

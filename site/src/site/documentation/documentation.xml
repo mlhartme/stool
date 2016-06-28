@@ -1798,22 +1798,46 @@
         | :
         |- bash.rc (for stool open)
         '- backstage
-          '- (stage name)
-            |- config.json (stage properties and some status fields)
-            |- anchor (symlink to stage directory)
-            |- .m2 (Maven repository for this stage)
-            '- shared
-               |- buildstats.json
-               |- ssl (generated certs, if any)
-               |- run (pid stuff for service wrapper)
-               |- conf
-               |  '- service-wrapper.conf
-               '- tomcat (tomcat for this stage)
-                  |- conf (standard tomcat directory with generated server.xml)
-                  |- temp (standard tomcat directory)
-                  |- work (standard tomcat directory)
-                  '- logs
-                     '- applogs (application log files for pustefix apps)
+        '- (stage name)  -> symlink to backstage directory
+        |- config.json (stage properties and some status fields)
+        |- anchor (symlink to stage directory)
+        |- .m2 (Maven repository for this stage)
+        '- shared
+        |- buildstats.json
+        |- ssl (generated certs, if any)
+        |- run (pid stuff for service wrapper)
+        |- conf
+        |  '- service-wrapper.conf
+        '- tomcat (tomcat for this stage)
+        |- conf (standard tomcat directory with generated server.xml)
+        |- temp (standard tomcat directory)
+        |- work (standard tomcat directory)
+        '- logs
+        '- applogs (application log files for pustefix apps)
+      </programlisting>
+    </para>
+
+    <para>
+      ... of stage directory
+      <programlisting>
+        :
+        :  (normal project files)
+        :
+        '- .backstage
+          |- config.json (stage properties and some status fields)
+          |- .m2 (Maven repository for this stage)
+          '- shared
+             |- buildstats.json
+             |- ssl (generated certs, if any)
+             |- run (pid stuff for service wrapper)
+             |- conf
+             |  '- service-wrapper.conf
+             '- tomcat (tomcat for this stage)
+                |- conf (standard tomcat directory with generated server.xml)
+                |- temp (standard tomcat directory)
+                |- work (standard tomcat directory)
+                '- logs
+                   '- applogs (application log files for pustefix apps)
       </programlisting>
     </para>
   </chapter>
