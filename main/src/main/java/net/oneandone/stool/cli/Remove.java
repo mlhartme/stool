@@ -20,6 +20,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
 import java.io.IOException;
+import java.nio.file.Files;
 
 public class Remove extends StageCommand {
     private boolean batch;
@@ -57,7 +58,8 @@ public class Remove extends StageCommand {
             stage.getDirectory().deleteTree();
             console.info.println("Removed " + stage.getDirectory().getAbsolute());
         }
-        session.backstageLink(stage.getName()).deleteTree();
+        // remove dangling link
+        Files.delete(session.backstageLink(stage.getName()).toPath());
         session.bedroom.remove(session.gson, stage.getName());
     }
 }

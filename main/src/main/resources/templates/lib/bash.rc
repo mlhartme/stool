@@ -1,55 +1,5 @@
 # Stool shell functions for bash
 
-export STOOL_SHELL_FILE=${{stool.lib}}/run/users/.stool-shell-file-$$-$(date +%s)
-
-stool() {
-  # adjust this to configure a specific java version
-  local java=java
-  local lib=${{stool.lib}}
-  local verbose=false
-  local command="empty"
-  for arg in $* ; do
-    case "$arg" in
-      -v) verbose=true ;;
-      -*) true ;;
-      *)
-        if [ $command = "empty" ] ; then
-          command=$arg
-        fi
-        ;;
-    esac
-  done
-  if [ $command = "reselect" ]; then
-    if [ -f $lib/run/users/$USER ]; then
-      if $verbose ; then
-        echo "reselect"
-      fi
-      . $lib/run/users/$USER
-    else
-      if $verbose ; then
-        echo "reselect none"
-      fi
-    fi
-  else
-    cp=$STOOL_CP
-    for jar in $lib/extensions/*.jar; do
-      # caution: if the extensions directory is empty, $jar is the pattern ...
-      if [ -f $jar ] ; then
-        cp="$cp:$jar"
-      fi
-    done
-    $java $STOOL_OPTS -Dstool.shell=$STOOL_SHELL_FILE -cp $cp net.oneandone.stool.cli.Main "$@"
-    result=$?
-    if [ -f $STOOL_SHELL_FILE ] ; then
-      . $STOOL_SHELL_FILE
-      # I've seen an empty $USER when running stool from a cron jobs
-      mv -f $STOOL_SHELL_FILE $lib/run/users/$USER || (echo "cannot move shell file, check USER variable: $USER"; rm $STOOL_SHELL_FILE)
-    fi
-  fi
-
-  return $result
-}
-
 stoolIndicatorColor() {
     local RED="\033[0;31m"
     local BLUE_BACKGROUND="\033[44;1;37m"

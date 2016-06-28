@@ -49,12 +49,6 @@ public class StoolConfiguration {
     public int portLast;
 
     /**
-     * ps1 shell string for stool shells. Supports extra variables:
-     *   \\+ for stage indicator
-     */
-    public String prompt;
-
-    /**
      * used for output and application urls
      */
     public String hostname;
@@ -131,7 +125,6 @@ public class StoolConfiguration {
         portFirst = 9000;
         portLast = 9999;
         baseHeap = 200;
-        prompt = "{\\+} \\u@\\h \\w \\$ ";
         hostname = "localhost";
         diskMin = 2000;
         admin = "";
