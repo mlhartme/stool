@@ -179,7 +179,7 @@ public class Session {
     }
 
     public FileNode backstageLink(String stageName) throws ReadLinkException {
-        return backstages.join(stageName).resolveLink();
+        return backstages.join(stageName);
     }
 
     public FileNode findStageDirectory(FileNode dir) {
