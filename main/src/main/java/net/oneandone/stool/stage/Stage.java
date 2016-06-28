@@ -69,7 +69,7 @@ public abstract class Stage {
     }
 
     public static FileNode backstageDirectory(FileNode dir) {
-        return dir.join(".backstage");
+        return dir.join(".stool");
     }
 
     //--

@@ -133,6 +133,7 @@ public class Lib {
         Upgrade stage33_34;
 
         exec("rm", lib.join("version").getAbsolute());
+        exec("rm", "-rf", lib.join("run/users").getAbsolute());
         stage33_34 = stage33_34();
         doUpgrade(stool33_34(stage33_34()), stage33_34);
     }
