@@ -16,8 +16,8 @@
 package net.oneandone.stool.dashboard;
 
 
-import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Expire;
+import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.users.UserNotFound;

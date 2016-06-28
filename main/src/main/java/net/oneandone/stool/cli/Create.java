@@ -145,7 +145,7 @@ public class Create extends SessionCommand {
             directory = world.getWorking().join(Stage.nameForUrl(url));
         }
         parent = directory.getParent();
-        if (Session.findStageDirectory(directory) != null) {
+        if (Stage.findStageDirectory(directory) != null) {
             directory = parent.getParent().join(directory.getName());
             throw new ArgumentException("cannot create a stage within a stage. Changing directory to " + directory.getAbsolute());
         }
@@ -219,7 +219,7 @@ public class Create extends SessionCommand {
         Stage stage;
 
         // CAUTION: create backstage before possible prepare commands -- e.g. pws already populates the local repository of the stage
-        backstageResolved = Session.backstageDirectory(directory);
+        backstageResolved = Stage.backstageDirectory(directory);
         Files.createStoolDirectory(console.verbose, backstageResolved);
         backstageLink = session.create(backstageResolved, name);
         if (ArtifactStage.isArtifact(url)) {

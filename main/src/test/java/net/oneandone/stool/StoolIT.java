@@ -124,9 +124,9 @@ public class StoolIT {
         stool("list", "-stage", "it");
         stool("validate", "-stage", "it");
         stool("history", "-stage", "it");
-        stool("chown", "-stage", "it");
-        stool("rename", "-stage", "it", "renamed");
-        stool("move", "-stage", "renamed", lib.getParent().join("movedStages").getAbsolute());
+    //    stool("chown", "-stage", "it");
+     //   stool("rename", "-stage", "it", "renamed");
+       // stool("move", "-stage", "renamed", lib.getParent().join("movedStages").getAbsolute());
         stool("remove", "-stage", "renamed", "-batch");
     }
 

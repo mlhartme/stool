@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 

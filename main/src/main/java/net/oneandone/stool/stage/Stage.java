@@ -19,8 +19,8 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.Start;
-import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.Expire;
+import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.artifact.Changes;
@@ -58,6 +58,22 @@ import java.util.Properties;
  * Concrete implementations are SourceStage or ArtifactStage.
  */
 public abstract class Stage {
+    public static FileNode findStageDirectory(FileNode dir) {
+        do {
+            if (backstageDirectory(dir).exists()) {
+                return dir;
+            }
+            dir = dir.getParent();
+        } while (dir != null);
+        return null;
+    }
+
+    public static FileNode backstageDirectory(FileNode dir) {
+        return dir.join(".backstage");
+    }
+
+    //--
+
     public static Stage load(Session session, FileNode backstageLink) throws IOException {
         FileNode backstageResolved;
 

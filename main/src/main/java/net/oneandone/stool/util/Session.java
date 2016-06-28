@@ -23,23 +23,21 @@ import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.EnumerationFailed;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Bedroom;
+import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
-import net.oneandone.stool.configuration.Expire;
+import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.configuration.adapter.ExtensionsAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
-import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
-import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.LinkException;
 import net.oneandone.sushi.fs.ModeException;
-import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -59,8 +57,6 @@ import java.lang.reflect.Modifier;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -187,20 +183,6 @@ public class Session {
 
     public FileNode backstage(String stageName) throws ReadLinkException {
         return backstages.join(stageName).resolveLink();
-    }
-
-    public static FileNode findStageDirectory(FileNode dir) {
-        do {
-            if (backstageDirectory(dir).exists()) {
-                return dir;
-            }
-            dir = dir.getParent();
-        } while (dir != null);
-        return null;
-    }
-
-    public static FileNode backstageDirectory(FileNode dir) {
-        return dir.join(".backstage");
     }
 
     //--
