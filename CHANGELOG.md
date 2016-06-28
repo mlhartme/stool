@@ -2,68 +2,82 @@
 
 ### 3.4.0 (pending)
 
-* dumped MACHINE and STAGE_HOST environment variables
-* dumped run/users
-* select stage via current directory
-* moved backstage directory into the stage directory. $LIB/backstages contains symlinks to backstage directories now.
-* added Stage quota.
-* status command
-  * added cpu and mem fields
-  * fixed status field `tomcat` to contain the tomcat pid, not the service wrapper pid; added a new `service` field to contain the 
-    service wrapper pid.
-* stool.bin property for running wars was changed to stool.cp
-* per-user defauls: Stool checks for a user's ~/.stool.defaults file. If it exists, Stool loads it as a properties 
+* auto select:
+  * `stool` is now a normal executable, not a shell function. This simplifies instalation, updates and understanding things. And it 
+     simplified the implementation a lot.
+  * The backstage directory has been moved from `$LIB/backstages/stagename` to `stagedir/.stool`.
+  * To build a stage with the proper environment, you have to use `stool build` now. Stool no longer adjust the environment
+    for the current stage.
+  * `stool select` is gone: you select the currend stage with `cd`. Consider using `CDPATH` or (Pommes)[https://github.com/mlhartme/pommes]
+    to simplify switching between stages.
+  * `stool cd` is gone, use `cd` instead
+  * `create`, `remove` and `import` no longer change the current directory 
+ 
+* added support for git urls.
+
+* per-user defauls: Stool now checks for a user's ~/.stool.defaults file. If it exists, Stool loads it as a properties 
   file and uses it as default values for options. For example, a property "build=true" causes the refresh command to
   build a stage. The following properties are availble:
-  * verbose
-  * exception
-  * auto.restart
-  * auto.stop
-  * auto.rechown
-  * auto.chown
-  * import.name
-  * import.max
-  * history.max
-  * refresh.build
-  * tomcat.debug
-  * tomcat.suspend
-* replaced curl- (stop fitnesse) and wget (downloads) execs by sushi http.
-* simplified setup
-  * arbitrary location for Stool binary
-  * lib is either ~/.stool or /usr/share/stool
+  * `verbose`
+  * `exception`
+  * `auto.restart`
+  * `auto.stop`
+  * `auto.rechown`
+  * `auto.chown`
+  * `import.name`
+  * `import.max`
+  * `history.max`
+  * `refresh.build`
+  * `tomcat.debug`
+  * `tomcat.suspend`
+
 * Logstash extension
-* improved default configuration
-* Added stage property `notify` to configure email notifications.
-* dependency updates:
-  * Sushi 2.8.18 to 3.1.0 and inline 1.0.2
-  * Maven Embedded 3.11.1 to 3.12.1
-  * slf4j-api 1.7.12 to 1.7.21
-  * logback-core and logback-classic 1.1.3 to 1.1.7
-  * gson 2.2.4 to 2.7
-* fixed timestamp in generated shell file name
-* improved shell file handling: selecting a stage opens a sub-shell, selecting none exits this sub-shell
-  * you simply type exit instead of stool select none
-  * JavaSetup no longer install man pages and bash completion
-  * prompt no longer supports \= to reference the previous prompt
-  * Renamed -invocation argument to -shell
-* Added support for git urls.
-* Pommes is no longer hard-wired, there's a global `search` property to configure arbitrary search tools.
-* Atomic upgrade: creates a backup of the lib directory before upgrade; this is restored if the upgrade fails
-* Removed system-import command.
-* Stage configuration changes:
+
+* `status` command
+  * added `cpu` and `mem` fields
+  * fixed status field `tomcat` to contain the tomcat pid, not the service wrapper pid; added a new `service` field to contain the 
+    service wrapper pid.
+    
+* Global configuration:
+  * renamed `contactAdmin` to `admin`.
+  * removed `prompt`, it's no longer needed because is a plain executable now.
+  * Pommes is no longer hard-wired, there's a global `search` property to configure arbitrary search tools.
+
+* Stage configuration:
+  * added Stage quota.
+  * added stage property `notify` to configure email notifications.
   * dumped sslUrl; renamed suffixes to urls.
   * renamed until to expire (and reserved to never)
-
-* Fixed tomcat.service to actually work for versions other than 3.5.26.
-* simplified multi-module build; dumped STOOLSOURCE variable.
-
-* Global configuration changes:
-  * renamed `contactAdmin` to `admin`.
-  * removed `prompt`
-* stage config changes
   * removed `tomcat.perm` because it's ignored by Java 8.
-* Changed default tomcat version from 8.0.26 to 8.5.3
-* Changed default service wrapper version from 3.5.26 to 3.5.29
+  * changed default tomcat version from 8.0.26 to 8.5.3
+  * changed default service wrapper version from 3.5.26 to 3.5.29
+
+
+* properties for running stages
+  * `stool.bin` property for running wars was changed to stool.cp
+
+* improved setup
+  * arbitrary location for Stool binary
+  * lib is either ~/.stool or /usr/share/stool
+  * improved default configuration
+  * Atomic upgrade: creates a backup of the lib directory before upgrade; this is restored if the upgrade fails
+
+* cleanup
+  * removed `system-import` command, it was broken anyway
+  * dumped `MACHINE` and `STAGE_HOST` environment variables
+  * dumped run/users
+  * replaced curl- (stop fitnesse) and wget (downloads) execs by sushi http.
+  * fixed `tomcat.service` to actually work for versions other than 3.5.26.
+
+* Implementation changes
+  * simplified multi-module build; dumped STOOL_SOURCE variable.
+  * dependency updates:
+    * Sushi 2.8.18 to 3.1.0 and inline 1.0.2
+    * Maven Embedded 3.11.1 to 3.12.1
+    * slf4j-api 1.7.12 to 1.7.21
+    * logback-core and logback-classic 1.1.3 to 1.1.7
+    * gson 2.2.4 to 2.7
+
 
 ### 3.3.5 (2016-03-16)
 
