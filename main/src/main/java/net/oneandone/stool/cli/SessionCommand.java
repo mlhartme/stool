@@ -28,8 +28,6 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class SessionCommand {
     protected final Console console;
@@ -51,25 +49,9 @@ public abstract class SessionCommand {
     }
 
     public void run() throws Exception {
-        String wasSelected;
-        List<String> extraLines;
-
-        wasSelected = session.getSelectedStageName();
-        extraLines = new ArrayList<>();
         try (Lock lock = createLock("ports", globalLock)) {
             doRun();
         }
-        if (wasSelected == null) {
-            if (session.getSelectedStageName() != null) {
-                extraLines.add("export STOOL_CP=" + Main.stoolCp(session.world).getAbsolute());
-                extraLines.add("bash -rcfile " + session.lib.join("bash.rc").getAbsolute());
-            }
-        } else {
-            if (session.getSelectedStageName() == null) {
-                extraLines.add("exit");
-            }
-        }
-        session.shellFileUpdate(extraLines);
     }
 
     public abstract void doRun() throws Exception;

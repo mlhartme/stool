@@ -94,8 +94,7 @@ public class Import extends SessionCommand {
             case 1:
                 stage = found.get(0);
                 console.info.println("Importing " + stage.getDirectory());
-                stage = doImport(stage, null);
-                new Select(session, stage.getName()).run();
+                doImport(stage, null);
                 break;
             default:
                 interactiveImport(found);

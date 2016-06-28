@@ -47,8 +47,5 @@ public class Move extends StageCommand {
 
         stage.move(dest);
         console.info.println("done");
-        if (session.isSelected(stage)) {
-            session.select(stage);
-        }
     }
 }

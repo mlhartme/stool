@@ -33,13 +33,10 @@ public class Rename extends StageCommand {
 
     @Override
     public void doRun(Stage stage) throws Exception {
-        boolean selected;
         FileNode newBackstage;
 
         stage.checkOwnership();
         stage.checkNotUp();
-
-        selected = session.isSelected(stage);
         stage.checkOwnership();
         Stage.checkName(name);
         newBackstage = session.backstage(name);
@@ -52,8 +49,5 @@ public class Rename extends StageCommand {
         // TODO
         session.backstageLink(stage.getName()).move(newBackstage);
         session.backstageLink(stage.getName()).link(newBackstage);
-        if (selected) {
-            session.select(stage);
-        }
     }
 }

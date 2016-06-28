@@ -34,16 +34,14 @@ public class Globals {
 
     public String svnuser;
     public String svnpassword;
-    public FileNode shellFile;
 
-    public Globals(FileNode lib, Logging logging, String user, String command, Console console, World world, FileNode shellFile) {
+    public Globals(FileNode lib, Logging logging, String user, String command, Console console, World world) {
         this.lib = lib;
         this.logging = logging;
         this.user = user;
         this.command = command;
         this.console = console;
         this.world = world;
-        this.shellFile = shellFile;
     }
 
     public void setSvnuser(String svnuser) {
@@ -59,7 +57,7 @@ public class Globals {
     }
 
     public Session session() throws IOException {
-        return Session.load(lib, logging, user, command, console, world, shellFile, svnuser, svnpassword);
+        return Session.load(lib, logging, user, command, console, world, svnuser, svnpassword);
     }
 
     //--

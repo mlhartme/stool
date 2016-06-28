@@ -51,15 +51,12 @@ public class Main {
 
     public static int doRun(String user, Logging logging, FileNode lib, String[] args) throws IOException {
         World world;
-        String shellFile;
         Cli cli;
         String command;
         Globals globals;
         Console console;
 
         world = lib.getWorld();
-        // TODO: 1 cannot pass this as an argument because inline cannot detect the command with it ...
-        shellFile = System.getProperty("stool.shell");
         if (!lib.exists()) {
             Lib.create(Console.create(), lib, null);
         }
@@ -74,7 +71,7 @@ public class Main {
         }
         command = "stool " + command(args);
         logging.log("COMMAND", command);
-        globals = new Globals(lib, logging, user, command, console, world, shellFile == null ? null : world.file(shellFile));
+        globals = new Globals(lib, logging, user, command, console, world);
         cli = new Cli(globals::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
@@ -86,12 +83,10 @@ public class Main {
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Create.class, "create -quiet -name=null url directory?=null property* { property*(property) }");
                     cli.add(Import.class, "import -name=@import.name:%d -max=@import.max:40 dir* { dirs*(dir) setMax(max) setName(name) }");
-                    cli.add(Select.class, "select name?=null");
                     cli.base(StageCommand.class, "-autorechown=@auto.rechown -autochown=@auto.chown -autorestart=@auto.restart -autostop=@auto.stop -stage=null -all -fail "
                             + "{ setAutoRechown(autorechown) setAutoChown(autochown) setAutoRestart(autorestart) setAutoStop(autostop) "
                             +   "setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Build.class, "build");
-                      cli.add(Cd.class, "cd target?=null { setTarget(target) }");
                       cli.add(Chown.class, "chown -batch user?=null");
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");

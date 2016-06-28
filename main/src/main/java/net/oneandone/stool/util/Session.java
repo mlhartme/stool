@@ -62,10 +62,10 @@ import java.util.Map;
 
 public class Session {
     public static Session load(FileNode lib, Logging logging, String user, String command, Console console, World world,
-                               FileNode shellFile, String svnuser, String svnpassword) throws IOException {
+                               String svnuser, String svnpassword) throws IOException {
         Session session;
 
-        session = loadWithoutBackstageWipe(lib, logging, user, command, console, world, shellFile, svnuser, svnpassword);
+        session = loadWithoutBackstageWipe(lib, logging, user, command, console, world, svnuser, svnpassword);
 
         // Stale backstage wiping: how to detect backstage directories who's stage directory was removed.
         //
@@ -92,7 +92,7 @@ public class Session {
     }
 
     private static Session loadWithoutBackstageWipe(FileNode lib, Logging logging, String user, String command, Console console,
-                                                  World world, FileNode shellFile, String svnuser, String svnpassword) throws IOException {
+                                                  World world, String svnuser, String svnpassword) throws IOException {
         ExtensionsFactory factory;
         Gson gson;
         Session result;
@@ -102,8 +102,7 @@ public class Session {
         gson = gson(world, factory);
         environment = Environment.loadSystem();
         result = new Session(factory, gson, logging, user, command, lib, console, world, environment, StoolConfiguration.load(gson, lib),
-                Bedroom.loadOrCreate(gson, lib), shellFile, svnuser, svnpassword);
-        result.selectedStageName = environment.getOpt(Environment.STOOL_SELECTED);
+                Bedroom.loadOrCreate(gson, lib), svnuser, svnpassword);
         return result;
     }
 
@@ -128,12 +127,8 @@ public class Session {
 
     private final FileNode backstages;
 
-
-    /** may be null */
-    private final FileNode shellFile;
     private final Credentials svnCredentials;
 
-    private String selectedStageName;
     private final String stageIdPrefix;
     private int nextStageId;
     public final Users users;
@@ -145,7 +140,7 @@ public class Session {
 
     public Session(ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command,
                    FileNode lib, Console console, World world, Environment environment, StoolConfiguration configuration,
-                   Bedroom bedroom, FileNode shellFile, String svnuser, String svnpassword) {
+                   Bedroom bedroom, String svnuser, String svnpassword) {
         this.extensionsFactory = extensionsFactory;
         this.gson = gson;
         this.logging = logging;
@@ -159,8 +154,6 @@ public class Session {
         this.configuration = configuration;
         this.bedroom = bedroom;
         this.backstages = lib.join("backstages");
-        this.selectedStageName = null;
-        this.shellFile = shellFile;
         this.svnCredentials = new Credentials(svnuser, svnpassword);
         this.stageIdPrefix = FMT.format(LocalDate.now()) + "." + logging.id + ".";
         this.nextStageId = 0;
@@ -289,43 +282,6 @@ public class Session {
         return result;
     }
 
-
-    public void select(Stage selected) {
-        if (selected == null) {
-            selectedStageName = null;
-        } else {
-            selectedStageName = selected.getName();
-        }
-        environment.setAll(environment(selected));
-    }
-
-    private FileNode cd;
-
-    public void cd(FileNode dest) {
-        cd = dest;
-    }
-
-    public void shellFileUpdate(List<String> extraLines) throws IOException {
-        List<String> lines;
-
-        if (shellFile != null) {
-            lines = new ArrayList<>();
-            for (String key : environment(null).keys()) {
-                lines.add(environment.code(key));
-            }
-            if (cd != null) {
-                lines.add("cd '" + cd.getAbsolute() + "'");
-            }
-            if (console.getVerbose()) {
-                for (String line : lines) {
-                    console.verbose.println("[env] " + line);
-                }
-            }
-            lines.addAll(extraLines);
-            shellFile.writeLines(lines);
-        }
-    }
-
     public Scm scm(String url) {
         return Scm.forUrl(url, svnCredentials);
     }
@@ -350,16 +306,33 @@ public class Session {
         return result;
     }
 
-    //-- Memory checks - all value in MB
-    public String getSelectedStageName() {
-        return selectedStageName;
+    private static final String UNKNOWN = "../unknown/..";
+    private String lazySelected = UNKNOWN;
+
+    public String getSelectedStageName() throws IOException {
+        FileNode directory;
+        FileNode bs;
+
+        if (lazySelected == UNKNOWN) {
+            directory = Stage.findStageDirectory(world.getWorking());
+            if (directory == null) {
+                lazySelected = null;
+            } else {
+                bs = Stage.backstageDirectory(directory);
+                for (FileNode link : backstages.list()) {
+                    if (link.resolveLink().equals(bs)) {
+                        lazySelected = link.getName();
+                        break;
+                    }
+                }
+            }
+        }
+        return lazySelected;
     }
 
     public Environment environment(Stage stage) {
         Environment env;
-        String stoolIndicator;
         String mavenOpts;
-        String prompt;
 
         if (stage == null) {
             mavenOpts = "";
@@ -367,26 +340,10 @@ public class Session {
             mavenOpts = stage.macros().replace(stage.config().mavenOpts);
         }
         env = new Environment();
-        env.set(Environment.STOOL_SELECTED, selectedStageName);
-        // for pws and repositories:
-        if (stage != null) {
-            env.set(Environment.MACHINE, stage.getMachine());
-        }
-        // for pws:
-        env.set(Environment.STAGE_HOST, stage != null ? stage.getName() + "." + configuration.hostname : null);
-        // not that both MAVEN and ANT use JAVA_HOME to locate their JVM - it's not necessary to add java to the PATH variable
+        // note that both MAVEN and ANT use JAVA_HOME to locate their JVM - it's not necessary to add java to the PATH variable
         env.set(Environment.JAVA_HOME, stage != null ? stage.config().javaHome : null);
         env.set(Environment.MAVEN_HOME, (stage != null && stage.config().mavenHome() != null) ? stage.config().mavenHome() : null);
         env.set(Environment.MAVEN_OPTS, mavenOpts);
-        // to avoid ulimit permission denied warnings on Ubuntu machines:
-        if (stage == null) {
-            stoolIndicator = "";
-        } else {
-            stoolIndicator = "\\[$(stoolIndicatorColor)\\]" + stage.getName() + "\\[\\e[m\\]";
-        }
-        prompt = configuration.prompt;
-        prompt = Strings.replace(prompt, "\\+", stoolIndicator);
-        env.set(Environment.PS1, prompt);
         return env;
     }
 
@@ -457,8 +414,8 @@ public class Session {
         return lib.join("run/ports");
     }
 
-    public boolean isSelected(Stage stage) {
-        return stage.getName().equals(selectedStageName);
+    public boolean isSelected(Stage stage) throws IOException {
+        return stage.getName().equals(getSelectedStageName());
     }
 
     //-- stage properties

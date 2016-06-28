@@ -100,8 +100,6 @@ public class Create extends SessionCommand {
         Runtime.getRuntime().removeShutdownHook(cleanup);
 
         console.info.println("stage created: " + name);
-        session.select(stage);
-        session.cd(stage.getDirectory());
     }
 
     private String url() throws IOException {

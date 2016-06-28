@@ -58,10 +58,6 @@ public class Remove extends StageCommand {
             console.info.println("Removed " + stage.getDirectory().getAbsolute());
         }
         session.backstageLink(stage.getName()).deleteTree();
-        if (session.isSelected(stage)) {
-            session.select(null);
-        }
         session.bedroom.remove(session.gson, stage.getName());
-        session.cd(stage.getDirectory().getParent());
     }
 }

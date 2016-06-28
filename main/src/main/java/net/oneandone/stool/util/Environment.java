@@ -32,15 +32,9 @@ public class Environment {
         System.out.println(loadSystem().proxyOpts());
     }
 
-    public static final String STOOL_SELECTED = "STOOL_SELECTED";
-    // TODO: dump when pws uses stagehost instead
-    public static final String MACHINE = "MACHINE";
-    public static final String STAGE_HOST = "STAGE_HOST";
     public static final String JAVA_HOME = "JAVA_HOME";
     public static final String MAVEN_HOME = "MAVEN_HOME";
     public static final String MAVEN_OPTS = "MAVEN_OPTS";
-
-    public static final String PS1 = "PS1";
 
     public static Environment loadSystem() {
         Environment result;
