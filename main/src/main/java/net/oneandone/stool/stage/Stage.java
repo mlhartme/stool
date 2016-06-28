@@ -432,13 +432,13 @@ public abstract class Stage {
     //--
 
     public void move(FileNode newDirectory) throws IOException {
-        FileNode anchor;
+        FileNode link;
 
-        anchor = null; // TODO anchor();
-        anchor.deleteDirectory();
+        link = session.backstageLink(getName());
+        link.deleteTree();
         directory.move(newDirectory);
         directory = newDirectory;
-        directory.link(anchor);
+        link.link(backstageDirectory(directory));
     }
 
     //--

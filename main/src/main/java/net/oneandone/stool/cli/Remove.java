@@ -53,6 +53,7 @@ public class Remove extends StageCommand {
         }
         session.backstageLink(stage.getName()).deleteTree();
         if (backstageOnly) {
+            session.backstage(stage.getName()).deleteTree();
             console.info.println("Removed backstage for " + stage.getDirectory().getAbsolute());
         } else {
             stage.getDirectory().deleteTree();
