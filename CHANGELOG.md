@@ -11,8 +11,6 @@
   * added cpu and mem fields
   * fixed status field `tomcat` to contain the tomcat pid, not the service wrapper pid; added a new `service` field to contain the 
     service wrapper pid.
-* global config:
-  * removed `prompt`
 * stool.bin property for running wars was changed to stool.cp
 * per-user defauls: Stool checks for a user's ~/.stool.defaults file. If it exists, Stool loads it as a properties 
   file and uses it as default values for options. For example, a property "build=true" causes the refresh command to
@@ -33,7 +31,6 @@
 * simplified setup
   * arbitrary location for Stool binary
   * lib is either ~/.stool or /usr/share/stool
-* removed perm configuration because it's ignored by Java 8.
 * Logstash extension
 * improved default configuration
 * Added stage property `notify` to configure email notifications.
@@ -56,13 +53,17 @@
 * Stage configuration changes:
   * dumped sslUrl; renamed suffixes to urls.
   * renamed until to expire (and reserved to never)
-* Global configuration changes:
-  * renamed contactAdmin to admin.
-* Changed default tomcat version from 8.0.26 to 8.5.3
-* Changed default service wrapper version from 3.5.26 to 3.5.29
+
 * Fixed tomcat.service to actually work for versions other than 3.5.26.
 * simplified multi-module build; dumped STOOLSOURCE variable.
 
+* Global configuration changes:
+  * renamed `contactAdmin` to `admin`.
+  * removed `prompt`
+* stage config changes
+  * removed `tomcat.perm` because it's ignored by Java 8.
+* Changed default tomcat version from 8.0.26 to 8.5.3
+* Changed default service wrapper version from 3.5.26 to 3.5.29
 
 ### 3.3.5 (2016-03-16)
 

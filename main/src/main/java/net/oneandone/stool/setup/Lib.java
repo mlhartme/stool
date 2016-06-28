@@ -179,12 +179,7 @@ public class Lib {
 
     public static Upgrade stool33_34(Upgrade stage33_34) {
         return new Upgrade() {
-            JsonElement promptTransform(JsonElement e) {
-                String str;
-
-                str = e.getAsString();
-                str = str.replace("\\=", "\\u@\\h \\w \\$ ");
-                return new JsonPrimitive(str);
+            void promptRemove() {
             }
 
             JsonElement defaultsTransform(JsonElement element) {
