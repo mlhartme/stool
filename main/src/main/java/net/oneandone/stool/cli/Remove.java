@@ -57,6 +57,7 @@ public class Remove extends StageCommand {
             stage.getDirectory().deleteTree();
             console.info.println("Removed " + stage.getDirectory().getAbsolute());
         }
+        stage.backstageLink.deleteTree();
         if (session.isSelected(stage)) {
             session.select(null);
         }
