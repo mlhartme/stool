@@ -50,8 +50,8 @@ public class Remove extends StageCommand {
             console.info.println("Ready to delete " + stage.getDirectory().getAbsolute() + "?");
             console.pressReturn();
         }
-        stage.backstage.deleteTree();
         if (backstageOnly) {
+            stage.backstageResolved.deleteTree();
             console.info.println("Removed backstage for " + stage.getDirectory().getAbsolute());
         } else {
             stage.getDirectory().deleteTree();

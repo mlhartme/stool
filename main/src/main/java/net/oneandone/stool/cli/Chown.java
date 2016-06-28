@@ -55,7 +55,7 @@ public class Chown extends StageCommand {
         session.chown(stage, user);
         console.info.println("... " + user + " is now owner of " + stage.getName() + ".");
 
-        stage = Stage.load(session, stage.backstage);
+        stage = Stage.load(session, stage.backstageLink);
         newline();
         if (session.isSelected(stage)) {
             session.select(stage);

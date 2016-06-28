@@ -19,6 +19,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
@@ -31,12 +32,12 @@ import java.util.List;
 import java.util.Map;
 
 public class SourceStage extends Stage {
-    public static SourceStage forUrl(Session session, FileNode backstage, FileNode directory, String url, StageConfiguration configuration) {
-        return new SourceStage(session, backstage, directory, url, configuration);
+    public static SourceStage forUrl(Session session, FileNode backstageLink, FileNode directory, String url, StageConfiguration configuration) throws ReadLinkException {
+        return new SourceStage(session, backstageLink, directory, url, configuration);
     }
-    public static SourceStage forLocal(Session session, FileNode backstage, FileNode stage, StageConfiguration configuration)
+    public static SourceStage forLocal(Session session, FileNode backstageLink, FileNode stage, StageConfiguration configuration)
             throws IOException {
-        return forUrl(session, backstage, stage, Scm.checkoutUrl(stage), configuration);
+        return forUrl(session, backstageLink, stage, Scm.checkoutUrl(stage), configuration);
     }
 
     //--
@@ -44,8 +45,8 @@ public class SourceStage extends Stage {
     /** loaded on demand */
     private List<MavenProject> lazyWars;
 
-    public SourceStage(Session session, FileNode backstage, FileNode directory, String url, StageConfiguration configuration) {
-        super(session, url, backstage, directory, configuration);
+    public SourceStage(Session session, FileNode backstageLink, FileNode directory, String url, StageConfiguration configuration) throws ReadLinkException {
+        super(session, url, backstageLink, directory, configuration);
     }
 
     @Override

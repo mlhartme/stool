@@ -37,6 +37,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
+import net.oneandone.sushi.fs.LinkException;
 import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.ReadLinkException;
@@ -70,10 +71,10 @@ public class Session {
 
         session = loadWithoutBackstageWipe(lib, logging, user, command, console, world, shellFile, svnuser, svnpassword);
 
-        // Stale backstage wiping: how to detect backstages who's stage directory was removed.
+        // Stale backstage wiping: how to detect backstage directories who's stage directory was removed.
         //
         // My first thought was to watch for filesystem events to trigger backstage wiping.
-        // But there's quite a big delay and rmdif+mkdir is reported as modification. Plus the code is quite complex and
+        // But there's quite a big delay and rmdir+mkdir is reported as modification. Plus the code is quite complex and
         // I don't know how to handle overflow events.
         // So I simple wipe them whenever I load stool lib. That's a well-defined timing and that's before stool might
         // use a stale stage.
@@ -83,40 +84,12 @@ public class Session {
 
     public void wipeStaleBackstages() throws IOException {
         long s;
-        String pid;
-        Stage tmp;
 
         s = System.currentTimeMillis();
         for (FileNode backstage : backstages.list()) {
-            if (backstage.isDirectory()) {
-                FileNode anchor = backstage.join("anchor");
-                if (!anchor.exists() || (!anchor.isDirectory() && anchor.isLink())) {  // anchor file has been removed or is a broken link
-                    console.info.println("stale backstage detected: " + backstage);
-                    for (Node pidfile : backstage.find("shared/run/tomcat.pid")) {
-                        pid = pidfile.readString().trim();
-                        console.verbose.println(pidfile.getName() + ": stopping pid " + pid);
-                        try {
-                            tmp = new ArtifactStage(this, "" /* no apps */, backstage, backstage /* used to determin owner */,
-                                    loadStageConfiguration(backstage));
-                            tmp.stop(console);
-                        } catch (IOException e) {
-                            console.error.println("cannot stop stale backstage: " + e.getMessage());
-                            e.printStackTrace(console.verbose);
-                            try {
-                                pidfile.deleteFile(); // don't try again
-                            } catch (IOException e2) {
-                                e.addSuppressed(e2);
-                            }
-                            throw e;
-                        }
-                    }
-                    try {
-                        backstage.deleteTree();
-                    } catch (IOException e) {
-                        console.error.println(backstage + ": cannot delete stale backstage: " + e.getMessage());
-                        e.printStackTrace(console.verbose);
-                    }
-                }
+            if (backstage.exists() && !backstage.isFile() && !backstage.isDirectory()) {
+                console.info.println("removing stale backstage: " + backstage);
+                backstage.deleteTree();
             }
         }
         console.verbose.println("wipeStaleBackstages done, ms=" + ((System.currentTimeMillis() - s)));
@@ -204,12 +177,30 @@ public class Session {
         this.lazyPool= null;
     }
 
-    public FileNode backstage(String stageName) {
-        return backstages.join(stageName);
+    public FileNode create(FileNode backstage, String stageName) throws LinkException {
+        FileNode result;
+
+        result = backstages.join(stageName);
+        backstage.link(result);
+        return result;
     }
 
-    public boolean backstageContains(FileNode directory) {
-        return directory.hasDifferentAnchestor(backstages);
+    public FileNode backstage(String stageName) throws ReadLinkException {
+        return backstages.join(stageName).resolveLink();
+    }
+
+    public static FileNode findStageDirectory(FileNode dir) {
+        do {
+            if (backstageDirectory(dir).exists()) {
+                return dir;
+            }
+            dir = dir.getParent();
+        } while (dir != null);
+        return null;
+    }
+
+    public static FileNode backstageDirectory(FileNode dir) {
+        return dir.join(".backstage");
     }
 
     //--
@@ -273,12 +264,14 @@ public class Session {
     public List<Stage> list(EnumerationFailed problems, Predicate predicate) throws IOException {
         List<Stage> result;
         Stage stage;
+        FileNode backstage;
 
         result = new ArrayList<>();
-        for (FileNode backstage : backstages.list()) {
+        for (FileNode link : backstages.list()) {
+            backstage = link.resolveLink();
             if (StageConfiguration.file(backstage).exists()) {
                 try {
-                    stage = Stage.load(this, backstage);
+                    stage = Stage.load(this, link);
                 } catch (IOException e) {
                     problems.add(backstage, e);
                     continue;
@@ -356,10 +349,7 @@ public class Session {
     }
 
     public Stage load(String stageName) throws IOException {
-        FileNode backstage;
-
-        backstage = backstages.join(stageName);
-        return Stage.load(this, backstage);
+        return Stage.load(this, backstages.join(stageName));
     }
 
     public List<String> stageNames() throws IOException {
@@ -425,9 +415,11 @@ public class Session {
     private int memReservedTomcats() throws IOException {
         int reserved;
         StageConfiguration stage;
+        FileNode backstage;
 
         reserved = 0;
-        for (FileNode backstage : backstages.list()) {
+        for (FileNode link : backstages.list()) {
+            backstage = link.resolveLink();
             if (Stage.shared(backstage).join("run/tomcat.pid").exists()) {
                 stage = loadStageConfiguration(backstage);
                 reserved += stage.tomcatHeap;
@@ -462,7 +454,7 @@ public class Session {
 
 
     public void chown(Stage stage, String newOwner) throws Failure {
-        chown(newOwner, stage.backstage, stage.getDirectory());
+        chown(newOwner, stage.getDirectory());
     }
 
     public void chown(String newOwner, FileNode ... dirs) throws Failure {
@@ -500,8 +492,8 @@ public class Session {
         List<FileNode> result;
 
         result = new ArrayList<>();
-        for (FileNode backstage : backstages.list()) {
-            result.add((FileNode) Stage.anchor(backstage).resolveLink());
+        for (FileNode link : backstages.list()) {
+            result.add(link.resolveLink().getParent());
         }
         return result;
     }

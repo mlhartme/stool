@@ -102,7 +102,7 @@ public class Config extends StageCommand {
                 }
             }
             if (!error) {
-                session.saveStageProperties(configuration, stage.backstage);
+                session.saveStageProperties(configuration, stage.backstageResolved);
                 if (session.isSelected(stage)) {
                     session.environment.setAll(session.environment(stage));
                 }

@@ -84,21 +84,18 @@ public class Create extends SessionCommand {
 
     @Override
     public void doRun() throws Exception {
-        FileNode backstage;
         Stage stage;
         String url;
         RmRfThread cleanup;
 
         url = url();
         defaults(url);
-        backstage = session.backstage(name);
         cleanup = new RmRfThread(console);
         cleanup.add(directory);
-        cleanup.add(backstage);
         Runtime.getRuntime().addShutdownHook(cleanup);
 
         // if this method fails with an exception or it is aborted with ctrl-c, the shutdown hook is used to wipe things
-        stage = create(backstage, url);
+        stage = create(url);
 
         Runtime.getRuntime().removeShutdownHook(cleanup);
 
@@ -148,12 +145,9 @@ public class Create extends SessionCommand {
             directory = world.getWorking().join(Stage.nameForUrl(url));
         }
         parent = directory.getParent();
-        if (session.stageDirectories().contains(parent)) {
+        if (Session.findStageDirectory(directory) != null) {
             directory = parent.getParent().join(directory.getName());
-            console.verbose.println("warning: cannot create a stage within a stage. Changing directory to " + directory.getAbsolute());
-        }
-        if (session.backstageContains(directory)) {
-            throw new ArgumentException("you cannot create a stage in the backstages directory");
+            throw new ArgumentException("cannot create a stage within a stage. Changing directory to " + directory.getAbsolute());
         }
         if (directory.isDirectory()) {
             throw new ArgumentException("stage directory already exists: " + directory);
@@ -194,14 +188,12 @@ public class Create extends SessionCommand {
         }
     }
 
-    private Stage create(FileNode backstage, String url) throws Exception {
+    private Stage create(String url) throws Exception {
         Stage stage;
         String prepare;
 
         Files.createSourceDirectory(console.verbose, directory, session.group());
-        stage = stage(backstage, url);
-        // CAUTION: create backstage before possible prepare commands -- e.g. pws already populates the local repository of the stage
-        Files.createStoolDirectory(console.verbose, backstage);
+        stage = stage(url);
         // make sure to run in stage environment, e.g. to have proper repository settings
         prepare = stage.config().prepare;
         if (!prepare.isEmpty()) {
@@ -220,19 +212,25 @@ public class Create extends SessionCommand {
         return stage;
     }
 
-    private Stage stage(FileNode backstage, String url) throws Exception {
+    private Stage stage(String url) throws Exception {
+        FileNode backstageResolved;
+        FileNode backstageLink;
         ArtifactStage artifactStage;
         Stage stage;
 
+        // CAUTION: create backstage before possible prepare commands -- e.g. pws already populates the local repository of the stage
+        backstageResolved = Session.backstageDirectory(directory);
+        Files.createStoolDirectory(console.verbose, backstageResolved);
+        backstageLink = session.create(backstageResolved, name);
         if (ArtifactStage.isArtifact(url)) {
-            artifactStage = new ArtifactStage(session, url, backstage, directory, stageConfiguration);
+            artifactStage = new ArtifactStage(session, url, backstageLink, directory, stageConfiguration);
             artifactStage.populateDirectory(console);
             stage = artifactStage;
         } else {
             url = Strings.removeRightOpt(url, "/");
             console.info.println("checking out " + directory);
             session.scm(url).checkout(url, directory, quiet ? console.verbose : console.info);
-            stage = SourceStage.forUrl(session, backstage, directory, url, stageConfiguration);
+            stage = SourceStage.forUrl(session, backstageLink, directory, url, stageConfiguration);
         }
         return stage;
     }
