@@ -3,6 +3,7 @@
 ### 3.4.0 (pending)
 
 * dumped MACHINE and STAGE_HOST environment variables
+* dumped run/users
 * select stage via current directory
 * moved backstage directory into the stage directory. $LIB/backstages contains symlinks to backstage directories now.
 * added Stage quota.

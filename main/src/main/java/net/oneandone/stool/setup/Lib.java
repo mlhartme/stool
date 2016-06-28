@@ -99,7 +99,7 @@ public class Lib {
         if (!conf.downloadCache.exists()) {
             Files.createStoolDirectory(console.verbose, conf.downloadCache);
         }
-        for (String name : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "run/users", "tomcat"}) {
+        for (String name : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "tomcat"}) {
             Files.createStoolDirectory(console.verbose, dir.join(name));
         }
         Files.stoolFile(dir.join("run/locks").mkfile());

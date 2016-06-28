@@ -259,7 +259,7 @@ public abstract class Stage {
     /** @return pid or null */
     public FileNode servicePidFile() {
         // Yes, that's the service pid (tomcat is a child process of the service)
-        return shared().join("run", "tomcat.pid");
+        return shared().join("run/tomcat.pid");
     }
 
     //--
