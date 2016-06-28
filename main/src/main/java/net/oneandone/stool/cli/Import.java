@@ -69,7 +69,6 @@ public class Import extends SessionCommand {
         List<Stage> found;
         List<FileNode> existing;
         Stage stage;
-        FileNode tmpBackstage;
 
         found = new ArrayList<>();
         if (includes.size() == 0) {
@@ -77,13 +76,8 @@ public class Import extends SessionCommand {
         }
         existing = session.stageDirectories();
 
-        tmpBackstage = session.backstage("tmp");
-        try {
-            for (FileNode directory : includes) {
-                scan(tmpBackstage, directory, found, existing);
-            }
-        } finally {
-            tmpBackstage.deleteDirectory();
+        for (FileNode directory : includes) {
+            scan(directory, found, existing);
         }
         console.info.print("[" + found.size() + " candidates]\u001b[K\r");
         console.info.println();
@@ -160,7 +154,7 @@ public class Import extends SessionCommand {
         }
     }
 
-    private void scan(FileNode tmpBackstage, FileNode parent, List<Stage> result, List<FileNode> existingStages) throws IOException {
+    private void scan(FileNode parent, List<Stage> result, List<FileNode> existingStages) throws IOException {
         String url;
         Stage stage;
 
@@ -184,7 +178,7 @@ public class Import extends SessionCommand {
         if (url == null) {
             stage = null;
         } else {
-            stage = Stage.createOpt(session, url, session.createStageConfiguration(url), tmpBackstage.getName(), parent);
+            stage = Stage.createOpt(session, url, session.createStageConfiguration(url), "notused", parent);
         }
         if (stage != null) {
             // bingo
@@ -195,7 +189,7 @@ public class Import extends SessionCommand {
         } else {
             if (!parent.join("pom.xml").isFile()) {
                 for (FileNode child : parent.list()) {
-                    scan(tmpBackstage, child, result, existingStages);
+                    scan(child, result, existingStages);
                     if (result.size() >= max) {
                         break;
                     }
@@ -206,26 +200,23 @@ public class Import extends SessionCommand {
 
     private Stage doImport(Stage candidate, String forceName) throws IOException {
         FileNode directory;
-        FileNode backstage;
+        String name;
 
         directory = candidate.getDirectory();
         Files.sourceTree(console.verbose, directory, session.group());
-        backstage = session.backstage(forceName != null ? forceName : name(directory));
-        return create(session, candidate.getUrl(), backstage.getName(), directory, backstage);
+        name = forceName != null ? forceName : name(directory);
+        return create(session, candidate.getUrl(), name, directory);
     }
 
-    /**
-     * @param directory existing directory
-     * @param backstage not existing directory
-     */
-    private static Stage create(Session session, String url, String name, FileNode directory, FileNode backstage) throws IOException {
+    private static Stage create(Session session, String url, String name, FileNode directory) throws IOException {
         Stage stage;
 
         directory.checkDirectory();
-        Files.createStoolDirectory(session.console.verbose, backstage);
+        Files.createStoolDirectory(session.console.verbose, Stage.backstageDirectory(directory));
         stage = Stage.createOpt(session, url, session.createStageConfiguration(url), name, directory);
         stage.tuneConfiguration();
         stage.initialize();
+        session.create(stage.backstage, name);
         return stage;
     }
 
