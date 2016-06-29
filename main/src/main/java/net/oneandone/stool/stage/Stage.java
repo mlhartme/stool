@@ -438,7 +438,7 @@ public abstract class Stage {
         link.deleteTree();
         directory.move(newDirectory);
         directory = newDirectory;
-        link.link(backstageDirectory(directory));
+        backstageDirectory(directory).link(link);
     }
 
     //--
