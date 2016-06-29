@@ -142,12 +142,10 @@ public class Import extends SessionCommand {
     }
 
     private void importEntry(List<Stage> candidates, Stage candidate, String forceName) {
-        Stage stage;
-
         try {
-            stage = doImport(candidate, forceName);
+            doImport(candidate, forceName);
             candidates.remove(candidate);
-            console.info.println("imported: " + stage.getName());
+            console.info.println("imported: " + candidate.getName());
         } catch (IOException e) {
             console.info.println(candidate.getDirectory() + ": import failed: " + e.getMessage());
             e.printStackTrace(console.verbose);
@@ -176,17 +174,6 @@ public class Import extends SessionCommand {
 
         url = Stage.probe(parent);
         if (url == null) {
-            stage = null;
-        } else {
-            stage = Stage.createOpt(session, session.nextStageId(), url, session.createStageConfiguration(url, "candiadate"), parent);
-        }
-        if (stage != null) {
-            // bingo
-            result.add(stage);
-            if (result.size() >= max) {
-                console.info.println("\n\nScan aborted - max number of import projects reached: " + max);
-            }
-        } else {
             if (!parent.join("pom.xml").isFile()) {
                 for (FileNode child : parent.list()) {
                     scan(child, result, existingStages);
@@ -195,29 +182,27 @@ public class Import extends SessionCommand {
                     }
                 }
             }
+        } else {
+            stage = Stage.createOpt(session, session.nextStageId(), url, session.createStageConfiguration(url), parent);
+            result.add(stage);
+            if (result.size() >= max) {
+                console.info.println("\n\nScan stopped - max number of import projects reached: " + max);
+            }
         }
     }
 
-    private Stage doImport(Stage candidate, String forceName) throws IOException {
+    private void doImport(Stage stage, String forceName) throws IOException {
         FileNode directory;
         String name;
 
-        directory = candidate.getDirectory();
+        directory = stage.getDirectory();
         Files.sourceTree(console.verbose, directory, session.group());
         name = forceName != null ? forceName : name(directory);
-        return create(session, candidate.getUrl(), name, directory);
-    }
-
-    private static Stage create(Session session, String url, String name, FileNode directory) throws IOException {
-        Stage stage;
-
-        directory.checkDirectory();
         Files.createStoolDirectory(session.console.verbose, Stage.backstageDirectory(directory));
-        stage = Stage.createOpt(session, session.nextStageId(), url, session.createStageConfiguration(url, name), directory);
+        stage.config().name = name;
         stage.tuneConfiguration();
         stage.initialize();
         session.add(stage.backstage, stage.getId());
-        return stage;
     }
 
     private String name(FileNode directory) {

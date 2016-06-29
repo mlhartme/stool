@@ -127,8 +127,8 @@ public class StageConfiguration {
 
     public final Extensions extensions;
 
-    public StageConfiguration(String name, String javaHome, String mavenHome, String refresh, Extensions extensions) {
-        this.name = name;
+    public StageConfiguration(String javaHome, String mavenHome, String refresh, Extensions extensions) {
+        this.name = "noname";
         this.cookies = true;
         this.prepare = "";
         this.build = "false";

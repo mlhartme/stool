@@ -165,7 +165,8 @@ public class Create extends SessionCommand {
             throw new ArgumentException("stage name already exists: " + name);
         }
         if (stageConfiguration == null) {
-            stageConfiguration = session.createStageConfiguration(url, name);
+            stageConfiguration = session.createStageConfiguration(url);
+            stageConfiguration.name = name;
         }
     }
 

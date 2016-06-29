@@ -457,18 +457,18 @@ public class Session {
         lazyPool = null;
     }
 
-    public StageConfiguration createStageConfiguration(String url, String name) {
+    public StageConfiguration createStageConfiguration(String url) {
         String mavenHome;
-        StageConfiguration stage;
+        StageConfiguration result;
 
         try {
             mavenHome = Maven.locateMaven(world).getAbsolute();
         } catch (IOException e) {
             mavenHome = "";
         }
-        stage = new StageConfiguration(name, javaHome(), mavenHome, scm(url).refresh(), extensionsFactory.newInstance());
-        configuration.setDefaults(StageConfiguration.properties(extensionsFactory), stage, url);
-        return stage;
+        result = new StageConfiguration(javaHome(), mavenHome, scm(url).refresh(), extensionsFactory.newInstance());
+        configuration.setDefaults(StageConfiguration.properties(extensionsFactory), result, url);
+        return result;
     }
 
     public String nextStageId() {

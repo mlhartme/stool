@@ -36,7 +36,7 @@ public class StageConfigurationTest {
         world = World.create();
         factory = ExtensionsFactory.create(world);
         gson = Session.gson(world, factory);
-        configuration = new StageConfiguration("a", "b", "c", "refresh", factory.newInstance());
+        configuration = new StageConfiguration("a", "b", "refresh", factory.newInstance());
         tmp = world.getTemp().createTempFile();
         configuration.save(gson, tmp);
         StageConfiguration.load(gson, tmp);
