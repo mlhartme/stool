@@ -38,7 +38,7 @@ public class Restart extends StageCommand {
         }
 
         new Start(session, debug, suspend).doRun(stage);
-        if (session.bedroom.stages().contains(stage.getName())) {
+        if (session.bedroom.contains(stage.getId())) {
             console.info.println("stopped sleeping");
         }
     }

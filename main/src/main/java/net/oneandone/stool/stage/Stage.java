@@ -221,7 +221,7 @@ public abstract class Stage {
     }
 
     public State state() throws IOException {
-        if (session.bedroom.stages().contains(getName())) {
+        if (session.bedroom.contains(getId())) {
             return State.SLEEPING;
         } else if (runningService() != 0) {
             return State.UP;

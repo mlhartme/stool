@@ -18,6 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -40,6 +41,8 @@ public class Remove extends StageCommand {
 
     @Override
     public void doRun(Stage stage) throws Exception {
+        FileNode dir;
+
         stage.checkNotUp();
         stage.checkOwnership();
         if (!force) {
@@ -47,18 +50,13 @@ public class Remove extends StageCommand {
                 throw new IOException("checkout has modifications - aborted.\nYou may run with -force");
             }
         }
+        dir = backstageOnly ? session.backstageLink(stage.getId()).resolveLink() : stage.getDirectory();
         if (!batch) {
-            console.info.println("Ready to delete " + stage.getDirectory().getAbsolute() + "?");
+            console.info.println("Ready to delete " + dir.getAbsolute() + "?");
             console.pressReturn();
         }
-        if (backstageOnly) {
-            session.backstageLink(stage.getId()).resolveLink().deleteTree();
-            console.info.println("Removed backstage for " + stage.getDirectory().getAbsolute());
-        } else {
-            stage.getDirectory().deleteTree();
-            console.info.println("Removed " + stage.getDirectory().getAbsolute());
-        }
+        dir.deleteTree();
         session.backstageLink(stage.getId()).deleteTree();
-        session.bedroom.remove(session.gson, stage.getName());
+        session.bedroom.remove(session.gson, stage.getId());
     }
 }

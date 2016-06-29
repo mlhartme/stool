@@ -57,14 +57,14 @@ public class Bedroom {
         this.sleep = new ArrayList<>();
     }
 
-    public void add(Gson gson, String stage) throws IOException {
-        sleep.add(stage);
+    public void add(Gson gson, String stageId) throws IOException {
+        sleep.add(stageId);
         save(gson);
     }
 
-    public void remove(Gson gson, String stage) throws IOException {
-        if (sleep.contains(stage)) {
-            sleep.remove(stage);
+    public void remove(Gson gson, String stageId) throws IOException {
+        if (sleep.contains(stageId)) {
+            sleep.remove(stageId);
         }
         save(gson);
     }
@@ -73,8 +73,8 @@ public class Bedroom {
         Files.stoolFile(file.writeString(gson.toJson(this)));
     }
 
-    public Collection<String> stages() {
-        return Collections.unmodifiableCollection(sleep);
+    public boolean contains(String stageId) {
+        return sleep.contains(stageId);
     }
 
     public FileNode file() {

@@ -30,10 +30,10 @@ public class Stop extends StageCommand {
     @Override
     public void doRun(Stage stage) throws Exception {
         boolean alreadySleeping;
-        String name;
+        String id;
 
-        name = stage.getName();
-        alreadySleeping = session.bedroom.stages().contains(name);
+        id = stage.getId();
+        alreadySleeping = session.bedroom.contains(id);
         if (alreadySleeping) {
             if (sleep) {
                 console.info.println("warning: stage already marked as sleeping");
@@ -45,11 +45,11 @@ public class Stop extends StageCommand {
         }
         if (sleep) {
             if (!alreadySleeping) {
-                session.bedroom.add(session.gson, name);
+                session.bedroom.add(session.gson, id);
             }
             console.info.println("state: sleeping");
         } else {
-            session.bedroom.remove(session.gson, name);
+            session.bedroom.remove(session.gson, id);
             console.info.println("state: down");
         }
     }
