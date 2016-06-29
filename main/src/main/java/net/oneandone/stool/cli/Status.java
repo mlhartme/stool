@@ -34,7 +34,7 @@ import java.util.TreeMap;
 
 public class Status extends StageCommand {
     public enum Field {
-        ID, NAME, DIRECTORY, BACKSTAGE, URL, TYPE, OWNER, DISK, STATE, UPTIME, CPU, MEM, SERVICE, TOMCAT, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
+        ID, NAME, SELECTED, DIRECTORY, BACKSTAGE, URL, TYPE, OWNER, DISK, STATE, UPTIME, CPU, MEM, SERVICE, TOMCAT, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
 
         public String toString() {
             return name().toLowerCase();
@@ -69,7 +69,7 @@ public class Status extends StageCommand {
         boolean first;
         String value;
 
-        status = status(processes(), stage);
+        status = status(session, processes(), stage);
         fields = selected.isEmpty() ? Arrays.asList(Field.values()) : selected;
         width = 0;
         for (Field field : fields) {
@@ -120,7 +120,7 @@ public class Status extends StageCommand {
         }
     }
 
-    public static Map<Field, Object> status(Processes processes, Stage stage) throws IOException {
+    public static Map<Field, Object> status(Session session, Processes processes, Stage stage) throws IOException {
         Map<Field, Object> result;
         Ports ports;
         List<String> jmx;
@@ -129,6 +129,7 @@ public class Status extends StageCommand {
         result = new TreeMap<>();
         result.put(Field.ID, stage.config().id);
         result.put(Field.NAME, stage.getName());
+        result.put(Field.SELECTED, session.isSelected(stage) ? "*" : "");
         result.put(Field.DIRECTORY, stage.getDirectory().getAbsolute());
         result.put(Field.BACKSTAGE, stage.backstage.getAbsolute());
         result.put(Field.DISK, Integer.toString(stage.diskUsed()));

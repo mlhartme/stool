@@ -52,6 +52,7 @@ public class Ls extends StageCommand {
 
         if (selected.isEmpty()) {
             selected.add(Status.Field.NAME);
+            selected.add(Status.Field.SELECTED);
             selected.add(Status.Field.STATE);
             selected.add(Status.Field.OWNER);
             selected.add(Status.Field.URL);
@@ -71,7 +72,7 @@ public class Ls extends StageCommand {
         List<String> line;
         Map<Status.Field, Object> status;
 
-        status = Status.status(processes(), stage);
+        status = Status.status(session, processes(), stage);
         line = new ArrayList<>();
         lines.add(line);
         for (Status.Field field : selected) {

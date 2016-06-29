@@ -369,7 +369,7 @@ public abstract class StageCommand extends SessionCommand {
                 Property p;
 
                 if (constField != null) {
-                    status = Status.status(processes(), stage);
+                    status = Status.status(session, processes(), stage);
                     obj = status.get(constField);
                 } else {
                     p = properties.get(constProperty);
