@@ -15,53 +15,39 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class Ls extends StageCommand {
-    private List<Status.Field> selected;
+public class Ls extends StatusBase {
     private List<List<String>> lines;
 
     public Ls(Session session) {
-        super(session, Mode.NONE, Mode.SHARED, Mode.NONE);
-        selected = new ArrayList<>();
+        super(session);
         lines = new ArrayList<>();
     }
-
-    public void field(String str) {
-        try {
-            selected.add(Status.Field.valueOf(str.toUpperCase()));
-        } catch (IllegalArgumentException e) {
-            throw new ArgumentException(str + ": no such status field, choose one of " + Arrays.asList(Status.Field.values()));
-        }
-    }
-
 
     @Override
     public boolean doBefore(List<Stage> stages, int indent) {
         List<String> line;
 
         if (selected.isEmpty()) {
-            selected.add(Status.Field.NAME);
-            selected.add(Status.Field.SELECTED);
-            selected.add(Status.Field.STATE);
-            selected.add(Status.Field.OWNER);
-            selected.add(Status.Field.URL);
+            selected.add(Field.NAME);
+            selected.add(Field.SELECTED);
+            selected.add(Field.STATE);
+            selected.add(Field.OWNER);
+            selected.add(Field.URL);
         }
         header("stages");
 
         line = new ArrayList<>();
         lines.add(line);
-        for (Status.Field field : selected) {
+        for (Field field : selected) {
             line.add('(' + field.toString().toLowerCase() + ')');
         }
         return true;
@@ -70,12 +56,12 @@ public class Ls extends StageCommand {
     @Override
     public void doRun(Stage stage) throws Exception {
         List<String> line;
-        Map<Status.Field, Object> status;
+        Map<Field, Object> status;
 
         status = Status.status(session, processes(), stage);
         line = new ArrayList<>();
         lines.add(line);
-        for (Status.Field field : selected) {
+        for (Field field : selected) {
             line.add(Status.toString(status.get(field)).replace("\t", " "));
         }
     }
