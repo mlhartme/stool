@@ -127,7 +127,7 @@ public class StoolIT {
         stool("remove", "-stage", "it", "-backstage", "-batch", "-force"); // -force because hellowar via svn has no ignores on .stool
         stool("import", "it");
         stool("chown", "-stage", "it");
-        stool("rename", "-stage", "it", "renamed");
+        stool("config", "-stage", "it", "name=renamed");
         stool("move", "-stage", "renamed", "movedStage");
         stool("remove", "-stage", "renamed", "-batch");
     }
