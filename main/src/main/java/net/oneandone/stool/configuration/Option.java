@@ -24,5 +24,4 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface Option {
     String key();
-    boolean readOnly() default false;
 }

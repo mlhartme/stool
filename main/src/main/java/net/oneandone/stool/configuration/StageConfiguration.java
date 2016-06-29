@@ -51,7 +51,7 @@ public class StageConfiguration {
         result = new LinkedHashMap<>();
         for (Field field : StageConfiguration.class.getFields()) {
             option = field.getAnnotation(Option.class);
-            if (option != null && !option.readOnly()) {
+            if (option != null) {
                 result.put(option.key(), new Property(option.key(), field, null));
             }
         }
