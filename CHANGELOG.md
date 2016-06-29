@@ -37,7 +37,9 @@
   * added `cpu` and `mem` fields
   * fixed status field `tomcat` to contain the tomcat pid, not the service wrapper pid; added a new `service` field to contain the 
     service wrapper pid.
-    
+
+* `list` command has configurable fields now
+
 * Global configuration:
   * renamed `contactAdmin` to `admin`.
   * removed `prompt`, it's no longer needed because is a plain executable now.

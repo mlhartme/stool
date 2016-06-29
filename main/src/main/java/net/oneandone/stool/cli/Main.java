@@ -91,7 +91,7 @@ public class Main {
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -max=@history.max:999 detail* { detail*(detail) }");
-                      cli.add(Ls.class, "list");
+                      cli.add(Ls.class, "list field* { field*(field) }");
                       cli.add(Move.class, "move dest");
                       cli.add(Port.class, "port port { port*(port) }");
                       cli.add(Refresh.class, "refresh -build=@refresh.build -restore");

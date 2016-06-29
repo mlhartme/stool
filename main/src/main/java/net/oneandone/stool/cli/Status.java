@@ -22,6 +22,7 @@ import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
+import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -58,14 +59,15 @@ public class Status extends StageCommand {
         }
     }
 
+    private static Separator TAB = Separator.on('\t');
+
     @Override
     public void doRun(Stage stage) throws Exception {
         List<Field> fields;
         Map<Field, Object> status;
         int width;
-        Object value;
-        List<String> lst;
         boolean first;
+        String value;
 
         status = status(processes(), stage);
         fields = selected.isEmpty() ? Arrays.asList(Field.values()) : selected;
@@ -78,26 +80,43 @@ public class Status extends StageCommand {
             console.info.print(Strings.times(' ', width - field.length()));
             console.info.print(field.toString());
             console.info.print(" : ");
-            value = status.get(field);
-            if (value == null) {
+            first = true;
+            value = toString(status.get(field));
+            if (value.isEmpty()) {
                 console.info.println();
-            } else if (value instanceof List) {
-                first = true;
-                lst = (List<String>) value;
-                for (String item : lst) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        console.info.print(Strings.times(' ', width + 3));
-                    }
-                    console.info.println(item);
-                }
+            } else for (String str : TAB.split(value)) {
                 if (first) {
-                    console.info.println();
+                    first = false;
+                } else {
+                    console.info.print(Strings.times(' ', width + 3));
                 }
-            } else {
-                console.info.println(value);
+                console.info.println(str);
             }
+        }
+    }
+
+    public static String toString(Object value) {
+        boolean first;
+        List<Object> lst;
+        StringBuilder builder;
+
+        if (value == null) {
+            return "";
+        } else if (value instanceof List) {
+            first = true;
+            lst = (List) value;
+            builder = new StringBuilder();
+            for (Object item : lst) {
+                if (first) {
+                    first = false;
+                } else {
+                    builder.append('\t');
+                }
+                builder.append(toString(item));
+            }
+            return builder.toString();
+        } else {
+            return value.toString();
         }
     }
 
