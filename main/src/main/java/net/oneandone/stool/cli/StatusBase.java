@@ -23,7 +23,6 @@ import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.util.Separator;
-import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -47,16 +46,36 @@ public abstract class StatusBase extends StageCommand {
 
     protected final List<Field> selected = new ArrayList<>();
 
-    public StatusBase(Session session) {
+    private final String defaults;
+
+    public StatusBase(Session session, String defaults) {
         super(session, Mode.SHARED, Mode.SHARED, Mode.SHARED);
+        this.defaults = defaults;
     }
 
     public void field(String str) {
+        selected.add(get(str));
+    }
+
+    private static Field get(String str) {
         try {
-            selected.add(Field.valueOf(str.toUpperCase()));
+            return Field.valueOf(str.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new ArgumentException(str + ": no such status field, choose one of " + Arrays.asList(Field.values()));
         }
+    }
+
+    protected List<Field> defaults(Field ... systemDefaults) {
+        List<Field> result;
+
+        if (defaults.isEmpty()) {
+            return Arrays.asList(systemDefaults);
+        }
+        result = new ArrayList<>();
+        for (String name : Separator.COMMA.split(defaults)) {
+            result.add(get(name));
+        }
+        return result;
     }
 
     //--

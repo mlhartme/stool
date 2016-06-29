@@ -91,7 +91,7 @@ public class Main {
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -max=@history.max:999 detail* { detail*(detail) }");
-                      cli.add(Ls.class, "list field* { field*(field) }");
+                      cli.add(Ls.class, "list -defaults=@list.defaults field* { field*(field) }");
                       cli.add(Move.class, "move dest");
                       cli.add(Port.class, "port port { port*(port) }");
                       cli.add(Refresh.class, "refresh -build=@refresh.build -restore");
@@ -99,7 +99,7 @@ public class Main {
                       cli.add(Rename.class, "rename name");
                       cli.add(Restart.class, "restart -debug=@tomcat.debug -suspend=@tomcat.suspend");
                       cli.add(Start.class, "start -debug=@tomcat.debug -suspend=@tomcat.suspend -tail { setTail(tail) }");
-                      cli.add(Status.class, "status field* { field*(field) }");
+                      cli.add(Status.class, "status -defaults=@status.defaults field* { field*(field) }");
                       cli.add(Stop.class, "stop -sleep");
                       cli.add(SystemStart.class, "system-start");
                       cli.add(SystemStop.class, "system-stop");

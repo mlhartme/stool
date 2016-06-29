@@ -20,13 +20,12 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class Status extends StatusBase {
-    public Status(Session session) {
-        super(session);
+    public Status(Session session, String defaults) {
+        super(session, defaults);
     }
 
     private static Separator TAB = Separator.on('\t');
@@ -40,7 +39,7 @@ public class Status extends StatusBase {
         String value;
 
         status = status(session, processes(), stage);
-        fields = selected.isEmpty() ? Arrays.asList(Field.values()) : selected;
+        fields = selected.isEmpty() ? defaults(Field.values()) : selected;
         width = 0;
         for (Field field : fields) {
             width = Math.max(width, field.length());

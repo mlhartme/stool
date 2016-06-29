@@ -27,8 +27,8 @@ import java.util.Map;
 public class Ls extends StatusBase {
     private List<List<String>> lines;
 
-    public Ls(Session session) {
-        super(session);
+    public Ls(Session session, String defaults) {
+        super(session, defaults);
         lines = new ArrayList<>();
     }
 
@@ -37,11 +37,7 @@ public class Ls extends StatusBase {
         List<String> line;
 
         if (selected.isEmpty()) {
-            selected.add(Field.NAME);
-            selected.add(Field.SELECTED);
-            selected.add(Field.STATE);
-            selected.add(Field.OWNER);
-            selected.add(Field.URL);
+            selected.addAll(defaults(Field.NAME, Field.SELECTED, Field.STATE, Field.OWNER, Field.URL));
         }
         header("stages");
 
