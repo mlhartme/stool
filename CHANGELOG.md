@@ -47,7 +47,8 @@
 
 * Global configuration:
   * renamed `contactAdmin` to `admin`.
-  * removed `prompt`, it's no longer needed because is a plain executable now.
+  * removed `prompt`, it's no longer needed because is a plain executable now. However, there are shell functions in ${lib}/bash.rc so you
+    can the format stage indicator with something like `PS1="\$(colorStageIndicator)\\u@\\h \\w \\$ "`
   * Pommes is no longer hard-wired, there's a global `search` property to configure arbitrary search tools.
 
 * Stage configuration:

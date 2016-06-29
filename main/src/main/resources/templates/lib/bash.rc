@@ -1,9 +1,29 @@
 # Stool shell functions for bash
 
-stoolIndicatorColor() {
+colorStageIndicator() {
+  local NO_COLOUR="\[\033[0m\]"
+  local dir=`pwd`
+  echo -e $(stageIndicatorColor)$(stageIndicator $dir)${NO_COLOR}
+}
+
+stageIndicator() {
+  local dir="$(cd $1; pwd)"
+  while [ $dir != "/" ] ; do
+    if [ -d $dir/.stool/shared ] ; then
+      local name=$(grep \"name\" $dir/.stool/config.json | cut -d':' -f2 | grep -o \"[a-zA-Z.0-9]*\")
+      name=${name:1}
+      name=${name%?}
+      echo -e "{$name} "
+      return
+    fi
+    dir="$(dirname "$dir")"
+  done
+}
+
+stageIndicatorColor() {
     local RED="\033[0;31m"
     local BLUE_BACKGROUND="\033[44;1;37m"
-    local DIR=${{stool.lib}}/backstages/$STOOL_SELECTED/anchor
+    local DIR=$1
     if [ ! -e $DIR ] ; then
       echo -e "$BLUE_BACKGROUND"
     else

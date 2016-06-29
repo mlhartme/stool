@@ -48,6 +48,7 @@ public class Bedroom {
 
     //--
 
+    /** contains stage ids */
     private final List<String> sleep;
 
     private transient FileNode file;
@@ -69,12 +70,12 @@ public class Bedroom {
         save(gson);
     }
 
-    public void save(Gson gson) throws IOException {
-        Files.stoolFile(file.writeString(gson.toJson(this)));
-    }
-
     public boolean contains(String stageId) {
         return sleep.contains(stageId);
+    }
+
+    public void save(Gson gson) throws IOException {
+        Files.stoolFile(file.writeString(gson.toJson(this)));
     }
 
     public FileNode file() {
