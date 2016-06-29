@@ -579,6 +579,9 @@ public abstract class Stage {
     }
 
     public boolean isCommitted() throws IOException {
+        if (this instanceof ArtifactStage) {
+            return true;
+        }
         return session.scm(getUrl()).isCommitted(this);
     }
 
