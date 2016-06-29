@@ -66,7 +66,7 @@ public class History extends StageCommand {
         int remove;
         List<LogEntry> commands;
 
-        stageId = s.config().id;
+        stageId = s.getId();
         commands = session.logging.stageCommands(stageId);
         if (commands.size() > max) {
             remove = commands.size() - max;

@@ -112,7 +112,7 @@ public abstract class StatusBase extends StageCommand {
         String url;
 
         result = new TreeMap<>();
-        result.put(Field.ID, stage.config().id);
+        result.put(Field.ID, stage.getId());
         result.put(Field.NAME, stage.getName());
         result.put(Field.SELECTED, session.isSelected(stage) ? "*" : "");
         result.put(Field.DIRECTORY, stage.getDirectory().getAbsolute());

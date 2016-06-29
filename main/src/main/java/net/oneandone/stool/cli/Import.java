@@ -178,7 +178,7 @@ public class Import extends SessionCommand {
         if (url == null) {
             stage = null;
         } else {
-            stage = Stage.createOpt(session, url, session.createStageConfiguration(url), "notused", parent);
+            stage = Stage.createOpt(session, session.nextStageId(), url, session.createStageConfiguration(url, "candiadate"), parent);
         }
         if (stage != null) {
             // bingo
@@ -213,10 +213,10 @@ public class Import extends SessionCommand {
 
         directory.checkDirectory();
         Files.createStoolDirectory(session.console.verbose, Stage.backstageDirectory(directory));
-        stage = Stage.createOpt(session, url, session.createStageConfiguration(url), name, directory);
+        stage = Stage.createOpt(session, session.nextStageId(), url, session.createStageConfiguration(url, name), directory);
         stage.tuneConfiguration();
         stage.initialize();
-        session.create(stage.backstage, name);
+        session.add(stage.backstage, stage.getId());
         return stage;
     }
 

@@ -43,9 +43,9 @@ import java.util.Set;
 public class ArtifactStage extends Stage {
     private final Applications applications;
 
-    public ArtifactStage(Session session, String url, String name, FileNode directory, StageConfiguration configuration)
+    public ArtifactStage(Session session, String url, String id, FileNode directory, StageConfiguration configuration)
       throws IOException {
-        super(session, url, name, directory, configuration);
+        super(session, url, id, directory, configuration);
 
         String str;
         Locator locator;

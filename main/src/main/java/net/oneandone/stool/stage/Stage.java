@@ -71,7 +71,7 @@ public abstract class Stage {
         return load(session, session.loadStageConfiguration(backstageResolved), backstageLink.getName(), backstageResolved.getParent());
     }
 
-    private static Stage load(Session session, StageConfiguration configuration, String name, FileNode directory) throws IOException {
+    private static Stage load(Session session, StageConfiguration configuration, String id, FileNode directory) throws IOException {
         Stage result;
         String url;
 
@@ -79,7 +79,7 @@ public abstract class Stage {
         if (url == null) {
             throw new IOException("cannot determine stage url: " + directory);
         }
-        result = createOpt(session, url, configuration, name, directory);
+        result = createOpt(session, id, url, configuration, directory);
         if (result == null) {
             throw new IOException("unknown stage type: " + directory);
         }
@@ -98,16 +98,16 @@ public abstract class Stage {
         return Scm.checkoutUrlOpt(directory);
     }
 
-    public static Stage createOpt(Session session, String url, StageConfiguration configuration, String name, FileNode directory) throws IOException {
+    public static Stage createOpt(Session session, String id, String url, StageConfiguration configuration, FileNode directory) throws IOException {
         if (configuration == null) {
             throw new IllegalArgumentException();
         }
         directory.checkDirectory();
         if (url.startsWith("gav:") || url.startsWith("file:")) {
-            return new ArtifactStage(session, url, name, directory, configuration);
+            return new ArtifactStage(session, url, id, directory, configuration);
         }
         if (directory.join(configuration.pom).exists()) {
-            return SourceStage.forLocal(session, name, directory, configuration);
+            return SourceStage.forLocal(session, id, directory, configuration);
         }
         return null;
     }
@@ -123,7 +123,7 @@ public abstract class Stage {
     //-- main methods
     protected final String url;
 
-    private final String name;
+    private final String id;
 
     /**
      * Contains two types of files:
@@ -141,10 +141,10 @@ public abstract class Stage {
 
     //--
 
-    public Stage(Session session, String url, String name, FileNode directory, StageConfiguration configuration) throws ReadLinkException {
+    public Stage(Session session, String url, String id, FileNode directory, StageConfiguration configuration) throws ReadLinkException {
         this.session = session;
         this.url = url;
-        this.name = name;
+        this.id = id;
         this.backstage = backstageDirectory(directory);
         this.directory = directory;
         this.configuration = configuration;
@@ -154,9 +154,13 @@ public abstract class Stage {
         return shared(backstage);
     }
 
-    /** User visible name of the stage */
+
+    public String getId() {
+        return id;
+    }
+
     public String getName() {
-        return name;
+        return config().name;
     }
 
     public FileNode getBackstage() {
@@ -176,11 +180,11 @@ public abstract class Stage {
     }
 
     public String backstageLock() {
-        return "backstage-" + config().id;
+        return "backstage-" + id;
     }
 
     public String directoryLock() {
-        return "directory-" + config().id;
+        return "directory-" + id;
     }
 
     private KeyStore keystore() throws IOException {
@@ -205,21 +209,6 @@ public abstract class Stage {
     }
 
     public abstract boolean updateAvailable();
-
-    /**
-     * @return name "." first part of the domain
-     */
-    public String getMachine() {
-        String machine;
-        int idx;
-
-        machine = session.configuration.hostname;
-        idx = machine.indexOf('.');
-        if (idx != -1) {
-            machine = machine.substring(0, idx);
-        }
-        return getName() + "." + machine;
-    }
 
     public String owner() throws IOException {
         return directory.getOwner().getName();
@@ -434,7 +423,7 @@ public abstract class Stage {
     public void move(FileNode newDirectory) throws IOException {
         FileNode link;
 
-        link = session.backstageLink(getName());
+        link = session.backstageLink(getId());
         link.deleteTree();
         directory.move(newDirectory);
         directory = newDirectory;

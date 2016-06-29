@@ -125,7 +125,7 @@ public abstract class StageCommand extends SessionCommand {
                     if (withPrefix) {
                         ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
                     }
-                    session.logging.setStage(stage.config().id, stage.getName());
+                    session.logging.setStage(stage.getId(), stage.getName());
                     doAutoInvoke(stage);
                 } catch (ArgumentException e) {
                     if (fail == Fail.NORMAL) {
@@ -194,13 +194,13 @@ public abstract class StageCommand extends SessionCommand {
     }
 
     protected Stage selected() throws IOException {
-        String name;
+        String id;
 
-        name = session.getSelectedStageName();
-        if (name == null) {
-            throw new IOException("no stage selected - run 'stool select myStageName'.");
+        id = session.getSelectedStageId();
+        if (id == null) {
+            throw new IOException("no stage selected");
         }
-        return session.load(name);
+        return session.load(id);
     }
 
     /** override this to change the default */

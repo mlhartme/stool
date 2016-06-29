@@ -52,13 +52,13 @@ public class Remove extends StageCommand {
             console.pressReturn();
         }
         if (backstageOnly) {
-            session.backstage(stage.getName()).deleteTree();
+            session.backstageLink(stage.getId()).resolveLink().deleteTree();
             console.info.println("Removed backstage for " + stage.getDirectory().getAbsolute());
         } else {
             stage.getDirectory().deleteTree();
             console.info.println("Removed " + stage.getDirectory().getAbsolute());
         }
-        session.backstageLink(stage.getName()).deleteTree();
+        session.backstageLink(stage.getId()).deleteTree();
         session.bedroom.remove(session.gson, stage.getName());
     }
 }

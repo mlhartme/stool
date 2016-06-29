@@ -99,7 +99,7 @@ public class Create extends SessionCommand {
 
         Runtime.getRuntime().removeShutdownHook(cleanup);
 
-        session.create(stage.backstage, name);
+        session.add(stage.backstage, stage.getId());
         console.info.println("stage created: " + name);
     }
 
@@ -165,7 +165,7 @@ public class Create extends SessionCommand {
             throw new ArgumentException("stage name already exists: " + name);
         }
         if (stageConfiguration == null) {
-            stageConfiguration = session.createStageConfiguration(url);
+            stageConfiguration = session.createStageConfiguration(url, name);
         }
     }
 
@@ -214,18 +214,20 @@ public class Create extends SessionCommand {
     }
 
     private Stage stage(String url) throws Exception {
+        String id;
         ArtifactStage artifactStage;
         Stage stage;
 
+        id = session.nextStageId();
         if (ArtifactStage.isArtifact(url)) {
-            artifactStage = new ArtifactStage(session, url, name, directory, stageConfiguration);
+            artifactStage = new ArtifactStage(session, url, id, directory, stageConfiguration);
             artifactStage.populateDirectory(console);
             stage = artifactStage;
         } else {
             url = Strings.removeRightOpt(url, "/");
             console.info.println("checking out " + directory);
             session.scm(url).checkout(url, directory, quiet ? console.verbose : console.info);
-            stage = SourceStage.forUrl(session, name, directory, url, stageConfiguration);
+            stage = SourceStage.forUrl(session, id, directory, url, stageConfiguration);
         }
         return stage;
     }

@@ -61,8 +61,8 @@ public class StageConfiguration {
 
     //--
 
-    @Option(key = "id", readOnly = true)
-    public final String id;
+    @Option(key = "name")
+    public String name;
 
     @Option(key = "cookies")
     public Boolean cookies;
@@ -127,8 +127,8 @@ public class StageConfiguration {
 
     public final Extensions extensions;
 
-    public StageConfiguration(String id, String javaHome, String mavenHome, String refresh, Extensions extensions) {
-        this.id = id;
+    public StageConfiguration(String name, String javaHome, String mavenHome, String refresh, Extensions extensions) {
+        this.name = name;
         this.cookies = true;
         this.prepare = "";
         this.build = "false";

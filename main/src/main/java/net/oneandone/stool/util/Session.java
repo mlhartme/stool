@@ -166,20 +166,12 @@ public class Session {
         this.lazyPool= null;
     }
 
-    public FileNode create(FileNode backstage, String stageName) throws LinkException {
-        FileNode result;
-
-        result = backstages.join(stageName);
-        backstage.link(result);
-        return result;
+    public void add(FileNode backstage, String id) throws LinkException {
+        backstage.link(backstages.join(id));
     }
 
-    public FileNode backstage(String stageName) throws ReadLinkException {
-        return backstageLink(stageName).resolveLink();
-    }
-
-    public FileNode backstageLink(String stageName) throws ReadLinkException {
-        return backstages.join(stageName);
+    public FileNode backstageLink(String id) throws ReadLinkException {
+        return backstages.join(id);
     }
 
     public FileNode findStageDirectory(FileNode dir) {
@@ -303,8 +295,8 @@ public class Session {
         return svnCredentials;
     }
 
-    public Stage load(String stageName) throws IOException {
-        return Stage.load(this, backstages.join(stageName));
+    public Stage load(String id) throws IOException {
+        return Stage.load(this, backstages.join(id));
     }
 
     public List<String> stageNames() throws IOException {
@@ -320,27 +312,27 @@ public class Session {
     }
 
     private static final String UNKNOWN = "../unknown/..";
-    private String lazySelected = UNKNOWN;
+    private String lazySelectedId = UNKNOWN;
 
-    public String getSelectedStageName() throws IOException {
+    public String getSelectedStageId() throws IOException {
         FileNode directory;
         FileNode bs;
 
-        if (lazySelected == UNKNOWN) {
+        if (lazySelectedId == UNKNOWN) {
             directory = findStageDirectory(world.getWorking());
             if (directory == null) {
-                lazySelected = null;
+                lazySelectedId = null;
             } else {
                 bs = Stage.backstageDirectory(directory);
                 for (FileNode link : backstages.list()) {
                     if (link.resolveLink().equals(bs)) {
-                        lazySelected = link.getName();
+                        lazySelectedId = link.getName();
                         break;
                     }
                 }
             }
         }
-        return lazySelected;
+        return lazySelectedId;
     }
 
     public Environment environment(Stage stage) {
@@ -428,7 +420,7 @@ public class Session {
     }
 
     public boolean isSelected(Stage stage) throws IOException {
-        return stage.getName().equals(getSelectedStageName());
+        return stage.getId().equals(getSelectedStageId());
     }
 
     //-- stage properties
@@ -465,7 +457,7 @@ public class Session {
         lazyPool = null;
     }
 
-    public StageConfiguration createStageConfiguration(String url) {
+    public StageConfiguration createStageConfiguration(String url, String name) {
         String mavenHome;
         StageConfiguration stage;
 
@@ -474,12 +466,12 @@ public class Session {
         } catch (IOException e) {
             mavenHome = "";
         }
-        stage = new StageConfiguration(nextStageId(), javaHome(), mavenHome, scm(url).refresh(), extensionsFactory.newInstance());
+        stage = new StageConfiguration(name, javaHome(), mavenHome, scm(url).refresh(), extensionsFactory.newInstance());
         configuration.setDefaults(StageConfiguration.properties(extensionsFactory), stage, url);
         return stage;
     }
 
-    private String nextStageId() {
+    public String nextStageId() {
         nextStageId++;
         return stageIdPrefix + nextStageId;
     }
