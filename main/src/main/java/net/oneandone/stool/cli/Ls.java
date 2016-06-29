@@ -37,7 +37,7 @@ public class Ls extends StatusBase {
         List<String> line;
 
         if (selected.isEmpty()) {
-            selected.addAll(defaults(Field.NAME, Field.SELECTED, Field.STATE, Field.OWNER, Field.URL));
+            selected.addAll(defaults(Field.NAME, Field.STATE, Field.OWNER, Field.URL, Field.DIRECTORY));
         }
         header("stages");
 

@@ -36,11 +36,12 @@
 * Logstash extension
 
 * `status` command
-  * added `cpu` and `mem` fields
+  * added `cpu`, `mem` and `selected` fields
   * fixed status field `tomcat` to contain the tomcat pid, not the service wrapper pid; added a new `service` field to contain the 
     service wrapper pid.
 
-* `list` command has configurable fields now
+* `list` command has the same configurable fields as the `status` command now. Defaults no longer contain the selected stage; instead,
+  the contain the stage directory.
 
 * Global configuration:
   * renamed `contactAdmin` to `admin`.
