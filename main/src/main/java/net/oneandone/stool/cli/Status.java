@@ -188,10 +188,14 @@ public class Status extends StageCommand {
         }
         result.put(Field.CPU, cpu);
         result.put(Field.MEM, mem);
-        result.put(Field.SERVICE, servicePid);
-        result.put(Field.TOMCAT, tomcatPid);
+        result.put(Field.SERVICE, opt(servicePid));
+        result.put(Field.TOMCAT, opt(tomcatPid));
         result.put(Field.DEBUGGER, debug);
         result.put(Field.SUSPEND, suspend);
         return ports;
+    }
+
+    private static Integer opt(int i) {
+        return i == 0 ? null : i;
     }
 }

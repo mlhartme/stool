@@ -49,7 +49,7 @@ public class Cleanup extends StageCommand {
             console.info.println("Removing Maven Repository at " + repository.getAbsolute());
             repository.deleteTree();
         } else {
-            console.info.println("No Maven Repository found at " + repository.getAbsolute());
+            console.verbose.println("No Maven Repository found at " + repository.getAbsolute());
         }
     }
 
