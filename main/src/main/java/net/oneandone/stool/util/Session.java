@@ -175,10 +175,8 @@ public class Session {
     }
 
     public FileNode findStageDirectory(FileNode dir) {
-        FileNode dotStool;
         do {
-            dotStool = Stage.backstageDirectory(dir);
-            if (dotStool.exists() && !dotStool.join("backstages").exists()) {
+            if (Stage.backstageDirectory(dir).exists()) {
                 return dir;
             }
             dir = dir.getParent();
