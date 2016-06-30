@@ -28,6 +28,7 @@ import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.KeyStore;
 import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.OwnershipException;
+import net.oneandone.stool.util.Pair;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
@@ -188,6 +189,7 @@ public abstract class Stage {
     }
 
     private KeyStore keystore() throws IOException {
+        Pair pair;
         KeyStore keyStore;
         FileNode sslDir;
         String hostname;
@@ -200,10 +202,11 @@ public abstract class Stage {
         if (!keyStore.exists()) {
             if (session.configuration.vhosts) {
                 hostname = "*." + getName() + "." + session.configuration.hostname;
-                keyStore.download(session.configuration.certificates, hostname);
+                pair = keyStore.pair(session.configuration.certificates, hostname);
             } else {
-                keyStore.download(session.configuration.certificates, session.configuration.hostname);
+                pair = keyStore.pair(session.configuration.certificates, session.configuration.hostname);
             }
+            keyStore.fill(pair);
         }
         return keyStore;
     }

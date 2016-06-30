@@ -22,7 +22,6 @@ public class Pair {
     private final FileNode certificate;
 
     public Pair(FileNode privateKey, FileNode certificate) {
-
         this.privateKey = privateKey;
         this.certificate = certificate;
     }

@@ -25,12 +25,14 @@ public class KeyStoreIT {
         FileNode workDir;
         World world;
         KeyStore keyStore;
+        Pair pair;
 
         world = World.create();
         workDir = world.getTemp().createTempDirectory();
 
         keyStore = new KeyStore(workDir);
-        keyStore.download("TODO", "*.jenkins.websales.united.domain");
+        pair = keyStore.pair("TODO", "*.jenkins.websales.united.domain");
+        keyStore.fill(pair);
     }
 }
 

@@ -31,8 +31,8 @@ public class KeyStore {
         this.file = workDir.join("tomcat.jks");
     }
 
-    public void download(String getUrlStart, String hostname) throws IOException {
-        addPkcs12(convertToPkcs12(pair(getUrlStart, hostname)));
+    public void fill(Pair pair) throws IOException {
+        addPkcs12(convertToPkcs12(pair));
     }
 
     public String file() {
@@ -86,7 +86,7 @@ public class KeyStore {
 
         pair = newPair(hostname);
         if (!(pair.privateKey().exists() || pair.certificate().exists())) {
-            download(getUrlStart + hostname);
+            generate(getUrlStart + hostname);
             Files.stoolFile(pair.privateKey());
             Files.stoolFile(pair.certificate());
         }
@@ -102,7 +102,7 @@ public class KeyStore {
 
     }
 
-    public void download(String getUrl) throws IOException {
+    public void generate(String getUrl) throws IOException {
         downloadZip(getUrl).unzip(workDir);
     }
 
