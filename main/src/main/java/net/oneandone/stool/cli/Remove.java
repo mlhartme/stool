@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.cli;
 
+import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
@@ -41,8 +42,10 @@ public class Remove extends StageCommand {
 
     @Override
     public void doRun(Stage stage) throws Exception {
+        boolean selected;
         FileNode dir;
 
+        selected = session.isSelected(stage);
         stage.checkNotUp();
         stage.checkOwnership();
         if (!force) {
@@ -58,5 +61,8 @@ public class Remove extends StageCommand {
         dir.deleteTree();
         session.backstageLink(stage.getId()).deleteTree();
         session.bedroom.remove(session.gson, stage.getId());
+        if (selected) {
+            Setenv.get().cd(stage.getDirectory().getParent().getAbsolute());
+        }
     }
 }

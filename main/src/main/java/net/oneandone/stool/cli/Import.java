@@ -16,6 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
@@ -89,6 +90,7 @@ public class Import extends SessionCommand {
                 stage = found.get(0);
                 console.info.println("Importing " + stage.getDirectory());
                 doImport(stage, null);
+                Setenv.get().cd(stage.getDirectory().getAbsolute());
                 break;
             default:
                 interactiveImport(found);

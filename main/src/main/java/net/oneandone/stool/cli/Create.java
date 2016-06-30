@@ -16,6 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
@@ -101,6 +102,7 @@ public class Create extends SessionCommand {
 
         session.add(stage.backstage, stage.getId());
         console.info.println("stage created: " + name);
+        Setenv.get().cd(stage.getDirectory().getAbsolute());
     }
 
     private String url() throws IOException {

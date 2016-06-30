@@ -3,15 +3,11 @@
 ### 3.4.0 (pending)
 
 * auto select:
-  * `stool` is now a normal executable, not a shell function. This simplifies instalation, updates and understanding things. And it 
-     simplified the implementation a lot.
+  * the selected stage is now determined by the current directory
+  * `stool` is now a normal executable, not a shell function. This simplifies installation and updates. And it simplified the implementation a lot.
   * The backstage directory has been moved from `$LIB/backstages/stagename` to `stagedir/.stool`.
   * To build a stage with the proper environment, you have to use `stool build` now. Stool no longer adjust the environment
     for the current stage.
-  * `stool select` is gone: you select the currend stage with `cd`. Consider using `CDPATH` or (Pommes)[https://github.com/mlhartme/pommes]
-    to simplify switching between stages.
-  * `stool cd` is gone, use `cd` instead
-  * `create`, `remove` and `import` no longer change the current directory 
  
 * added support for git urls.
 
