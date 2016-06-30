@@ -83,7 +83,7 @@ public class Main {
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Create.class, "create -quiet -name=null url directory?=null property* { property*(property) }");
                     cli.add(Import.class, "import -name=@import.name:%d -max=@import.max:40 dir* { dirs*(dir) setMax(max) setName(name) }");
-                    cli.add(Select.class, "select name?=null");
+                    cli.add(Select.class, "select -fuzzy=@select.fuzzy name?=null");
                     cli.base(StageCommand.class, "-autorechown=@auto.rechown -autochown=@auto.chown -autorestart=@auto.restart -autostop=@auto.stop -stage=null -all -fail "
                             + "{ setAutoRechown(autorechown) setAutoChown(autochown) setAutoRestart(autorestart) setAutoStop(autostop) "
                             +   "setStage(stage) setAll(all) setFail(fail) }");

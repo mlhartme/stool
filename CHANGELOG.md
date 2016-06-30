@@ -28,7 +28,10 @@
   * `tomcat.suspend`
   * `list.defaults`
   * `status.defaults`
-  
+  * `select.fuzzy`
+
+* Added `select -fuzzy` option to automatically a stage that's the only suggestion.
+
 * Logstash extension
 
 * `status` command

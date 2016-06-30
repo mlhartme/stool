@@ -26,10 +26,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Select extends SessionCommand {
-    private String stageName;
+    private final boolean fuzzy;
+    private final String stageName;
 
-    public Select(Session session, String stageName) {
+    public Select(Session session, boolean fuzzy, String stageName) {
         super(session, Mode.NONE);
+        this.fuzzy = fuzzy;
         this.stageName = stageName;
     }
 
@@ -53,24 +55,25 @@ public class Select extends SessionCommand {
         }
         dir = session.lookup(stageName);
         if (dir == null) {
-            throw new IOException("No such stage: " + stageName + suggestion());
+            List<String> candidates;
+
+            candidates = candidates(session.stageNames(), stageName);
+            switch (candidates.size()) {
+                case 0:
+                    throw new IOException("No such stage: " + stageName);
+                case 1:
+                    if (fuzzy) {
+                        dir = session.lookup(candidates.get(0));
+                        console.info.println("assuming you mean " + candidates.get(0));
+                        break;
+                    } else {
+                        throw new IOException("No such stage: " + stageName + "\nDid you mean " + candidates.get(0) + "?");
+                    }
+                default:
+                    throw new IOException("No such stage: " + stageName + "\nDid you mean one of " + candidates + "?");
+            }
         }
-        console.verbose.println("selecting stage " + stageName);
         Setenv.get().cd(dir.getAbsolute());
-    }
-
-    private String suggestion() throws IOException {
-        List<String> candidates;
-
-        candidates = candidates(session.stageNames(), stageName);
-        switch (candidates.size()) {
-            case 0:
-                return "";
-            case 1:
-                return "\nDid you mean " + candidates.get(0) + "?";
-            default:
-                return "\nDid you mean one of " + candidates + "?";
-        }
     }
 
     public static List<String> candidates(List<String> names, String search) {
