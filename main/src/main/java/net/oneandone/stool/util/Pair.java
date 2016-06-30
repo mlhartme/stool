@@ -17,11 +17,11 @@ package net.oneandone.stool.util;
 
 import net.oneandone.sushi.fs.file.FileNode;
 
-public class Certificate {
+public class Pair {
     private final FileNode privateKey;
     private final FileNode certificate;
 
-    public Certificate(FileNode privateKey, FileNode certificate) {
+    public Pair(FileNode privateKey, FileNode certificate) {
 
         this.privateKey = privateKey;
         this.certificate = certificate;

@@ -32,7 +32,7 @@ public class KeyStore {
     }
 
     public void download(String getUrlStart, String hostname) throws IOException {
-        pkcs12toKeyStore(pkcs12Store(certificate(getUrlStart, hostname)));
+        addPkcs12(convertToPkcs12(pair(getUrlStart, hostname)));
     }
 
     public String file() {
@@ -51,7 +51,7 @@ public class KeyStore {
         return file.exists();
     }
 
-    private void pkcs12toKeyStore(FileNode pkcs12) throws IOException {
+    private void addPkcs12(FileNode pkcs12) throws IOException {
         try {
             workDir.launcher("keytool", "-importkeystore", "-srckeystore", pkcs12.getAbsolute(), "-srcstoretype",
               "pkcs12", "-destkeystore", file.getAbsolute(), "-deststoretype", "jks",
@@ -62,17 +62,18 @@ public class KeyStore {
         }
     }
 
-    private FileNode pkcs12Store(Certificate certificate) throws IOException {
-        FileNode keystore;
+    // https://en.wikipedia.org/wiki/PKCS_12
+    private FileNode convertToPkcs12(Pair pair) throws IOException {
+        FileNode pkcs12;
 
-        keystore = workDir.join("tomcat.p12");
+        pkcs12 = workDir.join("tomcat.p12");
         try {
             workDir.launcher("openssl", "pkcs12",
-              "-export", "-passout", "pass:" + password(), "-in", certificate.certificate().getAbsolute(),
-              "-inkey", certificate.privateKey().getAbsolute(), "-out", keystore.getAbsolute(),
+              "-export", "-passout", "pass:" + password(), "-in", pair.certificate().getAbsolute(),
+              "-inkey", pair.privateKey().getAbsolute(), "-out", pkcs12.getAbsolute(),
               "-name", "tomcat").exec();
-            Files.stoolFile(keystore);
-            return keystore;
+            Files.stoolFile(pkcs12);
+            return pkcs12;
         } catch (Failure e) {
             throw new IOException(e);
         }
@@ -80,32 +81,32 @@ public class KeyStore {
 
     //--
 
-    public Certificate certificate(String getUrlStart, String hostname) throws IOException {
-        Certificate certificate;
+    public Pair pair(String getUrlStart, String hostname) throws IOException {
+        Pair pair;
 
-        certificate = create(hostname);
-        if (!(certificate.privateKey().exists() || certificate.certificate().exists())) {
-            generate(getUrlStart + hostname);
-            Files.stoolFile(certificate.privateKey());
-            Files.stoolFile(certificate.certificate());
+        pair = newPair(hostname);
+        if (!(pair.privateKey().exists() || pair.certificate().exists())) {
+            download(getUrlStart + hostname);
+            Files.stoolFile(pair.privateKey());
+            Files.stoolFile(pair.certificate());
         }
-        return certificate;
+        return pair;
     }
 
-    private Certificate create(String hostname) {
+    private Pair newPair(String hostname) {
         FileNode crt, key;
 
         crt = workDir.join(hostname.replace("*", "_") + ".crt");
         key = workDir.join(hostname.replace("*", "_") + ".key");
-        return new Certificate(key, crt);
+        return new Pair(key, crt);
 
     }
 
-    public void generate(String getUrl) throws IOException {
-        extract(doDownload(getUrl));
+    public void download(String getUrl) throws IOException {
+        downloadZip(getUrl).unzip(workDir);
     }
 
-    private FileNode doDownload(String getUrl) throws IOException {
+    private FileNode downloadZip(String getUrl) throws IOException {
         StringWriter output;
         FileNode tmp;
         Launcher launcher;
@@ -121,9 +122,4 @@ public class KeyStore {
             throw new IOException(launcher.toString() + " failed:\n" + e.getMessage() + output.toString(), e.getCause());
         }
     }
-
-    private void extract(FileNode certificateZip) throws IOException {
-        certificateZip.unzip(workDir);
-    }
-
 }
