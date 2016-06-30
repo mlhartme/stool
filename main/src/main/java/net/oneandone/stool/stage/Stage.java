@@ -18,6 +18,7 @@ package net.oneandone.stool.stage;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
+import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.cli.Start;
 import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.StageConfiguration;
@@ -25,10 +26,8 @@ import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.util.Files;
-import net.oneandone.stool.util.KeyStore;
 import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.OwnershipException;
-import net.oneandone.stool.util.Pair;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
@@ -188,29 +187,6 @@ public abstract class Stage {
         return "directory-" + id;
     }
 
-    private KeyStore keystore() throws IOException {
-        Pair pair;
-        KeyStore keyStore;
-        FileNode sslDir;
-        String hostname;
-
-        if (session.configuration.certificates.isEmpty()) {
-            return null;
-        }
-        sslDir = shared().join("ssl");
-        keyStore = new KeyStore(sslDir);
-        if (!keyStore.exists()) {
-            if (session.configuration.vhosts) {
-                hostname = "*." + getName() + "." + session.configuration.hostname;
-                pair = keyStore.pair(session.configuration.certificates, hostname);
-            } else {
-                pair = keyStore.pair(session.configuration.certificates, session.configuration.hostname);
-            }
-            keyStore.fill(pair);
-        }
-        return keyStore;
-    }
-
     public abstract boolean updateAvailable();
 
     public String owner() throws IOException {
@@ -339,6 +315,17 @@ public abstract class Stage {
         for (String app : namedUrls()) {
             console.info.println("  " + app);
         }
+    }
+
+    private KeyStore keystore() throws IOException {
+        String hostname;
+
+        if (session.configuration.vhosts) {
+            hostname = "*." + getName() + "." + session.configuration.hostname;
+        } else {
+            hostname = session.configuration.hostname;
+        }
+        return KeyStore.create(session.configuration.certificates, hostname, shared().join("ssl"));
     }
 
     /** Fails if Tomcat is not running */

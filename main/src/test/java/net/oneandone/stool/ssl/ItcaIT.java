@@ -13,26 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.util;
+package net.oneandone.stool.ssl;
 
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import org.junit.Ignore;
+import org.junit.Test;
 
-public class KeyStoreIT {
-    @Ignore
-    public void testSignWildcard() throws Exception {
+public class ItcaIT {
+    @Test
+    public void test() throws Exception {
         FileNode workDir;
         World world;
-        KeyStore keyStore;
         Pair pair;
 
         world = World.create();
         workDir = world.getTemp().createTempDirectory();
-
-        keyStore = new KeyStore(workDir);
-        pair = keyStore.pair("TODO", "*.jenkins.websales.united.domain");
-        keyStore.fill(pair);
+        pair = Itca.create(workDir, "*.jenkins.websales.united.domain");
+        System.out.println(pair.text());
     }
 }
 

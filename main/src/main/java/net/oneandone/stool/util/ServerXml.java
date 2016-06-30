@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
