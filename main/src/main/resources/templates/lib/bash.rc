@@ -13,7 +13,7 @@ stageIndicator() {
       local name=$(grep \"name\" $dir/.stool/config.json | cut -d':' -f2 | grep -o \"[a-zA-Z.0-9]*\")
       name=${name:1}
       name=${name%?}
-      echo -e "{$name} "
+      echo -e "{$name}"
       return
     fi
     dir="$(dirname "$dir")"
