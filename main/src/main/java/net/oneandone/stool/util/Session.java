@@ -300,15 +300,36 @@ public class Session {
     }
 
     public List<String> stageNames() throws IOException {
-        List<FileNode> files;
+        List<FileNode> links;
+        FileNode bs;
+        StageConfiguration config;
         List<String> result;
 
-        files = backstages.list();
-        result = new ArrayList<>(files.size());
-        for (FileNode file : files) {
-            result.add(file.getName());
+        links = backstages.list();
+        result = new ArrayList<>(links.size());
+        for (FileNode link : links) {
+            bs = link.resolveLink();
+            config = StageConfiguration.load(gson, StageConfiguration.file(bs));
+            result.add(config.name);
         }
         return result;
+    }
+
+    /** return directory or null */
+    public FileNode lookup(String stageName) throws IOException {
+        List<FileNode> links;
+        FileNode bs;
+        StageConfiguration config;
+
+        links = backstages.list();
+        for (FileNode link : links) {
+            bs = link.resolveLink();
+            config = StageConfiguration.load(gson, StageConfiguration.file(bs));
+            if (stageName.equals(config.name)) {
+                return bs.getParent();
+            }
+        }
+        return null;
     }
 
     private static final String UNKNOWN = "../unknown/..";

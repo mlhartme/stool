@@ -83,10 +83,12 @@ public class Main {
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Create.class, "create -quiet -name=null url directory?=null property* { property*(property) }");
                     cli.add(Import.class, "import -name=@import.name:%d -max=@import.max:40 dir* { dirs*(dir) setMax(max) setName(name) }");
+                    cli.add(Select.class, "select name?=null");
                     cli.base(StageCommand.class, "-autorechown=@auto.rechown -autochown=@auto.chown -autorestart=@auto.restart -autostop=@auto.stop -stage=null -all -fail "
                             + "{ setAutoRechown(autorechown) setAutoChown(autochown) setAutoRestart(autorestart) setAutoStop(autostop) "
                             +   "setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Build.class, "build");
+                      cli.add(Cd.class, "cd target?=null { setTarget(target) }");
                       cli.add(Chown.class, "chown -batch user?=null");
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
