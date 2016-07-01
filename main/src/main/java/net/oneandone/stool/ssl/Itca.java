@@ -43,14 +43,20 @@ public class Itca {
         HttpNode itca;
         byte[] bytes;
 
-        world = workDir.getWorld();
-        ((HttpFilesystem) world.getFilesystem("https")).setSocketFactorySelector((protocol, hostname) ->
-                protocol.equals("https") ? (hostname.equals(HOSTNAME) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
+        world = world(workDir);
         zip = world.getTemp().createTempFile();
         itca = (HttpNode) world.validNode(url);
         bytes = itca.readBytes();
         zip.writeBytes(bytes);
         zip.unzip(workDir);
+    }
+
+    public static World world(FileNode workDir) {
+        World world;
+        world = workDir.getWorld();
+        ((HttpFilesystem) world.getFilesystem("https")).setSocketFactorySelector((protocol, hostname) ->
+                protocol.equals("https") ? (hostname.equals(HOSTNAME) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
+        return world;
     }
 
     public static SSLSocketFactory lazyFactory() {
