@@ -157,7 +157,76 @@ public class Vhost {
         return new Vhost(newEven == null ? even : newEven, name, stage, newDocroot);
     }
 
+    public String context(String hostname, String url) {
+        String result;
+        String context;
+
+        result = null;
+        for (String str : doMap(hostname, url).values()) {
+            context = getContext(str);
+            if (result == null) {
+                result = context;
+            } else if (!result.equals(context)) {
+                throw new IllegalStateException("ambiguous context: " + result + " vs " + context);
+            }
+        }
+        if (result == null) {
+            throw new IllegalStateException("context not found: " + url);
+        }
+        return result;
+    }
+
     public Map<String, String> urlMap(String hostname, String url) {
+        Map<String, String> result;
+
+        result = new LinkedHashMap<>();
+        for (Map.Entry<String, String> entry : doMap(hostname, url).entrySet()) {
+            result.put(entry.getKey(), hideContext(entry.getValue()));
+        }
+        return result;
+    }
+
+    private static String hideContext(String url) {
+        int beforeHost;
+        int afterHost;
+        int context;
+
+        beforeHost = url.indexOf("://");
+        if (beforeHost == -1) {
+            return url;
+        }
+        afterHost = url.indexOf("/", beforeHost + 3);
+        if (afterHost == -1) {
+            return url;
+        }
+        context = url.indexOf("//", afterHost + 1);
+        if (context == -1) {
+            return url;
+        }
+        return url.substring(0, context) + url.substring(context + 1);
+    }
+
+    private static String getContext(String url) {
+        int beforeHost;
+        int afterHost;
+        int context;
+
+        beforeHost = url.indexOf("://");
+        if (beforeHost == -1) {
+            return "";
+        }
+        afterHost = url.indexOf("/", beforeHost + 3);
+        if (afterHost == -1) {
+            return "";
+        }
+        context = url.indexOf("//", afterHost + 1);
+        if (context == -1) {
+            return "";
+        }
+        return url.substring(afterHost + 1, context);
+    }
+
+    private Map<String, String> doMap(String hostname, String url) {
         Map<String, String> result;
         Map<Character, String> map;
         List<String> all;

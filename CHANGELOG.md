@@ -58,8 +58,9 @@
 * Stage configuration:
   * added Stage quota.
   * added stage property `notify` to configure email notifications.
-  * dumped sslUrl; renamed suffixes to urls.
-  * renamed until to expire (and reserved to never)
+  * dumped sslUrl
+  * renamed `suffixes` to `url`. Changed the syntax so you can specify protocols, prefixes, suffixes and a context
+  * renamed `until` to `expire` (and reserved to never)
   * removed `tomcat.perm` because it's ignored by Java 8.
   * changed default tomcat version from 8.0.26 to 8.5.3
   * changed default service wrapper version from 3.5.26 to 3.5.29

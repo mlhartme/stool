@@ -299,7 +299,7 @@ public abstract class Stage {
         serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
         keystore = keystore();
         extensions = extensions();
-        serverXml.configure(ports, keystore, config().cookies, this);
+        serverXml.configure(ports, config().url, keystore, config().cookies, this);
         serverXml.save(serverXml());
         extensions.beforeStart(this);
         launcher = serviceWrapper("start");

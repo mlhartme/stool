@@ -34,6 +34,10 @@ import java.util.List;
 import java.util.Map;
 
 public class ServerXml {
+    public static ServerXml load(Node src, String hostname) throws IOException, SAXException {
+        return new ServerXml(src.getWorld().getXml(), src.readXml(), hostname);
+    }
+
     private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";
     private static final String HTTPS_PATH = "Connector[starts-with(@secure,'true')]";
 
@@ -47,16 +51,12 @@ public class ServerXml {
         this.hostname = hostname;
     }
 
-    public static ServerXml load(Node src, String hostname) throws IOException, SAXException {
-        return new ServerXml(src.getWorld().getXml(), src.readXml(), hostname);
-    }
-
     public void save(FileNode file) throws IOException {
         file.writeXml(document);
         Files.stoolFile(file);
     }
 
-    public void configure(Ports ports, KeyStore keystore, boolean cookies, Stage stage) throws XmlException {
+    public void configure(Ports ports, String url, KeyStore keystore, boolean cookies, Stage stage) throws XmlException {
         Element template;
         Element service;
 
@@ -68,7 +68,7 @@ public class ServerXml {
                 document.getDocumentElement().appendChild(service);
                 service(service, vhost);
                 connectors(service, vhost, keystore);
-                contexts(stage, vhost.httpPort(), service, cookies, vhost.docroot.join("WEB-INF"));
+                contexts(stage, vhost.context(hostname, url), vhost.httpPort(), service, cookies, vhost.docroot.join("WEB-INF"));
             }
         }
         template.getParentNode().removeChild(template);
@@ -168,13 +168,14 @@ public class ServerXml {
 
     }
 
-    private void contexts(Stage stage, int httpPort, Element service, boolean cookies, FileNode webinf) throws XmlException {
+    private void contexts(Stage stage, String path, int httpPort, Element service, boolean cookies, FileNode webinf) throws XmlException {
         Element context;
         Element manager;
         Map<String, String> map;
 
         for (Element host : selector.elements(service, "Engine/Host")) {
             context = selector.element(host, "Context");
+            context.setAttribute("path", path);
             context.setAttribute("cookies", Boolean.toString(cookies));
             if (selector.elementOpt(context, "Manager") == null) {
                 // disable session persistence
