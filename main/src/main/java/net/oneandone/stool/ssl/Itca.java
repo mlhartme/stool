@@ -50,45 +50,4 @@ public class Itca {
         zip.writeBytes(bytes);
         zip.unzip(workDir);
     }
-
-    public static World world() throws IOException {
-        World world;
-
-        world = World.create();
-        ((HttpFilesystem) world.getFilesystem("https")).setSocketFactorySelector((protocol, hostname) ->
-                protocol.equals("https") ? (hostname.equals(HOSTNAME) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
-        return world;
-    }
-
-    public static SSLSocketFactory lazyFactory() {
-        TrustManager[] trustAllCerts;
-        SSLContext sc;
-
-        trustAllCerts = new TrustManager[] {
-                new X509TrustManager() {
-                    @Override
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return null;
-                    }
-                    @Override
-                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                    }
-
-                    @Override
-                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                    }
-                }
-        };
-        try {
-            sc = SSLContext.getInstance("SSL");
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalArgumentException(e);
-        }
-        try {
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-        } catch (KeyManagementException e) {
-            throw new IllegalArgumentException(e);
-        }
-        return sc.getSocketFactory();
-    }
 }

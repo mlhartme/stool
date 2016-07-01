@@ -25,13 +25,23 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.io.InputLogStream;
 import net.oneandone.sushi.io.MultiOutputStream;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 import java.util.Properties;
+
+import static net.oneandone.stool.ssl.Itca.HOSTNAME;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -43,7 +53,7 @@ public class Main {
         FileNode lib;
         String user;
 
-        world = World.create();
+        world = world();
         lib = locateLib(world);
         user = System.getProperty("user.name");
         return doRun(user, null, lib, args);
@@ -199,5 +209,48 @@ public class Main {
 
     public static FileNode stoolCp(World world) {
         return world.locateClasspathItem(world.getClass());
+    }
+
+    //--
+
+    public static World world() throws IOException {
+        World world;
+
+        world = World.create();
+        ((HttpFilesystem) world.getFilesystem("https")).setSocketFactorySelector((protocol, hostname) ->
+                protocol.equals("https") ? (hostname.equals(HOSTNAME) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
+        return world;
+    }
+
+    public static SSLSocketFactory lazyFactory() {
+        TrustManager[] trustAllCerts;
+        SSLContext sc;
+
+        trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    @Override
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
+
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                    }
+                }
+        };
+        try {
+            sc = SSLContext.getInstance("SSL");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException(e);
+        }
+        try {
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        } catch (KeyManagementException e) {
+            throw new IllegalArgumentException(e);
+        }
+        return sc.getSocketFactory();
     }
 }

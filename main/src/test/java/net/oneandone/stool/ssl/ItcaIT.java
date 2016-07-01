@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.ssl;
 
+import net.oneandone.stool.cli.Main;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.Test;
@@ -26,7 +27,7 @@ public class ItcaIT {
         World world;
         Pair pair;
 
-        world = Itca.world();
+        world = Main.world();
         workDir = world.getTemp().createTempDirectory();
         pair = Itca.create(workDir, "*.jenkins.websales.united.domain");
         System.out.println(pair.text());
