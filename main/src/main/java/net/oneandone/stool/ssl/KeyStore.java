@@ -16,7 +16,7 @@ public class KeyStore {
         keyStore = new KeyStore(workDir);
         if (!keyStore.exists()) {
             if (url.isEmpty()) {
-                pair = SelfSigned.create();
+                pair = SelfSigned.create(workDir, hostname);
             } else if (url.equals(Itca.URL_PREFIX)) {
                 pair = Itca.create(workDir, hostname);
             } else {
