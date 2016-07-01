@@ -28,6 +28,13 @@ public class UrlTest {
         check("http://host/(p1|p2)");
     }
 
+    @Test
+    public void context() {
+        check("http://host/context!");
+        check("http://host/context!path");
+        check("http://host/c1/c2!(p1|p2)");
+    }
+
     private void check(String urlstr) {
         check(urlstr, urlstr);
     }
