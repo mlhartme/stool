@@ -33,13 +33,11 @@ public class Itca {
         FileNode zip;
         World world;
         HttpNode itca;
-        byte[] bytes;
 
         world = workDir.getWorld();
         zip = world.getTemp().createTempFile();
         itca = (HttpNode) world.validNode(url);
-        bytes = itca.readBytes();
-        zip.writeBytes(bytes);
+        itca.copyFile(zip);
         zip.unzip(workDir);
     }
 }

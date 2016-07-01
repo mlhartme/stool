@@ -20,7 +20,7 @@ public class KeyStore {
             } else if (url.equals(Itca.URL_PREFIX)) {
                 pair = Itca.create(workDir, hostname);
             } else {
-                throw new IllegalArgumentException("don't know how to handle " + url);
+                pair = FromCsr.create(workDir, url, hostname);
             }
             Files.stoolFile(pair.privateKey());
             Files.stoolFile(pair.certificate());

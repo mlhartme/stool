@@ -9,7 +9,7 @@
   * To build a stage with the proper environment, you have to use `stool build` now. Stool no longer adjust the environment
     for the current stage.
 
-* certifiacate handling
+* certificate handling
   * generate self-signed certificate if no certificate url is specified
   
 * added support for git urls.
