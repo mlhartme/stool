@@ -6,6 +6,7 @@ import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
@@ -14,7 +15,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 
 public class Itca {
-    public static final String URL_PREFIX = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
+    public static final String HOSTNAME = "itca.server.lan";
+    public static final String URL_PREFIX = "https://" + HOSTNAME + "/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
 
     public static Pair create(FileNode workDir, String hostname) throws IOException {
         Pair pair;
@@ -42,11 +44,8 @@ public class Itca {
         byte[] bytes;
 
         world = workDir.getWorld();
-        try {
-            disableCertificates((HttpFilesystem) world.getFilesystem("https"));
-        } catch (KeyManagementException |NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
-        }
+        ((HttpFilesystem) world.getFilesystem("https")).setSocketFactorySelector((protocol, hostname) ->
+                protocol.equals("https") ? (hostname.equals(HOSTNAME) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
         zip = world.getTemp().createTempFile();
         itca = (HttpNode) world.validNode(url);
         bytes = itca.readBytes();
@@ -54,8 +53,11 @@ public class Itca {
         zip.unzip(workDir);
     }
 
-    public static void disableCertificates(HttpFilesystem dest) throws NoSuchAlgorithmException, KeyManagementException {
-        TrustManager[] trustAllCerts = new TrustManager[] {
+    public static SSLSocketFactory lazyFactory() {
+        TrustManager[] trustAllCerts;
+        SSLContext sc;
+
+        trustAllCerts = new TrustManager[] {
                 new X509TrustManager() {
                     @Override
                     public X509Certificate[] getAcceptedIssuers() {
@@ -70,8 +72,16 @@ public class Itca {
                     }
                 }
         };
-        SSLContext sc = SSLContext.getInstance("SSL");
-        sc.init(null, trustAllCerts, new java.security.SecureRandom());
-        dest.setSocketFactorySelector((protocol, hostname) -> protocol.equals("https") ? sc.getSocketFactory() : null );
+        try {
+            sc = SSLContext.getInstance("SSL");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException(e);
+        }
+        try {
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        } catch (KeyManagementException e) {
+            throw new IllegalArgumentException(e);
+        }
+        return sc.getSocketFactory();
     }
 }
