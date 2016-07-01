@@ -15,9 +15,7 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -49,7 +47,7 @@ public class Select extends SessionCommand {
                 console.info.println("already selected: none");
             } else {
                 console.verbose.println("selecting none");
-                Setenv.get().cd(world.getWorking().getParent().getAbsolute());
+                session.cd(world.getWorking().getParent());
             }
             return;
         }
@@ -73,7 +71,7 @@ public class Select extends SessionCommand {
                     throw new IOException("No such stage: " + stageName + "\nDid you mean one of " + candidates + "?");
             }
         }
-        Setenv.get().cd(dir.getAbsolute());
+        session.cd(dir);
     }
 
     public static List<String> candidates(List<String> names, String search) {

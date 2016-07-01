@@ -16,7 +16,6 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
@@ -69,6 +68,6 @@ public class Cd extends StageCommand {
                 throw new ArgumentException("unknown target: " + target + ". Choose one of backstage" + message + " or leave empty.");
             }
         }
-        Setenv.get().cd(node.getAbsolute());
+        session.cd(node);
     }
 }

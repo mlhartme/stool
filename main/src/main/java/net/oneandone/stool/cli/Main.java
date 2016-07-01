@@ -53,6 +53,7 @@ public class Main {
         World world;
         Cli cli;
         String command;
+        boolean setenv;
         Globals globals;
         Console console;
 
@@ -61,17 +62,19 @@ public class Main {
             Lib.create(Console.create(), lib, null);
         }
         if (logging == null) {
+            setenv = true;
             // i need lib with a proper logs directory first ...
             logging = Logging.forLib(lib, user);
             console = console(logging, System.out, System.err);
         } else {
             // for integration dests
+            setenv = false;
             OutputStream devNull = MultiOutputStream.createNullStream();
             console = console(logging, devNull, devNull);
         }
         command = "stool " + command(args);
         logging.log("COMMAND", command);
-        globals = new Globals(lib, logging, user, command, console, world);
+        globals = new Globals(setenv, lib, logging, user, command, console, world);
         cli = new Cli(globals::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);

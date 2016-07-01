@@ -80,7 +80,7 @@ public class DashboardConfiguration {
         }
         user = user();
         // TODO system.setStoolBin(bin());
-        return Session.load(lib, Logging.create(logs(), "dashboard", user), user, "dashboard", console(), world(), svnuser, svnpassword);
+        return Session.load(false, lib, Logging.create(logs(), "dashboard", user), user, "dashboard", console(), world(), svnuser, svnpassword);
     }
 
     @Bean

@@ -15,14 +15,12 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.nio.file.Files;
 
 public class Remove extends StageCommand {
     private boolean batch;
@@ -62,7 +60,7 @@ public class Remove extends StageCommand {
         session.backstageLink(stage.getId()).deleteTree();
         session.bedroom.remove(session.gson, stage.getId());
         if (selected) {
-            Setenv.get().cd(stage.getDirectory().getParent().getAbsolute());
+            session.cd(stage.getDirectory().getParent());
         }
     }
 }

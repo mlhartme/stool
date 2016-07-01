@@ -20,6 +20,7 @@ import com.google.gson.GsonBuilder;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
+import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.cli.EnumerationFailed;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Bedroom;
@@ -61,11 +62,11 @@ import java.util.List;
 import java.util.Map;
 
 public class Session {
-    public static Session load(FileNode lib, Logging logging, String user, String command, Console console, World world,
+    public static Session load(boolean setenv, FileNode lib, Logging logging, String user, String command, Console console, World world,
                                String svnuser, String svnpassword) throws IOException {
         Session session;
 
-        session = loadWithoutBackstageWipe(lib, logging, user, command, console, world, svnuser, svnpassword);
+        session = loadWithoutBackstageWipe(setenv, lib, logging, user, command, console, world, svnuser, svnpassword);
 
         // Stale backstage wiping: how to detect backstage directories who's stage directory was removed.
         //
@@ -91,7 +92,8 @@ public class Session {
         console.verbose.println("wipeStaleBackstages done, ms=" + ((System.currentTimeMillis() - s)));
     }
 
-    private static Session loadWithoutBackstageWipe(FileNode lib, Logging logging, String user, String command, Console console,
+    private static Session loadWithoutBackstageWipe(boolean setenv, FileNode lib, Logging logging, String user, String command,
+                                                    Console console,
                                                   World world, String svnuser, String svnpassword) throws IOException {
         ExtensionsFactory factory;
         Gson gson;
@@ -101,8 +103,8 @@ public class Session {
         factory = ExtensionsFactory.create(world);
         gson = gson(world, factory);
         environment = Environment.loadSystem();
-        result = new Session(factory, gson, logging, user, command, lib, console, world, environment, StoolConfiguration.load(gson, lib),
-                Bedroom.loadOrCreate(gson, lib), svnuser, svnpassword);
+        result = new Session(setenv, factory, gson, logging, user, command, lib, console, world, environment,
+                StoolConfiguration.load(gson, lib), Bedroom.loadOrCreate(gson, lib), svnuser, svnpassword);
         return result;
     }
 
@@ -110,6 +112,7 @@ public class Session {
 
     //--
 
+    private final boolean setenv;
     public final ExtensionsFactory extensionsFactory;
     public final Gson gson;
     public final Logging logging;
@@ -138,9 +141,10 @@ public class Session {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd");
 
-    public Session(ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command,
+    public Session(boolean setenv, ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command,
                    FileNode lib, Console console, World world, Environment environment, StoolConfiguration configuration,
                    Bedroom bedroom, String svnuser, String svnpassword) {
+        this.setenv = setenv;
         this.extensionsFactory = extensionsFactory;
         this.gson = gson;
         this.logging = logging;
@@ -557,5 +561,11 @@ public class Session {
             result.add(line);
         }
         return result;
+    }
+
+    public void cd(FileNode dir) {
+        if (setenv) {
+            Setenv.get().cd(dir.getAbsolute());
+        }
     }
 }
