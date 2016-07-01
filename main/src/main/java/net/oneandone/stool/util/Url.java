@@ -1,9 +1,7 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.sushi.util.Separator;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -44,8 +42,6 @@ public class Url {
         return new Url(protocol, hostname, context, path);
     }
 
-    private static final Separator SEP = Separator.on('|').trim();
-
     //--
 
     private final String protocol;
@@ -62,33 +58,7 @@ public class Url {
     }
 
     public Url sustitute(Map<Character, String> map) {
-        return new Url(subst(protocol, map), subst(hostname, map), context == null ? null : subst(context, map), subst(path, map));
-    }
-
-    private static String subst(String str, Map<Character, String> map) {
-        int prev;
-        int pos;
-        StringBuilder builder;
-        String s;
-        char c;
-
-        builder = new StringBuilder();
-        prev = 0;
-        while (true) {
-            pos = str.indexOf('%', prev);
-            if (pos == -1 || pos == str.length() - 1) {
-                builder.append(str.substring(prev));
-                return builder.toString();
-            }
-            builder.append(str.substring(prev, pos));
-            c = str.charAt(pos + 1);
-            s = map.get(c);
-            if (s == null) {
-                throw new IllegalArgumentException("unknown variable: %" + c);
-            }
-            builder.append(s);
-            prev = pos + 2;
-        }
+        return new Url(Subst.subst(protocol, map), Subst.subst(hostname, map), context == null ? null : Subst.subst(context, map), Subst.subst(path, map));
     }
 
     public String toString() {
@@ -116,55 +86,5 @@ public class Url {
         multiString = new MultiString();
         multiString.append(protocol);
         return multiString.contains("https");
-    }
-
-    //--
-
-    public static class MultiString {
-        public final List<String> lst;
-
-        public MultiString() {
-            lst = new ArrayList<>();
-            lst.add("");
-        }
-
-        public void append(String str) {
-            int prev;
-            int open;
-            int close;
-            List<String> tmp;
-
-            prev = 0;
-            while (true) {
-                open = str.indexOf('(', prev);
-                if (open == -1) {
-                    appendAll(str.substring(prev, str.length()));
-                    return;
-                }
-                open++;
-                close = str.indexOf(')', open);
-                if (close == -1) {
-                    throw new IllegalArgumentException("closing ) not found: " + str);
-                }
-                tmp = new ArrayList<>(lst);
-                lst.clear();
-                for (String p : SEP.split(str.substring(open, close))) {
-                    for (String a : tmp) {
-                        lst.add(a + p);
-                    }
-                }
-                prev = close + 1;
-            }
-        }
-
-        private void appendAll(String str) {
-            for (int i = 0; i < lst.size(); i++) {
-                lst.set(i, lst.get(i) + str);
-            }
-        }
-
-        public boolean contains(String str) {
-            return lst.contains(str);
-        }
     }
 }
