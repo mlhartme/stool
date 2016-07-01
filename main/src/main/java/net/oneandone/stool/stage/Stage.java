@@ -320,6 +320,9 @@ public abstract class Stage {
     private KeyStore keystore() throws IOException {
         String hostname;
 
+        if (session.configuration.certificates.isEmpty()) {
+            return null;
+        }
         if (session.configuration.vhosts) {
             hostname = "*." + getName() + "." + session.configuration.hostname;
         } else {
