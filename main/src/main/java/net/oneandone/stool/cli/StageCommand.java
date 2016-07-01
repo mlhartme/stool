@@ -209,7 +209,7 @@ public abstract class StageCommand extends SessionCommand {
     }
 
     /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
-    public boolean doBefore(List<Stage> stages, int indent) throws Failure {
+    public boolean doBefore(List<Stage> stages, int indent) throws IOException {
         return stages.size() != 1;
     }
 

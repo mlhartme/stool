@@ -19,7 +19,7 @@ import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
 import net.oneandone.inline.commands.PackageVersion;
 import net.oneandone.stool.setup.Lib;
-import net.oneandone.stool.ssl.Itca;
+import net.oneandone.stool.ssl.Pair;
 import net.oneandone.stool.util.LogOutputStream;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
@@ -214,7 +214,7 @@ public class Main {
 
     //--
 
-    private static final List<String> LAZY_HOSTS = Arrays.asList(Itca.HOSTNAME, "api-next.pki.1and1.org");
+    private static final List<String> LAZY_HOSTS = Arrays.asList(Pair.HOSTNAME, "api-next.pki.1and1.org");
 
     public static World world() throws IOException {
         World world;

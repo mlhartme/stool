@@ -121,6 +121,8 @@ public class StoolConfiguration {
 
     public String search;
 
+    public int quota;
+
     public StoolConfiguration(FileNode downloadCache) {
         portFirst = 9000;
         portLast = 9999;
@@ -147,6 +149,7 @@ public class StoolConfiguration {
                 + (OS.CURRENT == OS.LINUX ? "linux-x86-64" : "macosx-universal-64") + "-${version}.tar.gz";
         this.downloadCache = downloadCache;
         this.search = "";
+        this.quota = 0;
     }
 
     public static FileNode configurationFile(FileNode lib) {

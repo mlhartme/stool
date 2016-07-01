@@ -3,28 +3,16 @@ package net.oneandone.stool.ssl;
 import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
-import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
-import java.io.StringWriter;
 
 public class KeyStore {
     public static KeyStore create(String url, String hostname, FileNode workDir) throws IOException {
-        Pair pair;
         KeyStore keyStore;
 
         keyStore = new KeyStore(workDir);
         if (!keyStore.exists()) {
-            if (url.isEmpty()) {
-                pair = SelfSigned.create(workDir, hostname);
-            } else if (url.equals(Itca.URL_PREFIX)) {
-                pair = Itca.create(workDir, hostname);
-            } else {
-                pair = FromCsr.create(workDir, url, hostname);
-            }
-            Files.stoolFile(pair.privateKey());
-            Files.stoolFile(pair.certificate());
-            keyStore.fill(pair);
+            keyStore.fill(Pair.create(url, hostname, workDir));
         }
         return keyStore;
     }

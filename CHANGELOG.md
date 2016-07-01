@@ -5,9 +5,10 @@
 * auto select:
   * the selected stage is now determined by the current directory
   * `stool` is now a normal executable, not a shell function. This simplifies installation and updates. And it simplified the implementation a lot.
-  * The backstage directory has been moved from `$LIB/backstages/stagename` to `stagedir/.stool`.
   * To build a stage with the proper environment, you have to use `stool build` now. Stool no longer adjust the environment
     for the current stage.
+
+* backstage directories moved from `$LIB/backstages/stagename` to `stagedir/.backstage`.
 
 * certificate handling
   * generate self-signed certificate if no certificate url is specified
@@ -76,18 +77,17 @@
 * cleanup
   * removed `system-import` command, it was broken anyway
   * dumped `MACHINE` and `STAGE_HOST` environment variables
-  * dumped run/users
+  * dumped $LIB/run/users directory
   * replaced curl- (stop fitnesse) and wget (downloads) execs by sushi http.
   * fixed `tomcat.service` to actually work for versions other than 3.5.26.
 
 * Implementation changes
   * simplified multi-module build; dumped STOOL_SOURCE variable.
   * dependency updates:
-    * Sushi 2.8.18 to 3.1.0 and inline 1.0.2
+    * Sushi 2.8.18 to 3.1.1 and inline 1.1.0
     * Maven Embedded 3.11.1 to 3.12.1
-    * slf4j-api 1.7.12 to 1.7.21
-    * logback-core and logback-classic 1.1.3 to 1.1.7
     * gson 2.2.4 to 2.7
+  * dumped dependencies to slf4j-api and logback
 
 
 ### 3.3.5 (2016-03-16)

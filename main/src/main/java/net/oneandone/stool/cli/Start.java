@@ -16,6 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
@@ -25,6 +26,7 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
@@ -60,6 +62,26 @@ public class Start extends StageCommand {
 
     public static String tomcatName(String version) {
         return "apache-tomcat-" + version;
+    }
+
+    @Override
+    public boolean doBefore(List<Stage> stages, int indent) throws IOException {
+        int global;
+        int claimed;
+        StageConfiguration config;
+
+        global = session.configuration.quota;
+        if (global != 0) {
+            claimed = 0;
+            for (FileNode stage : session.stageDirectories()) {
+                config = session.loadStageConfiguration(Stage.backstageDirectory(stage));
+                claimed += config.quota;
+            }
+            if (claimed > global) {
+                throw new IOException("stage quotas exceed available disk space: " + claimed + " mb > " + global + " mb");
+            }
+        }
+        return super.doBefore(stages, indent);
     }
 
     @Override

@@ -18,12 +18,12 @@ package net.oneandone.stool.stage;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.cli.Start;
 import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.scm.Scm;
+import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Macros;
@@ -801,12 +801,10 @@ public abstract class Stage {
             throw new ArgumentException("Stage expired " + config().expire + ". To start it, you have to adjust the 'expire' date.");
         }
         quota = config().quota;
-        if (quota != 0) {
-            used = diskUsed();
-            if (used > quota) {
-                throw new ArgumentException("Stage quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n" +
-                        "Consider running 'stool cleanup'.");
-            }
+        used = diskUsed();
+        if (used > quota) {
+            throw new ArgumentException("Stage quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n" +
+                    "Consider running 'stool cleanup'.");
         }
     }
 }

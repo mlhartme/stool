@@ -30,7 +30,7 @@ public class PairIT {
 
         world = Main.world();
         workDir = world.getTemp().createTempDirectory();
-        pair = Itca.create(workDir, "*.jenkins.websales.united.domain");
+        pair = Pair.itca(workDir, "*.jenkins.websales.united.domain");
         System.out.println(pair.text());
     }
 
@@ -42,7 +42,7 @@ public class PairIT {
 
         world = Main.world();
         workDir = world.getTemp().createTempDirectory();
-        pair = SelfSigned.create(workDir, "*.jenkins.websales.united.domain");
+        pair = Pair.selfSigned(workDir, "*.jenkins.websales.united.domain");
         System.out.println(pair.text());
     }
 
@@ -54,7 +54,7 @@ public class PairIT {
 
         world = Main.world();
         workDir = world.getTemp().createTempDirectory();
-        pair = FromCsr.create(workDir, "https://api-next.pki.1and1.org/host", "*.foo.walter.websales.united.domain");
+        pair = Pair.fromCsr(workDir, "https://api-next.pki.1and1.org/host", "*.foo.walter.websales.united.domain");
         System.out.println(pair.text());
     }
 }

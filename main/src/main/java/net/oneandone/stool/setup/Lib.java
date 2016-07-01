@@ -240,6 +240,7 @@ public class Lib {
                 array = new JsonArray();
                 array.add(new JsonPrimitive(StageConfiguration.NOTIFY_OWNER));
                 dest.add("notify", array);
+                dest.add("quota", new JsonPrimitive(10000));
             }
         };
     }
