@@ -11,6 +11,7 @@
 
 * certificate handling
   * generate self-signed certificate if no certificate url is specified
+  * generate puki certificates
   
 * added support for git urls.
 

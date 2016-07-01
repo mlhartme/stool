@@ -19,6 +19,7 @@ import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
 import net.oneandone.inline.commands.PackageVersion;
 import net.oneandone.stool.setup.Lib;
+import net.oneandone.stool.ssl.Itca;
 import net.oneandone.stool.util.LogOutputStream;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
@@ -38,10 +39,10 @@ import java.io.OutputStream;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
-import static net.oneandone.stool.ssl.Itca.HOSTNAME;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -213,12 +214,14 @@ public class Main {
 
     //--
 
+    private static final List<String> LAZY_HOSTS = Arrays.asList(Itca.HOSTNAME, "api-next.pki.1and1.org");
+
     public static World world() throws IOException {
         World world;
 
         world = World.create();
         ((HttpFilesystem) world.getFilesystem("https")).setSocketFactorySelector((protocol, hostname) ->
-                protocol.equals("https") ? (hostname.equals(HOSTNAME) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
+                protocol.equals("https") ? (LAZY_HOSTS.contains(hostname) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
         return world;
     }
 

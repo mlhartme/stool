@@ -20,9 +20,10 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.Test;
 
-public class ItcaIT {
+public class PairIT {
+
     @Test
-    public void test() throws Exception {
+    public void itca() throws Exception {
         FileNode workDir;
         World world;
         Pair pair;
@@ -30,6 +31,30 @@ public class ItcaIT {
         world = Main.world();
         workDir = world.getTemp().createTempDirectory();
         pair = Itca.create(workDir, "*.jenkins.websales.united.domain");
+        System.out.println(pair.text());
+    }
+
+    @Test
+    public void selfsigned() throws Exception {
+        FileNode workDir;
+        World world;
+        Pair pair;
+
+        world = Main.world();
+        workDir = world.getTemp().createTempDirectory();
+        pair = SelfSigned.create(workDir, "*.jenkins.websales.united.domain");
+        System.out.println(pair.text());
+    }
+
+    @Test
+    public void puki() throws Exception {
+        FileNode workDir;
+        World world;
+        Pair pair;
+
+        world = Main.world();
+        workDir = world.getTemp().createTempDirectory();
+        pair = FromCsr.create(workDir, "https://api-next.pki.1and1.org/host", "*.foo.walter.websales.united.domain");
         System.out.println(pair.text());
     }
 }

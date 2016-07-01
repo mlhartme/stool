@@ -17,11 +17,11 @@ public class FromCsr {
         csr = workDir.join("csr.pem");
         cert = workDir.join("cert.pem");
         key = workDir.join("key.pem");
-        workDir.exec("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-subj", "/CN=" + hostname, "-keyout", key.getAbsolute(),
-                "-out", csr.getAbsolute());
-
+        workDir.exec("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes", "-subj", "/CN=" + hostname,
+                "-keyout", key.getAbsolute(), "-out", csr.getAbsolute());
         world = workDir.getWorld();
         node = (HttpNode) world.validNode(url);
+        node.getRoot().addExtraHeader("Content-Type", "text/plain");
         cert.writeBytes(node.post(csr.readBytes()));
         return new Pair(key, cert);
     }
