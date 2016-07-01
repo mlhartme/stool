@@ -266,8 +266,7 @@ public abstract class Stage {
 
         ports = loadPortsOpt();
         return ports == null ? new HashMap<>()
-                : ports.urlMap(!session.configuration.certificates.isEmpty(), session.configuration.vhosts, session.configuration.hostname,
-                config().urls);
+                : ports.urlMap(true, session.configuration.vhosts, session.configuration.hostname, config().urls);
     }
 
     /** @return nummer of applications */

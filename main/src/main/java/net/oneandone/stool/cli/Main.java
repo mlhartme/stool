@@ -77,7 +77,7 @@ public class Main {
             logging = Logging.forLib(lib, user);
             console = console(logging, System.out, System.err);
         } else {
-            // for integration dests
+            // for integration tests
             setenv = false;
             OutputStream devNull = MultiOutputStream.createNullStream();
             console = console(logging, devNull, devNull);

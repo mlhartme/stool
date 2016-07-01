@@ -8,7 +8,10 @@
   * The backstage directory has been moved from `$LIB/backstages/stagename` to `stagedir/.stool`.
   * To build a stage with the proper environment, you have to use `stool build` now. Stool no longer adjust the environment
     for the current stage.
- 
+
+* certifiacate handling
+  * generate self-signed certificate if no certificate url is specified
+  
 * added support for git urls.
 
 * per-user defauls: Stool now checks for a user's `~/.stool.defaults` file. If it exists, Stool loads it as a properties 
