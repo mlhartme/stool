@@ -43,7 +43,7 @@ public class Itca {
         HttpNode itca;
         byte[] bytes;
 
-        world = world(workDir);
+        world = workDir.getWorld();
         zip = world.getTemp().createTempFile();
         itca = (HttpNode) world.validNode(url);
         bytes = itca.readBytes();
@@ -51,9 +51,10 @@ public class Itca {
         zip.unzip(workDir);
     }
 
-    public static World world(FileNode workDir) {
+    public static World world() throws IOException {
         World world;
-        world = workDir.getWorld();
+
+        world = World.create();
         ((HttpFilesystem) world.getFilesystem("https")).setSocketFactorySelector((protocol, hostname) ->
                 protocol.equals("https") ? (hostname.equals(HOSTNAME) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
         return world;

@@ -26,7 +26,7 @@ public class ItcaIT {
         World world;
         Pair pair;
 
-        world = World.create();
+        world = Itca.world();
         workDir = world.getTemp().createTempDirectory();
         pair = Itca.create(workDir, "*.jenkins.websales.united.domain");
         System.out.println(pair.text());
