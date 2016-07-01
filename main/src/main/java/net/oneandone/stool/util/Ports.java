@@ -16,6 +16,7 @@
 package net.oneandone.stool.util;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -104,47 +105,41 @@ public class Ports {
         return -1;
     }
 
-    public Map<String, String> urlMap(boolean https, boolean vhosts, String hostname, List<String> urls) {
+    public Map<String, String> urlMap(String hostname, List<String> urls) {
         Map<String, String> result;
-        List<String> list;
         String name;
         int no;
+        Url url;
+        Map<Character, String> map;
 
         result = new LinkedHashMap<>();
+        map = new HashMap<>();
+        map.put('h', hostname);
         for (Vhost vhost : vhosts()) {
             if (vhost.isWebapp()) {
-                list = urls.isEmpty() ? Collections.singletonList("") : urls;
+                map.put('a', vhost.name);
+                map.put('s', vhost.stage);
+                map.put('p', "%p");
                 no = 1;
-                for (String url : list) {
+                for (String urlstr : urls) {
+                    url = Url.parse(urlstr);
+                    url = url.sustitute(map);
                     name = vhost.name;
-                    if (list.size() > 1) {
+                    if (urls.size() > 1) {
                         name = vhost.name + "-" + no;
                         no++;
                     }
-                    result.put(name, "http://" + subst(vhost.fqdnHttpPort(vhosts, hostname), url));
-                    if (https) {
-                        result.put(name + " SSL", "https://" + subst(vhost.fqdnHttpsPort(vhosts, hostname), url));
+                    for (String u : url.map()) {
+                        if (u.startsWith("https:")) {
+                            u = u.replace("%p", Integer.toString(vhost.httpsPort()));
+                        } else {
+                            u = u.replace("%p", Integer.toString(vhost.httpPort()));
+                        }
+                        result.put(name, u);
                     }
                 }
             }
         }
         return result;
-    }
-
-    private static final String MARKER = "[]";
-
-    private static String subst(String fqdnPort, String url) {
-        int idx;
-
-        if (url.isEmpty()) {
-            return fqdnPort;
-        }
-        idx = url.indexOf(MARKER);
-        if (idx == -1) {
-            // old-style suffix
-            return fqdnPort + url;
-        }
-        // new suffix
-        return url.substring(0, idx) + fqdnPort + url.substring(idx + MARKER.length());
     }
 }

@@ -148,6 +148,7 @@ public class StageConfiguration {
         this.mavenOpts = "";
         this.expire = Expire.never();
         this.urls = new ArrayList<>();
+        urls.add("(http:https)://%h/");
         this.comment = "";
         this.autoRefresh = false;
         this.extensions = extensions;

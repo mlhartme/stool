@@ -79,12 +79,4 @@ public class Url {
         multiString.append(path);
         return multiString.lst;
     }
-
-    public boolean ssl() {
-        MultiString multiString;
-
-        multiString = new MultiString();
-        multiString.append(protocol);
-        return multiString.contains("https");
-    }
 }
