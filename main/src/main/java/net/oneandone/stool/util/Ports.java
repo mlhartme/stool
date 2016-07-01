@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,58 +103,15 @@ public class Ports {
         return -1;
     }
 
-    public Map<String, String> urlMap(String hostname, String urlstr) {
+    public Map<String, String> urlMap(String hostname, String url) {
         Map<String, String> result;
-        String name;
-        Url url;
-        Map<Character, String> map;
-        List<String> all;
-        List<String> http;
-        List<String> https;
 
         result = new LinkedHashMap<>();
-        map = new HashMap<>();
-        map.put('h', hostname);
         for (Vhost vhost : vhosts()) {
             if (vhost.isWebapp()) {
-                name = vhost.name;
-                map.put('a', name);
-                map.put('s', vhost.stage);
-                map.put('p', "%p");
-                url = Url.parse(urlstr);
-                url = url.sustitute(map);
-                all = url.map();
-                http = new ArrayList<>();
-                https = new ArrayList<>();
-                for (String u : all) {
-                    if (u.startsWith("https:")) {
-                        https.add(u.replace("%p", Integer.toString(vhost.httpsPort())));
-                    } else {
-                        http.add(u.replace("%p", Integer.toString(vhost.httpPort())));
-                    }
-                }
-                add(name, "", http, result);
-                add(name, " SSL", https, result);
+                result.putAll(vhost.urlMap(hostname, url));
             }
         }
         return result;
-    }
-
-    private static void add(String nameBase, String nameSuffix, List<String> all, Map<String, String> result) {
-        String name;
-        int no;
-
-        no = 0;
-        for (String u : all) {
-            if (all.size() > 1) {
-                no++;
-                name = nameBase + "-" + no;
-            } else {
-                name = nameBase;
-            }
-            name = name + nameSuffix;
-            result.put(name, u);
-        }
-
     }
 }

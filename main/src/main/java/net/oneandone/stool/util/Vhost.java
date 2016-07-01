@@ -19,6 +19,11 @@ package net.oneandone.stool.util;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /** immutable */
@@ -150,5 +155,50 @@ public class Vhost {
             return null;
         }
         return new Vhost(newEven == null ? even : newEven, name, stage, newDocroot);
+    }
+
+    public Map<String, String> urlMap(String hostname, String url) {
+        Map<String, String> result;
+        Map<Character, String> map;
+        List<String> all;
+        List<String> http;
+        List<String> https;
+
+        result = new LinkedHashMap<>();
+        map = new HashMap<>();
+        map.put('h', hostname);
+        map.put('a', name);
+        map.put('s', stage);
+        map.put('p', "%p");
+        all = Url.parse(url).sustitute(map).map();
+        http = new ArrayList<>();
+        https = new ArrayList<>();
+        for (String u : all) {
+            if (u.startsWith("https:")) {
+                https.add(u.replace("%p", Integer.toString(httpsPort())));
+            } else {
+                http.add(u.replace("%p", Integer.toString(httpPort())));
+            }
+        }
+        add(name, "", http, result);
+        add(name, " SSL", https, result);
+        return result;
+    }
+
+    private static void add(String nameBase, String nameSuffix, List<String> all, Map<String, String> result) {
+        String name;
+        int no;
+
+        no = 0;
+        for (String u : all) {
+            if (all.size() > 1) {
+                no++;
+                name = nameBase + "-" + no;
+            } else {
+                name = nameBase;
+            }
+            name = name + nameSuffix;
+            result.put(name, u);
+        }
     }
 }
