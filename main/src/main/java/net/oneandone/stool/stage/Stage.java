@@ -265,7 +265,7 @@ public abstract class Stage {
         Ports ports;
 
         ports = loadPortsOpt();
-        return ports == null ? new HashMap<>() : ports.urlMap(session.configuration.hostname, config().urls);
+        return ports == null ? new HashMap<>() : ports.urlMap(session.configuration.hostname, config().url);
     }
 
     /** @return nummer of applications */
@@ -477,11 +477,9 @@ public abstract class Stage {
         }
 
         if (session.configuration.vhosts) {
-            configuration.urls.clear();
-            configuration.urls.add("(http|https)://%a.%s.%h:%p/");
+            configuration.url = "(http|https)://%a.%s.%h:%p/";
         } else {
-            configuration.urls.clear();
-            configuration.urls.add("(http|https)://%h:%p/");
+            configuration.url = "(http|https)://%h:%p/";
         }
         if (session.configuration.shared) {
             configuration.expire = Expire.withOffset(8);

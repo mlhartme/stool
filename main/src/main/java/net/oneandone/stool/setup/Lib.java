@@ -226,7 +226,10 @@ public class Lib {
             void tomcatPermRemove() {
             }
             String suffixesRename() {
-                return "urls";
+                return "url";
+            }
+            JsonElement suffixesTransform(JsonElement e) {
+                return new JsonPrimitive("todo");
             }
             String untilRename() {
                 return "expire";

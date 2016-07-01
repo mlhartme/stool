@@ -116,8 +116,8 @@ public class StageConfiguration {
     @Option(key = "expire")
     public Expire expire;
 
-    @Option(key = "urls")
-    public List<String> urls;
+    @Option(key = "url")
+    public String url;
 
     @Option(key = "autoRefresh")
     public Boolean autoRefresh;
@@ -147,8 +147,7 @@ public class StageConfiguration {
         this.mavenHome = mavenHome;
         this.mavenOpts = "";
         this.expire = Expire.never();
-        this.urls = new ArrayList<>();
-        urls.add("(http:https)://%h/");
+        this.url = "(http:https)://%h/";
         this.comment = "";
         this.autoRefresh = false;
         this.extensions = extensions;
