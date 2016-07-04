@@ -18,11 +18,12 @@ package net.oneandone.stool.ssl;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class PairIT {
 
-    @Test
+    @Ignore
     public void itca() throws Exception {
         FileNode workDir;
         World world;
@@ -46,7 +47,7 @@ public class PairIT {
         System.out.println(pair.text());
     }
 
-    @Test
+    @Ignore
     public void puki() throws Exception {
         FileNode workDir;
         World world;

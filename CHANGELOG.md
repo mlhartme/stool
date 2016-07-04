@@ -72,10 +72,10 @@
 
 * improved setup
   * `stool` is now a normal executable, not a shell function. Shell code went to $LIB/bash.rc, and it's only needed for interactive shells. 
-  * arbitrary location for Stool binary
+  * arbitrary location for `stool` binary
   * $LIB is either `~/.stool` or `/usr/share/stool`
   * improved default configuration
-  * Atomic upgrade: creates a backup of the lib directory before upgrade; this is restored if the upgrade fails
+  * atomic upgrade: creates a backup of the lib directory before upgrade; this is restored if the upgrade fails
 
 * cleanup
   * removed `system-import` command, it was broken anyway
