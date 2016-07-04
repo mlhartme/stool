@@ -293,6 +293,10 @@ public class Session {
         return Scm.forUrl(url, svnCredentials);
     }
 
+    public Scm scmOpt(String url) {
+        return Scm.forUrlOpt(url, svnCredentials);
+    }
+
     public Credentials svnCredentials() {
         return svnCredentials;
     }
@@ -483,13 +487,17 @@ public class Session {
     public StageConfiguration createStageConfiguration(String url) {
         String mavenHome;
         StageConfiguration result;
+        Scm scm;
+        String refresh;
 
         try {
             mavenHome = Maven.locateMaven(world).getAbsolute();
         } catch (IOException e) {
             mavenHome = "";
         }
-        result = new StageConfiguration(javaHome(), mavenHome, scm(url).refresh(), extensionsFactory.newInstance());
+        scm = scmOpt(url);
+        refresh = scm == null ? "" : scm.refresh();
+        result = new StageConfiguration(javaHome(), mavenHome, refresh, extensionsFactory.newInstance());
         configuration.setDefaults(StageConfiguration.properties(extensionsFactory), result, url);
         return result;
     }

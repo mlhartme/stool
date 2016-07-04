@@ -59,12 +59,22 @@ public abstract class Scm {
     public abstract boolean isCommitted(Stage stage) throws IOException;
 
     public static Scm forUrl(String url, Credentials svnCredentials) {
+        Scm scm;
+
+        scm = forUrlOpt(url, svnCredentials);
+        if (scm == null) {
+            throw new IllegalArgumentException("unknown scm: " + url);
+        }
+        return scm;
+    }
+
+    public static Scm forUrlOpt(String url, Credentials svnCredentials) {
         if (url.startsWith("svn:")) {
             return new Subversion(svnCredentials);
         } else if (url.startsWith("git:")) {
             return new Git();
         } else {
-            throw new IllegalArgumentException("unknown scm: " + url);
+            return null;
         }
     }
 
