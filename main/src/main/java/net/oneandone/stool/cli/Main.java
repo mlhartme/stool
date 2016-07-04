@@ -49,6 +49,10 @@ public class Main {
         System.exit(run(args));
     }
 
+    private static boolean bashInstalled() {
+        return System.getenv("_STOOL") != null;
+    }
+
     public static int run(String[] args) throws IOException {
         World world;
         FileNode lib;
@@ -59,7 +63,7 @@ public class Main {
         if (!lib.exists()) {
             return install(lib, args);
         } else {
-            if (System.getenv("_STOOL") == null) {
+            if (!bashInstalled()) {
                 System.err.println("stool shell code in not properly set up");
                 System.err.println("Make sure you sourced " + lib.join("bash.rc") + " in your ~/.bash_profile");
                 System.err.println("and restarted your shell");
@@ -75,15 +79,16 @@ public class Main {
 
         console = Console.create();
         if (args.length != 1 || !args[0].equals("setup")) {
-            console.error.println("stool configuration not found: " + lib);
-            console.error.println("run 'stool setup'");
+            console.error.println("Stool is not configured. Please run 'stool setup'");
             return 1;
         } else {
             console.info.println("Creating stool configuration at " + lib);
             Lib.create(Console.create(), lib, null);
             console.info.println("Done.");
-            console.info.println("To complete your setup: source " + lib.join("bash.rc") + " in your ~/.bash_profile");
-            console.info.println("and restart your shell");
+            if (!bashInstalled()) {
+                console.info.println("To complete your setup: source " + lib.join("bash.rc") + " in your ~/.bash_profile");
+                console.info.println("and restart your shell");
+            }
             return 0;
         }
     }

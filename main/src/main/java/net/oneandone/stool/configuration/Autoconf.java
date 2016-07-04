@@ -56,8 +56,8 @@ public class Autoconf {
                     "    host => [ \"10.76.80.152\", \"10.76.80.153\", \"10.76.80.154\" ]\n" +
                     "  }\n" +
                     "}\n");
-            dest.defaults.put("https://svn.1and1.org/svn/PFX/controlpanel/", cp());
-            dest.defaults.put("https://svn.1and1.org/svn/sales/workspaces/", workspace());
+            dest.defaults.put("svn:https://svn.1and1.org/svn/PFX/controlpanel/", cp());
+            dest.defaults.put("svn:https://svn.1and1.org/svn/sales/workspaces/", workspace());
         }
     }
 

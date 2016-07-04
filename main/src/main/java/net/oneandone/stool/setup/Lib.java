@@ -197,7 +197,7 @@ public class Lib {
                 for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
                     url = entry.getKey();
                     defaults = entry.getValue().getAsJsonObject();
-                    result.add(url, migrate(defaults));
+                    result.add("svn:" + url, migrate(defaults));
                 }
                 return result;
             }

@@ -211,6 +211,16 @@
               <goal>generate</goal>
             </goals>
           </execution>
+          <execution>
+            <id>stool-upload</id>
+            <configuration>
+              <symlink>${env.CISO_TOOLS}/bin/stool</symlink>
+              <target>${env.CISO_TOOLS}/stool</target>
+            </configuration>
+            <goals>
+              <goal>upload</goal>
+            </goals>
+          </execution>
         </executions>
       </plugin>
       <plugin>

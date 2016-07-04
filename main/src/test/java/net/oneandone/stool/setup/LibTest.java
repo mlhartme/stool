@@ -76,7 +76,7 @@ public class LibTest {
         // TODO: assertEquals("151204.151204-6.2", stage.getId());
         assertEquals("todo", stage.url);
         assertEquals(Expire.never(), stage.expire);
-        assertEquals(null, stool.defaults.get("https://svn.1and1.org/svn/controlpanel_app/controlpanel/").get("tomcat.perm"));
+        assertEquals(null, stool.defaults.get("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/").get("tomcat.perm"));
         assertEquals(Strings.toList(StageConfiguration.NOTIFY_OWNER), stage.notify);
         assertEquals(10000, stage.quota);
     }

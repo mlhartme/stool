@@ -144,12 +144,12 @@ public class Create extends SessionCommand {
         if (directory == null) {
             directory = world.getWorking().join(Stage.nameForUrl(url));
         }
+        if (directory.isDirectory()) {
+            throw new ArgumentException("stage directory already exists: " + directory);
+        }
         surrounding = session.findStageDirectory(directory);
         if (surrounding != null) {
             throw new ArgumentException("cannot create a stage within a stage: " + directory + " in " + surrounding);
-        }
-        if (directory.isDirectory()) {
-            throw new ArgumentException("stage directory already exists: " + directory);
         }
         if (!directory.getParent().isDirectory()) {
             throw new ArgumentException("parent directory for new stage does not exist: " + directory.getParent());
