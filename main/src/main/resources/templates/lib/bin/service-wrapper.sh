@@ -14,10 +14,10 @@ BACKSTAGE=$1 ; shift
 
 export CATALINA_BASE=$BACKSTAGE/shared/tomcat
 export WRAPPER_CMD=${WRAPPER_HOME}/bin/wrapper
-export WRAPPER_CONF=$BACKSTAGE/shared/conf/service-wrapper.conf
+export WRAPPER_CONF=$BACKSTAGE/shared/service/service-wrapper.conf
 export PIDDIR=$BACKSTAGE/shared/run
 
 export CATALINA_HOME
 export WRAPPER_HOME
 
-$BACKSTAGE/shared/conf/service-wrapper.sh "$@"
+$BACKSTAGE/shared/service/service-wrapper.sh "$@"

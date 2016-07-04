@@ -1806,7 +1806,8 @@
         |- buildstats.json
         |- ssl (generated certs, if any)
         |- run (pid stuff for service wrapper)
-        |- conf
+        |- service
+        |  |- service-wrapper.sh
         |  '- service-wrapper.conf
         '- tomcat (tomcat for this stage)
         |- conf (standard tomcat directory with generated server.xml)

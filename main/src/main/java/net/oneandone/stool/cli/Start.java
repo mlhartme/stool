@@ -223,7 +223,7 @@ public class Start extends StageCommand {
         content = comment(content, "WRAPPER_CMD=\"./wrapper\"");
         content = comment(content, "WRAPPER_CONF=\"../conf/wrapper.conf\"");
         content = comment(content, "PIDDIR=\".\"");
-        wrapper = stage.shared().join("conf/service-wrapper.sh");
+        wrapper = stage.shared().join("service/service-wrapper.sh");
         wrapper.writeString(content);
         Files.stoolExecutable(wrapper);
     }

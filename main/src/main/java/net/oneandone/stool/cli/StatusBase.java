@@ -175,7 +175,7 @@ public abstract class StatusBase extends StageCommand {
                 debug = null;
                 suspend = false;
             } else {
-                config = stage.shared().join("conf/service-wrapper.conf").readString();
+                config = stage.shared().join("service/service-wrapper.conf").readString();
                 if (config.contains("=-Xdebug\n")) {
                     debug = Integer.toString(ports.debug());
                 } else {
