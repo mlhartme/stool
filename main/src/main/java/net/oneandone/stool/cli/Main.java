@@ -59,6 +59,12 @@ public class Main {
         if (!lib.exists()) {
             return install(lib, args);
         } else {
+            if (System.getenv("_STOOL") == null) {
+                System.err.println("stool shell code in not properly set up");
+                System.err.println("Make sure you sourced " + lib.join("bash.rc") + " in your ~/.bash_profile");
+                System.err.println("and restarted your shell");
+                return -1;
+            }
             user = System.getProperty("user.name");
             return normal(user, null, lib, args);
         }
@@ -76,6 +82,8 @@ public class Main {
             console.info.println("Creating stool configuration at " + lib);
             Lib.create(Console.create(), lib, null);
             console.info.println("Done.");
+            console.info.println("To complete your setup: source " + lib.join("bash.rc") + " in your ~/.bash_profile");
+            console.info.println("and restart your shell");
             return 0;
         }
     }
