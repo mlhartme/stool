@@ -51,17 +51,17 @@ public class Create extends SessionCommand {
 
     private final Map<String, Property> properties;
 
-    public Create(Session session, boolean quiet, String name, String urlOrFileOrSearch, FileNode directory) {
+    public Create(Session session, boolean quiet, String name, String urlOrFileOrSearch) {
         super(session, Mode.NONE);
         this.quiet = quiet;
         this.name = name;
         this.urlOrFileOrSearch = urlOrFileOrSearch;
-        this.directory = directory;
+        this.directory = null;
         this.properties = StageConfiguration.properties(session.extensionsFactory);
     }
 
 
-    public void property(String str) {
+    public void dirOrProperty(String str) {
         int idx;
         String key;
         String value;
@@ -69,6 +69,10 @@ public class Create extends SessionCommand {
 
         idx = str.indexOf('=');
         if (idx == -1) {
+            if (directory == null) {
+                directory = world.file(str);
+                return;
+            }
             throw new ArgumentException("Invalid configuration argument. Expected <key>=<value>, got " + str);
         }
         key = str.substring(0, idx);

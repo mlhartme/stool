@@ -45,7 +45,9 @@
 * `list` command has the same configurable fields as the `status` command now. Defaults no longer contain the selected stage; the 
   stage directory has been added to the defaults.
 
-* `rename` is gone, use `stool config name=foo` instead. The stage name is a property now.
+* The stage name is a property now.
+  * `stool rename foo` is gone, use `stool config name=foo` instead. 
+  * `stool create -name foo url` is gone, use `stool create url name=foo` instead.
 
 * Global configuration:
   * renamed `contactAdmin` to `admin`.

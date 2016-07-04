@@ -125,7 +125,7 @@ public class Main {
               cli.begin("globals.session", "");
                 cli.addDefault(Help.class, "help command?=null");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
-                    cli.add(Create.class, "create -quiet -name=null url directory?=null property* { property*(property) }");
+                    cli.add(Create.class, "create -quiet -name=null url dirOrProperty* { dirOrProperty*(dirOrProperty) }");
                     cli.add(Import.class, "import -name=@import.name:%d -max=@import.max:40 dir* { dirs*(dir) setMax(max) setName(name) }");
                     cli.add(Select.class, "select -fuzzy=@select.fuzzy name?=null");
                     cli.base(StageCommand.class, "-autorechown=@auto.rechown -autochown=@auto.chown -autorestart=@auto.restart -autostop=@auto.stop -stage=null -all -fail "
