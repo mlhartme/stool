@@ -67,7 +67,7 @@
 
 * simplified directory structure:
   * dumped `$BACKSTAGE/shared`, $BACKSTAGE now directly contains all subdirectories
-  * renamed `$BACKSTAGE/conf` to `$BACKSTAGE/wrapper`
+  * renamed `$BACKSTAGE/conf` to `$BACKSTAGE/service`
 
 * properties for running stages
   * `stool.bin` property for running wars was changed to stool.cp

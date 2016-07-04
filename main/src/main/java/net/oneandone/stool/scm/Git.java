@@ -19,6 +19,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -26,7 +27,7 @@ import java.io.Writer;
 public class Git extends Scm {
     public static String gitCheckoutUrlOpt(FileNode dir) throws Failure {
         if (dir.join(".git").isDirectory()) {
-            return gitCheckoutUrl(dir);
+            return "git:" + gitCheckoutUrl(dir);
         } else {
             return null;
         }
@@ -52,7 +53,7 @@ public class Git extends Scm {
 
     @Override
     public void checkout(String url, FileNode dir, Writer dest) throws Failure {
-        git(dir.getParent(), "clone", url, dir.getName()).exec(dest);
+        git(dir.getParent(), "clone", Strings.removeLeft(url, "git:"), dir.getName()).exec(dest);
     }
 
     @Override

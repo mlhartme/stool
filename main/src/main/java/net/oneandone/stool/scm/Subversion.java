@@ -21,6 +21,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -29,7 +30,7 @@ public class Subversion extends Scm {
     /** Caution, does not work for nested directories */
     public static String svnCheckoutUrlOpt(FileNode dir) throws Failure {
         if (dir.join(".svn").isDirectory()) {
-            return svnCheckoutUrl(dir);
+            return "svn:" + svnCheckoutUrl(dir);
         } else {
             return null;
         }
@@ -59,7 +60,7 @@ public class Subversion extends Scm {
 
     @Override
     public void checkout(String url, FileNode dir, Writer dest) throws Failure {
-        launcher(dir.getParent(), "co", url, dir.getName()).exec(dest);
+        launcher(dir.getParent(), "co", Strings.removeLeft(url, "svn:"), dir.getName()).exec(dest);
     }
 
     @Override

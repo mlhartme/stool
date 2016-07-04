@@ -124,14 +124,14 @@ public class Create extends SessionCommand {
         if (urls.size() == 0) {
             throw new ArgumentException("not found: " + substring);
         }
-        for (int i = urls.size(); i > 0; --i) {
+        for (int i = 1; i <= urls.size(); i++) {
             console.info.println("[" + i + "] " + urls.get(i - 1));
         }
         while (true) {
             input = console.readline("Choose url [1-" + urls.size() + "]) or press ctrl-c to abort: \n");
             try {
                 no = Integer.parseInt(input);
-                return Strings.removeLeftOpt(Strings.removeLeftOpt(urls.get(no - 1), "scm:"), "svn:");
+                return Strings.removeLeftOpt(urls.get(no - 1), "scm:");
             } catch (NumberFormatException e) {
                 console.info.println("invalid input: " + e.getMessage());
             }

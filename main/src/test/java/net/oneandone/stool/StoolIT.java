@@ -89,17 +89,17 @@ public class StoolIT {
 
     @Test
     public void turnaroundSvnSource() throws IOException {
-        turnaround("svn", "https://github.com/mlhartme/hellowar/trunk");
+        turnaround("svn", "svn:https://github.com/mlhartme/hellowar/trunk");
     }
 
     @Test
     public void turnaroundGitSource() throws IOException {
-        turnaround("git", "git@github.com:mlhartme/hellowar.git");
+        turnaround("git", "git:git@github.com:mlhartme/hellowar.git");
     }
 
     @Ignore // TODO
     public void turnaroundSourceMultiModule() throws IOException {
-        turnaround("multi", "https://svn.code.sf.net/p/pustefix/code/tags/pustefixframework-0.18.84/pustefix-samples");
+        turnaround("multi", "svn:https://svn.code.sf.net/p/pustefix/code/tags/pustefixframework-0.18.84/pustefix-samples");
     }
 
     private void turnaround(String context, String url) throws IOException {
