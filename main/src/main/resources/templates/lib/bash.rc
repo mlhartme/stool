@@ -3,7 +3,7 @@
 colorStageIndicator() {
   local NO_COLOUR="\[\033[0m\]"
   local dir=`pwd`
-  echo -e $(stageIndicatorColor)$(stageIndicator $dir)${NO_COLOR}
+  echo -n $(stageIndicatorColor)"$(stageIndicator $dir)"${NO_COLOR}
 }
 
 stageIndicator() {
@@ -13,7 +13,7 @@ stageIndicator() {
       local name=$(grep \"name\" $dir/.backstage/config.json | cut -d':' -f2 | grep -o \"[a-zA-Z.0-9]*\")
       name=${name:1}
       name=${name%?}
-      echo -e "{$name}"
+      echo -n "{$name} "
       return
     fi
     dir="$(dirname "$dir")"
@@ -33,9 +33,9 @@ stageIndicatorColor() {
         local fmt=--format
       fi
       if [ $(id -u) = $(stat -L $fmt %u $DIR) ] ; then
-        echo -e ""
+        echo -n ""
       else
-        echo -e "$RED"
+        echo -n "$RED"
       fi
     fi
 }
