@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.Console;
+import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Autoconf;
 import net.oneandone.stool.configuration.StageConfiguration;
@@ -36,6 +37,7 @@ import net.oneandone.sushi.util.Diff;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -110,6 +112,7 @@ public class Lib {
 
         variables = new HashMap<>();
         variables.put("stool.lib", dir.getAbsolute());
+        variables.put("setenv.rc", Setenv.get().setenvBash());
         return variables;
     }
 

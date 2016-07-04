@@ -39,3 +39,5 @@ stageIndicatorColor() {
       fi
     fi
 }
+
+${{setenv.rc}}
