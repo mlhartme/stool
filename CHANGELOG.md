@@ -65,6 +65,9 @@
   * changed default tomcat version from 8.0.26 to 8.5.3
   * changed default service wrapper version from 3.5.26 to 3.5.29
 
+* simplified directory structure:
+  * dumped `$BACKSTAGE/shared`, $BACKSTAGE now directly contains all subdirectories
+  * renamed `$BACKSTAGE/conf` to `$BACKSTAGE/wrapper`
 
 * properties for running stages
   * `stool.bin` property for running wars was changed to stool.cp
