@@ -39,7 +39,7 @@ public class Applications {
         return Collections.unmodifiableList(apps);
     }
 
-    public Changes changes(FileNode shared, Users users) {
+    public Changes changes(FileNode backstage, Users users) {
         if (lazyChanges == null) {
             lazyChanges = new Changes();
             /* TODO disabled for now ...

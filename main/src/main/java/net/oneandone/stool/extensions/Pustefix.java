@@ -43,7 +43,7 @@ public class Pustefix implements Extension {
 
     @Override
     public void beforeStart(Stage stage) throws IOException {
-        Files.createStoolDirectoryOpt(stage.session.console.verbose, stage.shared().join(APPLOGS));
+        Files.createStoolDirectoryOpt(stage.session.console.verbose, stage.getBackstage().join(APPLOGS));
     }
 
     @Override
@@ -56,6 +56,6 @@ public class Pustefix implements Extension {
 
         app = host.substring(0, host.indexOf('.'));
         result.put("mode", mode);
-        result.put("logroot", stage.shared().join(APPLOGS, app).getAbsolute());
+        result.put("logroot", stage.getBackstage().join(APPLOGS, app).getAbsolute());
     }
 }

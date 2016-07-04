@@ -40,7 +40,7 @@ public class Logstash implements Extension {
     }
 
     private FileNode conf(Stage stage) {
-        return stage.shared().join("conf/logstash.conf");
+        return stage.getBackstage().join("logstash.conf");
     }
 
     private FileNode link(Stage stage) {
@@ -59,7 +59,7 @@ public class Logstash implements Extension {
                 "    tags => ['" + stage.getName() + "']\n" +
                 "    start_position => beginning\n" +
                 "    ignore_older => 0\n" +
-                "    path => ['" + stage.shared().join(Pustefix.APPLOGS).getAbsolute() + "/*/*.log']\n" +
+                "    path => ['" + stage.getBackstage().join(Pustefix.APPLOGS).getAbsolute() + "/*/*.log']\n" +
                 "  }\n" +
                 "}\n" +
                 "\n" +

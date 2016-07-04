@@ -105,7 +105,7 @@ public class Start extends StageCommand {
         ports = session.pool().allocate(stage, Collections.emptyMap());
         copyTemplate(stage, ports);
         createServiceLauncher(stage);
-        copyTomcatBaseOpt(download, stage.shared(), stage.config().tomcatVersion);
+        copyTomcatBaseOpt(download, stage.getBackstage(), stage.config().tomcatVersion);
         if (session.bedroom.contains(stage.getId())) {
             console.info.println("leaving sleeping state");
             session.bedroom.remove(session.gson, stage.getId());
@@ -125,7 +125,7 @@ public class Start extends StageCommand {
         int c;
         Node log;
 
-        logs = stage.shared().find("tomcat/logs/catalina*.log");
+        logs = stage.getBackstage().find("tomcat/logs/catalina*.log");
         if (logs.size() == 0) {
             throw new IOException("no log files found");
         }
@@ -199,14 +199,14 @@ public class Start extends StageCommand {
     }
 
     private void copyTemplate(Stage stage, Ports ports) throws Exception {
-        FileNode shared;
+        FileNode backstage;
 
-        shared = stage.shared();
-        Files.template(console.verbose, world.resource("templates/stage"), shared, variables(stage, ports));
+        backstage = stage.getBackstage();
+        Files.template(console.verbose, world.resource("templates/stage"), backstage, variables(stage, ports));
         // manually create empty subdirectories, because git doesn't know them
         // CAUTION: the log directory is created by "stool create" (because it contains log files)
         for (String dir : new String[] {"ssl", "run" }) {
-            Files.createStoolDirectoryOpt(console.verbose, shared.join(dir));
+            Files.createStoolDirectoryOpt(console.verbose, backstage.join(dir));
         }
     }
 
@@ -223,7 +223,7 @@ public class Start extends StageCommand {
         content = comment(content, "WRAPPER_CMD=\"./wrapper\"");
         content = comment(content, "WRAPPER_CONF=\"../conf/wrapper.conf\"");
         content = comment(content, "PIDDIR=\".\"");
-        wrapper = stage.shared().join("service/service-wrapper.sh");
+        wrapper = stage.getBackstage().join("service/service-wrapper.sh");
         wrapper.writeString(content);
         Files.stoolExecutable(wrapper);
     }
@@ -308,7 +308,7 @@ public class Start extends StageCommand {
         }
     }
 
-    private void copyTomcatBaseOpt(FileNode download, FileNode shared, String version) throws IOException, SAXException {
+    private void copyTomcatBaseOpt(FileNode download, FileNode backstage, String version) throws IOException, SAXException {
         String name;
         FileNode src;
         FileNode dest;
@@ -316,11 +316,11 @@ public class Start extends StageCommand {
         FileNode file;
 
         name = tomcatName(version);
-        dest = shared.join("tomcat");
+        dest = backstage.join("tomcat");
         if (!dest.exists()) {
-            tar(shared, "zxf",
+            tar(backstage, "zxf",
                     download.getAbsolute(), "--exclude", name + "/lib", "--exclude", name + "/bin", "--exclude", name + "/webapps");
-            src = shared.join(name);
+            src = backstage.join(name);
             src.move(dest);
 
             file = dest.join("conf/server.xml");

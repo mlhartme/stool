@@ -62,7 +62,7 @@ public class Application {
         return stageDirectory.join(name);
     }
 
-    public boolean refreshFuture(Session session, FileNode shared) throws IOException {
+    public boolean refreshFuture(Session session, FileNode backstage) throws IOException {
         WarFile candidate;
         Changes changes;
 
@@ -79,7 +79,7 @@ public class Application {
 
         candidate.copyTo(future);
         try {
-            changes = changes(shared, session.users);
+            changes = changes(backstage, session.users);
         } catch (IOException e) {
             // TODO
             session.reportException("application.changes", e);
@@ -118,7 +118,7 @@ public class Application {
 
     //--
 
-    private Changes changes(FileNode shared, Users users) throws IOException {
+    private Changes changes(FileNode backstage, Users users) throws IOException {
         String svnurl;
         FileNode file;
         Changes changes;
@@ -126,7 +126,7 @@ public class Application {
         if (!future.exists() || !current.exists()) {
             return new Changes();
         }
-        file = shared.join("changes").join(future.file().md5() + ".changes");
+        file = backstage.join("changes").join(future.file().md5() + ".changes");
         if (file.exists()) {
             try (Reader src = file.newReader()) {
                 return gson.fromJson(src, Changes.class);

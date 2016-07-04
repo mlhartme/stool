@@ -391,7 +391,7 @@ public class Session {
         reserved = 0;
         for (FileNode link : backstages.list()) {
             backstage = link.resolveLink();
-            if (Stage.shared(backstage).join("run/tomcat.pid").exists()) {
+            if (backstage.join("run/tomcat.pid").exists()) {
                 stage = loadStageConfiguration(backstage);
                 reserved += stage.tomcatHeap;
             }

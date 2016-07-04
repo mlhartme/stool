@@ -69,7 +69,7 @@ public class Fitnesse implements Extension {
                     "-Dfitnesse.port=" + port);
             launcher.dir(stage.session.world.file(findProjectDir(ports, host)));
 
-            log = stage.shared().join("tomcat/logs/fitness-" + port + ".log");
+            log = stage.getBackstage().join("tomcat/logs/fitness-" + port + ".log");
             if (!log.exists()) {
                 log.mkfile();
                 Files.stoolFile(log);

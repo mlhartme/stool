@@ -112,10 +112,6 @@ public abstract class Stage {
         return null;
     }
 
-    public static FileNode shared(FileNode backstage) {
-        return backstage.join("shared");
-    }
-
     //--
 
     public final Session session;
@@ -149,11 +145,6 @@ public abstract class Stage {
         this.directory = directory;
         this.configuration = configuration;
     }
-
-    public FileNode shared() {
-        return shared(backstage);
-    }
-
 
     public String getId() {
         return id;
@@ -217,7 +208,7 @@ public abstract class Stage {
     /** @return pid or null */
     public FileNode servicePidFile() {
         // Yes, that's the service pid (tomcat is a child process of the service)
-        return shared().join("run/tomcat.pid");
+        return getBackstage().join("run/tomcat.pid");
     }
 
     //--
@@ -323,7 +314,7 @@ public abstract class Stage {
         } else {
             hostname = session.configuration.hostname;
         }
-        return KeyStore.create(session.configuration.certificates, hostname, shared().join("ssl"));
+        return KeyStore.create(session.configuration.certificates, hostname, getBackstage().join("ssl"));
     }
 
     /** Fails if Tomcat is not running */
@@ -395,7 +386,7 @@ public abstract class Stage {
     }
 
     public FileNode catalinaBase() {
-        return shared().join("tomcat");
+        return getBackstage().join("tomcat");
     }
 
     public FileNode serverXml() {
@@ -490,7 +481,6 @@ public abstract class Stage {
     }
 
     public void initialize() throws IOException {
-        Files.createStoolDirectory(session.console.verbose, shared());
         // important: this is the last step in stage creation; creating this file indicates that the stage is ready
         session.saveStageProperties(configuration, backstage);
     }
@@ -621,7 +611,7 @@ public abstract class Stage {
     }
 
     public Logs logs() {
-        return new Logs(shared().join("tomcat/logs"));
+        return new Logs(getBackstage().join("tomcat/logs"));
     }
 
     public String uptime() throws GetLastModifiedException {

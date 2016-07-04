@@ -53,7 +53,7 @@ public class Cd extends StageCommand {
             filter.includeAll();
             filter.maxDepth(2);
             filter.predicate(Predicate.DIRECTORY);
-            lst = stage.shared().find(filter);
+            lst = stage.getBackstage().find(filter);
             node = null;
             message = new StringBuilder();
             for (FileNode candidate : lst) {

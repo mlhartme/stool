@@ -122,7 +122,7 @@ public class ArtifactStage extends Stage {
 
         for (Application application : applications.applications()) {
             application.populate();
-            if (!application.refreshFuture(session, shared())) {
+            if (!application.refreshFuture(session, getBackstage())) {
                 throw new IOException("application not found: " + application.location);
             }
         }
@@ -135,7 +135,7 @@ public class ArtifactStage extends Stage {
 
         result = false;
         for (Application application : applications.applications()) {
-            if (application.refreshFuture(session, shared())) {
+            if (application.refreshFuture(session, getBackstage())) {
                 result = true;
             }
         }
@@ -192,6 +192,6 @@ public class ArtifactStage extends Stage {
 
     @Override
     public Changes changes() {
-        return applications.changes(shared(), session.users);
+        return applications.changes(getBackstage(), session.users);
     }
 }
