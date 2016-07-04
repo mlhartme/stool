@@ -4,21 +4,19 @@
 
 * auto select:
   * the selected stage is now determined by the current directory
-  * `stool` is now a normal executable, not a shell function. This simplifies installation and updates. And it simplified the implementation a lot.
-  * To build a stage with the proper environment, you have to use `stool build` now. Stool no longer adjust the environment
-    for the current stage.
-
-* backstage directories moved from `$LIB/backstages/stagename` to `stagedir/.backstage`.
+  * to build a stage with the proper environment, you have to use `stool build` now. 
+    Stool no longer adjust the environment for the current stage.
 
 * certificate handling
-  * generate self-signed certificate if no certificate url is specified
-  * generate puki certificates
+  * generate self-signed certificate if no `certificates` url is specified
+  * generate puki certificates for other urls
   
-* added support for git urls.
+* added support for git urls. To distinguish between svn- and git urls, source stage urls are now prefixed with `svn:` or `git:`.
 
 * per-user defauls: Stool now checks for a user's `~/.stool.defaults` file. If it exists, Stool loads it as a properties 
-  file and uses it as default values for options. For example, a property "build=true" causes the refresh command to
-  build a stage. The following properties are availble:
+  file and uses it as default values for options. For example, a property `refresh.build=true` causes `stool refresh` to build a stage
+  without explicitly specify `-build`. To override this default, use `stool refresh -build=false`. 
+  The following properties are available:
   * `verbose`
   * `exception`
   * `auto.restart`
@@ -35,7 +33,7 @@
   * `status.defaults`
   * `select.fuzzy`
 
-* Added `select -fuzzy` option to automatically a stage that's the only suggestion.
+* Added `select -fuzzy` option a stage if the specifed name is not found but there's ony one suggestion.
 
 * Logstash extension
 
@@ -44,49 +42,50 @@
   * fixed status field `tomcat` to contain the tomcat pid, not the service wrapper pid; added a new `service` field to contain the 
     service wrapper pid.
 
-* `list` command has the same configurable fields as the `status` command now. Defaults no longer contain the selected stage; instead,
-  the contain the stage directory.
+* `list` command has the same configurable fields as the `status` command now. Defaults no longer contain the selected stage; the 
+  stage directory has been added to the defaults.
 
 * `rename` is gone, use `stool config name=foo` instead. The stage name is a property now.
 
 * Global configuration:
   * renamed `contactAdmin` to `admin`.
-  * removed `prompt`, it's no longer needed because is a plain executable now. However, there are shell functions in ${lib}/bash.rc so you
-    can the format stage indicator with something like `PS1="\$(colorStageIndicator)\\u@\\h \\w \\$ "`
+  * removed `prompt`, it's no longer needed because is a plain executable now. 
   * Pommes is no longer hard-wired, there's a global `search` property to configure arbitrary search tools.
 
 * Stage configuration:
-  * added Stage quota.
-  * added stage property `notify` to configure email notifications.
-  * dumped sslUrl
+  * added `quota` to limit the disk spaced occupied by the stage.
+  * added `notify` to configure email notifications.
+  * dumped `sslUrl` 
   * renamed `suffixes` to `url`. Changed the syntax so you can specify protocols, prefixes, suffixes and a context
-  * renamed `until` to `expire` (and reserved to never)
+  * renamed `until` to `expire` (and the value `reserved` to `never`)
   * removed `tomcat.perm` because it's ignored by Java 8.
   * changed default tomcat version from 8.0.26 to 8.5.3
   * changed default service wrapper version from 3.5.26 to 3.5.29
 
 * simplified directory structure:
+  * backstage directories moved from `$LIB/backstages/stagename` to `stagedir/.backstage`.
   * dumped `$BACKSTAGE/shared`, $BACKSTAGE now directly contains all subdirectories
   * renamed `$BACKSTAGE/conf` to `$BACKSTAGE/service`
 
 * properties for running stages
-  * `stool.bin` property for running wars was changed to stool.cp
+  * renamed `stool.bin` for running wars to `stool.cp`
 
 * improved setup
+  * `stool` is now a normal executable, not a shell function. Shell code went to $LIB/bash.rc, and it's only needed for interactive shells. 
   * arbitrary location for Stool binary
-  * lib is either ~/.stool or /usr/share/stool
+  * $LIB is either `~/.stool` or `/usr/share/stool`
   * improved default configuration
   * Atomic upgrade: creates a backup of the lib directory before upgrade; this is restored if the upgrade fails
 
 * cleanup
   * removed `system-import` command, it was broken anyway
   * dumped `MACHINE` and `STAGE_HOST` environment variables
-  * dumped $LIB/run/users directory
+  * dumped `$LIB/run/users` directory
   * replaced curl- (stop fitnesse) and wget (downloads) execs by sushi http.
   * fixed `tomcat.service` to actually work for versions other than 3.5.26.
 
 * Implementation changes
-  * simplified multi-module build; dumped STOOL_SOURCE variable.
+  * simplified multi-module build; dumped the `$STOOL_SOURCE` variable.
   * dependency updates:
     * Sushi 2.8.18 to 3.1.1 and inline 1.1.0
     * Maven Embedded 3.11.1 to 3.12.1
