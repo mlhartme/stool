@@ -143,7 +143,7 @@ public class StoolIT {
         logging = new Logging(Integer.toString(id), logdir.join(id + "-" + context + "-" + args[0]), TESTUSER);
         command = command(args);
         System.out.print("  " + command);
-        result = Main.doRun(TESTUSER, logging, lib, args);
+        result = Main.normal(TESTUSER, logging, lib, args);
         if (result == 0) {
             System.out.println();
         } else {

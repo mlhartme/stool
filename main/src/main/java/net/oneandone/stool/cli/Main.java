@@ -46,21 +46,41 @@ import java.util.Properties;
 
 public class Main {
     public static void main(String[] args) throws IOException {
-        System.exit(doRun(args));
+        System.exit(run(args));
     }
 
-    public static int doRun(String[] args) throws IOException {
+    public static int run(String[] args) throws IOException {
         World world;
         FileNode lib;
         String user;
 
         world = world();
         lib = locateLib(world);
-        user = System.getProperty("user.name");
-        return doRun(user, null, lib, args);
+        if (!lib.exists()) {
+            return install(lib, args);
+        } else {
+            user = System.getProperty("user.name");
+            return normal(user, null, lib, args);
+        }
     }
 
-    public static int doRun(String user, Logging logging, FileNode lib, String[] args) throws IOException {
+    public static int install(FileNode lib, String[] args) throws IOException {
+        Console console;
+
+        console = Console.create();
+        if (args.length != 1 || !args[0].equals("setup")) {
+            console.error.println("stool configuration not found: " + lib);
+            console.error.println("run 'stool setup'");
+            return 1;
+        } else {
+            console.info.println("Creating stool configuration at " + lib);
+            Lib.create(Console.create(), lib, null);
+            console.info.println("Done.");
+            return 0;
+        }
+    }
+
+    public static int normal(String user, Logging logging, FileNode lib, String[] args) throws IOException {
         World world;
         Cli cli;
         String command;
@@ -69,9 +89,6 @@ public class Main {
         Console console;
 
         world = lib.getWorld();
-        if (!lib.exists()) {
-            Lib.create(Console.create(), lib, null);
-        }
         if (logging == null) {
             setenv = true;
             // i need lib with a proper logs directory first ...
