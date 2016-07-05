@@ -61,6 +61,13 @@
       <version>2.7</version>
     </dependency>
 
+    <!-- override scope because foss-parent set's this to "provided" (needed for http wagon) -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
     <!-- test -->
     <dependency>
       <groupId>junit</groupId>
@@ -141,6 +148,10 @@
                 }
                 -keep public class net.oneandone.inline.commands.PackageVersion {
                 public *;
+                }
+
+                -keep public class org.apache.commons.logging.** {
+                *;
                 }
 
                 #
