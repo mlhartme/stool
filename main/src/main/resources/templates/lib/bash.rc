@@ -1,6 +1,6 @@
 # Stool shell code for bash
 
-if [ -z $_STOOL ] ; then
+if [ -z $STOOL_STAGE_INDICATOR ] ; then
     colorStageIndicator() {
       local NO_COLOUR="\[\033[0m\]"
       local dir=`pwd`
@@ -33,7 +33,7 @@ if [ -z $_STOOL ] ; then
           else
             local fmt=--format
           fi
-          if [ $(id -u) = $(stat -L $fmt %u $DIR) ] ; then
+          if [ $(id -u) = "$(stat -L $fmt %u $DIR)" ] ; then
             echo -n ""
           else
             echo -n "$RED"
@@ -41,7 +41,7 @@ if [ -z $_STOOL ] ; then
         fi
     }
     PS1="\$(colorStageIndicator)$PS1"
-    export _STOOL=true
+    export STOOL_STAGE_INDICATOR=true
 fi
 
 ${{setenv.rc}}

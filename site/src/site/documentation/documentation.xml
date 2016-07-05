@@ -1733,6 +1733,8 @@
       </listitem>
     </itemizedlist>
 
+    <para>Note: you can switch off the stage indicator by defining STOOL_STAGE_INDICATOR=0 before you source bash.rc</para>
+
     <para>Implementation note:
       <literal>stool</literal>
       is a shell function, so
