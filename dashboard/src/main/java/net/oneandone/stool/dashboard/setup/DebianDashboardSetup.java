@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.setup;
+package net.oneandone.stool.dashboard.setup;
 
+import net.oneandone.stool.setup.Debian;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
@@ -65,7 +66,7 @@ public class DebianDashboardSetup extends Debian {
     @Override
     public void postinstConfigure(String previous) throws IOException {
         setupUser();
-        log(stool("create", "file:///usr/share/stool-dashboard/dashboard.war", lib.join("dashboard").getAbsolute(), "expire=reserved"));
+        log(stool("create", "file:///usr/share/stool-dashboard/dashboard.war", lib.join("dashboard").getAbsolute(), "expire=never"));
         if (!port.isEmpty()) {
             log(stool("port", "-stage", "dashboard", "dashboard=" + port));
         }
