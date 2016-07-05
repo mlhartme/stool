@@ -40,7 +40,6 @@ import java.util.Map;
 
 public class Create extends SessionCommand {
     private final boolean quiet;
-    private String name;
     private String urlOrFileOrSearch;
 
     private FileNode directory;
@@ -51,10 +50,9 @@ public class Create extends SessionCommand {
 
     private final Map<String, Property> properties;
 
-    public Create(Session session, boolean quiet, String name, String urlOrFileOrSearch) {
+    public Create(Session session, boolean quiet, String urlOrFileOrSearch) {
         super(session, Mode.NONE);
         this.quiet = quiet;
-        this.name = name;
         this.urlOrFileOrSearch = urlOrFileOrSearch;
         this.directory = null;
         this.properties = StageConfiguration.properties(session.extensionsFactory);
@@ -104,7 +102,7 @@ public class Create extends SessionCommand {
         Runtime.getRuntime().removeShutdownHook(cleanup);
 
         session.add(stage.backstage, stage.getId());
-        console.info.println("stage created: " + name);
+        console.info.println("stage created: " + stage.getName());
         session.cd(stage.getDirectory());
     }
 
@@ -143,6 +141,8 @@ public class Create extends SessionCommand {
     }
 
     private void defaults(String url) throws IOException {
+        Property np;
+        String name;
         FileNode surrounding;
 
         if (directory == null) {
@@ -162,8 +162,11 @@ public class Create extends SessionCommand {
             checkPermissions(directory.getParent());
         }
         session.checkDiskFree();
+        np = properties.get("name");
+        name = config.get(np);
         if (name == null) {
             name = directory.getName();
+            config.put(np, name);
         }
         Stage.checkName(name);
         if (session.stageNames().contains(name)) {
@@ -171,7 +174,6 @@ public class Create extends SessionCommand {
         }
         if (stageConfiguration == null) {
             stageConfiguration = session.createStageConfiguration(url);
-            stageConfiguration.name = name;
         }
     }
 
