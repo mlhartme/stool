@@ -37,7 +37,12 @@ public class Processes {
     private static final Pattern PS_LINE = Pattern.compile("^(\\d+)\\s+(\\d+)\\s+(\\S+)\\s+(\\S+)\\s+(.*)$");
 
     public static Processes load(World world) throws Failure {
-        return create(new Launcher(world.getWorking(), "ps", "ax", "-o", "pid=,ppid=,pcpu=,pmem=,command=").exec());
+        Launcher launcher;
+
+        launcher = new Launcher(world.getWorking(), "ps", "ax", "-o", "pid=,ppid=,pcpu=,pmem=,command=");
+        // make sure we get doubles with ".", not ",":
+        launcher.env("LC_ALL", "C");
+        return create(launcher.exec());
     }
 
     public static Processes create(String str) throws Failure {

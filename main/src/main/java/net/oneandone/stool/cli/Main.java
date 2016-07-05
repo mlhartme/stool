@@ -82,6 +82,8 @@ public class Main {
             console.error.println("Stool is not configured. Please run 'stool setup'");
             return 1;
         } else {
+            console.info.println("Ready to configure Stool " + versionString(lib.getWorld()) + ": " + lib);
+            console.pressReturn();
             console.info.println("Creating stool configuration at " + lib);
             Lib.create(Console.create(), lib, null);
             console.info.println("Done.");

@@ -56,7 +56,7 @@ public class Autoconf {
                     "    host => [ \"10.76.80.152\", \"10.76.80.153\", \"10.76.80.154\" ]\n" +
                     "  }\n" +
                     "}\n");
-            dest.defaults.put("svn:https://svn.1and1.org/svn/PFX/controlpanel/", cp());
+            dest.defaults.put("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/", cp());
             dest.defaults.put("svn:https://svn.1and1.org/svn/sales/workspaces/", workspace());
         }
     }
@@ -67,7 +67,7 @@ public class Autoconf {
         result = new LinkedHashMap<>();
         result.put("build", "mvn clean install -Ppublish -U -B -T2C");
         result.put("tomcat.heap", "2000");
-        result.put("suffix", "/xml/config");
+        result.put("url", "(http:https)://%h/xml/config");
         result.put("maven.opts", "-Xmx2500m -Dmaven.repo.local=@localRepository@ @trustStore@");
         return result;
     }
