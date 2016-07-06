@@ -24,10 +24,12 @@ import java.util.TimerTask;
 import java.util.UUID;
 
 public class RefreshTask extends TimerTask {
+    private final FileNode jar;
     private final Session session;
     private final FileNode logs;
 
-    public RefreshTask(Session session, FileNode logs) {
+    public RefreshTask(FileNode jar, Session session, FileNode logs) {
+        this.jar = jar;
         this.session = session;
         this.logs = logs;
     }
@@ -37,7 +39,7 @@ public class RefreshTask extends TimerTask {
         try {
             for (Stage stage : session.listWithoutSystem()) {
                 if (stage.config().autoRefresh) {
-                    StoolCallable.create(UUID.randomUUID().toString(), logs, stage, "refresh", "-autorestart", "-autorechown").call();
+                    StoolCallable.create(jar, UUID.randomUUID().toString(), logs, stage, "refresh", "-autorestart", "-autorechown").call();
                 }
             }
         } catch (Exception e) {

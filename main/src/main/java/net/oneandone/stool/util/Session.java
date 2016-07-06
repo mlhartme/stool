@@ -305,6 +305,22 @@ public class Session {
         return Stage.load(this, backstages.join(id));
     }
 
+    public Stage loadByName(String stageName) throws IOException {
+        List<FileNode> links;
+        FileNode bs;
+        StageConfiguration config;
+
+        links = backstages.list();
+        for (FileNode link : links) {
+            bs = link.resolveLink();
+            config = StageConfiguration.load(gson, StageConfiguration.file(bs));
+            if (stageName.equals(config.name)) {
+                return load(link.getName());
+            }
+        }
+        throw new IllegalArgumentException("stage not found: " + stageName);
+    }
+
     public List<String> stageNames() throws IOException {
         List<FileNode> links;
         FileNode bs;

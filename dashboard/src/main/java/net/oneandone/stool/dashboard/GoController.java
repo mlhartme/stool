@@ -58,7 +58,7 @@ public class GoController {
         if (!session.stageNames().contains(stageId)) {
             return new ModelAndView("redirect:" + baseurl + "/#!404:" + stageId);
         }
-        stage = session.load(stageId);
+        stage = session.loadByName(stageId);
         switch (stage.state()) {
             case UP:
                 urlMap = stage.urlMap();

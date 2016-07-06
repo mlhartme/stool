@@ -118,7 +118,7 @@ public class DashboardConfiguration {
         Timer timer;
 
         timer = new Timer("Refresh");
-        timer.schedule(new RefreshTask(session(), logs()), 20000, 60000);
+        timer.schedule(new RefreshTask(jar(), session(), logs()), 20000, 60000);
         return timer;
     }
 }

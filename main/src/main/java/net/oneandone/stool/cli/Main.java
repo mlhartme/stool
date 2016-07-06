@@ -23,7 +23,6 @@ import net.oneandone.stool.ssl.Pair;
 import net.oneandone.stool.util.LogOutputStream;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
@@ -208,7 +207,7 @@ public class Main {
 
     //--
 
-    public static FileNode locateLib(World world) throws ReadLinkException {
+    public static FileNode locateLib(World world) {
         FileNode cp;
 
         cp = stoolCp(world);
