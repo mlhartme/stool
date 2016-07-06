@@ -25,6 +25,7 @@ import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.util.Separator;
@@ -390,7 +391,11 @@ public class Start extends StageCommand {
 
         // this is a marker to indicate they are launched by stool; and this is used by the dashboard to locate stool
         opts.add("-Dstool.cp=" + Main.stoolCp(session.world).getAbsolute());
-        opts.add("-Dstool.backstage=" + stage.backstage.getAbsolute());
+        try {
+            opts.add("-Dstool.idlink=" + session.backstageLink(stage.getId()).getAbsolute());
+        } catch (ReadLinkException e) {
+            throw new IllegalStateException(e);
+        }
 
         tomcatOpts = stage.macros().replace(stage.config().tomcatOpts);
         opts.addAll(Separator.SPACE.split(tomcatOpts));

@@ -66,17 +66,21 @@ public class Main {
 
     public static int install(FileNode lib, String[] args) throws IOException {
         Console console;
+        String version;
 
         console = Console.create();
         if (args.length != 1 || !args[0].equals("setup")) {
             console.error.println("Stool is not configured. Please run 'stool setup'");
             return 1;
         } else {
-            console.info.println("Ready to configure Stool " + versionString(lib.getWorld()) + ": " + lib);
+            version = versionString(lib.getWorld());
+            console.info.println("Ready to configure Stool " + version + ": " + lib);
             console.pressReturn();
             console.info.println("Creating stool configuration at " + lib);
             Lib.create(Console.create(), lib, null);
             console.info.println("Done.");
+            console.info.println("Note: you can install the dashboard with");
+            console.info.println("  stool create gav:net.oneandone.stool:dashboard:" + version + " " + lib.getAbsolute() + "/dashboard");
             return 0;
         }
     }

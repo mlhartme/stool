@@ -32,8 +32,10 @@ import org.eclipse.aether.artifact.DefaultArtifact;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -170,6 +172,17 @@ public class ArtifactStage extends Stage {
         } catch (MoveException e) {
             throw new IOException("TODO", e);
         }
+    }
+
+    @Override
+    public List<String> vhostNames() {
+        List<String> result;
+
+        result = new ArrayList<>();
+        for (Application application : applications.applications()) {
+            result.add(application.base().getName());
+        }
+        return result;
     }
 
     @Override

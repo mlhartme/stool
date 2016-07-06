@@ -213,6 +213,8 @@ public abstract class Stage {
 
     //--
 
+    public abstract List<String> vhostNames() throws IOException;
+
     /** @return vhost to docroot mapping, where vhost does *not* include the stage name */
     public abstract Map<String, FileNode> vhosts() throws IOException;
 

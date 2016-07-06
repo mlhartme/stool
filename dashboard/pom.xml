@@ -32,7 +32,6 @@
       <artifactId>slf4j-api</artifactId>
       <version>1.7.21</version>
     </dependency>
-
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
@@ -40,7 +39,6 @@
       <!-- TODO: needed to override inherited test scope -->
       <scope>compile</scope>
     </dependency>
-
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
@@ -48,6 +46,13 @@
       <!-- TODO: needed to override inherited test scope -->
       <scope>compile</scope>
     </dependency>
+    <!-- override scope because foss-parent set's this to "provided" (needed for http wagon) -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
 
     <!-- Dashboard -->
 

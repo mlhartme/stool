@@ -46,7 +46,7 @@ public class DashboardConfiguration {
 
     @Bean
     public FileNode jar() throws IOException {
-        return world().file(System.getProperty("stool.jar"));
+        return world().file(System.getProperty("stool.cp"));
     }
 
     @Bean
@@ -85,7 +85,7 @@ public class DashboardConfiguration {
 
     @Bean
     public Stage self() throws IOException {
-        return Stage.load(session(), world().file(System.getProperty("stool.backstage")));
+        return Stage.load(session(), world().file(System.getProperty("stool.idlink")));
     }
 
     @Bean

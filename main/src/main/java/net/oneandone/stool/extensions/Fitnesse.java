@@ -42,7 +42,7 @@ public class Fitnesse implements Extension {
             throw new UnsupportedOperationException("stage type not supported: " + stage.getClass());
         }
         result = new HashMap<>();
-        for (String vhost : stage.vhosts().keySet()) {
+        for (String vhost : stage.vhostNames()) {
             result.put(FITNESSSE_PREFIX + vhost, null);
         }
         return result;
@@ -60,7 +60,7 @@ public class Fitnesse implements Extension {
 
         console = stage.session.console;
         ports = stage.loadPortsOpt();
-        for (String vhost : stage.vhosts().keySet()) {
+        for (String vhost : stage.vhostNames()) {
             host = ports.lookup(FITNESSSE_PREFIX + vhost);
             port = host.httpPort();
             url = findUrl(stage, host);
@@ -97,7 +97,7 @@ public class Fitnesse implements Extension {
         console = stage.session.console;
         ports = stage.loadPortsOpt();
 
-        for (String vhost : stage.vhosts().keySet()) {
+        for (String vhost : stage.vhostNames()) {
             host = ports.lookup(FITNESSSE_PREFIX + vhost);
             if (host == null) {
                 // ignore: fitnesse was started for an already running stage

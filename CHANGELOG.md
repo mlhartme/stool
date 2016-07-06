@@ -70,7 +70,8 @@
   * renamed `$BACKSTAGE/conf` to `$BACKSTAGE/service`
 
 * properties for running stages
-  * renamed `stool.bin` for running wars to `stool.cp`
+  * replaced `stool.bin` by `stool.cp`, it points to Stool's application file
+  * renamed `stool.backstage` by `stool.idlink`, it points to the link in $LIB/backstages
 
 * improved setup
   * `stool` is now a normal executable, not a shell function. Shell code went to $LIB/bash.rc, and it's only needed for interactive shells. 
@@ -79,6 +80,9 @@
   * improved default configuration
   * atomic upgrade: creates a backup of the lib directory before upgrade; this is restored if the upgrade fails
 
+* fixes
+  * Fixed stage stop for applications with fitnesse extension if war files have been remove
+  
 * cleanup
   * removed `system-import` command, it was broken anyway
   * dumped `MACHINE` and `STAGE_HOST` environment variables
