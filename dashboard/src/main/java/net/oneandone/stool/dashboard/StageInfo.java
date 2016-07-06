@@ -39,7 +39,7 @@ public class StageInfo {
     private Stage.State running;
     private String owner;
     private boolean updateAvailable;
-    private Expire until;
+    private Expire expire;
     private Changes changes;
     private BuildStats stats;
     private String category;
@@ -57,7 +57,7 @@ public class StageInfo {
         stageInfo.urls = stage.urlMap();
         stageInfo.owner = users.byLogin(stage.owner()).name;
         stageInfo.updateAvailable = stage.updateAvailable();
-        stageInfo.until = stage.config().expire;
+        stageInfo.expire = stage.config().expire;
 
         changes = stage.changes();
         if (changes.size() > 0) {
@@ -87,8 +87,8 @@ public class StageInfo {
     }
 
 
-    public Expire getUntil() {
-        return until;
+    public Expire getExpire() {
+        return expire;
     }
     public Changes getChanges() {
         return changes;
