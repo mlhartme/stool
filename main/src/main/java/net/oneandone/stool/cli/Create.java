@@ -153,7 +153,7 @@ public class Create extends SessionCommand {
         }
         surrounding = session.findStageDirectory(directory);
         if (surrounding != null) {
-            throw new ArgumentException("cannot create a stage within a stage: " + directory + " in " + surrounding);
+            throw new ArgumentException("cannot create a stage within a stage: " + directory.getAbsolute() + " in " + surrounding);
         }
         if (!directory.getParent().isDirectory()) {
             throw new ArgumentException("parent directory for new stage does not exist: " + directory.getParent());

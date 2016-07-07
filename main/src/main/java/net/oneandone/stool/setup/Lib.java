@@ -104,6 +104,7 @@ public class Lib {
         for (String name : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "tomcat"}) {
             Files.createStoolDirectory(console.verbose, dir.join(name));
         }
+        Files.stoolFile(dir.join("version").writeString(Main.versionString(world)));
         Files.stoolFile(dir.join("run/locks").mkfile());
     }
 
@@ -124,7 +125,7 @@ public class Lib {
         newVersion = Main.versionString(dir.getWorld());
         console.info.println("upgrade " + oldVersion + " -> " + newVersion);
         if (oldVersion.startsWith("3.3.")) {
-            upgrade_33_34(dir);
+            upgrade_33_34(dir, newVersion);
         } else if (oldVersion.startsWith(("3.4."))) {
             console.info.println("nothing to do");
         } else {
@@ -132,10 +133,10 @@ public class Lib {
         }
     }
 
-    private void upgrade_33_34(FileNode lib) throws IOException {
+    private void upgrade_33_34(FileNode lib, String newVersion) throws IOException {
         Upgrade stage33_34;
 
-        exec("rm", lib.join("version").getAbsolute());
+        lib.join("version").writeString(newVersion);
         exec("rm", "-rf", lib.join("run/users").getAbsolute());
         stage33_34 = stage33_34();
         doUpgrade(stool33_34(stage33_34()), stage33_34);
