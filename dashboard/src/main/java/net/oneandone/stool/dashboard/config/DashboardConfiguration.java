@@ -68,7 +68,7 @@ public class DashboardConfiguration {
         String svnuser;
         String svnpassword;
 
-        lib = Main.locateLib(world());
+        lib = Main.locateHome(world());
         props = lib.join("dashboard.properties");
         if (props.exists()) {
             p = props.readProperties();

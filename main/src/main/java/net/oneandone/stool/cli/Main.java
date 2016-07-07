@@ -55,32 +55,33 @@ public class Main {
         String user;
 
         world = world();
-        lib = locateLib(world);
+        lib = locateHome(world);
         if (!lib.exists()) {
-            return install(lib, args);
+            return setup(lib, args);
         } else {
             user = System.getProperty("user.name");
             return normal(user, null, lib, args);
         }
     }
 
-    public static int install(FileNode lib, String[] args) throws IOException {
+    public static int setup(FileNode home, String[] args) throws IOException {
         Console console;
         String version;
 
         console = Console.create();
         if (args.length != 1 || !args[0].equals("setup")) {
-            console.error.println("Stool " + versionString(lib.getWorld()) + " is not configured. Please run 'stool setup'");
+            console.error.println("Stool Home not found. Run 'stool setup' to create it at " + home);
             return 1;
         } else {
-            version = versionString(lib.getWorld());
-            console.info.println("Ready to configure Stool " + version + ": " + lib);
+            version = versionString(home.getWorld());
+            console.info.println("Stool " + version);
+            console.info.println("Ready to create Stool Home directory: " + home);
             console.pressReturn();
-            console.info.println("Creating stool configuration at " + lib);
-            Lib.create(Console.create(), lib, null);
+            console.info.println("Creating " + home);
+            Lib.create(Console.create(), home, null);
             console.info.println("Done.");
             console.info.println("Note: you can install the dashboard with");
-            console.info.println("  stool create gav:net.oneandone.stool:dashboard:" + version + " " + lib.getAbsolute() + "/dashboard");
+            console.info.println("  stool create gav:net.oneandone.stool:dashboard:" + version + " " + home.getAbsolute() + "/dashboard");
             return 0;
         }
     }
@@ -208,7 +209,7 @@ public class Main {
 
     //--
 
-    public static FileNode locateLib(World world) {
+    public static FileNode locateHome(World world) {
         FileNode cp;
 
         cp = stoolCp(world);

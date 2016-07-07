@@ -3,6 +3,7 @@ package net.oneandone.stool.configuration;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
+import net.oneandone.sushi.launcher.Failure;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -86,7 +87,11 @@ public class Autoconf {
     private static String search(World world) throws IOException {
         String str;
 
-        str = world.getHome().exec("which", "pommes").trim();
+        try {
+            str = world.getHome().exec("which", "pommes").trim();
+        } catch (Failure e) {
+            return "";
+        }
         if (world.file(str).isFile()) {
             return "pommes find () - %s";
         } else {
