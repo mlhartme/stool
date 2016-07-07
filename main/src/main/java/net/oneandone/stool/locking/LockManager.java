@@ -18,6 +18,7 @@ package net.oneandone.stool.locking;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.util.Processes;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Pid;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -32,20 +33,7 @@ import java.util.List;
  */
 public class LockManager extends Thread implements AutoCloseable {
     public static LockManager create(FileNode file, String comment, int timeout) {
-        return new LockManager(file, new Process(pid(), comment), timeout);
-    }
-
-    public static int pid() {
-        String str;
-        int idx;
-
-        // see http://stackoverflow.com/questions/35842/how-can-a-java-program-get-its-own-process-id
-        str = ManagementFactory.getRuntimeMXBean().getName();
-        idx = str.indexOf('@');
-        if (idx == -1) {
-            throw new IllegalStateException("cannot guess pid from " + str);
-        }
-        return Integer.parseInt(str.substring(0, idx));
+        return new LockManager(file, new Process(Pid.pid(), comment), timeout);
     }
 
     private final List<Lock> active;

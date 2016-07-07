@@ -569,6 +569,12 @@
           </variablelist>
         </refsect1>
         <refsect1>
+          <title>Environment</title>
+          <para><literal>STOOL_OPTS</literal> to configure the underlying JVM.</para>
+          <para><literal>http_proxy</literal>, <literal>https_proxy</literal> and <literal>no_proxy</literal> to configure proxy settings.
+          </para>
+        </refsect1>
+        <refsect1>
           <title>See Also</title>
           <para>Homepage: https://github.com/mlhartme/stool</para>
           <para>Documentation: http://mlhartme.github.io/stool/documentation/documentation.html</para>

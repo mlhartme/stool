@@ -26,6 +26,7 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
+import net.oneandone.sushi.fs.http.Proxy;
 import net.oneandone.sushi.io.InputLogStream;
 import net.oneandone.sushi.io.MultiOutputStream;
 
@@ -69,7 +70,7 @@ public class Main {
 
         console = Console.create();
         if (args.length != 1 || !args[0].equals("setup")) {
-            console.error.println("Stool is not configured. Please run 'stool setup'");
+            console.error.println("Stool " + versionString(lib.getWorld()) + " is not configured. Please run 'stool setup'");
             return 1;
         } else {
             version = versionString(lib.getWorld());
@@ -239,11 +240,21 @@ public class Main {
 
     public static World world() throws IOException {
         World world;
+        HttpFilesystem http;
 
         world = World.create();
-        ((HttpFilesystem) world.getFilesystem("https")).setSocketFactorySelector((protocol, hostname) ->
+        http = (HttpFilesystem) world.getFilesystem("https");
+        update(http, "http");
+        update(http, "https");
+        http.setSocketFactorySelector((protocol, hostname) ->
                 protocol.equals("https") ? (LAZY_HOSTS.contains(hostname) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
         return world;
+    }
+
+    private static void update(HttpFilesystem http, String scheme) {
+        if (http.getProxy(scheme) == null) {
+            http.setProxy(scheme, Proxy.forEnvOpt(scheme));
+        }
     }
 
     public static SSLSocketFactory lazyFactory() {
