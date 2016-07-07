@@ -240,20 +240,28 @@ public class Main {
 
     public static World world() throws IOException {
         World world;
-        HttpFilesystem http;
 
         world = World.create();
-        http = (HttpFilesystem) world.getFilesystem("https");
-        update(http, "http");
-        update(http, "https");
-        http.setSocketFactorySelector((protocol, hostname) ->
-                protocol.equals("https") ? (LAZY_HOSTS.contains(hostname) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
+        update(world, "http");
+        update(world, "https");
+        if (System.getProperty("stool.wire") != null) {
+            HttpFilesystem.wireLog("/tmp/stool.wire");
+        }
         return world;
     }
 
-    private static void update(HttpFilesystem http, String scheme) {
-        if (http.getProxy(scheme) == null) {
-            http.setProxy(scheme, Proxy.forEnvOpt(scheme));
+    private static void update(World world, String scheme) {
+        HttpFilesystem fs;
+        Proxy proxy;
+
+        fs = (HttpFilesystem) world.getFilesystem(scheme);
+        fs.setSocketFactorySelector((protocol, hostname) ->
+                protocol.equals("https") ? (LAZY_HOSTS.contains(hostname) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
+        if (fs.getProxy(scheme) == null) {
+            proxy = Proxy.forEnvOpt(scheme);
+            if (proxy != null) {
+                fs.setProxy(scheme, proxy);
+            }
         }
     }
 
