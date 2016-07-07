@@ -289,7 +289,7 @@ public class Session {
         return result;
     }
 
-    public Scm scm(String url) {
+    public Scm scm(String url) throws IOException {
         return Scm.forUrl(url, svnCredentials);
     }
 

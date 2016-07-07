@@ -89,6 +89,7 @@ public class Pool {
         Vhost previous;
         Vhost found;
         String stageName;
+        String stageId;
         List<Vhost> result;
         Integer port; // null for not fixed
         Vhost modified;
@@ -108,6 +109,7 @@ public class Pool {
         names.addAll(nameDocroots.keySet());
 
         stageName = stage.getName();
+        stageId = stage.getId();
         result = new ArrayList<>();
         for (String name : names) {
             docroot = nameDocroots.get(name);
@@ -131,9 +133,9 @@ public class Pool {
                 }
             } else {
                 if (port == null) {
-                    found = allocate(name, stageName, docroot);
+                    found = allocate(name, stageName, stageId, docroot);
                 } else {
-                    found = allocate(port, name, stageName, docroot);
+                    found = allocate(port, name, stageName, stageId, docroot);
                     if (found.even != port) {
                         throw new ArgumentException("port already in use: " + port);
                     }
@@ -153,15 +155,15 @@ public class Pool {
     }
 
     private void gc() {
-        Set<String> stages;
+        Set<String> ids;
 
-        stages = new HashSet<>();
+        ids = new HashSet<>();
         for (Vhost vhost : vhosts) {
-            stages.add(vhost.stage);
+            ids.add(vhost.id);
         }
-        for (String stage : stages) {
-            if (!backstages.join(stage).isDirectory()) {
-                gc(stage);
+        for (String id : ids) {
+            if (!backstages.join(id).isDirectory()) {
+                gc(id);
             }
         }
     }
@@ -196,11 +198,11 @@ public class Pool {
         Files.stoolFile(file.writeLines(lines));
     }
 
-    private Vhost allocate(String name, String stage, FileNode docroot) throws IOException {
-        return allocate(forName(name, stage), name, stage, docroot);
+    private Vhost allocate(String name, String stage, String id, FileNode docroot) throws IOException {
+        return allocate(forName(name, stage), name, stage, id, docroot);
     }
 
-    private Vhost allocate(int start, String name, String stage, FileNode docroot) throws IOException {
+    private Vhost allocate(int start, String name, String stage, String id, FileNode docroot) throws IOException {
         int current;
         Vhost result;
 
@@ -215,7 +217,7 @@ public class Pool {
             if (!used(current)) {
                 checkFree(current);
                 checkFree(current + 1);
-                result = new Vhost(current, name, stage, docroot);
+                result = new Vhost(current, name, stage, id, docroot);
                 vhosts.add(result);
                 return result;
             }

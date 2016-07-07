@@ -30,14 +30,16 @@ import java.util.Objects;
 public class Vhost {
     private static final char SEP = ' ';
 
-    // parses   <even> <name> <stage> [<docroot>]
+    // parses   <even> <name> <stage> <id> [<docroot>]
     public static Vhost forLine(World world, String line) {
         int afterEven;
         int afterName;
         int afterStage;
+        int afterId;
         int even;
         String name;
         String stage;
+        String id;
         FileNode docroot;
 
         afterEven = line.indexOf(SEP);
@@ -54,33 +56,48 @@ public class Vhost {
 
         afterStage = line.indexOf(SEP, afterName + 1);
         if (afterStage == -1) {
-            stage = line.substring(afterName + 1);
+            throw new IllegalArgumentException("invalid vhost line: " + line);
+        }
+        stage = line.substring(afterName + 1, afterStage);
+
+        afterId = line.indexOf(SEP, afterStage + 1);
+        if (afterId == -1) {
+            id = line.substring(afterStage + 1);
             docroot = null;
         } else {
-            stage = line.substring(afterName + 1, afterStage);
-            docroot = world.file(line.substring(afterStage + 1));
+            id = line.substring(afterStage + 1, afterId);
+            docroot = world.file(line.substring(afterId + 1));
         }
-        return new Vhost(even, name, stage, docroot);
+        return new Vhost(even, name, stage, id, docroot);
     }
 
     public final int even;
 
+    /** name of the application */
     public final String name;
 
+    /** TODO: redundant, dump ... */
     public final String stage;
+
+    /** stage id */
+    public final String id;
 
     /** null for ports that have no domain */
     public final FileNode docroot;
 
-    public Vhost(int even, String name, String stage, FileNode docroot) {
+    public Vhost(int even, String name, String stage, String id, FileNode docroot) {
         if (name.indexOf(SEP) != -1) {
             throw new IllegalArgumentException(name);
         }
         if (stage.indexOf(SEP) != -1) {
             throw new IllegalArgumentException(stage);
         }
+        if (id.indexOf('.') == -1) {
+            throw new IllegalArgumentException(id);
+        }
         this.even = even;
         this.name = name;
+        this.id = id;
         this.stage = stage;
         this.docroot = docroot;
     }
@@ -142,7 +159,7 @@ public class Vhost {
         // CAUTION: just
         //    even + SEP
         // is an integer addition!
-        return Integer.toString(even) + SEP + name + SEP + stage + (docroot == null ? "" : Character.toString(SEP) + docroot.getAbsolute());
+        return Integer.toString(even) + SEP + name + SEP + stage + SEP + id + (docroot == null ? "" : Character.toString(SEP) + docroot.getAbsolute());
     }
 
     public String toString() {
@@ -154,7 +171,7 @@ public class Vhost {
         if (Objects.equals(this.docroot, newDocroot) && (newEven == null || newEven == even)) {
             return null;
         }
-        return new Vhost(newEven == null ? even : newEven, name, stage, newDocroot);
+        return new Vhost(newEven == null ? even : newEven, name, stage, id, newDocroot);
     }
 
     public String context(String hostname, String url) {
