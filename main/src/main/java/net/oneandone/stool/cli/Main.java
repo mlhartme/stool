@@ -18,7 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
 import net.oneandone.inline.commands.PackageVersion;
-import net.oneandone.stool.setup.Lib;
+import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.ssl.Pair;
 import net.oneandone.stool.util.LogOutputStream;
 import net.oneandone.stool.util.Logging;
@@ -78,7 +78,7 @@ public class Main {
             console.info.println("Ready to create Stool Home directory: " + home);
             console.pressReturn();
             console.info.println("Creating " + home);
-            Lib.create(Console.create(), home, null);
+            Home.create(Console.create(), home, null);
             console.info.println("Done.");
             console.info.println("Note: you can install the dashboard with");
             console.info.println("  stool create gav:net.oneandone.stool:dashboard:" + version + " " + home.getAbsolute() + "/dashboard");

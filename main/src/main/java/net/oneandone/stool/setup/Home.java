@@ -37,14 +37,14 @@ import net.oneandone.sushi.util.Diff;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Stool's library directory. Lib holds the stool-maintained files like backstages and downloads.
+ * Stool home directory. In unix file system hierarchy this comes close to the lib directory - although it contains
+ * etc stuff (config.json) and log files.
  */
-public class Lib {
+public class Home {
     public static void create(Console console, FileNode lib, String config) throws IOException {
         RmRfThread cleanup;
 
@@ -52,7 +52,7 @@ public class Lib {
         cleanup = new RmRfThread(console);
         cleanup.add(lib);
         Runtime.getRuntime().addShutdownHook(cleanup);
-        new Lib(console, lib, group(lib.getWorld()), config).create();
+        new Home(console, lib, group(lib.getWorld()), config).create();
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
@@ -73,7 +73,7 @@ public class Lib {
     /** json, may be null */
     private final String explicitConfig;
 
-    public Lib(Console console, FileNode dir, String group, String explicitConfig) {
+    public Home(Console console, FileNode dir, String group, String explicitConfig) {
         this.console = console;
         this.dir = dir;
         this.group = group;
@@ -143,8 +143,8 @@ public class Lib {
     }
 
     // TODO: ugly ...
-    
-    private static Lib upgradeLib = null;
+
+    private static Home upgradeLib = null;
     private static boolean upgradeDefaults = false;
 
     private void doUpgrade(Upgrade stoolMapper, Upgrade stageMapper) throws IOException {

@@ -18,7 +18,7 @@ package net.oneandone.stool;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.Main;
-import net.oneandone.stool.setup.Lib;
+import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Pool;
 import net.oneandone.sushi.fs.World;
@@ -61,7 +61,7 @@ public class StoolIT {
         lib = world.guessProjectHome(StoolIT.class).join("target/it/lib");
         lib.getParent().mkdirsOpt();
         lib.deleteTreeOpt();
-        Lib.create(Console.create(), lib, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
+        Home.create(Console.create(), lib, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
         stages = lib.getParent().join("stages");
         stages.deleteTreeOpt();
         stages.mkdir();
