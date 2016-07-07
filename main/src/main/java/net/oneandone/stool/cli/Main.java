@@ -70,12 +70,12 @@ public class Main {
 
         console = Console.create();
         if (args.length != 1 || !args[0].equals("setup")) {
-            console.error.println("Stool Home not found. Run 'stool setup' to create it at " + home);
+            console.error.println("Stool home directory not found. Run 'stool setup' to create it at " + home.getAbsolute());
             return 1;
         } else {
             version = versionString(home.getWorld());
             console.info.println("Stool " + version);
-            console.info.println("Ready to create Stool Home directory: " + home);
+            console.info.println("Ready to create home directory: " + home.getAbsolute());
             console.pressReturn();
             console.info.println("Creating " + home);
             Home.create(Console.create(), home, null);
