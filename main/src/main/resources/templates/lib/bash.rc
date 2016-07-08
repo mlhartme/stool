@@ -11,7 +11,7 @@ if [ -z $STOOL_STAGE_INDICATOR ] ; then
       local dir="$(cd $1; pwd)"
       while [ $dir != "/" ] ; do
         if [ -d $dir/.backstage ] ; then
-          local name=$(grep \"name\" $dir/.backstage/config.json | cut -d':' -f2 | grep -o \"[a-zA-Z.0-9]*\")
+          local name=$(grep \"name\" $dir/.backstage/config.json | cut -d':' -f2 | grep -o \"[\-a-zA-Z.0-9]*\")
           name=${name:1}
           name=${name%?}
           echo -n "{$name} "
