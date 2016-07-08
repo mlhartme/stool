@@ -70,7 +70,8 @@ public class Main {
 
         console = Console.create();
         if (args.length != 1 || !args[0].equals("setup")) {
-            console.error.println("Stool home directory not found. Run 'stool setup' to create it at " + home.getAbsolute());
+            console.error.println("Stool home directory not found: " + home.getAbsolute());
+            console.error.println("Run 'stool setup' to create it.");
             return 1;
         } else {
             version = versionString(home.getWorld());

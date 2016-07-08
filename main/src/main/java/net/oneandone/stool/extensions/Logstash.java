@@ -28,7 +28,7 @@ public class Logstash implements Extension {
     private final String link;
 
     public Logstash() {
-        this("output { stdout {} }", null);
+        this("output { stdout {} }", "");
     }
 
     public Logstash(String output, String link) {
@@ -67,14 +67,14 @@ public class Logstash implements Extension {
                 "\n" +
                 "filter {}\n" + output);
         Files.stoolFile(file);
-        if (link != null) {
+        if (!link.isEmpty()) {
             file.link(link(stage));
         }
     }
 
     @Override
     public void beforeStop(Stage stage) throws IOException {
-        if (link != null) {
+        if (!link.isEmpty()) {
             link(stage).deleteFile();
         }
         conf(stage).deleteFile();
