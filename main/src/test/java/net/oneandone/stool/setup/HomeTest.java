@@ -30,13 +30,13 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-public class LibTest {
+public class HomeTest {
     @Test
     public void create() throws Exception {
         World world;
         Console console;
         FileNode dir;
-        Lib lib;
+        Home lib;
         String group;
 
         world = World.create();
@@ -44,7 +44,7 @@ public class LibTest {
         console = Console.create();
         group = dir.getGroup().toString();
         dir.deleteDirectory();
-        lib = new Lib(console, dir, group, null);
+        lib = new Home(console, dir, group, null);
         lib.create();
         assertNotNull(StoolConfiguration.load(Session.gson(world, ExtensionsFactory.create(world)), dir));
     }
@@ -55,7 +55,7 @@ public class LibTest {
         World world;
         Console console;
         FileNode libDir;
-        Lib lib;
+        Home lib;
         String group;
         StoolConfiguration stool;
         StageConfiguration stage;
@@ -67,7 +67,7 @@ public class LibTest {
         libDir.deleteDirectory();
         world.guessProjectHome(getClass()).join("src/test/upgrade").copy(libDir);
         group = libDir.getGroup().toString();
-        lib = new Lib(console, libDir, group, null);
+        lib = new Home(console, libDir, group, null);
         lib.upgrade("3.3.4");
         stool = StoolConfiguration.load(gson, libDir);
         assertEquals("cpgem1.ciso.server.lan", stool.hostname);

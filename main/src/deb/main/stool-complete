@@ -5,7 +5,7 @@ _stool_complete() {
       COMPREPLY=()
       cur="${COMP_WORDS[COMP_CWORD]}"
       prev="${COMP_WORDS[COMP_CWORD-1]}"
-      cmd="stop remove chown rename build validate version help system-start system-upgrade config import system-stop refresh move restart status select system-install duso list create history start cd"
+      cmd="stop remove chown build setup validate version help system-start config import system-stop refresh move restart status select list create history start cd"
       general_opts="-v -e"
       select_opts="-stage -all"
       fail_opts="before after never"
@@ -61,13 +61,6 @@ _stool_complete() {
         chown)
             COMPREPLY=( $(compgen -W "$USER" -- ${cur}) )
             return 0
-            ;;
-        rename)
-            if [[ ${cur} == -* ]] ; then
-                local option="-force -batch"
-            COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
-                return 0
-            fi
             ;;
         remove)
             if [[ ${cur} == -* ]] ; then

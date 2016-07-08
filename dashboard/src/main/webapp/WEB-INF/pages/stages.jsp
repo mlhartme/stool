@@ -26,7 +26,7 @@
             </c:choose>
 
         </td>
-        <td class="until ${stage.expire.isExpired() ? "expired" : ""}">${stage.until}</td>
+        <td class="expire ${stage.expire.isExpired() ? "expired" : ""}">${stage.expire}</td>
         <td class="user">${stage.owner}</td>
         <td class="option refresh">
             <button type="button" data-action="refresh" data-estimate="${stage.stats.avgRefresh}" data-stage="${stage.name}"

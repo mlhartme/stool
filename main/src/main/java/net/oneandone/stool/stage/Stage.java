@@ -25,7 +25,6 @@ import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.stage.artifact.Changes;
-import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.OwnershipException;
 import net.oneandone.stool.util.Ports;
@@ -212,6 +211,8 @@ public abstract class Stage {
     }
 
     //--
+
+    public abstract List<String> vhostNames() throws IOException;
 
     /** @return vhost to docroot mapping, where vhost does *not* include the stage name */
     public abstract Map<String, FileNode> vhosts() throws IOException;

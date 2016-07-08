@@ -18,15 +18,15 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
 import net.oneandone.inline.commands.PackageVersion;
-import net.oneandone.stool.setup.Lib;
+import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.ssl.Pair;
 import net.oneandone.stool.util.LogOutputStream;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
+import net.oneandone.sushi.fs.http.Proxy;
 import net.oneandone.sushi.io.InputLogStream;
 import net.oneandone.sushi.io.MultiOutputStream;
 
@@ -49,46 +49,40 @@ public class Main {
         System.exit(run(args));
     }
 
-    private static boolean bashInstalled() {
-        return System.getenv("_STOOL") != null;
-    }
-
     public static int run(String[] args) throws IOException {
         World world;
         FileNode lib;
         String user;
 
         world = world();
-        lib = locateLib(world);
+        lib = locateHome(world);
         if (!lib.exists()) {
-            return install(lib, args);
+            return setup(lib, args);
         } else {
-            if (!bashInstalled()) {
-                System.err.println("stool shell code in not properly set up");
-                System.err.println("Make sure you sourced " + lib.join("bash.rc") + " in your ~/.bash_profile");
-                System.err.println("and restarted your shell");
-                return -1;
-            }
             user = System.getProperty("user.name");
             return normal(user, null, lib, args);
         }
     }
 
-    public static int install(FileNode lib, String[] args) throws IOException {
+    public static int setup(FileNode home, String[] args) throws IOException {
         Console console;
+        String version;
 
         console = Console.create();
         if (args.length != 1 || !args[0].equals("setup")) {
-            console.error.println("Stool is not configured. Please run 'stool setup'");
+            console.error.println("Stool home directory not found: " + home.getAbsolute());
+            console.error.println("Run 'stool setup' to create it.");
             return 1;
         } else {
-            console.info.println("Creating stool configuration at " + lib);
-            Lib.create(Console.create(), lib, null);
+            version = versionString(home.getWorld());
+            console.info.println("Stool " + version);
+            console.info.println("Ready to create home directory: " + home.getAbsolute());
+            console.pressReturn();
+            console.info.println("Creating " + home);
+            Home.create(Console.create(), home, null);
             console.info.println("Done.");
-            if (!bashInstalled()) {
-                console.info.println("To complete your setup: source " + lib.join("bash.rc") + " in your ~/.bash_profile");
-                console.info.println("and restart your shell");
-            }
+            console.info.println("Note: you can install the dashboard with");
+            console.info.println("  stool create gav:net.oneandone.stool:dashboard:" + version + " " + home.getAbsolute() + "/dashboard");
             return 0;
         }
     }
@@ -125,7 +119,7 @@ public class Main {
               cli.begin("globals.session", "");
                 cli.addDefault(Help.class, "help command?=null");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
-                    cli.add(Create.class, "create -quiet -name=null url dirOrProperty* { dirOrProperty*(dirOrProperty) }");
+                    cli.add(Create.class, "create -quiet url dirOrProperty* { dirOrProperty*(dirOrProperty) }");
                     cli.add(Import.class, "import -name=@import.name:%d -max=@import.max:40 dir* { dirs*(dir) setMax(max) setName(name) }");
                     cli.add(Select.class, "select -fuzzy=@select.fuzzy name?=null");
                     cli.base(StageCommand.class, "-autorechown=@auto.rechown -autochown=@auto.chown -autorestart=@auto.restart -autostop=@auto.stop -stage=null -all -fail "
@@ -216,7 +210,7 @@ public class Main {
 
     //--
 
-    public static FileNode locateLib(World world) throws ReadLinkException {
+    public static FileNode locateHome(World world) {
         FileNode cp;
 
         cp = stoolCp(world);
@@ -250,9 +244,27 @@ public class Main {
         World world;
 
         world = World.create();
-        ((HttpFilesystem) world.getFilesystem("https")).setSocketFactorySelector((protocol, hostname) ->
-                protocol.equals("https") ? (LAZY_HOSTS.contains(hostname) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
+        update(world, "http");
+        update(world, "https");
+        if (System.getProperty("stool.wire") != null) {
+            HttpFilesystem.wireLog("/tmp/stool.wire");
+        }
         return world;
+    }
+
+    private static void update(World world, String scheme) {
+        HttpFilesystem fs;
+        Proxy proxy;
+
+        fs = (HttpFilesystem) world.getFilesystem(scheme);
+        fs.setSocketFactorySelector((protocol, hostname) ->
+                protocol.equals("https") ? (LAZY_HOSTS.contains(hostname) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
+        if (fs.getProxy(scheme) == null) {
+            proxy = Proxy.forEnvOpt(scheme);
+            if (proxy != null) {
+                fs.setProxy(scheme, proxy);
+            }
+        }
     }
 
     public static SSLSocketFactory lazyFactory() {

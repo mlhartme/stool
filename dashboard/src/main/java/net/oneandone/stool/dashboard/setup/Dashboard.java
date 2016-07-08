@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.setup;
+package net.oneandone.stool.dashboard.setup;
 
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -23,6 +23,7 @@ public class Dashboard {
         World world;
         FileNode target;
         FileNode war;
+        FileNode p;
 
         if (args.length != 1) {
             throw new IllegalArgumentException();
@@ -32,8 +33,9 @@ public class Dashboard {
         target.mkdir();
 
         // TODO
-        war = world.guessProjectHome(Dashboard.class).getParent().join("dashboard/target").findOne("*.war");
-
+        p = world.guessProjectHome(Dashboard.class);
+        System.out.println("project: " + p);
+        war = p.getParent().join("dashboard/target").findOne("*.war");
         war.copyFile(target.join("dashboard.war"));
         System.exit(0);
     }

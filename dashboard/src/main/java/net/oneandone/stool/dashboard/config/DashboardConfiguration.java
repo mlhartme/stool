@@ -46,7 +46,7 @@ public class DashboardConfiguration {
 
     @Bean
     public FileNode jar() throws IOException {
-        return world().file(System.getProperty("stool.jar"));
+        return world().file(System.getProperty("stool.cp"));
     }
 
     @Bean
@@ -68,7 +68,7 @@ public class DashboardConfiguration {
         String svnuser;
         String svnpassword;
 
-        lib = Main.locateLib(world());
+        lib = Main.locateHome(world());
         props = lib.join("dashboard.properties");
         if (props.exists()) {
             p = props.readProperties();
@@ -85,7 +85,7 @@ public class DashboardConfiguration {
 
     @Bean
     public Stage self() throws IOException {
-        return Stage.load(session(), world().file(System.getProperty("stool.backstage")));
+        return Stage.load(session(), world().file(System.getProperty("stool.idlink")));
     }
 
     @Bean
@@ -118,7 +118,7 @@ public class DashboardConfiguration {
         Timer timer;
 
         timer = new Timer("Refresh");
-        timer.schedule(new RefreshTask(session(), logs()), 20000, 60000);
+        timer.schedule(new RefreshTask(jar(), session(), logs()), 20000, 60000);
         return timer;
     }
 }

@@ -27,11 +27,6 @@ import java.util.Set;
 
 /** Used instead of System.getenv. Allows to track changes and provides a simple mocking mechanism for integration tests */
 public class Environment {
-    // helper
-    public static void main(String[] args) {
-        System.out.println(loadSystem().proxyOpts());
-    }
-
     public static final String JAVA_HOME = "JAVA_HOME";
     public static final String MAVEN_HOME = "MAVEN_HOME";
     public static final String MAVEN_OPTS = "MAVEN_OPTS";
@@ -146,70 +141,11 @@ public class Environment {
         }
     }
 
-    public Set<String> keys() {
-        return properties.keySet();
-    }
-
     public Map<String, String> map() {
         return Collections.unmodifiableMap(properties);
     }
 
     //-- proxyOpts
-
-    public String proxyOpts() {
-        return proxyOpts(getOpt("http_proxy"), getOpt("https_proxy"), getOpt("no_proxy"));
-    }
-
-    /**
-     * Turn proxy configuration from http_proxy and no_proxy environment variables into the respective Java properties. See
-     * - http://wiki.intranet.1and1.com/bin/view/UE/HttpProxy
-     * - http://info4tech.wordpress.com/2007/05/04/java-http-proxy-settings/
-     * - http://download.oracle.com/javase/6/docs/technotes/guides/net/proxies.html
-     * - http://docs.oracle.com/javase/7/docs/api/java/net/doc-files/net-properties.html#Proxies
-     */
-    private static String proxyOpts(String httpProxy, String httpsProxy, String noProxy) {
-        StringBuilder result;
-
-        result = new StringBuilder();
-        proxy("http", httpProxy, noProxy, result);
-        proxy("https", httpsProxy, noProxy, result);
-        return result.toString();
-    }
-
-    private static void proxy(String prefix, String proxy, String noProxy, StringBuilder result) {
-        URI uri;
-        int port;
-        boolean first;
-
-        if (proxy != null) {
-            try {
-                uri = new URI(proxy);
-            } catch (URISyntaxException e) {
-                throw new IllegalArgumentException("invalid value for http_proxy: " + proxy, e);
-            }
-            result.append(" -D").append(prefix).append(".proxyHost=").append(uri.getHost());
-            port = uri.getPort();
-            if (port == -1) {
-                port = 80;
-            }
-            result.append(" -D").append(prefix).append(".proxyPort=").append(port);
-            if (noProxy != null) {
-                first = true;
-                for (String entry : Separator.COMMA.split(noProxy)) {
-                    if (first) {
-                        result.append(" -D").append(prefix).append(".nonProxyHosts=");
-                        first = false;
-                    } else {
-                        result.append("|");
-                    }
-                    if (entry.startsWith(".")) {
-                        result.append('*');
-                    }
-                    result.append(entry);
-                }
-            }
-        }
-    }
 
     public String substitute(String str) {
         StringBuilder builder;

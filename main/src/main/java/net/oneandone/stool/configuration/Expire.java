@@ -57,7 +57,7 @@ public class Expire {
 
     //--
 
-    /** null stands for 'reserved' */
+    /** null stands for 'never' */
     private final LocalDate date;
 
     public Expire(LocalDate date) {

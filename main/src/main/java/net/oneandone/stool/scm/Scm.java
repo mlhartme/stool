@@ -58,12 +58,12 @@ public abstract class Scm {
     public abstract void checkout(String url, FileNode dir, Writer dest) throws Failure;
     public abstract boolean isCommitted(Stage stage) throws IOException;
 
-    public static Scm forUrl(String url, Credentials svnCredentials) {
+    public static Scm forUrl(String url, Credentials svnCredentials) throws IOException {
         Scm scm;
 
         scm = forUrlOpt(url, svnCredentials);
         if (scm == null) {
-            throw new IllegalArgumentException("unknown scm: " + url);
+            throw new IOException("unknown scm: " + url);
         }
         return scm;
     }

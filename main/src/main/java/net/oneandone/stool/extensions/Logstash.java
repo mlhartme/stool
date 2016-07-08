@@ -25,13 +25,15 @@ import java.util.Map;
 
 public class Logstash implements Extension {
     private final String output;
+    private final String link;
 
     public Logstash() {
-        this("output { stdout {} }");
+        this("output { stdout {} }", "");
     }
 
-    public Logstash(String output) {
+    public Logstash(String output, String link) {
         this.output = output;
+        this.link = link;
     }
 
     @Override
@@ -44,7 +46,7 @@ public class Logstash implements Extension {
     }
 
     private FileNode link(Stage stage) {
-        return stage.getDirectory().getWorld().file("/etc/logstash/conf.d/" + stage.getName() + ".conf");
+        return stage.getDirectory().getWorld().file(link).join(stage.getName() + ".conf");
     }
 
     @Override
@@ -65,12 +67,16 @@ public class Logstash implements Extension {
                 "\n" +
                 "filter {}\n" + output);
         Files.stoolFile(file);
-        file.link(link(stage));
+        if (!link.isEmpty()) {
+            file.link(link(stage));
+        }
     }
 
     @Override
     public void beforeStop(Stage stage) throws IOException {
-        link(stage).deleteFile();
+        if (!link.isEmpty()) {
+            link(stage).deleteFile();
+        }
         conf(stage).deleteFile();
     }
 

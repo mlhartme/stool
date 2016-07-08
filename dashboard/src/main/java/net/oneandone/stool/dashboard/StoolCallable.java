@@ -28,13 +28,10 @@ import java.io.PrintWriter;
 import java.util.concurrent.Callable;
 
 public class StoolCallable implements Callable<Failure> {
-    public static StoolCallable create(String id, FileNode logs, Stage stage, String command, String ... options) throws IOException {
+    public static StoolCallable create(FileNode stool, String id, FileNode logs, Stage stage, String command, String ... options) throws IOException {
         Session session;
-        FileNode stool;
 
         session = stage.session;
-        stool = Main.stoolCp(session.world);
-        stool.checkFile();
         return new StoolCallable(stool, command, options, stage, id, logs, session.configuration.shared, stage.owner());
     }
 

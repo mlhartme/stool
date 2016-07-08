@@ -63,6 +63,9 @@ public class StageController {
     private FileNode logs;
 
     @Autowired
+    private FileNode jar;
+
+    @Autowired
     private ExecutorService executorService;
 
     @Autowired
@@ -171,7 +174,7 @@ public class StageController {
         Stage stage;
 
         try {
-            stage = session.load(stageName);
+            stage = session.loadByName(stageName);
         } catch (IOException e) {
             throw (ResourceNotFoundException) new ResourceNotFoundException().initCause(e);
         }
@@ -187,7 +190,7 @@ public class StageController {
         String id;
 
         id = UUID.randomUUID().toString();
-        executorService.submit(StoolCallable.create(id, logs, resolveStage(stage), command, options));
+        executorService.submit(StoolCallable.create(jar, id, logs, resolveStage(stage), command, options));
         return id;
     }
 

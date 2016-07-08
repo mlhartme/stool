@@ -37,14 +37,14 @@ import net.oneandone.sushi.util.Diff;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Stool's library directory. Lib holds the stool-maintained files like backstages and downloads.
+ * Stool home directory. In unix file system hierarchy this comes close to the lib directory - although it contains
+ * etc stuff (config.json) and log files.
  */
-public class Lib {
+public class Home {
     public static void create(Console console, FileNode lib, String config) throws IOException {
         RmRfThread cleanup;
 
@@ -52,7 +52,7 @@ public class Lib {
         cleanup = new RmRfThread(console);
         cleanup.add(lib);
         Runtime.getRuntime().addShutdownHook(cleanup);
-        new Lib(console, lib, group(lib.getWorld()), config).create();
+        new Home(console, lib, group(lib.getWorld()), config).create();
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
@@ -73,7 +73,7 @@ public class Lib {
     /** json, may be null */
     private final String explicitConfig;
 
-    public Lib(Console console, FileNode dir, String group, String explicitConfig) {
+    public Home(Console console, FileNode dir, String group, String explicitConfig) {
         this.console = console;
         this.dir = dir;
         this.group = group;
@@ -104,6 +104,7 @@ public class Lib {
         for (String name : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "tomcat"}) {
             Files.createStoolDirectory(console.verbose, dir.join(name));
         }
+        Files.stoolFile(dir.join("version").writeString(Main.versionString(world)));
         Files.stoolFile(dir.join("run/locks").mkfile());
     }
 
@@ -124,7 +125,7 @@ public class Lib {
         newVersion = Main.versionString(dir.getWorld());
         console.info.println("upgrade " + oldVersion + " -> " + newVersion);
         if (oldVersion.startsWith("3.3.")) {
-            upgrade_33_34(dir);
+            upgrade_33_34(dir, newVersion);
         } else if (oldVersion.startsWith(("3.4."))) {
             console.info.println("nothing to do");
         } else {
@@ -132,18 +133,18 @@ public class Lib {
         }
     }
 
-    private void upgrade_33_34(FileNode lib) throws IOException {
+    private void upgrade_33_34(FileNode lib, String newVersion) throws IOException {
         Upgrade stage33_34;
 
-        exec("rm", lib.join("version").getAbsolute());
+        lib.join("version").writeString(newVersion);
         exec("rm", "-rf", lib.join("run/users").getAbsolute());
         stage33_34 = stage33_34();
         doUpgrade(stool33_34(stage33_34()), stage33_34);
     }
 
     // TODO: ugly ...
-    
-    private static Lib upgradeLib = null;
+
+    private static Home upgradeLib = null;
     private static boolean upgradeDefaults = false;
 
     private void doUpgrade(Upgrade stoolMapper, Upgrade stageMapper) throws IOException {

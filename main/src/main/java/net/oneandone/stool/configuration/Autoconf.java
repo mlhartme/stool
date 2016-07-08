@@ -3,6 +3,7 @@ package net.oneandone.stool.configuration;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
+import net.oneandone.sushi.launcher.Failure;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -56,7 +57,7 @@ public class Autoconf {
                     "    host => [ \"10.76.80.152\", \"10.76.80.153\", \"10.76.80.154\" ]\n" +
                     "  }\n" +
                     "}\n");
-            dest.defaults.put("svn:https://svn.1and1.org/svn/PFX/controlpanel/", cp());
+            dest.defaults.put("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/", cp());
             dest.defaults.put("svn:https://svn.1and1.org/svn/sales/workspaces/", workspace());
         }
     }
@@ -67,7 +68,7 @@ public class Autoconf {
         result = new LinkedHashMap<>();
         result.put("build", "mvn clean install -Ppublish -U -B -T2C");
         result.put("tomcat.heap", "2000");
-        result.put("suffix", "/xml/config");
+        result.put("url", "(http:https)://%h/xml/config");
         result.put("maven.opts", "-Xmx2500m -Dmaven.repo.local=@localRepository@ @trustStore@");
         return result;
     }
@@ -86,7 +87,11 @@ public class Autoconf {
     private static String search(World world) throws IOException {
         String str;
 
-        str = world.getHome().exec("which", "pommes").trim();
+        try {
+            str = world.getHome().exec("which", "pommes").trim();
+        } catch (Failure e) {
+            return "";
+        }
         if (world.file(str).isFile()) {
             return "pommes find () - %s";
         } else {

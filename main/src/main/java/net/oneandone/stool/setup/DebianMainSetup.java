@@ -119,10 +119,10 @@ public class DebianMainSetup extends Debian {
     //--
 
     public void setupLib(String previousVersion) throws IOException {
-        Lib lib;
+        Home lib;
         FileNode tmp;
 
-        lib = new Lib(console, libdir, group, config.trim().isEmpty() ? null : config);
+        lib = new Home(console, libdir, group, config.trim().isEmpty() ? null : config);
         if (libdir.exists()) {
             // with symlinks resolved
             tmp = world.file(libdir.toPath().toFile().getCanonicalFile()).getParent().join(libdir.getName() + ".upgrade");

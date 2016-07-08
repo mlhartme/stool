@@ -14,7 +14,7 @@
   <description>A special stage to control Stool via browser.</description>
 
   <properties>
-    <spring.version>4.1.3.RELEASE</spring.version>
+    <spring.version>4.1.6.RELEASE</spring.version>
     <spring.security.version>4.0.0.RELEASE</spring.security.version>
   </properties>
 
@@ -30,24 +30,29 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.7</version>
+      <version>1.7.21</version>
     </dependency>
-
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
-      <version>1.1.3</version>
+      <version>1.1.7</version>
       <!-- TODO: needed to override inherited test scope -->
       <scope>compile</scope>
     </dependency>
-
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
-      <version>1.1.3</version>
+      <version>1.1.7</version>
       <!-- TODO: needed to override inherited test scope -->
       <scope>compile</scope>
     </dependency>
+    <!-- override scope because foss-parent set's this to "provided" (needed for http wagon) -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>compile</scope>
+    </dependency>
+
 
     <!-- Dashboard -->
 
@@ -107,12 +112,6 @@
       <version>1.2</version>
     </dependency>
 
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-      <version>14.0.1</version>
-    </dependency>
-
   </dependencies>
 
   <build>
@@ -131,16 +130,16 @@
     </pluginManagement>
 
     <plugins>
-      <plugin>
+      <!--plugin>
         <groupId>net.oneandone.maven.plugins</groupId>
         <artifactId>application</artifactId>
-        <version>1.6.0</version>
+        <version>1.6.1-SNAPSHOT</version>
         <executions>
           <execution>
             <configuration>
               <name>dashboardpostrm</name>
-              <main>net.oneandone.stool.setup.DebianDashboardSetup</main>
-              <shrink>true</shrink>
+              <main>net.oneandone.stool.dashboard.setup.DebianDashboardSetup</main>
+              <shrink>false</shrink>
               <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
               <overwrite>org/apache/commons/logging/**/*</overwrite>
               <remove>META-INF/maven/**/*,
@@ -202,7 +201,7 @@
             <configuration>
               <target>
                 <property name="cp" refid="maven.runtime.classpath" />
-                <java classname="net.oneandone.stool.setup.Dashboard" classpath="${cp}" fork="false" failonerror="true">
+                <java classname="net.oneandone.stool.dashboard.setup.Dashboard" classpath="${cp}" fork="false" failonerror="true">
                   <arg path="${project.build.directory}/debfiles-dashboard" />
                 </java>
                 <java classname="net.oneandone.stool.setup.Control" classpath="${cp}" fork="false" failonerror="true">
@@ -231,7 +230,7 @@
             </goals>
             <configuration>
               <controlDir>${project.build.directory}/control-dashboard</controlDir>
-              <!-- override deb and changes out because the artifact id is not suitable -->
+              <!- - override deb and changes out because the artifact id is not suitable - ->
               <deb>${basedir}/target/stool-dashboard_[[version]]_all.deb</deb>
               <changesOut>${basedir}/target/stool-dashboard_[[version]]_all.changes</changesOut>
               <name>stool-dashboard</name>
@@ -254,7 +253,7 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin-->
     </plugins>
   </build>
 </project>
