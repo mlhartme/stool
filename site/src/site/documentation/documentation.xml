@@ -673,9 +673,6 @@
             <command>stool create</command>
             <group>
               <arg>-quiet</arg>
-              <arg>-name
-                <replaceable>str</replaceable>
-              </arg>
             </group>
             <arg choice="plain">
               <replaceable>url</replaceable>
@@ -690,14 +687,15 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Creates a new stage- and backstage directory, enters the stage directory and selects the stage.
-            In most cases, you can invoke <literal>stool create</literal> similar to<literal>svn checkout</literal>:
-            with an url and a directory.</para>
+          <para>Creates a new stage- and backstage directory and enters the stage directory. In most cases, you can
+            invoke <literal>stool create</literal> similar to<literal>svn checkout</literal>: with an url and a
+            directory to checkout to.</para>
           <para>
             <replaceable>url</replaceable>
-            specifies the application you want to run in your stage. In many cases, the url is a subversion url and
-            Stool performs a checkout. Output of the checkout command is printed to the console unless the
-            <literal>-quiet</literal> option is specified.
+            specifies the application you want to run in your stage. In many cases, the url is a subversion url prefixed
+            with <literal>svn:</literal> or a git url prefixed with <literal>git:</literal>. Stool performs a checkout
+            resp. a clone. Output of the command is printed to the console unless the <literal>-quiet</literal> option
+            is specified.
           </para>
           <para>
             To create an artifact stage, specify a war file, a file url or a GAV url. You may specify multiple
@@ -705,12 +703,12 @@
             to assign a non-default vhost for an application.
           </para>
           <para>Instead of a <replaceable>url</replaceable> you can specify
-            <literal>%</literal><replaceable>searchstring</replaceable>. This will search the configured search tools for the specified
-            string, show all matching svn urls, and ask you to select one.
+            <literal>%</literal><replaceable>searchstring</replaceable>. This will search the configured search tools
+            for the specified string, show all matching scm urls, and ask you to select one.
           </para>
           <para>
             <replaceable>directory</replaceable>
-            specifies the stage directory to holding your application. If not specified, the current directory
+            specifies the stage directory to hold your application. If not specified, the current directory
             with the last usable segment of the <literal>url</literal> (i.e. the last segment that is not trunk, tags,
             or branches) is used. You can specify an arbitrary directory, as long as it does not exist yet and the
             parent directory exists and is writable for all users of the Stool group. Otherwise, create reports an error.
@@ -722,8 +720,8 @@
           <para>For artifact stages, the <literal>maven.home</literal> property is used to locate Maven settings which
             configure the repositories (and optional credentials) to download for artifact(s) from.
           </para>
-          <para>Unless specified with the <literal>-name</literal> option, the stage name is the directory name, i.e.
-            the last segment of the absolute path to the stage directory.
+          <para>The stage name property defaults to the directory name, i.e. the last segment of the absolute path
+            to the stage directory.
           </para>
           <para><literal>create</literal> reports an error if the available free disk space is low (the threshold is
             specified by the <literal>diskMin</literal> Stool property.
@@ -741,10 +739,10 @@
             <literal>stool create gav:net.oneandone:hellowar:1.0.2,gav:net.oneandone:hellowar:1.0.3=second</literal>
           </para>
           <para>Create a source stage from git:
-            <literal>stool create git@github.com:mlhartme/hellowar.git</literal>
+            <literal>stool create git:git@github.com:mlhartme/hellowar.git</literal>
           </para>
           <para>Create a source stage from svn:
-            <literal>stool create https://github.com/mlhartme/hellowar/trunk</literal>
+            <literal>stool create svn:https://github.com/mlhartme/hellowar/trunk</literal>
           </para>
         </refsect1>
       </refentry>
@@ -752,7 +750,7 @@
       <refentry>
         <refnamediv>
           <refname>stool-import</refname>
-          <refpurpose>Create stages for existing directories</refpurpose>
+          <refpurpose>Create stages for one or many existing directories</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -772,15 +770,13 @@
         <refsect1>
           <title>Description</title>
           <para>Scans
-            <replaceable>directory</replaceable>
-            for stage candidates and offers to import them. If the scan only
-            yields a single candidate, it will be imported and selected without additional interaction. Importing means that
-            a backstage directory for the stage directory is created.
+            <replaceable>directory</replaceable> for stage candidates and offers to import them. The candidates you
+            select will be imported, i.e. a backstage directory for the stage directory is created. If the scan only
+            yields a single candidate, it will be imported and selected without additional interaction.
           </para>
           <para>
             <replaceable>template</replaceable>
-            is a string defining the stage name. And any occurrence of
-            <literal>%d</literal>
+            is a string defining the stage name. And any occurrence of <literal>%d</literal>
             will be replaced by the current directory name. Default template is<literal>%d</literal>.
           </para>
         </refsect1>
@@ -805,25 +801,11 @@
         <refsect1>
           <title>Description</title>
           <para>Prints the selected stage when called without argument.</para>
-          <para>Changes the selected stage when called with a
-            <replaceable>stage</replaceable>
-            name:
-            <itemizedlist>
-              <listitem>
-                <para>Adjusts the environment variables for the selected stage (e.g. MAVEN_OPTS, JAVA_HOME).</para>
-              </listitem>
-              <listitem>
-                <para>Adjusts the stage indicator. If it's red, you're not the owner.</para>
-              </listitem>
-              <listitem>
-                <para>Changes the current working directory to the stage directory.</para>
-              </listitem>
-            </itemizedlist>
-          </para>
-          <para>When called with<literal>none</literal>: resets environment variables and removes the stage indicator.
-          </para>
+          <para>Otherwise cds to the stage directory of the specified <replaceable>stage</replaceable>.</para>
+          <para>When called with<literal>none</literal>: cds to the parent directory of the current stage.
           <para>If the specified stage is not found, the command prints an error message and lists stages that
-            you could have meant.
+            you could have meant. If you also specified the <literal>-fuzzy</literal> option and there's only a
+            single candiate, this stage will be selected.
           </para>
         </refsect1>
       </refentry>
