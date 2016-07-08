@@ -808,7 +808,7 @@
           <title>Description</title>
           <para>Prints the selected stage when called without argument.</para>
           <para>Otherwise cds to the stage directory of the specified <replaceable>stage</replaceable>.</para>
-          <para>When called with<literal>none</literal>: cds to the parent directory of the current stage.
+          <para>When called with <literal>none</literal>: cds to the parent directory of the current stage.</para>
           <para>If the specified stage is not found, the command prints an error message and lists stages that
             you could have meant. If you also specified the <literal>-fuzzy</literal> option and there's only a
             single candiate, this stage will be selected.
