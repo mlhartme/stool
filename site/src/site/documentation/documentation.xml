@@ -820,8 +820,8 @@
     <section>
       <title>Stage Commands</title>
 
-      <para>Most Stool commands are stage commands, i.e. they operate on (an arbitrary number of) stages. Typical
-        stage commands are<literal>status</literal>, <literal>build</literal>, <literal>start</literal>, and
+      <para>Most Stool commands are stage commands, i.e. they operate on one or multiple stages. Typical
+        stage commands are <literal>status</literal>, <literal>build</literal>, <literal>start</literal>, and
         <literal>stop</literal>. Note that <literal>create</literal> is not a stage command because it does not
         initially have a stage to operate on (although it results in a new (and selected) stage).
       </para>
@@ -878,8 +878,8 @@
             </programlisting>
           </para>
           <para>The most basic predicate is a simple <literal>NAME</literal>. It matches only on the specified stage. This is handy
-            to invoke one command for a stage without changing the selected stage.</para>
-          <para>Next, a predicates <replaceable>FIELD</replaceable><literal>=</literal><replaceable>VALUE</replaceable> matches
+            to invoke one command for a stage without selecting it.</para>
+          <para>Next, a predicate <replaceable>FIELD</replaceable><literal>=</literal><replaceable>VALUE</replaceable> matches
             stages who's status field has the specified value.</para>
           <para><replaceable>PROPERTY</replaceable><literal>=</literal><replaceable>VALUE</replaceable> is similar, it matches
             stage properties.</para>
@@ -892,7 +892,7 @@
             invoke the command on remaining matching stages. This is the default.</para>
           <para><literal>after</literal> reports problems after the command was invoked on all matching stages.</para>
           <para><literal>never</literal> is similar to <literal>after</literal>, but reports warnings instead of errors
-            (and thus, Stool always returns with error code 0).
+            (and thus, Stool always returns with exit code 0).
           </para>
         </refsect1>
         <refsect1>
@@ -932,9 +932,8 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Enters the stage directory and executes the build command specified in the
-            <literal>build</literal>
-            property. Reports an error if the stage is not owned or if the stage is up.
+          <para>Enters the stage directory, sets MAVEN_HOME, MAVEN_OPTS and JAVA_HOME as configured for the stage and executes the build command
+            specified in the <literal>build</literal> property. Reports an error if the stage is not owned or if the stage is up.
           </para>
           <para>You can see the configured build command with<literal>stool config build</literal>, and you can change it with
             <literal>stool config "build="</literal>
@@ -942,23 +941,14 @@
             <literal>"</literal>
             The quotes are mandatory if your command contains spaces.
           </para>
-          <para>
-            <command>stool build</command>
-            does no extra magic besides entering the stage directory. Thus, it has exactly the same effect
-            if you manually enter the stage directory and invoke the build command yourself, without Stool.
-            <command>stool build</command>
-            is only for your convenience, you do not have to use it to build you source stage properly.
-          </para>
           <para>The pre-defined build command for artifact stages does nothing. Thus, you can invoke
-            <literal>stool build</literal>
-            for artifact stages, it just has no effect.
+            <literal>stool build</literal> for artifact stages, it just has no effect.
           </para>
-          <para>The build command executes in the same environment (i.e. with the same environment variables) as Stool is
-            executed. If you invoke
-            <command>build</command>
-            from the dashboard application, the build command executes in the environment
-            of the user who started the dashboard stage.
+          <para>If you invoke <command>build</command> from the dashboard application, the build command executes in the environment
+            defined for the dashboard stage with the additional environment variables mentioned above.
           </para>
+          <para>If you work locally on your own machine, you'll normally prefer to directly invoke your build command. However, you have
+            to use <literal>stool build</literal> because shared machine have a separate local Maven repository for every stage. </para>
           <xi:include href="stageOptions.xml" parse="xml"/>
         </refsect1>
       </refentry>
@@ -1491,33 +1481,6 @@
             the comma because the shell would consider this as a new key-value argument -- unless you also quote the
             arguments.
           </para>
-        </refsect1>
-      </refentry>
-
-
-      <refentry>
-        <refnamediv>
-          <refname>stool-rename</refname>
-          <refpurpose>Change the stage name</refpurpose>
-        </refnamediv>
-
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool rename</command>
-            <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
-            </arg>
-            <arg choice="plain">
-              <replaceable>name</replaceable>
-            </arg>
-          </cmdsynopsis>
-        </refsynopsisdiv>
-        <refsect1>
-          <title>Description</title>
-          <para>Changes the stage name without changing the stage directory. If the stage is up, you have to restart it
-            to reflect this change in your application url(s).
-          </para>
-          <xi:include href="stageOptions.xml" parse="xml"/>
         </refsect1>
       </refentry>
 
