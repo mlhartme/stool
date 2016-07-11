@@ -18,7 +18,6 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
 import net.oneandone.inline.commands.PackageVersion;
-import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.ssl.Pair;
 import net.oneandone.stool.util.LogOutputStream;
 import net.oneandone.stool.util.Logging;
@@ -51,55 +50,34 @@ public class Main {
 
     public static int run(String[] args) throws IOException {
         World world;
-        FileNode lib;
+        FileNode home;
         String user;
 
         world = world();
-        lib = locateHome(world);
-        if (!lib.exists()) {
-            return setup(lib, args);
-        } else {
-            user = System.getProperty("user.name");
-            return normal(user, null, lib, args);
-        }
+        home = locateHome(world);
+        user = System.getProperty("user.name");
+        return normal(user, null, home, args);
     }
 
-    public static int setup(FileNode home, String[] args) throws IOException {
-        Console console;
-        String version;
-
-        console = Console.create();
-        if (args.length != 1 || !args[0].equals("setup")) {
-            console.error.println("Stool home directory not found: " + home.getAbsolute());
-            console.error.println("Run 'stool setup' to create it.");
-            return 1;
-        } else {
-            version = versionString(home.getWorld());
-            console.info.println("Stool " + version);
-            console.info.println("Ready to create home directory: " + home.getAbsolute());
-            console.pressReturn();
-            console.info.println("Creating " + home);
-            Home.create(Console.create(), home, null);
-            console.info.println("Done.");
-            console.info.println("Note: you can install the dashboard with");
-            console.info.println("  stool create gav:net.oneandone.stool:dashboard:" + version + " " + home.getAbsolute() + "/dashboard");
-            return 0;
-        }
-    }
-
-    public static int normal(String user, Logging logging, FileNode lib, String[] args) throws IOException {
+    public static int normal(String user, Logging logging, FileNode home, String[] args) throws IOException {
         World world;
         Cli cli;
         String command;
         boolean setenv;
         Globals globals;
         Console console;
+        FileNode tmp;
 
-        world = lib.getWorld();
+        world = home.getWorld();
         if (logging == null) {
+            // normal invocation
             setenv = true;
-            // i need lib with a proper logs directory first ...
-            logging = Logging.forLib(lib, user);
+            if (home.exists()) {
+                logging = Logging.forHome(home, user);
+            } else {
+                tmp = world.getTemp().createTempDirectory();
+                logging = new Logging("1", tmp.join("homeless"), user);
+            }
             console = console(logging, System.out, System.err);
         } else {
             // for integration tests
@@ -109,15 +87,16 @@ public class Main {
         }
         command = "stool " + command(args);
         logging.log("COMMAND", command);
-        globals = new Globals(setenv, lib, logging, user, command, console, world);
+        globals = new Globals(setenv, home, logging, user, command, console, world);
         cli = new Cli(globals::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
         cli.begin(console, "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
            cli.begin("globals", globals,  "-svnuser=null -svnpassword=null -exception { setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) }");
+              cli.addDefault(Help.class, "help command?=null");
+              cli.add(Setup.class, "setup");
               cli.begin("globals.session", "");
-                cli.addDefault(Help.class, "help command?=null");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Create.class, "create -quiet url dirOrProperty* { dirOrProperty*(dirOrProperty) }");
                     cli.add(Import.class, "import -name=@import.name:%d -max=@import.max:40 dir* { dirs*(dir) setMax(max) setName(name) }");

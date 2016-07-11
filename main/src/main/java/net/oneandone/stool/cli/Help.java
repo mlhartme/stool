@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -26,8 +25,8 @@ public class Help {
     private final World world;
     private final String command;
 
-    public Help(Session session, String command) {
-        this.world = session.world;
+    public Help(Globals globals, String command) {
+        this.world = globals.world;
         this.command = command;
     }
 

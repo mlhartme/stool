@@ -23,22 +23,24 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
+/** Basically a session factory */
 public class Globals {
     private final boolean setenv;
-    private final FileNode lib;
+    public final FileNode home;
     public final Logging logging;
     private final String user;
     private final String command;
-    private final Console console;
-    private final World world;
+    public final Console console;
+    public final World world;
 
     public String svnuser;
     public String svnpassword;
 
-    public Globals(boolean setenv, FileNode lib, Logging logging, String user, String command, Console console, World world) {
+    public Globals(boolean setenv, FileNode home, Logging logging, String user, String command, Console console, World world) {
         this.setenv = setenv;
-        this.lib = lib;
+        this.home = home;
         this.logging = logging;
         this.user = user;
         this.command = command;
@@ -59,20 +61,29 @@ public class Globals {
     }
 
     public Session session() throws IOException {
-        return Session.load(setenv, lib, logging, user, command, console, world, svnuser, svnpassword);
+        if (!home.exists()) {
+            throw new IOException("Stool home directory not found: " + home.getAbsolute()
+                     + "\nRun 'stool setup' to create it.");
+        }
+        return Session.load(setenv, home, logging, user, command, console, world, svnuser, svnpassword);
     }
 
     //--
 
     public int handleException(Throwable throwable) {
-        if ((throwable instanceof RuntimeException) && (!(throwable instanceof ArgumentException))) {
-            try {
-                session().reportException("RuntimeException", throwable);
-            } catch (IOException e) {
-                console.error.println("failed to report runtine exception: " + e.getMessage());
-                e.printStackTrace(console.verbose);
+        // TODO: inline should not throw InvocationTargetException ...
+        if (throwable instanceof InvocationTargetException) {
+            return handleException(((InvocationTargetException) throwable).getTargetException());
+        } else {
+            if ((throwable instanceof RuntimeException) && (!(throwable instanceof ArgumentException))) {
+                try {
+                    session().reportException("RuntimeException", throwable);
+                } catch (IOException e) {
+                    console.error.println("failed to report runtine exception: " + e.getMessage());
+                    e.printStackTrace(console.verbose);
+                }
             }
+            return console.handleException(throwable);
         }
-        return console.handleException(throwable);
     }
 }
