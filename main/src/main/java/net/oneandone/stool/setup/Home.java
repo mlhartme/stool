@@ -34,6 +34,7 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Diff;
+import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -85,13 +86,13 @@ public class Home {
         Gson gson;
         StoolConfiguration conf;
 
-        world = dir.getWorld();
-        gson = Session.gson(world, ExtensionsFactory.create(world));
+        gson = gson();
         Files.createStoolDirectory(console.verbose, dir);
         exec("chgrp", group, dir.getAbsolute());
         // chgrp overwrites the permission - thus, i have to re-set permissions
         exec("chmod", "2775", dir.getAbsolute());
 
+        world = dir.getWorld();
         Files.template(console.verbose, world.resource("templates/lib"), dir, variables());
         conf = Autoconf.stool(dir);
         if (explicitConfig != null) {
@@ -106,6 +107,15 @@ public class Home {
         }
         Files.stoolFile(dir.join("version").writeString(Main.versionString(world)));
         Files.stoolFile(dir.join("run/locks").mkfile());
+    }
+
+    private Gson gson() {
+        World world;
+        Gson gson;
+
+        world = dir.getWorld();
+        gson = Session.gson(world, ExtensionsFactory.create(world));
+        return gson;
     }
 
     public Map<String, String> variables() {
@@ -126,8 +136,6 @@ public class Home {
         console.info.println("upgrade " + oldVersion + " -> " + newVersion);
         if (oldVersion.startsWith("3.3.")) {
             upgrade_33_34(dir, newVersion);
-        } else if (oldVersion.startsWith(("3.4."))) {
-            console.info.println("nothing to do");
         } else {
             throw new IOException("don't know how to upgrade " + oldVersion + " -> " + newVersion);
         }
@@ -144,13 +152,15 @@ public class Home {
 
     // TODO: ugly ...
 
-    private static Home upgradeLib = null;
+    private static Home upgradeHome = null;
+    private static StoolConfiguration upgradedStool = null;
     private static boolean upgradeDefaults = false;
 
     private void doUpgrade(Upgrade stoolMapper, Upgrade stageMapper) throws IOException {
-        upgradeLib = this;
+        upgradeHome = this;
         upgradeDefaults = true;
         doUpgradeStool(stoolMapper);
+        upgradedStool = StoolConfiguration.load(gson(), dir);
         upgradeDefaults = false;
         for (FileNode oldBackstage : dir.join("backstages").list()) {
             console.info.println("upgrade " + oldBackstage);
@@ -233,7 +243,22 @@ public class Home {
                 return "url";
             }
             JsonElement suffixesTransform(JsonElement e) {
-                return new JsonPrimitive("todo");
+                String hostpath;
+                JsonArray array;
+
+                hostpath = "%h:%p";
+                if (upgradedStool == null) {
+                    // upgrade defaults - contains a string, not an array
+                    array = new JsonArray();
+                    for (String str : Separator.COMMA.split(e.getAsString())) {
+                        array.add(str);
+                    }
+                } else {
+                    array = e.getAsJsonArray();
+                    hostpath = "%a.%s." + hostpath;
+                }
+                hostpath = hostpath + allSuffixes(array);
+                return new JsonPrimitive("(http|https)://" + hostpath );
             }
             String untilRename() {
                 return "expire";
@@ -250,5 +275,30 @@ public class Home {
                 dest.add("quota", new JsonPrimitive(10000));
             }
         };
+    }
+
+    public static String allSuffixes(JsonArray array) {
+        int count;
+        String str;
+        StringBuilder builder;
+
+        builder = new StringBuilder();
+        count = 0;
+        for (JsonElement e : array) {
+            str = e.getAsString();
+            if (str.contains("[]")) {
+                throw new UnsupportedOperationException("don't know how to upgrade suffixes '" + str + "'");
+            }
+            if (count > 0) {
+                builder.append('|');
+            }
+            builder.append(str);
+            count++;
+        }
+        if (count == 1) {
+            return builder.toString();
+        } else {
+            return "(" + builder.toString() + ")";
+        }
     }
 }

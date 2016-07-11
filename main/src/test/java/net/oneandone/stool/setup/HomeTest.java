@@ -73,8 +73,8 @@ public class HomeTest {
         assertEquals("cpgem1.ciso.server.lan", stool.hostname);
         assertEquals("admin@email", stool.admin);
         stage = StageConfiguration.load(gson, libDir.join("backstages/stage/config.json"));
-        // TODO: assertEquals("151204.151204-6.2", stage.getId());
-        assertEquals("todo", stage.url);
+        // TODO: assertEquals("151204.151204-6.2", stage.name);
+        assertEquals("(http|https)://%a.%s.%h:%p/xml/config", stage.url);
         assertEquals(Expire.never(), stage.expire);
         assertEquals(null, stool.defaults.get("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/").get("tomcat.perm"));
         assertEquals(Strings.toList(StageConfiguration.NOTIFY_OWNER), stage.notify);

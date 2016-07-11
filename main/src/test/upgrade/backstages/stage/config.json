@@ -20,7 +20,7 @@
   "mavenHome": "/opt/ui/opt/tools/svn/maven/current",
   "mavenOpts": "-Xmx1024m -Dmaven.repo.local=@localRepository@ @proxyOpts@ @trustStore@",
   "expire": "never",
-  "suffixes": [ "prefix-[]", "[]-suffix" ],
+  "suffixes": [ "/xml/config" ],
   "sslUrl": "someSslUrl",
   "autoRefresh": false,
   "comment": "",
