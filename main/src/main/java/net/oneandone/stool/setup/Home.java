@@ -129,25 +129,20 @@ public class Home {
 
     //-- upgrade
 
-    public void upgrade(String oldVersion) throws IOException {
+    public void upgrade(FileNode from) throws IOException {
+        String oldVersion;
         String newVersion;
-
-        newVersion = Main.versionString(dir.getWorld());
-        console.info.println("upgrade " + oldVersion + " -> " + newVersion);
-        if (oldVersion.startsWith("3.3.")) {
-            upgrade_33_34(dir, newVersion);
-        } else {
-            throw new IOException("don't know how to upgrade " + oldVersion + " -> " + newVersion);
-        }
-    }
-
-    private void upgrade_33_34(FileNode lib, String newVersion) throws IOException {
         Upgrade stage33_34;
 
-        lib.join("version").writeString(newVersion);
-        exec("rm", "-rf", lib.join("run/users").getAbsolute());
+        newVersion = Main.versionString(dir.getWorld());
+        oldVersion = from.join("version").readString().trim();
+        if (!oldVersion.startsWith("3.3.")) {
+            throw new IOException("don't know how to upgrade " + oldVersion + " -> " + newVersion);
+        }
+        console.info.println("upgrade " + oldVersion + " -> " + newVersion);
+        create();
         stage33_34 = stage33_34();
-        doUpgrade(stool33_34(stage33_34()), stage33_34);
+        doUpgrade(from, stool33_34(stage33_34), stage33_34);
     }
 
     // TODO: ugly ...
@@ -156,33 +151,37 @@ public class Home {
     private static StoolConfiguration upgradedStool = null;
     private static boolean upgradeDefaults = false;
 
-    private void doUpgrade(Upgrade stoolMapper, Upgrade stageMapper) throws IOException {
+    private void doUpgrade(FileNode from, Upgrade stoolMapper, Upgrade stageMapper) throws IOException {
+        FileNode newBackstage;
+
         upgradeHome = this;
         upgradeDefaults = true;
-        doUpgradeStool(stoolMapper);
+        doUpgradeStool(from, stoolMapper);
         upgradedStool = StoolConfiguration.load(gson(), dir);
         upgradeDefaults = false;
-        for (FileNode oldBackstage : dir.join("backstages").list()) {
+        for (FileNode oldBackstage : from.join("backstages").list()) {
             console.info.println("upgrade " + oldBackstage);
-            transform(oldBackstage.join("config.json"), stageMapper);
+            newBackstage = null; // TODO
+            exec("cp", "-r");
+            transform(oldBackstage.join("config.json"), newBackstage.join("config.json"), stageMapper);
         }
     }
 
-    private void doUpgradeStool(Upgrade stoolMapper) throws IOException {
-        transform(dir.join("config.json"), stoolMapper);
+    private void doUpgradeStool(FileNode from, Upgrade stoolMapper) throws IOException {
+        transform(from.join("config.json"), dir.join("config.json"), stoolMapper);
     }
 
-    private void transform(FileNode json, Upgrade mapper) throws IOException {
+    private void transform(FileNode src, FileNode dest, Upgrade mapper) throws IOException {
         String in;
         String out;
 
-        console.verbose.println("transform " + json.getAbsolute());
-        in = json.readString();
+        console.verbose.println("upgrade " + src.getAbsolute());
+        in = src.readString();
         out = Transform.transform(in, mapper);
         if (!in.equals(out)) {
-            console.info.println("M " + json.getAbsolute());
+            console.info.println("M " + src.getAbsolute());
             console.info.println(Strings.indent(Diff.diff(in, out), "  "));
-            json.writeString(out);
+            dest.writeString(out);
         }
     }
 
