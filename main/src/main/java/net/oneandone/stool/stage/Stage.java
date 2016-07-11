@@ -267,7 +267,7 @@ public abstract class Stage {
     public abstract String getDefaultBuildCommand();
 
     protected FileNode catalinaHome() {
-        return session.lib.join("tomcat", Start.tomcatName(configuration.tomcatVersion));
+        return session.home.join("tomcat", Start.tomcatName(configuration.tomcatVersion));
     }
 
     //-- tomcat helper
@@ -357,7 +357,7 @@ public abstract class Stage {
 
         platform = (OS.CURRENT == OS.LINUX) ? "linux-x86-64" : "macosx-universal-64";
         name = "wrapper-" + platform + "-" + config().tomcatService;
-        return session.lib.join("service-wrapper", name);
+        return session.home.join("service-wrapper", name);
     }
 
 
@@ -504,7 +504,7 @@ public abstract class Stage {
             world = session.world;
             mavenHome = config().mavenHome();
             if (mavenHome == null) {
-                settings = session.lib.join("maven-settings.xml");
+                settings = session.home.join("maven-settings.xml");
             } else {
                 settings = world.file(mavenHome).join("conf/settings.xml");
             }
@@ -603,7 +603,7 @@ public abstract class Stage {
     }
 
     public boolean isSystem() {
-        return session.lib.equals(directory.getParent());
+        return session.home.equals(directory.getParent());
     }
 
     public Changes changes() {

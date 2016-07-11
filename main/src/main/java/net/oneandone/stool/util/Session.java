@@ -61,19 +61,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/** Home with some session information. */
 public class Session {
-    public static Session load(boolean setenv, FileNode lib, Logging logging, String user, String command, Console console, World world,
+    public static Session load(boolean setenv, FileNode home, Logging logging, String user, String command, Console console, World world,
                                String svnuser, String svnpassword) throws IOException {
         Session session;
 
-        session = loadWithoutBackstageWipe(setenv, lib, logging, user, command, console, world, svnuser, svnpassword);
+        session = loadWithoutBackstageWipe(setenv, home, logging, user, command, console, world, svnuser, svnpassword);
 
         // Stale backstage wiping: how to detect backstage directories who's stage directory was removed.
         //
         // My first thought was to watch for filesystem events to trigger backstage wiping.
         // But there's quite a big delay and rmdir+mkdir is reported as modification. Plus the code is quite complex and
         // I don't know how to handle overflow events.
-        // So I simple wipe them whenever I load stool lib. That's a well-defined timing and that's before stool might
+        // So I simply wipe them whenever I load stool a session. That's a well-defined timing and that's before stool might
         // use a stale stage.
         session.wipeStaleBackstages();
         return session;
@@ -92,7 +93,7 @@ public class Session {
         console.verbose.println("wipeStaleBackstages done, ms=" + ((System.currentTimeMillis() - s)));
     }
 
-    private static Session loadWithoutBackstageWipe(boolean setenv, FileNode lib, Logging logging, String user, String command,
+    private static Session loadWithoutBackstageWipe(boolean setenv, FileNode home, Logging logging, String user, String command,
                                                     Console console,
                                                   World world, String svnuser, String svnpassword) throws IOException {
         ExtensionsFactory factory;
@@ -103,8 +104,8 @@ public class Session {
         factory = ExtensionsFactory.create(world);
         gson = gson(world, factory);
         environment = Environment.loadSystem();
-        result = new Session(setenv, factory, gson, logging, user, command, lib, console, world, environment,
-                StoolConfiguration.load(gson, lib), Bedroom.loadOrCreate(gson, lib), svnuser, svnpassword);
+        result = new Session(setenv, factory, gson, logging, user, command, home, console, world, environment,
+                StoolConfiguration.load(gson, home), Bedroom.loadOrCreate(gson, home), svnuser, svnpassword);
         return result;
     }
 
@@ -119,7 +120,7 @@ public class Session {
     public final String user;
     private final String command;
 
-    public final FileNode lib;
+    public final FileNode home;
     private String lazyGroup;
 
     public final Console console;
@@ -142,7 +143,7 @@ public class Session {
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd");
 
     public Session(boolean setenv, ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command,
-                   FileNode lib, Console console, World world, Environment environment, StoolConfiguration configuration,
+                   FileNode home, Console console, World world, Environment environment, StoolConfiguration configuration,
                    Bedroom bedroom, String svnuser, String svnpassword) {
         this.setenv = setenv;
         this.extensionsFactory = extensionsFactory;
@@ -150,14 +151,14 @@ public class Session {
         this.logging = logging;
         this.user = user;
         this.command = command;
-        this.lib = lib;
+        this.home = home;
         this.lazyGroup = null;
         this.console = console;
         this.world = world;
         this.environment = environment;
         this.configuration = configuration;
         this.bedroom = bedroom;
-        this.backstages = lib.join("backstages");
+        this.backstages = home.join("backstages");
         this.svnCredentials = new Credentials(svnuser, svnpassword);
         this.stageIdPrefix = FMT.format(LocalDate.now()) + "." + logging.id + ".";
         this.nextStageId = 0;
@@ -166,7 +167,7 @@ public class Session {
         } else {
             this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials);
         }
-        this.lockManager = LockManager.create(lib.join("run/locks"), user + ":" + command, 10);
+        this.lockManager = LockManager.create(home.join("run/locks"), user + ":" + command, 10);
         this.lazyPool= null;
     }
 
@@ -227,13 +228,13 @@ public class Session {
 
     public String group() throws ModeException {
         if (lazyGroup == null) {
-            lazyGroup = lib.getGroup().toString();
+            lazyGroup = home.getGroup().toString();
         }
         return lazyGroup;
     }
 
     public FileNode bin(String name) {
-        return lib.join("bin", name);
+        return home.join("bin", name);
     }
 
     //-- environment handling
@@ -432,7 +433,7 @@ public class Session {
 
     /** @return Free disk space in partition used for stool lib. TODO: not necessarily the partition used for stages. */
     public int diskFree() {
-        return (int) (lib.toPath().toFile().getUsableSpace() / 1024 / 1024);
+        return (int) (home.toPath().toFile().getUsableSpace() / 1024 / 1024);
     }
 
     public User lookupUser(String login) throws NamingException, UserNotFound {
@@ -451,7 +452,7 @@ public class Session {
     public void chown(String newOwner, FileNode ... dirs) throws Failure {
         Launcher launcher;
 
-        launcher = new Launcher(lib, "sudo", bin("chowntree.sh").getAbsolute(), newOwner);
+        launcher = new Launcher(home, "sudo", bin("chowntree.sh").getAbsolute(), newOwner);
         for (FileNode dir : dirs) {
             launcher.arg(dir.getAbsolute());
         }
@@ -459,7 +460,7 @@ public class Session {
     }
 
     public FileNode ports() {
-        return lib.join("run/ports");
+        return home.join("run/ports");
     }
 
     public boolean isSelected(Stage stage) throws IOException {
@@ -589,5 +590,28 @@ public class Session {
         if (setenv) {
             Setenv.get().cd(dir.getAbsolute());
         }
+    }
+
+    public void checkVersion() throws IOException {
+        String homeVersion;
+        String binVersion;
+
+        homeVersion = home.join("version").readString().trim();
+        binVersion = Main.versionString(world);
+        if (!majorMinor(homeVersion).equals(majorMinor(binVersion))) {
+            throw new IOException("cannot use home directory version " + homeVersion + " with Stool " + binVersion);
+        }
+    }
+
+    private static final String majorMinor(String version) {
+        int major;
+        int minor;
+
+        major = version.indexOf('.');
+        minor = version.indexOf('.', major + 1);
+        if (minor == -1) {
+            throw new IllegalArgumentException(version);
+        }
+        return version.substring(0, minor);
     }
 }

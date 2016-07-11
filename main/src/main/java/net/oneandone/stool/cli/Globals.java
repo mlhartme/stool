@@ -61,11 +61,15 @@ public class Globals {
     }
 
     public Session session() throws IOException {
+        Session session;
+
         if (!home.exists()) {
             throw new IOException("Stool home directory not found: " + home.getAbsolute()
                      + "\nRun 'stool setup' to create it.");
         }
-        return Session.load(setenv, home, logging, user, command, console, world, svnuser, svnpassword);
+        session = Session.load(setenv, home, logging, user, command, console, world, svnuser, svnpassword);
+        session.checkVersion();
+        return session;
     }
 
     //--

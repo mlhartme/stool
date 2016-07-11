@@ -250,7 +250,7 @@ public class Start extends StageCommand {
             downloadFile(subst(session.configuration.downloadTomcat, version), download);
             download.checkFile();
         }
-        base = session.lib.join("tomcat", name);
+        base = session.home.join("tomcat", name);
         if (!base.exists()) {
             tar(base.getParent(), "zxf", download.getAbsolute(), name + "/lib", name + "/bin");
             base.checkDirectory();
