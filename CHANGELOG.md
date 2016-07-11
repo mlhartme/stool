@@ -42,6 +42,8 @@
   * fixed status field `tomcat` to contain the tomcat pid, not the service wrapper pid; added a new `service` field to contain the 
     service wrapper pid.
 
+* `start` command now deletes $TOMCAT/temp and creates a new empty directory
+
 * `list` command has the same configurable fields as the `status` command now. Defaults no longer contain the selected stage; the 
   stage directory has been added to the defaults.
 
