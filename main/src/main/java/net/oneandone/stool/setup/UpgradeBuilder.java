@@ -65,18 +65,18 @@ public class UpgradeBuilder {
         }
         console.info.println("upgrade " + oldVersion + " -> " + newVersion);
         stage33_34 = stage33_34();
-        doUpgrade(stool33_34(stage33_34), stage33_34);
+        run(stool33_34(stage33_34), stage33_34);
     }
 
 
-    private void doUpgrade(Upgrade stoolMapper, Upgrade stageMapper) throws IOException {
+    private void run(Upgrade stoolMapper, Upgrade stageMapper) throws IOException {
         FileNode stage;
         String user;
         Logging logging;
         Import i;
 
         home.create();
-        doUpgradeStool(from, stoolMapper);
+        stool(from, stoolMapper);
         user = System.getProperty("user.name");
         logging = Logging.forHome(home.dir, user);
         session = Session.load(false, home.dir, logging, user, "upgrade", console, home.dir.getWorld(), null, null);
@@ -101,7 +101,7 @@ public class UpgradeBuilder {
         }
     }
 
-    private void doUpgradeStool(FileNode from, Upgrade stoolMapper) throws IOException {
+    private void stool(FileNode from, Upgrade stoolMapper) throws IOException {
         transform(from.join("config.json"), home.dir.join("config.json"), stoolMapper);
     }
 
