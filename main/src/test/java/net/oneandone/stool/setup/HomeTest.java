@@ -69,6 +69,8 @@ public class HomeTest {
         homedir.deleteDirectory();
         orig = world.guessProjectHome(getClass()).join("src/test/upgrade");
         from = world.getTemp().createTempDirectory();
+        from.deleteDirectory();
+        orig.execNoOutput("cp", "-a", ".", from.getAbsolute()); // TODO: sushi.copyDirectory messes up symlinks ...
         orig.copyDirectory(from);
         group = from.getGroup().toString();
         home = new Home(console, homedir, group, null);
@@ -76,7 +78,7 @@ public class HomeTest {
         stool = StoolConfiguration.load(gson, homedir);
         assertEquals("cpgem1.ciso.server.lan", stool.hostname);
         assertEquals("admin@email", stool.admin);
-        stage = StageConfiguration.load(gson, homedir.join("backstages/stage/config.json"));
+        stage = StageConfiguration.load(gson, from.join("stage/.backstage/config.json"));
         // TODO: assertEquals("151204.151204-6.2", stage.name);
         assertEquals("(http|https)://%a.%s.%h:%p/xml/config", stage.url);
         assertEquals(Expire.never(), stage.expire);
