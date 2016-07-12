@@ -124,6 +124,7 @@ public class DebianMainSetup extends Debian {
 
         lib = new Home(console, libdir, group, config.trim().isEmpty() ? null : config);
         if (libdir.exists()) {
+            /* TODO
             // with symlinks resolved
             tmp = world.file(libdir.toPath().toFile().getCanonicalFile()).getParent().join(libdir.getName() + ".upgrade");
             tmp.checkNotExists();
@@ -139,7 +140,7 @@ public class DebianMainSetup extends Debian {
             }
             log("lib: " + libdir.getAbsolute() + " (upgraded)");
             log("wiping backup ...");
-            exec("rm", "-rf", tmp.getAbsolute());
+            exec("rm", "-rf", tmp.getAbsolute());*/
         } else {
             console.info.println("creating lib: " + libdir);
             try {

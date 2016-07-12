@@ -65,7 +65,7 @@ public class Import extends SessionCommand {
     }
 
     @Override
-    public void doRun() throws Exception {
+    public void doRun() throws IOException {
         List<Stage> found;
         List<FileNode> existing;
         Stage stage;
