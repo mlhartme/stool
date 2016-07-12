@@ -32,6 +32,7 @@ public class Import extends SessionCommand {
 
     private final List<FileNode> includes;
     private final List<FileNode> excludes;
+    private String upgradeId;
 
     public Import(Session session) {
         super(session, Mode.EXCLUSIVE);
@@ -39,6 +40,10 @@ public class Import extends SessionCommand {
         excludes = new ArrayList<>();
         max = 40;
         nameTemplate = "%d";
+    }
+
+    public void setUpgradeId(String id) {
+        upgradeId = id;
     }
 
     public void setMax(int max) {
@@ -81,6 +86,9 @@ public class Import extends SessionCommand {
         }
         console.info.print("[" + found.size() + " candidates]\u001b[K\r");
         console.info.println();
+        if (upgradeId != null && found.size() != 1) {
+            throw new IOException("upgrade import failed: " + found.size());
+        }
         switch (found.size()) {
             case 0:
                 console.info.println("No stage candidates found.");
@@ -184,7 +192,8 @@ public class Import extends SessionCommand {
                 }
             }
         } else {
-            stage = Stage.createOpt(session, session.nextStageId(), url, session.createStageConfiguration(url), parent);
+            stage = Stage.createOpt(session, upgradeId == null ? session.nextStageId() : upgradeId,
+                    url, session.createStageConfiguration(url), parent);
             result.add(stage);
             if (result.size() >= max) {
                 console.info.println("\n\nScan stopped - max number of import projects reached: " + max);

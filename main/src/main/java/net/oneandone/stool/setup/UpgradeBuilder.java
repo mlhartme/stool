@@ -26,12 +26,16 @@ import net.oneandone.stool.cli.Import;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.fs.FileNotFoundException;
+import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Diff;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.util.Map;
 
 public class UpgradeBuilder {
@@ -81,9 +85,19 @@ public class UpgradeBuilder {
             currentStage = oldBackstage.getName();
             stage = oldBackstage.join("anchor").resolveLink();
             i = new Import(session);
+            i.setUpgradeId(getId(oldBackstage.join("config.json")));
             i.dirs(stage.getAbsolute());
             i.doRun();
             transform(oldBackstage.join("config.json"), stage.join(".backstage/config.json"), stageMapper);
+        }
+    }
+
+    private static String getId(FileNode config) throws IOException {
+        JsonObject json;
+
+        try (Reader src = config.newReader()) {
+            json = new JsonParser().parse(src).getAsJsonObject();
+            return json.get("id").getAsString();
         }
     }
 
@@ -149,6 +163,8 @@ public class UpgradeBuilder {
                 e.getAsJsonObject().remove("-pustefix.editor");
                 e.getAsJsonObject().remove("+pustefix.editor");
                 return e;
+            }
+            void idRemove() {
             }
             void sslUrlRemove() {
             }
