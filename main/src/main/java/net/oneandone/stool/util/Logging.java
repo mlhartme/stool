@@ -38,18 +38,18 @@ public class Logging {
     private static final String EXTENSION = ".log";
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
 
-    public static Logging forHome(FileNode home, String user) throws IOException {
-        return create(home.join("logs"), "stool", user);
+    public static Logging forHome(FileNode home) throws IOException {
+        return create(home.join("logs"), "stool");
     }
 
-    public static Logging create(FileNode dir, String name, String user) throws IOException {
+    public static Logging create(FileNode dir, String name) throws IOException {
         String today;
         String id;
         Logging result;
 
         today = DATE_FORMAT.format(LocalDate.now());
         id = today + '-' + Integer.toString(id(dir, today));
-        result = new Logging(id, dir.join(name + EXTENSION), user);
+        result = new Logging(id, dir.join(name + EXTENSION));
         return result;
     }
 
@@ -59,6 +59,10 @@ public class Logging {
 
     private String stageId;
     private String stageName;
+
+    public Logging(String id, FileNode file) throws IOException {
+        this(id, file, System.getProperty("user.name"));
+    }
 
     public Logging(String id, FileNode file, String user) throws IOException {
         this.id = id;
@@ -237,5 +241,9 @@ public class Logging {
             }
         }
         return result;
+    }
+
+    public String getUser() {
+        return user;
     }
 }

@@ -38,7 +38,6 @@ import static org.junit.Assert.fail;
  */
 public class StoolIT {
     private static int id = 0;
-    private static final String TESTUSER = System.getProperty("user.name");
 
     private World world;
     private FileNode lib;
@@ -140,10 +139,10 @@ public class StoolIT {
 
         logdir = lib.getParent();
         id++;
-        logging = new Logging(Integer.toString(id), logdir.join(id + "-" + context + "-" + args[0]), TESTUSER);
+        logging = new Logging(Integer.toString(id), logdir.join(id + "-" + context + "-" + args[0]));
         command = command(args);
         System.out.print("  " + command);
-        result = Main.normal(TESTUSER, logging, lib, args);
+        result = Main.normal(logging, lib, args);
         if (result == 0) {
             System.out.println();
         } else {

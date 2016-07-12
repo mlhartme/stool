@@ -63,11 +63,11 @@ import java.util.Map;
 
 /** Home with some session information. */
 public class Session {
-    public static Session load(boolean setenv, FileNode home, Logging logging, String user, String command, Console console, World world,
+    public static Session load(boolean setenv, FileNode home, Logging logging, String command, Console console, World world,
                                String svnuser, String svnpassword) throws IOException {
         Session session;
 
-        session = loadWithoutBackstageWipe(setenv, home, logging, user, command, console, world, svnuser, svnpassword);
+        session = loadWithoutBackstageWipe(setenv, home, logging, command, console, world, svnuser, svnpassword);
 
         // Stale backstage wiping: how to detect backstage directories who's stage directory was removed.
         //
@@ -93,8 +93,7 @@ public class Session {
         console.verbose.println("wipeStaleBackstages done, ms=" + ((System.currentTimeMillis() - s)));
     }
 
-    private static Session loadWithoutBackstageWipe(boolean setenv, FileNode home, Logging logging, String user, String command,
-                                                    Console console,
+    private static Session loadWithoutBackstageWipe(boolean setenv, FileNode home, Logging logging, String command, Console console,
                                                   World world, String svnuser, String svnpassword) throws IOException {
         ExtensionsFactory factory;
         Gson gson;
@@ -104,7 +103,7 @@ public class Session {
         factory = ExtensionsFactory.create(world);
         gson = gson(world, factory);
         environment = Environment.loadSystem();
-        result = new Session(setenv, factory, gson, logging, user, command, home, console, world, environment,
+        result = new Session(setenv, factory, gson, logging, command, home, console, world, environment,
                 StoolConfiguration.load(gson, home), Bedroom.loadOrCreate(gson, home), svnuser, svnpassword);
         return result;
     }
@@ -142,14 +141,14 @@ public class Session {
 
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd");
 
-    public Session(boolean setenv, ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String user, String command,
+    public Session(boolean setenv, ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String command,
                    FileNode home, Console console, World world, Environment environment, StoolConfiguration configuration,
                    Bedroom bedroom, String svnuser, String svnpassword) {
         this.setenv = setenv;
         this.extensionsFactory = extensionsFactory;
         this.gson = gson;
         this.logging = logging;
-        this.user = user;
+        this.user = logging.getUser();
         this.command = command;
         this.home = home;
         this.lazyGroup = null;

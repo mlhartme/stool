@@ -50,11 +50,6 @@ public class DashboardConfiguration {
     }
 
     @Bean
-    public String user() {
-        return System.getProperty("user.name");
-    }
-
-    @Bean
     public Console console() {
         return Console.create();
     }
@@ -62,7 +57,6 @@ public class DashboardConfiguration {
     @Bean
     public Session session() throws IOException {
         FileNode lib;
-        String user;
         FileNode props;
         Properties p;
         String svnuser;
@@ -78,9 +72,7 @@ public class DashboardConfiguration {
             svnuser = null;
             svnpassword = null;
         }
-        user = user();
-        // TODO system.setStoolBin(bin());
-        return Session.load(false, lib, Logging.create(logs(), "dashboard", user), user, "dashboard", console(), world(), svnuser, svnpassword);
+        return Session.load(false, lib, Logging.create(logs(), "dashboard"), "dashboard", console(), world(), svnuser, svnpassword);
     }
 
     @Bean

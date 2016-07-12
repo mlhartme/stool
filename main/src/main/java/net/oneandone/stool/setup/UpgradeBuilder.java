@@ -71,15 +71,13 @@ public class UpgradeBuilder {
 
     private void run(Upgrade stoolMapper, Upgrade stageMapper) throws IOException {
         FileNode stage;
-        String user;
         Logging logging;
         Import i;
 
         home.create();
         stool(from, stoolMapper);
-        user = System.getProperty("user.name");
-        logging = Logging.forHome(home.dir, user);
-        session = Session.load(false, home.dir, logging, user, "upgrade", console, home.dir.getWorld(), null, null);
+        logging = Logging.forHome(home.dir);
+        session = Session.load(false, home.dir, logging, "upgrade", console, home.dir.getWorld(), null, null);
         for (FileNode oldBackstage : from.join("backstages").list()) {
             console.info.println("upgrade " + oldBackstage);
             currentStage = oldBackstage.getName();

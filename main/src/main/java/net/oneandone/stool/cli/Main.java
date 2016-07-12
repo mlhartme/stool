@@ -55,11 +55,10 @@ public class Main {
 
         world = world();
         home = locateHome(world);
-        user = System.getProperty("user.name");
-        return normal(user, null, home, args);
+        return normal(null, home, args);
     }
 
-    public static int normal(String user, Logging logging, FileNode home, String[] args) throws IOException {
+    public static int normal(Logging logging, FileNode home, String[] args) throws IOException {
         World world;
         Cli cli;
         String command;
@@ -73,10 +72,10 @@ public class Main {
             // normal invocation
             setenv = true;
             if (home.exists()) {
-                logging = Logging.forHome(home, user);
+                logging = Logging.forHome(home);
             } else {
                 tmp = world.getTemp().createTempDirectory();
-                logging = new Logging("1", tmp.join("homeless"), user);
+                logging = new Logging("1", tmp.join("homeless"));
             }
             console = console(logging, System.out, System.err);
         } else {
@@ -87,7 +86,7 @@ public class Main {
         }
         command = "stool " + command(args);
         logging.log("COMMAND", command);
-        globals = new Globals(setenv, home, logging, user, command, console, world);
+        globals = new Globals(setenv, home, logging, command, console, world);
         cli = new Cli(globals::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
