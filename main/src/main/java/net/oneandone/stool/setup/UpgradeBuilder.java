@@ -24,6 +24,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.cli.Import;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.FileNotFoundException;
@@ -34,7 +35,6 @@ import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.util.Map;
 
@@ -44,6 +44,7 @@ public class UpgradeBuilder {
     private final FileNode from;
 
     // assigned during upgrade:
+    private StoolConfiguration stoolRaw;
     private Session session = null;
     private String currentStage = null;
 
@@ -65,11 +66,11 @@ public class UpgradeBuilder {
         }
         console.info.println("upgrade " + oldVersion + " -> " + newVersion);
         stage33_34 = stage33_34();
-        run(stool33_34(stage33_34), stage33_34);
+        all(stool33_34(stage33_34), stage33_34);
     }
 
 
-    private void run(Upgrade stoolMapper, Upgrade stageMapper) throws IOException {
+    private void all(Upgrade stoolMapper, Upgrade stageMapper) throws IOException {
         FileNode stage;
         Logging logging;
         Import i;
@@ -100,18 +101,30 @@ public class UpgradeBuilder {
     }
 
     private void stool(FileNode from, Upgrade stoolMapper) throws IOException {
-        transform(from.join("config.json"), home.dir.join("config.json"), stoolMapper);
+        String in;
+        String without;
+        String preliminary;
+
+        in = from.join("config.json").readString();
+        without = Transform.transform(in, new Upgrade() {
+            void defaultsRemove() {}
+        });
+        preliminary = Transform.transform(without, stoolMapper);
+        stoolRaw = home.gson().fromJson(preliminary, StoolConfiguration.class);
+        transform(in, home.dir.join("config.json"), stoolMapper);
     }
 
     private void transform(FileNode src, FileNode dest, Upgrade mapper) throws IOException {
-        String in;
+        transform(src.readString(), dest, mapper);
+    }
+
+    private void transform(String in, FileNode dest, Upgrade mapper) throws IOException {
         String out;
 
-        console.verbose.println("upgrade " + src.getAbsolute());
-        in = src.readString();
+        console.verbose.println("upgrade " + dest.getAbsolute());
         out = Transform.transform(in, mapper);
         if (!in.equals(out)) {
-            console.info.println("M " + src.getAbsolute());
+            console.info.println("M " + dest.getAbsolute());
             console.info.println(Strings.indent(Diff.diff(in, out), "  "));
             dest.writeString(out);
         }
@@ -184,6 +197,8 @@ public class UpgradeBuilder {
                     }
                 } else {
                     array = e.getAsJsonArray();
+                }
+                if (stoolRaw.vhosts) {
                     hostpath = "%a.%s." + hostpath;
                 }
                 hostpath = hostpath + allSuffixes(array);
