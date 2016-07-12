@@ -41,6 +41,7 @@ public class UpgradeBuilder {
 
     // assigned during upgrade:
     private Session session = null;
+    private String currentStage = null;
 
     public UpgradeBuilder(Console console, Home home, FileNode from) {
         this.console = console;
@@ -77,6 +78,7 @@ public class UpgradeBuilder {
         session = Session.load(false, home.dir, logging, user, "upgrade", console, home.dir.getWorld(), null, null);
         for (FileNode oldBackstage : from.join("backstages").list()) {
             console.info.println("upgrade " + oldBackstage);
+            currentStage = oldBackstage.getName();
             stage = oldBackstage.join("anchor").resolveLink();
             i = new Import(session);
             i.dirs(stage.getAbsolute());
@@ -187,6 +189,7 @@ public class UpgradeBuilder {
                 array.add(new JsonPrimitive(StageConfiguration.NOTIFY_OWNER));
                 dest.add("notify", array);
                 dest.add("quota", new JsonPrimitive(10000));
+                dest.add("name", new JsonPrimitive(currentStage));
             }
         };
     }
