@@ -1715,10 +1715,8 @@
         | `- service-wrapper.sh
         |- run
         | |- locks       (holds all locking data)
-        | |- sleep.json
-        | '- users
-        |    |- (one file per user session)
-        |    :
+        | |- ports
+        | '- sleep.json  (optional, holds sleeping stages)
         |- downloads (caches Tomcat- and Service Wrapper downloads)
         |- extensions (for jars with Stool extensions)
         |- logs

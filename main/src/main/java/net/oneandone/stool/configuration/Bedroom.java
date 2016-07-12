@@ -21,9 +21,10 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class Bedroom {
+public class Bedroom implements Iterable<String> {
     private static final String FILENAME = "sleep.json";
 
     public static Bedroom loadOrCreate(Gson gson, FileNode lib) throws IOException {
@@ -78,5 +79,10 @@ public class Bedroom {
 
     public FileNode file() {
         return file;
+    }
+
+    @Override
+    public Iterator<String> iterator() {
+        return sleep.iterator();
     }
 }

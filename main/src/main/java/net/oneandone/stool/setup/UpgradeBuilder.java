@@ -15,20 +15,20 @@
  */
 package net.oneandone.stool.setup;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.Console;
-import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.cli.Import;
+import net.oneandone.stool.cli.Main;
+import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.FileNotFoundException;
-import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Diff;
 import net.oneandone.sushi.util.Separator;
@@ -36,6 +36,9 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UpgradeBuilder {
@@ -47,6 +50,9 @@ public class UpgradeBuilder {
     private StoolConfiguration stoolRaw;
     private Session session = null;
     private String currentStage = null;
+
+    /** maps names to ids */
+    private Map<String, String> stages = new HashMap<>();
 
     public UpgradeBuilder(Console console, Home home, FileNode from) {
         this.console = console;
@@ -71,6 +77,7 @@ public class UpgradeBuilder {
 
 
     private void all(Upgrade stoolMapper, Upgrade stageMapper) throws IOException {
+        String id;
         FileNode stage;
         Logging logging;
         Import i;
@@ -82,12 +89,54 @@ public class UpgradeBuilder {
         for (FileNode oldBackstage : from.join("backstages").list()) {
             console.info.println("upgrade " + oldBackstage);
             currentStage = oldBackstage.getName();
+            id = getId(oldBackstage.join("config.json"));
+            stages.put(currentStage, id);
             stage = oldBackstage.join("anchor").resolveLink();
             i = new Import(session);
-            i.setUpgradeId(getId(oldBackstage.join("config.json")));
+            i.setUpgradeId(id);
             i.dirs(stage.getAbsolute());
             i.doRun();
             transform(oldBackstage.join("config.json"), stage.join(".backstage/config.json"), stageMapper);
+        }
+        ports();
+        bedroom();
+    }
+
+    private void ports() throws IOException {
+        List<String> entries;
+        List<String> out;
+        String name;
+        String id;
+
+        out = new ArrayList<>();
+        for (String line : from.join("run/ports").readLines()) {
+            entries = Separator.SPACE.split(line);
+            name = entries.get(2);
+            id = stages.get(name);
+            if (id == null) {
+                throw new IllegalStateException(name);
+            }
+            entries.add(3, id);
+            out.add(Separator.SPACE.join(entries));
+        }
+        home.dir.join("run/ports").writeLines(out);
+    }
+
+    private void bedroom() throws IOException {
+        Gson gson;
+        Bedroom old;
+        Bedroom next;
+        String id;
+
+        gson = home.gson();
+        old = Bedroom.loadOrCreate(gson, from);
+        next = Bedroom.loadOrCreate(gson, home.dir);
+        for (String name : old) {
+            id = stages.get(name);
+            if (id == null) {
+                throw new IllegalStateException(name);
+            }
+            next.add(gson, id);
         }
     }
 

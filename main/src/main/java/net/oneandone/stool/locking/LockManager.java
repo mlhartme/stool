@@ -22,7 +22,6 @@ import net.oneandone.sushi.util.Pid;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.management.ManagementFactory;
 import java.nio.channels.FileLock;
 import java.util.ArrayList;
 import java.util.List;

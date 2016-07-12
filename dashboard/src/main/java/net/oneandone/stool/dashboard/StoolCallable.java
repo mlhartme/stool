@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.dashboard;
 
-import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Credentials;
 import net.oneandone.stool.util.Session;

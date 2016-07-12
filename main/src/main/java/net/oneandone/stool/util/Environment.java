@@ -16,14 +16,10 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.sushi.launcher.Launcher;
-import net.oneandone.sushi.util.Separator;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /** Used instead of System.getenv. Allows to track changes and provides a simple mocking mechanism for integration tests */
 public class Environment {
