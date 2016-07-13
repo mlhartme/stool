@@ -36,6 +36,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 public abstract class StageCommand extends SessionCommand {
     private final Mode backstageLock;
@@ -57,6 +58,15 @@ public abstract class StageCommand extends SessionCommand {
         this.withAutoChowning = withAutoChowning;
         this.backstageLock = backstageLock;
         this.directoryLock = directoryLock;
+    }
+
+    /** derived classes override this if the answer is not static */
+    public boolean withAutoRunning() {
+        return withAutoRunning;
+    }
+    /** derived classes override this if the answer is not static */
+    public boolean withAutoChowning() {
+        return withAutoChowning;
     }
 
     public void setAutoRechown(boolean autoRechown) {
@@ -226,14 +236,14 @@ public abstract class StageCommand extends SessionCommand {
         boolean suspend;
 
         status = new HashMap<>();
-        if (withAutoRunning && (autoRestart || autoStop) && stage.state() == Stage.State.UP) {
+        if (withAutoRunning() && (autoRestart || autoStop) && stage.state() == Stage.State.UP) {
             postStart = autoRestart;
             Status.processStatus(processes(), stage, status);
             new Stop(session, false).doRun(stage);
         } else {
             postStart = false;
         }
-        if (withAutoChowning && (autoRechown || autoChown) && !stage.owner().equals(session.user)) {
+        if (withAutoChowning() && (autoRechown || autoChown) && !stage.owner().equals(session.user)) {
             postChown = autoRechown ? stage.owner() : null;
             new Chown(session, true, session.user).doRun(stage);
         } else {
