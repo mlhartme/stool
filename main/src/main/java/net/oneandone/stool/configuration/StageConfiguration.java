@@ -44,21 +44,6 @@ public class StageConfiguration {
         }
     }
 
-    public static Map<String, Property> properties(ExtensionsFactory extensions) {
-        Map<String, Property> result;
-        Option option;
-
-        result = new LinkedHashMap<>();
-        for (Field field : StageConfiguration.class.getFields()) {
-            option = field.getAnnotation(Option.class);
-            if (option != null) {
-                result.put(option.key(), new Property(option.key(), field, null));
-            }
-        }
-        extensions.fields(result);
-        return result;
-    }
-
     //--
 
     @Option(key = "name")

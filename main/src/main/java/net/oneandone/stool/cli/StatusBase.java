@@ -15,9 +15,11 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Field;
+import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
@@ -27,24 +29,14 @@ import net.oneandone.sushi.util.Separator;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 public abstract class StatusBase extends StageCommand {
-    public enum Field {
-        ID, NAME, SELECTED, DIRECTORY, BACKSTAGE, URL, TYPE, BUILDTIME, OWNER, DISK, STATE, UPTIME, CPU, MEM, SERVICE, TOMCAT, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
 
-        public String toString() {
-            return name().toLowerCase();
-        }
-
-        public int length() {
-            return name().length();
-        }
-    }
-
-    protected final List<Field> selected = new ArrayList<>();
+    protected final List<Info> selected = new ArrayList<>();
 
     private final String defaults;
 
@@ -57,16 +49,12 @@ public abstract class StatusBase extends StageCommand {
         selected.add(get(str));
     }
 
-    private static Field get(String str) {
-        try {
-            return Field.valueOf(str.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new ArgumentException(str + ": no such status field, choose one of " + Arrays.asList(Field.values()));
-        }
+    private Info get(String str) {
+        return Info.get(session.properties(), str);
     }
 
-    protected List<Field> defaults(Field ... systemDefaults) {
-        List<Field> result;
+    protected List<Info> defaults(Info ... systemDefaults) {
+        List<Info> result;
 
         if (defaults.isEmpty()) {
             return Arrays.asList(systemDefaults);
@@ -105,16 +93,15 @@ public abstract class StatusBase extends StageCommand {
         }
     }
 
-    public static Map<Field, Object> status(Session session, Processes processes, Stage stage) throws IOException {
-        Map<Field, Object> result;
+    public static Map<Info, Object> status(Session session, Processes processes, Stage stage) throws IOException {
+        Map<Info, Object> result;
         Ports ports;
         List<String> jmx;
         String url;
 
-        result = new TreeMap<>();
+        result = new HashMap<>();
         result.put(Field.ID, stage.getId());
-        result.put(Field.NAME, stage.getName());
-        result.put(Field.SELECTED, session.isSelected(stage) ? "*" : "");
+        result.put(Field.SELECTED, session.isSelected(stage));
         result.put(Field.DIRECTORY, stage.getDirectory().getAbsolute());
         result.put(Field.BACKSTAGE, stage.backstage.getAbsolute());
         result.put(Field.DISK, Integer.toString(stage.diskUsed()));
@@ -134,6 +121,9 @@ public abstract class StatusBase extends StageCommand {
             jmx.add("jvisualvm --openjmx " + url);
         }
         result.put(Field.JMX, jmx);
+        for (Property property: session.properties().values()) {
+            result.put(property, property.get(stage.config()));
+        }
         return result;
     }
 
@@ -156,7 +146,7 @@ public abstract class StatusBase extends StageCommand {
         return result;
     }
 
-    public static Ports processStatus(Processes processes, Stage stage, Map<Field, Object> result) throws IOException {
+    public static Ports processStatus(Processes processes, Stage stage, Map<Info, Object> result) throws IOException {
         int servicePid;
         int tomcatPid;
         String debug;

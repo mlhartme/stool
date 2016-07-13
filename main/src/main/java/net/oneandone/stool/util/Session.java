@@ -25,6 +25,8 @@ import net.oneandone.stool.cli.EnumerationFailed;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.Expire;
+import net.oneandone.stool.configuration.Option;
+import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
@@ -54,10 +56,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -169,6 +172,22 @@ public class Session {
         this.lockManager = LockManager.create(home.join("run/locks"), user + ":" + command, 10);
         this.lazyPool= null;
     }
+
+    public Map<String, Property> properties() {
+        Map<String, Property> result;
+        Option option;
+
+        result = new LinkedHashMap<>();
+        for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
+            option = field.getAnnotation(Option.class);
+            if (option != null) {
+                result.put(option.key(), new Property(option.key(), field, null));
+            }
+        }
+        extensionsFactory.fields(result);
+        return result;
+    }
+
 
     public void add(FileNode backstage, String id) throws LinkException {
         backstage.link(backstages.join(id));
@@ -514,7 +533,7 @@ public class Session {
         scm = scmOpt(url);
         refresh = scm == null ? "" : scm.refresh();
         result = new StageConfiguration(javaHome(), mavenHome, refresh, extensionsFactory.newInstance());
-        configuration.setDefaults(StageConfiguration.properties(extensionsFactory), result, url);
+        configuration.setDefaults(properties(), result, url);
         return result;
     }
 
@@ -612,5 +631,20 @@ public class Session {
             throw new IllegalArgumentException(version);
         }
         return version.substring(0, minor);
+    }
+
+    public Property property(String name) {
+        return properties().get(name);
+    }
+
+    public Info[] fieldsAndName() {
+        Field[] fields;
+        Info[] result;
+
+        fields = Field.values();
+        result = new Info[fields.length + 1];
+        System.arraycopy(fields, 0, result, 1, fields.length);
+        result[0] = property("name");
+        return result;
     }
 }

@@ -55,7 +55,7 @@ public class Create extends SessionCommand {
         this.quiet = quiet;
         this.urlOrFileOrSearch = urlOrFileOrSearch;
         this.directory = null;
-        this.properties = StageConfiguration.properties(session.extensionsFactory);
+        this.properties = session.properties();
     }
 
 

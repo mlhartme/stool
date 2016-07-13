@@ -16,6 +16,8 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Field;
+import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Strings;
 
@@ -37,14 +39,14 @@ public class Ls extends StatusBase {
         List<String> line;
 
         if (selected.isEmpty()) {
-            selected.addAll(defaults(Field.NAME, Field.STATE, Field.OWNER, Field.URL, Field.DIRECTORY));
+            selected.addAll(defaults(session.property("name"), Field.STATE, Field.OWNER, Field.URL, Field.DIRECTORY));
         }
         header("stages");
 
         line = new ArrayList<>();
         lines.add(line);
-        for (Field field : selected) {
-            line.add('(' + field.toString().toLowerCase() + ')');
+        for (Info info : selected) {
+            line.add('(' + info.infoName() + ')');
         }
         return true;
     }
@@ -52,13 +54,13 @@ public class Ls extends StatusBase {
     @Override
     public void doRun(Stage stage) throws Exception {
         List<String> line;
-        Map<Field, Object> status;
+        Map<Info, Object> status;
 
         status = Status.status(session, processes(), stage);
         line = new ArrayList<>();
         lines.add(line);
-        for (Field field : selected) {
-            line.add(Status.toString(status.get(field)).replace("\t", " "));
+        for (Info info : selected) {
+            line.add(Status.toString(status.get(info)).replace("\t", " "));
         }
     }
 

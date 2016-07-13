@@ -39,13 +39,14 @@
 
 * `status` command
   * added `cpu`, `mem`, `selected` and `buildtime` fields
+  * can also access properties now (actually, name is a property)
   * fixed status field `tomcat` to contain the tomcat pid, not the service wrapper pid; added a new `service` field to contain the 
     service wrapper pid.
 
-* `start` command now deletes $TOMCAT/temp and creates a new empty directory
+* `list` command has the same configurable fields and properties as the `status` command now. Defaults no longer contain the 
+  selected stage; the stage directory has been added to the defaults.
 
-* `list` command has the same configurable fields as the `status` command now. Defaults no longer contain the selected stage; the 
-  stage directory has been added to the defaults.
+* `start` command now deletes $TOMCAT/temp and creates a new empty directory
 
 * The stage name is a property now.
   * `stool rename foo` is gone, use `stool config name=foo` instead. 

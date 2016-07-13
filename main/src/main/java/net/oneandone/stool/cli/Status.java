@@ -16,6 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -32,25 +33,25 @@ public class Status extends StatusBase {
 
     @Override
     public void doRun(Stage stage) throws Exception {
-        List<Field> fields;
-        Map<Field, Object> status;
+        List<Info> infos;
+        Map<Info, Object> status;
         int width;
         boolean first;
         String value;
 
         status = status(session, processes(), stage);
-        fields = selected.isEmpty() ? defaults(Field.values()) : selected;
+        infos = selected.isEmpty() ? defaults(session.fieldsAndName()) : selected;
         width = 0;
-        for (Field field : fields) {
-            width = Math.max(width, field.length());
+        for (Info info : infos) {
+            width = Math.max(width, info.infoName().length());
         }
         width += 2;
-        for (Field field : fields) {
-            console.info.print(Strings.times(' ', width - field.length()));
-            console.info.print(field.toString());
+        for (Info info : infos) {
+            console.info.print(Strings.times(' ', width - info.infoName().length()));
+            console.info.print(info.infoName());
             console.info.print(" : ");
             first = true;
-            value = toString(status.get(field));
+            value = toString(status.get(info));
             if (value.isEmpty()) {
                 console.info.println();
             } else for (String str : TAB.split(value)) {

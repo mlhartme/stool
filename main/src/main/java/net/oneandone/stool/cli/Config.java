@@ -36,7 +36,7 @@ public class Config extends StageCommand {
 
     public Config(Session session) {
         super(session, Mode.NONE, Mode.EXCLUSIVE, Mode.NONE);
-        all = StageConfiguration.properties(session.extensionsFactory);
+        all = session.properties();
         selected = new HashMap<>();
     }
 

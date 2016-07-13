@@ -17,6 +17,7 @@ package net.oneandone.stool.configuration;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.extensions.Switch;
+import net.oneandone.stool.util.Info;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
-public class Property {
+public class Property implements Info {
     public final String name;
     private final Field field;
     private final String extension;
@@ -160,5 +161,21 @@ public class Property {
                 return s.extension;
             }
         }
+    }
+
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof Property) {
+            return name.equals(((Property) obj).name);
+        }
+        return false;
+    }
+
+    @Override
+    public String infoName() {
+        return name;
     }
 }

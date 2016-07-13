@@ -17,10 +17,11 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.configuration.Property;
-import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Field;
+import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
@@ -174,7 +175,7 @@ public abstract class StageCommand extends SessionCommand {
                 if (all) {
                     return all(problems);
                 } else if (stageClause != null) {
-                    return session.list(problems, or(StageConfiguration.properties(session.extensionsFactory), stageClause));
+                    return session.list(problems, or(session.properties(), stageClause));
                 } else {
                     throw new IllegalStateException();
                 }
@@ -216,7 +217,7 @@ public abstract class StageCommand extends SessionCommand {
     public void doAutoInvoke(Stage stage) throws Exception {
         boolean postStart;
         String postChown;
-        Map<Status.Field, Object> status;
+        Map<Info, Object> status;
         boolean debug;
         boolean suspend;
 
@@ -242,8 +243,8 @@ public abstract class StageCommand extends SessionCommand {
             new Chown(session, true, postChown).doRun(stage);
         }
         if (postStart) {
-            debug = status.get(Status.Field.DEBUGGER) != null;
-            suspend = (Boolean) status.get(Status.Field.SUSPEND);
+            debug = status.get(Field.DEBUGGER) != null;
+            suspend = (Boolean) status.get(Field.SUSPEND);
             new Start(session, debug, suspend).doRun(stage);
         }
     }
@@ -311,8 +312,8 @@ public abstract class StageCommand extends SessionCommand {
         int idx;
         String name;
         final boolean eq;
-        Status.Field field;
-        final Status.Field constField;
+        Field field;
+        final Field constField;
         String value;
         String property;
         final String constProperty;
@@ -337,7 +338,7 @@ public abstract class StageCommand extends SessionCommand {
             name = string.substring(0, idx);
         }
         try {
-            field = Status.Field.valueOf(name.toUpperCase());
+            field = Field.valueOf(name.toUpperCase());
             property = null;
         } catch (IllegalArgumentException e) {
             field = null;
@@ -362,7 +363,7 @@ public abstract class StageCommand extends SessionCommand {
         return new Predicate() {
             @Override
             public boolean matches(Stage stage) throws IOException {
-                Map<Status.Field, Object> status;
+                Map<Info, Object> status;
                 boolean result;
                 Object obj;
                 String str;
