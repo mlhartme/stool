@@ -140,7 +140,7 @@ public class StageConfiguration {
         this.tomcatOpts = "";
         this.tomcatVersion = "8.5.3";
         this.tomcatService = "3.5.29";
-        this.tomcatHeap = 200;
+        this.tomcatHeap = 350;
         this.tomcatSelect = new ArrayList<>();
         this.tomcatEnv = new HashMap<>();
         this.javaHome = javaHome;

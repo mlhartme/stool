@@ -57,6 +57,7 @@
   * Pommes is no longer hard-wired, there's a global `search` property to configure arbitrary search tools.
 
 * Stage configuration:
+  * default base heap is 350 now
   * added `quota` to limit the disk spaced occupied by the stage.
   * added `notify` to configure email notifications.
   * dumped `sslUrl` 
