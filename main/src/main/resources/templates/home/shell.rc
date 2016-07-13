@@ -2,49 +2,56 @@
 
 ${{setenv.rc}}
 
+stageIndicator() {
+  local NO_COLOUR="\[\033[0m\]"
+  local dir=`pwd`
+  local name=$(stageName $dir)
+  if [ $? == 0 ] ; then
+    echo -n $(stageIndicatorColor)"{$name} "${NO_COLOR}
+  # else
+  #   no stage -> no indicator
+  fi
+}
+
+stageName() {
+  local dir="$(cd $1; pwd)"
+  while [ $dir != "/" ] ; do
+    if [ -d $dir/.backstage ] ; then
+      local name=$(grep \"name\" $dir/.backstage/config.json | cut -d':' -f2 | grep -o \"[\-a-zA-Z.0-9]*\")
+      name=${name:1}
+      name=${name%?}
+      echo -n ${name}
+      return 0
+    fi
+    dir="$(dirname "$dir")"
+  done
+  echo -n none
+  return 1
+}
+
+stageIndicatorColor() {
+    local RED="\033[0;31m"
+    local BLUE_BACKGROUND="\033[44;1;37m"
+    local DIR=$1
+    if [ ! -e $DIR ] ; then
+      echo -e "$BLUE_BACKGROUND"
+    else
+      if [ `uname` = Darwin ] ; then
+        local fmt=-f
+      else
+        local fmt=--format
+      fi
+      if [ $(id -u) = "$(stat -L $fmt %u $DIR)" ] ; then
+        echo -n ""
+      else
+        echo -n "$RED"
+      fi
+    fi
+}
+
 if [ -z $STOOL_STAGE_INDICATOR ] ; then
-    colorStageIndicator() {
-      local NO_COLOUR="\[\033[0m\]"
-      local dir=`pwd`
-      echo -n $(stageIndicatorColor)"$(stageIndicator $dir)"${NO_COLOR}
-    }
-
-    stageIndicator() {
-      local dir="$(cd $1; pwd)"
-      while [ $dir != "/" ] ; do
-        if [ -d $dir/.backstage ] ; then
-          local name=$(grep \"name\" $dir/.backstage/config.json | cut -d':' -f2 | grep -o \"[\-a-zA-Z.0-9]*\")
-          name=${name:1}
-          name=${name%?}
-          echo -n "{$name} "
-          return
-        fi
-        dir="$(dirname "$dir")"
-      done
-    }
-
-    stageIndicatorColor() {
-        local RED="\033[0;31m"
-        local BLUE_BACKGROUND="\033[44;1;37m"
-        local DIR=$1
-        if [ ! -e $DIR ] ; then
-          echo -e "$BLUE_BACKGROUND"
-        else
-          if [ `uname` = Darwin ] ; then
-            local fmt=-f
-          else
-            local fmt=--format
-          fi
-          if [ $(id -u) = "$(stat -L $fmt %u $DIR)" ] ; then
-            echo -n ""
-          else
-            echo -n "$RED"
-          fi
-        fi
-    }
-
     if [ ! -z $BASH ] ; then
-        PS1="\$(colorStageIndicator)$PS1"
+        PS1="\$(stageIndicator)$PS1"
         export STOOL_STAGE_INDICATOR=true
     fi
 fi

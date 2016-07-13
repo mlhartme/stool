@@ -1,5 +1,13 @@
+stageList() {
+  local base=${{stool.home}}/backstages
+  for dir in $(ls -1 $base); do
+    ls=$(ls -ld "$base/$dir")
+    dir=$(expr "$ls" : '.*-> \(.*\)$')
+    echo $(stageName $dir)
+  done
+  echo none
+}
 _stool_complete() {
-      local home=${{stool.home}}
       local cur prev cmd
       local select_opts general_opts
       COMPREPLY=()
@@ -31,12 +39,12 @@ _stool_complete() {
             fi
             ;;
         select)
-            local stages=$(for dir in `ls -1 $home/backstages/`; do echo ${dir}; done; echo 'none')
+            local stages=$(stageList)
             COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
             return 0
             ;;
         status)
-            local stages=$(for dir in `ls -1 home/backstages/`; do echo ${dir}; done)
+            local stages=$(stageList)
             COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
             return 0
             ;;
