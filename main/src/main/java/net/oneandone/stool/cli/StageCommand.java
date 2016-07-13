@@ -40,6 +40,8 @@ import java.util.Map;
 public abstract class StageCommand extends SessionCommand {
     private final Mode backstageLock;
     private final Mode directoryLock;
+    private final boolean withAutoRunning;
+    private final boolean withAutoChowning;
 
     private boolean autoRechown;
     private boolean autoChown;
@@ -49,8 +51,10 @@ public abstract class StageCommand extends SessionCommand {
     private boolean all;
     private Fail fail = Fail.NORMAL;
 
-    public StageCommand(Session session, Mode globalLock, Mode backstageLock, Mode directoryLock) {
+    public StageCommand(boolean withAutoRunning, boolean withAutoChowning, Session session, Mode globalLock, Mode backstageLock, Mode directoryLock) {
         super(session, globalLock);
+        this.withAutoRunning = withAutoRunning;
+        this.withAutoChowning = withAutoChowning;
         this.backstageLock = backstageLock;
         this.directoryLock = directoryLock;
     }
@@ -222,14 +226,14 @@ public abstract class StageCommand extends SessionCommand {
         boolean suspend;
 
         status = new HashMap<>();
-        if ((autoRestart || autoStop) && stage.state() == Stage.State.UP) {
+        if (withAutoRunning && (autoRestart || autoStop) && stage.state() == Stage.State.UP) {
             postStart = autoRestart;
             Status.processStatus(processes(), stage, status);
             new Stop(session, false).doRun(stage);
         } else {
             postStart = false;
         }
-        if ((autoRechown || autoChown) && !stage.owner().equals(session.user)) {
+        if (withAutoChowning && (autoRechown || autoChown) && !stage.owner().equals(session.user)) {
             postChown = autoRechown ? stage.owner() : null;
             new Chown(session, true, session.user).doRun(stage);
         } else {

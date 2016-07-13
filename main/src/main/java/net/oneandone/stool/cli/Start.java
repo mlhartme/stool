@@ -50,7 +50,7 @@ public class Start extends StageCommand {
     private boolean tail;
 
     public Start(Session session, boolean debug, boolean suspend) {
-        super(session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);
+        super(false, false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);
         this.debug = debug;
         this.suspend = suspend;
         this.tail = false;

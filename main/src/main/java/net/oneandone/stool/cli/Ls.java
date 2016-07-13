@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class Ls extends StatusBase {
+public class Ls extends InfoCommand {
     private List<List<String>> lines;
 
     public Ls(Session session, String defaults) {

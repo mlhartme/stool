@@ -24,7 +24,7 @@ import net.oneandone.sushi.util.Strings;
 import java.util.List;
 import java.util.Map;
 
-public class Status extends StatusBase {
+public class Status extends InfoCommand {
     public Status(Session session, String defaults) {
         super(session, defaults);
     }

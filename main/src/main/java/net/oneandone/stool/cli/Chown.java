@@ -25,7 +25,7 @@ public class Chown extends StageCommand {
     private String userArgument;
 
     public Chown(Session session, boolean batch, String userArgument) {
-        super(session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
+        super(true, false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         if ("root".equals(userArgument)) {
             throw new ArgumentException("Root does not want to own stages.");
         }

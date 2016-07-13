@@ -23,7 +23,7 @@ public class Stop extends StageCommand {
     private boolean sleep;
 
     public Stop(Session session, boolean sleep) {
-        super(session, Mode.SHARED, Mode.SHARED, Mode.NONE);
+        super(false, false, session, Mode.SHARED, Mode.SHARED, Mode.NONE);
         this.sleep = sleep;
     }
 

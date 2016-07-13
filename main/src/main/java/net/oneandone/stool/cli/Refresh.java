@@ -26,7 +26,7 @@ public class Refresh extends StageCommand {
     private boolean restore;
 
     public Refresh(Session session, boolean build, boolean restore) {
-        super(session, Mode.NONE, Mode.SHARED, Mode.SHARED);
+        super(true, true, session, Mode.NONE, Mode.SHARED, Mode.SHARED);
         this.build = build;
         this.restore = restore;
     }

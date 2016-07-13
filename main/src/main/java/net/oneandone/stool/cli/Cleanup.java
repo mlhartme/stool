@@ -29,9 +29,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Cleanup extends StageCommand {
-
     public Cleanup(Session session) {
-        super(session, Mode.NONE, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
+        super(false, true, session, Mode.NONE, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
     }
 
     @Override

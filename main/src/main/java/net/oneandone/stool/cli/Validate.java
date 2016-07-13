@@ -45,7 +45,7 @@ public class Validate extends StageCommand {
     private Report report;
 
     public Validate(Session session, boolean email, boolean repair) {
-        super(session, Mode.SHARED, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
+        super(false, false, session, Mode.SHARED, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.email = email;
         this.repair = repair;
     }

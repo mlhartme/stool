@@ -29,7 +29,7 @@ public class Cd extends StageCommand {
     private String target;
 
     public Cd(Session session) {
-        super(session, Mode.NONE, Mode.SHARED, Mode.NONE);
+        super(false, false, session, Mode.NONE, Mode.SHARED, Mode.NONE);
         this.target = null;
     }
 

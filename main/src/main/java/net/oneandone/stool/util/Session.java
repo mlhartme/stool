@@ -162,7 +162,7 @@ public class Session {
         this.bedroom = bedroom;
         this.backstages = home.join("backstages");
         this.svnCredentials = new Credentials(svnuser, svnpassword);
-        this.stageIdPrefix = FMT.format(LocalDate.now()) + "." + logging.id + ".";
+        this.stageIdPrefix = logging.id + ".";
         this.nextStageId = 0;
         if (configuration.ldapUrl.isEmpty()) {
             this.users = Users.fromLogin();

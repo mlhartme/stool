@@ -34,14 +34,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-public abstract class StatusBase extends StageCommand {
+public abstract class InfoCommand extends StageCommand {
 
     protected final List<Info> selected = new ArrayList<>();
 
     private final String defaults;
 
-    public StatusBase(Session session, String defaults) {
-        super(session, Mode.SHARED, Mode.SHARED, Mode.SHARED);
+    public InfoCommand(Session session, String defaults) {
+        super(false, false, session, Mode.SHARED, Mode.SHARED, Mode.SHARED);
         this.defaults = defaults;
     }
 

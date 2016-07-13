@@ -53,6 +53,7 @@ public class Logging {
         return result;
     }
 
+    /** unique id for this invocation */
     public final String id;
     private final FileNode file;
     private final String user;

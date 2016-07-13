@@ -28,7 +28,7 @@ public class Remove extends StageCommand {
     private boolean backstageOnly;
 
     public Remove(Session session, boolean batch, boolean force) {
-        super(session, Mode.EXCLUSIVE, Mode.NONE, Mode.NONE);
+        super(true, true, session, Mode.EXCLUSIVE, Mode.NONE, Mode.NONE);
         this.batch = batch;
         this.force = force;
         this.backstageOnly = false;
