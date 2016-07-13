@@ -49,13 +49,10 @@ stageIndicatorColor() {
     fi
 }
 
-if [ -z $STOOL_STAGE_INDICATOR ] ; then
-    if [ ! -z $BASH ] ; then
+if [ "x$BASH" != "x" ] ; then
+    if [ -z $STOOL_STAGE_INDICATOR ] ; then
         PS1="\$(stageIndicator)$PS1"
         export STOOL_STAGE_INDICATOR=true
     fi
-fi
-
-if [ ! -z $BASH ] ; then
     . ${{stool.home}}/bash.complete
 fi
