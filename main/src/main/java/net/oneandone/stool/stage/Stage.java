@@ -46,7 +46,11 @@ import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.repository.RepositoryPolicy;
 
 import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -652,6 +656,25 @@ public abstract class Stage {
         str = Strings.removeRight(str, ".");
         str = str.trim();
         return (Integer.parseInt(str) + 512) / 1024;
+    }
+
+    public static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
+
+    public abstract List<FileNode> artifacts() throws IOException;
+
+    public String buildtime() throws IOException {
+        Collection<FileNode> artifacts;
+        long time;
+
+        artifacts = artifacts();
+        if (artifacts.isEmpty()) {
+            return null;
+        }
+        time = Long.MIN_VALUE;
+        for (FileNode a : artifacts) {
+            time = Math.max(time, a.getLastModified());
+        }
+        return FMT.format(Instant.ofEpochMilli(time));
     }
 
     public enum State {

@@ -82,6 +82,21 @@ public class SourceStage extends Stage {
         return names;
     }
 
+    public List<FileNode> artifacts() throws IOException {
+        List<FileNode> result;
+        FileNode basedir;
+        Filter filter;
+
+        filter = directory.getWorld().filter();
+        filter.include("target/*.war");
+        result = new ArrayList<>();
+        for (MavenProject project : wars()) {
+            basedir = directory.getWorld().file(project.getBasedir());
+            result.addAll(basedir.find(filter));
+        }
+        return result;
+    }
+
     @Override
     public Map<String, FileNode> vhosts() throws IOException {
         Map<String, FileNode> applications;
@@ -113,7 +128,7 @@ public class SourceStage extends Stage {
         result = (List) directory.find(filter);
         switch (result.size()) {
             case 0:
-                throw new FileNotFoundException("No web application found. Did you build the project?");
+                throw new IOException("No web application found. Did you build the project?");
             case 1:
                 return result.get(0).getParent();
             default:

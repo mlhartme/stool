@@ -38,7 +38,7 @@
 * Logstash extension
 
 * `status` command
-  * added `cpu`, `mem` and `selected` fields
+  * added `cpu`, `mem`, `selected` and `buildtime` fields
   * fixed status field `tomcat` to contain the tomcat pid, not the service wrapper pid; added a new `service` field to contain the 
     service wrapper pid.
 

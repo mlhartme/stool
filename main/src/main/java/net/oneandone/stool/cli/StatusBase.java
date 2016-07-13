@@ -33,7 +33,7 @@ import java.util.TreeMap;
 
 public abstract class StatusBase extends StageCommand {
     public enum Field {
-        ID, NAME, SELECTED, DIRECTORY, BACKSTAGE, URL, TYPE, OWNER, DISK, STATE, UPTIME, CPU, MEM, SERVICE, TOMCAT, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
+        ID, NAME, SELECTED, DIRECTORY, BACKSTAGE, URL, TYPE, BUILDTIME, OWNER, DISK, STATE, UPTIME, CPU, MEM, SERVICE, TOMCAT, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
 
         public String toString() {
             return name().toLowerCase();
@@ -120,6 +120,7 @@ public abstract class StatusBase extends StageCommand {
         result.put(Field.DISK, Integer.toString(stage.diskUsed()));
         result.put(Field.URL, stage.getUrl());
         result.put(Field.TYPE, stage.getType());
+        result.put(Field.BUILDTIME, stage.buildtime());
         result.put(Field.OWNER, stage.owner());
         result.put(Field.UPTIME, stage.uptime());
         result.put(Field.STATE, stage.state().toString());

@@ -199,6 +199,17 @@ public class ArtifactStage extends Stage {
         return result;
     }
 
+    @Override
+    public List<FileNode> artifacts() {
+        List<FileNode> result;
+
+        result = new ArrayList<>();
+        for (Application application : applications.applications()) {
+            result.add(application.current.file());
+        }
+        return result;
+    }
+
     private FileNode getGavFile() {
         return urlFile(directory);
     }

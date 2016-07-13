@@ -34,7 +34,7 @@ public class Application {
     private final Console console;
 
     private final WarFile backup;
-    private final WarFile current;
+    public final WarFile current;
     private final WarFile future;
 
     public Application(Gson gson, String name, Locator location, FileNode stageDirectory, Console console) {
