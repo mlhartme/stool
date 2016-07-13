@@ -17,17 +17,14 @@ package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
 import net.oneandone.stool.extensions.Extensions;
-import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
