@@ -84,7 +84,7 @@ public class Home {
         exec("chmod", "2775", dir.getAbsolute());
 
         world = dir.getWorld();
-        Files.template(console.verbose, world.resource("templates/lib"), dir, variables());
+        Files.template(console.verbose, world.resource("templates/home"), dir, variables());
         conf = Autoconf.stool(dir);
         if (explicitConfig != null) {
             conf = conf.createPatched(gson, explicitConfig);
@@ -117,7 +117,7 @@ public class Home {
         Map<String, String> variables;
 
         variables = new HashMap<>();
-        variables.put("stool.lib", dir.getAbsolute());
+        variables.put("stool.home", dir.getAbsolute());
         variables.put("setenv.rc", Setenv.get().setenvBash());
         return variables;
     }

@@ -256,6 +256,10 @@ public abstract class StageCommand extends SessionCommand {
             new Chown(session, true, postChown).doRun(stage);
         }
         if (postStart) {
+            if (!stage.getDirectory().exists()) {
+                // stage remove -- no need to start again
+                return;
+            }
             debug = status.get(Field.DEBUGGER) != null;
             suspend = (Boolean) status.get(Field.SUSPEND);
             new Start(session, debug, suspend).doRun(stage);

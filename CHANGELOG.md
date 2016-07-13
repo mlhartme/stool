@@ -78,7 +78,7 @@
   * renamed `stool.backstage` by `stool.idlink`, it points to the link in $LIB/backstages
 
 * improved setup
-  * `stool` is now a normal executable, not a shell function. Shell code went to $LIB/bash.rc, and it's only needed for interactive shells. 
+  * `stool` is now a normal executable, not a shell function. Shell code went to $LIB/shell.rc, and it's only needed for interactive shells. 
   * arbitrary location for `stool` binary
   * $LIB is either `~/.stool` or `/usr/share/stool`
   * improved default configuration

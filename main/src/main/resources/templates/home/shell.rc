@@ -1,4 +1,6 @@
-# Stool shell code for bash
+# Stool shell code
+
+${{setenv.rc}}
 
 if [ -z $STOOL_STAGE_INDICATOR ] ; then
     colorStageIndicator() {
@@ -40,8 +42,13 @@ if [ -z $STOOL_STAGE_INDICATOR ] ; then
           fi
         fi
     }
-    PS1="\$(colorStageIndicator)$PS1"
-    export STOOL_STAGE_INDICATOR=true
+
+    if [ ! -z $BASH ] ; then
+        PS1="\$(colorStageIndicator)$PS1"
+        export STOOL_STAGE_INDICATOR=true
+    fi
 fi
 
-${{setenv.rc}}
+if [ ! -z $BASH ] ; then
+    . ${{stool.home}}/bash.complete
+fi

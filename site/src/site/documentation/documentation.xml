@@ -1684,7 +1684,7 @@
       </listitem>
     </itemizedlist>
 
-    <para>Note: you can switch off the stage indicator by defining STOOL_STAGE_INDICATOR=0 before you source bash.rc</para>
+    <para>Note: you can switch off the stage indicator by defining STOOL_STAGE_INDICATOR=0 before you source shell.rc</para>
 
     <para>Implementation note:
       <literal>stool</literal>
@@ -1729,7 +1729,8 @@
         |- tomcat
         | |- apache-tomcat-x.y.z (installed Tomcat)
         | :
-        |- bash.rc (for stool open)
+        |- shell.rc (to initialized the users interactive shell)
+        |- bash.complete
         '- backstage
         '- (stage name)  -> symlink to backstage directory
         |- config.json (stage properties and some status fields)

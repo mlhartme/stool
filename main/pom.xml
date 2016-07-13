@@ -306,7 +306,7 @@
                   </mapper>
                 </data>
                 <data>
-                  <src>${basedir}/src/deb/main/stool-complete</src>
+                  <src>${basedir}/src/main/resources/templates/home/bash.complete</src>
                   <dst>/etc/bash_completion.d/stool</dst>
                   <conffile>true</conffile>
                   <type>file</type>
