@@ -1,6 +1,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Console;
+import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.setup.Home;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -17,6 +18,7 @@ public class Setup {
 
     public void run() throws IOException {
         String version;
+        Setenv setenv;
 
         if (home.isDirectory()) {
             throw new IOException("home directory already exists: " + home.getAbsolute()
@@ -31,5 +33,11 @@ public class Setup {
         console.info.println("Done.");
         console.info.println("Note: you can install the dashboard with");
         console.info.println("  stool create gav:net.oneandone.stool:dashboard:" + version + " " + home.getAbsolute() + "/dashboard");
+
+        // For proper installation in cisotools   TODO: is this a hack?
+        setenv = Setenv.get();
+        if (setenv.isConfigured()) {
+            setenv.line(". " + home.join("shell.rc").getAbsolute());
+        }
     }
 }
