@@ -86,9 +86,9 @@
 
 * fixes
   * Fixed stage stop for applications with fitnesse extension if war files have been remove
+  * Fixed `system-import` command.
   
 * cleanup
-  * removed `system-import` command, it was broken anyway
   * dumped `MACHINE` and `STAGE_HOST` environment variables
   * dumped `$LIB/run/users` directory
   * replaced curl- (stop fitnesse) and wget (downloads) execs by sushi http.

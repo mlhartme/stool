@@ -37,19 +37,19 @@ import java.util.Map;
  * etc stuff (config.json) and log files.
  */
 public class Home {
-    public static void create(Console console, FileNode lib, String config) throws IOException {
+    public static void create(Console console, FileNode home, String config) throws IOException {
         RmRfThread cleanup;
 
-        lib.checkNotExists();
+        home.checkNotExists();
         cleanup = new RmRfThread(console);
-        cleanup.add(lib);
+        cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
-        new Home(console, lib, group(lib.getWorld()), config).create();
+        new Home(console, home, group(home.getWorld()), config).create();
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
 
-    private static String group(World world) throws IOException {
+    public static String group(World world) throws IOException {
         FileNode file;
         String result;
 

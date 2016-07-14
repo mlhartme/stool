@@ -74,6 +74,7 @@ public class HomeTest {
         orig.copyDirectory(from);
         group = from.getGroup().toString();
         home = new Home(console, homedir, group, null);
+        home.create();
         new UpgradeBuilder(console, home, from).run();
         stool = StoolConfiguration.load(gson, homedir);
         assertEquals("cpgem1.ciso.server.lan", stool.hostname);

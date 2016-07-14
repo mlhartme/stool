@@ -60,13 +60,17 @@ public class UpgradeBuilder {
         this.from = from;
     }
 
+    public String version() throws IOException {
+        return from.join("version").readString().trim();
+    }
+
     public void run() throws IOException {
         String oldVersion;
         String newVersion;
         Upgrade stage33_34;
 
         newVersion = Main.versionString(from.getWorld());
-        oldVersion = from.join("version").readString().trim();
+        oldVersion = version();
         if (!oldVersion.startsWith("3.3.")) {
             throw new IOException("don't know how to upgrade " + oldVersion + " -> " + newVersion);
         }
@@ -82,7 +86,6 @@ public class UpgradeBuilder {
         Logging logging;
         Import i;
 
-        home.create();
         stool(from, stoolMapper);
         logging = Logging.forHome(home.dir);
         session = Session.load(false, home.dir, logging, "upgrade", console, home.dir.getWorld(), null, null);
@@ -197,7 +200,7 @@ public class UpgradeBuilder {
                 for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
                     url = entry.getKey();
                     defaults = entry.getValue().getAsJsonObject();
-                    result.add("svn:" + url, migrate(defaults));
+                    result.add(url.isEmpty() ? "" : "svn:" + url, migrate(defaults));
                 }
                 return result;
             }

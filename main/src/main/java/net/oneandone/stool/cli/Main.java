@@ -95,6 +95,7 @@ public class Main {
            cli.begin("globals", globals,  "-svnuser=null -svnpassword=null -exception { setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) }");
               cli.addDefault(Help.class, "help command?=null");
               cli.add(Setup.class, "setup");
+              cli.add(SystemImport.class, "system-import from");
               cli.begin("globals.session", "");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Create.class, "create -quiet url dirOrProperty* { dirOrProperty*(dirOrProperty) }");
