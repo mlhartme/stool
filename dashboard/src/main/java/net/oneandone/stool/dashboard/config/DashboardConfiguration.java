@@ -61,6 +61,7 @@ public class DashboardConfiguration {
         Properties p;
         String svnuser;
         String svnpassword;
+        Logging logging;
 
         lib = Main.locateHome(world());
         props = lib.join("dashboard.properties");
@@ -72,7 +73,9 @@ public class DashboardConfiguration {
             svnuser = null;
             svnpassword = null;
         }
-        return Session.load(false, lib, Logging.create(logs(), "dashboard"), "dashboard", console(), world(), svnuser, svnpassword);
+        logging = Logging.create(logs(), "dashboard");
+        logging.log("dashboard", "startup");
+        return Session.load(false, lib, logging, "dashboard", console(), world(), svnuser, svnpassword);
     }
 
     @Bean
