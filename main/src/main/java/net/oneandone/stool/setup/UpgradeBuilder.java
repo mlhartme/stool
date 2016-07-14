@@ -223,6 +223,11 @@ public class UpgradeBuilder {
     public Upgrade stage33_34() {
         return new Upgrade() {
             JsonElement extensionsTransform(JsonElement e) {
+                if (session == null) {
+                    // in defaults -- handled in globals below
+                    throw new IllegalStateException();
+                }
+                // in stage
                 e.getAsJsonObject().remove("-pustefix.editor");
                 e.getAsJsonObject().remove("+pustefix.editor");
                 return e;
@@ -264,13 +269,15 @@ public class UpgradeBuilder {
 
                 if (session == null) {
                     // this call is to upgrade defaults
-                    return;
+                    dest.remove("pustefix.editor.version");
+                    dest.remove("pustefix.editor.userdata");
+                } else {
+                    array = new JsonArray();
+                    array.add(new JsonPrimitive(StageConfiguration.NOTIFY_OWNER));
+                    dest.add("notify", array);
+                    dest.add("quota", new JsonPrimitive(10000));
+                    dest.add("name", new JsonPrimitive(currentStage));
                 }
-                array = new JsonArray();
-                array.add(new JsonPrimitive(StageConfiguration.NOTIFY_OWNER));
-                dest.add("notify", array);
-                dest.add("quota", new JsonPrimitive(10000));
-                dest.add("name", new JsonPrimitive(currentStage));
             }
         };
     }

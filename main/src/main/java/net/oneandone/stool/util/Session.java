@@ -627,7 +627,7 @@ public class Session {
         }
     }
 
-    private static final String majorMinor(String version) {
+    public static final String majorMinor(String version) {
         int major;
         int minor;
 

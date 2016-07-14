@@ -18,6 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
 import net.oneandone.inline.commands.PackageVersion;
+import net.oneandone.stool.setup.UpgradeBuilder;
 import net.oneandone.stool.ssl.Pair;
 import net.oneandone.stool.util.LogOutputStream;
 import net.oneandone.stool.util.Logging;
@@ -51,7 +52,6 @@ public class Main {
     public static int run(String[] args) throws IOException {
         World world;
         FileNode home;
-        String user;
 
         world = world();
         home = locateHome(world);
@@ -190,13 +190,15 @@ public class Main {
     //--
 
     public static FileNode locateHome(World world) {
+        String suffix;
         FileNode cp;
 
+        suffix = "-" + Session.majorMinor(versionString(world));
         cp = stoolCp(world);
         if (cp.getParent().getPath().equals("usr/bin")) {
-            return world.file("usr/share/stool");
+            return world.file("usr/share/stool" + suffix);
         } else {
-            return world.getHome().join(".stool");
+            return world.getHome().join(".stool" + suffix);
         }
     }
 
