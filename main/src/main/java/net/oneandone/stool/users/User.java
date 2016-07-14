@@ -38,11 +38,15 @@ public class User {
     public boolean equals(Object object) {
         User user;
 
-        if (!(object instanceof User)) {
-            return false;
+        if (object instanceof User) {
+            user = (User) object;
+            return login.equals(user.login) && name.equals(user.name) && email.equals(user.email);
         }
-        user = (User) object;
-        return login.equals(user.login) && name.equals(user.name) && email.equals(user.email);
+        return false;
+    }
+
+    public boolean isGenerated() {
+        return login.equals(name);
     }
 
     public int hashCode() {

@@ -141,8 +141,6 @@ public class Session {
 
     private Pool lazyPool;
 
-    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyMMdd");
-
     public Session(boolean setenv, ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String command,
                    FileNode home, Console console, World world, Environment environment, StoolConfiguration configuration,
                    Bedroom bedroom, String svnuser, String svnpassword) {
@@ -518,11 +516,12 @@ public class Session {
         lazyPool = null;
     }
 
-    public StageConfiguration createStageConfiguration(String url) {
+    public StageConfiguration createStageConfiguration(String url) throws IOException {
         String mavenHome;
         StageConfiguration result;
         Scm scm;
         String refresh;
+        User creator;
 
         try {
             mavenHome = Maven.locateMaven(world).getAbsolute();
@@ -532,6 +531,14 @@ public class Session {
         scm = scmOpt(url);
         refresh = scm == null ? "" : scm.refresh();
         result = new StageConfiguration(javaHome(), mavenHome, refresh, extensionsFactory.newInstance());
+        try {
+            creator = lookupUser(user);
+        } catch (NamingException | UserNotFound e) {
+            throw new IOException("cannot determine current user: " + e.getMessage(), e);
+        }
+        if (creator != null && !creator.isGenerated()) {
+            result.notify.add(creator.email);
+        }
         configuration.setDefaults(properties(), result, url);
         return result;
     }
