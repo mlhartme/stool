@@ -15,12 +15,12 @@ import java.util.Map;
  * This is the place for 1&amp;1 specific stuff ...
  */
 public class Autoconf {
-    public static StoolConfiguration stool(FileNode lib) throws IOException {
+    public static StoolConfiguration stool(FileNode home) throws IOException {
         StoolConfiguration result;
 
-        result = new StoolConfiguration(downloadCache(lib));
+        result = new StoolConfiguration(downloadCache(home));
         result.hostname = hostname();
-        result.search = search(lib.getWorld());
+        result.search = search(home.getWorld());
         oneAndOne(result);
         return result;
     }
@@ -99,16 +99,16 @@ public class Autoconf {
         }
     }
 
-    private static FileNode downloadCache(FileNode lib) {
+    private static FileNode downloadCache(FileNode home) {
         FileNode directory;
 
         if (OS.CURRENT == OS.MAC) {
-            directory = lib.getWorld().getHome().join("Downloads");
+            directory = home.getWorld().getHome().join("Downloads");
             if (directory.isDirectory()) {
                 return directory;
             }
         }
-        return lib.join("downloads");
+        return home.join("downloads");
     }
 
     private static String hostname() throws UnknownHostException {

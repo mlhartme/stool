@@ -614,8 +614,9 @@ public class Session {
 
         homeVersion = home.join("version").readString().trim();
         binVersion = Main.versionString(world);
-        if (!majorMinor(homeVersion).equals(majorMinor(binVersion))) {
-            throw new IOException("cannot use home directory version " + homeVersion + " with Stool " + binVersion);
+        if (!homeVersion.equals(binVersion)) {
+            throw new IOException("Cannot use home directory version " + homeVersion + " with Stool " + binVersion
+               + "\nTry 'stool setup'");
         }
     }
 

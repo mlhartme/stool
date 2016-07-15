@@ -38,13 +38,20 @@ import java.util.Map;
  */
 public class Home {
     public static void create(Console console, FileNode home, String config) throws IOException {
+        create(console, home, home, config);
+    }
+
+    public static void create(Console console, FileNode home, FileNode homeVariables, String config) throws IOException {
         RmRfThread cleanup;
+        Home obj;
 
         home.checkNotExists();
         cleanup = new RmRfThread(console);
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
-        new Home(console, home, group(home.getWorld()), config).create();
+        obj = new Home(console, home, group(home.getWorld()), config);
+        obj.setVariablesDir(homeVariables);
+        obj.create();
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
@@ -61,6 +68,7 @@ public class Home {
 
     private final Console console;
     public final FileNode dir;
+    private FileNode variablesDir;
     private final String group;
     /** json, may be null */
     private final String explicitConfig;
@@ -68,8 +76,13 @@ public class Home {
     public Home(Console console, FileNode dir, String group, String explicitConfig) {
         this.console = console;
         this.dir = dir;
+        this.variablesDir = dir;
         this.group = group;
         this.explicitConfig = explicitConfig;
+    }
+
+    public void setVariablesDir(FileNode vd) {
+        this.variablesDir = vd;
     }
 
     public void create() throws IOException {
@@ -96,8 +109,16 @@ public class Home {
         for (String name : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "tomcat"}) {
             Files.createStoolDirectory(console.verbose, dir.join(name));
         }
-        Files.stoolFile(dir.join("version").writeString(Main.versionString(world)));
+        Files.stoolFile(versionFile().writeString(Main.versionString(world)));
         Files.stoolFile(dir.join("run/locks").mkfile());
+    }
+
+    public String version() throws IOException {
+        return versionFile().readString().trim();
+    }
+
+    public FileNode versionFile() {
+        return dir.join("version");
     }
 
     public Gson gson() {
@@ -113,11 +134,11 @@ public class Home {
         Files.exec(console.info, dir, cmd);
     }
 
-    public Map<String, String> variables() {
+    private Map<String, String> variables() {
         Map<String, String> variables;
 
         variables = new HashMap<>();
-        variables.put("stool.home", dir.getAbsolute());
+        variables.put("stool.home", variablesDir.getAbsolute());
         variables.put("setenv.rc", Setenv.get().setenvBash());
         return variables;
     }
