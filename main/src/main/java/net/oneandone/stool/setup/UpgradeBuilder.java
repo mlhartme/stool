@@ -90,9 +90,13 @@ public class UpgradeBuilder {
         logging = Logging.forHome(home.dir);
         session = Session.load(false, home.dir, logging, "upgrade", console, home.dir.getWorld(), null, null);
         for (FileNode oldBackstage : from.join("backstages").list()) {
-            console.info.println("upgrade " + oldBackstage);
-            currentStage = oldBackstage.getName();
             id = getId(oldBackstage.join("config.json"));
+            currentStage = oldBackstage.getName();
+            if (home.dir.join("backstages", id).isDirectory()) {
+                console.info.println("stage already imported, ignored: " + currentStage + " (" + id + ")");
+                continue;
+            }
+            console.info.println("import " + oldBackstage);
             stages.put(currentStage, id);
             stage = oldBackstage.join("anchor").resolveLink();
             i = new Import(session);
