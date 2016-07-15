@@ -231,13 +231,21 @@ public class UpgradeBuilder {
     public Upgrade stage33_34() {
         return new Upgrade() {
             JsonElement extensionsTransform(JsonElement e) {
+                JsonObject extensions;
+                JsonObject logstash;
+
                 if (session == null) {
                     // in defaults -- handled in globals below
                     throw new IllegalStateException();
                 }
                 // in stage
-                e.getAsJsonObject().remove("-pustefix.editor");
-                e.getAsJsonObject().remove("+pustefix.editor");
+                extensions = e.getAsJsonObject();
+                extensions.remove("-pustefix.editor");
+                extensions.remove("+pustefix.editor");
+                logstash = new JsonObject();
+                logstash.add("output", new JsonPrimitive(""));
+                logstash.add("link", new JsonPrimitive(""));
+                extensions.add("-logstash", logstash);
                 return e;
             }
             void idRemove() {
