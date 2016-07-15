@@ -102,6 +102,10 @@ public class UpgradeBuilder {
                 console.info.println("stage already imported, ignored: " + currentStage + " (" + id + ")");
                 continue;
             }
+            if ("dashboard".equals(currentStage)) {
+                console.info.println("not imported: " + currentStage);
+                continue;
+            }
             console.info.println("import " + oldBackstage);
             stage = oldBackstage.join("anchor").resolveLink();
             originalOwner = chown(stage, session.user);

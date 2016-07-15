@@ -31,7 +31,7 @@ public class Autoconf {
 
     private static void debian(StoolConfiguration dest) {
         dest.hostname = "localhost";
-        dest.shared = true;
+        // CAUTION: shared does not default to true to support workstation installs
     }
 
     private static void oneAndOne(StoolConfiguration dest) {
