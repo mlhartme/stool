@@ -190,15 +190,13 @@ public class Main {
     //--
 
     public static FileNode locateHome(World world) {
-        String suffix;
         FileNode cp;
 
-        suffix = "-" + Session.majorMinor(versionString(world));
         cp = stoolCp(world);
         if (cp.getParent().getPath().equals("usr/bin")) {
-            return world.file("usr/share/stool" + suffix);
+            return world.file("usr/share/stool");
         } else {
-            return world.getHome().join(".stool" + suffix);
+            return world.getHome().join(".stool");
         }
     }
 
