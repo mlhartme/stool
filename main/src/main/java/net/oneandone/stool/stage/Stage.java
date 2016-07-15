@@ -468,7 +468,7 @@ public abstract class Stage {
         int size;
 
         size = size();
-        if (configuration.tomcatHeap == 0 || configuration.tomcatHeap == 200) {
+        if (configuration.tomcatHeap == 0 || configuration.tomcatHeap == 350) {
             configuration.tomcatHeap = Math.min(4096, 150 + size * session.configuration.baseHeap);
         }
         if (configuration.build.isEmpty() || configuration.build.equals("false")) {

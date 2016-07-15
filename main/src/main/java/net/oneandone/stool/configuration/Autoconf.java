@@ -15,14 +15,23 @@ import java.util.Map;
  * This is the place for 1&amp;1 specific stuff ...
  */
 public class Autoconf {
-    public static StoolConfiguration stool(FileNode home) throws IOException {
+    public static StoolConfiguration stool(FileNode home, boolean debian) throws IOException {
         StoolConfiguration result;
 
         result = new StoolConfiguration(downloadCache(home));
         result.hostname = hostname();
-        result.search = search(home.getWorld());
-        oneAndOne(result);
+        result.search = debian ? "" : search(home.getWorld());
+        if (debian) {
+            debian(result);
+        } else {
+            oneAndOne(result);
+        }
         return result;
+    }
+
+    private static void debian(StoolConfiguration dest) {
+        dest.hostname = "localhost";
+        dest.shared = true;
     }
 
     private static void oneAndOne(StoolConfiguration dest) {

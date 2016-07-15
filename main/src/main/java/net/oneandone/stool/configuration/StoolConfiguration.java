@@ -126,7 +126,7 @@ public class StoolConfiguration {
     public StoolConfiguration(FileNode downloadCache) {
         portFirst = 9000;
         portLast = 9999;
-        baseHeap = 200;
+        baseHeap = 350;
         hostname = "localhost";
         diskMin = 2000;
         admin = "";

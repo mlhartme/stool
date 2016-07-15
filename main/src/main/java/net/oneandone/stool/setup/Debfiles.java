@@ -44,7 +44,7 @@ public class Debfiles {
         Files.stoolTree(console.verbose, man);
 
         home = target.join("stool-3.4");
-        Home.create(console, home, "/usr/share/stool-3.4", null);
+        Home.create(console, home, "/usr/share/stool-3.4", null, true);
 
         System.exit(0);
     }

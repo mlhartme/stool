@@ -37,11 +37,11 @@ import java.util.Map;
  * etc stuff (config.json) and log files.
  */
 public class Home {
-    public static void create(Console console, FileNode home, String config) throws IOException {
-        create(console, home, home.getAbsolute(), config);
+    public static void create(Console console, FileNode home, String config, boolean debian) throws IOException {
+        create(console, home, home.getAbsolute(), config, debian);
     }
 
-    public static void create(Console console, FileNode home, String homeVariable, String config) throws IOException {
+    public static void create(Console console, FileNode home, String homeVariable, String config, boolean debian) throws IOException {
         RmRfThread cleanup;
         Home obj;
 
@@ -51,7 +51,7 @@ public class Home {
         Runtime.getRuntime().addShutdownHook(cleanup);
         obj = new Home(console, home, group(home.getWorld()), config);
         obj.setHomeVariable(homeVariable);
-        obj.create();
+        obj.create(debian);
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
@@ -85,7 +85,7 @@ public class Home {
         this.homeVariable = value;
     }
 
-    public void create() throws IOException {
+    public void create(boolean debian) throws IOException {
         World world;
         Gson gson;
         StoolConfiguration conf;
@@ -98,7 +98,7 @@ public class Home {
 
         world = dir.getWorld();
         Files.template(console.verbose, world.resource("templates/home"), dir, variables());
-        conf = Autoconf.stool(dir);
+        conf = Autoconf.stool(dir, debian);
         if (explicitConfig != null) {
             conf = conf.createPatched(gson, explicitConfig);
         }

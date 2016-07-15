@@ -45,7 +45,7 @@ public class HomeTest {
         group = dir.getGroup().toString();
         dir.deleteDirectory();
         lib = new Home(console, dir, group, null);
-        lib.create();
+        lib.create(false);
         assertNotNull(StoolConfiguration.load(Session.gson(world, ExtensionsFactory.create(world)), dir));
     }
 
@@ -74,7 +74,7 @@ public class HomeTest {
         orig.copyDirectory(from);
         group = from.getGroup().toString();
         home = new Home(console, homedir, group, null);
-        home.create();
+        home.create(false);
         new UpgradeBuilder(console, home, from).run(true);
         stool = StoolConfiguration.load(gson, homedir);
         assertEquals("cpgem1.ciso.server.lan", stool.hostname);

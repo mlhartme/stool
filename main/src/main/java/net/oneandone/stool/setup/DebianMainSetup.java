@@ -63,7 +63,6 @@ public class DebianMainSetup extends Debian {
         FileNode binLib;
 
         setupGroup();
-        setupLib(previous);
         binLib = bin.join("lib");
         if (previous != null) {
             if (Files.deleteIfExists(binLib.toPath())) {
@@ -113,47 +112,6 @@ public class DebianMainSetup extends Debian {
                 }
             }
             log("group: " + group + " (created with " + Separator.SPACE.join(result) + ")");
-        }
-    }
-
-    //--
-
-    public void setupLib(String previousVersion) throws IOException {
-        Home lib;
-        FileNode tmp;
-
-        lib = new Home(console, libdir, group, config.trim().isEmpty() ? null : config);
-        if (libdir.exists()) {
-            /* TODO
-            // with symlinks resolved
-            tmp = world.file(libdir.toPath().toFile().getCanonicalFile()).getParent().join(libdir.getName() + ".upgrade");
-            tmp.checkNotExists();
-            log("creating backup ...");
-            exec("cp", "-a", libdir.getAbsolute(), tmp.getAbsolute());
-            try {
-                lib.upgrade(previousVersion);
-            } catch (Exception e) {
-                log("update failed, restoring ...");
-                exec("rm", "-rf", tmp.getAbsolute());
-                exec("mv", tmp.getAbsolute(), libdir.getAbsolute());
-                throw e;
-            }
-            log("lib: " + libdir.getAbsolute() + " (upgraded)");
-            log("wiping backup ...");
-            exec("rm", "-rf", tmp.getAbsolute());*/
-        } else {
-            console.info.println("creating lib: " + libdir);
-            try {
-                lib.create();
-            } catch (IOException e) {
-                // make sure we don't leave any undefined lib directory;
-                try {
-                    libdir.deleteTreeOpt();
-                } catch (IOException suppressed) {
-                    e.addSuppressed(suppressed);
-                }
-                throw e;
-            }
         }
     }
 }

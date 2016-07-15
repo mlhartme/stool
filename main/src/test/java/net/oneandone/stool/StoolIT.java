@@ -60,7 +60,7 @@ public class StoolIT {
         lib = world.guessProjectHome(StoolIT.class).join("target/it/lib");
         lib.getParent().mkdirsOpt();
         lib.deleteTreeOpt();
-        Home.create(Console.create(), lib, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
+        Home.create(Console.create(), lib, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}", false);
         stages = lib.getParent().join("stages");
         stages.deleteTreeOpt();
         stages.mkdir();
