@@ -21,13 +21,14 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 /** Generates man director for debian package*/
-public class Man {
+public class Debfiles {
     /** generate file hierarchy for Debian package */
     public static void main(String[] args) throws Exception {
         World world;
         Console console;
         FileNode target;
         FileNode man;
+        FileNode home;
 
         if (args.length != 1) {
             throw new IllegalArgumentException();
@@ -42,7 +43,9 @@ public class Man {
         world.resource("templates/man").copyDirectory(man);
         Files.stoolTree(console.verbose, man);
 
-        target.join("stool-3.4");
+        home = target.join("stool-3.4");
+        Home.create(console, home, "/usr/share/stool-3.4", null);
+
         System.exit(0);
     }
 }

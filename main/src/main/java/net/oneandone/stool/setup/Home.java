@@ -38,10 +38,10 @@ import java.util.Map;
  */
 public class Home {
     public static void create(Console console, FileNode home, String config) throws IOException {
-        create(console, home, home, config);
+        create(console, home, home.getAbsolute(), config);
     }
 
-    public static void create(Console console, FileNode home, FileNode homeVariables, String config) throws IOException {
+    public static void create(Console console, FileNode home, String homeVariable, String config) throws IOException {
         RmRfThread cleanup;
         Home obj;
 
@@ -50,7 +50,7 @@ public class Home {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
         obj = new Home(console, home, group(home.getWorld()), config);
-        obj.setVariablesDir(homeVariables);
+        obj.setHomeVariable(homeVariable);
         obj.create();
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
@@ -68,7 +68,7 @@ public class Home {
 
     private final Console console;
     public final FileNode dir;
-    private FileNode variablesDir;
+    private String homeVariable;
     private final String group;
     /** json, may be null */
     private final String explicitConfig;
@@ -76,13 +76,13 @@ public class Home {
     public Home(Console console, FileNode dir, String group, String explicitConfig) {
         this.console = console;
         this.dir = dir;
-        this.variablesDir = dir;
+        this.homeVariable = dir.getAbsolute();
         this.group = group;
         this.explicitConfig = explicitConfig;
     }
 
-    public void setVariablesDir(FileNode vd) {
-        this.variablesDir = vd;
+    public void setHomeVariable(String value) {
+        this.homeVariable = value;
     }
 
     public void create() throws IOException {
@@ -138,7 +138,7 @@ public class Home {
         Map<String, String> variables;
 
         variables = new HashMap<>();
-        variables.put("stool.home", variablesDir.getAbsolute());
+        variables.put("stool.home", homeVariable);
         variables.put("setenv.rc", Setenv.get().setenvBash());
         return variables;
     }
