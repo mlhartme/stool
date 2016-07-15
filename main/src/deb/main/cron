@@ -1,1 +1,1 @@
-1 4 * * * stool /usr/share/stool/stool validate -all -email -repair > /dev/null
+1 4 * * * stool /usr/bin/stool validate -all -email -repair > /dev/null

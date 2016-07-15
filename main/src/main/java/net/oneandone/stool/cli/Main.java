@@ -194,6 +194,7 @@ public class Main {
 
         cp = stoolCp(world);
         if (cp.getParent().getPath().equals("usr/bin")) {
+            // with version suffix to co-exist with stool 3.3 home
             return world.file("usr/share/stool-" + Session.majorMinor(versionString(world)));
         } else {
             return world.getHome().join(".stool");

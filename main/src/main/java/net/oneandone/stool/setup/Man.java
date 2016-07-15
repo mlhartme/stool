@@ -36,10 +36,13 @@ public class Man {
         console = Console.create();
         target = world.file(args[0]);
         target.mkdir();
+
         man = target.join("man");
         Files.createStoolDirectory(console.verbose, man);
         world.resource("templates/man").copyDirectory(man);
         Files.stoolTree(console.verbose, man);
+
+        target.join("stool-3.4");
         System.exit(0);
     }
 }

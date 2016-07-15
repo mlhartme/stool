@@ -236,12 +236,12 @@
                 <!-- main -->
                 <property name="cp" refid="maven.runtime.classpath" />
                 <java classname="net.oneandone.stool.setup.Man" classpath="${project.build.directory}/stool" fork="false" failonerror="true">
-                  <arg path="${project.build.directory}/debfiles-main" />
+                  <arg path="${project.build.directory}/debfiles" />
                 </java>
                 <java classname="net.oneandone.stool.setup.Control" classpath="${cp}" fork="false" failonerror="true">
                   <arg path="${basedir}/src/deb/main/control/" />
                   <arg path="${project.build.directory}/stool" />
-                  <arg path="${project.build.directory}/control-main" />
+                  <arg path="${project.build.directory}/control" />
                 </java>
               </target>
             </configuration>
@@ -257,13 +257,13 @@
         <version>1.4.1</version>
         <executions>
           <execution>
-            <id>jdeb-main</id>
+            <id>jdeb</id>
             <phase>package</phase>
             <goals>
               <goal>jdeb</goal>
             </goals>
             <configuration>
-              <controlDir>${project.build.directory}/control-main</controlDir>
+              <controlDir>${project.build.directory}/control</controlDir>
               <!-- override deb and changes out because the artifact id is not suitable -->
               <deb>${basedir}/target/stool_[[version]]_all.deb</deb>
               <changesOut>${basedir}/target/stool_[[version]]_all.changes</changesOut>
@@ -272,54 +272,22 @@
               <snapshotExpand>true</snapshotExpand>
               <dataSet>
                 <data>
-                  <src>${project.build.directory}/debfiles-main</src>
-                  <dst>/usr/share</dst>
-                  <type>directory</type>
-                  <excludes>**/*.sh</excludes>
-                  <mapper>
-                    <type>perm</type>
-                    <prefix>/usr/share</prefix>
-                    <user>root</user>
-                    <group>root</group>
-                    <filemode>644</filemode>
-                  </mapper>
-                </data>
-                <data>
-                  <src>${project.build.directory}/debfiles-main</src>
-                  <dst>/usr/share</dst>
-                  <type>directory</type>
-                  <includes>**/*.sh</includes>
-                  <mapper>
-                    <type>perm</type>
-                    <prefix>/usr/share</prefix>
-                    <user>root</user>
-                    <group>root</group>
-                    <filemode>755</filemode>
-                  </mapper>
-                </data>
-                <data>
-                  <src>${basedir}/src/main/resources/templates/home/bash.complete</src>
-                  <dst>/etc/bash_completion.d/stool</dst>
-                  <conffile>true</conffile>
                   <type>file</type>
-                  <mapper>
-                    <type>perm</type>
-                    <user>root</user>
-                    <group>root</group>
-                    <filemode>644</filemode>
-                  </mapper>
-                </data>
-                <data>
                   <src>${basedir}/target/stool</src>
-                  <dst>/etc/bin/stool</dst>
+                  <dst>/usr/bin/stool</dst>
                   <conffile>true</conffile>
-                  <type>file</type>
                   <mapper>
                     <type>perm</type>
                     <user>root</user>
                     <group>root</group>
                     <filemode>755</filemode>
                   </mapper>
+                </data>
+                <data>
+                  <type>link</type>
+                  <linkName>/etc/bash_completion.d/stool</linkName>
+                  <linkTarget>/usr/share/stool-3.4/bash.complete</linkTarget>
+                  <symlink>true</symlink>
                 </data>
                 <data>
                   <src>${basedir}/src/deb/main/profile</src>
@@ -364,6 +332,32 @@
                   <type>file</type>
                   <mapper>
                     <type>perm</type>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>755</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${project.build.directory}/debfiles</src>
+                  <dst>/usr/share</dst>
+                  <type>directory</type>
+                  <excludes>**/*.sh</excludes>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share</prefix>
+                    <user>root</user>
+                    <group>root</group>
+                    <filemode>644</filemode>
+                  </mapper>
+                </data>
+                <data>
+                  <src>${project.build.directory}/debfiles</src>
+                  <dst>/usr/share</dst>
+                  <type>directory</type>
+                  <includes>**/*.sh</includes>
+                  <mapper>
+                    <type>perm</type>
+                    <prefix>/usr/share</prefix>
                     <user>root</user>
                     <group>root</group>
                     <filemode>755</filemode>
