@@ -21,7 +21,6 @@ import net.oneandone.sushi.util.Separator;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,18 +36,10 @@ public class DebianMainSetup extends Debian {
 
     //--
 
-    private final FileNode bin;
-    private final FileNode libdir;
-    private final String config;
     private final String group;
 
     public DebianMainSetup(PrintWriter log) throws IOException {
         super(log);
-        // this is not configurable, because the content comes from the package:
-        bin = world.file("/usr/share/stool");
-
-        libdir = world.file(db_get("stool/lib"));
-        config = db_get("stool/config");
         group = db_get("stool/group");
     }
 
@@ -60,16 +51,7 @@ public class DebianMainSetup extends Debian {
 
     @Override
     public void postinstConfigure(String previous) throws IOException {
-        FileNode binLib;
-
         setupGroup();
-        binLib = bin.join("lib");
-        if (previous != null) {
-            if (Files.deleteIfExists(binLib.toPath())) {
-                log("cleaned previous lib: " + libdir);
-            }
-        }
-        libdir.link(binLib);
         log("setup service:\n" + slurp("update-rc.d", "stool", "defaults"));
         log("start service:\n" + slurp("service", "stool", "start"));
     }
@@ -87,9 +69,6 @@ public class DebianMainSetup extends Debian {
     @Override
     public void postrmPurge() throws IOException {
         exec("update-rc.d", "stool", "remove"); // Debian considers this a configuration file!?
-        bin.join("lib").deleteDirectory();
-        // bin itself is not deleted, it's removed by the package manager
-        libdir.deleteTree();
     }
 
     //--

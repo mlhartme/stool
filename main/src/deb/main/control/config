@@ -3,7 +3,5 @@
 . /usr/share/debconf/confmodule
 db_version 2.0
 
-db_input low stool/lib || true
 db_input low stool/group || true
-db_input low stool/config || true
 db_go
