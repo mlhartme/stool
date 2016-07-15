@@ -64,7 +64,7 @@ public class UpgradeBuilder {
         return from.join("version").readString().trim();
     }
 
-    public void run() throws IOException {
+    public void run(boolean withConfig) throws IOException {
         String oldVersion;
         String newVersion;
         Upgrade stage33_34;
@@ -76,17 +76,19 @@ public class UpgradeBuilder {
         }
         console.info.println("upgrade " + oldVersion + " -> " + newVersion);
         stage33_34 = stage33_34();
-        all(stool33_34(stage33_34), stage33_34);
+        all(withConfig, stool33_34(stage33_34), stage33_34);
     }
 
-    private void all(Upgrade stoolMapper, Upgrade stageMapper) throws IOException {
+    private void all(boolean withConfig, Upgrade stoolMapper, Upgrade stageMapper) throws IOException {
         String id;
         FileNode stage;
         Logging logging;
         Import i;
         String originalOwner;
 
-        stool(from, stoolMapper);
+        if (withConfig) {
+            stool(from, stoolMapper);
+        }
         logging = Logging.forHome(home.dir);
         session = Session.load(false, home.dir, logging, "upgrade", console, home.dir.getWorld(), null, null);
         if (!session.listWithoutSystem().isEmpty()) {

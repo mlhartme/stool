@@ -10,11 +10,13 @@ import java.io.IOException;
 
 public class SystemImport {
     private final Console console;
+    private final boolean withConfig;
     private final FileNode home;
     private final FileNode from;
 
-    public SystemImport(Globals globals, FileNode from) {
+    public SystemImport(Globals globals, boolean withConfig, FileNode from) {
         this.console = globals.console;
+        this.withConfig = withConfig;
         this.home = globals.home;
         this.from = from;
     }
@@ -32,6 +34,7 @@ public class SystemImport {
         console.info.println("Stool " + version);
         console.info.println("Ready to import global config and stages " + from + " (version " + u.version() + ") into " + home + " (version " + version + ")");
         console.pressReturn();
-        u.run();
+        u.run(withConfig);
+        console.info.println("Success.");
     }
 }

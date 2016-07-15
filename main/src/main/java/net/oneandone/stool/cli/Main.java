@@ -96,7 +96,7 @@ public class Main {
               cli.addDefault(Help.class, "help command?=null");
               cli.add(Setup.class, "setup");
               cli.begin("globals.session", "");
-                cli.add(SystemImport.class, "system-import from");
+                cli.add(SystemImport.class, "system-import -withConfig from");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Create.class, "create -quiet url dirOrProperty* { dirOrProperty*(dirOrProperty) }");
                     cli.add(Import.class, "import -name=@import.name:%d -max=@import.max:40 dir* { dirs*(dir) setMax(max) setName(name) }");
@@ -194,7 +194,7 @@ public class Main {
 
         cp = stoolCp(world);
         if (cp.getParent().getPath().equals("usr/bin")) {
-            return world.file("usr/share/stool");
+            return world.file("usr/share/stool-" + Session.majorMinor(versionString(world)));
         } else {
             return world.getHome().join(".stool");
         }
