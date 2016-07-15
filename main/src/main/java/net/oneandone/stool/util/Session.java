@@ -516,12 +516,11 @@ public class Session {
         lazyPool = null;
     }
 
-    public StageConfiguration createStageConfiguration(String url) throws IOException {
+    public StageConfiguration createStageConfiguration(String url) {
         String mavenHome;
         StageConfiguration result;
         Scm scm;
         String refresh;
-        User creator;
 
         try {
             mavenHome = Maven.locateMaven(world).getAbsolute();
@@ -531,14 +530,7 @@ public class Session {
         scm = scmOpt(url);
         refresh = scm == null ? "" : scm.refresh();
         result = new StageConfiguration(javaHome(), mavenHome, refresh, extensionsFactory.newInstance());
-        try {
-            creator = lookupUser(user);
-        } catch (NamingException | UserNotFound e) {
-            throw new IOException("cannot determine current user: " + e.getMessage(), e);
-        }
-        if (creator != null && !creator.isGenerated()) {
-            result.notify.add(creator.email);
-        }
+        result.notify.add(user);
         configuration.setDefaults(properties(), result, url);
         return result;
     }

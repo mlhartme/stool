@@ -30,7 +30,7 @@ public class SystemImport {
         u = new UpgradeBuilder(console, h, from);
         version = Main.versionString(home.getWorld());
         console.info.println("Stool " + version);
-        console.info.println("Ready to upgrade " + from + " (version " + u.version() + ") into " + home + " (version " + version + ")");
+        console.info.println("Ready to import global config and stages " + from + " (version " + u.version() + ") into " + home + " (version " + version + ")");
         console.pressReturn();
         u.run();
     }

@@ -89,15 +89,18 @@ public class UpgradeBuilder {
         stool(from, stoolMapper);
         logging = Logging.forHome(home.dir);
         session = Session.load(false, home.dir, logging, "upgrade", console, home.dir.getWorld(), null, null);
+        if (!session.listWithoutSystem().isEmpty()) {
+            console.info.println("warning: ports of existing and not imported stages get lost.");
+        }
         for (FileNode oldBackstage : from.join("backstages").list()) {
             id = getId(oldBackstage.join("config.json"));
             currentStage = oldBackstage.getName();
+            stages.put(currentStage, id); // always add, because ports file need everything
             if (home.dir.join("backstages", id).isDirectory()) {
                 console.info.println("stage already imported, ignored: " + currentStage + " (" + id + ")");
                 continue;
             }
             console.info.println("import " + oldBackstage);
-            stages.put(currentStage, id);
             stage = oldBackstage.join("anchor").resolveLink();
             i = new Import(session);
             i.setUpgradeId(id);
@@ -121,10 +124,11 @@ public class UpgradeBuilder {
             name = entries.get(2);
             id = stages.get(name);
             if (id == null) {
-                throw new IllegalStateException(name);
+                console.info.println("note: garbage-collected from ports: " + name);
+            } else {
+                entries.add(3, id);
+                out.add(Separator.SPACE.join(entries));
             }
-            entries.add(3, id);
-            out.add(Separator.SPACE.join(entries));
         }
         home.dir.join("run/ports").writeLines(out);
     }
@@ -265,6 +269,16 @@ public class UpgradeBuilder {
                 hostpath = hostpath + allSuffixes(array);
                 return new JsonPrimitive("(http|https)://" + hostpath );
             }
+            JsonElement untilTransform(JsonElement e) {
+                String str;
+
+                str = e.getAsString();
+                if ("reserved".equals(str)) {
+                    return new JsonPrimitive("never");
+                } else {
+                    return e;
+                }
+            }
             String untilRename() {
                 return "expire";
             }
@@ -304,10 +318,6 @@ public class UpgradeBuilder {
             builder.append(str);
             count++;
         }
-        if (count == 1) {
-            return builder.toString();
-        } else {
-            return "(" + builder.toString() + ")";
-        }
+        return count < 2 ? builder.toString() : "(" + builder.toString() + ")";
     }
 }

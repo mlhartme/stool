@@ -82,6 +82,7 @@ public class StageConfiguration {
     @Option(key = "tomcat.env")
     public Map<String, String> tomcatEnv;
 
+    /** login names or email adresses, or "@owner" */
     @Option(key = "notify")
     public List<String> notify;
 

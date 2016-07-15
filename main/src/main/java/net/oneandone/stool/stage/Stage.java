@@ -184,6 +184,7 @@ public abstract class Stage {
 
     public abstract boolean updateAvailable();
 
+    /** @return login name */
     public String owner() throws IOException {
         return directory.getOwner().getName();
     }
