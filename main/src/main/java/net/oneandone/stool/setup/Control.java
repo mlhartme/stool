@@ -53,8 +53,8 @@ public class Control {
         dest.join("postinst").writeBytes(launcher);
         dest.join("prerm").writeBytes(launcher);
         try (OutputStream out = dest.join("postrm.bin").newOutputStream()) {
-            out.write(orig, idx, orig.length - idx);
             out.write(launcher);
+            out.write(orig, idx, orig.length - idx);
         }
     }
 

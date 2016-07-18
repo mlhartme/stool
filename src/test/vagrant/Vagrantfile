@@ -16,7 +16,7 @@ Vagrant.configure(2) do |config|
 
 # TODO: comes without host additions - synced_folder below fails
  	config.vm.box = "debian/contrib-jessie64"
- 	config.vm.box_version = "8.3.0"
+ 	config.vm.box_version = "8.5.2"
 
 	config.vm.network "forwarded_port", guest: 80, host: 8080, auto_correct: true
     config.vm.synced_folder "../../..", "/home/vagrant/stool/"
