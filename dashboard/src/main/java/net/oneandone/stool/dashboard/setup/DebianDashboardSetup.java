@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.dashboard.setup;
 
+import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.setup.Debian;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
@@ -35,7 +36,7 @@ public class DebianDashboardSetup extends Debian {
 
     //--
 
-    private final FileNode lib;
+    private final FileNode system;
     private final String group;
     private final String user;
     private final String port;
@@ -44,7 +45,7 @@ public class DebianDashboardSetup extends Debian {
 
     public DebianDashboardSetup(PrintWriter out) throws IOException {
         super(out); // share log file with stool, to see timing
-        lib = world.file(db_get("stool/lib"));
+        system = Main.locateHome(world).join("system");
         group = db_get("stool/group");
 
         user = db_get("stool-dashboard/user");
@@ -66,7 +67,7 @@ public class DebianDashboardSetup extends Debian {
     @Override
     public void postinstConfigure(String previous) throws IOException {
         setupUser();
-        log(stool("create", "file:///usr/share/stool-dashboard/dashboard.war", lib.join("dashboard").getAbsolute(), "expire=never"));
+        log(stool("create", "file:///usr/share/stool-dashboard/dashboard.war", system.join("dashboard").getAbsolute(), "expire=never"));
         if (!port.isEmpty()) {
             log(stool("port", "-stage", "dashboard", "dashboard=" + port));
         }
@@ -83,7 +84,7 @@ public class DebianDashboardSetup extends Debian {
     private void properties() throws IOException {
         FileNode properties;
 
-        properties = lib.join("dashboard.properties");
+        properties = system.join("dashboard.properties");
         if (properties.isFile()) {
             log("reusing existing configuration: " + properties);
         } else {

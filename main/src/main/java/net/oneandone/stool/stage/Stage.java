@@ -608,7 +608,7 @@ public abstract class Stage {
     }
 
     public boolean isSystem() {
-        return session.home.equals(directory.getParent());
+        return session.home.join("system").equals(directory.getParent());
     }
 
     public Changes changes() {

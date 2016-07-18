@@ -13,6 +13,8 @@
   
 * added support for git urls. To distinguish between svn- and git urls, source stage urls are now prefixed with `svn:` or `git:`.
 
+* system stages are now placed in $HOME/system
+
 * per-user defauls: Stool now checks for a user's `~/.stool.defaults` file. If it exists, Stool loads it as a properties 
   file and uses it as default values for options. For example, a property `refresh.build=true` causes `stool refresh` to build a stage
   without explicitly specify `-build`. To override this default, use `stool refresh -build=false`. 

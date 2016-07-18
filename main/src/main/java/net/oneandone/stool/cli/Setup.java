@@ -49,7 +49,7 @@ public class Setup {
         Home.create(console, home, null, false);
         console.info.println("Done.");
         console.info.println("Note: you can install the dashboard with");
-        console.info.println("  stool create gav:net.oneandone.stool:dashboard:" + version + " " + home.getAbsolute() + "/dashboard");
+        console.info.println("  stool create gav:net.oneandone.stool:dashboard:" + version + " " + home.getAbsolute() + "/system/dashboard");
     }
 
     private static final List<String> CONFIG = Strings.toList("config.json", "maven-settings.xml");

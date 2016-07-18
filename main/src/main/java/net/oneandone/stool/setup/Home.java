@@ -106,7 +106,7 @@ public class Home {
         if (!conf.downloadCache.exists()) {
             Files.createStoolDirectory(console.verbose, conf.downloadCache);
         }
-        for (String name : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "tomcat"}) {
+        for (String name : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "tomcat", "system"}) {
             Files.createStoolDirectory(console.verbose, dir.join(name));
         }
         Files.stoolFile(versionFile().writeString(Main.versionString(world)));

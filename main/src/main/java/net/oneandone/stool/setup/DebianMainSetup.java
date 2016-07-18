@@ -52,7 +52,7 @@ public class DebianMainSetup extends Debian {
     @Override
     public void postinstConfigure(String previous) throws IOException {
         setupGroup();
-        for (String dir : new String[] {"logs", "run", "downloads", "backstages", "service-wrapper", "tomcat" }) {
+        for (String dir : new String[] {"logs", "run", "downloads", "backstages", "service-wrapper", "tomcat", "system" }) {
             setGroup(world.file("/usr/share/stool-3.4/" + dir));
         }
         log("setup service:\n" + slurp("update-rc.d", "stool", "defaults"));

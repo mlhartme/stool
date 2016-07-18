@@ -1709,7 +1709,6 @@
       <programlisting>
         |- config.json (Stool configuration)
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
-        |- dashboard.properties (Dashboard configuration)
         |- bin
         | |- chowntree.sh
         | `- service-wrapper.sh
@@ -1722,7 +1721,10 @@
         |- logs
         | |- stool.log
         | |- (archived stool logs)
-        |- dashboard (stage directory of the dashboard stage)
+        |- system
+        | |- dashboard.properties (Dashboard configuration)
+        | |- dashboard (stage directory of the dashboard stage)
+        | :
         |- service-wrapper
         | |- wrapper-linux-x86-64-x.y.z (installed service wrapper)
         | :
