@@ -1,2 +1,2 @@
 export STOOL_OPTS="-Xms128m -Xmx1024m"
-. /usr/shared/stool-3.4/shell.rc
+. /usr/share/stool-3.4/shell.rc

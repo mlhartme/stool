@@ -52,6 +52,9 @@ public class DebianMainSetup extends Debian {
     @Override
     public void postinstConfigure(String previous) throws IOException {
         setupGroup();
+        for (String dir : new String[] {"logs", "run", "downloads", "backstages", "service-wrapper", "tomcat" }) {
+            setGroup(world.file("/usr/share/stool-3.4/" + dir));
+        }
         log("setup service:\n" + slurp("update-rc.d", "stool", "defaults"));
         log("start service:\n" + slurp("service", "stool", "start"));
     }
@@ -92,5 +95,11 @@ public class DebianMainSetup extends Debian {
             }
             log("group: " + group + " (created with " + Separator.SPACE.join(result) + ")");
         }
+    }
+
+    private void setGroup(FileNode dir) throws IOException {
+        exec("chgrp", "-R", group, dir.getAbsolute());
+        // chgrp overwrites the permission - thus, i have to re-set permissions
+        exec("chmod", "2775", dir.getAbsolute());
     }
 }

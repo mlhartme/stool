@@ -18,7 +18,7 @@ public class Autoconf {
     public static StoolConfiguration stool(FileNode home, boolean debian) throws IOException {
         StoolConfiguration result;
 
-        result = new StoolConfiguration(downloadCache(home));
+        result = new StoolConfiguration(downloadCache(debian, home));
         result.hostname = hostname();
         result.search = debian ? "" : search(home.getWorld());
         if (debian) {
@@ -108,10 +108,10 @@ public class Autoconf {
         }
     }
 
-    private static FileNode downloadCache(FileNode home) {
+    private static FileNode downloadCache(boolean debian, FileNode home) {
         FileNode directory;
 
-        if (OS.CURRENT == OS.MAC) {
+        if (!debian && OS.CURRENT == OS.MAC) {
             directory = home.getWorld().getHome().join("Downloads");
             if (directory.isDirectory()) {
                 return directory;

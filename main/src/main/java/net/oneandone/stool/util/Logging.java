@@ -185,7 +185,7 @@ public class Logging {
     private static FileNode touch(FileNode file) throws IOException {
         if (!file.exists()) {
             file.mkfile();
-            file.setPermissions("rw-rw----");
+            file.setPermissions("rw-rw-r--");
         }
         return file;
     }

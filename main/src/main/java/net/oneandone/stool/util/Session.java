@@ -243,7 +243,7 @@ public class Session {
 
     public String group() throws ModeException {
         if (lazyGroup == null) {
-            lazyGroup = home.getGroup().toString();
+            lazyGroup = backstages.getGroup().toString();
         }
         return lazyGroup;
     }
