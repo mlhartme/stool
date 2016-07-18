@@ -43,12 +43,12 @@ public class Logging {
     }
 
     public static Logging create(FileNode dir, String name) throws IOException {
-        String today;
+        String prefix;
         String id;
         Logging result;
 
-        today = DATE_FORMAT.format(LocalDate.now());
-        id = today + '-' + Integer.toString(id(dir, today));
+        prefix = DATE_FORMAT.format(LocalDate.now()) + ".";
+        id = prefix + Integer.toString(id(dir, prefix));
         result = new Logging(id, dir.join(name + EXTENSION));
         return result;
     }
