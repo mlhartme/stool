@@ -45,7 +45,7 @@ public class DashboardConfiguration {
     }
 
     @Bean
-    public FileNode cp() throws IOException {
+    public FileNode jar() throws IOException {
         return world().file(System.getProperty("stool.cp"));
     }
 
@@ -63,7 +63,7 @@ public class DashboardConfiguration {
         String svnpassword;
         Logging logging;
 
-        home = Main.locateHome(cp());
+        home = Main.locateHome(jar());
         props = home.join("system/dashboard.properties");
         if (props.exists()) {
             p = props.readProperties();
@@ -113,7 +113,7 @@ public class DashboardConfiguration {
         Timer timer;
 
         timer = new Timer("Refresh");
-        timer.schedule(new RefreshTask(cp(), session(), logs()), 20000, 60000);
+        timer.schedule(new RefreshTask(jar(), session(), logs()), 20000, 60000);
         return timer;
     }
 }

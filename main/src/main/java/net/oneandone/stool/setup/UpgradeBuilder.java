@@ -289,7 +289,7 @@ public class UpgradeBuilder {
                 } else {
                     array = e.getAsJsonArray();
                 }
-                if (stoolRaw.vhosts) {
+                if (stoolRaw != null && stoolRaw.vhosts) {
                     hostpath = "%a.%s." + hostpath;
                 }
                 hostpath = hostpath + allSuffixes(array);

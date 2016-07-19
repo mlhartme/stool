@@ -2,6 +2,8 @@
 
 ### 3.4.0 beta 3 (pending)
 
+* fix stage indicator color
+* system-import: fix npe when upgrading suffixes
 * dashboard: fix locateHome mechanism
 
 
