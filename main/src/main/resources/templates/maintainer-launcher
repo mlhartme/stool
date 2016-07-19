@@ -13,7 +13,7 @@ if [ ! -e ${jar} ] ; then
 fi
 
 # send normal output to debconf input
-java $STOOL_DEBIAN_OPTS -cp ${jar} net.oneandone.stool.setup.DebianMainSetup "$@" 1>&3
+java $STOOL_DEBIAN_OPTS -cp ${jar} %MAIN% "$@" 1>&3
 
 # none-null is handled by set -e
 exit 0

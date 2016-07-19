@@ -171,6 +171,7 @@
                   <arg path="${project.build.directory}/debfiles-dashboard" />
                 </java>
                 <java classname="net.oneandone.stool.setup.Control" classpath="${cp}" fork="false" failonerror="true">
+                  <arg value="net.oneandone.stool.setup.DebianDashboardSetup" />
                   <arg path="${basedir}/src/deb/dashboard/control/" />
                   <arg path="${project.build.directory}/dashboardpostrm" />
                   <arg path="${project.build.directory}/control-dashboard" />
@@ -206,7 +207,7 @@
               <dataSet>
                 <data>
                   <src>${project.build.directory}/debfiles-dashboard/dashboard.war</src>
-                  <dst>/usr/share/stool-dashboard/dashboard.war</dst>
+                  <dst>/usr/share/stool-3.4-dashboard/dashboard.war</dst>
                   <type>file</type>
                   <mapper>
                     <type>perm</type>

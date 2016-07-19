@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.setup;
 
-import net.oneandone.stool.cli.Main;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
@@ -27,7 +26,7 @@ public class DebianDashboardSetup extends Debian {
     public static void main(String[] args) throws IOException {
         int result;
 
-        try (PrintWriter out = new PrintWriter(new FileOutputStream("/tmp/dpkg-stool.log", true))) {
+        try (PrintWriter out = new PrintWriter(new FileOutputStream("/tmp/dpkg-stool-dashboard.log", true))) {
             result = new DebianDashboardSetup(out).run(args);
         }
         System.exit(result);
@@ -44,7 +43,7 @@ public class DebianDashboardSetup extends Debian {
 
     public DebianDashboardSetup(PrintWriter out) throws IOException {
         super(out); // share log file with stool, to see timing
-        system = Main.locateHome(world).join("system");
+        system = world.file("/usr/share/stool-3.4/system");
         group = db_get("stool/group");
 
         user = db_get("stool-dashboard/user");
@@ -66,7 +65,7 @@ public class DebianDashboardSetup extends Debian {
     @Override
     public void postinstConfigure(String previous) throws IOException {
         setupUser();
-        log(stool("create", "file:///usr/share/stool-dashboard/dashboard.war", system.join("dashboard").getAbsolute(), "expire=never"));
+        log(stool("create", "file:///usr/share/stool-3.4-dashboard/dashboard.war", system.join("dashboard").getAbsolute(), "expire=never"));
         if (!port.isEmpty()) {
             log(stool("port", "-stage", "dashboard", "dashboard=" + port));
         }
@@ -77,7 +76,7 @@ public class DebianDashboardSetup extends Debian {
     //--
 
     private String stool(String ... cmd) throws IOException {
-        return slurp(Strings.append(new String[] {"sudo", "-u", user, "/usr/share/stool/stool"}, cmd));
+        return slurp(Strings.append(new String[] {"sudo", "-u", user, "/usr/bin/stool"}, cmd));
     }
 
     private void properties() throws IOException {

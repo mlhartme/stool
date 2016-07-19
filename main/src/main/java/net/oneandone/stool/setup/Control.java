@@ -27,20 +27,23 @@ public class Control {
     public static void main(String[] args) throws IOException {
         World world;
 
-        if (args.length != 3) {
-            throw new IOException("usage: control srcdir application dest");
+        if (args.length != 4) {
+            throw new IOException("usage: control main srcdir application dest");
         }
         world = World.create();
-        run(world.file(args[0]), world.file(args[1]), world.file(args[2]));
+        run(args[0], world.file(args[1]), world.file(args[2]), world.file(args[3]));
         System.exit(0);
     }
 
-    public static void run(FileNode srcdir, FileNode application, FileNode dest) throws IOException {
+    public static void run(String main, FileNode srcdir, FileNode application, FileNode dest) throws IOException {
+        String launcherStr;
         byte[] launcher;
         byte[] orig;
         int idx;
 
-        launcher = srcdir.getWorld().resource("templates/maintainer-launcher").readBytes();
+        launcherStr = srcdir.getWorld().resource("templates/maintainer-launcher").readString();
+        launcherStr = launcherStr.replace("%MAIN%", main);
+        launcher = launcherStr.getBytes("UTF8");
 
         srcdir.checkDirectory();
         application.checkFile();
