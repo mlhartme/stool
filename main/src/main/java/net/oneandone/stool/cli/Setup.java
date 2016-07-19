@@ -10,7 +10,6 @@ import net.oneandone.sushi.util.Diff;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 public class Setup {

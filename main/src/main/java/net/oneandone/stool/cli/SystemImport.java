@@ -1,7 +1,6 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.setup.UpgradeBuilder;
 import net.oneandone.sushi.fs.file.FileNode;
