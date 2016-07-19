@@ -3,10 +3,10 @@ Version: [[version]]
 Section: misc
 Priority: optional
 Architecture: all
-# jdk seems correct, but OpenJdk from ppa repositories provide java8-sdk ...
-Pre-Depends: java8-jdk|java8-sdk, debconf
+# jdk is a work-around for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=803152.
+Pre-Depends: java8-sdk|java8-jdk, debconf
 # because otherwise jdeb add this field with java 6 defaults:
-Depends: java8-jdk|java8-sdk
+Depends: java8-sdk|java8-jdk
 Maintainer: CISO Operating <ciso-ops@1und1.de>
 Description: [[description]]
 Homepage: [[url]]
