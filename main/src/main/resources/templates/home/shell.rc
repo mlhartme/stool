@@ -7,7 +7,7 @@ stageIndicator() {
   local dir=`pwd`
   local name=$(stageName $dir)
   if [ $name != none ] ; then
-    echo -n $(stageIndicatorColor)"{$name} "${NO_COLOR}
+    echo -n $(stageIndicatorColor $dir)"{$name} "${NO_COLOR}
   # else
   #   no stage -> no indicator
   fi
