@@ -31,3 +31,5 @@ apt::source { 'ciso-unstable':
 Class['apt::update']
 ->
 package { 'openjdk-8-jdk' : }
+->
+package { 'git' : }

@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.dashboard.setup;
+package net.oneandone.stool.setup;
 
 import net.oneandone.stool.cli.Main;
-import net.oneandone.stool.setup.Debian;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 

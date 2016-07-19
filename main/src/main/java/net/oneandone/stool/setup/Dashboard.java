@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.dashboard.setup;
+package net.oneandone.stool.setup;
 
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -21,21 +21,20 @@ import net.oneandone.sushi.fs.file.FileNode;
 public class Dashboard {
     public static void main(String[] args) throws Exception {
         World world;
+        FileNode basedir;
         FileNode target;
         FileNode war;
-        FileNode p;
 
-        if (args.length != 1) {
-            throw new IllegalArgumentException();
+        if (args.length != 2) {
+            throw new IllegalArgumentException("usage: <basedir> <target>");
         }
         world = World.create();
-        target = world.file(args[0]);
+        basedir = world.file(args[0]);
+        basedir.checkDirectory();
+        target = world.file(args[1]);
         target.mkdir();
 
-        // TODO
-        p = world.guessProjectHome(Dashboard.class);
-        System.out.println("project: " + p);
-        war = p.getParent().join("dashboard/target").findOne("*.war");
+        war = basedir.join("target").findOne("*.war");
         war.copyFile(target.join("dashboard.war"));
         System.exit(0);
     }
