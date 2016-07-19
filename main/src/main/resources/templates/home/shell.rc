@@ -50,9 +50,11 @@ stageIndicatorColor() {
 }
 
 if [ "x$BASH" != "x" ] ; then
-    if [ -z $STOOL_STAGE_INDICATOR ] ; then
-        PS1="\$(stageIndicator)$PS1"
-        export STOOL_STAGE_INDICATOR=true
-    fi
     . ${{stool.home}}/bash.complete
+    export STOOL_OLD_PROMPT_COMMAND=$PROMPT_COMMAND
+    stoolPromptCommand() {
+        eval "$STOOL_OLD_PROMPT_COMMAND"
+        stageIndicator
+    }
+    PROMPT_COMMAND=stoolPromptCommand
 fi
