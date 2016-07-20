@@ -2,9 +2,10 @@
 
 ### 3.4.0 beta 3 (pending)
 
-* fix stage indicator color
-* system-import: fix npe when upgrading suffixes
-* dashboard: fix locateHome mechanism
+* dashboard debian package with https only
+* fixed stage indicator color
+* system-import: fixed npe when upgrading suffixes
+* dashboard: fixed locateHome mechanism
 
 
 ### 3.4.0 beta 2 (2016-11-19, 3.4.0~20160719130246)

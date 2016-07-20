@@ -65,7 +65,8 @@ public class DebianDashboardSetup extends Debian {
     @Override
     public void postinstConfigure(String previous) throws IOException {
         setupUser();
-        log(stool("create", "file:///usr/share/stool-3.4-dashboard/dashboard.war", system.join("dashboard").getAbsolute(), "expire=never"));
+        log(stool("create", "file:///usr/share/stool-3.4-dashboard/dashboard.war", system.join("dashboard").getAbsolute(), "expire=never",
+                "urls=https://%a.%s.%h:%p"));
         if (!port.isEmpty()) {
             log(stool("port", "-stage", "dashboard", "dashboard=" + port));
         }
