@@ -220,6 +220,7 @@ public class Start extends StageCommand {
         content = Strings.replace(content, "@app.name@", "tomcat");
         content = Strings.replace(content, "@app.long.name@", "Stage " + stage.getName() + " Tomcat");
         content = Strings.replace(content, "@app.description@", "Tomcat for stage " + stage.getName() + " managed by Stool.");
+        content = uncomment(content, "PASS_THROUGH=true");
         content = comment(content, "WRAPPER_CMD=\"./wrapper\"");
         content = comment(content, "WRAPPER_CONF=\"../conf/wrapper.conf\"");
         content = comment(content, "PIDDIR=\".\"");
@@ -230,6 +231,10 @@ public class Start extends StageCommand {
 
     private String comment(String str, String line) {
         return replace1(str, line, "# " + line);
+    }
+
+    private String uncomment(String str, String line) {
+        return replace1(str, "#" + line, line);
     }
 
     private String replace1(String str, String in, String out) {
