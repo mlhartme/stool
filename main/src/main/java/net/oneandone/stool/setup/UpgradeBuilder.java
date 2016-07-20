@@ -88,6 +88,8 @@ public class UpgradeBuilder {
 
         if (withConfig) {
             stool(from, stoolMapper);
+        } else {
+            stoolRaw = StoolConfiguration.load(home.gson(), home.dir);
         }
         logging = Logging.forHome(home.dir);
         session = Session.load(false, home.dir, logging, "upgrade", console, home.dir.getWorld(), null, null);
@@ -181,7 +183,7 @@ public class UpgradeBuilder {
     private void stool(FileNode from, Upgrade stoolMapper) throws IOException {
         String in;
         String without;
-        String preliminary;
+        String preliminary; // without the defaults
 
         in = from.join("config.json").readString();
         without = Transform.transform(in, new Upgrade() {

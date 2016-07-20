@@ -167,7 +167,7 @@ public class Validate extends StageCommand {
         filePid = stage.runningService();
         psPid = processes().servicePid(stage.getBackstage());
         if (filePid != psPid) {
-            report.admin(stage, "Tomcat process mismatch: " + filePid + " vs " + psPid);
+            report.admin(stage, "Service process mismatch: " + filePid + " vs " + psPid);
         }
     }
 
