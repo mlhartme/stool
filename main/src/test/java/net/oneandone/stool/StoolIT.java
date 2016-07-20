@@ -111,7 +111,9 @@ public class StoolIT {
         stool("config", "-stage", "it", "tomcat.opts=@trustStore@");
         stool("config", "-stage", "it", "tomcat.heap=300");
         stool("refresh", "-stage", "it");
+        stool("validate", "-stage", "it");
         stool("start", "-stage", "it");
+        stool("validate", "-stage", "it");
         stool("stop", "-stage", "it", "-sleep");
         stool("start", "-stage", "it");
         stool("status", "-stage", "it");

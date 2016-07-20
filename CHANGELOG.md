@@ -2,6 +2,7 @@
 
 ### 3.4.0 beta 3 (pending)
 
+* fixed service pid validation
 * fixed stale pid files after reboot (by using a stop timeout)
 * dashboard debian package with https only
 * fixed stage indicator color

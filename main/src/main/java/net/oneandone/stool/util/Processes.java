@@ -118,7 +118,7 @@ public class Processes {
         int result;
 
         result = 0;
-        key = "wrapper.statusfile=" + backstage.join("shared/run/tomcat.status").getAbsolute();
+        key = "wrapper.statusfile=" + backstage.join("run/tomcat.status").getAbsolute();
         for (Data data : all.values()) {
             if (data.command.contains(key)) {
                 if (result != 0) {
