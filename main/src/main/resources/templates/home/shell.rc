@@ -3,11 +3,13 @@
 ${{setenv.rc}}
 
 stageIndicator() {
-  local NO_COLOUR="\033[0m"
+  local NO_COLOR="\033[0m"
   local dir=`pwd`
   local name=$(stageName $dir)
   if [ $name != none ] ; then
-    echo -e -n $(stageIndicatorColor $dir)"{$name} "${NO_COLOR}
+    echo -e -n $(stageIndicatorColor $dir)
+    echo -n "{$name} "
+    echo -e -n ${NO_COLOR}
   # else
   #   no stage -> no indicator
   fi
@@ -31,10 +33,10 @@ stageName() {
 
 stageIndicatorColor() {
     local RED="\033[0;31m"
-    local BLUE_BACKGROUND="\033[44;1;37m"
+    local BLUE="\033[44;1;37m"
     local DIR=$1
     if [ ! -e $DIR ] ; then
-      echo -n -e "$BLUE_BACKGROUND"
+      echo -n -e "$BLUE"
     else
       if [ `uname` = Darwin ] ; then
         local fmt=-f
