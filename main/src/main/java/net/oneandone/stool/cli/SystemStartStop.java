@@ -61,7 +61,8 @@ public class SystemStartStop extends StageCommand {
         } else {
             if (stage.state() == Stage.State.UP) {
                 session.console.info.println("[" + stage.getName() + "]");
-                new Stop(stage.session, true).doRun(stage);
+                // reduced timeout because the service stop timeout is 5 minutes; 20 seconds gices room for > 20 stages to stop
+                new Stop(stage.session, 20, true).doRun(stage);
             }
         }
     }

@@ -326,13 +326,19 @@ public abstract class Stage {
     }
 
     /** Fails if Tomcat is not running */
-    public void stop(Console console) throws IOException {
+    public void stop(Console console, int timeout) throws IOException {
+        Launcher launcher;
+
         console.info.println("stopping tomcat ...");
         if (runningService() == 0) {
             throw new IOException("tomcat is not running.");
         }
         extensions().beforeStop(this);
-        serviceWrapper("stop").exec(console.verbose);
+        launcher = serviceWrapper("stop");
+        if (timeout >= 0) {
+            launcher.arg("wrapper.shutdown.timeout=" + timeout);
+        }
+        launcher.exec(console.verbose);
     }
 
     private Launcher serviceWrapper(String ... action) throws IOException {

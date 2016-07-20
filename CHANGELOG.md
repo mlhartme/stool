@@ -6,6 +6,8 @@
 * fixed stage indicator color
 * system-import: fixed npe when upgrading suffixes
 * dashboard: fixed locateHome mechanism
+* stop -timeout
+* system-stop with timeout 20
 
 
 ### 3.4.0 beta 2 (2016-11-19, 3.4.0~20160719130246)
