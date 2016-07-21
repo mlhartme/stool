@@ -128,11 +128,11 @@ public class Start extends StageCommand {
         if (pid == 0) {
             throw new IOException("tomcat startup failed - no pid file found");
         }
+        ping(stage);
         console.info.println("Applications available:");
         for (String app : stage.namedUrls()) {
             console.info.println("  " + app);
         }
-        ping(stage);
         if (tail) {
             doTail(stage);
         }

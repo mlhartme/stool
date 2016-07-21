@@ -134,11 +134,9 @@ public abstract class StageCommand extends SessionCommand {
         withPrefix = doBefore(lst, width);
         worker = new Worker(width, failures, withPrefix);
         for (Stage stage : lst) {
-            console.verbose.println("stage main: " + stage.getName());
             worker.main(stage);
         }
         for (Stage stage : lst) {
-            console.verbose.println("stage finish: " + stage.getName());
             worker.finish(stage);
         }
         doAfter();
@@ -476,6 +474,7 @@ public abstract class StageCommand extends SessionCommand {
             boolean debug;
             boolean suspend;
 
+            console.verbose.println("*** stage main");
             status = new HashMap<>();
             if (autoStart(stage, status)) {
                 debug = status.get(Field.DEBUGGER) != null;
@@ -490,6 +489,7 @@ public abstract class StageCommand extends SessionCommand {
             String postChown;
             Start postStart;
 
+            console.verbose.println("*** stage finish");
             doFinish(stage);
             postChown = postChowns.get(stage);
             if (postChown != null) {

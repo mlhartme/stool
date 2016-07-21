@@ -2,7 +2,8 @@
 
 ### 3.4.0 beta 3 (pending)
 
-* start and stop for multiple stages is executed in parallel now. This also fixes system reboot problems
+* start and stop for multiple stages is executed in parallel now. 
+* fixed machine reboot problems with stale pid files by making the service wrapper timeout shorter than the systemctl timeout.
 * fixed service pid validation
 * dashboard debian package with https only
 * fixed stage indicator color
