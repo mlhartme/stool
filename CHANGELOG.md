@@ -2,6 +2,7 @@
 
 ### 3.4.0 beta 3 (pending)
 
+* dashboard commands select the stage with -stage id=<id> now
 * fixed stage name in stage command error message
 * bump default quota to 20000, some shops a really big
 * fixed dashboard actions to pass svn credentials in a single argument (with '=')
