@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -110,6 +111,7 @@ public abstract class StageCommand extends SessionCommand {
         EnumerationFailed failures;
         String failureMessage;
         boolean withPrefix;
+        Worker worker;
 
         if (autoChown && autoRechown) {
             throw new ArgumentException("ambiguous options: you cannot use both -autochown and -autorechown");
@@ -119,18 +121,26 @@ public abstract class StageCommand extends SessionCommand {
         }
         failures = new EnumerationFailed();
         lst = selected(failures);
+        filterNops(lst);
         failureMessage = failures.getMessage();
         if (failureMessage != null && fail == Fail.NORMAL) {
             throw failures;
         }
-
         width = 0;
         for (Stage stage : lst) {
             width = Math.max(width, stage.getName().length());
         }
         width += 5;
         withPrefix = doBefore(lst, width);
-        doRun(width, lst, failures, withPrefix);
+        worker = new Worker(width, failures, withPrefix);
+        for (Stage stage : lst) {
+            console.verbose.println("stage main: " + stage.getName());
+            worker.main(stage);
+        }
+        for (Stage stage : lst) {
+            console.verbose.println("stage finish: " + stage.getName());
+            worker.finish(stage);
+        }
         doAfter();
         failureMessage = failures.getMessage();
         if (failureMessage != null) {
@@ -146,108 +156,16 @@ public abstract class StageCommand extends SessionCommand {
         }
     }
 
-    private void doRun(int width, List<Stage> lst, EnumerationFailed failures, boolean withPrefix) throws Exception {
-        Map<Stage, Start> postStarts;
-        Map<Stage, String> postChowns;
+    private void filterNops(List<Stage> lst) throws IOException {
+        Iterator<Stage> iter;
+        Stage stage;
 
-        postStarts = new LinkedHashMap<>();
-        postChowns = new LinkedHashMap<>();
-        for (Stage stage : lst) {
-            console.verbose.println("current stage: " + stage.getName());
+        iter = lst.iterator();
+        while (iter.hasNext()) {
+            stage = iter.next();
             if (isNoop(stage)) {
-                console.verbose.println("nothing to do");
-            } else {
-                doMain(stage, width, failures, withPrefix, postStarts, postChowns);
-            }
-        }
-    }
-
-    private void doMain(Stage stage, int width, EnumerationFailed failures, boolean withPrefix, Map<Stage, Start> postStarts, Map<Stage, String> postChowns)
-            throws Exception
-    {
-        Map<Info, Object> status;
-        boolean debug;
-        boolean suspend;
-
-        try (Lock lock1 = createLock(stage.backstageLock(), backstageLock);
-             Lock lock2 = createLock(stage.directoryLock(), directoryLock)) {
-            if (withPrefix) {
-                ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
-            }
-            session.logging.setStage(stage.getId(), stage.getName());
-            status = new HashMap<>();
-            if (autoStart(stage, status)) {
-                debug = status.get(Field.DEBUGGER) != null;
-                suspend = (Boolean) status.get(Field.SUSPEND);
-                postStarts.put(stage, new Start(session, debug, suspend));
-            }
-            postChowns.put(stage, autoChown(stage));
-            doMain(stage);
-        } catch (ArgumentException e) {
-            if (fail == Fail.NORMAL) {
-                throw e;
-            }
-            failures.add(stage.getBackstage(), e);
-        } catch (Error | RuntimeException e) {
-            console.error.println(stage.getName() + ": " + e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            if (fail == Fail.NORMAL) {
-                throw e;
-            }
-            failures.add(stage.getBackstage(), e);
-        } finally {
-            session.logging.setStage("", "");
-            if (console.info instanceof PrefixWriter) {
-                ((PrefixWriter) console.info).setPrefix("");
-            }
-        }
-    }
-
-    private void doFinish(Stage stage, int width, EnumerationFailed failures, boolean withPrefix, Map<Stage, Start> postStarts, Map<Stage, String> postChowns)
-        throws Exception
-    {
-        String postChown;
-        Start postStart;
-
-        try (Lock lock1 = createLock(stage.backstageLock(), backstageLock);
-             Lock lock2 = createLock(stage.directoryLock(), directoryLock)) {
-            if (withPrefix) {
-                ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
-            }
-            session.logging.setStage(stage.getId(), stage.getName());
-
-            doFinish(stage);
-            postChown = postChowns.get(stage);
-            if (postChown != null) {
-                // do NOT call session.chown to get property locking
-                new Chown(session, true, postChown).doRun(stage);
-            }
-            postStart = postStarts.get(stage);
-            if (postStart != null) {
-                if (!stage.getDirectory().exists()) {
-                    // stage remove -- no need to start again
-                    return;
-                }
-                postStart.doRun(stage);
-            }
-        } catch (ArgumentException e) {
-            if (fail == Fail.NORMAL) {
-                throw e;
-            }
-            failures.add(stage.getBackstage(), e);
-        } catch (Error | RuntimeException e) {
-            console.error.println(stage.getName() + ": " + e.getMessage());
-            throw e;
-        } catch (Exception e) {
-            if (fail == Fail.NORMAL) {
-                throw e;
-            }
-            failures.add(stage.getBackstage(), e);
-        } finally {
-            session.logging.setStage("", "");
-            if (console.info instanceof PrefixWriter) {
-                ((PrefixWriter) console.info).setPrefix("");
+                console.verbose.println("nothing to do: " + stage.getName());
+                iter.remove();
             }
         }
     }
@@ -492,5 +410,100 @@ public abstract class StageCommand extends SessionCommand {
             lazyProcesses = Processes.load(world);
         }
         return lazyProcesses;
+    }
+
+    //--
+
+    /** executes a stage command with proper locking */
+    public class Worker {
+        private final int width;
+        private final EnumerationFailed failures;
+        private final boolean withPrefix;
+        private final Map<Stage, Start> postStarts;
+        private final Map<Stage, String> postChowns;
+
+        public Worker(int width, EnumerationFailed failures, boolean withPrefix) {
+            this.width = width;
+            this.failures = failures;
+            this.withPrefix = withPrefix;
+            this.postStarts = new LinkedHashMap<>();
+            this.postChowns = new LinkedHashMap<>();
+        }
+
+        public void main(Stage stage) throws Exception {
+            run(stage, true);
+        }
+        public void finish(Stage stage) throws Exception {
+            run(stage, false);
+        }
+
+        private void run(Stage stage, boolean main) throws Exception {
+            try (Lock lock1 = createLock(stage.backstageLock(), backstageLock);
+                 Lock lock2 = createLock(stage.directoryLock(), directoryLock)) {
+                if (withPrefix) {
+                    ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
+                }
+                session.logging.setStage(stage.getId(), stage.getName());
+
+                if (main) {
+                    runMain(stage);
+                } else {
+                    runFinish(stage);
+                }
+            } catch (ArgumentException e) {
+                if (fail == Fail.NORMAL) {
+                    throw e;
+                }
+                failures.add(stage.getBackstage(), e);
+            } catch (Error | RuntimeException e) {
+                console.error.println(stage.getName() + ": " + e.getMessage());
+                throw e;
+            } catch (Exception e) {
+                if (fail == Fail.NORMAL) {
+                    throw e;
+                }
+                failures.add(stage.getBackstage(), e);
+            } finally {
+                session.logging.setStage("", "");
+                if (console.info instanceof PrefixWriter) {
+                    ((PrefixWriter) console.info).setPrefix("");
+                }
+            }
+        }
+
+        private void runMain(Stage stage) throws Exception {
+            Map<Info, Object> status;
+            boolean debug;
+            boolean suspend;
+
+            status = new HashMap<>();
+            if (autoStart(stage, status)) {
+                debug = status.get(Field.DEBUGGER) != null;
+                suspend = (Boolean) status.get(Field.SUSPEND);
+                postStarts.put(stage, new Start(session, debug, suspend));
+            }
+            postChowns.put(stage, autoChown(stage));
+            doMain(stage);
+        }
+
+        private void runFinish(Stage stage) throws Exception {
+            String postChown;
+            Start postStart;
+
+            doFinish(stage);
+            postChown = postChowns.get(stage);
+            if (postChown != null) {
+                // do NOT call session.chown to get property locking
+                new Chown(session, true, postChown).doRun(stage);
+            }
+            postStart = postStarts.get(stage);
+            if (postStart != null) {
+                if (!stage.getDirectory().exists()) {
+                    // stage removed -- no need to start again
+                    return;
+                }
+                postStart.doRun(stage);
+            }
+        }
     }
 }
