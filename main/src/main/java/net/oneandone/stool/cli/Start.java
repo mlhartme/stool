@@ -27,6 +27,7 @@ import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
@@ -48,6 +49,8 @@ public class Start extends StageCommand {
     private boolean debug;
     private boolean suspend;
     private boolean tail;
+
+    private Launcher.Handle mainResult;
 
     public Start(Session session, boolean debug, boolean suspend) {
         super(false, false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);
@@ -113,7 +116,22 @@ public class Start extends StageCommand {
         if (debug || suspend) {
             console.info.println("debugging enabled on port " + ports.debug());
         }
-        stage.start(console, ports);
+        mainResult = stage.start(console, ports);
+    }
+
+    @Override
+    public void doFinish(Stage stage) throws Exception {
+        int pid;
+
+        console.verbose.println(mainResult.awaitString());
+        pid = stage.runningService();
+        if (pid == 0) {
+            throw new IOException("tomcat startup failed - no pid file found");
+        }
+        console.info.println("Applications available:");
+        for (String app : stage.namedUrls()) {
+            console.info.println("  " + app);
+        }
         ping(stage);
         if (tail) {
             doTail(stage);

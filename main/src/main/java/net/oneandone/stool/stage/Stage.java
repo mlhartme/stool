@@ -277,9 +277,8 @@ public abstract class Stage {
 
     //-- tomcat helper
 
-    public void start(Console console, Ports ports) throws Exception {
+    public Launcher.Handle start(Console console, Ports ports) throws Exception {
         ServerXml serverXml;
-        int pid;
         KeyStore keystore;
         Extensions extensions;
         Launcher launcher;
@@ -303,15 +302,7 @@ public abstract class Stage {
         extensions.beforeStart(this);
         launcher = serviceWrapper("start");
         console.verbose.println("executing: " + launcher);
-        launcher.exec(console.verbose);
-        pid = runningService();
-        if (pid == 0) {
-            throw new IOException("tomcat startup failed - no pid file found");
-        }
-        console.info.println("Applications available:");
-        for (String app : namedUrls()) {
-            console.info.println("  " + app);
-        }
+        return launcher.launch();
     }
 
     private KeyStore keystore() throws IOException {
