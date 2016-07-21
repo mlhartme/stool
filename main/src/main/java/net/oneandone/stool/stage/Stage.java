@@ -317,13 +317,13 @@ public abstract class Stage {
     }
 
     /** Fails if Tomcat is not running */
-    public void stop(Console console) throws IOException {
+    public Launcher.Handle stop(Console console) throws IOException {
         console.info.println("stopping tomcat ...");
         if (runningService() == 0) {
             throw new IOException("tomcat is not running.");
         }
         extensions().beforeStop(this);
-        serviceWrapper("stop").exec(console.verbose);
+        return serviceWrapper("stop").launch();
     }
 
     private Launcher serviceWrapper(String ... action) throws IOException {

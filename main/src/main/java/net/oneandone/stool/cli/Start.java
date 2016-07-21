@@ -387,9 +387,11 @@ public class Start extends StageCommand {
             result.append("wrapper.shutdown.timeout=3600\n");
             result.append("wrapper.jvm_exit.timeout=3600\n");
         } else {
-            // wait 5 minutes to make shutdown problem visible to users
-            result.append("wrapper.shutdown.timeout=300\n");
-            result.append("wrapper.jvm_exit.timeout=300\n");
+            // wait 4 minutes to make shutdown problem visible to users
+            // CAUTION: hat to be shorter than the systemctl shutdown timeout to avoid kill -9 and the resulting stage pid files.
+            // (see systemctl show stool.service -p TimeoutStopUSec)
+            result.append("wrapper.shutdown.timeout=240\n");
+            result.append("wrapper.jvm_exit.timeout=240\n");
             // stick to defaults for other timeouts
         }
         return result.toString();

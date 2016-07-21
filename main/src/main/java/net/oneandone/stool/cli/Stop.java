@@ -18,9 +18,11 @@ package net.oneandone.stool.cli;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.launcher.Launcher;
 
 public class Stop extends StageCommand {
     private boolean sleep;
+    private Launcher.Handle mainResult;
 
     public Stop(Session session, boolean sleep) {
         super(false, false, session, Mode.SHARED, Mode.SHARED, Mode.NONE);
@@ -30,26 +32,34 @@ public class Stop extends StageCommand {
     @Override
     public void doMain(Stage stage) throws Exception {
         boolean alreadySleeping;
-        String id;
 
-        id = stage.getId();
-        alreadySleeping = session.bedroom.contains(id);
+        alreadySleeping = session.bedroom.contains(stage.getId());
         if (alreadySleeping) {
+            mainResult = null;
             if (sleep) {
                 console.info.println("warning: stage already marked as sleeping");
             } else {
                 console.info.println("going from sleeping to stopped.");
             }
         } else {
-            stage.stop(console);
+            mainResult = stage.stop(console);
+        }
+    }
+
+    @Override
+    public void doFinish(Stage stage) throws Exception {
+        if (mainResult != null) {
+            console.verbose.println(mainResult.awaitString());
         }
         if (sleep) {
-            if (!alreadySleeping) {
-                session.bedroom.add(session.gson, id);
+            if (mainResult != null) {
+                session.bedroom.add(session.gson, stage.getId());
+            } else {
+                // nothing to do - already sleeping
             }
             console.info.println("state: sleeping");
         } else {
-            session.bedroom.remove(session.gson, id);
+            session.bedroom.remove(session.gson, stage.getId());
             console.info.println("state: down");
         }
     }

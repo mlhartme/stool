@@ -2,6 +2,7 @@
 
 ### 3.4.0 beta 3 (pending)
 
+* start and stop for multiple stages is executed in parallel now. This also fixes system reboot problems
 * fixed service pid validation
 * dashboard debian package with https only
 * fixed stage indicator color
