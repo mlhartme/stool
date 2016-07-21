@@ -26,6 +26,7 @@ import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
@@ -74,9 +75,9 @@ public class Fitnesse implements Extension {
                 log.mkfile();
                 Files.stoolFile(log);
             }
-            launcher.getBuilder().redirectOutput(log.toPath().toFile());
-            launcher.getBuilder().redirectError(log.toPath().toFile());
-            launcher.getBuilder().start();
+            try (Writer dest = log.newWriter()) {
+                launcher.exec(dest);
+            }
             console.info.println(vhost + " fitnesse started: " + url);
         }
     }
