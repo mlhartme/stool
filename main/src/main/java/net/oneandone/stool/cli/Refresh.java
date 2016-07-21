@@ -32,7 +32,7 @@ public class Refresh extends StageCommand {
     }
 
     @Override
-    public void doRun(Stage stage) throws Exception {
+    public void doMain(Stage stage) throws Exception {
         if (restore) {
             stage.restoreFromBackup(console);
         } else {

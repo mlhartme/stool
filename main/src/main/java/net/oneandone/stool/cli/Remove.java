@@ -39,7 +39,7 @@ public class Remove extends StageCommand {
     }
 
     @Override
-    public void doRun(Stage stage) throws Exception {
+    public void doMain(Stage stage) throws Exception {
         boolean selected;
         FileNode dir;
 

@@ -52,7 +52,7 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public void doRun(Stage stage) throws Exception {
+    public void doMain(Stage stage) throws Exception {
         List<String> line;
         Map<Info, Object> status;
 

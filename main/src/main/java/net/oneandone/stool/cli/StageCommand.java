@@ -280,8 +280,18 @@ public abstract class StageCommand extends SessionCommand {
         return postStart;
     }
 
-    public abstract void doRun(Stage stage) throws Exception;
 
+    public final void doRun(Stage stage) throws Exception {
+        doMain(stage);
+        doFinish(stage);
+    }
+
+    /** main method to perform this command */
+    public abstract void doMain(Stage stage) throws Exception;
+
+    /** override this if your doMain method needs some finishing */
+    public void doFinish(Stage stage) throws Exception {
+    }
 
     //--
 

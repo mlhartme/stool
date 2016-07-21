@@ -32,7 +32,7 @@ public class Status extends InfoCommand {
     private static Separator TAB = Separator.on('\t');
 
     @Override
-    public void doRun(Stage stage) throws Exception {
+    public void doMain(Stage stage) throws Exception {
         List<Info> infos;
         Map<Info, Object> status;
         int width;

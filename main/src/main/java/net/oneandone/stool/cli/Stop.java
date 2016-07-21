@@ -28,7 +28,7 @@ public class Stop extends StageCommand {
     }
 
     @Override
-    public void doRun(Stage stage) throws Exception {
+    public void doMain(Stage stage) throws Exception {
         boolean alreadySleeping;
         String id;
 

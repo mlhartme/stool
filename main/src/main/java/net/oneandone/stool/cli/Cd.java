@@ -38,7 +38,7 @@ public class Cd extends StageCommand {
     }
 
     @Override
-    public void doRun(Stage stage) throws Exception {
+    public void doMain(Stage stage) throws Exception {
         FileNode node;
         List<FileNode> lst;
         Filter filter;

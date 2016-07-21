@@ -30,7 +30,7 @@ public class Restart extends StageCommand {
     }
 
     @Override
-    public void doRun(Stage stage) throws Exception {
+    public void doMain(Stage stage) throws Exception {
         if (stage.state() == Stage.State.UP || stage.state() == Stage.State.WORKING) {
             new Stop(session, false).doRun(stage);
         } else {
