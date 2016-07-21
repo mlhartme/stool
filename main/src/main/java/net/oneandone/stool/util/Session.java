@@ -274,7 +274,7 @@ public class Session {
                 try {
                     stage = Stage.load(this, link);
                 } catch (IOException e) {
-                    problems.add(backstage, e);
+                    problems.add(link.getName(), e);
                     continue;
                 }
                 if (predicate.matches(stage)) {
@@ -298,7 +298,7 @@ public class Session {
                 return !stage.isSystem();
             }
         });
-        for (Map.Entry<FileNode, Exception> entry : problems.problems.entrySet()) {
+        for (Map.Entry<String, Exception> entry : problems.problems.entrySet()) {
             reportException(entry.getKey() + ": Session.listWithoutDashboard", entry.getValue());
         }
         return result;

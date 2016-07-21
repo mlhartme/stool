@@ -15,13 +15,14 @@
  */
 package net.oneandone.stool.cli;
 
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class EnumerationFailed extends Exception {
-    public final Map<FileNode, Exception> problems;
+    public final Map<String, Exception> problems;
 
     public EnumerationFailed() {
         problems = new HashMap<>();
@@ -31,8 +32,12 @@ public class EnumerationFailed extends Exception {
         return problems.isEmpty();
     }
 
-    public void add(FileNode backstage, Exception cause) {
-        problems.put(backstage, cause);
+    public void add(Stage stage, Exception cause) {
+        add(stage.getName() + " (" + stage.getId() + ")", cause);
+    }
+
+    public void add(String stage, Exception cause) {
+        problems.put(stage, cause);
         addSuppressed(cause);
     }
 
@@ -46,8 +51,8 @@ public class EnumerationFailed extends Exception {
         }
 
         result = new StringBuilder("stage command failed for the following stage(s):\n");
-        for (Map.Entry<FileNode, Exception> entry : problems.entrySet()) {
-            result.append("  ").append(entry.getKey().getName()).append(": ").append(entry.getValue().getMessage());
+        for (Map.Entry<String, Exception> entry : problems.entrySet()) {
+            result.append("  ").append(entry.getKey()).append(": ").append(entry.getValue().getMessage());
         }
         return result.toString();
     }

@@ -2,7 +2,8 @@
 
 ### 3.4.0 beta 3 (pending)
 
-* pump default quota to 20000, some shops a really big
+* fixed stage name in stage command error message
+* bump default quota to 20000, some shops a really big
 * fixed dashboard actions to pass svn credentials in a single argument (with '=')
 * default diskMin to 1000
 * start and stop for multiple stages is executed in parallel now. 

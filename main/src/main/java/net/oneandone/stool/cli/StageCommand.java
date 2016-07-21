@@ -452,7 +452,7 @@ public abstract class StageCommand extends SessionCommand {
                 if (fail == Fail.NORMAL) {
                     throw e;
                 }
-                failures.add(stage.getBackstage(), e);
+                failures.add(stage, e);
             } catch (Error | RuntimeException e) {
                 console.error.println(stage.getName() + ": " + e.getMessage());
                 throw e;
@@ -460,7 +460,7 @@ public abstract class StageCommand extends SessionCommand {
                 if (fail == Fail.NORMAL) {
                     throw e;
                 }
-                failures.add(stage.getBackstage(), e);
+                failures.add(stage, e);
             } finally {
                 session.logging.setStage("", "");
                 if (console.info instanceof PrefixWriter) {
