@@ -1,5 +1,5 @@
-%users ALL = (%users) NOPASSWD: /usr/bin/stool
-%stool ALL = (%stool) NOPASSWD: /usr/bin/stool
+%users ALL = (%users) NOPASSWD:SETENV: /usr/bin/stool
+%stool ALL = (%stool) NOPASSWD:SETENV: /usr/bin/stool
 %users ALL = (%users) NOPASSWD:SETENV: /usr/share/stool-3.4/bin/service-wrapper.sh
 %stool ALL = (%stool) NOPASSWD:SETENV: /usr/share/stool-3.4/bin/service-wrapper.sh
 %users ALL = (root) NOPASSWD: /usr/share/stool-3.4/bin/chowntree.sh

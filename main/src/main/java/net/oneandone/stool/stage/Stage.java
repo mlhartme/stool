@@ -337,7 +337,8 @@ public abstract class Stage {
         launcher.getBuilder().environment().put("HOME", homeOf(owner).getAbsolute());
         launcher.getBuilder().environment().put("USER", owner);
         if (session.configuration.shared) {
-            launcher.arg("sudo", "-u", owner, "-E");
+            // sudo does not pass PATH via -E. So I set it explicitly
+            launcher.arg("sudo", "-u", owner, "-E", "PATH=" + session.environment.get("PATH"));
         }
         launcher.arg(session.bin("service-wrapper.sh").getAbsolute());
         launcher.arg(catalinaHome().getAbsolute());

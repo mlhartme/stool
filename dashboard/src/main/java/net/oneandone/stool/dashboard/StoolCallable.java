@@ -31,7 +31,7 @@ public class StoolCallable implements Callable<Failure> {
         Session session;
 
         session = stage.session;
-        return new StoolCallable(stool, command, options, stage, id, logs, session.configuration.shared, stage.owner());
+        return new StoolCallable(stool, command, options, stage, id, logs, session.configuration.shared, session.environment.get("PATH"), stage.owner());
     }
 
     private final FileNode stool;
@@ -41,9 +41,10 @@ public class StoolCallable implements Callable<Failure> {
     private final Stage stage;
     private final FileNode logDir;
     private final boolean su;
+    private final String path;
     private final String runAs;
 
-    public StoolCallable(FileNode stool, String command, String[] options, Stage stage, String id, FileNode logDir, boolean su, String runAs) {
+    public StoolCallable(FileNode stool, String command, String[] options, Stage stage, String id, FileNode logDir, boolean su, String path, String runAs) {
         this.stool = stool;
         this.command = command;
         this.options = options;
@@ -51,6 +52,7 @@ public class StoolCallable implements Callable<Failure> {
         this.stage = stage;
         this.logDir = logDir;
         this.su = su;
+        this.path = path;
         this.runAs = runAs;
     }
 
@@ -67,7 +69,8 @@ public class StoolCallable implements Callable<Failure> {
         time = System.currentTimeMillis();
         launcher = new Launcher(logDir);
         if (su) {
-            launcher.arg("sudo", "-u", runAs);
+            // sudo does not pass PATH via -E. So I set it explicitly
+            launcher.arg("sudo", "-u", runAs, "-E", "PATH=" + path);
         }
         launcher.arg(stool.getAbsolute());
         svnCredentials = stage.session.svnCredentials();
