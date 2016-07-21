@@ -4,7 +4,7 @@
   "prompt": "{\\+} \\=",
   "hostname": "cpgem1.ciso.server.lan",
   "vhosts": true,
-  "diskMin": 2000,
+  "diskMin": 1000,
   "contactAdmin": "admin@email",
   "shared": true,
   "committed": false,

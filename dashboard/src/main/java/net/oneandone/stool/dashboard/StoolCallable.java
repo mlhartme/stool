@@ -72,8 +72,8 @@ public class StoolCallable implements Callable<Failure> {
         launcher.arg(stool.getAbsolute());
         svnCredentials = stage.session.svnCredentials();
         if (svnCredentials.username != null) {
-            launcher.arg("-svnuser", svnCredentials.username);
-            launcher.arg("-svnpassword", svnCredentials.password);
+            launcher.arg("-svnuser=" + svnCredentials.username);
+            launcher.arg("-svnpassword=" + svnCredentials.password);
         }
         launcher.arg(command, "-stage", stage.getName());
         launcher.arg(options);
