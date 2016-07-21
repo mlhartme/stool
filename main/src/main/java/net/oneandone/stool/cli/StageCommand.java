@@ -129,6 +129,23 @@ public abstract class StageCommand extends SessionCommand {
         }
         width += 5;
         withPrefix = doBefore(lst, width);
+        doRun(width, lst, failures, withPrefix);
+        doAfter();
+        failureMessage = failures.getMessage();
+        if (failureMessage != null) {
+            switch (fail) {
+                case AFTER:
+                    throw failures;
+                case NEVER:
+                    console.info.println("WARNING: " + failureMessage);
+                    break;
+                default:
+                    throw new IllegalStateException(fail.toString());
+            }
+        }
+    }
+
+    private void doRun(int width, List<Stage> lst, EnumerationFailed failures, boolean withPrefix) throws Exception {
         for (Stage stage : lst) {
             console.verbose.println("current stage: " + stage.getName());
             if (isNoop(stage)) {
@@ -160,19 +177,6 @@ public abstract class StageCommand extends SessionCommand {
                         ((PrefixWriter) console.info).setPrefix("");
                     }
                 }
-            }
-        }
-        doAfter();
-        failureMessage = failures.getMessage();
-        if (failureMessage != null) {
-            switch (fail) {
-                case AFTER:
-                    throw failures;
-                case NEVER:
-                    console.info.println("WARNING: " + failureMessage);
-                    break;
-                default:
-                    throw new IllegalStateException(fail.toString());
             }
         }
     }
@@ -235,22 +239,9 @@ public abstract class StageCommand extends SessionCommand {
         boolean suspend;
 
         status = new HashMap<>();
-        if (withAutoRunning() && (autoRestart || autoStop) && stage.state() == Stage.State.UP) {
-            postStart = autoRestart;
-            Status.processStatus(processes(), stage, status);
-            new Stop(session, false).doRun(stage);
-        } else {
-            postStart = false;
-        }
-        if (withAutoChowning() && (autoRechown || autoChown) && !stage.owner().equals(session.user)) {
-            postChown = autoRechown ? stage.owner() : null;
-            new Chown(session, true, session.user).doRun(stage);
-        } else {
-            postChown = null;
-        }
-
+        postStart = autoStart(stage, status);
+        postChown = autoChown(stage);
         doRun(stage);
-
         if (postChown != null) {
             // do NOT call session.chown to get property locking
             new Chown(session, true, postChown).doRun(stage);
@@ -264,6 +255,29 @@ public abstract class StageCommand extends SessionCommand {
             suspend = (Boolean) status.get(Field.SUSPEND);
             new Start(session, debug, suspend).doRun(stage);
         }
+    }
+
+    private String autoChown(Stage stage) throws Exception {
+        String postChown;
+        if (withAutoChowning() && (autoRechown || autoChown) && !stage.owner().equals(session.user)) {
+            postChown = autoRechown ? stage.owner() : null;
+            new Chown(session, true, session.user).doRun(stage);
+        } else {
+            postChown = null;
+        }
+        return postChown;
+    }
+
+    private boolean autoStart(Stage stage, Map<Info, Object> status) throws Exception {
+        boolean postStart;
+        if (withAutoRunning() && (autoRestart || autoStop) && stage.state() == Stage.State.UP) {
+            postStart = autoRestart;
+            Status.processStatus(processes(), stage, status);
+            new Stop(session, false).doRun(stage);
+        } else {
+            postStart = false;
+        }
+        return postStart;
     }
 
     public abstract void doRun(Stage stage) throws Exception;

@@ -21,14 +21,9 @@ import net.oneandone.stool.util.Session;
 
 public class Stop extends StageCommand {
     private boolean sleep;
-    private int timeout;
 
     public Stop(Session session, boolean sleep) {
-        this(session, -1, sleep);
-    }
-    public Stop(Session session, int timeout, boolean sleep) {
         super(false, false, session, Mode.SHARED, Mode.SHARED, Mode.NONE);
-        this.timeout = timeout;
         this.sleep = sleep;
     }
 
@@ -46,7 +41,7 @@ public class Stop extends StageCommand {
                 console.info.println("going from sleeping to stopped.");
             }
         } else {
-            stage.stop(console, timeout);
+            stage.stop(console);
         }
         if (sleep) {
             if (!alreadySleeping) {

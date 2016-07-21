@@ -117,7 +117,7 @@ public class Main {
                       cli.add(Restart.class, "restart -debug=@tomcat.debug -suspend=@tomcat.suspend");
                       cli.add(Start.class, "start -debug=@tomcat.debug -suspend=@tomcat.suspend -tail { setTail(tail) }");
                       cli.add(Status.class, "status -defaults=@status.defaults field* { field*(field) }");
-                      cli.add(Stop.class, "stop -timeout=-1 -sleep");
+                      cli.add(Stop.class, "stop -sleep");
                       cli.add(SystemStart.class, "system-start");
                       cli.add(SystemStop.class, "system-stop");
                       cli.add(Validate.class, "validate -email -repair");
