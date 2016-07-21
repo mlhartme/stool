@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -146,37 +147,107 @@ public abstract class StageCommand extends SessionCommand {
     }
 
     private void doRun(int width, List<Stage> lst, EnumerationFailed failures, boolean withPrefix) throws Exception {
+        Map<Stage, Start> postStarts;
+        Map<Stage, String> postChowns;
+
+        postStarts = new LinkedHashMap<>();
+        postChowns = new LinkedHashMap<>();
         for (Stage stage : lst) {
             console.verbose.println("current stage: " + stage.getName());
             if (isNoop(stage)) {
                 console.verbose.println("nothing to do");
             } else {
-                try (Lock lock1 = createLock(stage.backstageLock(), backstageLock);
-                     Lock lock2 = createLock(stage.directoryLock(), directoryLock)) {
-                    if (withPrefix) {
-                        ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
-                    }
-                    session.logging.setStage(stage.getId(), stage.getName());
-                    doAutoInvoke(stage);
-                } catch (ArgumentException e) {
-                    if (fail == Fail.NORMAL) {
-                        throw e;
-                    }
-                    failures.add(stage.getBackstage(), e);
-                } catch (Error | RuntimeException e) {
-                    console.error.println(stage.getName() + ": " + e.getMessage());
-                    throw e;
-                } catch (Exception e) {
-                    if (fail == Fail.NORMAL) {
-                        throw e;
-                    }
-                    failures.add(stage.getBackstage(), e);
-                } finally {
-                    session.logging.setStage("", "");
-                    if (console.info instanceof PrefixWriter) {
-                        ((PrefixWriter) console.info).setPrefix("");
-                    }
+                doMain(stage, width, failures, withPrefix, postStarts, postChowns);
+            }
+        }
+    }
+
+    private void doMain(Stage stage, int width, EnumerationFailed failures, boolean withPrefix, Map<Stage, Start> postStarts, Map<Stage, String> postChowns)
+            throws Exception
+    {
+        Map<Info, Object> status;
+        boolean debug;
+        boolean suspend;
+
+        try (Lock lock1 = createLock(stage.backstageLock(), backstageLock);
+             Lock lock2 = createLock(stage.directoryLock(), directoryLock)) {
+            if (withPrefix) {
+                ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
+            }
+            session.logging.setStage(stage.getId(), stage.getName());
+            status = new HashMap<>();
+            if (autoStart(stage, status)) {
+                debug = status.get(Field.DEBUGGER) != null;
+                suspend = (Boolean) status.get(Field.SUSPEND);
+                postStarts.put(stage, new Start(session, debug, suspend));
+            }
+            postChowns.put(stage, autoChown(stage));
+            doMain(stage);
+        } catch (ArgumentException e) {
+            if (fail == Fail.NORMAL) {
+                throw e;
+            }
+            failures.add(stage.getBackstage(), e);
+        } catch (Error | RuntimeException e) {
+            console.error.println(stage.getName() + ": " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            if (fail == Fail.NORMAL) {
+                throw e;
+            }
+            failures.add(stage.getBackstage(), e);
+        } finally {
+            session.logging.setStage("", "");
+            if (console.info instanceof PrefixWriter) {
+                ((PrefixWriter) console.info).setPrefix("");
+            }
+        }
+    }
+
+    private void doFinish(Stage stage, int width, EnumerationFailed failures, boolean withPrefix, Map<Stage, Start> postStarts, Map<Stage, String> postChowns)
+        throws Exception
+    {
+        String postChown;
+        Start postStart;
+
+        try (Lock lock1 = createLock(stage.backstageLock(), backstageLock);
+             Lock lock2 = createLock(stage.directoryLock(), directoryLock)) {
+            if (withPrefix) {
+                ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
+            }
+            session.logging.setStage(stage.getId(), stage.getName());
+
+            doFinish(stage);
+            postChown = postChowns.get(stage);
+            if (postChown != null) {
+                // do NOT call session.chown to get property locking
+                new Chown(session, true, postChown).doRun(stage);
+            }
+            postStart = postStarts.get(stage);
+            if (postStart != null) {
+                if (!stage.getDirectory().exists()) {
+                    // stage remove -- no need to start again
+                    return;
                 }
+                postStart.doRun(stage);
+            }
+        } catch (ArgumentException e) {
+            if (fail == Fail.NORMAL) {
+                throw e;
+            }
+            failures.add(stage.getBackstage(), e);
+        } catch (Error | RuntimeException e) {
+            console.error.println(stage.getName() + ": " + e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            if (fail == Fail.NORMAL) {
+                throw e;
+            }
+            failures.add(stage.getBackstage(), e);
+        } finally {
+            session.logging.setStage("", "");
+            if (console.info instanceof PrefixWriter) {
+                ((PrefixWriter) console.info).setPrefix("");
             }
         }
     }
@@ -229,32 +300,6 @@ public abstract class StageCommand extends SessionCommand {
     /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
     public boolean doBefore(List<Stage> stages, int indent) throws IOException {
         return stages.size() != 1;
-    }
-
-    public void doAutoInvoke(Stage stage) throws Exception {
-        boolean postStart;
-        String postChown;
-        Map<Info, Object> status;
-        boolean debug;
-        boolean suspend;
-
-        status = new HashMap<>();
-        postStart = autoStart(stage, status);
-        postChown = autoChown(stage);
-        doRun(stage);
-        if (postChown != null) {
-            // do NOT call session.chown to get property locking
-            new Chown(session, true, postChown).doRun(stage);
-        }
-        if (postStart) {
-            if (!stage.getDirectory().exists()) {
-                // stage remove -- no need to start again
-                return;
-            }
-            debug = status.get(Field.DEBUGGER) != null;
-            suspend = (Boolean) status.get(Field.SUSPEND);
-            new Start(session, debug, suspend).doRun(stage);
-        }
     }
 
     private String autoChown(Stage stage) throws Exception {
