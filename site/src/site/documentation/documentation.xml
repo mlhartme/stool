@@ -523,7 +523,11 @@
             <varlistentry>
               <term>macros</term>
               <listitem>
-                <para>String replacements for stage properties. Type map.</para>
+                <para>String replacements for stage properties.
+                  Stool automatically defines <literal>directory</literal> for the respective stage directory,
+                  <literal>localRepository</literal> for the local Maven repository of this stage,
+                  <literal>svnCredentials</literal> as expected by <literal>svn</literal>, and <literal>stoolSvnCredentials</literal>
+                  as expected by <literal>stool</literal>. Type map.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -973,22 +977,17 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Removes the stage, i.e. deletes the stage directory and the backstage directory. Reports an error is the stage is up.</para>
-          <para>Before deleting anything, this command checks if there are uncommitted changes or if the stage is started.
-            If so, the command is aborted with an error. In this case, stop the stage and inspect the uncommitted changes; either
-            commit them or revert them. Alternatively, you can disable this check with the
+          <para>Removes the stage, i.e. deletes the stage directory and the backstage directory. </para>
+          <para>Reports an error is the stage is up or if the stage has uncommitted changes. In this case, stop the stage and inspect
+            the uncommitted changes; either commit them or revert them. Alternatively, you can disable this check with the
             <literal>-force</literal>
             option.
           </para>
           <para>Also, before removing anything, this command asks if you really want to remove the stage.
-            You can disable this check with the
-            <literal>-batch</literal>
-            option.
+            You can suppress this interaction with the <literal>-batch</literal> option.
           </para>
-          <para>If you specify the
-            <literal>-backstage</literal>
-            option, only the backstage directory will be deleted.
-            This is useful to "unimport" a stage, i.e. revert the effect of<literal>stool import</literal>.
+          <para>If you specify the <literal>-backstage</literal> option, only the backstage directory will be deleted and the stage is
+            removed from Stool's list of stages. This is useful to "unimport" a stage, i.e. revert the effect of <literal>stool import</literal>.
           </para>
           <para>Changes the current directory to the parent of the now deleted stage directory.</para>
           <xi:include href="stageOptions.xml" parse="xml"/>
@@ -1016,51 +1015,39 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Creates the necessary configuration and starts Tomcat with a applications for this stage. If the stage is an artifact stage,
-            you can start it right away; otherwise, you have to build it first. Depending on your application,
-            startup may take a while.
-          </para>
-          <para>The process of a started stage belongs the stage owner.</para>
-          <para>Startup is refused if your stage has expired or your quota exceeded. In this case, use
-            <literal>stool config expire=</literal>
-            <replaceable>newdate</replaceable>
-            to configure a new
-            <literal>expire</literal>
-            date.
-          </para>
-          <para>
-            <literal>-debug</literal>
-            and
-            <literal>-suspend</literal>
-            enable the debugger. The difference is that
-            <literal>-suspend</literal>
-            waits for the debugger to connect before starting any application code.
-          </para>
-          <para>Use the
-            <literal>-tail</literal>
-            option to start tomcat and get
-            <literal>catalina.out</literal>
-            printed to the console.
-            Press ctrl-c to stop watching<literal>catalina.out</literal>, the application will continue to run. Alternatively, you can tail
-            the current stage manually with
-            <literal>stool cd logs &amp;&amp; tail -f catalina.out</literal>
+          <para>Creates the necessary configuration and starts Tomcat with all applications for this stage. If the stage is an artifact
+            stage, you can start it right away; otherwise, you have to build it first. Depending on your applications,
+            startup may take a while.</para>
+          <para>Any user may start a stage. The processes started by this command belong to the stage owner, not the user running
+            the start command.</para>
+          <para>Startup is refused if your stage is expired. In this case, use <literal>stool config expire=</literal><replaceable>newdate</replaceable>
+            to configure a new <literal>expire</literal> date.</para>
+          <para>Startup is also refused if your stage quota exceeded. In this case, delete some unused files, try
+            <literal>stool cleanup</literal> or <literal>stool config quota=</literal><replaceable>n</replaceable>.</para>
+          <para><literal>-debug</literal> and <literal>-suspend</literal> enable the debugger. The difference is that <literal>-suspend</literal>
+            waits for the debugger to connect before starting any application code.</para>
+          <para>Use the <literal>-tail</literal> option to start tomcat and get <literal>catalina.out</literal> printed to the console.
+            Press ctrl-c to stop watching <literal>catalina.out</literal>, the application will continue to run. Alternatively, you can tail
+            the current stage manually with <literal>stool cd logs &amp;&amp; tail -f catalina.out</literal>
           </para>
           <para>
-            <literal>start</literal>
-            generates a Tomcat base directory <replaceable>backstage</replaceable><literal>/shared/tomcat</literal> if it does not yet exist.
-            If it exists, only the server.xml is updated by taking server.xml.template and adding all apps to it. This allows for manual
-            changes in the base directory.
+            <literal>start</literal> generates a Tomcat base directory <replaceable>backstage</replaceable><literal>/tomcat</literal> if it
+            does not yet exist. If it exists, only the server.xml is updated by taking server.xml.template and adding all apps to it. This
+            allows for manual changes in the base directory. <literal>start</literal> deletes all files in Tomcat's <literal>temp</literal>
+            directory.
           </para>
           <para>The Tomcat version is configurable with <literal>stool config tomcat.version=</literal><replaceable>version</replaceable>.
-            If you change it, you have to stop the stage, delete the <replaceable>backstage</replaceable><literal>/shared/tomcat</literal>
+            If you change it, you have to stop the stage, delete the <replaceable>backstage</replaceable><literal>/tomcat</literal>
             directory and start the stage. The respective Tomcat will be downloaded automatically to the directory specified by the global
-            <literal>downloadCache</literal> property (default is<literal>$STOOL_HOME/downloads</literal>). Alternatively,
+            <literal>downloadCache</literal> property (default is <literal>$STOOL_HOME/downloads</literal>). Alternatively,
             you can place customized Tomcats into this directory, provided they unpack to a directory that matches the base file name of
             the <literal>tar.gz</literal> file.
           </para>
-          <para>If you want to re-generated all files generated by this command, use<literal>stool cd backstage &amp;&amp; rm -rf
-            shared/*</literal>.
-            This is useful e.g. to get certificates regenerated.
+          <para>Technically, Tomcat is started by the Java Service wrapper (http://wrapper.tanukisoftware.com/). You can configure the
+            version of the wrapper with the <literal>tomcat.service</literal> property.
+          </para>
+          <para>If you want to re-generated all files generated by this command, use <literal>stool cd backstage &amp;&amp; rm -rf
+            service ssl tomcat</literal>. This is useful e.g. to get certificates regenerated.
           </para>
           <para>The environment of the started application is the environment specified by the <literal>tomcat.env</literal> property. In
             addition, Stool defines a <literal>USER</literal> variable set to the stage owner and a <literal>HOME</literal> variable
@@ -1087,10 +1074,10 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Stops tomcat of the respective stage. If
-            <literal>-sleep</literal>
-            is specified, the stage is also marked as sleeping.
-          </para>
+          <para>Stops tomcat of the respective stage. If <literal>-sleep</literal> is specified, the stage is also marked as sleeping.</para>
+          <para>This command signals Tomcat to shutdown all applications and waits for up to 4 minutes to complete this. After this timeout,
+          Tomcat is killed (with -9). If Tomcat shutdown is slow, try to debug the applications running in this stage and find out why
+          the don't obey to the shutdown request. </para>
           <xi:include href="stageOptions.xml" parse="xml"/>
         </refsect1>
       </refentry>
@@ -1115,13 +1102,7 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>
-            Shorthand for
-            <literal>stool stop</literal>
-            and
-            <literal>stool start</literal>
-            with the specified options.
-          </para>
+          <para>Shorthand for <literal>stool stop</literal> and <literal>stool start</literal> with the specified options.</para>
           <xi:include href="stageOptions.xml" parse="xml"/>
         </refsect1>
       </refentry>
@@ -1580,11 +1561,12 @@
             <arg rep="repeat">
               <replaceable>stage-option</replaceable>
             </arg>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Removes the Maven repository and rotates *.log info an archive.</para>
+          <para>Removes the Maven repository and rotates *.log info *.log.gz files.</para>
           <xi:include href="stageOptions.xml" parse="xml"/>
         </refsect1>
       </refentry>
