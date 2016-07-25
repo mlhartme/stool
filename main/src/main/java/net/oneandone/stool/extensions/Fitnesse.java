@@ -74,10 +74,9 @@ public class Fitnesse implements Extension {
                 log.mkfile();
                 Files.stoolFile(log);
             }
-            try (Writer dest = log.newWriter()) {
-                // no exec -- keeps running until stopped; no way to detect failures
-                launcher.launch(dest);
-            }
+            // no exec -- keeps running until stopped; no way to detect failures
+            // no log.close!
+            launcher.launch(log.newWriter());
             console.info.println(vhost + " fitnesse started: " + url);
         }
     }
@@ -112,22 +111,21 @@ public class Fitnesse implements Extension {
         }
     }
 
-    private boolean isFitnesseServerUp(String urlPrm, Console console) throws IOException {
+    private boolean isFitnesseServerUp(String urlStr, Console console) throws IOException {
         URL url;
         HttpURLConnection conn;
 
-        url = new URL(urlPrm);
+        url = new URL(urlStr);
         conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         try {
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
+            if (conn.getResponseCode() == 200) {
                 return true;
             }
         } catch (Exception e) {
            // do nothing
         }
-        console.info.println("fitnesse server is already down");
+        console.info.println("fitnesse server is already down: " + urlStr);
         return false;
     }
 
