@@ -66,8 +66,7 @@ public class Fitnesse implements Extension {
             port = host.httpPort();
             url = findUrl(stage, host);
             launcher = stage.launcher("mvn",
-                    "uk.co.javahelp.fitnesse:fitnesse-launcher-maven-plugin:wiki",
-                    "-Dfitnesse.port=" + port);
+                    "uk.co.javahelp.fitnesse:fitnesse-launcher-maven-plugin:wiki", "-Dfitnesse.port=" + port);
             launcher.dir(stage.session.world.file(findProjectDir(ports, host)));
 
             log = stage.getBackstage().join("tomcat/logs/fitness-" + port + ".log");
@@ -76,7 +75,8 @@ public class Fitnesse implements Extension {
                 Files.stoolFile(log);
             }
             try (Writer dest = log.newWriter()) {
-                launcher.exec(dest);
+                // no exec -- keeps running until stopped; no way to detect failures
+                launcher.launch(dest);
             }
             console.info.println(vhost + " fitnesse started: " + url);
         }
@@ -94,6 +94,7 @@ public class Fitnesse implements Extension {
         Console console;
         Ports ports;
         Vhost host;
+        String url;
 
         console = stage.session.console;
         ports = stage.loadPortsOpt();
@@ -103,7 +104,7 @@ public class Fitnesse implements Extension {
             if (host == null) {
                 // ignore: fitnesse was started for an already running stage
             } else {
-                String url = findUrl(stage, host);
+                url = findUrl(stage, host);
                 if (isFitnesseServerUp(url, console)) {
                     console.verbose.println(stage.session.world.validNode(url + "?responder=shutdown").readString());
                 }
@@ -112,8 +113,11 @@ public class Fitnesse implements Extension {
     }
 
     private boolean isFitnesseServerUp(String urlPrm, Console console) throws IOException {
-        URL url = new URL(urlPrm);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        URL url;
+        HttpURLConnection conn;
+
+        url = new URL(urlPrm);
+        conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("GET");
         try {
             int responseCode = conn.getResponseCode();
@@ -121,7 +125,7 @@ public class Fitnesse implements Extension {
                 return true;
             }
         } catch (Exception e) {
-           //do nothing
+           // do nothing
         }
         console.info.println("fitnesse server is already down");
         return false;
