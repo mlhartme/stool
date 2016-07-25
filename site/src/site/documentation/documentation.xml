@@ -1468,16 +1468,12 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Moves the stage directory without touching the stage name. If
-            <replaceable>dest</replaceable>
-            exists, it is
-            moved into it. Otherwise it is moved into the parent of dest with the specified name. This is the same behavior as
-            the unix
-            <literal>mv</literal>
-            command, but it also adjusts Stool's backstage directory.
+          <para>Moves the stage directory without touching the stage id or stage name. If <replaceable>dest</replaceable>
+            exists, it is moved into it. Otherwise it is moved into the parent of dest with the specified name. This is the same behavior
+            as the unix <literal>mv</literal> command, but it also adjusts Stool's backstage directory.
           </para>
-          <para>You might have to re-build your application after moving the stage if you have development tools that store
-            absolute paths (e.g. Lavender ...).
+          <para>You might have to re-build your application after moving the stage if you have development tools that store absolute paths
+            (e.g. Lavender ...).
           </para>
           <xi:include href="stageOptions.xml" parse="xml"/>
         </refsect1>
@@ -1511,6 +1507,155 @@
 
       <refentry>
         <refnamediv>
+          <refname>stool-status</refname>
+          <refpurpose>Print stage status</refpurpose>
+        </refnamediv>
+
+        <refsynopsisdiv>
+          <cmdsynopsis>
+            <command>stool status</command>
+            <arg rep="repeat">
+              <replaceable>stage-option</replaceable>
+            </arg>
+            <arg rep="repeat" choice="plain">
+              <replaceable>field</replaceable>
+            </arg>
+          </cmdsynopsis>
+        </refsynopsisdiv>
+        <refsect1>
+          <title>Description</title>
+          <para>Prints the specified status <replaceable>field</replaceable>s of the stage.
+            Default: print all fields.
+          </para>
+          <para>A field may be any stage property or one of the following status fields:</para>
+          <variablelist>
+            <varlistentry>
+              <term>apps</term>
+              <listitem>
+                <para>Application urls this stage. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>backstage</term>
+              <listitem>
+                <para>Absolute path of the backage directory. Type string. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>buildtime</term>
+              <listitem>
+                <para>Last modified date of the war files for this stage. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>cpu</term>
+              <listitem>
+                <para>Cpu utilization reported by ps for this stage. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>debugger</term>
+              <listitem>
+                <para>Debugger port or empty if not running with debugger. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>directory</term>
+              <listitem>
+                <para>Absolute path of the stage directory. Type string. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>disk</term>
+              <listitem>
+                <para>Disk space used for this stage in mb. Type number. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>id</term>
+              <listitem>
+                <para>Unique identifier for this stage. Type string. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>jmx</term>
+              <listitem>
+                <para>Some jmx tool invocations for this stage. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>mem</term>
+              <listitem>
+                <para>Memory utilization reported by ps for this stage. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>others</term>
+              <listitem>
+                <para>Other urls this stage. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>owner</term>
+              <listitem>
+                <para>Owner of this stagem. Type string. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>selected</term>
+              <listitem>
+                <para>True if this is the selected stage. Type boolean. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>service</term>
+              <listitem>
+                <para>Java Service Wrapper process id or empty if not up. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>suspend</term>
+              <listitem>
+                <para>True if running with suspend. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>state</term>
+              <listitem>
+                <para><literal>down</literal>, <literal>sleeping</literal> or <literal>up</literal>. Type string. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>tomcat</term>
+              <listitem>
+                <para>Tomcat process id or empty if not up. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>uptime</term>
+              <listitem>
+                <para>How long this stage is running. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>type</term>
+              <listitem>
+                <para><literal>source</literal> or <literal>artifact</literal>. Type string. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>url</term>
+              <listitem>
+                <para>Url of this stage. Type string. </para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+          <xi:include href="stageOptions.xml" parse="xml"/>
+        </refsect1>
+      </refentry>
+
+      <refentry>
+        <refnamediv>
           <refname>stool-list</refname>
           <refpurpose>List stages</refpurpose>
         </refnamediv>
@@ -1521,12 +1666,15 @@
             <arg rep="repeat">
               <replaceable>stage-option</replaceable>
             </arg>
+            <arg rep="repeat" choice="plain">
+              <replaceable>field</replaceable>
+            </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Prints a short status of the selected stages; default selection is
-            <literal>-all</literal>
+          <para>Prints a short status of all stages (or the stages specified by <literal>-stage</literal>). See the <literal>status</literal>
+            command for a list of available fields. Default fields are <literal>state ower url directory</literal>.
           </para>
           <xi:include href="stageOptions.xml" parse="xml"/>
         </refsect1>
@@ -1555,32 +1703,6 @@
 
       <refentry>
         <refnamediv>
-          <refname>stool-status</refname>
-          <refpurpose>Print stage status</refpurpose>
-        </refnamediv>
-
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool status</command>
-            <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
-            </arg>
-            <arg rep="repeat" choice="plain">
-              <replaceable>field</replaceable>
-            </arg>
-          </cmdsynopsis>
-        </refsynopsisdiv>
-        <refsect1>
-          <title>Description</title>
-          <para>Prints the specified status <replaceable>field</replaceable>s of the stage.
-            Default: print all fields.
-          </para>
-          <xi:include href="stageOptions.xml" parse="xml"/>
-        </refsect1>
-      </refentry>
-
-      <refentry>
-        <refnamediv>
           <refname>stool-validate</refname>
           <refpurpose>Validate the stage</refpurpose>
         </refnamediv>
@@ -1598,10 +1720,9 @@
         <refsect1>
           <title>Description</title>
           <para>Checks if the
-            <literal>expire</literal> date of the stage has passes or the <literal>quota</literal> exceeded. If so, and
-            <literal>-repair</literal> is specified, the stage is stopped (and removed expired for more than autoremove days). And if
-            <literal>-email</literal>
-            is specified, a notification mail is sent to the stage owner.
+            <literal>expire</literal> date of the stage has passes or the <literal>quota</literal> exceeded. If so, and if
+            <literal>-repair</literal> is specified, the stage is stopped (and also removed if expired for more than autoremove days). And
+            if <literal>-email</literal> is specified, a notification mail is sent to the stage owner.
           </para>
           <para>Also checks DNS settings.</para>
           <para>Also checks Stool's locking system for stale locks and, if <literal>-repair</literal> is specified, removed them.</para>
