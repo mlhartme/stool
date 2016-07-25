@@ -1130,8 +1130,8 @@
           <title>Description</title>
           <para>Reports an error if the stage is not owned or if the stage is up.</para>
           <para>For artifact stages: check for new artifacts and installs them if any.</para>
-          <para>For source changes: perform an scm update and, if <literal>-build</literal> is specified, runs the command specified by
-            the <literal>refresh</literal> property.
+          <para>For source changes: invokes the command specified by the <literal>refresh</literal> property. If <literal>-build</literal>
+            is specified, also runs the command specified by the <literal>build</literal> property.
           </para>
           <xi:include href="stageOptions.xml" parse="xml"/>
         </refsect1>
@@ -1159,15 +1159,12 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Changes the stage owner, i.e. the owner of all files and directories in the stage- and backstage directory.</para>
-          <para>Before executing,
-            <literal>chown</literal>
-            checks if the stage has modified source files. If so, it asks for
-            confirmation before changing ownership. You can skip confirmation by specifying<literal>-batch</literal>.
+          <para>Changes the stage owner, i.e. the owner of all files and directories in the stage directory.</para>
+          <para>Before executing, <literal>chown</literal> checks if the stage has modified source files. If so, it asks for confirmation
+            before changing ownership. You can skip confirmation by specifying<literal>-batch</literal>.
           </para>
-          <para>Reports an error if the stage is up. In this case, you can specify
-            <literal>-autostop</literal> or <literal>-autorestart</literal> to stop the stage before changing
-            ownership and also start it afterwards.
+          <para>Reports an error if the stage is up. In this case, you can specify <literal>-autostop</literal> or
+            <literal>-autorestart</literal> to stop the stage before changing ownership and also start it afterwards.
           </para>
           <para>
             <replaceable>user</replaceable> defaults to the current user.
@@ -1198,15 +1195,9 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Prints the command history of the stage. Specify
-            <replaceable>detail</replaceable>
-            with a command number or a command
+          <para>Prints the command history of the stage. Specify <replaceable>detail</replaceable> with a command number or a command
             range to get the full command output for the respective command(s). If the max number
-            <replaceable>n</replaceable>
-            of
-            commands is exceeded, older commands are ignores (
-            <replaceable>n</replaceable>
-            defauls is 999).
+            <replaceable>n</replaceable> of commands is exceeded, older commands are ignored (<replaceable>n</replaceable> defauls is 999).
           </para>
           <xi:include href="stageOptions.xml" parse="xml"/>
         </refsect1>
@@ -1215,7 +1206,7 @@
       <refentry>
         <refnamediv>
           <refname>stool-cd</refname>
-          <refpurpose>Jump to directories</refpurpose>
+          <refpurpose>Jump to directory</refpurpose>
         </refnamediv>
 
         <refsynopsisdiv>
@@ -1231,7 +1222,7 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Changes the current working directory to the specified<replaceable>target</replaceable>:
+          <para>Changes the current working directory to the specified <replaceable>target</replaceable>:
             <itemizedlist>
               <listitem>
                 <para>(empty): the stage directory</para>
@@ -1278,8 +1269,8 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>This command sets or sets stage <link linkend="properties">properties</link>. See 'stool help'
-            for a description of stool properties.</para>
+          <para>This command gets or sets stage <link linkend="properties">properties</link>. Caution: <literal>config</literal> does
+            not deal with stool properties, see <literal>stool help</literal> for that.</para>
           <para>When invoked without arguments, all stage properties are printed.</para>
           <para>When invoked with one or more <replaceable>key</replaceable>s, the respective properties are printed.</para>
           <para>When invoked with one or more assignments, the respective properties are changed.</para>
@@ -1290,14 +1281,14 @@
             Otherwise, the shell does not see what belongs to your value.
           </para>
           <para>If you change a property, you have to invoke the necessary re-builds or re-starts to make the changes
-            effective. E.g. if you change<literal>tomcat.heap</literal>, you have to run <literal>stool restart</literal>
+            effective. E.g. if you change <literal>tomcat.heap</literal>, you have to run <literal>stool restart</literal>
             to make the change effective.
           </para>
           <para>Properties have a type: boolean, number, date, string, list of strings, or map of strings.</para>
-          <para>Boolean properties have the values <literal>true</literal> or <literal>false</literal>.</para>
+          <para>Boolean properties have the values <literal>true</literal> or <literal>false</literal>, case sensitive.</para>
           <para>Date properties have the form <replaceable>yyyy-mm-dd</replaceable>, so a valid value for
             <literal>expire</literal> is - e.g. -<literal>2016-12-31</literal>.</para>
-          <para>List properties (e.g.<literal>tomcat.select</literal>) are separated by commas, whitespace before and after is ignored. </para>
+          <para>List properties (e.g.<literal>tomcat.select</literal>) are separated by commas, whitespace before and after an item is ignored. </para>
           <para>Map properties (e.g.<literal>tomcat.env</literal>) separate entries by commas, whitespace before and after is ignored.
             Each entry separates key and value by a colon. Example <literal>PATH:/bin, HOME:/home/me</literal>
           </para>
@@ -1305,7 +1296,7 @@
         </refsect1>
         <refsect1>
           <title>Available stage properties</title>
-          <para>Note that the default values below might be overwritten by Stool defaults on your system. </para>
+          <para>Note that the default values below might be overwritten by Stool defaults on your system.</para>
           <variablelist>
             <varlistentry>
               <term>autoRefresh</term>
@@ -1338,12 +1329,6 @@
               </listitem>
             </varlistentry>
             <varlistentry>
-              <term>id</term>
-              <listitem>
-                <para>Unique identifier for this stage. Set when the stage is created. Read-only. Type string.</para>
-              </listitem>
-            </varlistentry>
-            <varlistentry>
               <term>java.home</term>
               <listitem>
                 <para>Install directory of the JDK used to build and run this stage. Type string.</para>
@@ -1364,14 +1349,14 @@
             <varlistentry>
               <term>notify</term>
               <listitem>
-                <para>List of Email Address or <literal>@owner</literal> to send notifications about this stage. Default value: @owner.</para>
+                <para>List of email address or <literal>@owner</literal> to send notifications about this stage. Type list. Default value:
+                  @owner.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
               <term>pom</term>
               <listitem>
-                <para>Path of the pom file in the stage directory. Type string. Default value:
-                  <literal>pom.xml</literal>.</para>
+                <para>Path of the pom file in the stage directory. Type string. Default value: <literal>pom.xml</literal>.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -1390,17 +1375,8 @@
             <varlistentry>
               <term>quota</term>
               <listitem>
-                <para>Max disk space for this stage in mb. You cannot start stages if this space exceeded.</para>
-              </listitem>
-            </varlistentry>
-            <varlistentry>
-              <term>url</term>
-              <listitem>
-                <para>A pattern that define how to build the application urls. Each url in a sequence of alternatives or strings, where
-                  alternatives themself a strings separated by |. Example: (http|https)://%a.%s.%h:@p/foo//bar
-                  Strings may contain place holders: %a for the application name, %s for the stage name, %h for the hostname,
-                  and %p for the port. A double slash in the path part of the url separates the web application context from a normal path
-                  suffix.</para>
+                <para>Max disk space for this stage in mb. You cannot start stages if this space exceeded.
+                  The sum of all quotas cannot exceet the stool quota. Type number. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -1434,14 +1410,24 @@
             <varlistentry>
               <term>tomcat.service</term>
               <listitem>
-                <para>Version of the Java Service Wrapper to use. Type string.</para>
+                <para>Version of the Java Service Wrapper to use. Default value: <literal>3.5.29</literal>. Type string.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
               <term>tomcat.version</term>
               <listitem>
-                <para>Tomcat version to use. Type string. Default value: <literal>8.0.26</literal>. If you change this property,
+                <para>Tomcat version to use. Type string. Default value: <literal>8.5.3</literal>. If you change this property,
                   you have to stop tomcat, delete the <literal>.backstage/tomcat</literal> directory, and start Tomcat again. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>url</term>
+              <listitem>
+                <para>A pattern that define how to build the application urls: a sequence of strings and alternatives, where
+                  alternatives a strings in brackes, separated by |. Example: <literal>(http|https)://%a.%s.%h:@p/foo//bar</literal>
+                  Strings may contain place holders: %a for the application name, %s for the stage name, %h for the hostname,
+                  and %p for the port. A double slash in the path part of the url separates the web application context from a normal path
+                  suffix.</para>
               </listitem>
             </varlistentry>
           </variablelist>
@@ -1457,9 +1443,8 @@
           <para>
             <literal>stool config "build=mvn clean package"</literal> sets a value with spaces. </para>
           <para>
-            <literal>stool config tomcat.select=foo,bar</literal> configures a list property. Do not used spaces around
-            the comma because the shell would consider this as a new key-value argument -- unless you also quote the
-            arguments.
+            <literal>stool config tomcat.select=foo,bar</literal> configures a list property. Do not use spaces around
+            the comma because the shell would consider this as a new key-value argument -- or quote the whole argument.
           </para>
         </refsect1>
       </refentry>
