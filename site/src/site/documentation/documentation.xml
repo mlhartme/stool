@@ -1735,57 +1735,55 @@
   <chapter>
     <title>Setup</title>
 
-    <para>Stool is distributed via Debian packages on <link xlink:href="http://central.sonatype.org">Maven Central</link>
-      (I'd like to have a public Debian repository instead, by I don't know who would host this for free). It is split into a <literal>stool</literal>
-      and a <literal>stool-dashboard</literal> package. The dashboard is optional. To install Stool:</para>
-    <itemizedlist>
-      <listitem>
-        <para>Install Java 8:<literal>sudo apt-get install java8-jdk</literal>. This is prerequisite because Stool is implemented
-          in Java 8. Ubuntu provides Java 8 since 15.04, Debian has it in =stretch= or in =jessie= with backports.</para>
-      </listitem>
-      <listitem>
-        <para>
-          Download the latest setup-x.y.z.deb from
-          http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22setup%22</para>
-      </listitem>
-      <listitem>
-        <para>Run <literal>dpkg -i setup-x.y.z.deb</literal></para>
-      </listitem>
-      <listitem>
-        <para>Option, only if you want the dashboard: repeat the previous steps for setup-x.y.z-dashboard.deb</para>
-      </listitem>
-      <listitem>
-        <para>Adjust stool properties with <literal>sudo nano /usr/share/stool-3.4/config.json</literal>. CAUTION: <literal>downloadTomcat</literal>
-          and <literal>downloadCache</literal> are security sensitive - if attackers can modify this location, they can execute code as
-          arbitrary users.</para>
-      </listitem>
-      <listitem>
-        <para>Restart your shell or re-login if you work on a VM/remote machine. (Otherwise, you'll get 'stool: commnd not found').</para>
-      </listitem>
-      <listitem>
-        <para>Invoke
-          <literal>stool</literal>
-          to verify your setup. You should get a usage message.
-        </para>
-      </listitem>
-    </itemizedlist>
+    <para>First of all: Stool is split into <literal>stool</literal> itself and the <literal>dashboard</literal>. The dashboard is optional
+      if you want some of Stool's functionality available in a browser.</para>
 
-    <para>Note: you can switch off the stage indicator by defining STOOL_STAGE_INDICATOR=0 before you source shell.rc</para>
+    <para>Next, you have to choose the appropriate of setup for your machine: isolated or shared.</para>
+    <section>
+      <title>Isolated setup</title>
 
-    <para>Implementation note:
-      <literal>stool</literal>
-      is a shell function, so
-      <literal>which stool</literal>
-      cannot find it (you can see the function with
-      <literal>declare</literal>). This is the reason why you have to start a new shell after installing stool.
-      <literal>stool</literal>
-      is not a binary because it has to adjust your environment variables (e.g. to set MAVEN_OPTS
-      depending on your current stage) - this is possible in a shell function, but not in a binary.
-    </para>
+      <para>Isolated setup means that stages created by user A can only be seen and used by this user. </para>
+    </section>
+    <section>
+      <title>Shared setup</title>
 
-    <para>Upgrade note: updating an existing package is notoriously buggy. You might want to make a copy
-    of $STOOL_HOME before running the update. If it fails, you can roll-back (because Stool does not touch
-    files in you stage directory). </para>
+      <para>Shared setup means that stages can be created, modified and removed by every other user on the machines.</para>
+
+      <para>Debian package are available from <link xlink:href="http://central.sonatype.org">Maven Central</link>
+        (I'd like to have a public Debian repository instead, by I don't know who would host this for free). To install Stool:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Install Java 8:<literal>sudo apt-get install java8-sdk</literal>. This is prerequisite because Stool is implemented
+            in Java 8. Ubuntu provides Java 8 since 15.04, Debian has it in =stretch= or in =jessie= with backports.</para>
+        </listitem>
+        <listitem>
+          <para>
+            Download the latest stool-x.y.z.deb from
+            http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22setup%22</para>
+        </listitem>
+        <listitem>
+          <para>Run <literal>dpkg -i stool-x.y.z.deb</literal></para>
+        </listitem>
+        <listitem>
+          <para>Option, only if you want the dashboard: repeat the previous steps for setup-x.y.z-dashboard.deb</para>
+        </listitem>
+        <listitem>
+          <para>Adjust stool properties with <literal>sudo nano /usr/share/stool-3.4/config.json</literal>. CAUTION: <literal>downloadTomcat</literal>
+            and <literal>downloadCache</literal> are security sensitive - if attackers can modify this location, they can execute code as
+            arbitrary users.</para>
+        </listitem>
+        <listitem>
+          <para>Restart your shell or re-login if you work on a VM/remote machine. (Otherwise, you'll get 'stool: commnd not found').</para>
+        </listitem>
+        <listitem>
+          <para>Invoke
+            <literal>stool</literal>
+            to verify your setup. You should get a usage message.
+          </para>
+        </listitem>
+      </itemizedlist>
+    </section>
   </chapter>
 
   <chapter>
