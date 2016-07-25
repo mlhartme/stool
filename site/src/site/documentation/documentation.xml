@@ -217,21 +217,22 @@
           </listitem>
         </itemizedlist>
       </para>
-      <para>Note: A system stage is a stage whose directory is placed in Stool's lib directory is called a system stage.
-        System stages are not listed by the Dashboard. </para>
+      <para>Note: A system stage is a stage whose directory is placed in $STOOL_HOME/system. System stages get special treatment in
+        system-start and system stop and they are not listed by the Dashboard. </para>
     </sect1>
 
     <sect1>
       <title>Selected stage and stage indicator</title>
 
-      <para>Usually you have one stage you're working with: the selected stage, which is shown in the stage
-        indicator in your prompt: <literal>{somestage}</literal>. After creating a stage, it automatically becomes the
-        selected stage, subsequent Stool commands work with this stage. If you want to work with a different stage, you
-        use <literal>stool select</literal> to switch to it or you manually cd into the respective stage directory.
-        If you cd out of the stage directory, or if you remove the selected stage, you no longer have a selected stage
-        and the stage indicator vanishes.
+      <para>The selected stage is the stage the current working directory belongs to. In other words: your current working directory is the
+        stage directory or a direct or indirect subdirectory of it. Unless otherwise specified, stage commands operates on the selected stage.
       </para>
-
+      <para>The stage indicator <literal>{somestage}</literal> is display in front of your shell prompt, it shows the name of the selected
+        stage.</para>
+      <para>If you create a new stage, Stool changes the current working directory to the newly created stage directory. Thus, the new stage
+        becomes the selected stage. <literal>stool select</literal> changes the current working directory to the respective stage directory,
+        thus is just a convenience way for cd'ing between stage directories.
+        </para>
       <para>The stage indicator is red when you're not the owner of the selected stage. It is blue, when the
         selected stage is broken or no longer exists. The stage indicator is invisible if you have no stage selected;
         select a stage to set a stage indicator.
@@ -309,7 +310,7 @@
       <title>Backstage</title>
       <para>Every stage directory contains backstage directory <literal>.backstage</literal> that stores Stool-related
         data about the stage, e.g. the stage properties, Tomcat configuration and log files of the applications. The
-        backstage directory is created when you create or import the stage. <literal>$STOOL_LIB/backstages</literal>
+        backstage directory is created when you create or import the stage. <literal>$STOOL_HOME/backstages</literal>
         contains a symlink <replaceable>id</replaceable>-><replaceable>backstage</replaceable>. Stool uses this
         directory to iterate all stages.
       </para>
@@ -1053,7 +1054,7 @@
           <para>The Tomcat version is configurable with <literal>stool config tomcat.version=</literal><replaceable>version</replaceable>.
             If you change it, you have to stop the stage, delete the <replaceable>backstage</replaceable><literal>/shared/tomcat</literal>
             directory and start the stage. The respective Tomcat will be downloaded automatically to the directory specified by the global
-            <literal>downloadCache</literal> property (default is<literal>$STOOL_LIB/downloads</literal>). Alternatively,
+            <literal>downloadCache</literal> property (default is<literal>$STOOL_HOME/downloads</literal>). Alternatively,
             you can place customized Tomcats into this directory, provided they unpack to a directory that matches the base file name of
             the <literal>tar.gz</literal> file.
           </para>
@@ -1414,13 +1415,13 @@
               </listitem>
             </varlistentry>
             <varlistentry>
-              <term>urls</term>
+              <term>url</term>
               <listitem>
-                <para>A list of urls that define how to build the application urls. Each url in the list
-                  defines one application url without the initial http:// or https://. An empty list of urls is
-                  treated as a single empty url.</para>
-                <para>If a url contains the placeholder "[]", the url is the suffix with the placeholder replaced by
-                  <replaceable>hostname:port</replaceable>; otherwise, the url is <replaceable>hostname:port</replaceable>.</para>
+                <para>A pattern that define how to build the application urls. Each url in a sequence of alternatives or strings, where
+                  alternatives themself a strings separated by |. Example: (http|https)://%a.%s.%h:@p/foo//bar
+                  Strings may contain place holders: %a for the application name, %s for the stage name, %h for the hostname,
+                  and %p for the port. A double slash in the path part of the url separates the web application context from a normal path
+                  suffix.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -1669,7 +1670,7 @@
         <para>Option, only if you want the dashboard: repeat the previous steps for setup-x.y.z-dashboard.deb</para>
       </listitem>
       <listitem>
-        <para>Adjust stool properties with <literal>sudo nano /var/lib/stool/config.json</literal>. CAUTION: <literal>downloadTomcat</literal>
+        <para>Adjust stool properties with <literal>sudo nano /usr/share/stool-3.4/config.json</literal>. CAUTION: <literal>downloadTomcat</literal>
           and <literal>downloadCache</literal> are security sensitive - if attackers can modify this location, they can execute code as
           arbitrary users.</para>
       </listitem>
@@ -1698,14 +1699,14 @@
     </para>
 
     <para>Upgrade note: updating an existing package is notoriously buggy. You might want to make a copy
-    of $STOOL_LIB before running the update. If it fails, you can roll-back (because Stool does not touch
+    of $STOOL_HOME before running the update. If it fails, you can roll-back (because Stool does not touch
     files in you stage directory). </para>
   </chapter>
 
   <chapter>
     <title>Directory Layout</title>
     <para>
-      ... of $STOOL_LIB: either /usr/share/stool or ~/.stool
+      ... of $STOOL_HOME: either /usr/share/stool-3.4 or ~/.stool
       <programlisting>
         |- config.json (Stool configuration)
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
