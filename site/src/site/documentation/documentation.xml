@@ -1128,8 +1128,10 @@
         </refsynopsisdiv>
         <refsect1>
           <title>Description</title>
-          <para>Updates artifact stages or - if <literal>-build</literal> is specified -
-            invokes the command specified by the refresh property on source stages. Reports an error if the stage is not owned or is up.
+          <para>Reports an error if the stage is not owned or if the stage is up.</para>
+          <para>For artifact stages: check for new artifacts and installs them if any.</para>
+          <para>For source changes: perform an scm update and, if <literal>-build</literal> is specified, runs the command specified by
+            the <literal>refresh</literal> property.
           </para>
           <xi:include href="stageOptions.xml" parse="xml"/>
         </refsect1>
@@ -1247,11 +1249,7 @@
         <refsect1>
           <title>Example</title>
           <para>
-            <literal>stool cd logs</literal>
-            will jumps to
-            <literal>shared/tomcat/logs</literal>
-            inside your
-            backstage directory.
+            <literal>stool cd logs</literal> will jumps to <literal>tomcat/logs</literal> inside your backstage directory.
           </para>
         </refsect1>
       </refentry>
@@ -1443,7 +1441,7 @@
               <term>tomcat.version</term>
               <listitem>
                 <para>Tomcat version to use. Type string. Default value: <literal>8.0.26</literal>. If you change this property,
-                  you have to stop tomcat, delete the <literal>backstage/shared/tomcat</literal> directory, and start Tomcat again. </para>
+                  you have to stop tomcat, delete the <literal>.backstage/tomcat</literal> directory, and start Tomcat again. </para>
               </listitem>
             </varlistentry>
           </variablelist>
@@ -1560,7 +1558,6 @@
             <command>stool cleanup</command>
             <arg rep="repeat">
               <replaceable>stage-option</replaceable>
-            </arg>
             </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
@@ -1693,47 +1690,32 @@
         |- config.json (Stool configuration)
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
         |- bin
-        | |- chowntree.sh
-        | `- service-wrapper.sh
+        |  |- chowntree.sh
+        |  `- service-wrapper.sh
         |- run
-        | |- locks       (holds all locking data)
-        | |- ports
-        | '- sleep.json  (optional, holds sleeping stages)
+        |  |- locks       (holds all locking data)
+        |  |- ports
+        |  '- sleep.json  (optional, holds sleeping stages)
         |- downloads (caches Tomcat- and Service Wrapper downloads)
         |- extensions (for jars with Stool extensions)
         |- logs
-        | |- stool.log
-        | |- (archived stool logs)
+        |  |- stool.log
+        |  |- (archived stool logs)
         |- system
-        | |- dashboard.properties (Dashboard configuration)
-        | |- dashboard (stage directory of the dashboard stage)
-        | :
+        |  |- dashboard.properties (Dashboard configuration)
+        |  |- dashboard (stage directory of the dashboard stage)
+        |  :
         |- service-wrapper
-        | |- wrapper-linux-x86-64-x.y.z (installed service wrapper)
-        | :
+        |  |- wrapper-linux-x86-64-x.y.z (installed service wrapper)
+        |  :
         |- tomcat
-        | |- apache-tomcat-x.y.z (installed Tomcat)
-        | :
+        |  |- apache-tomcat-x.y.z (installed Tomcat)
+        |  :
         |- shell.rc (to initialized the users interactive shell)
         |- bash.complete
         '- backstage
-        '- (stage name)  -> symlink to backstage directory
-        |- config.json (stage properties and some status fields)
-        |- anchor (symlink to stage directory)
-        |- .m2 (Maven repository for this stage)
-        '- shared
-        |- buildstats.json
-        |- ssl (generated certs, if any)
-        |- run (pid stuff for service wrapper)
-        |- service
-        |  |- service-wrapper.sh
-        |  '- service-wrapper.conf
-        '- tomcat (tomcat for this stage)
-        |- conf (standard tomcat directory with generated server.xml)
-        |- temp (standard tomcat directory)
-        |- work (standard tomcat directory)
-        '- logs
-        '- applogs (application log files for pustefix apps)
+           |- id (symlink to a backstage directory
+           :
       </programlisting>
     </para>
 
@@ -1744,20 +1726,20 @@
         :  (normal project files)
         :
         '- .backstage
-          |- config.json (stage properties and some status fields)
+          |- config.json (stage properties)
           |- .m2 (Maven repository for this stage)
-          '- shared
-             |- buildstats.json
-             |- ssl (generated certs, if any)
-             |- run (pid stuff for service wrapper)
-             |- conf
-             |  '- service-wrapper.conf
-             '- tomcat (tomcat for this stage)
-                |- conf (standard tomcat directory with generated server.xml)
-                |- temp (standard tomcat directory)
-                |- work (standard tomcat directory)
-                '- logs
-                   '- applogs (application log files for pustefix apps)
+          |- buildstats.json
+          |- ssl (generated certs)
+          |- run (pid stuff for service wrapper)
+          |- service
+          |  |- service-wrapper.sh
+          |  '- service-wrapper.conf
+          '- tomcat (tomcat for this stage)
+             |- conf (standard tomcat directory with generated server.xml)
+             |- temp (standard tomcat directory)
+             |- work (standard tomcat directory)
+             '- logs
+                '- applogs (application log files for pustefix apps)
       </programlisting>
     </para>
   </chapter>
