@@ -63,7 +63,7 @@ public abstract class Scm {
 
         scm = forUrlOpt(url, svnCredentials);
         if (scm == null) {
-            throw new IOException("unknown scm: " + url);
+            throw new IOException("unknown scm in url '" + url + "'. Start your url with 'svn:', 'git:', 'gav:' or 'file:");
         }
         return scm;
     }
