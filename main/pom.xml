@@ -25,12 +25,12 @@
     <dependency>
       <groupId>net.oneandone</groupId>
       <artifactId>sushi</artifactId>
-      <version>3.1.2-SNAPSHOT</version>
+      <version>3.1.2</version>
     </dependency>
     <dependency>
       <groupId>net.oneandone</groupId>
       <artifactId>setenv</artifactId>
-      <version>1.0.1-SNAPSHOT</version>
+      <version>1.0.2-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>net.oneandone</groupId>

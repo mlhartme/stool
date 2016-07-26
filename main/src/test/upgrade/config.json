@@ -30,10 +30,10 @@
       "maven.opts": "-Xmx2500m -XX:MaxPermSize=512m -Dmaven.repo.local=@localRepository@ @proxyOpts@ @trustStore@"
     },
     "https://svn.1and1.org/svn/sales/workspaces/": {
-      "prepare": "pwsraw open -init http://pws.ignores.this.url",
+      "prepare": "pws open -init http://pws.ignores.this.url",
       "pom": "workspace.xml",
-      "build": "pwsraw -U build",
-      "refresh": "pwsraw @stoolSvnCredentials@ up"
+      "build": "pws -U build",
+      "refresh": "pws @stoolSvnCredentials@ up"
     }, 'https://svn.1and1.org/svn/controlpanel_app/controlpanel/branches/appcenter-': {'mode': 'appcenter' }
 
   },

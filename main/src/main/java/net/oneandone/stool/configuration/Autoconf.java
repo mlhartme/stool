@@ -86,9 +86,9 @@ public class Autoconf {
         Map<String, String> result;
 
         result = new LinkedHashMap<>();
-        result.put("prepare", "pwsraw open -init http://pws.ignores.this.url");
+        result.put("prepare", "pws open -init http://pws.ignores.this.url");
         result.put("pom", "workspace.xml");
-        result.put("build", "pwsraw -U build");
+        result.put("build", "pws -U build");
         result.put("refresh", "pws @stoolSvnCredentials@ up");
         return result;
     }
