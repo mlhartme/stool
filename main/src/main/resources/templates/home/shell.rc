@@ -50,11 +50,15 @@ stageIndicatorColor() {
 }
 
 if [ "x$BASH" != "x" ] ; then
-    . ${{stool.home}}/bash.complete
-    export STOOL_OLD_PROMPT_COMMAND=$PROMPT_COMMAND
-    stoolPromptCommand() {
-        eval "$STOOL_OLD_PROMPT_COMMAND"
-        stageIndicator
-    }
-    PROMPT_COMMAND=stoolPromptCommand
+    if [ -z $STOOL_OLD_PROMPT_COMMAND ] ; then
+        . ${{stool.home}}/bash.complete
+        export STOOL_OLD_PROMPT_COMMAND=$PROMPT_COMMAND
+        stoolPromptCommand() {
+            eval "$STOOL_OLD_PROMPT_COMMAND"
+            stageIndicator
+        }
+        PROMPT_COMMAND=stoolPromptCommand
+    # else
+    #   CAUTION: already initialized, I'd cause an infinite loop because stoolPromptCommand calls itself stoolPromptCommand from $STOOL_OLD_PROMPT_COMMAND
+    fi
 fi

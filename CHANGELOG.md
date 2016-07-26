@@ -2,7 +2,10 @@
 
 ### 3.4.0 beta 3 (pending)
 
-* fix environment for foreign start and dashboard stage commands: sudo -E and pass PATH explicitly.
+* changed system-start and system-stop to always use fail mode after
+* fixed recursion in stoolPrompt
+* fixed stage indicator for names with special characters and paths with blanks 
+* fixed environment for foreign start and dashboard stage commands: sudo -E and pass PATH explicitly.
 * fixed stage name in stage command error message
 * bump default quota to 20000, some shops a really big
 * fixed dashboard actions to pass svn credentials in a single argument (with '=')

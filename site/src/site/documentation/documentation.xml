@@ -651,7 +651,7 @@
 
         <refsect1>
           <title>Description</title>
-          <para>Start all system stages and all sleeping stages.</para>
+          <para>Start all system stages and all sleeping stages. Always uses fail mode <literal>after</literal>.</para>
         </refsect1>
 
       </refentry>
@@ -670,7 +670,7 @@
 
         <refsect1>
           <title>Description</title>
-          <para>Stop all system stages and sends all other running stages to sleep.</para>
+          <para>Stop all system stages and sends all other running stages to sleep. Always uses fail mode <literal>after</literal>.</para>
         </refsect1>
       </refentry>
 

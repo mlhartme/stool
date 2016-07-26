@@ -51,6 +51,13 @@ public class SystemStartStop extends StageCommand {
         return result;
     }
 
+
+    @Override
+    public boolean doBefore(List<Stage> stages, int indent) throws IOException {
+        setFail(Fail.AFTER);
+        return super.doBefore(stages, indent);
+    }
+
     @Override
     public void doMain(Stage stage) throws Exception {
         if (start) {
