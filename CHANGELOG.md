@@ -2,6 +2,7 @@
 
 ### 3.4.0 beta 3 (pending)
 
+* fixed broken locks file for command lines containing \n
 * changed system-start and system-stop to always use fail mode after
 * fixed recursion in stoolPrompt
 * fixed stage indicator for names with special characters and paths with blanks 

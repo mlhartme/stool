@@ -31,6 +31,9 @@ class Process {
     }
 
     public Process(int id, String comment) {
+        if (comment.contains("\n")) {
+            throw new IllegalStateException(comment);
+        }
         this.id = id;
         this.comment = comment;
     }
