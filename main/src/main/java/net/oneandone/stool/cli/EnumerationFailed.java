@@ -52,7 +52,7 @@ public class EnumerationFailed extends Exception {
 
         result = new StringBuilder("stage command failed for the following stage(s):\n");
         for (Map.Entry<String, Exception> entry : problems.entrySet()) {
-            result.append("  ").append(entry.getKey()).append(": ").append(entry.getValue().getMessage());
+            result.append("  ").append(entry.getKey()).append(": ").append(entry.getValue().getMessage()).append('\n');
         }
         return result.toString();
     }
