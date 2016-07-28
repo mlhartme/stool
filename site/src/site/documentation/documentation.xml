@@ -335,6 +335,109 @@
     </sect1>
 
     <sect1>
+      <title>User defaults</title>
+
+      <para>Users can define default values for various option by placing a properties file <literal>.stool.defaults</literal> in
+        their home drectory. If this file exists, Stool uses the contained properties as default values for various options.
+        For example, a property <literal>refresh.build=true</literal> causes <literal>stool refresh</literal> to build a stage without
+        explicitly specifing the <literal>-build</literal> option. (Note: To override this default, use <literal>stool refresh -build=false</literal>).
+        </para>
+      <para>Supported user default properties:
+        <itemizedlist>
+          <listitem>
+            <para>
+              <option>verbose</option>
+              controls the <literal>-v</literal> option for every Stool command
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <option>exception</option>
+              controls the <literal>-e</literal> option for every Stool command
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <option>auto.restart</option>
+              controls the <literal>-autorestart</literal> option for every stage command
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <option>auto.stop</option>
+              controls the <literal>-autostop</literal> option for every stage command
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <option>auto.rechown</option>
+              controls the <literal>-autorechown</literal> option for every stage command
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <option>auto.restart</option>
+              controls the <literal>-autochown</literal> option for every stage command
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <option>import.name</option>
+              controls the <literal>-name</literal> option for the import command
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <option>import.max</option>
+              controls the <literal>-max</literal> option for the import command
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <option>history.max</option>
+              controls the <literal>-max</literal> option for the history command
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <option>tomcat.debug</option>
+              controls the <literal>-debug</literal> option for the start and restart command
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <option>tomcat.suspend</option>
+              controls the <literal>-suspend</literal> option for the start and restart command
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <option>list.defaults</option>
+              controls the <literal>-defaults</literal> option for the list command
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <option>status.defaults</option>
+              controls the <literal>-defaults</literal> option for the status command
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <option>select.fuzzy</option>
+              controls the <literal>-fuzzy</literal> option for the select command
+            </para>
+          </listitem>
+          <listitem>
+            <para>
+              <option>refresh.build</option>
+              controls the <literal>-build</literal> option for the refresh command
+            </para>
+          </listitem>
+        </itemizedlist>
+      </para>
+    </sect1>
+    <sect1>
       <title>Dashboard</title>
 
       <para>The dashboard is a system stage you can install to control stages via browser.</para>

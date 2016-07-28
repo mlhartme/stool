@@ -24,22 +24,7 @@
 * per-user defauls: Stool now checks for a user's `~/.stool.defaults` file. If it exists, Stool loads it as a properties 
   file and uses it as default values for options. For example, a property `refresh.build=true` causes `stool refresh` to build a stage
   without explicitly specify `-build`. To override this default, use `stool refresh -build=false`. 
-  The following properties are available:
-  * `verbose`
-  * `exception`
-  * `auto.restart`
-  * `auto.stop`
-  * `auto.rechown`
-  * `auto.chown`
-  * `import.name`
-  * `import.max`
-  * `history.max`
-  * `refresh.build`
-  * `tomcat.debug`
-  * `tomcat.suspend`
-  * `list.defaults`
-  * `status.defaults`
-  * `select.fuzzy`
+  For a list of available properties, see the "User defaults" section of the documentation.
 
 * Added `select -fuzzy` option a stage if the specifed name is not found but there's ony one suggestion.
 
