@@ -106,7 +106,7 @@
             readme.txt, changelog.txt, notice.txt, license.txt, licenses/*
           </remove>
           <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
-          <attach>false</attach>
+          <attach>true</attach>
           <shrink>true</shrink>
           <shrinkOptions>
             -dontoptimize # because of proguard bug
