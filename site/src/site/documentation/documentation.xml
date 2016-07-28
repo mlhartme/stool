@@ -1838,6 +1838,18 @@
   <chapter>
     <title>Setup</title>
 
+    <para>Prerequisites:
+      <itemizedlist>
+        <listitem>
+          <para>Linux or Mac</para>
+        </listitem>
+        <listitem>
+          <para>Java 8 or higher. This is prerequisite because Stool is implemented in Java 8. Howevery, you can build your stages with an
+            arbitrary Java version.</para>
+        </listitem>
+      </itemizedlist>
+    </para>
+
     <para>First of all: Stool is split into <literal>stool</literal> itself and the <literal>dashboard</literal>. The dashboard is optional
       if you want some of Stool's functionality available in a browser.</para>
 
@@ -1845,39 +1857,59 @@
     <section>
       <title>Isolated setup</title>
 
-      <para>Isolated setup means that stages created by user A can only be seen and used by this user. </para>
+      <para>Isolated setup means that stages created by user A can only be seen and used by this user. Security: everything executes
+        as the respective user, no <literal>root</literal> permissions required.</para>
+
+      <para>Steps:</para>
+      <itemizedlist>
+        <listitem>
+          <para>Download the latest <literal>application.sh</literal> file from
+            <link xlink:href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22">Maven Central</link>.</para>
+        </listitem>
+        <listitem>
+          <para>Make it executable and add it to your $PATH.</para>
+        </listitem>
+        <listitem>
+          <para>Run <literal>stool setup</literal> to create Stool's home directory.</para>
+        </listitem>
+        <listitem>
+          <para>Adjust <literal>~/.stool/config.json</literal> to your needs.</para>
+        </listitem>
+        <listitem>
+          <para>Source <literal>~/.stool/shell.rc</literal> in your shell initialization file (e.g. <literal>~/.bash_profile</literal>).</para>
+        </listitem>
+      </itemizedlist>
     </section>
     <section>
       <title>Shared setup</title>
 
       <para>Shared setup means that stages can be created, modified and removed by every other user on the machines.</para>
 
+      <para>Security: you need root permission to setup Stool in shared mode. Having shared Stool on you machine allows every Stool user
+        to execute arbitery code as arbitrary Stool user (i.e. in a stage started by him or a Tomcat/Java Service Wrapper provided by him).
+        In addition, Stool users can change arbitrary files in any of the stages (via stool chown). </para>
+
       <para>Debian package are available from <link xlink:href="http://central.sonatype.org">Maven Central</link>
         (I'd like to have a public Debian repository instead, by I don't know who would host this for free). To install Stool:</para>
 
       <itemizedlist>
         <listitem>
-          <para>Install Java 8:<literal>sudo apt-get install java8-sdk</literal>. This is prerequisite because Stool is implemented
-            in Java 8. Ubuntu provides Java 8 since 15.04, Debian has it in =stretch= or in =jessie= with backports.</para>
-        </listitem>
-        <listitem>
           <para>
-            Download the latest stool-x.y.z.deb from
-            http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22setup%22</para>
+            Download the latest <literal>deb</literal> from
+            <link xlink:href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22setup%22">Maven central</link>.</para>
         </listitem>
         <listitem>
           <para>Run <literal>dpkg -i stool-x.y.z.deb</literal></para>
         </listitem>
         <listitem>
-          <para>Option, only if you want the dashboard: repeat the previous steps for setup-x.y.z-dashboard.deb</para>
+          <para>Optional, only if you want the dashboard: repeat the previous steps for setup-x.y.z-dashboard.deb</para>
         </listitem>
         <listitem>
-          <para>Adjust stool properties with <literal>sudo nano /usr/share/stool-3.4/config.json</literal>. CAUTION: <literal>downloadTomcat</literal>
-            and <literal>downloadCache</literal> are security sensitive - if attackers can modify this location, they can execute code as
-            arbitrary users.</para>
+          <para>Adjust stool properties with <literal>sudo nano /usr/share/stool-3.4/config.json</literal>. </para>
         </listitem>
         <listitem>
-          <para>Restart your shell or re-login if you work on a VM/remote machine. (Otherwise, you'll get 'stool: commnd not found').</para>
+          <para>Restart your shell or re-login if you work on a VM/remote machine. (Otherwise, the stage indicator will not work properly
+            and Stool cannot change the current directory).</para>
         </listitem>
         <listitem>
           <para>Invoke
