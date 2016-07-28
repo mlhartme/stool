@@ -10,7 +10,7 @@
 
   <body>
     <links>
-      <item name="Changes" href="changes-report.html"/>
+      <item name="Changes" href="https://github.com/mlhartme/stool/blob/master/CHANGELOG.md"/>
       <item name="Documentation" href="documentation.html"/>
     </links>
     <menu ref="reports"/>
