@@ -1,5 +1,11 @@
 ## Changelog 
 
+### 3.4.1 (pending)
+
+* Implementation changes
+  * update Java 1.5.0b1 to 1.5.5
+
+  
 ### 3.4.0 (2016-07-28)
 
 * auto select:
