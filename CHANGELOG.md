@@ -1,26 +1,6 @@
 ## Changelog 
 
-### 3.4.0 beta 3 (pending)
-
-* fixed broken locks file for command lines containing \n
-* changed system-start and system-stop to always use fail mode after
-* fixed recursion in stoolPrompt
-* fixed stage indicator for names with special characters and paths with blanks 
-* fixed environment for foreign start and dashboard stage commands: sudo -E and pass PATH explicitly.
-* fixed stage name in stage command error message
-* bump default quota to 20000, some shops a really big
-* fixed dashboard actions to pass svn credentials in a single argument (with '=')
-* default diskMin to 1000
-* start and stop for multiple stages is executed in parallel now. 
-* fixed machine reboot problems with stale pid files by making the service wrapper timeout shorter than the systemctl timeout.
-* fixed service pid validation
-* dashboard debian package with https only
-* fixed stage indicator color
-* system-import: fixed npe when upgrading suffixes
-* dashboard: fixed locateHome mechanism
-
-
-### 3.4.0 beta 2 (2016-11-19, 3.4.0~20160719130246)
+### 3.4.0 (2016-07-28)
 
 * auto select:
   * the selected stage is now determined by the current directory
@@ -89,11 +69,16 @@
   * removed `tomcat.perm` because it's ignored by Java 8.
   * changed default tomcat version from 8.0.26 to 8.5.3
   * changed default service wrapper version from 3.5.26 to 3.5.29
+  * changed default diskMin to 1000
+
 
 * simplified directory structure:
   * backstage directories moved from `$LIB/backstages/stagename` to `stagedir/.backstage`.
   * dumped `$BACKSTAGE/shared`, $BACKSTAGE now directly contains all subdirectories
   * renamed `$BACKSTAGE/conf` to `$BACKSTAGE/service`
+
+* changed system-start and system-stop to always use fail mode after
+* start and stop for multiple stages is executed in parallel now. 
 
 * properties for running stages
   * replaced `stool.bin` by `stool.cp`, it points to Stool's application file
@@ -107,10 +92,13 @@
   * atomic upgrade: creates a backup of the lib directory before upgrade; this is restored if the upgrade fails
 
 * fixes
+  * Fixed machine reboot problems with stale pid files by making the service wrapper timeout shorter than the systemctl timeout.
+  * Fixed broken locks file for command lines containing \n
   * Fixed stage stop for applications with fitnesse extension if war files have been remove
   * Fixed `system-import` command.
   
 * cleanup
+  * dashboard debian package with https only
   * dumped `MACHINE` and `STAGE_HOST` environment variables
   * dumped `$LIB/run/users` directory
   * replaced curl- (stop fitnesse) and wget (downloads) execs by sushi http.

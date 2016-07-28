@@ -2,7 +2,7 @@
 
 Homepage: https://github.com/mlhartme/stool
 
-Changes: http://mlhartme.github.io/stool/changes-report.html
+Changes: https://github.com/mlhartme/stool/blob/master/CHANGELOG.md
 
 Documentation: http://mlhartme.github.io/stool/documentation/documentation.html
 
