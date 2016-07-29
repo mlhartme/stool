@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.Map;
 
 public class StageConfiguration {
-    public static String NOTIFY_OWNER = "@owner";
+    public static final String NOTIFY_OWNER = "@owner";
+    public static final String NOTIFY_CREATOR = "@creator";
 
     public static FileNode file(FileNode backstage) {
         return backstage.join("config.json");
@@ -82,7 +83,7 @@ public class StageConfiguration {
     @Option(key = "tomcat.env")
     public Map<String, String> tomcatEnv;
 
-    /** login names or email adresses, or "@owner" */
+    /** login names or email adresses, or "@owner" or "@creator" */
     @Option(key = "notify")
     public List<String> notify;
 
@@ -118,6 +119,7 @@ public class StageConfiguration {
         this.refresh = refresh;
         this.notify = new ArrayList<>();
         this.notify.add(NOTIFY_OWNER);
+        this.notify.add(NOTIFY_CREATOR);
         this.pom = "pom.xml";
         this.quota = 40000;
         this.tomcatOpts = "";

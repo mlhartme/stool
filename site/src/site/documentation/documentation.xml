@@ -1452,8 +1452,8 @@
             <varlistentry>
               <term>notify</term>
               <listitem>
-                <para>List of email address or <literal>@owner</literal> to send notifications about this stage. Type list. Default value:
-                  @owner.</para>
+                <para>List of email address or <literal>@owner</literal> or <literal>@creator</literal> to send notifications about
+                  this stage. Type list. Default value: @owner, @creator.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -1657,6 +1657,12 @@
               </listitem>
             </varlistentry>
             <varlistentry>
+              <term>creator</term>
+              <listitem>
+                <para>User who created this stage. Type string. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
               <term>debugger</term>
               <listitem>
                 <para>Debugger port or empty if not running with debugger. </para>
@@ -1701,7 +1707,7 @@
             <varlistentry>
               <term>owner</term>
               <listitem>
-                <para>Owner of this stagem. Type string. </para>
+                <para>Owner of this stage. Type string. </para>
               </listitem>
             </varlistentry>
             <varlistentry>

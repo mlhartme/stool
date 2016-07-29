@@ -45,6 +45,14 @@ public class User {
         return false;
     }
 
+    public String toStatus() {
+        if (isGenerated()) {
+            return login;
+        } else {
+            return name + " <" + email + ">";
+        }
+    }
+
     public boolean isGenerated() {
         return login.equals(name);
     }

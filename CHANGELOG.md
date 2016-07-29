@@ -2,6 +2,7 @@
 
 ### 3.4.1 (pending)
 
+* added `creator` status field and `@creator` email alias
 * Speedup stool list
 * Implementation changes
   * update Java 1.5.0b1 to 1.5.5

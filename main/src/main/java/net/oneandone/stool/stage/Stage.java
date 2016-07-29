@@ -188,6 +188,10 @@ public abstract class Stage {
     public String owner() throws IOException {
         return directory.getOwner().getName();
     }
+    /** @return login name */
+    public String creator() throws IOException {
+        return session.backstageLink(id).getOwner().getName();
+    }
 
     //-- pid file handling
 

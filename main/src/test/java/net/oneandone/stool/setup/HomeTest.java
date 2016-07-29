@@ -85,7 +85,7 @@ public class HomeTest {
         assertEquals("(http|https)://%a.%s.%h:%p/xml/config", stage.url);
         assertEquals(Expire.never(), stage.expire);
         assertEquals(null, stool.defaults.get("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/").get("tomcat.perm"));
-        assertEquals(Strings.toList(StageConfiguration.NOTIFY_OWNER), stage.notify);
+        assertEquals(Strings.toList(StageConfiguration.NOTIFY_OWNER, StageConfiguration.NOTIFY_CREATOR), stage.notify);
         assertEquals(10000, stage.quota);
     }
 }

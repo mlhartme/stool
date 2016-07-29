@@ -190,8 +190,20 @@ public class Validate extends StageCommand {
         }
 
         public void user(Stage stage, String problem) throws IOException {
+            String login;
+
             for (String user : stage.config().notify) {
-                add(StageConfiguration.NOTIFY_OWNER.equals(user) ? stage.owner() : user, prefix(stage) + problem);
+                switch (user) {
+                    case StageConfiguration.NOTIFY_OWNER:
+                        login = stage.owner();
+                        break;
+                    case StageConfiguration.NOTIFY_CREATOR:
+                        login = stage.creator();
+                        break;
+                    default:
+                        login = user;
+                }
+                add(login, prefix(stage) + problem);
             }
         }
 

@@ -320,6 +320,7 @@ public class UpgradeBuilder {
                 } else {
                     array = new JsonArray();
                     array.add(new JsonPrimitive(StageConfiguration.NOTIFY_OWNER));
+                    array.add(new JsonPrimitive(StageConfiguration.NOTIFY_CREATOR));
                     dest.add("notify", array);
                     dest.add("quota", new JsonPrimitive(10000));
                     dest.add("name", new JsonPrimitive(currentStage));

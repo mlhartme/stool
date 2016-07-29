@@ -18,6 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Ports;
@@ -26,6 +27,7 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.util.Separator;
 
+import javax.naming.NamingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -118,7 +120,8 @@ public abstract class InfoCommand extends StageCommand {
         result.put(Field.URL, stage.getUrl());
         result.put(Field.TYPE, stage.getType());
         result.put(Field.BUILDTIME, stage.buildtime());
-        result.put(Field.OWNER, stage.owner());
+        result.put(Field.OWNER, userName(session, stage.owner()));
+        result.put(Field.CREATOR, userName(session, stage.creator()));
         result.put(Field.UPTIME, stage.uptime());
         result.put(Field.STATE, stage.state().toString());
         ports = processStatus(processes, stage, result);
@@ -135,6 +138,14 @@ public abstract class InfoCommand extends StageCommand {
             result.put(property, property.get(stage.config()));
         }
         return result;
+    }
+
+    private static String userName(Session session, String login) {
+        try {
+            return session.users.byLogin(login).toStatus();
+        } catch (NamingException | UserNotFound e) {
+            return "[error: " + e.getMessage() + "]";
+        }
     }
 
     /** TODO: we need this field to list fitnesse urls ...*/
