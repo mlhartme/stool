@@ -515,7 +515,8 @@
         </refsect1>
         <refsect1 xml:id="stoolProperties">
           <title>Stool properties</title>
-          <para>Stool's global configuration is defined by the following Stool <link linkend="properties">properties</link>. </para>
+          <para>Stool's global configuration is stored in <literal>$STOOL_HOME/config.json</literal>. It defines following
+            <link linkend="properties">properties</link>. </para>
           <variablelist>
             <varlistentry>
               <term>portFirst</term>
@@ -649,6 +650,14 @@
               <term>mailPassword</term>
               <listitem>
                 <para>Password for mailHost. Type string. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>quota</term>
+              <listitem>
+                <para>Megabytes available for stages. The sum of all stage quota properties cannot exceed this number. 0 disables this
+                  feature. You'll usually set this to the size of the partition that will store your stages. Note that this quota
+                  cannot prevent disk full problem because stages can be placed in arbitrary partitions. Type number. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
