@@ -2,11 +2,12 @@
 
 ### 3.4.1 (pending)
 
+* fixed `create` and the `diskMin` property to check available space on the target partion, not the partition for Stool home.
 * changed logging to create log files with the date appended; gzip them after a day, remove them after 90 days.
 * added `creator` status field and `@creator` email alias
-* Speedup stool list
-* Implementation changes
-  * update Java 1.5.0b1 to 1.5.5
+* speedup `stool list`
+* implementation changes:
+  * update Java Mail 1.5.0b1 to 1.5.5
 
   
 ### 3.4.0 (2016-07-28)

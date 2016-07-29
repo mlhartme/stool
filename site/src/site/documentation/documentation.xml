@@ -519,15 +519,16 @@
             <link linkend="properties">properties</link>. </para>
           <variablelist>
             <varlistentry>
-              <term>portFirst</term>
+              <term>admin</term>
               <listitem>
-                <para>First port available for stages. Has to be an even number >1024. Type number. </para>
+                <para>Email of the person to receive validation failures and exception mails. Empty to disable these emails.
+                  Type string.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
-              <term>portLast</term>
+              <term>autoRemove</term>
               <listitem>
-                <para>Last port available for stages. Has to be an odd number >1024. Type number.</para>
+                <para>Days to wait before removing an expired stage. -1 to disable this feature. Type number. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -552,19 +553,6 @@
               </listitem>
             </varlistentry>
             <varlistentry>
-              <term>admin</term>
-              <listitem>
-                <para>Email of the person to receive validation failures and exception mails. Empty to disable these emails.
-                  Type string.</para>
-              </listitem>
-            </varlistentry>
-            <varlistentry>
-              <term>autoRemove</term>
-              <listitem>
-                <para>Days to wait before removing an expired stage. -1 to disable this feature. Type number. </para>
-              </listitem>
-            </varlistentry>
-            <varlistentry>
               <term>defaults</term>
               <listitem>
                 <para>Default values for stage properties. Type map.</para>
@@ -573,7 +561,7 @@
             <varlistentry>
               <term>diskMin</term>
               <listitem>
-                <para>Minimum mb free space. If less space is available, Stool refuses to create new stages. Type number. </para>
+                <para>Minimum mb free space. If less space is available on the target partition, Stool refuses to create new stages. Type number. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -597,7 +585,7 @@
             <varlistentry>
               <term>hostname</term>
               <listitem>
-                <para>Hostname used to refer to this machine in application urls and emails. Type strings. </para>
+                <para>Hostname used to refer to this machine in application urls and emails. Type string. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -653,6 +641,18 @@
               </listitem>
             </varlistentry>
             <varlistentry>
+              <term>portFirst</term>
+              <listitem>
+                <para>First port available for stages. Has to be an even number >1024. Type number. </para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
+              <term>portLast</term>
+              <listitem>
+                <para>Last port available for stages. Has to be an odd number >1024. Type number.</para>
+              </listitem>
+            </varlistentry>
+            <varlistentry>
               <term>quota</term>
               <listitem>
                 <para>Megabytes available for stages. The sum of all stage quota properties cannot exceed this number. 0 disables this
@@ -677,9 +677,10 @@
             <varlistentry>
               <term>vhosts</term>
               <listitem>
-                <para><literal>true</literal> to create application urls with ports and vhosts for application and stage
-                  name. <literal>false</literal> to create application urls with ports and without vhosts. Type boolean.
-                  If want to enable vhosts you have to make sure you have the respective DNS * entries for your machine.
+                <para><literal>true</literal> to create application urls with vhosts for application and stage name.
+                  <literal>false</literal> to create application urls without vhosts. (Note that urls always contain the port to
+                  distingusish between stages/applications). Type boolean. If you want to enable vhosts you have to make sure you
+                  have the respective DNS * entries for your machine.
                 </para>
               </listitem>
             </varlistentry>

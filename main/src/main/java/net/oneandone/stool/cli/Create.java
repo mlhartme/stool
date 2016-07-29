@@ -161,7 +161,7 @@ public class Create extends SessionCommand {
         if (session.configuration.shared) {
             checkPermissions(directory.getParent());
         }
-        session.checkDiskFree();
+        session.checkDiskFree(directory.getParent());
         np = properties.get("name");
         name = config.get(np);
         if (name == null) {

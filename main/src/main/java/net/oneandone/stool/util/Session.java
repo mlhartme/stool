@@ -434,11 +434,11 @@ public class Session {
         return reserved;
     }
 
-    public void checkDiskFree() {
+    public void checkDiskFree(FileNode directory) {
         int free;
         int min;
 
-        free = diskFree();
+        free = diskFree(directory);
         min = configuration.diskMin;
         if (free < min) {
             throw new ArgumentException("Disk almost full. Currently available " + free + " mb, required " + min + " mb.");
@@ -446,8 +446,8 @@ public class Session {
     }
 
     /** @return Free disk space in partition used for stool lib. TODO: not necessarily the partition used for stages. */
-    public int diskFree() {
-        return (int) (home.toPath().toFile().getUsableSpace() / 1024 / 1024);
+    public int diskFree(FileNode directory) {
+        return (int) (directory.toPath().toFile().getUsableSpace() / 1024 / 1024);
     }
 
     public User lookupUser(String login) throws NamingException, UserNotFound {

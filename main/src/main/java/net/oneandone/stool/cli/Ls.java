@@ -87,7 +87,6 @@ public class Ls extends InfoCommand {
         message("");
         header("storage");
         message("   mem free: " + Strings.padLeft("~" + session.memUnreserved() + " Mb", padStorage));
-        message("   disk free:" + Strings.padLeft("~" + session.diskFree() + " Mb", padStorage));
         message("");
     }
 
