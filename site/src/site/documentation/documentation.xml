@@ -1834,6 +1834,7 @@
             if <literal>-email</literal> is specified, a notification mail is sent to the stage owner.
           </para>
           <para>Also checks DNS settings.</para>
+          <para>Also performs log rotation: logs a gzipped and removed after 90 days.</para>
           <para>Also checks Stool's locking system for stale locks and, if <literal>-repair</literal> is specified, removed them.</para>
           <xi:include href="stageOptions.xml" parse="xml"/>
         </refsect1>

@@ -249,4 +249,23 @@ public class Logging {
     public String getUser() {
         return user;
     }
+
+    public void rotate() throws IOException {
+        long daymillies = 1000l * 60 * 60 * 24;
+        long manydaysmillies = daymillies * 90;
+        long now;
+
+        now = System.currentTimeMillis();
+        for (FileNode f : file.getParent().find("*.log")) {
+            if (now - f.getLastModified() > daymillies) {
+                f.gzip(f.getParent().join(f.getName() + ".gz"));
+                f.deleteFile();
+            }
+        }
+        for (FileNode f : file.getParent().find("*.log.gz")) {
+            if (now - f.getLastModified() > manydaysmillies) {
+                f.deleteFile();
+            }
+        }
+    }
 }

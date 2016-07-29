@@ -54,6 +54,7 @@ public class Validate extends StageCommand {
     public void doRun() throws Exception {
         report = new Report();
         dns();
+        session.logging.rotate();
         locks();
         super.doRun();
         if (report.isEmpty()) {

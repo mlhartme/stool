@@ -2,7 +2,7 @@
 
 ### 3.4.1 (pending)
 
-* created dated log files
+* changed logging to create log files with the date appended; gzip them after a day, remove them after 90 days.
 * added `creator` status field and `@creator` email alias
 * Speedup stool list
 * Implementation changes
@@ -189,7 +189,7 @@
 * Simplified cwd handling: only the following commands change the current directory: create, remove, select and cd.
 * Removed allowLinking in server.xml. Because it's no longer needed for Controlpanel and the configuration differs between
   Tomcat 7 and Tomcat 8.
-* Fixed wrong capitalization in server.xml for element host alias.
+* Fixed wrong capitalization in server.xml for element host alias
 * Merged all {stage}/ports files into one {home}/run/ports file.
 * Support stages with empty MAVEN_HOME: Stool includes ${home}/maven-settings.xml now, they are used to resolve dependencies if
   the current user has no MAVEN_HOME.
