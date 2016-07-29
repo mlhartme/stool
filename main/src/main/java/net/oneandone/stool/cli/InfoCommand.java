@@ -74,6 +74,12 @@ public abstract class InfoCommand extends StageCommand {
 
         if (value == null) {
             return "";
+        } else if (value instanceof Future) {
+            try {
+                return toString(((Future) value).get());
+            } catch (IOException e) {
+                return "[error: " + e.getMessage() + "]";
+            }
         } else if (value instanceof List) {
             first = true;
             lst = (List) value;
@@ -103,7 +109,12 @@ public abstract class InfoCommand extends StageCommand {
         result.put(Field.SELECTED, session.isSelected(stage));
         result.put(Field.DIRECTORY, stage.getDirectory().getAbsolute());
         result.put(Field.BACKSTAGE, stage.backstage.getAbsolute());
-        result.put(Field.DISK, Integer.toString(stage.diskUsed()));
+        result.put(Field.DISK, new Future<Integer>() {
+            @Override
+            protected Integer doGet() throws IOException {
+                return stage.diskUsed();
+            }
+        });
         result.put(Field.URL, stage.getUrl());
         result.put(Field.TYPE, stage.getType());
         result.put(Field.BUILDTIME, stage.buildtime());
@@ -192,5 +203,16 @@ public abstract class InfoCommand extends StageCommand {
 
     private static Integer opt(int i) {
         return i == 0 ? null : i;
+    }
+
+    public abstract static class Future<T> {
+        private T lazy = null;
+        public T get() throws IOException {
+            if (lazy == null) {
+                lazy = doGet();
+            }
+            return lazy;
+        }
+        protected abstract T doGet() throws IOException;
     }
 }

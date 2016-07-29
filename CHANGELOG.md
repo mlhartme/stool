@@ -2,6 +2,7 @@
 
 ### 3.4.1 (pending)
 
+* Speedup stool list
 * Implementation changes
   * update Java 1.5.0b1 to 1.5.5
 
