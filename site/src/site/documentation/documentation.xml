@@ -671,7 +671,8 @@
               <term>search</term>
               <listitem>
                 <para>Command line to execute if <literal>stool create</literal> is called with an % url.
-                  Default is empty which diables this feature.</para>
+                  When calling the command, the placeholder <literal>()</literal> is replaced by the url.
+                  Default is empty which disables this feature.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
