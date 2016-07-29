@@ -35,8 +35,10 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class Validate extends StageCommand {
     private boolean email;
@@ -191,8 +193,10 @@ public class Validate extends StageCommand {
         }
 
         public void user(Stage stage, String problem) throws IOException {
+            Set<String> done;
             String login;
 
+            done = new HashSet<>();
             for (String user : stage.config().notify) {
                 switch (user) {
                     case StageConfiguration.NOTIFY_OWNER:
@@ -204,7 +208,9 @@ public class Validate extends StageCommand {
                     default:
                         login = user;
                 }
-                add(login, prefix(stage) + problem);
+                if (done.add(login)) {
+                    add(login, prefix(stage) + problem);
+                }
             }
         }
 

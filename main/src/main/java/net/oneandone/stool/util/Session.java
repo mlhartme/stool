@@ -529,7 +529,6 @@ public class Session {
         scm = scmOpt(url);
         refresh = scm == null ? "" : scm.refresh();
         result = new StageConfiguration(javaHome(), mavenHome, refresh, extensionsFactory.newInstance());
-        result.notify.add(user);
         configuration.setDefaults(properties(), result, url);
         return result;
     }
