@@ -1125,7 +1125,7 @@
             the start command.</para>
           <para>Startup is refused if your stage is expired. In this case, use <literal>stool config expire=</literal><replaceable>newdate</replaceable>
             to configure a new <literal>expire</literal> date.</para>
-          <para>Startup is also refused if your stage quota exceeded. In this case, delete some unused files, try
+          <para>Startup is also refused if your stage quota is exceeded. In this case, delete some unused files, try
             <literal>stool cleanup</literal> or <literal>stool config quota=</literal><replaceable>n</replaceable>.</para>
           <para><literal>-debug</literal> and <literal>-suspend</literal> enable the debugger. The difference is that <literal>-suspend</literal>
             waits for the debugger to connect before starting any application code.</para>
@@ -1479,7 +1479,7 @@
               <term>quota</term>
               <listitem>
                 <para>Max disk space for this stage in mb. You cannot start stages if this space exceeded.
-                  The sum of all quotas cannot exceet the stool quota. Type number. </para>
+                  The sum of all quotas cannot exceed the stool quota. Type number. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -1944,8 +1944,8 @@
         |- downloads (caches Tomcat- and Service Wrapper downloads)
         |- extensions (for jars with Stool extensions)
         |- logs
-        |  |- stool.log
-        |  |- (archived stool logs)
+        |  |- stool-YYmmDD.log(.gz)
+        |  :
         |- system
         |  |- dashboard.properties (Dashboard configuration)
         |  |- dashboard (stage directory of the dashboard stage)

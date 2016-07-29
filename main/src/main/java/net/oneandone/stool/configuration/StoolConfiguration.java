@@ -128,7 +128,7 @@ public class StoolConfiguration {
         portLast = 9999;
         baseHeap = 350;
         hostname = "localhost";
-        diskMin = 2000;
+        diskMin = 1000;
         admin = "";
         autoRemove = -1;
         shared = false;

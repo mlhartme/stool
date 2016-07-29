@@ -2,6 +2,7 @@
 
 ### 3.4.1 (pending)
 
+* created dated log files
 * added `creator` status field and `@creator` email alias
 * Speedup stool list
 * Implementation changes
