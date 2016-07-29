@@ -15,10 +15,12 @@
  */
 package net.oneandone.stool.cli;
 
+import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -86,8 +88,20 @@ public class Ls extends InfoCommand {
         }
         message("");
         header("storage");
-        message("   mem free: " + Strings.padLeft("~" + session.memUnreserved() + " Mb", padStorage));
+        message("   mem free: " + Strings.padLeft("~" + session.memUnreserved() + " mb", padStorage));
+        quota();
         message("");
+    }
+
+    private void quota() throws IOException {
+        int global;
+
+        global = session.configuration.quota;
+        if (global == 0) {
+            message("  disk quota: disabled");
+        } else {
+            message("  disk quota: " + session.quotaReserved() + " from " + global + " mb reserved");
+        }
     }
 
     private List<Integer> widths() {

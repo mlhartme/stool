@@ -70,18 +70,13 @@ public class Start extends StageCommand {
     @Override
     public boolean doBefore(List<Stage> stages, int indent) throws IOException {
         int global;
-        int claimed;
-        StageConfiguration config;
+        int reserved;
 
         global = session.configuration.quota;
         if (global != 0) {
-            claimed = 0;
-            for (FileNode stage : session.stageDirectories()) {
-                config = session.loadStageConfiguration(Stage.backstageDirectory(stage));
-                claimed += config.quota;
-            }
-            if (claimed > global) {
-                throw new IOException("stage quotas exceed available disk space: " + claimed + " mb > " + global + " mb");
+            reserved = session.quotaReserved();
+            if (reserved > global) {
+                throw new IOException("stage quotas exceed available disk space: " + reserved + " mb > " + global + " mb");
             }
         }
         return super.doBefore(stages, indent);

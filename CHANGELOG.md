@@ -2,6 +2,7 @@
 
 ### 3.4.1 (pending)
 
+* `list` now prints the reserved quota (instead of the available space on the home partition)
 * fixed `create` and the `diskMin` property to check available space on the target partion, not the partition for Stool home.
 * changed logging to create log files with the date appended; gzip them after a day, remove them after 90 days.
 * added `creator` status field and `@creator` email alias

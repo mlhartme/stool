@@ -645,4 +645,16 @@ public class Session {
         result[0] = property("name");
         return result;
     }
+
+    public int quotaReserved() throws IOException {
+        int reserved;
+        StageConfiguration config;
+
+        reserved = 0;
+        for (FileNode stage : stageDirectories()) {
+            config = loadStageConfiguration(Stage.backstageDirectory(stage));
+            reserved += config.quota;
+        }
+        return reserved;
+    }
 }
