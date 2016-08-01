@@ -121,7 +121,7 @@ public class StageConfiguration {
         this.notify.add(NOTIFY_OWNER);
         this.notify.add(NOTIFY_CREATOR);
         this.pom = "pom.xml";
-        this.quota = 40000;
+        this.quota = 10000;
         this.tomcatOpts = "";
         this.tomcatVersion = "8.5.3";
         this.tomcatService = "3.5.29";

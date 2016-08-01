@@ -652,7 +652,7 @@ public class Session {
         reserved = 0;
         for (FileNode stage : stageDirectories()) {
             config = loadStageConfiguration(Stage.backstageDirectory(stage));
-            reserved += config.quota;
+            reserved += Math.min(0, config.quota);
         }
         return reserved;
     }
