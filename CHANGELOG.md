@@ -3,6 +3,7 @@
 ### 3.4.1 (pending)
 
 * changed default quota from 40000 to 10000
+* fixed NPE in `history` command
 * fixed quota computation: skip negative values
 * `list` now prints the reserved quota (instead of the available space on the home partition)
 * fixed `create` and the `diskMin` property to check available space on the target partion, not the partition for Stool home.

@@ -108,6 +108,7 @@ public class StoolIT {
         stool("status", "-stage", "it");
         stool("validate", "-stage", "it");
         stool("build", "-stage", "it");
+        stool("history", "-stage", "it");
         stool("config", "-stage", "it", "tomcat.opts=@trustStore@");
         stool("config", "-stage", "it", "tomcat.heap=300");
         stool("refresh", "-stage", "it");

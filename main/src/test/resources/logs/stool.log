@@ -1,10 +1,10 @@
-10:12:09,617|131128-1|net.oneandone.sushi.cli.Command|mabraun|stageId|stageName|Invoking Start
-10:12:11,538|131128-1|OUT|mabraun|stageId|stageName|starting tomcat ...
-10:12:11,632|131128-1|OUT|mabraun|stageId|stageName|Applications available:
-10:12:11,634|131128-1|OUT|mabraun|stageId|stageName|  http://hellowar.ac1-hello1.maxpower.websales.united.domain:9760
-10:12:12,948|131128-2|net.oneandone.sushi.cli.Command|mabraun|stageId|stageName|Invoking Stop
-10:12:13,892|131128-3|OUT|mabraun|stageId|stageName|stopping tomcat ...
-10:12:15,217|131128-3|OUT|mabraun|stageId|stageName|state: down
-10:12:16,278|131128-4|net.oneandone.sushi.cli.Command|mabraun|stageId|stageName|Invoking Restart
-10:12:17,054|131128-4|OUT|mabraun|stageId|stageName|stopping tomcat ...
-10:12:17,055|131128-4|ERR|mabraun|stageId|stageName|tomcat is no running.
+10:12:09,617|131128.1|net.oneandone.sushi.cli.Command|mabraun|stageId|stageName|Invoking Start
+10:12:11,538|131128.1|OUT|mabraun|stageId|stageName|starting tomcat ...
+10:12:11,632|131128.1|OUT|mabraun|stageId|stageName|Applications available:
+10:12:11,634|131128.1|OUT|mabraun|stageId|stageName|  http://hellowar.ac1-hello1.maxpower.websales.united.domain:9760
+10:12:12,948|131128.2|net.oneandone.sushi.cli.Command|mabraun|stageId|stageName|Invoking Stop
+10:12:13,892|131128.3|OUT|mabraun|stageId|stageName|stopping tomcat ...
+10:12:15,217|131128.3|OUT|mabraun|stageId|stageName|state: down
+10:12:16,278|131128.4|net.oneandone.sushi.cli.Command|mabraun|stageId|stageName|Invoking Restart
+10:12:17,054|131128.4|OUT|mabraun|stageId|stageName|stopping tomcat ...
+10:12:17,055|131128.4|ERR|mabraun|stageId|stageName|tomcat is no running.

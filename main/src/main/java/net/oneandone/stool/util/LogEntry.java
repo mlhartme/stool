@@ -55,7 +55,7 @@ public class LogEntry {
         // TODO: doesn't work for commands running during midnight ...
         timeObj = LocalTime.parse(line.substring(0, date), TIME_FMT);
         idStr = line.substring(date + 1, id);
-        dateObj = LocalDate.parse(idStr.substring(0, idStr.indexOf("-")), Logging.DATE_FORMAT);
+        dateObj = LocalDate.parse(idStr.substring(0, idStr.indexOf(".")), Logging.DATE_FORMAT);
         return new LogEntry(LocalDateTime.of(dateObj, timeObj), idStr,
                 line.substring(id + 1, logger),
                 line.substring(logger + 1, user),
