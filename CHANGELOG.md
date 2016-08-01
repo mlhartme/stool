@@ -12,6 +12,8 @@
 * added `creator` status field and `@creator` email alias
 * stage indicator tweaks
   * prefix functions with __ to keep namespace and bash completion clean
+  * fixed control sequence escaping in stage indicator
+  * fixed color to always check the stage directory itself
 * implementation changes:
   * speedup `stool list`
   * update Java Mail 1.5.0b1 to 1.5.5

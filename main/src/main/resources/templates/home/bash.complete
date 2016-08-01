@@ -1,9 +1,10 @@
-stageList() {
+__stageList() {
   local base=${{stool.home}}/backstages
   for dir in $(ls -1 $base); do
     ls=$(ls -ld "$base/$dir")
     dir=$(expr "$ls" : '.*-> \(.*\)$')
-    echo $(stageName $dir)
+    dir=$(dirname $dir)
+    echo $(__stageName $dir)
   done
   echo none
 }
@@ -39,12 +40,12 @@ _stool_complete() {
             fi
             ;;
         select)
-            local stages=$(stageList)
+            local stages=$(__stageList)
             COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
             return 0
             ;;
         status)
-            local stages=$(stageList)
+            local stages=$(__stageList)
             COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
             return 0
             ;;
@@ -78,8 +79,8 @@ _stool_complete() {
             fi
             ;;
            cd)
-            local stages="backstage conf java jmx run tomcat conf logs temp work  "
-            COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
+            local lst="backstage conf java jmx run tomcat conf logs temp work  "
+            COMPREPLY=( $(compgen -W "${lst}" -- ${cur}) )
             return 0
             ;;
         *)

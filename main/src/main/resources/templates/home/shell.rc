@@ -3,12 +3,13 @@
 ${{setenv.rc}}
 
 __stageIndicator() {
-  local NO_COLOR="\033[0m"
+  local NO_COLOR="\[\033[0m\]"
   local dir="$(pwd)"
-  local name="$(__stageName "$dir")"
-  if [ "$name" != none ] ; then
-    echo -e -n $(__stageIndicatorColor "$dir")
-    echo -n "{$name} "
+  local stage="$(__stageDir "$dir")"
+  if [ "x${stage}" != "x" ] ; then
+    local name="$(__stageName "${stage}")"
+    echo -e -n $(__stageIndicatorColor "${stage}")
+    echo -n "{${name}} "
     echo -e -n ${NO_COLOR}
   # else
   #   no stage -> no indicator
@@ -16,24 +17,27 @@ __stageIndicator() {
 }
 
 __stageName() {
+  grep \"name\" "$1"/.backstage/config.json | cut -d':' -f2 | cut -d'"' -f2
+}
+
+__stageDir() {
   local dir="$1"
-  while [ "$dir" != "/" ] ; do
-    if [ -d "$dir"/.backstage ] ; then
-      local name="$(grep \"name\" "$dir"/.backstage/config.json | cut -d':' -f2 | cut -d'"' -f2)"
-      echo -n "${name}"
+  while [ "${dir}" != "/" ] ; do
+    if [ -d "${dir}"/.backstage ] ; then
+      echo -n "${dir}"
       return
     fi
-    dir="$(dirname "$dir")"
+    dir="$(dirname "${dir}")"
   done
-  echo -n none
+  echo -n ""
   return
 }
 
 __stageIndicatorColor() {
-    local RED="\033[0;31m"
-    local BLUE="\033[44;1;37m"
+    local RED="\[\033[0;31m\]"
+    local BLUE="\[\033[44;1;37m\]"
     local dir="$1"
-    if [ ! -e "$dir" ] ; then
+    if [ ! -e "${dir}" ] ; then
       echo -n -e "$BLUE"
     else
       if [ `uname` = Darwin ] ; then
@@ -50,15 +54,26 @@ __stageIndicatorColor() {
 }
 
 if [ "x$BASH" != "x" ] ; then
-    if [ -z $STOOL_OLD_PROMPT_COMMAND ] ; then
+    if [ -z ${STOOL_OLD_PROMPT_COMMAND} ] ; then
         . ${{stool.home}}/bash.complete
-        export STOOL_OLD_PROMPT_COMMAND=$PROMPT_COMMAND
-        __stoolPromptCommand() {
-            eval "$STOOL_OLD_PROMPT_COMMAND"
-            __stageIndicator
+        export STOOL_OLD_PROMPT_COMMAND=${PROMPT_COMMAND}
+        __stoolPromptUpdate() {
+            eval "${STOOL_OLD_PROMPT_COMMAND}"
+            if [ "x${STOOL_PS1}" = "x" ] ; then
+              # We're called for the first time: setup PS1.
+              # Note that we have to delay this setup until the first PROMPT_COMMAND invocation to give users a chance to customize
+              # PS1 settings (e.g. in their ~/.bashrc for interactive shells)
+              export STOOL_PS1="${PS1}"
+              PS1="\${STAGE_INDICATOR}${STOOL_PS1}"
+            # else
+            #   already initialized, nothing to do
+            fi
+            # update STAGE_INDICATOR
+            export STAGE_INDICATOR="$(__stageIndicator)"
         }
-        PROMPT_COMMAND=__stoolPromptCommand
+        PROMPT_COMMAND=__stoolPromptUpdate
     # else
-    #   CAUTION: already initialized, I'd cause an infinite loop because __stoolPromptCommand calls itself ::stoolPromptCommand from $STOOL_OLD_PROMPT_COMMAND
+    #   CAUTION: already initialized, do nothing, it would cause an infinite loop
+    #            because __stoolPromptCommand calls itself ::stoolPromptCommand from $STOOL_OLD_PROMPT_COMMAND
     fi
 fi
