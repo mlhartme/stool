@@ -2,20 +2,6 @@
 
 ${{setenv.rc}}
 
-__stageIndicator() {
-  local NO_COLOR="\[\033[0m\]"
-  local dir="$(pwd)"
-  local stage="$(__stageDir "$dir")"
-  if [ "x${stage}" != "x" ] ; then
-    local name="$(__stageName "${stage}")"
-    echo -e -n $(__stageIndicatorColor "${stage}")
-    echo -n "{${name}} "
-    echo -e -n ${NO_COLOR}
-  # else
-  #   no stage -> no indicator
-  fi
-}
-
 __stageName() {
   grep \"name\" "$1"/.backstage/config.json | cut -d':' -f2 | cut -d'"' -f2
 }
@@ -34,8 +20,8 @@ __stageDir() {
 }
 
 __stageIndicatorColor() {
-    local RED="\[\033[0;31m\]"
-    local BLUE="\[\033[44;1;37m\]"
+    local RED="\033[0;31m"
+    local BLUE="\033[44;1;37m"
     local dir="$1"
     if [ ! -e "${dir}" ] ; then
       echo -n -e "$BLUE"
@@ -53,23 +39,37 @@ __stageIndicatorColor() {
     fi
 }
 
+__stageIndicator() {
+  local stage="$1"
+  if [ "x${stage}" != "x" ] ; then
+    local name="$(__stageName "${stage}")"
+    echo -n "{${name}} "
+  # else
+  #   no stage -> no indicator
+  fi
+}
+
 if [ "x$BASH" != "x" ] ; then
     if [ -z ${STOOL_OLD_PROMPT_COMMAND} ] ; then
         . ${{stool.home}}/bash.complete
         export STOOL_OLD_PROMPT_COMMAND=${PROMPT_COMMAND}
         __stoolPromptUpdate() {
+            local NO_COLOR="\033[0m"
             eval "${STOOL_OLD_PROMPT_COMMAND}"
             if [ "x${STOOL_PS1}" = "x" ] ; then
               # We're called for the first time: setup PS1.
               # Note that we have to delay this setup until the first PROMPT_COMMAND invocation to give users a chance to customize
               # PS1 settings (e.g. in their ~/.bashrc for interactive shells)
               export STOOL_PS1="${PS1}"
-              PS1="\${STAGE_INDICATOR}${STOOL_PS1}"
+              PS1="\[\$(__stageIndicatorColor ${__STAGE_DIR})\]\$(__stageIndicator ${__STAGE_DIR})\[${NO_COLOR}\]${STOOL_PS1}"
             # else
             #   already initialized, nothing to do
             fi
-            # update STAGE_INDICATOR
-            export STAGE_INDICATOR="$(__stageIndicator)"
+            local dir=$(pwd)
+            if [ "x${dir}" != "x${__STAGE_DIR}" ] ; then
+              # cwd has changed, update stage dir
+              export __STAGE_DIR="$(__stageDir "$dir")"
+            fi
         }
         PROMPT_COMMAND=__stoolPromptUpdate
     # else
