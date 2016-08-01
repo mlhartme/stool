@@ -10,6 +10,8 @@
 * fixed duplicate line in email notifications
 * changed logging to create log files with the date appended; gzip them after a day, remove them after 90 days.
 * added `creator` status field and `@creator` email alias
+* stage indicator tweaks
+  * prefix functions with __ to keep namespace and bash completion clean
 * implementation changes:
   * speedup `stool list`
   * update Java Mail 1.5.0b1 to 1.5.5

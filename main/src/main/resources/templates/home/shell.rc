@@ -2,12 +2,12 @@
 
 ${{setenv.rc}}
 
-stageIndicator() {
+__stageIndicator() {
   local NO_COLOR="\033[0m"
   local dir="$(pwd)"
-  local name="$(stageName "$dir")"
+  local name="$(__stageName "$dir")"
   if [ "$name" != none ] ; then
-    echo -e -n $(stageIndicatorColor "$dir")
+    echo -e -n $(__stageIndicatorColor "$dir")
     echo -n "{$name} "
     echo -e -n ${NO_COLOR}
   # else
@@ -15,7 +15,7 @@ stageIndicator() {
   fi
 }
 
-stageName() {
+__stageName() {
   local dir="$1"
   while [ "$dir" != "/" ] ; do
     if [ -d "$dir"/.backstage ] ; then
@@ -29,7 +29,7 @@ stageName() {
   return
 }
 
-stageIndicatorColor() {
+__stageIndicatorColor() {
     local RED="\033[0;31m"
     local BLUE="\033[44;1;37m"
     local dir="$1"
@@ -53,12 +53,12 @@ if [ "x$BASH" != "x" ] ; then
     if [ -z $STOOL_OLD_PROMPT_COMMAND ] ; then
         . ${{stool.home}}/bash.complete
         export STOOL_OLD_PROMPT_COMMAND=$PROMPT_COMMAND
-        stoolPromptCommand() {
+        __stoolPromptCommand() {
             eval "$STOOL_OLD_PROMPT_COMMAND"
-            stageIndicator
+            __stageIndicator
         }
-        PROMPT_COMMAND=stoolPromptCommand
+        PROMPT_COMMAND=__stoolPromptCommand
     # else
-    #   CAUTION: already initialized, I'd cause an infinite loop because stoolPromptCommand calls itself stoolPromptCommand from $STOOL_OLD_PROMPT_COMMAND
+    #   CAUTION: already initialized, I'd cause an infinite loop because __stoolPromptCommand calls itself ::stoolPromptCommand from $STOOL_OLD_PROMPT_COMMAND
     fi
 fi
