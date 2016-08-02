@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 3.4.1 (pending)
+### 3.4.1 (2016-08-02)
 
 * auto options fix: restart running stages if it needs chowning and both -autorestart and -autorechown are specified
 * changed default quota from 40000 to 10000
