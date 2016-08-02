@@ -50,30 +50,33 @@ __stageIndicator() {
 }
 
 if [ "x$BASH" != "x" ] ; then
-    if [ -z ${STOOL_OLD_PROMPT_COMMAND} ] ; then
-        . ${{stool.home}}/bash.complete
-        export STOOL_OLD_PROMPT_COMMAND=${PROMPT_COMMAND}
-        __stoolPromptUpdate() {
-            local NO_COLOR="\033[0m"
-            eval "${STOOL_OLD_PROMPT_COMMAND}"
-            if [ "x${STOOL_PS1}" = "x" ] ; then
-              # We're called for the first time: setup PS1.
-              # Note that we have to delay this setup until the first PROMPT_COMMAND invocation to give users a chance to customize
-              # PS1 settings (e.g. in their ~/.bashrc for interactive shells)
-              export STOOL_PS1="${PS1}"
-              PS1="\[\$(__stageIndicatorColor ${__STAGE_DIR})\]\$(__stageIndicator ${__STAGE_DIR})\[${NO_COLOR}\]${STOOL_PS1}"
-            # else
-            #   already initialized, nothing to do
-            fi
-            local dir=$(pwd)
-            if [ "x${dir}" != "x${__STAGE_DIR}" ] ; then
-              # cwd has changed, update stage dir
-              export __STAGE_DIR="$(__stageDir "$dir")"
-            fi
-        }
-        PROMPT_COMMAND=__stoolPromptUpdate
+    if [ -z "${STOOL_NO_PROMPT}" ] ; then
+        if [ -z ${STOOL_OLD_PROMPT_COMMAND} ] ; then
+            . ${{stool.home}}/bash.complete
+            export STOOL_OLD_PROMPT_COMMAND=${PROMPT_COMMAND}
+            __stoolPromptUpdate() {
+                local NO_COLOR="\033[0m"
+                eval "${STOOL_OLD_PROMPT_COMMAND}"
+                local dir=$(pwd)
+                if [ "x${dir}" != "x${__STAGE_DIR}" ] ; then
+                  # cwd has changed, update stage dir
+                  export __STAGE_DIR="$(__stageDir "$dir")"
+                fi
+                if [ "x${STOOL_PS1}" = "x" ] ; then
+                  # We're called for the first time: setup PS1.
+                  # Note that we have to delay this setup until the first PROMPT_COMMAND invocation to give users a chance to customize
+                  # PS1 settings (e.g. in their ~/.bashrc for interactive shells)
+                  export STOOL_PS1="${PS1}"
+                  PS1="\[\$(__stageIndicatorColor \${__STAGE_DIR})\]\$(__stageIndicator \${__STAGE_DIR})\[${NO_COLOR}\]${STOOL_PS1}"
+                # else
+                #   already initialized, nothing to do
+                fi
+            }
+            PROMPT_COMMAND=__stoolPromptUpdate
+        # else
+        #   CAUTION: already initialized, do nothing, it would cause an infinite loop
+        #            because __stoolPromptCommand calls itself ::stoolPromptCommand from $STOOL_OLD_PROMPT_COMMAND
+        fi
     # else
-    #   CAUTION: already initialized, do nothing, it would cause an infinite loop
-    #            because __stoolPromptCommand calls itself ::stoolPromptCommand from $STOOL_OLD_PROMPT_COMMAND
-    fi
+    #   do nothing, the user does not want stool prompt
 fi
