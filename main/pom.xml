@@ -92,7 +92,7 @@
       <plugin>
         <groupId>net.oneandone.maven.plugins</groupId>
         <artifactId>application</artifactId>
-        <version>1.6.1-SNAPSHOT</version>
+        <version>1.6.1</version>
         <configuration>
           <!-- JavaSetup is used as the setup tool *and* as the Jar file for the resulting stool installation. -->
           <path>$PATH</path>
