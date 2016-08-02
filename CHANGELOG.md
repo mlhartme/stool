@@ -2,6 +2,7 @@
 
 ### 3.4.1 (pending)
 
+* auto options fix: restart running stages if it needs chowning and both -autorestart and -autorechown are specified
 * changed default quota from 40000 to 10000
 * fixed NPE in `history` command
 * fixed quota computation: skip negative values

@@ -231,7 +231,10 @@ public abstract class StageCommand extends SessionCommand {
 
     private boolean autoStart(Stage stage, Map<Info, Object> status) throws Exception {
         boolean postStart;
-        if (withAutoRunning() && (autoRestart || autoStop) && stage.state() == Stage.State.UP) {
+
+        if (stage.state() == Stage.State.UP
+                && (withAutoRunning() || withAutoChowning() /* because I have to stop the stage to chown it */)
+                && (autoRestart || autoStop)) {
             postStart = autoRestart;
             Status.processStatus(processes(), stage, status);
             new Stop(session, false).doRun(stage);
