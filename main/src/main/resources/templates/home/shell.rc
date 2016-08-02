@@ -79,4 +79,5 @@ if [ "x$BASH" != "x" ] ; then
         fi
     # else
     #   do nothing, the user does not want stool prompt
+    fi
 fi

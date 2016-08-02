@@ -98,9 +98,9 @@ public class Ls extends InfoCommand {
 
         global = session.configuration.quota;
         if (global == 0) {
-            message("  disk quota: disabled");
+            message(" disk quota: disabled");
         } else {
-            message("  disk quota: " + session.quotaReserved() + " from " + global + " mb reserved");
+            message(" disk quota: " + session.quotaReserved() + "/" + global + " mb reserved");
         }
     }
 
