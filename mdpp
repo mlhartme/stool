@@ -1,2 +1,3 @@
 #!/bin/sh
-markdown-pp site/src/site/documentation/documentation.mdpp -o site/src/site/documentation/documentation.md  
+cd site/src/site/documentation/ || echo "failed"
+markdown-pp documentation.mdpp -o documentation.md  

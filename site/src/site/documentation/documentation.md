@@ -614,9 +614,8 @@ initially have a stage to operate on (although it results in a new (and selected
 
 All stage commands provide stage options, invoke `stool help stage-options` for documentation.
 
-### stage options
+### stage options xml:id="stageOptions
 
-      <refentry xml:id="stageOptions">
         <refnamediv>
           <refname>stool-stage-options</refname>
           <refpurpose>Options available for all stage command</refpurpose>
@@ -744,7 +743,6 @@ defined for the dashboard stage with the additional environment variables mentio
 If you work locally on your own machine, you'll normally prefer to directly invoke your build command. However, you have
 to use `stool build` because shared machine have a separate local Maven repository for every stage.
 
-<xi:include href="stageOptions.xml" parse="xml"/>
 
 
 ### stool remove
@@ -781,7 +779,8 @@ removed from Stool's list of stages. This is useful to "unimport" a stage, i.e. 
 
 Changes the current directory to the parent of the now deleted stage directory.
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
 ### stool start
@@ -846,7 +845,8 @@ The environment of the started application is the environment specified by the `
 addition, Stool defines a `USER` variable set to the stage owner and a `HOME` variable
 pointing to the owner's home directory.
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
 ### stool stop
@@ -873,7 +873,8 @@ This command signals Tomcat to shutdown all applications and waits for up to 4 m
 Tomcat is killed (with -9). If Tomcat shutdown is slow, try to debug the applications running in this stage and find out why
 the don't obey to the shutdown request. 
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
 ### stool restart
@@ -899,7 +900,8 @@ the don't obey to the shutdown request.
 
 Shorthand for `stool stop` and `stool start` with the specified options.
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
 ### stool refresh
@@ -930,7 +932,8 @@ For artifact stages: check for new artifacts and installs them if any.
 For source changes: invokes the command specified by the `refresh` property. If `-build`
 is specified, also runs the command specified by the `build` property.
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
 ### stool chown
@@ -967,7 +970,8 @@ Reports an error if the stage is up. In this case, you can specify `-autostop` o
 
 *user* defaults to the current user.
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 ### stool history
 
@@ -995,7 +999,8 @@ Prints the command history of the stage. Specify *detail* with a command number 
 range to get the full command output for the respective command(s). If the max number
 *n* of commands is exceeded, older commands are ignored (*n* defauls is 999).
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
 ### stool cd
@@ -1024,7 +1029,8 @@ Changes the current working directory to the specified *target*:
 * **backstage** the backstage directory.
 * **(otherwise)** the specified direct or indirect sub-directory of the backstage directory.
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 #### Example
 
@@ -1086,7 +1092,8 @@ List properties (e.g.`tomcat.select`) are separated by commas, whitespace before
 Map properties (e.g.`tomcat.env`) separate entries by commas, whitespace before and after is ignored.
 Each entry separates key and value by a colon. Example `PATH:/bin, HOME:/home/me`
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 #### Available stage properties
 
@@ -1182,7 +1189,8 @@ as the unix `mv` command, but it also adjusts Stool's backstage directory.
 You might have to re-build your application after moving the stage if you have development tools that store absolute paths
 (e.g. Lavender ...).
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 ### stool port
 
@@ -1208,7 +1216,8 @@ Allocates the specified ports for this stage. *application* specifies the applic
 *port* is the http port, *port*`+1` is automatically reserved
 for https. When starting a stage, unused allocated ports are freed.
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
 ### stool status 
@@ -1278,7 +1287,8 @@ A field may be any stage property or one of the following status fields:
 * **url**
   Url of this stage. Type string.
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 ### stool list
 
@@ -1303,7 +1313,8 @@ A field may be any stage property or one of the following status fields:
 Prints a short status of all stages (or the stages specified by `-stage`). See the `status`
 command for a list of available fields. Default fields are `state ower url directory`.
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
         <refnamediv>
           <refname>stool-cleanup</refname>
@@ -1322,7 +1333,8 @@ command for a list of available fields. Default fields are `state ower url direc
 
 Removes the Maven repository and rotates *.log info *.log.gz files.
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
 ### stool validate
@@ -1354,7 +1366,8 @@ Also performs log rotation: logs a gzipped and removed after 90 days.
 
 Also checks Stool's locking system for stale locks and, if `-repair` is specified, removed them.
 
-<xi:include href="stageOptions.xml" parse="xml"/>
+
+Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 ## Setup
 
