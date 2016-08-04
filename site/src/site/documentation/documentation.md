@@ -1392,11 +1392,10 @@ Security: you need root permission to setup Stool in shared mode. Having shared 
 to execute arbitrary code as arbitrary Stool user (i.e. in a stage started by him or a Tomcat/Java Service Wrapper provided by him).
 In addition, Stool users can change arbitrary files in any of the stages (via stool chown).
 
-Debian package are available from <link xlink:href="http://central.sonatype.org">Maven Central</link>
+Debian package are available from [Maven Central](http://central.sonatype.org).
 (I'd like to have a public Debian repository instead, by I don't know who would host this for free). To install Stool:
 
-* Download the latest `deb` from
-  <link xlink:href="http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22setup%22">Maven central</link>.
+* Download the latest `deb` from [Maven central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22setup%22)
 * Run `dpkg -i stool-x.y.z.deb`
 * Optional, only if you want the dashboard: repeat the previous steps for setup-x.y.z-dashboard.deb
 * Adjust stool properties with `sudo nano /usr/share/stool-3.4/config.json`.
