@@ -32,12 +32,14 @@ public class Setup {
     private final FileNode home;
     private final Console console;
     private final String version;
+    private final boolean batch;
 
-    public Setup(Globals globals) {
-        world = globals.world;
-        home = globals.home;
-        console = globals.console;
-        version = Main.versionString(home.getWorld());
+    public Setup(Globals globals, boolean batch) {
+        this.world = globals.world;
+        this.home = globals.home;
+        this.console = globals.console;
+        this.version = Main.versionString(home.getWorld());
+        this.batch = batch;
     }
 
     public void run() throws IOException {
@@ -57,8 +59,10 @@ public class Setup {
     }
 
     private void create() throws IOException {
-        console.info.println("Ready to create home directory: " + home.getAbsolute());
-        console.pressReturn();
+        if (!batch) {
+            console.info.println("Ready to create home directory: " + home.getAbsolute());
+            console.pressReturn();
+        }
         console.info.println("Creating " + home);
         Home.create(console, home, null, false);
         console.info.println("Done.");
@@ -83,9 +87,10 @@ public class Setup {
         if (!Session.majorMinor(was).equals(Session.majorMinor(version))) {
             throw new IOException("migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
         }
-
-        console.info.println("Ready to update home directory " + was + " -> " + version + " : " + home.getAbsolute());
-        console.pressReturn();
+        if (!batch) {
+            console.info.println("Ready to update home directory " + was + " -> " + version + " : " + home.getAbsolute());
+            console.pressReturn();
+        }
         console.info.println("Updating " + home);
         fresh = world.getTemp().createTempDirectory();
         fresh.deleteDirectory();

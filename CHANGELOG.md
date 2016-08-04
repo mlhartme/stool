@@ -1,5 +1,10 @@
 ## Changelog 
 
+### 3.4.2 (pending)
+
+* added setup -batch option
+
+
 ### 3.4.1 (2016-08-02)
 
 * auto options fix: restart running stages if it needs chowning and both -autorestart and -autorechown are specified

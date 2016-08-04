@@ -93,7 +93,7 @@ public class Main {
            cli.add(PackageVersion.class, "version");
            cli.begin("globals", globals,  "-svnuser=null -svnpassword=null -exception { setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) }");
               cli.addDefault(Help.class, "help command?=null");
-              cli.add(Setup.class, "setup");
+              cli.add(Setup.class, "setup -batch");
               cli.begin("globals.session", "");
                 cli.add(SystemImport.class, "system-import -withConfig from");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
