@@ -12,6 +12,5 @@ Test
 
 1&1
 
-foo `back` xy
 foo *star* bar
 foo **star** bar
