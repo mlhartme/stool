@@ -3,8 +3,6 @@
 ### 3.4.2 (pending)
 
 * added setup -batch option
-* [demo anchor](README.md#some-title)
-
 
 ### 3.4.1 (2016-08-02)
 
