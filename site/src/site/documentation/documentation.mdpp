@@ -1,7 +1,9 @@
 # Stool
 
 Stage Tool
+
 Author: Michael Hartmeier
+
 Copyright 2016 1&1 Internet AG
 
 !INCLUDE "../../../target/stool.txt"
@@ -198,7 +200,7 @@ have to be in the group `stool`.
 Stool is configured via properties. A property is a key/value pair. Value has a type (string, number, date,
 boolean, list (of strings), or map (string to string)). Stool distinguishes Stool properties and stage
 properties. Stool properties are global settings that apply to all stages, they are usually adjusted by system
-administrators (see <link linkend="stoolProperties">stool properties</link>). Stage properties configure the
+administrators (see [stool properties](Stool-Properties)). Stage properties configure the
 respective stage only, every stage has its own set of stage properties. The owner of a stage can adjust stage
 properties with <link linkend="stoolConfig">`stool config`</link>.
 
