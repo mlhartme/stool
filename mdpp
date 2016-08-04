@@ -1,0 +1,2 @@
+#!/bin/sh
+markdown-pp site/src/site/documentation/documentation.mdpp -o site/src/site/documentation/documentation.md  
