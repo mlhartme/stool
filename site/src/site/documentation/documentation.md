@@ -13,99 +13,13 @@ Stool 3.4.2-SNAPSHOT (2016-08-4)
 [//]: # (* stars (*bar*) mark user input)
 [//]: # (* double stars (**baz**) mark items in itemized lists)
 
-1\.  [Introduction](#introduction)  
-1.1\.  [Quick Tour](#quicktour)  
-1.2\.  [Rationale](#rationale)  
-2\.  [Concepts](#concepts)  
-2.1\.  [Stage](#stage)  
-2.2\.  [Selected stage and stage indicator](#selectedstageandstageindicator)  
-2.3\.  [Stage owner xml:id="stageOwner"](#stageownerxml:id="stageowner")  
-2.4\.  [Properties xml:id="properties"](#propertiesxml:id="properties")  
-2.5\.  [Backstage](#backstage)  
-2.6\.  [Stage Exiring xml:id="stageExpiring"](#stageexiringxml:id="stageexpiring")  
-2.7\.  [User defaults](#userdefaults)  
-2.8\.  [Dashboard](#dashboard)  
-3\.  [Commands](#commands)  
-3.1\.  [stool](#stool)  
-3.1.1\.  [Description](#description)  
-3.1.2\.  [Commands](#commands-1)  
-3.1.3\.  [Global options](#globaloptions)  
-3.1.4\.  [Stool Properties](#stoolproperties)  
-3.1.5\.  [Environment](#environment)  
-3.1.6\.  [See Also](#seealso)  
-4\.  [System commands](#systemcommands)  
-4.1\.  [stool help](#stoolhelp)  
-4.1.1\.  [Description](#description-1)  
-4.2\.  [stool version](#stoolversion)  
-4.2.1\.  [Description](#description-2)  
-4.3\.  [stool system start](#stoolsystemstart)  
-4.3.1\.  [Description](#description-3)  
-4.4\.  [stool system stop](#stoolsystemstop)  
-4.4.1\.  [Description](#description-4)  
-4.5\.  [stool create](#stoolcreate)  
-4.5.1\.  [Description](#description-5)  
-4.5.2\.  [Examples](#examples)  
-4.6\.  [stool import](#stoolimport)  
-4.6.1\.  [Description](#description-6)  
-4.7\.  [stool switch](#stoolswitch)  
-4.7.1\.  [Description](#description-7)  
-5\.  [Stage Commands](#stagecommands)  
-5.1\.  [stage options xml:id="stageOptions](#stageoptionsxml:id="stageoptions)  
-5.1.1\.  [Selection options](#selectionoptions)  
-5.1.2\.  [Failure mode](#failuremode)  
-5.1.3\.  [Auto options](#autooptions)  
-5.1.4\.  [Examples](#examples-1)  
-5.2\.  [stool build](#stoolbuild)  
-5.2.1\.  [Description](#description-8)  
-5.3\.  [stool remove](#stoolremove)  
-5.3.1\.  [Description](#description-9)  
-5.4\.  [stool start](#stoolstart)  
-5.4.1\.  [Description](#description-10)  
-5.5\.  [stool stop](#stoolstop)  
-5.5.1\.  [Description](#description-11)  
-5.6\.  [stool restart](#stoolrestart)  
-5.6.1\.  [Description](#description-12)  
-5.7\.  [stool refresh](#stoolrefresh)  
-5.7.1\.  [Description](#description-13)  
-5.8\.  [stool chown](#stoolchown)  
-5.8.1\.  [Description](#description-14)  
-5.9\.  [stool history](#stoolhistory)  
-5.9.1\.  [Description](#description-15)  
-5.10\.  [stool cd](#stoolcd)  
-5.10.1\.  [Description](#description-16)  
-5.10.2\.  [Example](#example)  
-5.11\.  [stool config](#stoolconfig)  
-5.11.1\.  [Description](#description-17)  
-5.11.2\.  [Available stage properties](#availablestageproperties)  
-5.11.3\.  [Examples](#examples-2)  
-5.12\.  [stool move](#stoolmove)  
-5.12.1\.  [Description](#description-18)  
-5.13\.  [stool port](#stoolport)  
-5.13.1\.  [Description](#description-19)  
-5.14\.  [stool status](#stoolstatus)  
-5.14.1\.  [Description](#description-20)  
-5.15\.  [stool list](#stoollist)  
-5.15.1\.  [Description](#description-21)  
-5.15.2\.  [Description](#description-22)  
-5.16\.  [stool validate](#stoolvalidate)  
-5.16.1\.  [Description](#description-23)  
-6\.  [Setup](#setup)  
-6.1\.  [Isolated setup](#isolatedsetup)  
-6.2\.  [Shared setup](#sharedsetup)  
-7\.  [Directory Layout](#directorylayout)  
-
-
-<a name="introduction"></a>
-
-## 1\. Introduction
+## Introduction
 
 Stool is a command line tool that provides a lifecycle for stages: create, build, start, stop, remove.
 A stage is a Tomcat with web applications built from sources or downloaded as artifacts.
 
 
-<a name="quicktour"></a>
-
-### 1.1\. Quick Tour
+### Quick Tour
 
 Here's an example, what you can do with Stool. (The following assumes that Stool has been installed properly - see the setup section below)
 
@@ -156,9 +70,7 @@ to see a list of available commands. You can append a command to get more help o
 prints help about `create`.
 
 
-<a name="rationale"></a>
-
-### 1.2\. Rationale
+### Rationale
 
 Why not setup Tomcat by hand or via the admin application? Because Stool makes it simpler, more robust,
 it deals with port allocation, different users sharing their stages, etc.
@@ -172,13 +84,9 @@ Why not use virtual machines instead of creating stages with Stool? Stool offers
 
 Thus, a stage is not a micro service - all stages shared the same container and os.
 
-<a name="concepts"></a>
+## Concepts
 
-## 2\. Concepts
-
-<a name="stage"></a>
-
-### 2.1\. Stage
+### Stage
 
 A stage is a Tomcat servlet container (http://tomcat.apache.org) with one or more Java web applications
 (https://en.wikipedia.org/wiki/Java_Servlet). The whole thing is wrapper by Java Service Wrapper
@@ -229,9 +137,7 @@ Note: A system stage is a stage whose directory is placed in $STOOL_HOME/system.
 system-start and system stop and they are not listed by the Dashboard.
 
 
-<a name="selectedstageandstageindicator"></a>
-
-### 2.2\. Selected stage and stage indicator
+### Selected stage and stage indicator
 
 The selected stage is the stage the current working directory belongs to. In other words: your current working directory is the
 stage directory or a direct or indirect subdirectory of it. Unless otherwise specified, stage commands operates on the selected stage.
@@ -246,9 +152,7 @@ The stage indicator is red when you're not the owner of the selected stage. It i
 selected stage is broken or no longer exists. The stage indicator is invisible if you have no stage selected;
 select a stage to set a stage indicator.
 
-<a name="stageownerxml:id="stageowner""></a>
-
-### 2.3\. Stage owner xml:id="stageOwner"
+### Stage owner xml:id="stageOwner"
 
 Stool has a configuration property `shared`. If you run Stool on your own machine
 and you are the only user, you'll set it to `false` to indicate that you are the only user
@@ -287,20 +191,16 @@ permissions to start/stop processes or change file ownership. Note that some fil
 users have to create them, in particular things generated by`stool start`). All users of Stool
 have to be in the group `stool`.
 
-<a name="propertiesxml:id="properties""></a>
-
-### 2.4\. Properties xml:id="properties"
+### Properties xml:id="properties"
 
 Stool is configured via properties. A property is a key/value pair. Value has a type (string, number, date,
 boolean, list (of strings), or map (string to string)). Stool distinguishes Stool properties and stage
 properties. Stool properties are global settings that apply to all stages, they are usually adjusted by system
-administrators (see [stool properties](#314-stool-properties)). Stage properties configure the
+administrators (see [stool properties](#stool-properties)). Stage properties configure the
 respective stage only, every stage has its own set of stage properties. The owner of a stage can adjust stage
 properties with <link linkend="stoolConfig">`stool config`</link>.
 
-<a name="backstage"></a>
-
-### 2.5\. Backstage
+### Backstage
 
 Every stage directory contains backstage directory `.backstage` that stores Stool-related
 data about the stage, e.g. the stage properties, Tomcat configuration and log files of the applications. The
@@ -312,9 +212,7 @@ Stool removes backstage symlinks either explicitly when you run`stool remove`, o
 implicitly when it detects that the target directory has been removed. Stool checks for - and cleans - stale
 backstage links before every command.
 
-<a name="stageexiringxml:id="stageexpiring""></a>
-
-### 2.6\. Stage Exiring xml:id="stageExpiring"
+### Stage Exiring xml:id="stageExpiring"
 
 Every stage has an `expire` property that specifies how long the stage is needed. You can
 see the expire date with `stool config expire`. If this date has passed, the stage is called
@@ -326,9 +224,7 @@ the configured number of days. Stage expiring helps to detect and remove unused 
 shared machines. If you receive an email notification that your stage has expired, please check if your stage
 is still needed. If so, adjust the expire date, otherwise remove the stage.
 
-<a name="userdefaults"></a>
-
-### 2.7\. User defaults
+### User defaults
 
 Users can define default values for various option by placing a properties file `.stool.defaults` in
 their home drectory. If this file exists, Stool uses the contained properties as default values for various options.
@@ -369,19 +265,13 @@ Supported user default properties:
   controls the `-build` option for the refresh command
 
 
-<a name="dashboard"></a>
-
-### 2.8\. Dashboard
+### Dashboard
 
 The dashboard is a system stage you can install to control stages via browser.
 
-<a name="commands"></a>
+## Commands
 
-## 3\. Commands
-
-<a name="stool"></a>
-
-### 3.1\. stool
+### stool
 
       <refentry>
         <refnamediv>
@@ -404,34 +294,24 @@ The dashboard is a system stage you can install to control stages via browser.
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description"></a>
-
-#### 3.1.1\. Description
+#### Description
 
 Stool is a command line tool that provides a lifecycle for stages: create, configure, build, start,
 stop and remove. A stage contains web applications built from source or available as artifacts.
 *command* defaults to `help`.
 
-<a name="commands-1"></a>
-
-#### 3.1.2\. Commands
+#### Commands
 
 <xi:include href="../../../target/synopsis.xml"/>
 
-<a name="globaloptions"></a>
-
-#### 3.1.3\. Global options
+#### Global options
 
 * <option>-v</option> enables verbose output
 * <option>-e</option> prints stacktrace for all errors
 * <option>-svnuser</option> specifies the user name for svn operations
 * <option>-svnpassword</option> specifies the password for svn operations
 
-<a name="stoolproperties"></a>
-
-#### 3.1.4\. Stool Properties
-        
-        <refsect1 xml:id="stoolProperties">
+#### Stool Properties xml:id="stoolProperties
 
 Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines following
 <link linkend="properties">properties</link>.
@@ -503,17 +383,13 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
   distinguish between stages). Type boolean. If you want to enable vhosts you have to make sure you
   have the respective DNS * entries for your machine.
 
-<a name="environment"></a>
-
-#### 3.1.5\. Environment
+#### Environment
 
 `STOOL_OPTS` to configure the underlying JVM.
 
 `http_proxy`, `https_proxy` and `no_proxy` to configure proxy settings.
 
-<a name="seealso"></a>
-
-#### 3.1.6\. See Also
+#### See Also
 
 Homepage: https://github.com/mlhartme/stool
 
@@ -522,15 +398,11 @@ Documentation: http://mlhartme.github.io/stool/documentation/documentation.html
 Invoke `stool help` *command* to get help for the specified command.
 
 
-<a name="systemcommands"></a>
-
-## 4\. System commands
+## System commands
 
 Commands that do not deal with individual stages.
 
-<a name="stoolhelp"></a>
-
-### 4.1\. stool help
+### stool help
 
         <refnamediv>
           <refname>stool-help</refname>
@@ -545,16 +417,12 @@ Commands that do not deal with individual stages.
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-1"></a>
-
-#### 4.1.1\. Description
+#### Description
 
 Prints help about the specified *command*. Or, if *command*
 is not specified, prints help about Stool.
 
-<a name="stoolversion"></a>
-
-### 4.2\. stool version
+### stool version
 
         <refnamediv>
           <refname>stool-version</refname>
@@ -567,15 +435,11 @@ is not specified, prints help about Stool.
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-2"></a>
-
-#### 4.2.1\. Description
+#### Description
 
 Prints Stool's version info. Use the global `-v` option to get additional diagnostic info.
 
-<a name="stoolsystemstart"></a>
-
-### 4.3\. stool system start
+### stool system start
 
         <refnamediv>
           <refname>stool-system-start</refname>
@@ -587,16 +451,12 @@ Prints Stool's version info. Use the global `-v` option to get additional diagno
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-3"></a>
-
-#### 4.3.1\. Description
+#### Description
 
 Start all system stages and all sleeping stages. Always uses fail mode `after`.
 
 
-<a name="stoolsystemstop"></a>
-
-### 4.4\. stool system stop
+### stool system stop
         <refnamediv>
           <refname>stool-system-stop</refname>
           <refpurpose>Shutdown stages</refpurpose>
@@ -607,15 +467,11 @@ Start all system stages and all sleeping stages. Always uses fail mode `after`.
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-4"></a>
-
-#### 4.4.1\. Description
+#### Description
 
 Stop all system stages and sends all other running stages to sleep. Always uses fail mode `after`.
 
-<a name="stoolcreate"></a>
-
-### 4.5\. stool create
+### stool create
 
         <refnamediv>
           <refname>stool-create</refname>
@@ -639,9 +495,7 @@ Stop all system stages and sends all other running stages to sleep. Always uses 
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-5"></a>
-
-#### 4.5.1\. Description
+#### Description
 
 Creates a new stage- and backstage directory and enters the stage directory. In most cases, you can invoke `stool create` 
 similar to`svn checkout`: with an url and a directory to checkout to.
@@ -673,9 +527,7 @@ The stage name property defaults to the directory name, i.e. the last segment of
 Stool property.
 
 
-<a name="examples"></a>
-
-#### 4.5.2\. Examples
+#### Examples
 
 Create an artifact stage: `stool create gav:net.oneandone:hellowar:1.0.3`
 
@@ -687,9 +539,7 @@ Create a source stage from git: `stool create git:git@github.com:mlhartme/hellow
 
 Create a source stage from svn: `stool create svn:https://github.com/mlhartme/hellowar/trunk`
 
-<a name="stoolimport"></a>
-
-### 4.6\. stool import
+### stool import
 
         <refnamediv>
           <refname>stool-import</refname>
@@ -710,9 +560,7 @@ Create a source stage from svn: `stool create svn:https://github.com/mlhartme/he
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-6"></a>
-
-#### 4.6.1\. Description
+#### Description
 
 Scans *directory* for stage candidates and offers to import them. The candidates you
 select will be imported, i.e. a backstage directory for the stage directory is created. If the scan only
@@ -723,9 +571,7 @@ is a string defining the stage name. And any occurrence of `%d`
 will be replaced by the current directory name. Default template is`%d`.
 
 
-<a name="stoolswitch"></a>
-
-### 4.7\. stool switch
+### stool switch
 
         <refnamediv>
           <refname>stool-select</refname>
@@ -743,9 +589,7 @@ will be replaced by the current directory name. Default template is`%d`.
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-7"></a>
-
-#### 4.7.1\. Description
+#### Description
 
 Prints the selected stage when called without argument.
 
@@ -757,9 +601,7 @@ If the specified stage is not found, the command prints an error message and lis
 you could have meant. If you also specified the `-fuzzy` option and there's only a
 single candidate, this stage will be selected.
 
-<a name="stagecommands"></a>
-
-## 5\. Stage Commands
+## Stage Commands
 
 Most Stool commands are stage commands, i.e. they operate on one or multiple stages. Typical
 stage commands are `status`, `build`, `start`, and
@@ -768,9 +610,7 @@ initially have a stage to operate on (although it results in a new (and selected
 
 All stage commands provide stage options, invoke `stool help stage-options` for documentation.
 
-<a name="stageoptionsxml:id="stageoptions"></a>
-
-### 5.1\. stage options xml:id="stageOptions
+### stage options xml:id="stageOptions
 
         <refnamediv>
           <refname>stool-stage-options</refname>
@@ -799,9 +639,7 @@ All stage commands provide stage options, invoke `stool help stage-options` for 
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="selectionoptions"></a>
-
-#### 5.1.1\. Selection options
+#### Selection options
 
 By default, stage commands operate on the selected stage (as shown in the stage indicator). You can change this by specifying a selection option.
 
@@ -830,9 +668,7 @@ stages who's status field has the specified value.
 
 *PROPERTY*`=`*VALUE* is similar, it matches stage properties.
 
-<a name="failuremode"></a>
-
-#### 5.1.2\. Failure mode
+#### Failure mode
 
 Since stage commands operate on an arbitrary number of stages, you might want to specify what to do if the command
 fails on some stages. That's what `-fail` *mode* is for.
@@ -845,9 +681,7 @@ invoke the command on remaining matching stages. This is the default.
 `never` is similar to `after`, but reports warnings instead of errors
 (and thus, Stool always returns with exit code 0).
 
-<a name="autooptions"></a>
-
-#### 5.1.3\. Auto options
+#### Auto options
 
 Stage commands provide auto options do deal with stages that are not stopped or not owned by the current user.
 
@@ -859,9 +693,7 @@ With `-autorestart`, Stool checks the state of a stage. It the stage is up, Stoo
 invokes the actual command, and starts the stage again. `-autostop` is similar, but the stage is not started
 again.
 
-<a name="examples-1"></a>
-
-#### 5.1.4\. Examples
+#### Examples
 
 `stool status -stage foo` prints the status of stage `foo`.
 
@@ -872,9 +704,7 @@ after the first stage that cannot be started (e.g. because it's already running)
 
 `stool stop -stage state=up` stops all stages currently up, but aborts immediately if one stage fails to stop.
 
-<a name="stoolbuild"></a>
-
-### 5.2\. stool build
+### stool build
       
         <refnamediv>
           <refname>stool-build</refname>
@@ -889,9 +719,7 @@ after the first stage that cannot be started (e.g. because it's already running)
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-8"></a>
-
-#### 5.2.1\. Description
+#### Description
 
 Enters the stage directory, sets MAVEN_HOME, MAVEN_OPTS and JAVA_HOME as configured for the stage and executes the build command
 specified in the `build` property. Reports an error if the stage is not owned or if the stage is up.
@@ -915,9 +743,7 @@ to use `stool build` because shared machine have a separate local Maven reposito
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-<a name="stoolremove"></a>
-
-### 5.3\. stool remove
+### stool remove
 
         <refnamediv>
           <refname>stool-remove</refname>
@@ -935,9 +761,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-9"></a>
-
-#### 5.3.1\. Description
+#### Description
 
 Removes the stage, i.e. deletes the stage directory and the backstage directory.
 
@@ -957,9 +781,7 @@ Changes the current directory to the parent of the now deleted stage directory.
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-<a name="stoolstart"></a>
-
-### 5.4\. stool start
+### stool start
 
         <refnamediv>
           <refname>stool-start</refname>
@@ -979,9 +801,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-10"></a>
-
-#### 5.4.1\. Description
+#### Description
 
 Creates the necessary configuration and starts Tomcat with all applications for this stage. If the stage is an artifact stage, you can 
 start it right away; otherwise, you have to build it first. Depending on your applications, startup may take a while.
@@ -1027,9 +847,7 @@ pointing to the owner's home directory.
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-<a name="stoolstop"></a>
-
-### 5.5\. stool stop
+### stool stop
 
         <refnamediv>
           <refname>stool-stop</refname>
@@ -1045,9 +863,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-11"></a>
-
-#### 5.5.1\. Description
+#### Description
 
 Stops Tomcat of the respective stage. If `-sleep` is specified, the stage is also marked as sleeping.
 
@@ -1059,9 +875,7 @@ the don't obey to the shutdown request.
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-<a name="stoolrestart"></a>
-
-### 5.6\. stool restart
+### stool restart
 
         <refnamediv>
           <refname>stool-restart</refname>
@@ -1080,9 +894,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-12"></a>
-
-#### 5.6.1\. Description
+#### Description
 
 Shorthand for `stool stop` and `stool start` with the specified options.
 
@@ -1090,9 +902,7 @@ Shorthand for `stool stop` and `stool start` with the specified options.
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-<a name="stoolrefresh"></a>
-
-### 5.7\. stool refresh
+### stool refresh
 
         <refnamediv>
           <refname>stool-refresh</refname>
@@ -1111,9 +921,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-13"></a>
-
-#### 5.7.1\. Description
+#### Description
 
 Reports an error if the stage is not owned or if the stage is up.
 
@@ -1126,9 +934,7 @@ is specified, also runs the command specified by the `build` property.
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-<a name="stoolchown"></a>
-
-### 5.8\. stool chown
+### stool chown
 
         <refnamediv>
           <refname>stool-chown</refname>
@@ -1150,9 +956,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-14"></a>
-
-#### 5.8.1\. Description
+#### Description
 
 Changes the stage owner, i.e. the owner of all files and directories in the stage directory.
 
@@ -1167,9 +971,7 @@ Reports an error if the stage is up. In this case, you can specify `-autostop` o
 
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
-<a name="stoolhistory"></a>
-
-### 5.9\. stool history
+### stool history
 
         <refnamediv>
           <refname>stool-history</refname>
@@ -1189,9 +991,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
             </arg>
           </cmdsynopsis>
 
-<a name="description-15"></a>
-
-#### 5.9.1\. Description
+#### Description
 
 Prints the command history of the stage. Specify *detail* with a command number or a command
 range to get the full command output for the respective command(s). If the max number
@@ -1201,9 +1001,7 @@ range to get the full command output for the respective command(s). If the max n
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-<a name="stoolcd"></a>
-
-### 5.10\. stool cd
+### stool cd
 
         <refnamediv>
           <refname>stool-cd</refname>
@@ -1221,9 +1019,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-16"></a>
-
-#### 5.10.1\. Description
+#### Description
 
 Changes the current working directory to the specified *target*:
 
@@ -1234,15 +1030,11 @@ Changes the current working directory to the specified *target*:
 
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
-<a name="example"></a>
-
-#### 5.10.2\. Example
+#### Example
 
 `stool cd logs` will jumps to `tomcat/logs` inside your backstage directory.
 
-<a name="stoolconfig"></a>
-
-### 5.11\. stool config
+### stool config
 
         <refnamediv>
           <refname>stool-config</refname>
@@ -1265,9 +1057,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-17"></a>
-
-#### 5.11.1\. Description
+#### Description
 
 This command gets or sets stage <link linkend="properties">properties</link>. Caution: `config` does
 not deal with stool properties, see `stool help` for that.
@@ -1303,9 +1093,7 @@ Each entry separates key and value by a colon. Example `PATH:/bin, HOME:/home/me
 
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
-<a name="availablestageproperties"></a>
-
-#### 5.11.2\. Available stage properties
+#### Available stage properties
 
 Note that the default values below might be overwritten by Stool defaults on your system.
 
@@ -1361,9 +1149,7 @@ Note that the default values below might be overwritten by Stool defaults on you
   and %p for the port. A double slash in the path part of the url separates the web application context from a normal path
   suffix.
 
-<a name="examples-2"></a>
-
-#### 5.11.3\. Examples
+#### Examples
 
 `stool config tomcat.heap` prints the current value for Tomcat heap space.
 
@@ -1374,9 +1160,7 @@ Note that the default values below might be overwritten by Stool defaults on you
 `stool config tomcat.select=foo,bar` configures a list property. Do not use spaces around
 the comma because the shell would consider this as a new key-value argument -- or quote the whole argument.
 
-<a name="stoolmove"></a>
-
-### 5.12\. stool move
+### stool move
 
         <refnamediv>
           <refname>stool-move</refname>
@@ -1394,9 +1178,7 @@ the comma because the shell would consider this as a new key-value argument -- o
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-18"></a>
-
-#### 5.12.1\. Description
+#### Description
 
 Moves the stage directory without touching the stage id or stage name. If *dest*
 exists, it is moved into it. Otherwise it is moved into the parent of dest with the specified name. This is the same behavior
@@ -1408,9 +1190,7 @@ You might have to re-build your application after moving the stage if you have d
 
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
-<a name="stoolport"></a>
-
-### 5.13\. stool port
+### stool port
 
         <refnamediv>
           <refname>stool-port</refname>
@@ -1428,9 +1208,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-19"></a>
-
-#### 5.13.1\. Description
+#### Description
 
 Allocates the specified ports for this stage. *application* specifies the application to use this port.
 *port* is the http port, *port*`+1` is automatically reserved
@@ -1440,9 +1218,7 @@ for https. When starting a stage, unused allocated ports are freed.
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-<a name="stoolstatus"></a>
-
-### 5.14\. stool status 
+### stool status 
 
         <refnamediv>
           <refname>stool-status</refname>
@@ -1460,9 +1236,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-20"></a>
-
-#### 5.14.1\. Description
+#### Description
 
 Prints the specified status *field*s of the stage. Default: print all fields.
 
@@ -1514,9 +1288,7 @@ A field may be any stage property or one of the following status fields:
 
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
-<a name="stoollist"></a>
-
-### 5.15\. stool list
+### stool list
 
         <refnamediv>
           <refname>stool-list</refname>
@@ -1534,9 +1306,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-21"></a>
-
-#### 5.15.1\. Description
+#### Description
 
 Prints a short status of all stages (or the stages specified by `-stage`). See the `status`
 command for a list of available fields. Default fields are `state ower url directory`.
@@ -1557,9 +1327,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-22"></a>
-
-#### 5.15.2\. Description
+#### Description
 
 Removes the Maven repository and rotates *.log info *.log.gz files.
 
@@ -1567,9 +1335,7 @@ Removes the Maven repository and rotates *.log info *.log.gz files.
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-<a name="stoolvalidate"></a>
-
-### 5.16\. stool validate
+### stool validate
 
         <refnamediv>
           <refname>stool-validate</refname>
@@ -1586,9 +1352,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
           </cmdsynopsis>
         </refsynopsisdiv>
 
-<a name="description-23"></a>
-
-#### 5.16.1\. Description
+#### Description
 
 Checks if the `expire` date of the stage has passes or the `quota` exceeded. If so, and if
 `-repair` is specified, the stage is stopped (and also removed if expired for more than autoremove days). And
@@ -1603,9 +1367,7 @@ Also checks Stool's locking system for stale locks and, if `-repair` is specifie
 
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
-<a name="setup"></a>
-
-## 6\. Setup
+## Setup
 
 Prerequisites:
 * Linux or Mac
@@ -1618,9 +1380,7 @@ if you want some of Stool's functionality available in a browser.
 Next, you have to choose the appropriate of setup for your machine: isolated or shared.
 
 
-<a name="isolatedsetup"></a>
-
-### 6.1\. Isolated setup
+### Isolated setup
 
 Isolated setup means that stages created by one user can only be seen and used by this user. Security: everything executes
 as the respective user, no `root` permissions or sudo rules required.
@@ -1633,9 +1393,7 @@ Steps:
 * Adjust `~/.stool/config.json` to your needs: see <link linkend="stoolProperties">stool properties</link><
 * Optional: setup a cron job to run `stool validate -all -email -repair` every night.
 
-<a name="sharedsetup"></a>
-
-### 6.2\. Shared setup
+### Shared setup
 
 Shared setup means that stages can be created, modified and removed by every other user on the machines.
 
@@ -1654,9 +1412,7 @@ Debian package are available from [Maven Central](http://central.sonatype.org).
   and Stool cannot change the current directory).
 * Invoke `stool` to verify your setup. You should get a usage message.
 
-<a name="directorylayout"></a>
-
-## 7\. Directory Layout
+## Directory Layout
 
 ... of $STOOL_HOME: either /usr/share/stool-3.4 or ~/.stool
 

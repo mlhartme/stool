@@ -14,9 +14,6 @@ Copyright 2016 1&1 Internet AG
 [//]: # (* stars (*bar*) mark user input)
 [//]: # (* double stars (**baz**) mark items in itemized lists)
 
-!TOC
-
-
 ## Introduction
 
 Stool is a command line tool that provides a lifecycle for stages: create, build, start, stop, remove.
@@ -200,7 +197,7 @@ have to be in the group `stool`.
 Stool is configured via properties. A property is a key/value pair. Value has a type (string, number, date,
 boolean, list (of strings), or map (string to string)). Stool distinguishes Stool properties and stage
 properties. Stool properties are global settings that apply to all stages, they are usually adjusted by system
-administrators (see [stool properties](#314-stool-properties)). Stage properties configure the
+administrators (see [stool properties](#stool-properties)). Stage properties configure the
 respective stage only, every stage has its own set of stage properties. The owner of a stage can adjust stage
 properties with <link linkend="stoolConfig">`stool config`</link>.
 
@@ -315,9 +312,7 @@ stop and remove. A stage contains web applications built from source or availabl
 * <option>-svnuser</option> specifies the user name for svn operations
 * <option>-svnpassword</option> specifies the password for svn operations
 
-#### Stool Properties
-        
-        <refsect1 xml:id="stoolProperties">
+#### Stool Properties xml:id="stoolProperties
 
 Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines following
 <link linkend="properties">properties</link>.
