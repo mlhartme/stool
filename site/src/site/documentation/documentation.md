@@ -1390,7 +1390,7 @@ Steps:
 * Make it executable, rename it to `stool` and add it to your $PATH.
 * Run `stool setup` to create Stool's home directory (`~/.stool`).
 * Source `~/.stool/shell.rc` in your shell initialization file (e.g. `~/.bash_profile`).
-* Adjust `~/.stool/config.json` to your needs: see [stool properties](stool-properties)
+* Adjust `~/.stool/config.json` to your needs: see [stool properties](#stool-properties)
 * Optional: setup a cron job to run `stool validate -all -email -repair` every night.
 
 ### Shared setup
