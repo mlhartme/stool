@@ -198,7 +198,7 @@ boolean, list (of strings), or map (string to string)). Stool distinguishes Stoo
 properties. Stool properties are global settings that apply to all stages, they are usually adjusted by system
 administrators (see [stool properties](#stool-properties)). Stage properties configure the
 respective stage only, every stage has its own set of stage properties. The owner of a stage can adjust stage
-properties with <link linkend="stoolConfig">`stool config`</link>.
+properties with [stool config][#stool-config].
 
 ### Backstage
 
@@ -516,7 +516,7 @@ specify an arbitrary directory, as long as it does not exist yet and the parent 
 group. Otherwise, create reports an error.
 
 The new stage is configured with default stage properties. You can specify *key-value* pairs to override the 
-defaults, or you can change the configuration later with <link linkend="stoolConfig">`stool config`</link>.
+defaults, or you can change the configuration later with [stool config][#stool-config].
 
 For artifact stages, the `maven.home` property is used to locate Maven settings which configure the repositories (and 
 optional credentials) to download for artifact(s) from.
