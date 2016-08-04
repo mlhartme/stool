@@ -29,43 +29,43 @@ Here's an example, what you can do with Stool. (The following assumes that Stool
 
 Create a new stage by checking out an application:
 
-        <programlisting>stool create git:ssh://git@github.com/mlhartme/hellowar.git</programlisting>
+    stool create git:ssh://git@github.com/mlhartme/hellowar.git
 
 Build the application:
 
-        <programlisting>stool build</programlisting>
+    stool build
 
 Start it:
 
-        <programlisting>stool start</programlisting>
+    stool start
 
 To see the running application, point your browser to the url printed by the `start` command.
 
 You can invoke
 
-        <programlisting>stool status</programlisting>
+    stool status
 
 to see if your application is running and to see the application urls.
 
 To remove the stage, stop the application with
 
-        <programlisting>stool stop</programlisting>
+    stool stop
 
 and dump it from your disk with
 
-        <programlisting>stool remove</programlisting>
+    stool remove
 
 You can create an arbitrary number of stages. Invoke
 
-        <programlisting>stool list</programlisting>
+    stool list
 
 to see what you have created and not yet removed. To switch to another stage, invoke
 
-        <programlisting>stool select otherstage</programlisting>
+    stool select otherstage
 
 You can get help with
 
-        <programlisting>stool help</programlisting>
+    stool help
 
 to see a list of available commands. You can append a command to get more help on that, e.g.
 <programlisting>stool help create</programlisting> prints help about `create`.
