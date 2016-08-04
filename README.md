@@ -12,5 +12,4 @@ Test
 
 1&1
 
-foo *star* bar
 foo **star** bar

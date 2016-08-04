@@ -11,8 +11,8 @@ Stool <?eval ${project.version}?>,
 
   <!-- Conventions
        * 'Stool' is written with a capital S
-       * backquotes mark things to type or technical term from Stool. 
-       * <replaceable/> is used to mark user input
+       * backquotes (`foo`) mark things to type or technical term from Stool. 
+       * stars (*bar*) mark user input
     -->
 
 
@@ -116,7 +116,7 @@ However, users normally work with the stage name instead.
 User readable indentification for a stage. Usually, the name is unique. The name of the selected
 stage is shown in your shell prompt, you use it to switch between stages, and it's part of the application
 url(s). The name is determined when you create a stage (in most cases it's simply the name of the stage
-directory). You can change the name with `stool config name=`<replaceable>renamed</replaceable>.
+directory). You can change the name with `stool config name=`*renamed*.
             </formalpara>
           </listitem>
           <listitem>
@@ -259,7 +259,7 @@ properties with <link linkend="stoolConfig">`stool config`</link>.
 Every stage directory contains backstage directory `.backstage` that stores Stool-related
 data about the stage, e.g. the stage properties, Tomcat configuration and log files of the applications. The
 backstage directory is created when you create or import the stage. `$STOOL_HOME/backstages`
-contains a symlink <replaceable>id</replaceable>-><replaceable>backstage</replaceable>. Stool uses this
+contains a symlink *id*->*backstage*. Stool uses this
 directory to iterate all stages.
 
 Stool removes backstage symlinks either explicitly when you run`stool remove`, or
@@ -271,7 +271,7 @@ backstage links before every command.
 Every stage has an `expire` property that specifies how long the stage is needed. You can
 see the expire date with `stool config expire`. If this date has passed, the stage is called
 expired, and it is automatically stopped, the owner gets an email notification and you cannot start it again
-unless you specify a new date with `stool config expire=`<replaceable>yyyy-mm-dd</replaceable>.
+unless you specify a new date with `stool config expire=`*yyyy-mm-dd*.
 
 Depending on the `autoRemove` Stool property, the stage will automatically be removed after
 the configured number of days. Stage expiring helps to detect and remove unused stages, which is crucial for
@@ -337,13 +337,13 @@ The dashboard is a system stage you can install to control stages via browser.
           <cmdsynopsis>
             <command>stool</command>
             <arg rep="repeat">
-              <replaceable>global-option</replaceable>
+              *global-option*
             </arg>
             <arg>
-              <replaceable>command</replaceable>
+              *command*
             </arg>
             <arg rep="repeat">
-              <replaceable>arguments</replaceable>
+              *arguments*
             </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
@@ -352,7 +352,7 @@ The dashboard is a system stage you can install to control stages via browser.
 
 Stool is a command line tool that provides a lifecycle for stages: create, configure, build, start,
 stop and remove. A stage contains web applications built from source or available as artifacts.
-<replaceable>command</replaceable> defaults to `help`.
+*command* defaults to `help`.
 
 #### Commands
 
@@ -383,7 +383,7 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
 * <term>certificates</term>
   Url to generate certificates to make stages available via https. Empty to generate self-signed
   certificates. Otherwise, Stool generates a `csr` and sends a post request to
-  <replaceable>certificates</replaceable>`/stagename`, expecting back the certificate. Type string.
+  *certificates*`/stagename`, expecting back the certificate. Type string.
 * <term>committed
   `true` if users have to commit source changes before Stool allows them to start the stage. Type boolean.
 * <term>defaults</term>
@@ -451,7 +451,7 @@ Homepage: https://github.com/mlhartme/stool
 
 Documentation: http://mlhartme.github.io/stool/documentation/documentation.html
 
-Invoke `stool help` <replaceable>command</replaceable> to get help for the specified command.
+Invoke `stool help` *command* to get help for the specified command.
 
 
 ## System commands
@@ -468,14 +468,14 @@ Commands that do not deal with individual stages.
           <cmdsynopsis>
             <command>stool help</command>
             <arg>
-              <replaceable>command</replaceable>
+              *command*
             </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
 
 #### Description
 
-Prints help about the specified <replaceable>command</replaceable>. Or, if <replaceable>command</replaceable>
+Prints help about the specified *command*. Or, if *command*
 is not specified, prints help about Stool.
 
 ### stool version
@@ -540,13 +540,13 @@ Stop all system stages and sends all other running stages to sleep. Always uses 
               <arg>-quiet</arg>
             </group>
             <arg choice="plain">
-              <replaceable>url</replaceable>
+              *url*
             </arg>
             <arg>
-              <replaceable>directory</replaceable>
+              *directory*
             </arg>
             <arg rep="repeat">
-              <replaceable>key=value</replaceable>
+              *key=value*
             </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
@@ -556,22 +556,22 @@ Stop all system stages and sends all other running stages to sleep. Always uses 
 Creates a new stage- and backstage directory and enters the stage directory. In most cases, you can invoke `stool create` 
 similar to`svn checkout`: with an url and a directory to checkout to.
 
-<replaceable>url</replaceable> specifies the application you want to run in your stage. In many cases, the url is a subversion url prefixed
+*url* specifies the application you want to run in your stage. In many cases, the url is a subversion url prefixed
 with `svn:` or a git url prefixed with `git:`. Stool performs a checkout resp. a clone. Output of the 
 command is printed to the console unless the `-quiet` option is specified.
 
 To create an artifact stage, specify a war file, a file url or a GAV url. You may specify multiple comma-separated urls, and you may 
-specify `=`<replaceable>name</replaceable> if you want to assign a non-default vhost for an application.
+specify `=`*name* if you want to assign a non-default vhost for an application.
 
-Instead of a <replaceable>url</replaceable> you can specify `%`<replaceable>searchstring</replaceable>. This will search 
+Instead of a *url* you can specify `%`*searchstring*. This will search 
 the configured search tools for the specified string, show all matching scm urls, and ask you to select one.
 
-<replaceable>directory</replaceable> specifies the stage directory to hold your application. If not specified, the current directory
+*directory* specifies the stage directory to hold your application. If not specified, the current directory
 with the last usable segment of the `url` (i.e. the last segment that is not trunk, tags, or branches) is used. You can 
 specify an arbitrary directory, as long as it does not exist yet and the parent directory exists and is writable for all users of the Stool 
 group. Otherwise, create reports an error.
 
-The new stage is configured with default stage properties. You can specify <replaceable>key-value</replaceable> pairs to override the 
+The new stage is configured with default stage properties. You can specify *key-value* pairs to override the 
 defaults, or you can change the configuration later with <link linkend="stoolConfig">`stool config`</link>.
 
 For artifact stages, the `maven.home` property is used to locate Maven settings which configure the repositories (and 
@@ -605,24 +605,24 @@ Create a source stage from svn: `stool create svn:https://github.com/mlhartme/he
           <cmdsynopsis>
             <command>stool import</command>
             <arg>-max
-              <replaceable>n</replaceable>
+              *n*
             </arg>
             <arg>-name
-              <replaceable>template</replaceable>
+              *template*
             </arg>
             <arg rep="repeat">
-              <replaceable>directory</replaceable>
+              *directory*
             </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
 
 #### Description
 
-Scans <replaceable>directory</replaceable> for stage candidates and offers to import them. The candidates you
+Scans *directory* for stage candidates and offers to import them. The candidates you
 select will be imported, i.e. a backstage directory for the stage directory is created. If the scan only
 yields a single candidate, it will be imported and selected without additional interaction.
 
-<replaceable>template</replaceable>
+*template*
 is a string defining the stage name. And any occurrence of `%d`
 will be replaced by the current directory name. Default template is`%d`.
 
@@ -638,7 +638,7 @@ will be replaced by the current directory name. Default template is`%d`.
             <command>stool select</command>
             <group>
               <arg choice="plain">
-                <replaceable>stage</replaceable>
+                *stage*
               </arg>
               <arg choice="plain">none</arg>
             </group>
@@ -649,7 +649,7 @@ will be replaced by the current directory name. Default template is`%d`.
 
 Prints the selected stage when called without argument.
 
-Otherwise cds to the stage directory of the specified <replaceable>stage</replaceable>.
+Otherwise cds to the stage directory of the specified *stage*.
 
 When called with `none`: cds to the parent directory of the current stage.
 
@@ -677,14 +677,14 @@ All stage commands provide stage options, invoke `stool help stage-options` for 
           <cmdsynopsis>
             <command>stool</command>
             <arg choice="plain">
-              <replaceable>stage-command</replaceable>
+              *stage-command*
             </arg>
             <group>
               <arg choice="plain">-all</arg>
-              <arg choice="plain">-stage <replaceable>predicate</replaceable></arg>
+              <arg choice="plain">-stage *predicate*</arg>
             </group>
             <group>
-              <arg choice="plain">-fail <replaceable>mode</replaceable></arg>
+              <arg choice="plain">-fail *mode*</arg>
             </group>
             <group>
               <arg choice="plain">-autochown</arg>
@@ -702,7 +702,7 @@ By default, stage commands operate on the selected stage (as shown in the stage 
 
 `-all` operates on all stages
 
-`-stage` <replaceable>predicate</replaceable> operates on matching stages. The syntax for predicates is as follows:
+`-stage` *predicate* operates on matching stages. The syntax for predicates is as follows:
             <programlisting>
               or = and {',' and}
               and = expr {'+' expr}
@@ -720,15 +720,15 @@ By default, stage commands operate on the selected stage (as shown in the stage 
 The most basic predicate is a simple `NAME`. It matches only on the specified stage. This is handy
 to invoke one command for a stage without selecting it.
 
-Next, a predicate <replaceable>FIELD</replaceable>`=`<replaceable>VALUE</replaceable> matches
+Next, a predicate *FIELD*`=`*VALUE* matches
 stages who's status field has the specified value.
 
-<replaceable>PROPERTY</replaceable>`=`<replaceable>VALUE</replaceable> is similar, it matches stage properties.
+*PROPERTY*`=`*VALUE* is similar, it matches stage properties.
 
 #### Failure mode
 
 Since stage commands operate on an arbitrary number of stages, you might want to specify what to do if the command
-fails on some stages. That's what `-fail` <replaceable>mode</replaceable> is for.
+fails on some stages. That's what `-fail` *mode* is for.
 
 Mode `normal` reports problems immediately and aborts execution, Stool does not try to
 invoke the command on remaining matching stages. This is the default.
@@ -771,7 +771,7 @@ after the first stage that cannot be started (e.g. because it's already running)
           <cmdsynopsis>
             <command>stool build</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
@@ -783,7 +783,7 @@ specified in the `build` property. Reports an error if the stage is not owned or
 
 You can see the configured build command with`stool config build`, and you can change it with
 `stool config "build="`
-<replaceable>your command command</replaceable>
+*your command command*
 `"`
 The quotes are mandatory if your command contains spaces.
 
@@ -809,7 +809,7 @@ to use `stool build` because shared machine have a separate local Maven reposito
           <cmdsynopsis>
             <command>stool remove</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
             <arg>-force</arg>
             <arg>-batch</arg>
@@ -846,7 +846,7 @@ Changes the current directory to the parent of the now deleted stage directory.
           <cmdsynopsis>
             <command>stool start</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
             <group>
               <arg choice="plain">-debug</arg>
@@ -863,11 +863,11 @@ start it right away; otherwise, you have to build it first. Depending on your ap
 
 Any user may start a stage. The processes started by this command belong to the stage owner, not the user running the start command.
 
-Startup is refused if your stage is expired. In this case, use `stool config expire=`<replaceable>newdate</replaceable>
+Startup is refused if your stage is expired. In this case, use `stool config expire=`*newdate*
 to configure a new `expire` date.
 
 Startup is also refused if your stage quota is exceeded. In this case, delete some unused files, try `stool cleanup` or 
-`stool config quota=`<replaceable>n</replaceable>.
+`stool config quota=`*n*.
 
 `-debug` and `-suspend` enable the debugger. The difference is that `-suspend`
 waits for the debugger to connect before starting any application code.
@@ -876,13 +876,13 @@ Use the `-tail` option to start tomcat and get `catalina.out` printed to the con
 Press ctrl-c to stop watching `catalina.out`, the application will continue to run. Alternatively, you can tail
 the current stage manually with `stool cd logs &amp;&amp; tail -f catalina.out`
 
-`start` generates a Tomcat base directory <replaceable>backstage</replaceable>`/tomcat` if it
+`start` generates a Tomcat base directory *backstage*`/tomcat` if it
 does not yet exist. If it exists, only the server.xml is updated by taking server.xml.template and adding all apps to it. This
 allows for manual changes in the base directory. `start` deletes all files in Tomcat's `temp`
 directory.
 
-The Tomcat version is configurable with `stool config tomcat.version=`<replaceable>version</replaceable>.
-If you change it, you have to stop the stage, delete the <replaceable>backstage</replaceable>`/tomcat`
+The Tomcat version is configurable with `stool config tomcat.version=`*version*.
+If you change it, you have to stop the stage, delete the *backstage*`/tomcat`
 directory and start the stage. The respective Tomcat will be downloaded automatically to the directory specified by the global
 `downloadCache` property (default is `$STOOL_HOME/downloads`). Alternatively,
 you can place customized Tomcats into this directory, provided they unpack to a directory that matches the base file name of
@@ -911,7 +911,7 @@ pointing to the owner's home directory.
           <cmdsynopsis>
             <command>stool stop</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
             <arg>-sleep</arg>
           </cmdsynopsis>
@@ -938,7 +938,7 @@ the don't obey to the shutdown request.
           <cmdsynopsis>
             <command>stool restart</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
             <group>
               <arg choice="plain">-debug</arg>
@@ -964,7 +964,7 @@ Shorthand for `stool stop` and `stool start` with the specified options.
           <cmdsynopsis>
             <command>stool refresh</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
             <group>
               <arg choice="plain">-build</arg>
@@ -996,12 +996,12 @@ is specified, also runs the command specified by the `build` property.
           <cmdsynopsis>
             <command>stool chown</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
             <group>
               <arg>-batch</arg>
               <arg>
-                <replaceable>user</replaceable>
+                *user*
               </arg>
             </group>
           </cmdsynopsis>
@@ -1017,7 +1017,7 @@ before changing ownership. You can skip confirmation by specifying`-batch`.
 Reports an error if the stage is up. In this case, you can specify `-autostop` or
 `-autorestart` to stop the stage before changing ownership and also start it afterwards.
 
-<replaceable>user</replaceable> defaults to the current user.
+*user* defaults to the current user.
 
 <xi:include href="stageOptions.xml" parse="xml"/>
 
@@ -1031,21 +1031,21 @@ Reports an error if the stage is up. In this case, you can specify `-autostop` o
           <cmdsynopsis>
             <command>stool history</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
             <arg>-max
-              <replaceable>n</replaceable>
+              *n*
             </arg>
             <arg rep="repeat">
-              <replaceable>detail</replaceable>
+              *detail*
             </arg>
           </cmdsynopsis>
 
 #### Description
 
-Prints the command history of the stage. Specify <replaceable>detail</replaceable> with a command number or a command
+Prints the command history of the stage. Specify *detail* with a command number or a command
 range to get the full command output for the respective command(s). If the max number
-<replaceable>n</replaceable> of commands is exceeded, older commands are ignored (<replaceable>n</replaceable> defauls is 999).
+*n* of commands is exceeded, older commands are ignored (*n* defauls is 999).
 
 <xi:include href="stageOptions.xml" parse="xml"/>
 
@@ -1060,17 +1060,17 @@ range to get the full command output for the respective command(s). If the max n
           <cmdsynopsis>
             <command>stool cd</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
             <arg>
-              <replaceable>target</replaceable>
+              *target*
             </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
 
 #### Description
 
-Changes the current working directory to the specified <replaceable>target</replaceable>:
+Changes the current working directory to the specified *target*:
 
 * <term>(empty)</term> the stage directory
 * <term>backstage</term> the backstage directory.
@@ -1092,14 +1092,14 @@ Changes the current working directory to the specified <replaceable>target</repl
           <cmdsynopsis>
             <command>stool config</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
             <group rep="repeat">
               <arg>
-                <replaceable>key</replaceable>
+                *key*
               </arg>
-              <arg><replaceable>key</replaceable>=
-                <replaceable>value</replaceable>
+              <arg>*key*=
+                *value*
               </arg>
             </group>
           </cmdsynopsis>
@@ -1112,7 +1112,7 @@ not deal with stool properties, see `stool help` for that.
 
 When invoked without arguments, all stage properties are printed.
 
-When invoked with one or more <replaceable>key</replaceable>s, the respective properties are printed.
+When invoked with one or more *key*s, the respective properties are printed.
 
 When invoked with one or more assignments, the respective properties are changed.
 
@@ -1130,7 +1130,7 @@ Properties have a type: boolean, number, date, string, list of strings, or map o
 
 Boolean properties have the values `true` or `false`, case sensitive.
 
-Date properties have the form <replaceable>yyyy-mm-dd</replaceable>, so a valid value for
+Date properties have the form *yyyy-mm-dd*, so a valid value for
 `expire` is - e.g. -`2016-12-31`.
 
 List properties (e.g.`tomcat.select`) are separated by commas, whitespace before and after an item is ignored.
@@ -1217,17 +1217,17 @@ the comma because the shell would consider this as a new key-value argument -- o
           <cmdsynopsis>
             <command>stool move</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
             <arg choice="plain">
-              <replaceable>dest</replaceable>
+              *dest*
             </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
 
 #### Description
 
-Moves the stage directory without touching the stage id or stage name. If <replaceable>dest</replaceable>
+Moves the stage directory without touching the stage id or stage name. If *dest*
 exists, it is moved into it. Otherwise it is moved into the parent of dest with the specified name. This is the same behavior
 as the unix `mv` command, but it also adjusts Stool's backstage directory.
 
@@ -1246,18 +1246,18 @@ You might have to re-build your application after moving the stage if you have d
           <cmdsynopsis>
             <command>stool port</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
             <group>
-              <arg rep="repeat"><replaceable>application</replaceable>=<replaceable>port</replaceable></arg>
+              <arg rep="repeat">*application*=*port*</arg>
             </group>
           </cmdsynopsis>
         </refsynopsisdiv>
 
 #### Description
 
-Allocates the specified ports for this stage. <replaceable>application</replaceable> specifies the application to use this port.
-<replaceable>port</replaceable> is the http port, <replaceable>port</replaceable>`+1` is automatically reserved
+Allocates the specified ports for this stage. *application* specifies the application to use this port.
+*port* is the http port, *port*`+1` is automatically reserved
 for https. When starting a stage, unused allocated ports are freed.
 
 <xi:include href="stageOptions.xml" parse="xml"/>
@@ -1273,17 +1273,17 @@ for https. When starting a stage, unused allocated ports are freed.
           <cmdsynopsis>
             <command>stool status</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
             <arg rep="repeat" choice="plain">
-              <replaceable>field</replaceable>
+              *field*
             </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
 
 #### Description
 
-Prints the specified status <replaceable>field</replaceable>s of the stage. Default: print all fields.
+Prints the specified status *field*s of the stage. Default: print all fields.
 
 A field may be any stage property or one of the following status fields:
 
@@ -1342,10 +1342,10 @@ A field may be any stage property or one of the following status fields:
           <cmdsynopsis>
             <command>stool list</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
             <arg rep="repeat" choice="plain">
-              <replaceable>field</replaceable>
+              *field*
             </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
@@ -1365,7 +1365,7 @@ command for a list of available fields. Default fields are `state ower url direc
           <cmdsynopsis>
             <command>stool cleanup</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
           </cmdsynopsis>
         </refsynopsisdiv>
@@ -1387,7 +1387,7 @@ Removes the Maven repository and rotates *.log info *.log.gz files.
           <cmdsynopsis>
             <command>stool validate</command>
             <arg rep="repeat">
-              <replaceable>stage-option</replaceable>
+              *stage-option*
             </arg>
             <arg>-email</arg>
             <arg>-repair</arg>
