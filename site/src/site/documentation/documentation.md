@@ -233,35 +233,35 @@ explicitly specifing the `-build` option. (Note: To override this default, use `
 
 Supported user default properties:
 
-* <option>verbose</option>
+* **verbose**
   controls the `-v` option for every Stool command
-* <option>exception</option>
+* **exception**
   controls the `-e` option for every Stool command
-* <option>auto.restart</option>
+* **auto.restart**
   controls the `-autorestart` option for every stage command
-* <option>auto.stop</option>
+* **auto.stop**
   controls the `-autostop` option for every stage command
-* <option>auto.rechown</option>
+* **auto.rechown**
   controls the `-autorechown` option for every stage command
-* <option>auto.restart</option>
+* **auto.restart**
   controls the `-autochown` option for every stage command
-* <option>import.name</option>
+* **import.name**
   controls the `-name` option for the import command
-* <option>import.max</option>
+* **import.max**
   controls the `-max` option for the import command
-* <option>history.max</option>
+* **history.max**
   controls the `-max` option for the history command
-* <option>tomcat.debug</option>
+* **tomcat.debug**
   controls the `-debug` option for the start and restart command
-* <option>tomcat.suspend</option>
+* **tomcat.suspend**
   controls the `-suspend` option for the start and restart command
-* <option>list.defaults</option>
+* **list.defaults**
   controls the `-defaults` option for the list command
-* <option>status.defaults</option>
+* **status.defaults**
   controls the `-defaults` option for the status command
-* <option>select.fuzzy</option>
+* **select.fuzzy**
   controls the `-fuzzy` option for the select command
-* <option>refresh.build</option>
+* **refresh.build**
   controls the `-build` option for the refresh command
 
 
@@ -306,10 +306,10 @@ stop and remove. A stage contains web applications built from source or availabl
 
 #### Global options
 
-* <option>-v</option> enables verbose output
-* <option>-e</option> prints stacktrace for all errors
-* <option>-svnuser</option> specifies the user name for svn operations
-* <option>-svnpassword</option> specifies the password for svn operations
+* **-v** enables verbose output
+* **-e** prints stacktrace for all errors
+* **-svnuser** specifies the user name for svn operations
+* **-svnpassword** specifies the password for svn operations
 
 #### Stool Properties
 
@@ -608,7 +608,7 @@ initially have a stage to operate on (although it results in a new (and selected
 
 All stage commands provide stage options, invoke `stool help stage-options` for documentation.
 
-### stage options xml:id="stageOptions
+### stage options
 
         <refnamediv>
           <refname>stool-stage-options</refname>
@@ -730,8 +730,8 @@ The quotes are mandatory if your command contains spaces.
 
 The pre-defined build command for artifact stages does nothing. Thus, you can invoke
 `stool build` for artifact stages, it just has no effect.
-
-If you invoke <command>build</command> from the dashboard application, the build command executes in the environment
+<
+If you invoke `build` from the dashboard application, the build command executes in the environment
 defined for the dashboard stage with the additional environment variables mentioned above.
 
 If you work locally on your own machine, you'll normally prefer to directly invoke your build command. However, you have
