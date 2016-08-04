@@ -5,11 +5,3 @@ Homepage: https://github.com/mlhartme/stool
 Changes: https://github.com/mlhartme/stool/blob/master/CHANGELOG.md
 
 Documentation: http://mlhartme.github.io/stool/site/documentation.html
-
-Test
-
-1<2
-
-1&1
-
-foo **star** bar

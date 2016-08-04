@@ -68,7 +68,11 @@ You can get help with
     stool help
 
 to see a list of available commands. You can append a command to get more help on that, e.g.
-<programlisting>stool help create</programlisting> prints help about `create`.
+
+    stool help create
+    
+prints help about `create`.
+
 
 ### Rationale
 
@@ -107,13 +111,11 @@ A stage has a
   directory). You can change the name with `stool config name=`*renamed*.
 * **url**
   Specifies where the web applications come from: A Subversion URL, a git url, Maven coordinates, or
-  a file url pointing to a war file.
-<programlisting>Examples:
-  git:ssh://git@github.com/mlhartme/hellowar.git
-  svn:https://github.com/mlhartme/hellowar/trunk
-  gav:net.oneandone:hellowar:1.0.2
-  file:///home/mhm/foo.war
-</programlisting>
+  a file url pointing to a war file. Examples:
+      git:ssh://git@github.com/mlhartme/hellowar.git
+      svn:https://github.com/mlhartme/hellowar/trunk
+      gav:net.oneandone:hellowar:1.0.2
+      file:///home/mhm/foo.war
 * **type**
   How the stage contains the application(s): source - checkout of a Maven project, or artifact - a Maven artifact.
   The stage url implies the stage type.
