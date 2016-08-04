@@ -6,12 +6,11 @@ Copyright 2016 1&1 Internet AG
 
 !INCLUDE "../../../target/stool.txt"
 
-  <!-- Conventions
-       * 'Stool' is written with a capital S
-       * backquotes (`foo`) mark things to type or technical term from Stool. 
-       * stars (*bar*) mark user input
-       * double stars (**baz**) mark items in itemized lists
-    -->
+[//]: # (Conventions)
+[//]: # (* 'Stool' is written with a capital S)
+[//]: # (* backquotes (`foo`) mark things to type or technical term from Stool.)
+[//]: # (* stars (*bar*) mark user input)
+[//]: # (* double stars (**baz**) mark items in itemized lists)
 
 !TOC
 

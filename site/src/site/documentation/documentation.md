@@ -5,12 +5,11 @@ Author: Michael Hartmeier
 Copyright 2016 1&1 Internet AG
 
 Stool 3.4.2-SNAPSHOT (2016-08-4)
-  <!-- Conventions
-       * 'Stool' is written with a capital S
-       * backquotes (`foo`) mark things to type or technical term from Stool. 
-       * stars (*bar*) mark user input
-       * double stars (**baz**) mark items in itemized lists
-    -->
+[//]: # (Conventions)
+[//]: # (* 'Stool' is written with a capital S)
+[//]: # (* backquotes (`foo`) mark things to type or technical term from Stool.)
+[//]: # (* stars (*bar*) mark user input)
+[//]: # (* double stars (**baz**) mark items in itemized lists)
 
 1\.  [Introduction](#introduction)  
 1.1\.  [Quick Tour](#quicktour)  
