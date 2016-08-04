@@ -522,7 +522,7 @@
               <term>admin</term>
               <listitem>
                 <para>Email of the person to receive validation failures and exception mails. Empty to disable these emails.
-                  Type string.</para>
+                  Type string. Example: <literal>Max Mustermann &lt;max@mustermann.org></literal>.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -534,7 +534,7 @@
             <varlistentry>
               <term>baseHeap</term>
               <listitem>
-                <para>Defines how to compute the initial <literal>tomcat.heap</literal> value for new stages:
+                <para>Defines how to compute the initial <literal>tomcat.heap</literal> property for new stages:
                   <literal>baseHeap</literal> mb for every application. Type number.</para>
               </listitem>
             </varlistentry>
@@ -543,13 +543,13 @@
               <listitem>
                 <para>Url to generate certificates to make stages available via https. Empty to generate self-signed
                   certificates. Otherwise, Stool generates a <literal>csr</literal> and sends a post request to
-                  <replaceable>certificates/stagename</replaceable>, expecting back the certificate. Type string. </para>
+                  <replaceable>certificates</replaceable><literal>/stagename</literal>, expecting back the certificate. Type string. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
               <term>committed</term>
               <listitem>
-                <para>true if users have to commit source changes before Stool allows them to start the stage. Type boolean. </para>
+                <para><literal>true</literal> if users have to commit source changes before Stool allows them to start the stage. Type boolean. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -567,13 +567,13 @@
             <varlistentry>
               <term>downloadTomcat</term>
               <listitem>
-                <para>Url pattern where to download Tomcat. Type string. </para>
+                <para>Url pattern where to download Tomcat. Available variables: <literal>${version}</literal> and <literal>${major}</literal>. Type string. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
               <term>downloadServiceWrapper</term>
               <listitem>
-                <para>Url pattern where to download Java Service Wrapper. Type string. </para>
+                <para>Url pattern where to download Java Service Wrapper. Available variables: <literal>${version}</literal> and <literal>${major}</literal>. Type string. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -585,19 +585,19 @@
             <varlistentry>
               <term>hostname</term>
               <listitem>
-                <para>Hostname used to refer to this machine in application urls and emails. Type string. </para>
+                <para>Fully qualified hostname used to refer to this machine in application urls and emails. Type string. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
               <term>ldapCredentials</term>
               <listitem>
-                <para>Password for Ldap authentication. Type string. </para>
+                <para>Password for Ldap authentication. Ignored if ldap is disabled. Type string. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
               <term>ldapPrincipal</term>
               <listitem>
-                <para>User for Ldap authentication. Type string. </para>
+                <para>User for Ldap authentication. Ignored if ldap is disabled. Type string. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -625,7 +625,7 @@
             <varlistentry>
               <term>mailHost</term>
               <listitem>
-                <para>Smtp Host name to deliver emails. Type string. </para>
+                <para>Smtp Host name to deliver emails. Empty to disable. Type string. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -643,13 +643,13 @@
             <varlistentry>
               <term>portFirst</term>
               <listitem>
-                <para>First port available for stages. Has to be an even number >1024. Type number. </para>
+                <para>First port available for stages. Has to be an even number >1023. Type number. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
               <term>portLast</term>
               <listitem>
-                <para>Last port available for stages. Has to be an odd number >1024. Type number.</para>
+                <para>Last port available for stages. Has to be an odd number >1023. Type number.</para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -657,7 +657,7 @@
               <listitem>
                 <para>Megabytes available for stages. The sum of all stage quota properties cannot exceed this number. 0 disables this
                   feature. You'll usually set this to the size of the partition that will store your stages. Note that this quota
-                  cannot prevent disk full problem because stages can be placed in arbitrary partitions. Type number. </para>
+                  cannot prevent disk full problem because stages can be placed on arbitrary partitions. Type number. </para>
               </listitem>
             </varlistentry>
             <varlistentry>
@@ -680,7 +680,7 @@
               <listitem>
                 <para><literal>true</literal> to create application urls with vhosts for application and stage name.
                   <literal>false</literal> to create application urls without vhosts. (Note that urls always contain the port to
-                  distingusish between stages/applications). Type boolean. If you want to enable vhosts you have to make sure you
+                  distinguish between stages). Type boolean. If you want to enable vhosts you have to make sure you
                   have the respective DNS * entries for your machine.
                 </para>
               </listitem>
@@ -1875,8 +1875,8 @@
     <section>
       <title>Isolated setup</title>
 
-      <para>Isolated setup means that stages created by user A can only be seen and used by this user. Security: everything executes
-        as the respective user, no <literal>root</literal> permissions required.</para>
+      <para>Isolated setup means that stages created by one user can only be seen and used by this user. Security: everything executes
+        as the respective user, no <literal>root</literal> permissions or sudo rules required.</para>
 
       <para>Steps:</para>
       <itemizedlist>
@@ -1885,16 +1885,19 @@
             <link xlink:href="http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22">Maven Central</link>.</para>
         </listitem>
         <listitem>
-          <para>Make it executable and add it to your $PATH.</para>
+          <para>Make it executable, rename it to <literal>stool</literal> and add it to your $PATH.</para>
         </listitem>
         <listitem>
-          <para>Run <literal>stool setup</literal> to create Stool's home directory.</para>
-        </listitem>
-        <listitem>
-          <para>Adjust <literal>~/.stool/config.json</literal> to your needs.</para>
+          <para>Run <literal>stool setup</literal> to create Stool's home directory (<literal>~/.stool</literal>).</para>
         </listitem>
         <listitem>
           <para>Source <literal>~/.stool/shell.rc</literal> in your shell initialization file (e.g. <literal>~/.bash_profile</literal>).</para>
+        </listitem>
+        <listitem>
+          <para>Adjust <literal>~/.stool/config.json</literal> to your needs: see <link linkend="stoolProperties">stool properties</link></para>
+        </listitem>
+        <listitem>
+          <para>Optional: setup a cron job to run <literal>stool validate -all l -email -repair</literal> every night.</para>
         </listitem>
       </itemizedlist>
     </section>
