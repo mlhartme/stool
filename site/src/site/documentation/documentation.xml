@@ -1897,7 +1897,7 @@
           <para>Adjust <literal>~/.stool/config.json</literal> to your needs: see <link linkend="stoolProperties">stool properties</link></para>
         </listitem>
         <listitem>
-          <para>Optional: setup a cron job to run <literal>stool validate -all l -email -repair</literal> every night.</para>
+          <para>Optional: setup a cron job to run <literal>stool validate -all -email -repair</literal> every night.</para>
         </listitem>
       </itemizedlist>
     </section>
