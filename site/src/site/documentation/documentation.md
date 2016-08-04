@@ -212,7 +212,7 @@ Stool removes backstage symlinks either explicitly when you run`stool remove`, o
 implicitly when it detects that the target directory has been removed. Stool checks for - and cleans - stale
 backstage links before every command.
 
-### Stage Exiring xml:id="stageExpiring"
+### Stage Exiring
 
 Every stage has an `expire` property that specifies how long the stage is needed. You can
 see the expire date with `stool config expire`. If this date has passed, the stage is called
@@ -1103,7 +1103,7 @@ Note that the default values below might be overwritten by Stool defaults on you
 * **cookies**
   Enable or disable cookies. Type boolean. Default value: `true`
 * **expire**
-  Defines when this stage <link linkend="stageExpiring">expires</link>. Type date.
+  Defines when this stage [expires](#stage-exiring). Type date.
 * **java.home**
   Install directory of the JDK used to build and run this stage. Type string.
 * **maven.home**
