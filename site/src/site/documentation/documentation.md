@@ -4,9 +4,7 @@ Stage Tool
 Author: Michael Hartmeier
 Copyright 2016 1&1 Internet AG
 
-Stool <?eval ${project.version}?>,
-
-2016-08-4
+Stool 3.4.2-SNAPSHOT (2016-08-4)
   <!-- Conventions
        * 'Stool' is written with a capital S
        * backquotes (`foo`) mark things to type or technical term from Stool. 

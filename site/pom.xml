@@ -52,7 +52,7 @@
                   <format pattern="yyyy-MM-d" property="now" />
                 </tstamp>
                 <mkdir dir="${project.build.directory}/site/documentation" />
-                <echo file="${project.build.directory}/now.txt">${now}</echo>
+                <echo file="${project.build.directory}/stool.txt">Stool ${project.version} (${now})</echo>
                 <xslt processor="trax" in="${basedir}/src/site/documentation/documentation.xml" out="${project.build.directory}/synopsis.xml" style="${basedir}/src/site/synopsis.xsl">
                 </xslt>
                 <schemavalidate file="${basedir}/src/site/documentation/documentation.xml">

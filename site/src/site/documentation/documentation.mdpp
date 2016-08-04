@@ -4,9 +4,7 @@ Stage Tool
 Author: Michael Hartmeier
 Copyright 2016 1&1 Internet AG
 
-Stool <?eval ${project.version}?>,
-
-!INCLUDE "../../../target/now.txt"
+!INCLUDE "../../../target/stool.txt"
 
   <!-- Conventions
        * 'Stool' is written with a capital S
