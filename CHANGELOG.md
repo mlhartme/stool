@@ -3,7 +3,11 @@
 ### 3.4.2 (pending)
 
 * added setup -batch option
+* [demo anchor](#some-title)
 
+### some title
+
+hi
 
 ### 3.4.1 (2016-08-02)
 
