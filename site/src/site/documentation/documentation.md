@@ -152,7 +152,7 @@ The stage indicator is red when you're not the owner of the selected stage. It i
 selected stage is broken or no longer exists. The stage indicator is invisible if you have no stage selected;
 select a stage to set a stage indicator.
 
-### Stage owner xml:id="stageOwner"
+### Stage owner
 
 Stool has a configuration property `shared`. If you run Stool on your own machine
 and you are the only user, you'll set it to `false` to indicate that you are the only user
@@ -370,8 +370,7 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
   feature. You'll usually set this to the size of the partition that will store your stages. Note that this quota
   cannot prevent disk full problem because stages can be placed on arbitrary partitions. Type number. 
 * **shared**
-  `true` if multiple user may work on stages. See <link linkend="stageOwner">stage owner</link>
-  for details. Type boolean.
+  `true` if multiple user may work on stages. See [stage owner](#Stage-owner) for details. Type boolean.
 * **search**
   Command line to execute if `stool create` is called with an % url.
   When calling the command, the placeholder `()` is replaced by the url.
