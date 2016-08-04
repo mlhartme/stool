@@ -653,7 +653,7 @@ By default, stage commands operate on the selected stage (as shown in the stage 
 `-all` operates on all stages
 
 `-stage` *predicate* operates on matching stages. The syntax for predicates is as follows:
-            <programlisting>
+
               or = and {',' and}
               and = expr {'+' expr}
               expr = NAME | cmp
@@ -665,7 +665,7 @@ By default, stage commands operate on the selected stage (as shown in the stage 
               FIELD      # name of a status field
               PROPERTY   # name of configuration property
               VALUE      # arbitrary string
-            </programlisting>
+
 
 The most basic predicate is a simple `NAME`. It matches only on the specified stage. This is handy
 to invoke one command for a stage without selecting it.
@@ -1409,7 +1409,6 @@ Debian package are available from <link xlink:href="http://central.sonatype.org"
 
 ... of $STOOL_HOME: either /usr/share/stool-3.4 or ~/.stool
 
-      <programlisting>
         |- config.json (Stool configuration)
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
         |- bin
@@ -1439,11 +1438,9 @@ Debian package are available from <link xlink:href="http://central.sonatype.org"
         '- backstage
            |- id (symlink to a backstage directory
            :
-      </programlisting>
 
 ... of stage directory
 
-      <programlisting>
         :
         :  (normal project files)
         :
@@ -1462,4 +1459,3 @@ Debian package are available from <link xlink:href="http://central.sonatype.org"
              |- work (standard tomcat directory)
              '- logs
                 '- applogs (application log files for pustefix apps)
-      </programlisting>
