@@ -6,7 +6,7 @@ Copyright 2016 1&1 Internet AG
 
 Stool <?eval ${project.version}?>,
 
-<xi:include href="../../../target/now.txt" parse="text"/>
+!INCLUDE "../../../target/now.txt"
 
   <!-- Conventions
        * 'Stool' is written with a capital S
