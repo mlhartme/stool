@@ -13,6 +13,7 @@ Stool <?eval ${project.version}?>,
        * 'Stool' is written with a capital S
        * backquotes (`foo`) mark things to type or technical term from Stool. 
        * stars (*bar*) mark user input
+       * double stars (**baz**) mark items in itemized lists
     -->
 
 
@@ -92,96 +93,49 @@ A stage is a Tomcat servlet container (http://tomcat.apache.org) with one or mor
 (http://wrapper.tanukisoftware.com/doc/german/download.jsp) for robust start/stop handling.
 A stage has a
 
-        <itemizedlist>
-          <listitem>
-            <formalpara>
-              <title>directory</title>
-Where the stage is stored in your file system, it holds the source code or the war files of this stage.
-This is where you usually work with your stage. The directory is determined when you create a
-stage. You can change the stage directory with `stool move`.
-
-            </formalpara>
-          </listitem>
-          <listitem>
-            <formalpara>
-              <title>id</title>
-Unique identifier for a stage. The id is generated when creating a stage and it is never changed.
-However, users normally work with the stage name instead.
-
-            </formalpara>
-          </listitem>
-          <listitem>
-            <formalpara>
-              <title>name</title>
-User readable indentification for a stage. Usually, the name is unique. The name of the selected
-stage is shown in your shell prompt, you use it to switch between stages, and it's part of the application
-url(s). The name is determined when you create a stage (in most cases it's simply the name of the stage
-directory). You can change the name with `stool config name=`*renamed*.
-            </formalpara>
-          </listitem>
-          <listitem>
-            <formalpara>
-              <title>url</title>
-Specifies where the web applications come from: A Subversion URL, a git url, Maven coordinates, or
-a file url pointing to a war file.
+* **directory**
+  Where the stage is stored in your file system, it holds the source code or the war files of this stage.
+  This is where you usually work with your stage. The directory is determined when you create a
+  stage. You can change the stage directory with `stool move`.
+* **id**
+  Unique identifier for a stage. The id is generated when creating a stage and it is never changed.
+  However, users normally work with the stage name instead.
+* **name**
+  User readable indentification for a stage. Usually, the name is unique. The name of the selected
+  stage is shown in your shell prompt, you use it to switch between stages, and it's part of the application
+  url(s). The name is determined when you create a stage (in most cases it's simply the name of the stage
+  directory). You can change the name with `stool config name=`*renamed*.
+* **url**
+  Specifies where the web applications come from: A Subversion URL, a git url, Maven coordinates, or
+  a file url pointing to a war file.
 <programlisting>Examples:
   git:ssh://git@github.com/mlhartme/hellowar.git
   svn:https://github.com/mlhartme/hellowar/trunk
   gav:net.oneandone:hellowar:1.0.2
   file:///home/mhm/foo.war
 </programlisting>
-            </formalpara>
-          </listitem>
-          <listitem>
-            <formalpara>
-              <title>type</title>
-How the stage contains the application(s): source - checkout of a Maven project, or artifact - a Maven artifact.
-The stage url implies the stage type.
-            </formalpara>
-          </listitem>
-          <listitem>
-            <formalpara>
-              <title>state</title>
-one of
-                <variablelist>
-                  <varlistentry>
-                    <term>down</term>
-                    <listitem>
-stage is not running, applications cannot be accessed. This is the initial state after creation or after
-it was stopped.
-                    </listitem>
-                  </varlistentry>
-                  <varlistentry>
-                    <term>up</term>
-                    <listitem>
-stage is running, applications can be access via application url(s). This is the state after successful
-start or restart.
-                    </listitem>
-                  </varlistentry>
-                  <varlistentry>
-                    <term>sleeping</term>
-                    <listitem>
-stage is temporarily not running; state after stage was stopped with `-sleep`.
-This state is used e.g. when a machine is rebooted, it flags the stages that should be started once the
-machine is up again.
-                    </listitem>
-                  </varlistentry>
-                </variablelist>
-
-            </formalpara>
-You can check the state with `stool status` or `stool list`.
-          </listitem>
-          <listitem>
-            <formalpara>
-              <title>owner</title>
-see below
-            </formalpara>
-          </listitem>
-        </itemizedlist>
+* **type**
+  How the stage contains the application(s): source - checkout of a Maven project, or artifact - a Maven artifact.
+  The stage url implies the stage type.
+* **state**
+  one of
+  * **down**
+    stage is not running, applications cannot be accessed. This is the initial state after creation or after
+    it was stopped.
+  * **up**
+    stage is running, applications can be access via application url(s). This is the state after successful
+    start or restart.
+  * **sleeping**
+    stage is temporarily not running; state after stage was stopped with `-sleep`.
+    This state is used e.g. when a machine is rebooted, it flags the stages that should be started once the
+    machine is up again.
+  You can check the state with `stool status` or `stool list`.
+* **owner**
+  see below
 
 Note: A system stage is a stage whose directory is placed in $STOOL_HOME/system. System stages get special treatment in
 system-start and system stop and they are not listed by the Dashboard.
-    </sect1>
+
 
 ### Selected stage and stage indicator
 
@@ -225,19 +179,11 @@ for `bitterichc` as well!), change Unix file ownership of the stage files to
 owner.
 
 Rationale:
-<itemizedlist>
-  <listitem>
-Tool users like `servlet` or `stage5` have to be replaced by
-personalized logins (security guideline).
-  </listitem>
-  <listitem>
-We need to know exactly who changed a stage file (security guideline).
-  </listitem>
-  <listitem>
-It's difficult and fragile to grant multiple users write access to stage files (e.g. via umask
-configuration), in particular because the respective user's home directory has to be private.
-  </listitem>
-</itemizedlist>
+* Tool users like `servlet` or `stage5` have to be replaced by personalized logins (security guideline).
+* We need to know exactly who changed a stage file (security guideline).
+* It's difficult and fragile to grant multiple users write access to stage files (e.g. via umask
+  configuration), in particular because the respective user's home directory has to be private.
+
 Ownership is meant to track changes, not to prevent them.
 
 Implementation note: The `chown` command internally uses `sudo` to elevate the current user's 
@@ -372,68 +318,68 @@ stop and remove. A stage contains web applications built from source or availabl
 Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines following
 <link linkend="properties">properties</link>.
 
-* <term>admin</term> 
+* **admin** 
   Email of the person to receive validation failures and exception mails. Empty to disable these emails.
   Type string. Example: `Max Mustermann &lt;max@mustermann.org>`.
-* <term>autoRemove</term>
+* **autoRemove**
   Days to wait before removing an expired stage. -1 to disable this feature. Type number. 
 * baseHeap
   Defines how to compute the initial `tomcat.heap` property for new stages:
   `baseHeap` mb for every application. Type number.
-* <term>certificates</term>
+* **certificates**
   Url to generate certificates to make stages available via https. Empty to generate self-signed
   certificates. Otherwise, Stool generates a `csr` and sends a post request to
   *certificates*`/stagename`, expecting back the certificate. Type string.
-* <term>committed
+* **committed**
   `true` if users have to commit source changes before Stool allows them to start the stage. Type boolean.
-* <term>defaults</term>
+* **defaults**
   Default values for stage properties. Type map.
-* <term>diskMin</term>
+* **diskMin**
   Minimum mb free space. If less space is available on the target partition, Stool refuses to create new stages. Type number. 
-* <term>downloadTomcat</term>
+* **downloadTomcat**
   Url pattern where to download Tomcat. Available variables: `${version}` and `${major}`. Type string.
-* <term>downloadServiceWrapper</term>
+* **downloadServiceWrapper**
   Url pattern where to download Java Service Wrapper. Available variables: `${version}` and `${major}`. Type string.
-* <term>downloadCache
+* **downloadCache**
   Directory where to store Tomcat or Java Service Wrapper downloads. Type string.
-* <term>hostname</term>
+* **hostname**
   Fully qualified hostname used to refer to this machine in application urls and emails. Type string.
-* <term>ldapCredentials</term>
+* **ldapCredentials**
   Password for Ldap authentication. Ignored if ldap is disabled. Type string.
-* <term>ldapPrincipal</term>
+* **ldapPrincipal**
   User for Ldap authentication. Ignored if ldap is disabled. Type string.
-* <term>ldapSso</term>
+* **ldapSso**
   To authenticate Dashboard users. Type string.
-* <term>ldapUrl</term>
+* **ldapUrl**
   Ldap url for user information. Empty string to disable ldap. Type string.
-* <term>macros</term>
+* **macros**
   String replacements for stage properties.
   Stool automatically defines `directory` for the respective stage directory,
   `localRepository` for the local Maven repository of this stage,
   `svnCredentials` as expected by `svn`, and `stoolSvnCredentials`
   as expected by `stool`. Type map.
-* <term>mailHost</term>
+* **mailHost**
   Smtp Host name to deliver emails. Empty to disable. Type string.
-* <term>mailUsername</term>
+* **mailUsername**
   Username for mailHost. Type string.
-* <term>mailPassword</term>
+* **mailPassword**
   Password for mailHost. Type string.
-* <term>portFirst</term>
+* **portFirst**
   First port available for stages. Has to be an even number >1023. Type number.
-* <term>portLast</term>
+* **portLast**
   Last port available for stages. Has to be an odd number >1023. Type number.
-* <term>quota</term>
+* **quota**
   Megabytes available for stages. The sum of all stage quota properties cannot exceed this number. 0 disables this
   feature. You'll usually set this to the size of the partition that will store your stages. Note that this quota
   cannot prevent disk full problem because stages can be placed on arbitrary partitions. Type number. 
-* <term>shared</term>
+* **shared**
   `true` if multiple user may work on stages. See <link linkend="stageOwner">stage owner</link>
   for details. Type boolean.
-* <term>search</term>
+* **search**
   Command line to execute if `stool create` is called with an % url.
   When calling the command, the placeholder `()` is replaced by the url.
   Default is empty which disables this feature.
-* <term>vhosts</term>
+* **vhosts**
   `true` to create application urls with vhosts for application and stage name.
   `false` to create application urls without vhosts. (Note that urls always contain the port to
   distinguish between stages). Type boolean. If you want to enable vhosts you have to make sure you
@@ -1072,9 +1018,9 @@ range to get the full command output for the respective command(s). If the max n
 
 Changes the current working directory to the specified *target*:
 
-* <term>(empty)</term> the stage directory
-* <term>backstage</term> the backstage directory.
-* <term>(otherwise)</term> the specified direct or indirect sub-directory of the backstage directory.
+* **(empty)** the stage directory
+* **backstage** the backstage directory.
+* **(otherwise)** the specified direct or indirect sub-directory of the backstage directory.
 
 <xi:include href="stageOptions.xml" parse="xml"/>
 
@@ -1144,52 +1090,52 @@ Each entry separates key and value by a colon. Example `PATH:/bin, HOME:/home/me
 
 Note that the default values below might be overwritten by Stool defaults on your system.
 
-* <term>autoRefresh</term>
+* **autoRefresh**
   True if you want the dashboard to automatically refresh the stage every minute. Type boolean.
-* <term>build</term>
+* **build**
   Shell command executed if the user invokes `stool build`. Type string.
-* <term>comment</term>
+* **comment**
   Arbitrary comment for this stage. Stool only stores this value, it has no effect. Type string.
-* <term>cookies</term>
+* **cookies**
   Enable or disable cookies. Type boolean. Default value: `true`
-* <term>expire</term>
+* **expire**
   Defines when this stage <link linkend="stageExpiring">expires</link>. Type date.
-* <term>java.home</term>
+* **java.home**
   Install directory of the JDK used to build and run this stage. Type string.
-* <term>maven.home</term>
+* **maven.home**
   Maven home directory used to build this stage or resolve artifacts. Type string.
-* <term>maven.opts</term>
+* **maven.opts**
   MAVEN_OPTS when building this stage. Type string. Default value: (empty)
-* <term>notify</term>
+* **notify**
   List of email address or `@owner` or `@creator` to send notifications about
   this stage. Type list. Default value: @owner, @creator.
-* <term>pom</term>
+* **pom**
   Path of the pom file in the stage directory. Type string. Default value: `pom.xml`.
-* <term>prepare</term>
+* **prepare**
   Shell command executed after initial checkout of a source stage. Type string.
-* <term>refresh</term>
+* **refresh**
   Shell command executed for source stage if the user invokes `stool refresh`.
   Type string. Default value: `svn @svnCredentials@ up`
-* <term>quota</term>
+* **quota**
   Max disk space for this stage in mb. You cannot start stages if this space exceeded.
   The sum of all quotas cannot exceed the stool quota. Type number.
-* <term>tomcat.env</term>
+* **tomcat.env**
   The environment to start Tomcat with. Type map. This is intentionally not the environment of the
   current user because any user must be able to start the stage and get the same behavior.
-* <term>tomcat.opts</term>
+* **tomcat.opts**
   CATALINA_OPTS without heap settings. Type string. Default value: (empty)
-* <term>tomcat.heap</term>
+* **tomcat.heap**
   Java heap memory ("-Xmx") in mb when running Tomcat. Type number.
-* <term>tomcat.select</term>
+* **tomcat.select**
   List of selected applications. When starting a stage, Stool configures tomcat only for the selected
   applications. If none is selected (which is the default), it configures all applications. Type list.
   Default value: `` (empty)
-* <term>tomcat.service</term>
+* **tomcat.service**
   Version of the Java Service Wrapper to use. Default value: `3.5.29`. Type string.
-* <term>tomcat.version</term>
+* **tomcat.version**
   Tomcat version to use. Type string. Default value: `8.5.3`. If you change this property,
   you have to stop tomcat, delete the `.backstage/tomcat` directory, and start Tomcat again.
-* <term>url</term>
+* **url**
   A pattern that define how to build the application urls: a sequence of strings and alternatives, where
   alternatives a strings in brackes, separated by |. Example: `(http|https)://%a.%s.%h:@p/foo//bar`
   Strings may contain place holders: %a for the application name, %s for the stage name, %h for the hostname,
@@ -1287,47 +1233,47 @@ Prints the specified status *field*s of the stage. Default: print all fields.
 
 A field may be any stage property or one of the following status fields:
 
-* <term>apps</term>
+* **apps**
   Application urls this stage.
-* <term>backstage</term>
+* **backstage**
   Absolute path of the backage directory. Type string.
-* <term>buildtime</term>
+* **buildtime**
   Last modified date of the war files for this stage.
-* <term>cpu</term>
+* **cpu**
   Cpu utilization for this stage reported by `ps`.
-* <term>creator</term>
+* **creator**
   User who created this stage. Type string.
-* <term>debugger</term>
+* **debugger**
   Debugger port or empty if not running with debugger.
-* <term>directory</term>
+* **directory**
   Absolute path of the stage directory. Type string.
-* <term>disk</term>
+* **disk**
   Disk space used for this stage in mb. Type number.
-* <term>id</term>
+* **id**
   Unique identifier for this stage. Type string.
-* <term>jmx</term>
+* **jmx**
   Some jmx tool invocations for this stage.
-* <term>mem</term>
+* **mem**
   Memory utilization reported by ps for this stage.
-* <term>others</term>
+* **others**
   Other urls this stage.
-* <term>owner</term>
+* **owner**
   Owner of this stage. Type string.
-* <term>selected</term>
+* **selected**
   `true` if this is the selected stage. Type boolean.
-* <term>service</term>
+* **service**
   Java Service Wrapper process id or empty if not up. 
-* <term>suspend</term>
+* **suspend**
   `true` if running with suspend.
-* <term>state</term>
+* **state**
   `down`, `sleeping` or `up`. Type string.
-* <term>tomcat</term>
+* **tomcat**
   Tomcat process id or empty if not up.
-* <term>uptime</term>
+* **uptime**
   How long this stage is running.
-* <term>type</term>
+* **type**
   `source` or `artifact`. Type string.
-* <term>url</term>
+* **url**
   Url of this stage. Type string.
 
 <xi:include href="stageOptions.xml" parse="xml"/>
