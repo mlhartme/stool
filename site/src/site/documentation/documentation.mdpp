@@ -312,7 +312,7 @@ stop and remove. A stage contains web applications built from source or availabl
 * <option>-svnuser</option> specifies the user name for svn operations
 * <option>-svnpassword</option> specifies the password for svn operations
 
-#### Stool Properties xml:id="stoolProperties
+#### Stool Properties
 
 Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines following
 <link linkend="properties">properties</link>.
@@ -1375,7 +1375,7 @@ Steps:
 * Make it executable, rename it to `stool` and add it to your $PATH.
 * Run `stool setup` to create Stool's home directory (`~/.stool`).
 * Source `~/.stool/shell.rc` in your shell initialization file (e.g. `~/.bash_profile`).
-* Adjust `~/.stool/config.json` to your needs: see <link linkend="stoolProperties">stool properties</link><
+* Adjust `~/.stool/config.json` to your needs: see [stool properties](stool-properties)
 * Optional: setup a cron job to run `stool validate -all -email -repair` every night.
 
 ### Shared setup
