@@ -276,7 +276,7 @@ The dashboard is a system stage you can install to control stages via browser.
 
 #### SYNOPSIS
 
-`stool` *global-option* ... *command* *argument*
+`stool` *global-option*... *command* *argument*
 
 #### DESCRIPTION
 
@@ -613,7 +613,7 @@ The quotes are mandatory if your command contains spaces.
 
 The pre-defined build command for artifact stages does nothing. Thus, you can invoke
 `stool build` for artifact stages, it just has no effect.
-<
+
 If you invoke `build` from the dashboard application, the build command executes in the environment
 defined for the dashboard stage with the additional environment variables mentioned above.
 
@@ -702,23 +702,11 @@ pointing to the owner's home directory.
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-### stool stop
+### stool-stop -- Stop a stage
 
-        <refnamediv>
-          <refname>stool-stop</refname>
-          <refpurpose>Stop a stage</refpurpose>
-        </refnamediv>
 #### SYNOPSIS
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool stop</command>
-            <arg rep="repeat">
-              *stage-option*
-            </arg>
-            <arg>-sleep</arg>
-          </cmdsynopsis>
-        </refsynopsisdiv>
+`stool stop` *stage-option*... [`-sleep`]
 
 #### DESCRIPTION
 
@@ -732,26 +720,12 @@ the don't obey to the shutdown request.
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-### stool restart
+### stool-restart -- Restart a stage
 
-        <refnamediv>
-          <refname>stool-restart</refname>
-          <refpurpose>Restart a stage</refpurpose>
-        </refnamediv>
 #### SYNOPSIS
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool restart</command>
-            <arg rep="repeat">
-              *stage-option*
-            </arg>
-            <group>
-              <arg choice="plain">-debug</arg>
-              <arg choice="plain">-suspend</arg>
-            </group>
-          </cmdsynopsis>
-        </refsynopsisdiv>
+`stool restart` *stage-option*... [`-debug`|`-suspend`]
+
 
 #### DESCRIPTION
 
@@ -761,26 +735,12 @@ Shorthand for `stool stop` and `stool start` with the specified options.
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-### stool refresh
+### stool-refresh -- Refresh a stage
 
-        <refnamediv>
-          <refname>stool-refresh</refname>
-          <refpurpose>Refresh a stage</refpurpose>
-        </refnamediv>
 #### SYNOPSIS
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool refresh</command>
-            <arg rep="repeat">
-              *stage-option*
-            </arg>
-            <group>
-              <arg choice="plain">-build</arg>
-              <arg choice="plain">-restore</arg>
-            </group>
-          </cmdsynopsis>
-        </refsynopsisdiv>
+`stool refresh` *stage-option*... [`-build`] [`-restore`]
+
 
 #### DESCRIPTION
 
@@ -795,29 +755,12 @@ is specified, also runs the command specified by the `build` property.
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-### stool chown
+### stool-chown -- Change the stage owner
 
-        <refnamediv>
-          <refname>stool-chown</refname>
-          <refpurpose>Change the stage owner</refpurpose>
-        </refnamediv>
 #### SYNOPSIS
 
+`stool chown` *stage-option*... [`-batch`] [*user*]
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool chown</command>
-            <arg rep="repeat">
-              *stage-option*
-            </arg>
-            <group>
-              <arg>-batch</arg>
-              <arg>
-                *user*
-              </arg>
-            </group>
-          </cmdsynopsis>
-        </refsynopsisdiv>
 
 #### DESCRIPTION
 
@@ -834,27 +777,11 @@ Reports an error if the stage is up. In this case, you can specify `-autostop` o
 
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
-### stool history
+### stool-history -- Display the command history
 
-        <refnamediv>
-          <refname>stool-history</refname>
-          <refpurpose>Print the command history</refpurpose>
-        </refnamediv>
 #### SYNOPSIS
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool history</command>
-            <arg rep="repeat">
-              *stage-option*
-            </arg>
-            <arg>-max
-              *n*
-            </arg>
-            <arg rep="repeat">
-              *detail*
-            </arg>
-          </cmdsynopsis>
+`stool history` *stage-option*... [`-max` *n*] *detail*...
 
 #### DESCRIPTION
 
@@ -866,25 +793,12 @@ range to get the full command output for the respective command(s). If the max n
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-### stool cd
+### stool-cd -- Jump to a directory
 
-        <refnamediv>
-          <refname>stool-cd</refname>
-          <refpurpose>Jump to directory</refpurpose>
-        </refnamediv>
 #### SYNOPSIS
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool cd</command>
-            <arg rep="repeat">
-              *stage-option*
-            </arg>
-            <arg>
-              *target*
-            </arg>
-          </cmdsynopsis>
-        </refsynopsisdiv>
+`stool cd` *stage-option*... *target*
+
 
 #### DESCRIPTION
 
@@ -901,30 +815,11 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 `stool cd logs` will jumps to `tomcat/logs` inside your backstage directory.
 
-### stool config
+### stool-config -- Manage stage properties
 
-        <refnamediv>
-          <refname>stool-config</refname>
-          <refpurpose>Manage stage properties</refpurpose>
-        </refnamediv>
 #### SYNOPSIS
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool config</command>
-            <arg rep="repeat">
-              *stage-option*
-            </arg>
-            <group rep="repeat">
-              <arg>
-                *key*
-              </arg>
-              <arg>*key*=
-                *value*
-              </arg>
-            </group>
-          </cmdsynopsis>
-        </refsynopsisdiv>
+`stool config` *stage-option*... (*key* | *value*)...
 
 #### DESCRIPTION
 
@@ -1028,25 +923,11 @@ Note that the default values below might be overwritten by Stool defaults on you
 `stool config tomcat.select=foo,bar` configures a list property. Do not use spaces around
 the comma because the shell would consider this as a new key-value argument -- or quote the whole argument.
 
-### stool move
+### stool-move -- Move the stage directory
 
-        <refnamediv>
-          <refname>stool-move</refname>
-          <refpurpose>Move the stage directory</refpurpose>
-        </refnamediv>
 #### SYNOPSIS
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool move</command>
-            <arg rep="repeat">
-              *stage-option*
-            </arg>
-            <arg choice="plain">
-              *dest*
-            </arg>
-          </cmdsynopsis>
-        </refsynopsisdiv>
+`stool move` *stage-option*... *dest*
 
 #### DESCRIPTION
 
@@ -1060,25 +941,11 @@ You might have to re-build your application after moving the stage if you have d
 
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
-### stool port
+### stool-port -- Allocates ports for the current stage
 
-        <refnamediv>
-          <refname>stool-port</refname>
-          <refpurpose>Allocates ports for the current stage</refpurpose>
-        </refnamediv>
 #### SYNOPSIS
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool port</command>
-            <arg rep="repeat">
-              *stage-option*
-            </arg>
-            <group>
-              <arg rep="repeat">*application*=*port*</arg>
-            </group>
-          </cmdsynopsis>
-        </refsynopsisdiv>
+`stool port` *stage-option*... *application*`=`*port*...
 
 #### DESCRIPTION
 
@@ -1090,25 +957,12 @@ for https. When starting a stage, unused allocated ports are freed.
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-### stool status 
+### stool-status -- Display stage status
 
-        <refnamediv>
-          <refname>stool-status</refname>
-          <refpurpose>Print stage status</refpurpose>
-        </refnamediv>
 #### SYNOPSIS
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool status</command>
-            <arg rep="repeat">
-              *stage-option*
-            </arg>
-            <arg rep="repeat" choice="plain">
-              *field*
-            </arg>
-          </cmdsynopsis>
-        </refsynopsisdiv>
+`stool status *stage-option*... *field*...
+
 
 #### DESCRIPTION
 
@@ -1162,48 +1016,25 @@ A field may be any stage property or one of the following status fields:
 
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
-### stool list
+### stool-list -- List stages
 
-        <refnamediv>
-          <refname>stool-list</refname>
-          <refpurpose>List stages</refpurpose>
-        </refnamediv>
 #### SYNOPSIS
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool list</command>
-            <arg rep="repeat">
-              *stage-option*
-            </arg>
-            <arg rep="repeat" choice="plain">
-              *field*
-            </arg>
-          </cmdsynopsis>
-        </refsynopsisdiv>
+`stool list` *stage-option*... *field*...
 
 #### DESCRIPTION
 
-Prints a short status of all stages (or the stages specified by `-stage`). See the `status`
+Displays a short status of all stages (or the stages specified by `-stage`). See the `status`
 command for a list of available fields. Default fields are `state ower url directory`.
 
 
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
-        <refnamediv>
-          <refname>stool-cleanup</refname>
-          <refpurpose>Cleanup a stage</refpurpose>
-        </refnamediv>
+### stool-clenup -- Cleanup a stage
+
 #### SYNOPSIS
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool cleanup</command>
-            <arg rep="repeat">
-              *stage-option*
-            </arg>
-          </cmdsynopsis>
-        </refsynopsisdiv>
+`stool cleanup` *stage-option*...
 
 #### DESCRIPTION
 
@@ -1213,24 +1044,11 @@ Removes the Maven repository and rotates *.log info *.log.gz files.
 Note: This is a stage command, invoke `stool help stage-options` to see available <link linkend="stageOptions">stage options</link>.
 
 
-### stool validate
+### stool-validate -- Validate the stage
 
-        <refnamediv>
-          <refname>stool-validate</refname>
-          <refpurpose>Validate the stage</refpurpose>
-        </refnamediv>
 #### SYNOPSIS
 
-        <refsynopsisdiv>
-          <cmdsynopsis>
-            <command>stool validate</command>
-            <arg rep="repeat">
-              *stage-option*
-            </arg>
-            <arg>-email</arg>
-            <arg>-repair</arg>
-          </cmdsynopsis>
-        </refsynopsisdiv>
+`stool validate` *stage-option*... [`-email`] [`-repair`]
 
 #### DESCRIPTION
 
