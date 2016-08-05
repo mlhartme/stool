@@ -388,7 +388,7 @@ Commands that do not deal with individual stages.
 
 #### SYNOPSIS
 
-`stool help`
+`stool` *global-option*... `help`
 
 #### DESCRIPTION
 
@@ -399,7 +399,7 @@ is not specified, prints help about Stool.
 
 #### SYNOPSIS
 
-`stool version`
+`stool` *global-option*... `version`
 
 #### DESCRIPTION
 
@@ -409,7 +409,7 @@ Prints Stool's version info. Use the global `-v` option to get additional diagno
 
 #### SYNOPSIS
 
-`stool system-start`
+`stool` *global-option*... `system-start`
 
 #### DESCRIPTION
 
@@ -420,7 +420,7 @@ Start all system stages and all sleeping stages. Always uses fail mode `after`.
 
 #### SYNOPSIS
 
-`stool system-stop`
+`stool` *global-option*... `system-stop`
 
 #### DESCRIPTION
 
@@ -430,7 +430,7 @@ Stop all system stages and sends all other running stages to sleep. Always uses 
 
 #### SYNOPSIS
 
-`stool create`[`-quiet`] (*url* | *directory*) *key*`=`*value*...
+`stool` *global-option*... `create`[`-quiet`] (*url* | *directory*) *key*`=`*value*...
 
 
 #### DESCRIPTION
@@ -481,7 +481,7 @@ Create a source stage from svn: `stool create svn:https://github.com/mlhartme/he
 
 #### SYNOPSIS
 
-`stool import` [`-max`] [`-name` *template*] *directory* ...
+`stool` *global-option*... `import` [`-max`] [`-name` *template*] *directory* ...
 
 
 #### DESCRIPTION
@@ -499,7 +499,7 @@ will be replaced by the current directory name. Default template is`%d`.
 
 #### SYNOPSIS
 
-`stool select` *stage*|`none`
+`stool` *global-option*... `select` *stage*|`none`
 
 
 #### DESCRIPTION
@@ -527,7 +527,7 @@ All stage commands provide stage options, invoke `stool help stage-options` for 
 
 #### SYNOPSIS
 
-`stool` *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] [`-autochown`|`-autorechown`] [`-autostop`|`-autorestart`] *command-options*...
+`stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] [`-autochown`|`-autorechown`] [`-autostop`|`-autorestart`] *command-options*...
 
 #### Selection options
 
@@ -598,7 +598,7 @@ after the first stage that cannot be started (e.g. because it's already running)
 
 #### SYNOPSIS
 
-`stool build` *stage-option*...
+`stool` *global-option*... `build` *stage-option*...
 
 #### Description
 
@@ -606,7 +606,7 @@ Enters the stage directory, sets MAVEN_HOME, MAVEN_OPTS and JAVA_HOME as configu
 specified in the `build` property. Reports an error if the stage is not owned or if the stage is up.
 
 You can see the configured build command with`stool config build`, and you can change it with
-`stool config "build="`
+`stool` *global-option*... `config "build="`
 *your command command*
 `"`
 The quotes are mandatory if your command contains spaces.
@@ -628,7 +628,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 #### SYNOPSIS
 
-`stool remove` *stage-option*... [`-force`] [`-batch`] [`-backstage`]
+`stool` *global-option*... `remove` *stage-option*... [`-force`] [`-batch`] [`-backstage`]
 
 #### Description
 
@@ -654,7 +654,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 #### SYNOPSIS
 
-`stool start` *stage-option*... [`-debug`|`-suspend`] [`-tail`]
+`stool` *global-option*... `start` *stage-option*... [`-debug`|`-suspend`] [`-tail`]
 
 #### Description
 
@@ -706,7 +706,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 #### SYNOPSIS
 
-`stool stop` *stage-option*... [`-sleep`]
+`stool` *global-option*... `stop` *stage-option*... [`-sleep`]
 
 #### DESCRIPTION
 
@@ -724,7 +724,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 #### SYNOPSIS
 
-`stool restart` *stage-option*... [`-debug`|`-suspend`]
+`stool` *global-option*... `restart` *stage-option*... [`-debug`|`-suspend`]
 
 
 #### DESCRIPTION
@@ -739,7 +739,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 #### SYNOPSIS
 
-`stool refresh` *stage-option*... [`-build`] [`-restore`]
+`stool` *global-option*... `refresh` *stage-option*... [`-build`] [`-restore`]
 
 
 #### DESCRIPTION
@@ -759,7 +759,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 #### SYNOPSIS
 
-`stool chown` *stage-option*... [`-batch`] [*user*]
+`stool` *global-option*... `chown` *stage-option*... [`-batch`] [*user*]
 
 
 #### DESCRIPTION
@@ -781,7 +781,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 #### SYNOPSIS
 
-`stool history` *stage-option*... [`-max` *n*] *detail*...
+`stool` *global-option*... `history` *stage-option*... [`-max` *n*] *detail*...
 
 #### DESCRIPTION
 
@@ -797,7 +797,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 #### SYNOPSIS
 
-`stool cd` *stage-option*... *target*
+`stool` *global-option*... `cd` *stage-option*... *target*
 
 
 #### DESCRIPTION
@@ -819,7 +819,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 #### SYNOPSIS
 
-`stool config` *stage-option*... (*key* | *value*)...
+`stool` *global-option*... `config` *stage-option*... (*key* | *value*)...
 
 #### DESCRIPTION
 
@@ -927,7 +927,7 @@ the comma because the shell would consider this as a new key-value argument -- o
 
 #### SYNOPSIS
 
-`stool move` *stage-option*... *dest*
+`stool` *global-option*... `move` *stage-option*... *dest*
 
 #### DESCRIPTION
 
@@ -945,7 +945,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 #### SYNOPSIS
 
-`stool port` *stage-option*... *application*`=`*port*...
+`stool` *global-option*... `port` *stage-option*... *application*`=`*port*...
 
 #### DESCRIPTION
 
@@ -961,7 +961,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 #### SYNOPSIS
 
-`stool status *stage-option*... *field*...
+`stool` *global-option*... `status *stage-option*... *field*...
 
 
 #### DESCRIPTION
@@ -1020,7 +1020,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 #### SYNOPSIS
 
-`stool list` *stage-option*... *field*...
+`stool` *global-option*... `list` *stage-option*... *field*...
 
 #### DESCRIPTION
 
@@ -1034,7 +1034,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 #### SYNOPSIS
 
-`stool cleanup` *stage-option*...
+`stool` *global-option*... `cleanup` *stage-option*...
 
 #### DESCRIPTION
 
@@ -1048,7 +1048,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 #### SYNOPSIS
 
-`stool validate` *stage-option*... [`-email`] [`-repair`]
+`stool` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`]
 
 #### DESCRIPTION
 
