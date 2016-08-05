@@ -26,7 +26,7 @@ public class Markdown {
         lastContent = null;
         manpage = null;
         dir = world.file(args[1]);
-        all = src.getParent().join("synopsis.pp").newWriter();
+        all = src.getParent().join("synopsis.mdpp").newWriter();
         for (String line : src.readLines()) {
             if (manpage == null) {
                 manpage = Manpage.start(dir, line, lastContent);
