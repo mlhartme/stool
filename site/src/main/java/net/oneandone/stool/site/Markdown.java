@@ -17,18 +17,17 @@ public class Markdown {
         Manpage manpage;
         Writer all;
 
-        if (args.length != 1) {
-            throw new IOException("usage: markdown <src>");
+        if (args.length != 2) {
+            throw new IOException("usage: markdown <src> <dest>");
         }
         world = World.create();
         src = world.file(args[0]);
         src.checkFile();
         lastContent = null;
         manpage = null;
-        dir = src.getParent();
-        all = dir.join("all").newWriter();
+        dir = world.file(args[1]);
+        all = src.getParent().join("synopsis.pp").newWriter();
         for (String line : src.readLines()) {
-            line = line.trim();
             if (manpage == null) {
                 manpage = Manpage.start(dir, line, lastContent);
             } else {
@@ -61,6 +60,10 @@ public class Markdown {
         return header.substring(depth(header)).trim();
     }
 
+    private static boolean isSynopsis(String line) {
+        return line.endsWith("# SYNOPSIS");
+    }
+
     public static class Manpage {
         public static Manpage start(FileNode dir, String line, String lastContent) throws IOException {
             int depth;
@@ -69,8 +72,7 @@ public class Markdown {
             Writer dest;
             Manpage result;
 
-
-            if (!line.endsWith("# SYNOPSIS")) {
+            if (!isSynopsis(line)) {
                 return null;
             }
             if (lastContent == null) {
@@ -88,7 +90,6 @@ public class Markdown {
             dest = dir.join(name + ".1.ronn").newWriter();
             result = new Manpage(depth, dest);
             result.line(lastContent);
-            result.synopsis = true;
             result.line();
             return result;
         }
@@ -96,13 +97,13 @@ public class Markdown {
         private final int depth;
         private final Writer dest;
         private final List<String> synopsis;
-        private boolean inSynopsis;
+        private boolean collectSynopsis;
 
         public Manpage(int depth, Writer dest) {
             this.depth = depth;
             this.dest = dest;
             this.synopsis = new ArrayList<>();
-            this.inSynopsis = false;
+            this.collectSynopsis = false;
         }
 
         public void line() throws IOException {
@@ -118,19 +119,17 @@ public class Markdown {
             }
             dest.write(line);
             dest.write('\n');
-            if (inSynopsis) {
-                if (!line.isEmpty()) {
-                    if (count == 0) {
-                        synopsis.add(line);
-                    } else {
-                        inSynopsis = false;
-                    }
+            if (count > 0) {
+                collectSynopsis = isSynopsis(line);
+            } else {
+                if (collectSynopsis && !line.isEmpty()) {
+                    synopsis.add(line);
                 }
             }
         }
 
         public Manpage end(String line, Writer all) throws IOException {
-            if (line.startsWith("#") && depth(line) < depth) {
+            if (line.startsWith("#") && depth(line) <= depth) {
                 dest.close();
                 for (String s : synopsis) {
                     all.write(s);

@@ -39,6 +39,7 @@
                 <property name="cp" refid="maven.runtime.classpath" />
                 <java classname="net.oneandone.stool.site.Markdown" classpath="${cp}" fork="false" failonerror="true">
                   <arg path="${basedir}/src/site/documentation/documentation.md" />
+                  <arg path="${basedir}/target" />
                 </java>
               </target>
             </configuration>
