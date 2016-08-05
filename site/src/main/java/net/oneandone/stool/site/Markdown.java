@@ -30,9 +30,9 @@ public class Markdown {
         for (String line : src.readLines()) {
             line = line.trim();
             if (manpage == null) {
-                manpage = Manpage.probe(dir, line, lastContent);
+                manpage = Manpage.start(dir, line, lastContent);
             } else {
-                manpage = manpage.ends(line, all);
+                manpage = manpage.end(line, all);
             }
             if (manpage != null) {
                 manpage.line(line);
@@ -57,8 +57,12 @@ public class Markdown {
         return count;
     }
 
+    private static String trimHeader(String header) {
+        return header.substring(depth(header)).trim();
+    }
+
     public static class Manpage {
-        public static Manpage probe(FileNode dir, String line, String lastContent) throws IOException {
+        public static Manpage start(FileNode dir, String line, String lastContent) throws IOException {
             int depth;
             int idx;
             String name;
@@ -80,10 +84,11 @@ public class Markdown {
             if (idx == -1) {
                 throw new IOException("missing separator: " + lastContent);
             }
-            name = lastContent.substring(0, idx);
+            name = trimHeader(lastContent.substring(0, idx));
             dest = dir.join(name + ".1.ronn").newWriter();
             result = new Manpage(depth, dest);
             result.line(lastContent);
+            result.synopsis = true;
             result.line();
             return result;
         }
@@ -91,13 +96,13 @@ public class Markdown {
         private final int depth;
         private final Writer dest;
         private final List<String> synopsis;
-        private final boolean inSynopsis;
+        private boolean inSynopsis;
 
         public Manpage(int depth, Writer dest) {
             this.depth = depth;
             this.dest = dest;
             this.synopsis = new ArrayList<>();
-            this.inSynopsis = true;
+            this.inSynopsis = false;
         }
 
         public void line() throws IOException {
@@ -107,23 +112,24 @@ public class Markdown {
         public void line(String line) throws IOException {
             int count;
 
+            count = Markdown.depth(line);
+            if (count > 0) {
+                line = line.substring(depth - 1);
+            }
             dest.write(line);
             dest.write('\n');
             if (inSynopsis) {
                 if (!line.isEmpty()) {
-                    count = Markdown.depth(line);
                     if (count == 0) {
                         synopsis.add(line);
                     } else {
-                        if (count != depth + 1) {
-                            throw new IOException(depth + " depth expected: " + line);
-                        }
+                        inSynopsis = false;
                     }
                 }
             }
         }
 
-        public Manpage ends(String line, Writer all) throws IOException {
+        public Manpage end(String line, Writer all) throws IOException {
             if (line.startsWith("#") && depth(line) < depth) {
                 dest.close();
                 for (String s : synopsis) {
