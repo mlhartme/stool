@@ -431,7 +431,7 @@ Stop all system stages and sends all other running stages to sleep. Always uses 
 
 #### SYNOPSIS
 
-`stool` *global-option*... `create`[`-quiet`] (*url* | *directory*) *key*`=`*value*...
+`stool` *global-option*... `create` [`-quiet`] (*url* | *directory*) *key*`=`*value*...
 
 
 #### DESCRIPTION

@@ -12,88 +12,40 @@
   <packaging>jar</packaging>
   <description>Stool Site. Includes manual and changes.</description>
 
+  <dependencies>
+    <dependency>
+      <groupId>net.oneandone</groupId>
+      <artifactId>sushi</artifactId>
+      <version>3.1.2</version>
+    </dependency>
+  </dependencies>
+
   <build>
     <plugins>
       <plugin>
-        <!-- Documentation: http://code.google.com/p/docbkx-tools/ -->
-        <groupId>com.agilejava.docbkx</groupId>
-        <artifactId>docbkx-maven-plugin</artifactId>
-        <version>2.0.16</version>
-        <dependencies>
-          <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant-trax</artifactId>
-            <version>1.7.0</version>
-          </dependency>
-          <dependency>
-            <groupId>org.apache.ant</groupId>
-            <artifactId>ant-nodeps</artifactId>
-            <version>1.7.0</version>
-          </dependency>
-        </dependencies>
-        <configuration>
-          <sourceDirectory>src/site/documentation</sourceDirectory>
-          <includes>documentation.xml</includes>
-          <xincludeSupported>true</xincludeSupported>
-        </configuration>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
         <executions>
           <execution>
-            <id>manpages</id>
-            <phase>process-classes</phase>
-            <goals>
-              <goal>generate-manpages</goal>
-            </goals>
+            <phase>package</phase>
             <configuration>
-              <!-- see http://docbook.sourceforge.net/release/xsl/1.76.1/doc/param.html -->
-              <manAuthorsSectionEnabled>false</manAuthorsSectionEnabled>
-              <targetDirectory>${project.build.directory}/classes/templates/man</targetDirectory>
-              <preProcess>
+              <target>
                 <tstamp>
                   <format pattern="yyyy-MM-d" property="now" />
                 </tstamp>
                 <mkdir dir="${project.build.directory}/site/documentation" />
                 <echo file="${project.build.directory}/stool.txt">Stool ${project.version} (${now})</echo>
-                <xslt processor="trax" in="${basedir}/src/site/documentation/documentation.xml" out="${project.build.directory}/synopsis.xml" style="${basedir}/src/site/synopsis.xsl">
-                </xslt>
-                <schemavalidate file="${basedir}/src/site/documentation/documentation.xml">
-                  <attribute name="http://apache.org/xml/features/xinclude" value="true" />
-                </schemavalidate>
-              </preProcess>
-              <postProcess>
-                <apply executable="gzip">
-                  <arg value="-9" />
-                  <fileset dir="${project.build.directory}/classes/templates/man">
-                    <patternset>
-                      <include name="**/*" />
-                    </patternset>
-                  </fileset>
-                </apply>
-              </postProcess>
+                <!-- main -->
+                <property name="cp" refid="maven.runtime.classpath" />
+                <java classname="net.oneandone.stool.site.Markdown" classpath="${cp}" fork="false" failonerror="true">
+                  <arg path="${basedir}/src/site/documentation/documentation.xml" />
+                </java>
+              </target>
             </configuration>
-          </execution>
-          <execution>
-            <id>html</id>
-            <phase>pre-site</phase>
             <goals>
-              <goal>generate-html</goal>
+              <goal>run</goal>
             </goals>
-            <configuration>
-              <targetDirectory>${basedir}/target/site</targetDirectory>
-              <chunkedOutput>false</chunkedOutput>
-              <sectionLabelIncludesComponentLabel>true</sectionLabelIncludesComponentLabel>
-              <sectionAutolabel>true</sectionAutolabel>
-            </configuration>
           </execution>
-          <!-- looks ugly, too many page breaks: execution>
-            <id>pdf</id>
-            <phase>pre-site</phase>
-            <goals>
-              <goal>generate-pdf</goal>
-            </goals>
-            <configuration>
-              <targetDirectory>${basedir}/target/site</targetDirectory>
-            </configuration>
-          </execution -->
         </executions>
       </plugin>
     </plugins>
