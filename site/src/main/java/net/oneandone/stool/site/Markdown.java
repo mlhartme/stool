@@ -2,6 +2,7 @@ package net.oneandone.stool.site;
 
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -38,15 +39,18 @@ public class Markdown {
         dest.writeLines(lines);
     }
 
-    private static void manpages(List<String> lines, FileNode dest) throws IOException {
+    private static void manpages(List<String> lines, FileNode dir) throws IOException {
         String lastContent;
         Manpage manpage;
+        FileNode roff;
+        Launcher launcher;
+        List<FileNode> ronns;
 
         lastContent = null;
         manpage = null;
         for (String line : lines) {
             if (manpage == null) {
-                manpage = Manpage.start(dest, line, lastContent);
+                manpage = Manpage.start(dir, line, lastContent);
             } else {
                 manpage = manpage.end(line);
             }
@@ -56,6 +60,19 @@ public class Markdown {
             if (!line.isEmpty()) {
                 lastContent = line;
             }
+        }
+        System.out.println("dir: " + dir.getAbsolute());
+        ronns = dir.find("*.ronn");
+        launcher = dir.launcher("ronn", "--roff");
+        for (FileNode file :ronns) {
+            launcher.arg(file.getName());
+        }
+        System.out.println(launcher.exec());
+        for (FileNode file : ronns) {
+            file.deleteFile();
+            roff = file.getParent().join(Strings.removeRight(file.getName(), ".ronn"));
+            roff.gzip(roff.getParent().join(roff.getName() + ".gz"));
+            roff.deleteFile();
         }
     }
 
@@ -211,15 +228,8 @@ public class Markdown {
         }
 
         public Manpage end(String line) throws IOException {
-            FileNode m;
-
             if (line.startsWith("#") && depth(line) <= depth) {
                 dest.close();
-                System.out.println(file.getParent().exec("ronn", "--roff", file.getAbsolute()));
-                file.deleteFile();
-                m = file.getParent().join(Strings.removeRight(file.getName(), ".ronn"));
-                m.gzip(m.getParent().join(m.getName() + ".gz"));
-                m.deleteFile();
                 return null;
             } else {
                 return this;
