@@ -27,9 +27,9 @@ public class Markdown {
         src = world.file(args[0]);
         src.checkFile();
         dest = world.file(args[1]);
-        dest.getParent().mkdirOpt();
+        dest.getParent().checkDirectory();
         man = world.file(args[2]);
-        man.mkdirOpt();
+        man.mkdirsOpt();
         lines = load(src);
         variables = new HashMap<>();
         variables.put("ALL_SYNOPSIS", synopsis(lines));
@@ -213,7 +213,8 @@ public class Markdown {
         public Manpage end(String line) throws IOException {
             if (line.startsWith("#") && depth(line) <= depth) {
                 dest.close();
-                file.getParent().exec("ronn", "-man", file.getAbsolute());
+                System.out.println(file.getParent().exec("ronn", "--roff", file.getAbsolute()));
+                file.deleteFile();
                 return null;
             } else {
                 return this;
