@@ -35,8 +35,51 @@ public class Markdown {
         variables = new HashMap<>();
         variables.put("ALL_SYNOPSIS", synopsis(lines));
         lines = substitute(lines, variables);
+        checkCrossReferences(lines);
         manpages(lines, man);
         dest.writeLines(lines);
+    }
+
+    private static void checkCrossReferences(List<String> lines) throws IOException {
+        List<String> labels;
+        int depth;
+        int start;
+        int end;
+        int last;
+        String l;
+
+        labels = new ArrayList<>();
+        for (String line : lines) {
+            depth = depth(line);
+            if (depth > 0) {
+                labels.add(toLabel(line.substring(depth)));
+            }
+        }
+        for (String line : lines) {
+            last = 0;
+            while (true) {
+                start = line.indexOf("](#", last);
+                if (start == -1) {
+                    break;
+                }
+                start += 3;
+                end = line.indexOf(')', start);
+                if (end == -1) {
+                    throw new IOException("missing )");
+                }
+                l = line.substring(start, end);
+                if (!labels.contains(l)) {
+                    System.out.println("cross reference not found: " + l);
+                }
+                last = end + 1;
+            }
+        }
+    }
+
+    private static String toLabel(String str) {
+        str = str.trim();
+        str = str.toLowerCase();
+        return str.replace(' ', '-');
     }
 
     private static void manpages(List<String> lines, FileNode dir) throws IOException {
