@@ -450,7 +450,7 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
 
 Homepage: https://github.com/mlhartme/stool
 
-Documentation: http://mlhartme.github.io/stool/documentation/documentation.html
+Documentation: https://github.com/mlhartme/stool/blob/master/site/documentation.md
 
 Invoke `stool help` *command* to get help for the specified command.
 
@@ -696,7 +696,7 @@ If you work locally on your own machine, you'll normally prefer to directly invo
 to use `stool build` because shared machine have a separate local Maven repository for every stage.
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 
 ### stool-remove -- Remove a stage
@@ -722,7 +722,7 @@ removed from Stool's list of stages. This is useful to "unimport" a stage, i.e. 
 Changes the current directory to the parent of the now deleted stage directory.
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 
 ### stool-start -- Start a stage
@@ -774,7 +774,7 @@ addition, Stool defines a `USER` variable set to the stage owner and a `HOME` va
 pointing to the owner's home directory.
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 
 ### stool-stop -- Stop a stage
@@ -792,7 +792,7 @@ Tomcat is killed (with -9). If Tomcat shutdown is slow, try to debug the applica
 the don't obey to the shutdown request. 
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 
 ### stool-restart -- Restart a stage
@@ -807,7 +807,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 Shorthand for `stool stop` and `stool start` with the specified options.
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 
 ### stool-refresh -- Refresh a stage
@@ -827,7 +827,7 @@ For source changes: invokes the command specified by the `refresh` property. If 
 is specified, also runs the command specified by the `build` property.
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 
 ### stool-chown -- Change the stage owner
@@ -850,7 +850,7 @@ Reports an error if the stage is up. In this case, you can specify `-autostop` o
 *user* defaults to the current user.
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 ### stool-history -- Display the command history
 
@@ -865,7 +865,7 @@ range to get the full command output for the respective command(s). If the max n
 *n* of commands is exceeded, older commands are ignored (*n* defauls is 999).
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 
 ### stool-cd -- Jump to a directory
@@ -884,7 +884,7 @@ Changes the current working directory to the specified *target*:
 * **(otherwise)** the specified direct or indirect sub-directory of the backstage directory.
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 #### Example
 
@@ -929,7 +929,7 @@ Map properties (e.g.`tomcat.env`) separate entries by commas, whitespace before 
 Each entry separates key and value by a colon. Example `PATH:/bin, HOME:/home/me`
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 #### Available stage properties
 
@@ -1014,7 +1014,7 @@ You might have to re-build your application after moving the stage if you have d
 (e.g. Lavender ...).
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 ### stool-port -- Allocates ports for the current stage
 
@@ -1029,7 +1029,7 @@ Allocates the specified ports for this stage. *application* specifies the applic
 for https. When starting a stage, unused allocated ports are freed.
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 
 ### stool-status -- Display stage status
@@ -1089,7 +1089,7 @@ A field may be any stage property or one of the following status fields:
   Url of this stage. Type string.
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 ### stool-list -- List stages
 
@@ -1103,7 +1103,7 @@ Displays a short status of all stages (or the stages specified by `-stage`). See
 command for a list of available fields. Default fields are `state ower url directory`.
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 ### stool-clenup -- Cleanup a stage
 
@@ -1116,7 +1116,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 Removes the Maven repository and rotates *.log info *.log.gz files.
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 
 ### stool-validate -- Validate the stage
@@ -1138,7 +1138,7 @@ Also performs log rotation: logs a gzipped and removed after 90 days.
 Also checks Stool's locking system for stale locks and, if `-repair` is specified, removed them.
 
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stage-options)
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 
 ## Setup
 
