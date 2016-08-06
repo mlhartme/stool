@@ -16,23 +16,26 @@ public class Markdown {
         World world;
         FileNode src;
         FileNode dest;
+        FileNode man;
         List<String> lines;
         Map<String, List<String>> variables;
 
-        if (args.length != 2) {
-            throw new IOException("usage: markdown <src> <dest>");
+        if (args.length != 3) {
+            throw new IOException("usage: markdown <src> <dest> <man>");
         }
         world = World.create();
         src = world.file(args[0]);
         src.checkFile();
         dest = world.file(args[1]);
-        dest.checkDirectory();
+        dest.getParent().checkDirectory();
+        man = world.file(args[2]);
+        man.checkDirectory();
         lines = load(src);
         variables = new HashMap<>();
-        variables.put("%ALL_SYNOPSIS", synopsis(lines));
+        variables.put("ALL_SYNOPSIS", synopsis(lines));
         lines = substitute(lines, variables);
-        manpages(lines, dest);
-        dest.join(src.getName()).writeLines(lines);
+        manpages(lines, man);
+        dest.writeLines(lines);
     }
 
     private static void manpages(List<String> lines, FileNode dest) throws IOException {

@@ -287,7 +287,7 @@ stop and remove. A stage contains web applications built from source or availabl
 
 #### Commands
 
-!INCLUDE "synopsis.mdpp"
+%ALL_SYNOPSIS
 
 #### Global options
 

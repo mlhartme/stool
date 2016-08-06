@@ -6,7 +6,8 @@ Author: Michael Hartmeier
 
 Copyright 2016 1&1 Internet AG
 
-Stool 3.4.2-SNAPSHOT (2016-08-5)
+Stool 3.4.2-SNAPSHOT (2016-08-6)
+
 [//]: # (Conventions)
 [//]: # (* 'Stool' is written with a capital S)
 [//]: # (* backquotes (`foo`) mark things to type or technical term from Stool.)
@@ -291,7 +292,7 @@ stop and remove. A stage contains web applications built from source or availabl
 `stool` *global-option*... `version`
 `stool` *global-option*... `system-start`
 `stool` *global-option*... `system-stop`
-`stool` *global-option*... `create`[`-quiet`] (*url* | *directory*) *key*`=`*value*...
+`stool` *global-option*... `create` [`-quiet`] (*url* | *directory*) *key*`=`*value*...
 `stool` *global-option*... `import` [`-max`] [`-name` *template*] *directory* ...
 `stool` *global-option*... `select` *stage*|`none`
 `stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] [`-autochown`|`-autorechown`] [`-autostop`|`-autorestart`] *command-options*...
