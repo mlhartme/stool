@@ -287,31 +287,89 @@ stop and remove. A stage contains web applications built from source or availabl
 
 #### Commands
 
+
 `stool` *global-option*... *command* *argument*
+
+
 `stool` *global-option*... `help`
+
+
 `stool` *global-option*... `version`
+
+
 `stool` *global-option*... `system-start`
+
+
 `stool` *global-option*... `system-stop`
+
+
 `stool` *global-option*... `create` [`-quiet`] (*url* | *directory*) *key*`=`*value*...
+
+
+
 `stool` *global-option*... `import` [`-max`] [`-name` *template*] *directory* ...
+
+
+
 `stool` *global-option*... `select` *stage*|`none`
+
+
+
 `stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] [`-autochown`|`-autorechown`] [`-autostop`|`-autorestart`] *command-options*...
+
+
 `stool` *global-option*... `build` *stage-option*...
+
+
 `stool` *global-option*... `remove` *stage-option*... [`-force`] [`-batch`] [`-backstage`]
+
+
 `stool` *global-option*... `start` *stage-option*... [`-debug`|`-suspend`] [`-tail`]
+
+
 `stool` *global-option*... `stop` *stage-option*... [`-sleep`]
+
+
 `stool` *global-option*... `restart` *stage-option*... [`-debug`|`-suspend`]
+
+
+
 `stool` *global-option*... `refresh` *stage-option*... [`-build`] [`-restore`]
+
+
+
 `stool` *global-option*... `chown` *stage-option*... [`-batch`] [*user*]
+
+
+
 `stool` *global-option*... `history` *stage-option*... [`-max` *n*] *detail*...
+
+
 `stool` *global-option*... `cd` *stage-option*... *target*
+
+
+
 `stool` *global-option*... `config` *stage-option*... (*key* | *value*)...
+
+
 `stool` *global-option*... `move` *stage-option*... *dest*
+
+
 `stool` *global-option*... `port` *stage-option*... *application*`=`*port*...
+
+
 `stool` *global-option*... `status *stage-option*... *field*...
+
+
+
 `stool` *global-option*... `list` *stage-option*... *field*...
+
+
 `stool` *global-option*... `cleanup` *stage-option*...
+
+
 `stool` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`]
+
 
 #### Global options
 

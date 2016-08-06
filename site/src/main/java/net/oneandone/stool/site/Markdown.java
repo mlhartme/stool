@@ -105,7 +105,7 @@ public class Markdown {
             if (count > 0) {
                 collect = isSynopsis(line);
             } else {
-                if (collect && !line.isEmpty()) {
+                if (collect) {
                     result.add(line);
                 }
             }
@@ -211,10 +211,15 @@ public class Markdown {
         }
 
         public Manpage end(String line) throws IOException {
+            FileNode m;
+
             if (line.startsWith("#") && depth(line) <= depth) {
                 dest.close();
                 System.out.println(file.getParent().exec("ronn", "--roff", file.getAbsolute()));
                 file.deleteFile();
+                m = file.getParent().join(Strings.removeRight(file.getName(), ".ronn"));
+                m.gzip(m.getParent().join(m.getName() + ".gz"));
+                m.deleteFile();
                 return null;
             } else {
                 return this;
