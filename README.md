@@ -4,4 +4,4 @@ Homepage: https://github.com/mlhartme/stool
 
 Changes: https://github.com/mlhartme/stool/blob/master/CHANGELOG.md
 
-Documentation: http://mlhartme.github.io/stool/site/documentation.html
+Documentation: https://github.com/mlhartme/stool/blob/master/site/documentation.md

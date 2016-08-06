@@ -1,13 +1,5 @@
 # Stool
 
-Stage Tool
-
-Author: Michael Hartmeier
-
-Copyright 2016 1&1 Internet AG
-
-!INCLUDE "../../../target/stool.txt"
-
 [//]: # (Conventions)
 [//]: # (* 'Stool' is written with a capital S)
 [//]: # (* backquotes (`foo`) mark things to type or technical term from Stool.)
@@ -376,7 +368,7 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
 
 Homepage: https://github.com/mlhartme/stool
 
-Documentation: http://mlhartme.github.io/stool/documentation/documentation.html
+Documentation: https://github.com/mlhartme/stool/blob/master/site/documentation.md
 
 Invoke `stool help` *command* to get help for the specified command.
 

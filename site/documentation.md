@@ -1,13 +1,5 @@
 # Stool
 
-Stage Tool
-
-Author: Michael Hartmeier
-
-Copyright 2016 1&1 Internet AG
-
-Stool 3.4.2-SNAPSHOT (2016-08-6)
-
 [//]: # (Conventions)
 [//]: # (* 'Stool' is written with a capital S)
 [//]: # (* backquotes (`foo`) mark things to type or technical term from Stool.)

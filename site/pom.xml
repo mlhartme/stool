@@ -30,12 +30,6 @@
             <phase>process-classes</phase>
             <configuration>
               <target>
-                <tstamp>
-                  <format pattern="yyyy-MM-d" property="now" />
-                </tstamp>
-                <mkdir dir="${project.build.directory}/site/documentation" />
-                <echo file="${project.build.directory}/stool.txt">Stool ${project.version} (${now})</echo>
-                <!-- main -->
                 <property name="cp" refid="maven.runtime.classpath" />
                 <java classname="net.oneandone.stool.site.Markdown" classpath="${cp}" fork="false" failonerror="true">
                   <arg path="${basedir}/src/site/documentation/documentation.mdpp" />
