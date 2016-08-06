@@ -269,7 +269,7 @@ The dashboard is a system stage you can install to control stages via browser.
 
 #### SYNOPSIS
 
-`stool` *global-option*... *command* *argument*
+`stool` *global-option*... [*command* *argument*...]
 
 #### DESCRIPTION
 
