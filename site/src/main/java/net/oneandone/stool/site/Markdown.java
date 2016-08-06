@@ -27,9 +27,9 @@ public class Markdown {
         src = world.file(args[0]);
         src.checkFile();
         dest = world.file(args[1]);
-        dest.getParent().checkDirectory();
+        dest.getParent().mkdirOpt();
         man = world.file(args[2]);
-        man.checkDirectory();
+        man.mkdirOpt();
         lines = load(src);
         variables = new HashMap<>();
         variables.put("ALL_SYNOPSIS", synopsis(lines));
@@ -160,6 +160,7 @@ public class Markdown {
             String name;
             Writer dest;
             Manpage result;
+            FileNode ronn;
 
             if (!isSynopsis(line)) {
                 return null;
@@ -176,18 +177,21 @@ public class Markdown {
                 throw new IOException("missing separator: " + lastContent);
             }
             name = trimHeader(lastContent.substring(0, idx));
-            dest = dir.join(name + ".1.ronn").newWriter();
-            result = new Manpage(depth, dest);
+            ronn = dir.join(name + ".1.ronn");
+            dest = ronn.newWriter();
+            result = new Manpage(depth, ronn, dest);
             result.line(lastContent);
             result.line();
             return result;
         }
 
         private final int depth;
+        private final FileNode file;
         private final Writer dest;
 
-        public Manpage(int depth, Writer dest) {
+        public Manpage(int depth, FileNode file, Writer dest) {
             this.depth = depth;
+            this.file = file;
             this.dest = dest;
         }
 
@@ -209,6 +213,7 @@ public class Markdown {
         public Manpage end(String line) throws IOException {
             if (line.startsWith("#") && depth(line) <= depth) {
                 dest.close();
+                file.getParent().exec("ronn", "-man", file.getAbsolute());
                 return null;
             } else {
                 return this;

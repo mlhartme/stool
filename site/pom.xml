@@ -40,7 +40,7 @@
                 <java classname="net.oneandone.stool.site.Markdown" classpath="${cp}" fork="false" failonerror="true">
                   <arg path="${basedir}/src/site/documentation/documentation.mdpp" />
                   <arg path="${basedir}/documentation.pp" />
-                  <arg path="${basedir}/target" />
+                  <arg path="${basedir}/target/man" />
                 </java>
               </target>
             </configuration>
