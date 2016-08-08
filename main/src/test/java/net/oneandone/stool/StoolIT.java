@@ -52,6 +52,8 @@ public class StoolIT {
         Integer start = 1300;
         Integer end = 1319;
 
+        // TODO:
+        // System.setProperty("javax.net.ssl.trustStore", "/Users/mhm/Pommes/svn.1and1.org/com/oneandone/sales/tools/cisotools/cacerts");
         for (int even = start; even < end; even += 2) {
             Pool.checkFree(even);
             Pool.checkFree(even + 1);

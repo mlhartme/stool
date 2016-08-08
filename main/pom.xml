@@ -89,6 +89,19 @@
     </resources>
 
     <plugins>
+      <!--
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <systemPropertyVariables>
+            <foo>bar</foo>
+            <javax.net.ssl.trustStore>/Users/mhm/Pommes/svn.1and1.org/com/oneandone/sales/tools/cisotools/cacerts</javax.net.ssl.trustStore>
+          </systemPropertyVariables>
+          <forkCount>0</forkCount>
+          <useSystemClassLoader>false</useSystemClassLoader>
+        </configuration>
+      </plugin-->
       <plugin>
         <groupId>net.oneandone.maven.plugins</groupId>
         <artifactId>application</artifactId>
