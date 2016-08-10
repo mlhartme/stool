@@ -383,9 +383,11 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
   Defines how to compute the initial `tomcat.heap` property for new stages:
   `baseHeap` mb for every application. Type number.
 * **certificates**
-  Url to generate certificates to make stages available via https. Empty to generate self-signed
-  certificates. Otherwise, Stool generates a `csr` and sends a post request to
-  *certificates*`/stagename`, expecting back the certificate. Type string.
+  Script or url to generate certificates to make stages available via https. Empty to generate self-signed
+  certificates. Otherwise, if it starts with `http://` or `https://` Stool generates a `csr` and posts it to
+  *certificates*, expecting back the certificate. Otherwise, Stool invokes the specified script with 3 arguments:
+  the domain to generate a certificat for, the key file name and the certificate file name. The script is expected
+  to generate the key and certificate in pem file format. Type string.
 * **committed**
   `true` if users have to commit source changes before Stool allows them to start the stage. Type boolean.
 * **defaults**
