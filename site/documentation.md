@@ -450,7 +450,7 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
 
 Homepage: https://github.com/mlhartme/stool
 
-Documentation: https://github.com/mlhartme/stool/blob/master/site/documentation.md
+Documentation: https://github.com/mlhartme/stool/blob/master/main/documentation.md
 
 Invoke `stool help` *command* to get help for the specified command.
 

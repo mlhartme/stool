@@ -1,4 +1,4 @@
-package net.oneandone.stool.site;
+package net.oneandone.stool.util;
 
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;

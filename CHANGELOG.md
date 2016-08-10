@@ -3,6 +3,7 @@
 ### 3.4.2 (pending)
 
 * added setup -batch option
+* switched documentation from docbook to markdown; merged site module into main.
 
 ### 3.4.1 (2016-08-02)
 

@@ -26,22 +26,6 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-antrun-plugin</artifactId>
         <executions>
-          <execution>
-            <phase>process-classes</phase>
-            <configuration>
-              <target>
-                <property name="cp" refid="maven.runtime.classpath" />
-                <java classname="net.oneandone.stool.site.Markdown" classpath="${cp}" fork="false" failonerror="true">
-                  <arg path="${basedir}/src/site/documentation/documentation.mdpp" />
-                  <arg path="${basedir}/documentation.md" />
-                  <arg path="${basedir}/target/classes/templates/man/man1" />
-                </java>
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
         </executions>
       </plugin>
     </plugins>

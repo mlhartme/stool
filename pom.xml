@@ -59,7 +59,6 @@
   </issueManagement>
 
   <modules>
-    <module>site</module>
     <module>main</module>
     <module>dashboard</module>
   </modules>
