@@ -2,8 +2,10 @@
 
 ### 3.4.2 (pending)
 
-* added setup -batch option
-* switched documentation from docbook to markdown; merged site module into main.
+* Global `certificates` property now also accepts a script file name to generate certificates.
+* Added setup `-batch` option
+* Converted documentation from docbook to markdown; merged site module into main.
+
 
 ### 3.4.1 (2016-08-02)
 

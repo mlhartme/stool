@@ -22,24 +22,39 @@ import net.oneandone.sushi.fs.http.HttpNode;
 
 import java.io.IOException;
 
+/** Pair of key/cert pem files.  */
 public class Pair {
     public static final String HOSTNAME = "itca.server.lan";
     public static final String URL_PREFIX = "https://" + HOSTNAME + "/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
 
-    public static Pair create(String url, String hostname, FileNode workDir) throws IOException {
+    public static Pair create(String scriptOrUrl, String hostname, FileNode workDir) throws IOException {
         Pair pair;
 
-        if (url.isEmpty()) {
+        if (scriptOrUrl.isEmpty()) {
             pair = selfSigned(workDir, hostname);
-        } else if (url.equals(URL_PREFIX)) {
+        } else if (scriptOrUrl.equals(URL_PREFIX)) {
             pair = itca(workDir, hostname);
+        } else if (scriptOrUrl.startsWith("http://") || scriptOrUrl.startsWith("https://")) {
+            pair = fromCsr(workDir, scriptOrUrl, hostname);
         } else {
-            pair = fromCsr(workDir, url, hostname);
+            pair = fromScript(workDir.getWorld().file(scriptOrUrl), workDir, hostname);
         }
         for (FileNode file : workDir.list()) {
             Files.stoolFile(file);
         }
         return pair;
+    }
+
+    public static Pair fromScript(FileNode script, FileNode workDir, String hostname) throws IOException {
+        FileNode cert;
+        FileNode key;
+        String log;
+
+        cert = workDir.join("cert.pem");
+        key = workDir.join("key.pem");
+        log = workDir.exec(script.getAbsolute(), hostname, key.getAbsolute(), cert.getAbsolute());
+        workDir.join("log").writeString(log);
+        return new Pair(key, cert);
     }
 
     public static Pair selfSigned(FileNode workDir, String hostname) throws IOException {
