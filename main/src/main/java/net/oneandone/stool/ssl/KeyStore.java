@@ -18,7 +18,6 @@ package net.oneandone.stool.ssl;
 import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
-import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 
@@ -41,8 +40,31 @@ public class KeyStore {
         this.file = workDir.join("tomcat.jks");
     }
 
+    // https://en.wikipedia.org/wiki/PKCS_12
+    // https://tomcat.apache.org/tomcat-7.0-doc/ssl-howto.html
     public void fill(Pair pair) throws IOException {
-        addPkcs12(importPkcs12(pair));
+        FileNode tmp;
+
+        tmp = workDir.join("tomcat.p12");
+        try {
+            if (!file.exists()) {
+                if (pair.getIntermediateOpt() != null) {
+                    workDir.exec("keytool", "-import", "-alias", "root", "-keystore", file.getAbsolute(), "-storepass", password(),
+                            "-trustcacerts", "-file", pair.getIntermediateOpt().getAbsolute(), "-noprompt");
+                }
+                workDir.exec("openssl", "pkcs12",
+                        "-export", "-passout", "pass:" + password(), "-in", pair.certificate().getAbsolute(),
+                        "-inkey", pair.privateKey().getAbsolute(), "-out", tmp.getAbsolute(),
+                        "-name", "tomcat");
+                workDir.launcher("keytool", "-importkeystore", "-srckeystore", tmp.getAbsolute(), "-srcstoretype",
+                        "pkcs12", "-destkeystore", file.getAbsolute(), "-deststoretype", "jks",
+                        "-deststorepass", password(), "-srcstorepass", password()).exec();
+            }
+            Files.stoolFile(file);
+            tmp.deleteFile();
+        } catch (Failure e) {
+            throw new IOException(e);
+        }
     }
 
     public String file() {
@@ -59,39 +81,5 @@ public class KeyStore {
 
     public boolean exists() {
         return file.exists();
-    }
-
-    private void addPkcs12(FileNode pkcs12) throws IOException {
-        try {
-            workDir.launcher("keytool", "-importkeystore", "-srckeystore", pkcs12.getAbsolute(), "-srcstoretype",
-                    "pkcs12", "-destkeystore", file.getAbsolute(), "-deststoretype", "jks",
-                    "-deststorepass", password(), "-srcstorepass", password()).exec();
-            Files.stoolFile(file);
-        } catch (Failure failure) {
-            throw new IOException(failure);
-        }
-    }
-
-    // https://en.wikipedia.org/wiki/PKCS_12
-    // https://tomcat.apache.org/tomcat-7.0-doc/ssl-howto.html
-    private FileNode importPkcs12(Pair pair) throws IOException {
-        FileNode pkcs12;
-        Launcher launcher;
-
-        pkcs12 = workDir.join("tomcat.p12");
-        try {
-            launcher = workDir.launcher("openssl", "pkcs12",
-                    "-export", "-passout", "pass:" + password(), "-in", pair.certificate().getAbsolute(),
-                    "-inkey", pair.privateKey().getAbsolute(), "-out", pkcs12.getAbsolute(),
-                    "-name", "tomcat");
-            if (pair.getIntermediateOpt() != null) {
-                launcher.arg("-CAfile", pair.getIntermediateOpt().getAbsolute(), "-caname", "root", "-chain");
-            }
-            launcher.exec();
-            Files.stoolFile(pkcs12);
-            return pkcs12;
-        } catch (Failure e) {
-            throw new IOException(e);
-        }
     }
 }
