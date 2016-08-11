@@ -50,22 +50,15 @@ public class Pair {
     public static Pair fromScript(FileNode script, FileNode workDir, String hostname) throws IOException {
         FileNode cert;
         FileNode key;
-        FileNode intermediate;
 
         cert = workDir.join("cert.pem");
         key = workDir.join("key.pem");
-        intermediate = workDir.join("intermediate.pem");
         try (Writer log  = workDir.join("log").newAppender()) {
             workDir.launcher(script.getAbsolute(), hostname).exec(log);
         } catch (Failure e) {
             throw new IOException(script + " failed - check log file in " + workDir);
         }
-        if (!intermediate.exists()) {
-            intermediate = null;
-        }
-        key.checkFile();
-        cert.checkFile();
-        return new Pair(key, cert, intermediate);
+        return new Pair(key, cert, true);
     }
 
     public static Pair selfSigned(FileNode workDir, String hostname) throws IOException {
@@ -76,7 +69,7 @@ public class Pair {
         key = workDir.join("key.pem");
         workDir.exec("openssl", "req", "-x509", "-newkey", "rsa:2048", "-keyout", key.getAbsolute(), "-out", cert.getAbsolute(),
                 "-days", "365", "-nodes", "-subj", "/CN=" + hostname);
-        return new Pair(key, cert, null);
+        return new Pair(key, cert, false);
     }
 
     public static Pair itca(FileNode workDir, String hostname) throws IOException {
@@ -88,7 +81,7 @@ public class Pair {
 
         crt = workDir.join(hostname.replace("*", "_") + ".crt");
         key = workDir.join(hostname.replace("*", "_") + ".key");
-        pair = new Pair(key, crt, null);
+        pair = new Pair(key, crt, false);
         if (!(pair.privateKey().exists() || pair.certificate().exists())) {
             world = workDir.getWorld();
             zip = world.getTemp().createTempFile();
@@ -115,19 +108,19 @@ public class Pair {
         node = (HttpNode) world.validNode(url);
         node.getRoot().addExtraHeader("Content-Type", "text/plain");
         cert.writeBytes(node.post(csr.readBytes()));
-        return new Pair(key, cert, null);
+        return new Pair(key, cert, false);
     }
 
     //--
 
     private final FileNode privateKey;
     private final FileNode certificate;
-    private final FileNode intermediateOpt;
+    private final boolean script;
 
-    public Pair(FileNode privateKey, FileNode certificate, FileNode intermediateOpt) {
+    public Pair(FileNode privateKey, FileNode certificate, boolean script) {
         this.privateKey = privateKey;
         this.certificate = certificate;
-        this.intermediateOpt = intermediateOpt;
+        this.script = script;
     }
 
     public FileNode privateKey() {
@@ -138,8 +131,8 @@ public class Pair {
         return certificate;
     }
 
-    public FileNode getIntermediateOpt() {
-        return intermediateOpt;
+    public boolean isScript() {
+        return script;
     }
 
     public String text() throws IOException {
