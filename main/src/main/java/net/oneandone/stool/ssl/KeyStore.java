@@ -18,6 +18,7 @@ package net.oneandone.stool.ssl;
 import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
+import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 
@@ -41,7 +42,7 @@ public class KeyStore {
     }
 
     public void fill(Pair pair) throws IOException {
-        addPkcs12(convertToPkcs12(pair));
+        addPkcs12(importPkcs12(pair));
     }
 
     public String file() {
@@ -72,15 +73,21 @@ public class KeyStore {
     }
 
     // https://en.wikipedia.org/wiki/PKCS_12
-    private FileNode convertToPkcs12(Pair pair) throws IOException {
+    // https://tomcat.apache.org/tomcat-7.0-doc/ssl-howto.html
+    private FileNode importPkcs12(Pair pair) throws IOException {
         FileNode pkcs12;
+        Launcher launcher;
 
         pkcs12 = workDir.join("tomcat.p12");
         try {
-            workDir.launcher("openssl", "pkcs12",
+            launcher = workDir.launcher("openssl", "pkcs12",
                     "-export", "-passout", "pass:" + password(), "-in", pair.certificate().getAbsolute(),
                     "-inkey", pair.privateKey().getAbsolute(), "-out", pkcs12.getAbsolute(),
-                    "-name", "tomcat").exec();
+                    "-name", "tomcat");
+            if (pair.getIntermediateOpt() != null) {
+                launcher.arg("-CAfile", pair.getIntermediateOpt().getAbsolute(), "-caname", "root", "-chain");
+            }
+            launcher.exec();
             Files.stoolFile(pkcs12);
             return pkcs12;
         } catch (Failure e) {

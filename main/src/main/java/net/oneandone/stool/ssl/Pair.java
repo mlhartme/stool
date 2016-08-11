@@ -19,8 +19,10 @@ import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;
+import net.oneandone.sushi.launcher.Failure;
 
 import java.io.IOException;
+import java.io.Writer;
 
 /** Pair of key/cert pem files.  */
 public class Pair {
@@ -48,13 +50,22 @@ public class Pair {
     public static Pair fromScript(FileNode script, FileNode workDir, String hostname) throws IOException {
         FileNode cert;
         FileNode key;
-        String log;
+        FileNode intermediate;
 
         cert = workDir.join("cert.pem");
         key = workDir.join("key.pem");
-        log = workDir.exec(script.getAbsolute(), hostname, key.getAbsolute(), cert.getAbsolute());
-        workDir.join("log").writeString(log);
-        return new Pair(key, cert);
+        intermediate = workDir.join("intermediate.pem");
+        try (Writer log  = workDir.join("log").newAppender()) {
+            workDir.launcher(script.getAbsolute(), hostname).exec(log);
+        } catch (Failure e) {
+            throw new IOException(script + " failed - check log file in " + workDir);
+        }
+        if (!intermediate.exists()) {
+            intermediate = null;
+        }
+        key.checkFile();
+        cert.checkFile();
+        return new Pair(key, cert, intermediate);
     }
 
     public static Pair selfSigned(FileNode workDir, String hostname) throws IOException {
@@ -65,7 +76,7 @@ public class Pair {
         key = workDir.join("key.pem");
         workDir.exec("openssl", "req", "-x509", "-newkey", "rsa:2048", "-keyout", key.getAbsolute(), "-out", cert.getAbsolute(),
                 "-days", "365", "-nodes", "-subj", "/CN=" + hostname);
-        return new Pair(key, cert);
+        return new Pair(key, cert, null);
     }
 
     public static Pair itca(FileNode workDir, String hostname) throws IOException {
@@ -77,7 +88,7 @@ public class Pair {
 
         crt = workDir.join(hostname.replace("*", "_") + ".crt");
         key = workDir.join(hostname.replace("*", "_") + ".key");
-        pair = new Pair(key, crt);
+        pair = new Pair(key, crt, null);
         if (!(pair.privateKey().exists() || pair.certificate().exists())) {
             world = workDir.getWorld();
             zip = world.getTemp().createTempFile();
@@ -104,17 +115,19 @@ public class Pair {
         node = (HttpNode) world.validNode(url);
         node.getRoot().addExtraHeader("Content-Type", "text/plain");
         cert.writeBytes(node.post(csr.readBytes()));
-        return new Pair(key, cert);
+        return new Pair(key, cert, null);
     }
 
     //--
 
     private final FileNode privateKey;
     private final FileNode certificate;
+    private final FileNode intermediateOpt;
 
-    public Pair(FileNode privateKey, FileNode certificate) {
+    public Pair(FileNode privateKey, FileNode certificate, FileNode intermediateOpt) {
         this.privateKey = privateKey;
         this.certificate = certificate;
+        this.intermediateOpt = intermediateOpt;
     }
 
     public FileNode privateKey() {
@@ -123,6 +136,10 @@ public class Pair {
 
     public FileNode certificate() {
         return certificate;
+    }
+
+    public FileNode getIntermediateOpt() {
+        return intermediateOpt;
     }
 
     public String text() throws IOException {
