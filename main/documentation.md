@@ -1168,6 +1168,13 @@ Steps:
 * Adjust `~/.stool/config.json` to your needs: see [stool properties](#stool-properties)
 * Optional: setup a cron job to run `stool validate -all -email -repair` every night.
 
+Dashboard setup:
+
+* `stool create gav:net.oneandone.stool:dashboard:`*version* `$HOME/.stool/system/dashboard`
+* `stool port dashboard=8000`
+* `stool start`
+
+
 ### Shared setup
 
 Shared setup means that stages can be created, modified and removed by every other user on the machines.
