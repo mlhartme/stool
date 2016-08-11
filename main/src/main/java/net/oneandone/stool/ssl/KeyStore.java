@@ -48,6 +48,8 @@ public class KeyStore {
         tmp = workDir.join("tomcat.p12");
         try {
             if (!file.exists()) {
+                // keytool cannot import private keys with certs. As a work-around, we create a p12 keystore with them and then import
+                // this keystore into a Java keystore.
                 if (pair.getIntermediateOpt() != null) {
                     workDir.exec("keytool", "-import", "-alias", "root", "-keystore", file.getAbsolute(), "-storepass", password(),
                             "-trustcacerts", "-file", pair.getIntermediateOpt().getAbsolute(), "-noprompt");
@@ -59,9 +61,9 @@ public class KeyStore {
                 workDir.launcher("keytool", "-importkeystore", "-srckeystore", tmp.getAbsolute(), "-srcstoretype",
                         "pkcs12", "-destkeystore", file.getAbsolute(), "-deststoretype", "jks",
                         "-deststorepass", password(), "-srcstorepass", password()).exec();
+                tmp.deleteFile();
             }
             Files.stoolFile(file);
-            tmp.deleteFile();
         } catch (Failure e) {
             throw new IOException(e);
         }
