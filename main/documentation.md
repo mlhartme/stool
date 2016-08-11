@@ -385,9 +385,9 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
 * **certificates**
   Script or url to generate certificates to make stages available via https. Empty to generate self-signed
   certificates. Otherwise, if it starts with `http://` or `https://` Stool generates a `csr` and posts it to
-  *certificates*, expecting back the certificate. Otherwise, Stool invokes the specified script with 3 arguments:
-  the domain to generate a certificat for, the key file name and the certificate file name. The script is expected
-  to generate the key and certificate in pem file format. Type string.
+  *certificates*, expecting back the certificate. Otherwise, Stool invokes the specified script with the desired domain as
+  an argument. The script is invoked in *.backstage/ssh* directory, it is expected to either generates a tomcat.jks keystore
+  file or a *cert.pem* and a *key.pem* file. Type string.
 * **committed**
   `true` if users have to commit source changes before Stool allows them to start the stage. Type boolean.
 * **defaults**
