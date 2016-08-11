@@ -53,10 +53,11 @@ public class Pair {
 
         cert = workDir.join("cert.pem");
         key = workDir.join("key.pem");
+        script.checkFile();
         try (Writer log  = workDir.join("log").newAppender()) {
             workDir.launcher(script.getAbsolute(), hostname).exec(log);
         } catch (Failure e) {
-            throw new IOException(script + " failed - check log file in " + workDir);
+            throw new IOException(script + " failed - check log file in directory " + workDir);
         }
         return new Pair(key, cert, true);
     }
