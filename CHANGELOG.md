@@ -1,8 +1,9 @@
 ## Changelog 
 
-### 3.4.2 (pending)
+### 3.4.2 (2016-08-11)
 
-* Global `certificates` property now also accepts a script file name to generate certificates.
+* Dumped predefined STOOL_OPTS from /etc/profile.de/stool
+* Global `certificates` property now also accepts a script file name to generate the Java keystore used by Tomcat.
 * Added setup `-batch` option
 * Converted documentation from docbook to markdown; merged site module into main.
 
