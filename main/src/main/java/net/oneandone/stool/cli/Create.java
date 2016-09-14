@@ -200,8 +200,6 @@ public class Create extends SessionCommand {
 
         Files.createSourceDirectory(console.verbose, directory, session.group());
         stage = stage(url);
-        // CAUTION: create backstage before possible prepare commands -- e.g. pws already populates the local repository of the stage
-        Files.createStoolDirectory(console.verbose, stage.backstage);
 
         // make sure to run in stage environment, e.g. to have proper repository settings
         prepare = stage.config().prepare;
@@ -229,6 +227,9 @@ public class Create extends SessionCommand {
         id = session.nextStageId();
         if (ArtifactStage.isArtifact(url)) {
             artifactStage = new ArtifactStage(session, url, id, directory, stageConfiguration);
+            // create backstage BEFORE possible artifactory resolving because it might
+            // already populates the local repository of the stage
+            Files.createStoolDirectory(console.verbose, artifactStage.backstage);
             artifactStage.populateDirectory(console);
             stage = artifactStage;
         } else {
@@ -236,6 +237,8 @@ public class Create extends SessionCommand {
             console.info.println("checking out " + directory);
             session.scm(url).checkout(url, directory, quiet ? console.verbose : console.info);
             stage = SourceStage.forUrl(session, id, directory, url, stageConfiguration);
+            // create backstage AFTER checkout -- git would reject none-empty target directories
+            Files.createStoolDirectory(console.verbose, stage.backstage);
         }
         return stage;
     }

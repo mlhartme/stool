@@ -1,12 +1,11 @@
 # Stool
 
-## Conventions
-
-* Stool is written with a capital S
-* `foo` marks things to type or technical terms from Stool.
-* *bar* marks text to be replaced by the reader
-* **baz** mark terms to be emphasized
-* command syntax: [] for optional, | for alternatives, ... for repeatable, `foo` for literal text, *bar* for replaceables
+[//]: # (Conventions)
+[//]: # (* 'Stool' is written with a capital S)
+[//]: # (* backquotes (`foo`) mark things to type or technical term from Stool.)
+[//]: # (* stars (*bar*) mark user input)
+[//]: # (* double stars (**baz**) mark items in itemized lists)
+[//]: # (* synopsis syntax: [] for optional, | for alternatives, ... for repeatable, `` for literals, ** for replaceable)
 
 ## Introduction
 

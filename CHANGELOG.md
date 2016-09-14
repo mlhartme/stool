@@ -1,5 +1,10 @@
 ## Changelog 
 
+### 3.4.3 (2016-08-11)
+
+* fixed stool create gav in shared mode
+
+
 ### 3.4.2 (2016-08-11)
 
 * Dumped predefined STOOL_OPTS from /etc/profile.de/stool
