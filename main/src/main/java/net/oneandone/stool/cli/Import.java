@@ -194,6 +194,9 @@ public class Import extends SessionCommand {
         } else {
             stage = Stage.createOpt(session, upgradeId == null ? session.nextStageId() : upgradeId,
                     url, session.createStageConfiguration(url), parent);
+            if (stage == null) {
+                throw new IllegalStateException(parent + " " + url);
+            }
             result.add(stage);
             if (result.size() >= max) {
                 console.info.println("\n\nScan stopped - max number of import projects reached: " + max);
