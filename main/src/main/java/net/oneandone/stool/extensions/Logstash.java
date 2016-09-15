@@ -72,12 +72,23 @@ public class Logstash implements Extension {
                 "  }\n" +
                 "}\n" +
                 "\n" +
-                "filter {}\n" + output);
+                "filter {\n" + filters(stage) + "}\n" + output);
         Files.stoolFile(file);
         log = log(stage);
         log.writeString(file.getParent().exec(bin, "-f", file.getAbsolute(), "--configtest"));
         file.getParent().exec("bash", "-c", "LS_HEAP_SIZE=256m " + bin + " -f " + file.getAbsolute() + " --allow-unsafe-shutdown --no-auto-reload"
                 + ">" + log.getAbsolute() + " 2>&1" + " & echo $!>" + pid(stage).getAbsolute());
+    }
+
+    private static String filters(Stage stage) throws IOException {
+        FileNode file;
+
+        file = stage.getDirectory().join("src/logstash.filter");
+        if (file.exists()) {
+            return file.readString();
+        } else {
+            return "";
+        }
     }
 
     @Override
