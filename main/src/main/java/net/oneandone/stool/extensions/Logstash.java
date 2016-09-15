@@ -72,9 +72,10 @@ public class Logstash implements Extension {
                 "  }\n" +
                 "}\n\n");
         for (String name : Separator.COMMA.split(output)) {
-            config.append(file.getWorld().file(name));
+            config.append(file.getWorld().file(name).readString());
             config.append('\n');
         }
+        file.writeString(config.toString());
         Files.stoolFile(file);
         file.getParent().exec(bin, file.getAbsolute(), log(stage).getAbsolute(), pid(stage).getAbsolute());
     }
