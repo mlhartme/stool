@@ -71,20 +71,9 @@ public class Logstash implements Extension {
                 "  }\n" +
                 "}\n" +
                 "\n" +
-                "filter {\n" + filters(stage) + "}\n" + output);
+                output);
         Files.stoolFile(file);
         file.getParent().exec(bin, file.getAbsolute(), log(stage).getAbsolute(), pid(stage).getAbsolute());
-    }
-
-    private static String filters(Stage stage) throws IOException {
-        FileNode file;
-
-        file = stage.getDirectory().join("src/logstash.filter");
-        if (file.exists()) {
-            return file.readString();
-        } else {
-            return "";
-        }
     }
 
     @Override
