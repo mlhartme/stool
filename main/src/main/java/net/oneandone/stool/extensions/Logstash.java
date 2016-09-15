@@ -25,6 +25,8 @@ import java.util.Map;
 
 public class Logstash implements Extension {
     private final String output;
+
+    // TODO: currently unused
     private final String link;
 
     public Logstash() {
@@ -44,14 +46,17 @@ public class Logstash implements Extension {
     private FileNode conf(Stage stage) {
         return stage.getBackstage().join("logstash.conf");
     }
-
-    private FileNode link(Stage stage) {
-        return stage.getDirectory().getWorld().file(link).join(stage.getName() + ".conf");
+    private FileNode pid(Stage stage) {
+        return stage.getBackstage().join("run/logstash.pid");
+    }
+    private FileNode log(Stage stage) {
+        return stage.getBackstage().join("tomcat/logs/logstash.log");
     }
 
     @Override
     public void beforeStart(Stage stage) throws IOException {
         FileNode file;
+        String log;
 
         file = conf(stage);
         file.writeString(
@@ -67,17 +72,25 @@ public class Logstash implements Extension {
                 "\n" +
                 "filter {}\n" + output);
         Files.stoolFile(file);
-        if (!link.isEmpty()) {
-            file.link(link(stage));
-        }
+        log = log(stage).getAbsolute();
+        file.getParent().exec("bash", "-c", "/Users/mhm/logstash-2.4.0/bin/logstash -f " + file.getAbsolute()
+                + ">" + log + " 2>&1" + " & echo $!>" + pid(stage).getAbsolute());
     }
 
     @Override
     public void beforeStop(Stage stage) throws IOException {
-        if (!link.isEmpty()) {
-            link(stage).deleteFile();
-        }
+        FileNode pidfile;
+        String pid;
+
         conf(stage).deleteFile();
+        pidfile = pid(stage);
+        if (!pidfile.isFile()) {
+            stage.session.console.info.println("WARNING: " + pidfile.getAbsolute() + " not found");
+        } else {
+            pid = pidfile.readString().trim();
+            pidfile.getParent().exec("kill", pid);
+            pidfile.deleteFile();
+        }
     }
 
     @Override
