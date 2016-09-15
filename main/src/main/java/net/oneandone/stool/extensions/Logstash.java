@@ -57,7 +57,6 @@ public class Logstash implements Extension {
     public void beforeStart(Stage stage) throws IOException {
         String bin;
         FileNode file;
-        FileNode log;
 
         bin = link; // TODO: rename
         file = conf(stage);
@@ -74,10 +73,7 @@ public class Logstash implements Extension {
                 "\n" +
                 "filter {\n" + filters(stage) + "}\n" + output);
         Files.stoolFile(file);
-        log = log(stage);
-        log.writeString(file.getParent().exec(bin, "-f", file.getAbsolute(), "--configtest"));
-        file.getParent().exec("bash", "-c", "LS_HEAP_SIZE=256m " + bin + " -f " + file.getAbsolute() + " --allow-unsafe-shutdown --no-auto-reload"
-                + ">" + log.getAbsolute() + " 2>&1" + " & echo $!>" + pid(stage).getAbsolute());
+        file.getParent().exec(bin, file.getAbsolute(), log(stage).getAbsolute(), pid(stage).getAbsolute());
     }
 
     private static String filters(Stage stage) throws IOException {
