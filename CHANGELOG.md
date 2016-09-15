@@ -1,8 +1,9 @@
 ## Changelog 
 
-### 3.4.3 (2016-08-11)
+### 3.4.3 (pending)
 
-* fixed stool create gav in shared mode
+* fixed stool create gav in shared mode (thanks to Maximilian Braun)
+* Dashboard: removed cancel button, it had no effect (thanks to Cosmin Barbu)
 
 
 ### 3.4.2 (2016-08-11)

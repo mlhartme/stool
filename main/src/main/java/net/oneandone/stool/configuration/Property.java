@@ -111,7 +111,7 @@ public class Property implements Info {
             for (String item : asList(str)) {
                 idx = item.indexOf(':');
                 if (idx == -1) {
-                    throw new ArgumentException("expected key:value, got " + item);
+                    throw new ArgumentException("cannot set property '" + name + "': expected key:value, got " + item);
                 }
                 map.put(item.substring(0, idx).trim(), item.substring(idx + 1).trim());
             }
@@ -121,7 +121,7 @@ public class Property implements Info {
         } else if (Map.class.isAssignableFrom(type)) {
             value = str;
         } else {
-            throw new IllegalStateException("Cannot convert String to " + type.getSimpleName());
+            throw new IllegalStateException(name + ": cannot convert String to " + type.getSimpleName());
         }
         try {
             field.set(object(configuration), value);
