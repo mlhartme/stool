@@ -26,7 +26,7 @@ import java.util.Map;
 public class Logstash implements Extension {
     private final String output;
 
-    // TODO: currently unused
+    // TODO: rename to bin
     private final String link;
 
     public Logstash() {
@@ -55,9 +55,11 @@ public class Logstash implements Extension {
 
     @Override
     public void beforeStart(Stage stage) throws IOException {
+        String bin;
         FileNode file;
-        String log;
+        FileNode log;
 
+        bin = link; // TODO: rename
         file = conf(stage);
         file.writeString(
                 "input {\n" +
@@ -72,9 +74,10 @@ public class Logstash implements Extension {
                 "\n" +
                 "filter {}\n" + output);
         Files.stoolFile(file);
-        log = log(stage).getAbsolute();
-        file.getParent().exec("bash", "-c", "/Users/mhm/logstash-2.4.0/bin/logstash -f " + file.getAbsolute()
-                + ">" + log + " 2>&1" + " & echo $!>" + pid(stage).getAbsolute());
+        log = log(stage);
+        log.writeString(file.getParent().exec(bin, "-f", file.getAbsolute(), "--configtest"));
+        file.getParent().exec("bash", "-c", "LS_HEAP_SIZE=256m " + bin + " -f " + file.getAbsolute() + " --allow-unsafe-shutdown --no-auto-reload"
+                + ">" + log.getAbsolute() + " 2>&1" + " & echo $!>" + pid(stage).getAbsolute());
     }
 
     @Override
