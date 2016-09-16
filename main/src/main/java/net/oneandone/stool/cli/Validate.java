@@ -24,6 +24,7 @@ import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -31,8 +32,17 @@ import net.oneandone.sushi.util.Separator;
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -117,6 +127,7 @@ public class Validate extends StageCommand {
     @Override
     public void doMain(Stage stage) throws Exception {
         tomcat(stage);
+        cert(stage);
         constraints(stage);
     }
 
@@ -173,6 +184,31 @@ public class Validate extends StageCommand {
             report.admin(stage, "Service process mismatch: " + filePid + " vs " + psPid);
         }
     }
+
+    private void cert(Stage stage) throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
+        FileNode cert;
+        X509Certificate c;
+        LocalDate now;
+        LocalDate notAfter;
+        long left;
+
+        cert = stage.backstage.join("ssl/tomcat.jks");
+        if (!cert.exists()) {
+            return;
+        }
+        KeyStore ks = KeyStore.getInstance("JKS");
+        try (InputStream src = cert.newInputStream()) {
+            ks.load(src, "changeit".toCharArray());
+        }
+        c = (X509Certificate) ks.getCertificate("tomcat");
+        now = LocalDate.now();
+        notAfter = c.getNotAfter().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        left = ChronoUnit.DAYS.between(now, notAfter);
+        if (left < 10) {
+            report.user(stage, "certifacte expires in " + left + " days");
+        }
+    }
+
 
     //--
 

@@ -26,12 +26,14 @@ import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Launches Fitnesse via
+ * fitnesse-launchner-maven-plugin (https://code.google.com/archive/p/fitnesse-launcher-maven-plugin/) */
 public class Fitnesse implements Extension {
     private static final String FITNESSSE_PREFIX = "fitnesse.";
 

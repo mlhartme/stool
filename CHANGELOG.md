@@ -2,13 +2,15 @@
 
 ### 3.4.3 (pending)
 
-* fixed `stool create` gav in shared mode (thanks to Maximilian Braun)
-* Dashboard: removed cancel button, it had no effect (thanks to Cosmin Barbu)
-* one logstash process per stage
-* proved performance for 'stool list' (thanks to Gelli)
-* improved logstash
-  * logstash.link now configures a bash script to launch a logstash process 
+* `stool validate` now sends a notification if the certificate expires in less than 10 days.
+* logstash improvements
+  * one logstash process per stage
+  * logstash.link now configures a bash script to actually launch the logstash process 
   * logstash.output now specifies a list of files to append for the config
+* fixed `stool create` gav in shared mode (thanks to Maximilian Braun)
+* fixed `stool refresh` on artifact stages
+* fixed performance problem in `stool list` (thanks to Gelli)
+* fixed Dashboard candel butten - by removing it (thanks to Cosmin Barbu)
 
 
 ### 3.4.2 (2016-08-11)

@@ -121,7 +121,7 @@ public abstract class StageCommand extends SessionCommand {
         }
         failures = new EnumerationFailed();
         lst = selected(failures);
-        filterNops(lst);
+        lst = filterNops(lst);
         failureMessage = failures.getMessage();
         if (failureMessage != null && fail == Fail.NORMAL) {
             throw failures;
@@ -154,18 +154,23 @@ public abstract class StageCommand extends SessionCommand {
         }
     }
 
-    private void filterNops(List<Stage> lst) throws IOException {
+    /** @param lst might be not modifyable */
+    private List<Stage> filterNops(List<Stage> lst) throws IOException {
+        List<Stage> result;
         Iterator<Stage> iter;
         Stage stage;
 
         iter = lst.iterator();
+        result = new ArrayList<>();
         while (iter.hasNext()) {
             stage = iter.next();
             if (isNoop(stage)) {
                 console.verbose.println("nothing to do: " + stage.getName());
-                iter.remove();
+            } else {
+                result.add(stage);
             }
         }
+        return result;
     }
 
     private List<Stage> selected(EnumerationFailed problems) throws IOException {
