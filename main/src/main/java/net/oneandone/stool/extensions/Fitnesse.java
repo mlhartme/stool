@@ -32,8 +32,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Launches Fitnesse via
- * fitnesse-launchner-maven-plugin (https://code.google.com/archive/p/fitnesse-launcher-maven-plugin/) */
+ * Launches Fitnesse (http://www.fitnesse.org) via
+ * fitnesse-launchner-maven-plugin (https://code.google.com/archive/p/fitnesse-launcher-maven-plugin/)
+ */
 public class Fitnesse implements Extension {
     private static final String FITNESSSE_PREFIX = "fitnesse.";
 
