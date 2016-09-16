@@ -110,59 +110,41 @@ public abstract class InfoCommand extends StageCommand {
 
         result = new HashMap<>();
         console = session.console;
-        console.verbose.println("id ...");
         result.put(Field.ID, stage.getId());
-        console.verbose.println("selected ...");
         result.put(Field.SELECTED, session.isSelected(stage));
-        console.verbose.println("directory ...");
         result.put(Field.DIRECTORY, stage.getDirectory().getAbsolute());
-        console.verbose.println("backstage ...");
         result.put(Field.BACKSTAGE, stage.backstage.getAbsolute());
-        console.verbose.println("disk ...");
         result.put(Field.DISK, new Future<Integer>() {
             @Override
             protected Integer doGet() throws IOException {
                 return stage.diskUsed();
             }
         });
-        console.verbose.println("url ...");
         result.put(Field.URL, stage.getUrl());
-        console.verbose.println("type ...");
         result.put(Field.TYPE, stage.getType());
-        console.verbose.println("buildtime ...");
         result.put(Field.BUILDTIME, new Future<String>() {
             @Override
             protected String doGet() throws IOException {
                 return stage.buildtime();
             }
         });
-        console.verbose.println("owner ...");
         result.put(Field.OWNER, userName(session, stage.owner()));
-        console.verbose.println("creator ...");
         result.put(Field.CREATOR, userName(session, stage.creator()));
-        console.verbose.println("uptime ...");
         result.put(Field.UPTIME, stage.uptime());
-        console.verbose.println("state ...");
         result.put(Field.STATE, stage.state().toString());
-        console.verbose.println("ports ...");
         ports = processStatus(processes, stage, result);
-        console.verbose.println("apps ...");
         result.put(Field.APPS, stage.namedUrls());
-        console.verbose.println("other ...");
         result.put(Field.OTHER, other(stage, ports));
-        console.verbose.println("jmx ...");
         jmx = new ArrayList<>();
         if (ports != null) {
             url = stage.session.configuration.hostname + ":" + ports.jmx();
             jmx.add("jconsole " + url);
             jmx.add("jvisualvm --openjmx " + url);
         }
-        console.verbose.println("jmx ...");
         result.put(Field.JMX, jmx);
         for (Property property: session.properties().values()) {
             result.put(property, property.get(stage.config()));
         }
-        console.verbose.println("done");
         return result;
     }
 
