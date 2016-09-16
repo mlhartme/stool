@@ -32,7 +32,6 @@ import java.util.Map;
  * [//] # (some code)     is an action header
  * [//] # (-)             is an action footer
  */
-
 public class Markdown {
     public static void main(String[] args) throws IOException {
         World world;
