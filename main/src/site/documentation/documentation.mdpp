@@ -5,10 +5,6 @@
 Stool is a command line tool that provides a lifecycle for stages: create, build, start, stop, remove.
 A stage is a Tomcat with web applications built from sources or downloaded as artifacts.
 
-[//]: # (ALL_SYNOPSIS)
-[//]: # (-)
-
-
 ### Quick Tour
 
 Here's an example, what you can do with Stool. (The following assumes that Stool has been installed properly - see the setup section below)
@@ -283,7 +279,8 @@ stop and remove. A stage contains web applications built from source or availabl
 
 #### Commands
 
-%ALL_SYNOPSIS
+[//]: # (ALL_SYNOPSIS)
+[//]: # (-)
 
 #### Global options
 

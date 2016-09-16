@@ -1,17 +1,9 @@
 # Stool
 
-[//]: # (Conventions)
-[//]: # (* 'Stool' is written with a capital S)
-[//]: # (* backquotes (`foo`) mark things to type or technical term from Stool.)
-[//]: # (* stars (*bar*) mark user input)
-[//]: # (* double stars (**baz**) mark items in itemized lists)
-[//]: # (* synopsis syntax: [] for optional, | for alternatives, ... for repeatable, `` for literals, ** for replaceable)
-
 ## Introduction
 
 Stool is a command line tool that provides a lifecycle for stages: create, build, start, stop, remove.
 A stage is a Tomcat with web applications built from sources or downloaded as artifacts.
-
 
 ### Quick Tour
 
@@ -62,6 +54,14 @@ to see a list of available commands. You can append a command to get more help o
     stool help create
     
 prints help about `create`.
+
+### Conventions
+
+* Stool is written with a capital S)
+* `type writer font` marks things to type or technical terms from Stool.
+* italics mark *text* to be replaced by the user
+* bold face highlights term in definition lists
+* synopsis syntax: [] for optional, | for alternatives, ... for repeatable, `type writer` for literals, *italics* for replaceable)
 
 
 ### Rationale
@@ -279,6 +279,7 @@ stop and remove. A stage contains web applications built from source or availabl
 
 #### Commands
 
+[//]: # (ALL_SYNOPSIS)
 
 `stool` *global-option*... [*command* *argument*...]
 
@@ -362,7 +363,7 @@ stop and remove. A stage contains web applications built from source or availabl
 
 `stool` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`]
 
-
+[//]: # (-)
 #### Global options
 
 * **-v** enables verbose output
@@ -984,10 +985,11 @@ Note that the default values below might be overwritten by Stool defaults on you
   you have to stop tomcat, delete the `.backstage/tomcat` directory, and start Tomcat again.
 * **url**
   A pattern that define how to build the application urls: a sequence of strings and alternatives, where
-  alternatives a strings in brackes, separated by |. Example: `(http|https)://%a.%s.%h:@p/foo//bar`
+  alternatives are strings in brackets, separated by |. Example: `(http|https)://%a.%s.%h:@p/foo//bar`
   Strings may contain place holders: %a for the application name, %s for the stage name, %h for the hostname,
   and %p for the port. A double slash in the path part of the url separates the web application context from a normal path
-  suffix.
+  suffix. This, the above application is started in context `foo`. If the path part contains no double slash, the application
+  is started in the root context.
 
 #### Examples
 
