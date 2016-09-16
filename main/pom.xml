@@ -84,19 +84,6 @@
     </resources>
 
     <plugins>
-      <!--
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <systemPropertyVariables>
-            <foo>bar</foo>
-            <javax.net.ssl.trustStore>/Users/mhm/Pommes/svn.1and1.org/com/oneandone/sales/tools/cisotools/cacerts</javax.net.ssl.trustStore>
-          </systemPropertyVariables>
-          <forkCount>0</forkCount>
-          <useSystemClassLoader>false</useSystemClassLoader>
-        </configuration>
-      </plugin-->
       <plugin>
         <groupId>net.oneandone.maven.plugins</groupId>
         <artifactId>application</artifactId>
@@ -425,4 +412,26 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile><!-- if your remote repository needs a special trustStore, StoolIT needs this as well -->
+      <activation>
+        <property>
+          <name>javax.net.ssl.trustStore</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <systemPropertyVariables>
+                <javax.net.ssl.trustStore>${javax.net.ssl.trustStore}</javax.net.ssl.trustStore>
+              </systemPropertyVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 </project>
