@@ -240,6 +240,8 @@ public class Markdown {
                 result.addAll(value);
                 result.add(endLine);
                 i = next + 1;
+            } else {
+                result.add(startLine);
             }
         }
         return result;

@@ -6,7 +6,7 @@ Stool is a command line tool that provides a lifecycle for stages: create, build
 A stage is a Tomcat with web applications built from sources or downloaded as artifacts.
 
 [//]: # (ALL_SYNOPSIS)
-#[//]: # (-)
+[//]: # (-)
 
 
 ### Quick Tour
