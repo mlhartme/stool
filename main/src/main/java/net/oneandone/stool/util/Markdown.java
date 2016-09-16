@@ -27,6 +27,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * http://stackoverflow.com/questions/4823468/comments-in-markdown
+ */
 public class Markdown {
     public static void main(String[] args) throws IOException {
         World world;
@@ -52,6 +55,7 @@ public class Markdown {
         lines = substitute(lines, variables);
         checkCrossReferences(lines);
         manpages(lines, man);
+        lines = inlines(lines, variables);
         dest.writeLines(lines);
     }
 
@@ -205,6 +209,62 @@ public class Markdown {
             }
         }
         return result;
+    }
+
+    private static List<String> inlines(List<String> lines, Map<String, List<String>> variables) throws IOException {
+        String startLine;
+        String endLine;
+        List<String> result;
+        String key;
+        List<String> value;
+        int next;
+
+        result = new ArrayList<>(lines.size());
+        for (int i = 0; i < lines.size(); i++) {
+            startLine = lines.get(i);
+            if (isAction(startLine)) {
+                key = getActionCode(startLine);
+                value = variables.get(key);
+                if (value == null) {
+                    throw new IOException("not found: " + key);
+                }
+                next = nextAction(lines, i + 1);
+                if (next == -1) {
+                    throw new IOException("missing end marker for action " + key);
+                }
+                endLine = lines.get(next);
+                if (!"-".equals(getActionCode(endLine))) {
+                    throw new IOException("unexpected end marker for action " + key + ": " + getActionCode(endLine));
+                }
+                result.add(startLine);
+                result.addAll(value);
+                result.add(endLine);
+                i = next + 1;
+            }
+        }
+        return result;
+    }
+
+    private static int nextAction(List<String> lines, int start) {
+        for (int i = start; i < lines.size(); i++) {
+            if (isAction(lines.get(i))) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static boolean isAction(String line) {
+        return line.startsWith("[//]");
+    }
+
+    private static String getActionCode(String line) throws IOException {
+        final String start = "[//]: # (";
+
+        if (!line.startsWith(start) || !line.endsWith(")")) {
+            throw new IOException("invalid action line: " + line);
+        }
+        return line.substring(start.length(), line.length() - 1);
     }
 
     private static int depth(String header) {
