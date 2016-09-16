@@ -28,8 +28,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * http://stackoverflow.com/questions/4823468/comments-in-markdown
+ * Uses special comments (http://stackoverflow.com/questions/4823468/comments-in-markdown) to implement "markdown actions":
+ * [//] # (some code)     is an action header
+ * [//] # (-)             is an action footer
  */
+
 public class Markdown {
     public static void main(String[] args) throws IOException {
         World world;
