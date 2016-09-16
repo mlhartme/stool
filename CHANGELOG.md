@@ -5,6 +5,7 @@
 * fixed `stool create` gav in shared mode (thanks to Maximilian Braun)
 * Dashboard: removed cancel button, it had no effect (thanks to Cosmin Barbu)
 * one logstash process per stage
+* proved performance for 'stool list' (thanks to Gelli)
 * improved logstash
   * logstash.link now configures a bash script to launch a logstash process 
   * logstash.output now specifies a list of files to append for the config
