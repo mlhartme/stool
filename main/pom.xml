@@ -248,22 +248,19 @@
               <goal>run</goal>
             </goals>
           </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>net.oneandone.maven.plugins</groupId>
+        <artifactId>active-markdown</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <configuration>
+          <man>true</man>
+          <mandir>${project.build.directory}/classes/templates/man/man1</mandir>
+        </configuration>
+        <executions>
           <execution>
-            <id>mdpp</id>
-            <phase>process-classes</phase>
-            <configuration>
-              <target>
-                <property name="cp" refid="maven.runtime.classpath" />
-                <java classname="net.oneandone.stool.util.Markdown" classpath="${cp}" fork="false" failonerror="true">
-                  <arg path="${basedir}/src/site/documentation/documentation.mdpp" />
-                  <arg path="${basedir}/documentation.md" />
-                  <arg path="${basedir}/target/classes/templates/man/man1" />
-                </java>
-              </target>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
+            <goals><goal>run</goal></goals>
           </execution>
         </executions>
       </plugin>
