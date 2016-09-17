@@ -280,6 +280,89 @@ stop and remove. A stage contains web applications built from source or availabl
 #### Commands
 
 [//]: # (ALL_SYNOPSIS)
+
+`stool` *global-option*... [*command* *argument*...]
+
+
+`stool` *global-option*... `help`
+
+
+`stool` *global-option*... `version`
+
+
+`stool` *global-option*... `system-start`
+
+
+`stool` *global-option*... `system-stop`
+
+
+`stool` *global-option*... `create` [`-quiet`] (*url* | *directory*) *key*`=`*value*...
+
+
+
+`stool` *global-option*... `import` [`-max`] [`-name` *template*] *directory* ...
+
+
+
+`stool` *global-option*... `select` *stage*|`none`
+
+
+
+`stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] [`-autochown`|`-autorechown`] [`-autostop`|`-autorestart`] *command-options*...
+
+
+`stool` *global-option*... `build` *stage-option*...
+
+
+`stool` *global-option*... `remove` *stage-option*... [`-force`] [`-batch`] [`-backstage`]
+
+
+`stool` *global-option*... `start` *stage-option*... [`-debug`|`-suspend`] [`-tail`]
+
+
+`stool` *global-option*... `stop` *stage-option*... [`-sleep`]
+
+
+`stool` *global-option*... `restart` *stage-option*... [`-debug`|`-suspend`]
+
+
+
+`stool` *global-option*... `refresh` *stage-option*... [`-build`] [`-restore`]
+
+
+
+`stool` *global-option*... `chown` *stage-option*... [`-batch`] [*user*]
+
+
+
+`stool` *global-option*... `history` *stage-option*... [`-max` *n*] *detail*...
+
+
+`stool` *global-option*... `cd` *stage-option*... *target*
+
+
+
+`stool` *global-option*... `config` *stage-option*... (*key* | *value*)...
+
+
+`stool` *global-option*... `move` *stage-option*... *dest*
+
+
+`stool` *global-option*... `port` *stage-option*... *application*`=`*port*...
+
+
+`stool` *global-option*... `status *stage-option*... *field*...
+
+
+
+`stool` *global-option*... `list` *stage-option*... *field*...
+
+
+`stool` *global-option*... `cleanup` *stage-option*...
+
+
+`stool` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`]
+
 [//]: # (-)
 
 #### Global options
@@ -617,6 +700,8 @@ If you work locally on your own machine, you'll normally prefer to directly invo
 to use `stool build` because shared machine have a separate local Maven repository for every stage.
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 ### stool-remove -- Remove a stage
@@ -642,6 +727,8 @@ removed from Stool's list of stages. This is useful to "unimport" a stage, i.e. 
 Changes the current directory to the parent of the now deleted stage directory.
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -694,6 +781,8 @@ addition, Stool defines a `USER` variable set to the stage owner and a `HOME` va
 pointing to the owner's home directory.
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -712,6 +801,8 @@ Tomcat is killed (with -9). If Tomcat shutdown is slow, try to debug the applica
 the don't obey to the shutdown request. 
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -727,6 +818,8 @@ the don't obey to the shutdown request.
 Shorthand for `stool stop` and `stool start` with the specified options.
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -747,6 +840,8 @@ For source changes: invokes the command specified by the `refresh` property. If 
 is specified, also runs the command specified by the `build` property.
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -770,6 +865,8 @@ Reports an error if the stage is up. In this case, you can specify `-autostop` o
 *user* defaults to the current user.
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -786,6 +883,8 @@ range to get the full command output for the respective command(s). If the max n
 *n* of commands is exceeded, older commands are ignored (*n* defauls is 999).
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -805,6 +904,8 @@ Changes the current working directory to the specified *target*:
 * **(otherwise)** the specified direct or indirect sub-directory of the backstage directory.
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -851,6 +952,8 @@ Map properties (e.g.`tomcat.env`) separate entries by commas, whitespace before 
 Each entry separates key and value by a colon. Example `PATH:/bin, HOME:/home/me`
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -938,6 +1041,8 @@ You might have to re-build your application after moving the stage if you have d
 (e.g. Lavender ...).
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -954,6 +1059,8 @@ Allocates the specified ports for this stage. *application* specifies the applic
 for https. When starting a stage, unused allocated ports are freed.
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -1014,6 +1121,8 @@ A field may be any stage property or one of the following status fields:
   Url of this stage. Type string.
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -1029,6 +1138,8 @@ Displays a short status of all stages (or the stages specified by `-stage`). See
 command for a list of available fields. Default fields are `state ower url directory`.
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -1043,6 +1154,8 @@ command for a list of available fields. Default fields are `state ower url direc
 Removes the Maven repository and rotates *.log info *.log.gz files.
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -1065,6 +1178,8 @@ Also performs log rotation: logs a gzipped and removed after 90 days.
 Also checks Stool's locking system for stale locks and, if `-repair` is specified, removed them.
 
 [//]: # (include stageOptions.md)
+
+Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
