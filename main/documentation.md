@@ -265,7 +265,9 @@ The dashboard is a system stage you can install to control stages via browser.
 
 ## Commands
 
-### stool -- Stage tool
+### stool
+
+Stage tool
 
 #### SYNOPSIS
 
@@ -463,7 +465,9 @@ Invoke `stool help` *command* to get help for the specified command.
 
 Commands that do not deal with individual stages.
 
-### stool-help -- Display man page
+### stool-help 
+
+Display man page
 
 #### SYNOPSIS
 
@@ -474,7 +478,9 @@ Commands that do not deal with individual stages.
 Prints help about the specified *command*. Or, if *command*
 is not specified, prints help about Stool.
 
-### stool-version -- Display version info
+### stool-version 
+
+Display version info
 
 #### SYNOPSIS
 
@@ -484,7 +490,9 @@ is not specified, prints help about Stool.
 
 Prints Stool's version info. Use the global `-v` option to get additional diagnostic info.
 
-### stool-system-start -- Startup all stages
+### stool-system-start
+
+Startup all stages
 
 #### SYNOPSIS
 
@@ -495,7 +503,9 @@ Prints Stool's version info. Use the global `-v` option to get additional diagno
 Start all system stages and all sleeping stages. Always uses fail mode `after`.
 
 
-### stool-system-stop -- Shutdown stages
+### stool-system-stop
+
+Shutdown stages
 
 #### SYNOPSIS
 
@@ -505,7 +515,9 @@ Start all system stages and all sleeping stages. Always uses fail mode `after`.
 
 Stop all system stages and sends all other running stages to sleep. Always uses fail mode `after`.
 
-### stool-create -- Create a new stage
+### stool-create
+
+Create a new stage
 
 #### SYNOPSIS
 
@@ -556,7 +568,9 @@ Create a source stage from git: `stool create git:git@github.com:mlhartme/hellow
 
 Create a source stage from svn: `stool create svn:https://github.com/mlhartme/hellowar/trunk`
 
-### stool-import -- Create stages for one or many existing directories
+### stool-import
+
+Create stages for one or many existing directories
 
 #### SYNOPSIS
 
@@ -574,7 +588,9 @@ is a string defining the stage name. And any occurrence of `%d`
 will be replaced by the current directory name. Default template is`%d`.
 
 
-### stool-switch -- Jump between stage directories
+### stool-select
+
+Jump between stage directories
 
 #### SYNOPSIS
 
@@ -602,7 +618,9 @@ initially have a stage to operate on (although it results in a new (and selected
 
 All stage commands provide stage options, invoke `stool help stage-options` for documentation.
 
-### stool-stage-options -- Options available for all stage commands
+### stool-stage-options
+
+Options available for all stage commands
 
 #### SYNOPSIS
 
@@ -673,7 +691,9 @@ after the first stage that cannot be started (e.g. because it's already running)
 
 `stool stop -stage state=up` stops all stages currently up, but aborts immediately if one stage fails to stop.
 
-### stool-build -- Build a stage
+### stool-build
+
+Build a stage
 
 #### SYNOPSIS
 
@@ -704,7 +724,9 @@ to use `stool build` because shared machine have a separate local Maven reposito
 Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
-### stool-remove -- Remove a stage
+### stool-remove
+
+Remove a stage
 
 #### SYNOPSIS
 
@@ -732,7 +754,9 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 [//]: # (-)
 
 
-### stool-start -- Start a stage
+### stool-start
+
+Start a stage
 
 #### SYNOPSIS
 
@@ -786,7 +810,9 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 [//]: # (-)
 
 
-### stool-stop -- Stop a stage
+### stool-stop
+
+Stop a stage
 
 #### SYNOPSIS
 
@@ -806,7 +832,9 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 [//]: # (-)
 
 
-### stool-restart -- Restart a stage
+### stool-restart
+
+Restart a stage
 
 #### SYNOPSIS
 
@@ -823,7 +851,9 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 [//]: # (-)
 
 
-### stool-refresh -- Refresh a stage
+### stool-refresh
+
+Refresh a stage
 
 #### SYNOPSIS
 
@@ -845,7 +875,9 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 [//]: # (-)
 
 
-### stool-chown -- Change the stage owner
+### stool-chown
+
+Change the stage owner
 
 #### SYNOPSIS
 
@@ -870,7 +902,9 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 [//]: # (-)
 
 
-### stool-history -- Display the command history
+### stool-history
+
+Display the command history
 
 #### SYNOPSIS
 
@@ -888,7 +922,9 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 [//]: # (-)
 
 
-### stool-cd -- Jump to a directory
+### stool-cd
+
+Jump to a directory
 
 #### SYNOPSIS
 
@@ -913,7 +949,9 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 `stool cd logs` will jumps to `tomcat/logs` inside your backstage directory.
 
-### stool-config -- Manage stage properties
+### stool-config
+
+Manage stage properties
 
 #### SYNOPSIS
 
@@ -1025,7 +1063,9 @@ Note that the default values below might be overwritten by Stool defaults on you
 `stool config tomcat.select=foo,bar` configures a list property. Do not use spaces around
 the comma because the shell would consider this as a new key-value argument -- or quote the whole argument.
 
-### stool-move -- Move the stage directory
+### stool-move
+
+Move the stage directory
 
 #### SYNOPSIS
 
@@ -1046,7 +1086,9 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 [//]: # (-)
 
 
-### stool-port -- Allocates ports for the current stage
+### stool-port
+
+Allocates ports for the current stage
 
 #### SYNOPSIS
 
@@ -1064,7 +1106,9 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 [//]: # (-)
 
 
-### stool-status -- Display stage status
+### stool-status
+
+Display stage status
 
 #### SYNOPSIS
 
@@ -1126,7 +1170,9 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 [//]: # (-)
 
 
-### stool-list -- List stages
+### stool-list
+
+List stages
 
 #### SYNOPSIS
 
@@ -1143,7 +1189,9 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 [//]: # (-)
 
 
-### stool-clenup -- Cleanup a stage
+### stool-clenup
+
+Cleanup a stage
 
 #### SYNOPSIS
 
@@ -1159,7 +1207,9 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 [//]: # (-)
 
 
-### stool-validate -- Validate the stage
+### stool-validate
+
+Validate the stage
 
 #### SYNOPSIS
 
