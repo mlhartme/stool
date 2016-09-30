@@ -435,7 +435,13 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
   feature. You'll usually set this to the size of the partition that will store your stages. Note that this quota
   cannot prevent disk full problem because stages can be placed on arbitrary partitions. Type number. 
 * **shared**
-  `true` if multiple user may work on stages. See [stage owner](#stage-owner) for details. Type boolean.
+  `true` if multiple user may work on stages. When set to true, stool does:
+  * use `.backstage/.m2` (instead of the current user's `~/.m2/repository`) as local Maven repository
+  * when creating a stage:
+    * default `expire` to `ever
+    * check directory permissions, that every stool user can access the new directory
+  * when starting/stopping a stage: uses `sudo` to be come the user who's the current owner of the stage.
+  See also [stage owner](#stage-owner). Type boolean.
 * **search**
   Command line to execute if `stool create` is called with an % url.
   When calling the command, the placeholder `()` is replaced by the url.
