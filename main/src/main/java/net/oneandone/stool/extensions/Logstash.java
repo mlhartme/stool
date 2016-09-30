@@ -18,6 +18,7 @@ package net.oneandone.stool.extensions;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.ExitCode;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
@@ -91,7 +92,11 @@ public class Logstash implements Extension {
             stage.session.console.info.println("WARNING: " + pidfile.getAbsolute() + " not found");
         } else {
             pid = pidfile.readString().trim();
-            pidfile.getParent().exec("kill", pid);
+            try {
+                pidfile.getParent().execNoOutput("kill", pid);
+            } catch (ExitCode e) {
+                throw new IOException("ERROR: cannot stop logstash, pid=" + pid);
+            }
             pidfile.deleteFile();
         }
     }
