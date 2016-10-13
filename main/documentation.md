@@ -391,7 +391,8 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
   certificates. Otherwise, if it starts with `http://` or `https://` Stool generates a `csr` and posts it to
   *certificates*, expecting back the certificate. Otherwise, Stool invokes the specified script with the desired domain as
   an argument. The script is invoked in the *.backstage/ssh* directory, it is expected to generate a tomcat.jks keystore with
-  Java's standard keysore password. Type string.
+  Java's standard keysore password. (A note about re-generation: when starting a stage, Stool checks if *tomcat.jks* already exists;
+  if not, certificate generation is triggered). Type string.
 * **committed**
   `true` if users have to commit source changes before Stool allows them to start the stage. Type boolean.
 * **defaults**
