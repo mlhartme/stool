@@ -1,5 +1,10 @@
 ## Changelog 
 
+### 3.4.4 (pending)
+
+* removed support for IT-CA certificates
+
+
 ### 3.4.3 (2016-09-22)
 
 * `stool validate` now sends a notification if the certificate expires in less than 10 days.

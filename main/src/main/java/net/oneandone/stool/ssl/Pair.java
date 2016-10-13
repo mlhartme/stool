@@ -26,16 +26,11 @@ import java.io.Writer;
 
 /** Pair of key/cert pem files.  */
 public class Pair {
-    public static final String HOSTNAME = "itca.server.lan";
-    public static final String URL_PREFIX = "https://" + HOSTNAME + "/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
-
     public static Pair create(String scriptOrUrl, String hostname, FileNode workDir) throws IOException {
         Pair pair;
 
         if (scriptOrUrl.isEmpty()) {
             pair = selfSigned(workDir, hostname);
-        } else if (scriptOrUrl.equals(URL_PREFIX)) {
-            pair = itca(workDir, hostname);
         } else if (scriptOrUrl.startsWith("http://") || scriptOrUrl.startsWith("https://")) {
             pair = fromCsr(workDir, scriptOrUrl, hostname);
         } else {
@@ -71,26 +66,6 @@ public class Pair {
         workDir.exec("openssl", "req", "-x509", "-newkey", "rsa:2048", "-keyout", key.getAbsolute(), "-out", cert.getAbsolute(),
                 "-days", "365", "-nodes", "-subj", "/CN=" + hostname);
         return new Pair(key, cert, false);
-    }
-
-    public static Pair itca(FileNode workDir, String hostname) throws IOException {
-        FileNode crt, key;
-        Pair pair;
-        FileNode zip;
-        World world;
-        HttpNode itca;
-
-        crt = workDir.join(hostname.replace("*", "_") + ".crt");
-        key = workDir.join(hostname.replace("*", "_") + ".key");
-        pair = new Pair(key, crt, false);
-        if (!(pair.privateKey().exists() || pair.certificate().exists())) {
-            world = workDir.getWorld();
-            zip = world.getTemp().createTempFile();
-            itca = (HttpNode) world.validNode(URL_PREFIX + hostname);
-            itca.copyFile(zip);
-            zip.unzip(workDir);
-        }
-        return pair;
     }
 
     public static Pair fromCsr(FileNode workDir, String url, String hostname) throws IOException {

@@ -22,19 +22,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 public class PairIT {
-
-    @Ignore
-    public void itca() throws Exception {
-        FileNode workDir;
-        World world;
-        Pair pair;
-
-        world = Main.world();
-        workDir = world.getTemp().createTempDirectory();
-        pair = Pair.itca(workDir, "*.jenkins.websales.united.domain");
-        System.out.println(pair.text());
-    }
-
     @Test
     public void selfsigned() throws Exception {
         FileNode workDir;

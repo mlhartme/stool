@@ -21,12 +21,12 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 
 public class KeyStore {
-    public static KeyStore create(String url, String hostname, FileNode workDir) throws IOException {
+    public static KeyStore create(String scriptOrUrl, String hostname, FileNode workDir) throws IOException {
         KeyStore keyStore;
 
         keyStore = new KeyStore(workDir);
         if (!keyStore.exists()) {
-            keyStore.fill(Pair.create(url, hostname, workDir));
+            keyStore.fill(Pair.create(scriptOrUrl, hostname, workDir));
         }
         return keyStore;
     }
