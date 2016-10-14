@@ -3,6 +3,7 @@
 ### 3.4.4 (pending)
 
 * removed support for IT-CA certificates
+* logstash improvements: `logstash.output` is unused now, the launcher script is now expected to generate the configuration as well
 
 
 ### 3.4.3 (2016-09-22)

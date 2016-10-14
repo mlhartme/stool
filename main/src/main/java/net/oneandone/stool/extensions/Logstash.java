@@ -16,10 +16,8 @@
 package net.oneandone.stool.extensions;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.ExitCode;
-import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -58,27 +56,9 @@ public class Logstash implements Extension {
     @Override
     public void beforeStart(Stage stage) throws IOException {
         String bin;
-        FileNode file;
-        StringBuilder config;
 
         bin = link; // TODO: rename
-        file = conf(stage);
-        config = new StringBuilder("input {\n" +
-                "  file {\n" +
-                "    type => 'generic'\n" +
-                "    tags => ['" + stage.getName() + "']\n" +
-                "    start_position => beginning\n" +
-                "    ignore_older => 0\n" +
-                "    path => ['" + stage.getBackstage().join(Pustefix.APPLOGS).getAbsolute() + "/*/*.log']\n" +
-                "  }\n" +
-                "}\n\n");
-        for (String name : Separator.COMMA.split(output)) {
-            config.append(file.getWorld().file(name).readString());
-            config.append('\n');
-        }
-        file.writeString(config.toString());
-        Files.stoolFile(file);
-        file.getParent().exec(bin, file.getAbsolute(), log(stage).getAbsolute(), pid(stage).getAbsolute());
+        stage.backstage.exec(bin, stage.getName(), stage.catalinaBase().getAbsolute(), pid(stage).getAbsolute());
     }
 
     @Override
