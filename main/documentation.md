@@ -1049,7 +1049,7 @@ Note that the default values below might be overwritten by Stool defaults on you
 * **tomcat.service**
   Version of the Java Service Wrapper to use. Default value: `3.5.29`. Type string.
 * **tomcat.version**
-  Tomcat version to use. Type string. Default value: `8.5.3`. If you change this property,
+  Tomcat version to use. Type string. Default value: `8.5.6`. If you change this property,
   you have to stop tomcat, delete the `.backstage/tomcat` directory, and start Tomcat again.
 * **url**
   A pattern that define how to build the application urls: a sequence of strings and alternatives, where

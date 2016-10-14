@@ -123,7 +123,7 @@ public class StageConfiguration {
         this.pom = "pom.xml";
         this.quota = 10000;
         this.tomcatOpts = "";
-        this.tomcatVersion = "8.5.3";
+        this.tomcatVersion = "8.5.6";
         this.tomcatService = "3.5.29";
         this.tomcatHeap = 350;
         this.tomcatSelect = new ArrayList<>();
