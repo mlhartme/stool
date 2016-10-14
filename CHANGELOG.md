@@ -2,6 +2,7 @@
 
 ### 3.4.4 (pending)
 
+* fixed bash completion for systems where `ls` is an alias
 * removed support for IT-CA certificates
 * logstash improvements: `logstash.output` is unused now, the launcher script is now expected to generate the configuration as well
 

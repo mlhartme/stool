@@ -1,7 +1,9 @@
 __stageList() {
   local base=${{stool.home}}/backstages
-  for dir in $(ls -1 $base); do
-    ls=$(ls -ld "$base/$dir")
+  # don't use ls, it's an alias on many systems:
+  local lscmd=/bin/ls
+  for dir in $($lscmd -1 $base); do
+    ls=$($lscmd -ld "$base/$dir")
     dir=$(expr "$ls" : '.*-> \(.*\)$')
     dir=$(dirname $dir)
     echo $(__stageName $dir)
