@@ -1,11 +1,12 @@
 ## Changelog 
 
-### 3.4.4 (pending)
+### 3.4.4 (2016-10-17)
 
 * updated default Tomcat version from 8.5.3 to 8.5.6
 * fixed bash completion for systems where `ls` is an alias
 * removed support for IT-CA certificates
-* logstash improvements: `logstash.output` is unused now, the launcher script is now expected to generate the configuration as well
+* logstash improvements: `logstash.output` is unused now, the launcher script (configured in `logstash.link` 
+  is now expected to generate the configuration as well
 
 
 ### 3.4.3 (2016-09-22)
