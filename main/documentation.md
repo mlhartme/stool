@@ -453,6 +453,17 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
   distinguish between stages). Type boolean. If you want to enable vhosts you have to make sure you
   have the respective DNS * entries for your machine.
 
+#### Ports
+
+Stool allocates ports in pairs: an even and the following odd number. To choose a port for a given Stage, Stool computes a hash between
+portFirst and portLast. If this pair if already allocated, the next higher pair is checked (with roll-over to portFirst if necessary).
+Even ports are used for http, odd ports for https. In addition to one pair for each application of the stage, Stool allocates two pairs 
+for internal use for every stage (jmx ports, debugger port, tomcat stop port and service wrapper ports). Thus, one stage needs at least 
+3 pairs (= 6 ports).
+
+You can see the currently allocated ports in `$stoolHome/run/ports`
+
+
 #### Environment
 
 `STOOL_OPTS` to configure the underlying JVM.
@@ -1107,6 +1118,10 @@ Allocates the specified ports for this stage. *application* specifies the applic
 *port* is the http port, *port*`+1` is automatically reserved
 for https. When starting a stage, unused allocated ports are freed.
 
+You'll normally not use this uncommand because because ports are automatically allocated if you start a stage.
+This command is if you have to explicitly assign specific ports to a given stage.
+
+
 [//]: # (include stageOptions.md)
 
 Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
@@ -1303,7 +1318,7 @@ Debian package are available from [Maven Central](http://central.sonatype.org).
         |  `- service-wrapper.sh
         |- run
         |  |- locks       (holds all locking data)
-        |  |- ports
+        |  |- ports       (lists all allocated ports)
         |  '- sleep.json  (optional, holds sleeping stages)
         |- downloads (caches Tomcat- and Service Wrapper downloads)
         |- extensions (for jars with Stool extensions)
