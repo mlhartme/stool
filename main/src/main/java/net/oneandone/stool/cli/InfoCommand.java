@@ -187,7 +187,7 @@ public abstract class InfoCommand extends StageCommand {
 
         servicePid = stage.runningService();
         if (servicePid != 0) {
-            tomcatPid = processes.oneChild(servicePid);
+            tomcatPid = processes.oneChildOpt(servicePid);
             cpu = processes.lookup(tomcatPid).cpu;
             mem = processes.lookup(tomcatPid).mem;
             ports = stage.loadPortsOpt();

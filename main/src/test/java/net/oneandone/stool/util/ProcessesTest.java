@@ -33,6 +33,6 @@ public class ProcessesTest {
         assertEquals(false, p.hasPid(4));
         assertEquals(true, p.hasPid(5));
         assertEquals(21785, p.servicePid(WORLD.file("/opt/ui/opt/tools/stool/backstages/maria-snapshots-new")));
-        assertEquals(21787, p.oneChild(21785));
+        assertEquals(21787, p.oneChildOpt(21785));
     }
 }

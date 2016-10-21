@@ -130,13 +130,13 @@ public class Processes {
         return result;
     }
 
-    public int oneChild(int pid) {
+    public int oneChildOpt(int pid) {
         List<Integer> lst;
 
         lst = children(pid);
         switch (lst.size()) {
             case 0:
-                throw new IllegalArgumentException("no child process for pid " + pid);
+                return 0;
             case 1:
                 return lst.get(0);
             default:

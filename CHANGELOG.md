@@ -1,5 +1,10 @@
 ## Changelog 
 
+### 3.4.5 (pending)
+
+* stool status: fixed exception is service wrapper has no child process
+
+
 ### 3.4.4 (2016-10-17)
 
 * updated default Tomcat version from 8.5.3 to 8.5.6
