@@ -7,7 +7,9 @@ A stage is a Tomcat with web applications built from sources or downloaded as ar
 
 ### Quick Tour
 
-Here's an example, what you can do with Stool. (The following assumes that Stool has been installed properly - see the setup section below)
+For setup instructions, please read the respective section below. The following assumes that Stool is properly set up.
+
+Here's an example, what you can do with Stool. 
 
 Create a new stage by checking out an application:
 
@@ -1259,19 +1261,19 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 Prerequisites:
 * Linux or Mac
-* Java 8 or higher. This is prerequisite because Stool is implemented in Java 8. Howevery, you can build your stages with an
+* Java 8 or higher. This is prerequisite because Stool is implemented in Java 8. However, you can build your stages with an
   arbitrary Java version.
 
-First of all: Stool is split into `stool` itself and the `dashboard`. The dashboard is optional
-if you want some of Stool's functionality available in a browser.
+First of all: Stool is split into `stool` itself and the `dashboard`. The dashboard is optional, it  
+makes some of Stool's functionality available in a browser.
 
 Next, you have to choose the appropriate of setup for your machine: isolated or shared.
 
 
 ### Isolated setup
 
-Isolated setup means that stages created by one user can only be seen and used by this user. Security: everything executes
-as the respective user, no `root` permissions or sudo rules required.
+Isolated setup is for you if you want to install Stool for yourself and nobody else. Technically, isolated setup means that stages created by 
+one user can only be seen and used by this user. Security: everything executes as the respective user, no `root` permissions or sudo rules required.
 
 Steps:
 * Download the latest `application.sh` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22)
@@ -1290,7 +1292,8 @@ Dashboard setup:
 
 ### Shared setup
 
-Shared setup means that stages can be created, modified and removed by every other user on the machines.
+Shared setup is for you if you want to insteall Stool on a server, to be used by multiple users. Technically, shared setup means 
+that stages can be created, modified and removed by every other user on the machines.
 
 Security: you need root permission to setup Stool in shared mode. Having shared Stool on you machine allows every Stool user
 to execute arbitrary code as arbitrary Stool user (i.e. in a stage started by him or a Tomcat/Java Service Wrapper provided by him).
@@ -1306,6 +1309,11 @@ Debian package are available from [Maven Central](http://central.sonatype.org).
 * Restart your shell or re-login if you work on a VM/remote machine. (Otherwise, the stage indicator will not work properly
   and Stool cannot change the current directory).
 * Invoke `stool` to verify your setup. You should get a usage message.
+
+### Upgrading 
+
+Unfortunatly, upgrating stages from version before 3.4.0 is not supported.
+
 
 ## Directory Layout
 
