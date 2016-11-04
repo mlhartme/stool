@@ -1312,7 +1312,14 @@ Debian package are available from [Maven Central](http://central.sonatype.org).
 
 ### Upgrading 
 
-Unfortunatly, upgrating stages from version before 3.4.0 is not supported.
+To upgrade from Stool versions before 3.4.0:
+* uninstall the old version Stool; not stage stages are not removed
+* install 3.4 as described above
+* for every stage:
+  * cd into the stage directory
+  * run `stool import .`
+  * Unfortunatly, your previous stage configuration cannot be upgraded automatically, 
+    you have to manually reconfigure your stage with `stool config`
 
 
 ## Directory Layout
