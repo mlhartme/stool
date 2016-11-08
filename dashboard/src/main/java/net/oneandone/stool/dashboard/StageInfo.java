@@ -55,7 +55,7 @@ public class StageInfo {
         stageInfo.extractionUrl = stage.getUrl();
         stageInfo.running = stage.isWorking() ? Stage.State.WORKING : stage.state();
         stageInfo.urls = stage.urlMap();
-        stageInfo.owner = users.byLogin(stage.owner()).name;
+        stageInfo.owner = users.byLogin(stage.creator()).name;
         stageInfo.updateAvailable = stage.updateAvailable();
         stageInfo.expire = stage.config().expire;
 

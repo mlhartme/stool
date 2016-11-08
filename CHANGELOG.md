@@ -5,9 +5,10 @@
 * chownloss operation:
   * dumped `chown` command since it's no longer needed; admins have to take care that sharing the files does not cause permission problems
   * removed -autoChown and -autoRechown options
-  * removed 'owner' status field
-  * stages are now startet as the 'created' user
-  * notify owner now sends emails to the creator
+  * removed 'owner' status field; changed all usages to use the creator instead:
+    * user to start process as
+    * user to start stool as
+    * dashboard shows the creator now
   
 * stool status: fixed exception is service wrapper has no child process
 

@@ -184,10 +184,6 @@ public abstract class Stage {
     public abstract boolean updateAvailable();
 
     /** @return login name */
-    public String owner() throws IOException {
-        return directory.getOwner().getName();
-    }
-    /** @return login name */
     public String creator() throws IOException {
         return session.backstageLink(id).getOwner().getName();
     }
