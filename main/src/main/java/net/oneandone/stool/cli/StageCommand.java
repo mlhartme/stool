@@ -223,17 +223,6 @@ public abstract class StageCommand extends SessionCommand {
         return stages.size() != 1;
     }
 
-    private String autoChown(Stage stage) throws Exception {
-        String postChown;
-        if (withAutoChowning() && (autoRechown || autoChown) && !stage.owner().equals(session.user)) {
-            postChown = autoRechown ? stage.owner() : null;
-            new Chown(session, true, session.user).doRun(stage);
-        } else {
-            postChown = null;
-        }
-        return postChown;
-    }
-
     private boolean autoStart(Stage stage, Map<Info, Object> status) throws Exception {
         boolean postStart;
 
@@ -426,14 +415,12 @@ public abstract class StageCommand extends SessionCommand {
         private final EnumerationFailed failures;
         private final boolean withPrefix;
         private final Map<Stage, Start> postStarts;
-        private final Map<Stage, String> postChowns;
 
         public Worker(int width, EnumerationFailed failures, boolean withPrefix) {
             this.width = width;
             this.failures = failures;
             this.withPrefix = withPrefix;
             this.postStarts = new LinkedHashMap<>();
-            this.postChowns = new LinkedHashMap<>();
         }
 
         public void main(Stage stage) throws Exception {
@@ -489,21 +476,14 @@ public abstract class StageCommand extends SessionCommand {
                 suspend = (Boolean) status.get(Field.SUSPEND);
                 postStarts.put(stage, new Start(session, debug, suspend));
             }
-            postChowns.put(stage, autoChown(stage));
             doMain(stage);
         }
 
         private void runFinish(Stage stage) throws Exception {
-            String postChown;
             Start postStart;
 
             console.verbose.println("*** stage finish");
             doFinish(stage);
-            postChown = postChowns.get(stage);
-            if (postChown != null) {
-                // do NOT call session.chown to get property locking
-                new Chown(session, true, postChown).doRun(stage);
-            }
             postStart = postStarts.get(stage);
             if (postStart != null) {
                 if (!stage.getDirectory().exists()) {

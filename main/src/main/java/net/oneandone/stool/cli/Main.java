@@ -104,7 +104,6 @@ public class Main {
                             +   "setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Build.class, "build");
                       cli.add(Cd.class, "cd target?=null { setTarget(target) }");
-                      cli.add(Chown.class, "chown -batch user?=null");
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -max=@history.max:999 detail* { detail*(detail) }");

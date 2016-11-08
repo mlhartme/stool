@@ -158,9 +158,6 @@ public class Validate extends StageCommand {
                     try {
                         // CAUTION: do not place this behind "remove", stage.owner() would fail
                         report.user(stage, "removing expired stage");
-                        if (!stage.owner().equals(session.user)) {
-                            new Chown(session, true, null).doRun(stage);
-                        }
                         new Remove(session, true, true).doRun(stage);
                     } catch (Exception e) {
                         report.user(stage, "failed to remove expired stage: " + e.getMessage());
