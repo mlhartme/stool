@@ -44,8 +44,6 @@ import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.launcher.Failure;
-import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.codehaus.plexus.DefaultPlexusContainer;
@@ -456,21 +454,6 @@ public class Session {
         } else {
             return null;
         }
-    }
-
-
-    public void chown(Stage stage, String newOwner) throws Failure {
-        chown(newOwner, stage.getDirectory());
-    }
-
-    public void chown(String newOwner, FileNode ... dirs) throws Failure {
-        Launcher launcher;
-
-        launcher = new Launcher(home, "sudo", bin("chowntree.sh").getAbsolute(), newOwner);
-        for (FileNode dir : dirs) {
-            launcher.arg(dir.getAbsolute());
-        }
-        launcher.exec(console.info);
     }
 
     public FileNode ports() {

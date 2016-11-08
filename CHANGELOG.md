@@ -4,7 +4,7 @@
 
 * chownloss operation:
   * dumped `chown` command since it's no longer needed; admins have to take care that sharing the files does not cause permission problems
-  * auto-chown and auto-rechown options have no effect
+  * removed -autoChown and -autoRechown options
   
 * stool status: fixed exception is service wrapper has no child process
 

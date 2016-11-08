@@ -84,7 +84,6 @@ public class UpgradeBuilder {
         FileNode stage;
         Logging logging;
         Import i;
-        String originalOwner;
 
         if (withConfig) {
             stool(from, stoolMapper);
@@ -110,26 +109,14 @@ public class UpgradeBuilder {
             }
             console.info.println("import " + oldBackstage);
             stage = oldBackstage.join("anchor").resolveLink();
-            originalOwner = chown(stage, session.user);
             i = new Import(session);
             i.setUpgradeId(id);
             i.dirs(stage.getAbsolute());
             i.doRun();
             transform(oldBackstage.join("config.json"), stage.join(".backstage/config.json"), stageMapper);
-            chown(stage, originalOwner);
         }
         ports();
         bedroom();
-    }
-
-    private String chown(FileNode directory, String newOwner) throws IOException {
-        String was;
-
-        was = directory.getOwner().toString();
-        if (!was.equals(newOwner)) {
-            session.chown(newOwner, directory);
-        }
-        return was;
     }
 
     private void ports() throws IOException {
