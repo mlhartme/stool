@@ -211,7 +211,7 @@ public class Import extends SessionCommand {
         directory = stage.getDirectory();
         Files.sourceTree(console.verbose, directory, session.group());
         name = forceName != null ? forceName : name(directory);
-        Files.createStoolDirectory(session.console.verbose, Stage.backstageDirectory(directory));
+        Stage.backstageDirectory(directory).mkdir();
         stage.config().name = name;
         stage.tuneConfiguration();
         stage.initialize();

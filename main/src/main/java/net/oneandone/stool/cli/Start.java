@@ -218,7 +218,7 @@ public class Start extends StageCommand {
         // manually create empty subdirectories, because git doesn't know them
         // CAUTION: the log directory is created by "stool create" (because it contains log files)
         for (String dir : new String[] {"ssl", "run" }) {
-            Files.createStoolDirectoryOpt(console.verbose, backstage.join(dir));
+            backstage.join(dir).mkdirOpt();
         }
     }
 

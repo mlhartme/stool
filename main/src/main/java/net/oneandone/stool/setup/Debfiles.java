@@ -39,7 +39,7 @@ public class Debfiles {
         target.mkdir();
 
         man = target.join("man");
-        Files.createStoolDirectory(console.verbose, man);
+        man.mkdir();
         world.resource("templates/man").copyDirectory(man);
         Files.stoolTree(console.verbose, man);
 

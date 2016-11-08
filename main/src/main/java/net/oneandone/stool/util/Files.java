@@ -70,24 +70,6 @@ public final class Files {
     }
 
 
-    public static Node createStoolDirectoryOpt(PrintWriter log, FileNode directory) throws IOException {
-        if (!directory.isDirectory()) {
-            createStoolDirectory(log, directory);
-        }
-        return directory;
-    }
-
-    /** Creates a directory with mode 2775. Caution - does not work for the stool lib because the group is not set  */
-    public static Node createStoolDirectory(PrintWriter log, FileNode directory) throws IOException {
-        // The code
-        //    directory.mkdir();
-        // would inherit the setgid flag from the lib directory, fine. But
-        //     permissions(directory, "rwxrwxr-x");
-        // would reset setgid. Thus, I have to do it expensively;
-        exec(log, directory.getParent(), "mkdir", "-m", "2775", directory.getName());
-        return directory;
-    }
-
     /**
      * Set permissions of a backstage file.
      * Assumes the files is owned by the current user (usually because it was just created by us)

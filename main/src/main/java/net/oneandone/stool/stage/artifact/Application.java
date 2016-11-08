@@ -142,7 +142,8 @@ public class Application {
         } else {
             changes = SCMChangeCollector.run(current, future, users, svnurl);
         }
-        Files.createStoolDirectoryOpt(console.verbose, file.getParent());
+        FileNode directory = file.getParent();
+        directory.mkdirOpt();
         Files.stoolFile(file.writeString(gson.toJson(changes)));
         return changes;
     }

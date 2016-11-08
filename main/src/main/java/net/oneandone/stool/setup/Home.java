@@ -91,7 +91,7 @@ public class Home {
         StoolConfiguration conf;
 
         gson = gson();
-        Files.createStoolDirectory(console.verbose, dir);
+        dir.mkdir();
         exec("chgrp", group, dir.getAbsolute());
         // chgrp overwrites the permission - thus, i have to re-set permissions
         exec("chmod", "2775", dir.getAbsolute());
@@ -103,11 +103,9 @@ public class Home {
             conf = conf.createPatched(gson, explicitConfig);
         }
         conf.save(gson, dir);
-        if (!conf.downloadCache.exists()) {
-            Files.createStoolDirectory(console.verbose, conf.downloadCache);
-        }
+        conf.downloadCache.mkdirOpt();
         for (String name : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "tomcat", "system"}) {
-            Files.createStoolDirectory(console.verbose, dir.join(name));
+            dir.join(name).mkdir();
         }
         Files.stoolFile(versionFile().writeString(Main.versionString(world)));
         Files.stoolFile(dir.join("run/locks").mkfile());

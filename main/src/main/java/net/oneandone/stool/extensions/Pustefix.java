@@ -16,7 +16,6 @@
 package net.oneandone.stool.extensions;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -43,7 +42,7 @@ public class Pustefix implements Extension {
 
     @Override
     public void beforeStart(Stage stage) throws IOException {
-        Files.createStoolDirectoryOpt(stage.session.console.verbose, stage.getBackstage().join(APPLOGS));
+        stage.getBackstage().join(APPLOGS).mkdirOpt();
     }
 
     @Override

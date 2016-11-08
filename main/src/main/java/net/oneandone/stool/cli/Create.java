@@ -229,7 +229,7 @@ public class Create extends SessionCommand {
             artifactStage = new ArtifactStage(session, url, id, directory, stageConfiguration);
             // create backstage BEFORE possible artifactory resolving because it might
             // already populates the local repository of the stage
-            Files.createStoolDirectory(console.verbose, artifactStage.backstage);
+            artifactStage.backstage.mkdir();
             artifactStage.populateDirectory(console);
             stage = artifactStage;
         } else {
@@ -238,7 +238,7 @@ public class Create extends SessionCommand {
             session.scm(url).checkout(url, directory, quiet ? console.verbose : console.info);
             stage = SourceStage.forUrl(session, id, directory, url, stageConfiguration);
             // create backstage AFTER checkout -- git would reject none-empty target directories
-            Files.createStoolDirectory(console.verbose, stage.backstage);
+            stage.backstage.mkdir();
         }
         return stage;
     }
