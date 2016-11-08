@@ -306,7 +306,6 @@ public class UpgradeBuilder {
                     dest.remove("pustefix.editor.userdata");
                 } else {
                     array = new JsonArray();
-                    array.add(new JsonPrimitive(StageConfiguration.NOTIFY_OWNER));
                     array.add(new JsonPrimitive(StageConfiguration.NOTIFY_CREATOR));
                     dest.add("notify", array);
                     dest.add("quota", new JsonPrimitive(10000));

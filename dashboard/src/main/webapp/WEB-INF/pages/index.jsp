@@ -56,7 +56,7 @@
                         <th style="width: 15%">Name</th>
                         <th style="width: 15%">Application(s)</th>
                         <th style="width: 10%">Expires</th>
-                        <th style="width: 10%">Owner</th>
+                        <th style="width: 10%">Creator</th>
                         <th colspan="6" style="width: 6%">Options</th>
                     </tr>
                     </thead>

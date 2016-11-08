@@ -26,15 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 public final class Files {
-    /**
-     * CAUTION: assumes that the files is owned by the current user (usually because it was just created by us) or otherwise
-     * already has the proper permissions.
-     */
     public static Node executable(Node file) throws IOException {
-        // TODO: if Java overwrites an existing file, ownership and permissions are not changed!
-        // As a consequence. setPermissions would fail.
-        // To work-around this, I assume that the original creator of the file has already adjusted permissions;
-        // or to put it vice versa: if the permissions don't match, the current user is the owner, we can adjust them.
         String old;
         StringBuilder next;
 

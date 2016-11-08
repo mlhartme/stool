@@ -3,7 +3,7 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <jsp:useBean id="stages" scope="request" type="java.util.List<net.oneandone.stool.dashboard.StageInfo>"/>
 <c:forEach var="stage" items="${stages}">
-    <tr id="${stage.name}" data-hash="${stage.hash}" data-extractionurl="${stage.extractionUrl}" data-user="${stage.owner}"
+    <tr id="${stage.name}" data-hash="${stage.hash}" data-extractionurl="${stage.extractionUrl}" data-user="${stage.creator}"
         data-status="${stage.running}" data-updateAvailable="${stage.updateAvailable}" class="stage ${stage.category}">
 
         <td class="status">
@@ -27,7 +27,7 @@
 
         </td>
         <td class="expire ${stage.expire.isExpired() ? "expired" : ""}">${stage.expire}</td>
-        <td class="user">${stage.owner}</td>
+        <td class="user">${stage.creator}</td>
         <td class="option refresh">
             <button type="button" data-action="refresh" data-estimate="${stage.stats.avgRefresh}" data-stage="${stage.name}"
                     data-options="build,autorestart" class="btn ${stage.updateAvailable ? "btn-primary" : "btn-default"} btn-xs"
