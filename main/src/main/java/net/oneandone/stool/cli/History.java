@@ -31,7 +31,7 @@ public class History extends StageCommand {
     private List<Integer> details = new ArrayList<>();
 
     public History(Session session, int max) {
-        super(false, false, session, Mode.NONE, Mode.SHARED, Mode.NONE);
+        super(false, session, Mode.NONE, Mode.SHARED, Mode.NONE);
         this.max = max;
     }
 

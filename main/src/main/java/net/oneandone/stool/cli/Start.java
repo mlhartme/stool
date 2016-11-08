@@ -16,7 +16,6 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
@@ -53,7 +52,7 @@ public class Start extends StageCommand {
     private Launcher.Handle mainResult;
 
     public Start(Session session, boolean debug, boolean suspend) {
-        super(false, false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);
+        super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);
         this.debug = debug;
         this.suspend = suspend;
         this.tail = false;

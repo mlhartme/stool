@@ -23,7 +23,7 @@ import net.oneandone.sushi.util.Separator;
 
 public class Build extends StageCommand {
     public Build(Session session) {
-        super(true, true, session, Mode.NONE, Mode.SHARED, Mode.EXCLUSIVE);
+        super(true, session, Mode.NONE, Mode.SHARED, Mode.EXCLUSIVE);
     }
 
     @Override

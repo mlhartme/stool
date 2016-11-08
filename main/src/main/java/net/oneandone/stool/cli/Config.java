@@ -35,14 +35,9 @@ public class Config extends StageCommand {
     private boolean set;
 
     public Config(Session session) {
-        super(false, false, session, Mode.NONE, Mode.EXCLUSIVE, Mode.NONE);
+        super(false, session, Mode.NONE, Mode.EXCLUSIVE, Mode.NONE);
         all = session.properties();
         selected = new HashMap<>();
-    }
-
-    @Override
-    public boolean withAutoChowning() {
-        return set;
     }
 
     public void property(String str) {

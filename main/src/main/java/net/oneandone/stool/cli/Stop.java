@@ -25,7 +25,7 @@ public class Stop extends StageCommand {
     private Launcher.Handle mainResult;
 
     public Stop(Session session, boolean sleep) {
-        super(false, false, session, Mode.SHARED, Mode.SHARED, Mode.NONE);
+        super(false, session, Mode.SHARED, Mode.SHARED, Mode.NONE);
         this.sleep = sleep;
     }
 

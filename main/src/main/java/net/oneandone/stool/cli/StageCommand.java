@@ -43,7 +43,6 @@ public abstract class StageCommand extends SessionCommand {
     private final Mode backstageLock;
     private final Mode directoryLock;
     private final boolean withAutoRunning;
-    private final boolean withAutoChowning;
 
     private boolean autoRechown;
     private boolean autoChown;
@@ -53,10 +52,9 @@ public abstract class StageCommand extends SessionCommand {
     private boolean all;
     private Fail fail = Fail.NORMAL;
 
-    public StageCommand(boolean withAutoRunning, boolean withAutoChowning, Session session, Mode globalLock, Mode backstageLock, Mode directoryLock) {
+    public StageCommand(boolean withAutoRunning, Session session, Mode globalLock, Mode backstageLock, Mode directoryLock) {
         super(session, globalLock);
         this.withAutoRunning = withAutoRunning;
-        this.withAutoChowning = withAutoChowning;
         this.backstageLock = backstageLock;
         this.directoryLock = directoryLock;
     }
@@ -64,10 +62,6 @@ public abstract class StageCommand extends SessionCommand {
     /** derived classes override this if the answer is not static */
     public boolean withAutoRunning() {
         return withAutoRunning;
-    }
-    /** derived classes override this if the answer is not static */
-    public boolean withAutoChowning() {
-        return withAutoChowning;
     }
 
     public void setAutoRechown(boolean autoRechown) {
@@ -226,9 +220,7 @@ public abstract class StageCommand extends SessionCommand {
     private boolean autoStart(Stage stage, Map<Info, Object> status) throws Exception {
         boolean postStart;
 
-        if (stage.state() == Stage.State.UP
-                && (withAutoRunning() || withAutoChowning() /* because I have to stop the stage to chown it */)
-                && (autoRestart || autoStop)) {
+        if (stage.state() == Stage.State.UP && (withAutoRunning()) && (autoRestart || autoStop)) {
             postStart = autoRestart;
             Status.processStatus(processes(), stage, status);
             new Stop(session, false).doRun(stage);

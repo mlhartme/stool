@@ -25,7 +25,7 @@ public class Move extends StageCommand {
     private FileNode dest;
 
     public Move(Session session, FileNode dest) {
-        super(true, true, session, Mode.EXCLUSIVE, Mode.NONE, Mode.NONE);
+        super(true, session, Mode.EXCLUSIVE, Mode.NONE, Mode.NONE);
         this.dest = dest;
     }
 

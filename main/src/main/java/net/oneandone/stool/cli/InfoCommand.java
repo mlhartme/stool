@@ -43,7 +43,7 @@ public abstract class InfoCommand extends StageCommand {
     private final String defaults;
 
     public InfoCommand(Session session, String defaults) {
-        super(false, false, session, Mode.SHARED, Mode.SHARED, Mode.SHARED);
+        super(false, session, Mode.SHARED, Mode.SHARED, Mode.SHARED);
         this.defaults = defaults;
     }
 
