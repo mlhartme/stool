@@ -214,7 +214,7 @@ public class Start extends StageCommand {
         FileNode backstage;
 
         backstage = stage.getBackstage();
-        Files.template(console.verbose, world.resource("templates/stage"), backstage, variables(stage, ports));
+        Files.template(world.resource("templates/stage"), backstage, variables(stage, ports));
         // manually create empty subdirectories, because git doesn't know them
         // CAUTION: the log directory is created by "stool create" (because it contains log files)
         for (String dir : new String[] {"ssl", "run" }) {
@@ -238,7 +238,7 @@ public class Start extends StageCommand {
         content = comment(content, "PIDDIR=\".\"");
         wrapper = stage.getBackstage().join("service/service-wrapper.sh");
         wrapper.writeString(content);
-        Files.stoolExecutable(wrapper);
+        Files.executable(wrapper);
     }
 
     private String comment(String str, String line) {

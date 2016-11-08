@@ -98,7 +98,7 @@ public class Home {
         exec("chmod", "2775", dir.getAbsolute());
 
         world = dir.getWorld();
-        Files.template(console.verbose, world.resource("templates/home"), dir, variables());
+        Files.template(world.resource("templates/home"), dir, variables());
         conf = Autoconf.stool(dir, debian);
         if (explicitConfig != null) {
             conf = conf.createPatched(gson, explicitConfig);
