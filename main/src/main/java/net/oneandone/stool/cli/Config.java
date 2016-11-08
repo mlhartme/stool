@@ -86,7 +86,7 @@ public class Config extends StageCommand {
 
         configuration = stage.config();
         if (set) {
-            stage.checkOwnership();
+            stage.modify();
             error = false;
             for (Map.Entry<Property, String> entry : selected.entrySet()) {
                 prop = entry.getKey();

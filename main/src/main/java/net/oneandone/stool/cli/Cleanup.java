@@ -35,7 +35,7 @@ public class Cleanup extends StageCommand {
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        stage.checkOwnership();
+        stage.modify();
         cleanupMavenRepository(stage);
         rotateLogs(stage);
     }

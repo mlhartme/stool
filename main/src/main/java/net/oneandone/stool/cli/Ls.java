@@ -39,7 +39,7 @@ public class Ls extends InfoCommand {
         List<String> line;
 
         if (selected.isEmpty()) {
-            selected.addAll(defaults(session.property("name"), Field.STATE, Field.URL, Field.DIRECTORY));
+            selected.addAll(defaults(session.property("name"), Field.STATE, Field.MAINTAINER, Field.URL, Field.DIRECTORY));
         }
         header("stages");
 

@@ -31,7 +31,7 @@ public class Build extends StageCommand {
         String command;
         Launcher launcher;
 
-        stage.checkOwnership();
+        stage.modify();
         stage.checkNotUp();
         command = stage.getBuild();
         console.info.println("[" + stage.getDirectory() + "] " + command);

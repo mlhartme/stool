@@ -9,6 +9,8 @@
     * user to start process as
     * user to start stool as
     * dashboard shows the creator now
+  * fixes security risks by removing 'chowntree.sh' sudo script
+  * added maintainer and last_maintenance status fields
   
 * stool status: fixed exception is service wrapper has no child process
 

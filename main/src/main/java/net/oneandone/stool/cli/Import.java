@@ -213,6 +213,7 @@ public class Import extends SessionCommand {
         stage.config().name = name;
         stage.tuneConfiguration();
         stage.initialize();
+        stage.modify();
         session.add(stage.backstage, stage.getId());
     }
 

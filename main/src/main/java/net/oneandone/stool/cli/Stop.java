@@ -33,6 +33,7 @@ public class Stop extends StageCommand {
     public void doMain(Stage stage) throws Exception {
         boolean alreadySleeping;
 
+        stage.modify();
         alreadySleeping = session.bedroom.contains(stage.getId());
         if (alreadySleeping) {
             mainResult = null;

@@ -415,10 +415,26 @@ public abstract class Stage {
         }
     }
 
-    public void checkOwnership() throws IOException {
-        // TODO
+    /** @return pid or null */
+    public FileNode maintainerFile() {
+        return getBackstage().join("run/maintainer");
     }
 
+    public void modify() throws IOException {
+        FileNode file;
+
+        file = maintainerFile();
+        file.getParent().mkdirOpt();
+        file.writeString(session.user);
+    }
+
+    public String getMaintainer() throws IOException {
+        return maintainerFile().readString().trim();
+    }
+
+    public long lastMaintenance() throws GetLastModifiedException {
+        return maintainerFile().getLastModified();
+    }
 
     public Launcher launcher(String... command) {
         return launcher(directory, command);
@@ -604,15 +620,20 @@ public abstract class Stage {
 
     public String uptime() throws GetLastModifiedException {
         FileNode file;
-        long diff;
-        StringBuilder result;
-        long hours;
 
         file = servicePidFile();
         if (!file.exists()) {
             return "";
         }
-        diff = System.currentTimeMillis() - file.getLastModified();
+        return timespan(file.getLastModified());
+    }
+
+    public static String timespan(long since) throws GetLastModifiedException {
+        long diff;
+        StringBuilder result;
+        long hours;
+
+        diff = System.currentTimeMillis() - since;
         diff /= 1000;
         hours = diff / 3600;
         if (hours >= 48) {

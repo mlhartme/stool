@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
@@ -102,14 +101,12 @@ public abstract class InfoCommand extends StageCommand {
     }
 
     public static Map<Info, Object> status(Session session, Processes processes, Stage stage) throws IOException {
-        Console console;
         Map<Info, Object> result;
         Ports ports;
         List<String> jmx;
         String url;
 
         result = new HashMap<>();
-        console = session.console;
         result.put(Field.ID, stage.getId());
         result.put(Field.SELECTED, session.isSelected(stage));
         result.put(Field.DIRECTORY, stage.getDirectory().getAbsolute());
@@ -129,6 +126,8 @@ public abstract class InfoCommand extends StageCommand {
             }
         });
         result.put(Field.CREATOR, userName(session, stage.creator()));
+        result.put(Field.MAINTAINER, stage.getMaintainer());
+        result.put(Field.LAST_MAINTENANCE, Stage.timespan(stage.lastMaintenance()));
         result.put(Field.UPTIME, stage.uptime());
         result.put(Field.STATE, stage.state().toString());
         ports = processStatus(processes, stage, result);

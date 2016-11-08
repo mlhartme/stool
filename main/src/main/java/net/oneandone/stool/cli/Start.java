@@ -86,6 +86,7 @@ public class Start extends StageCommand {
         FileNode download;
         Ports ports;
 
+        stage.modify();
         // to avoid running into a ping timeout below:
         stage.session.configuration.verfiyHostname();
 
