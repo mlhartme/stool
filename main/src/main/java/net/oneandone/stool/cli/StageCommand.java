@@ -44,8 +44,6 @@ public abstract class StageCommand extends SessionCommand {
     private final Mode directoryLock;
     private final boolean withAutoRunning;
 
-    private boolean autoRechown;
-    private boolean autoChown;
     private boolean autoRestart;
     private boolean autoStop;
     private String stageClause;
@@ -62,14 +60,6 @@ public abstract class StageCommand extends SessionCommand {
     /** derived classes override this if the answer is not static */
     public boolean withAutoRunning() {
         return withAutoRunning;
-    }
-
-    public void setAutoRechown(boolean autoRechown) {
-        this.autoRechown = autoRechown;
-    }
-
-    public void setAutoChown(boolean autoChown) {
-        this.autoChown = autoChown;
     }
 
     public void setAutoRestart(boolean autoRestart) {
@@ -107,9 +97,6 @@ public abstract class StageCommand extends SessionCommand {
         boolean withPrefix;
         Worker worker;
 
-        if (autoChown && autoRechown) {
-            throw new ArgumentException("ambiguous options: you cannot use both -autochown and -autorechown");
-        }
         if (autoStop && autoRestart) {
             throw new ArgumentException("ambiguous options: you cannot use both -autostop and -autorestart");
         }

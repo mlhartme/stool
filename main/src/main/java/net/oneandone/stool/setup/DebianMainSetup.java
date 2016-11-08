@@ -97,6 +97,7 @@ public class DebianMainSetup extends Debian {
         }
     }
 
+    // TOFO
     private void setGroup(FileNode dir) throws IOException {
         exec("chgrp", "-R", group, dir.getAbsolute());
         // chgrp overwrites the permission - thus, i have to re-set permissions

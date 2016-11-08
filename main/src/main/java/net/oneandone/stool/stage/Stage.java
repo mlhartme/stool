@@ -428,10 +428,7 @@ public abstract class Stage {
     }
 
     public void checkOwnership() throws IOException, OwnershipException {
-        if (!owner().equals(session.user)) {
-            throw new OwnershipException("Only the owner of the stage is allowed to to do this.\n"
-              + "Just own the stage via 'stool chown' and try again.");
-        }
+        // TODO
     }
 
 

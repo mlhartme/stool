@@ -42,7 +42,7 @@ public class SystemImport {
 
         from.checkDirectory();
         home.checkDirectory();
-        h = new Home(console, home, Home.group(home.getWorld()), null);
+        h = new Home(console, home, null);
         u = new UpgradeBuilder(console, h, from);
         version = Main.versionString(home.getWorld());
         console.info.println("Stool " + version);

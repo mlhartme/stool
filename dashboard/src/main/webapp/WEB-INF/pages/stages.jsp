@@ -30,7 +30,7 @@
         <td class="user">${stage.owner}</td>
         <td class="option refresh">
             <button type="button" data-action="refresh" data-estimate="${stage.stats.avgRefresh}" data-stage="${stage.name}"
-                    data-options="build,autorechown,autorestart" class="btn ${stage.updateAvailable ? "btn-primary" : "btn-default"} btn-xs"
+                    data-options="build,autorestart" class="btn ${stage.updateAvailable ? "btn-primary" : "btn-default"} btn-xs"
                     <c:if test="${stage.updateAvailable}">data-container="body" data-toggle="popover" data-placement="right"
                     data-title="${stage.changes.exception ? "Warning" : "Update Available"}" data-trigger="hover" data-html="true"
                     data-content="${stage.changes}"</c:if>><span
@@ -46,7 +46,6 @@
                 <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">Actions <span
                         class="caret"></span></button>
                 <ul class="dropdown-menu">
-                    <li><a href="#dashboard" data-action="chown" data-stage="${stage.name}">Chown</a></li>
                     <li><a href="#dashboard" data-estimate="${stage.stats.avgStart}" data-action="start"
                            data-stage="${stage.name}">Start</a>
                     </li>

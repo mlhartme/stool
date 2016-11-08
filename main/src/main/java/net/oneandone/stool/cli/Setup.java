@@ -82,7 +82,7 @@ public class Setup {
         String right;
         int count;
 
-        h = new Home(console, home, Home.group(world), null);
+        h = new Home(console, home, null);
         was = h.version();
         if (!Session.majorMinor(was).equals(Session.majorMinor(version))) {
             throw new IOException("migration needed: " + was + " -> " + version + ": " + home.getAbsolute());

@@ -50,35 +50,23 @@ public class Home {
         cleanup = new RmRfThread(console);
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
-        obj = new Home(console, home, group(home.getWorld()), config);
+        obj = new Home(console, home, config);
         obj.setHomeVariable(homeVariable);
         obj.create(debian);
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
 
-    public static String group(World world) throws IOException {
-        FileNode file;
-        String result;
-
-        file = world.getTemp().createTempFile();
-        result = file.getGroup().toString();
-        file.deleteFile();
-        return result;
-    }
-
     private final Console console;
     public final FileNode dir;
     private String homeVariable;
-    private final String group;
     /** json, may be null */
     private final String explicitConfig;
 
-    public Home(Console console, FileNode dir, String group, String explicitConfig) {
+    public Home(Console console, FileNode dir, String explicitConfig) {
         this.console = console;
         this.dir = dir;
         this.homeVariable = dir.getAbsolute();
-        this.group = group;
         this.explicitConfig = explicitConfig;
     }
 
@@ -93,9 +81,6 @@ public class Home {
 
         gson = gson();
         dir.mkdir();
-        exec("chgrp", group, dir.getAbsolute());
-        // chgrp overwrites the permission - thus, i have to re-set permissions
-        exec("chmod", "2775", dir.getAbsolute());
 
         world = dir.getWorld();
         Files.template(world.resource("templates/home"), dir, variables());

@@ -37,14 +37,12 @@ public class HomeTest {
         Console console;
         FileNode dir;
         Home lib;
-        String group;
 
         world = World.create();
         dir = world.getTemp().createTempDirectory();
         console = Console.create();
-        group = dir.getGroup().toString();
         dir.deleteDirectory();
-        lib = new Home(console, dir, group, null);
+        lib = new Home(console, dir, null);
         lib.create(false);
         assertNotNull(StoolConfiguration.load(Session.gson(world, ExtensionsFactory.create(world)), dir));
     }
@@ -58,7 +56,6 @@ public class HomeTest {
         FileNode orig;
         FileNode from;
         Home home;
-        String group;
         StoolConfiguration stool;
         StageConfiguration stage;
 
@@ -72,8 +69,7 @@ public class HomeTest {
         from.deleteDirectory();
         orig.execNoOutput("cp", "-a", ".", from.getAbsolute()); // TODO: sushi.copyDirectory messes up symlinks ...
         orig.copyDirectory(from);
-        group = from.getGroup().toString();
-        home = new Home(console, homedir, group, null);
+        home = new Home(console, homedir, null);
         home.create(false);
         new UpgradeBuilder(console, home, from).run(true);
         stool = StoolConfiguration.load(gson, homedir);

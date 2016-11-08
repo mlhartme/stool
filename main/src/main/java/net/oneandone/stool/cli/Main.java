@@ -100,8 +100,7 @@ public class Main {
                     cli.add(Import.class, "import -name=@import.name:%d -max=@import.max:40 dir* { dirs*(dir) setMax(max) setName(name) }");
                     cli.add(Select.class, "select -fuzzy=@select.fuzzy name?=null");
                     cli.base(StageCommand.class, "-autorestart=@auto.restart -autostop=@auto.stop -stage=null -all -fail "
-                            + "{ setAutoRechown(autorechown) setAutoChown(autochown) setAutoRestart(autorestart) setAutoStop(autostop) "
-                            +   "setStage(stage) setAll(all) setFail(fail) }");
+                            + "{ setAutoRestart(autorestart) setAutoStop(autostop) setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Build.class, "build");
                       cli.add(Cd.class, "cd target?=null { setTarget(target) }");
                       cli.add(Cleanup.class, "cleanup");
