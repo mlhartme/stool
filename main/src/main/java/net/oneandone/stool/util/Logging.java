@@ -74,7 +74,6 @@ public class Logging {
         setStage("", "");
         if (!file.exists()) {
             file.writeBytes();
-            Files.stoolFile(file);
         }
     }
 

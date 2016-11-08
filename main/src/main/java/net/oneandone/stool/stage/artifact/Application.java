@@ -18,7 +18,6 @@ package net.oneandone.stool.stage.artifact;
 import com.google.gson.Gson;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.users.Users;
-import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -144,7 +143,7 @@ public class Application {
         }
         FileNode directory = file.getParent();
         directory.mkdirOpt();
-        Files.stoolFile(file.writeString(gson.toJson(changes)));
+        file.writeString(gson.toJson(changes));
         return changes;
     }
 

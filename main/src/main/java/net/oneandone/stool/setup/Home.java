@@ -107,8 +107,8 @@ public class Home {
         for (String name : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "tomcat", "system"}) {
             dir.join(name).mkdir();
         }
-        Files.stoolFile(versionFile().writeString(Main.versionString(world)));
-        Files.stoolFile(dir.join("run/locks").mkfile());
+        versionFile().writeString(Main.versionString(world));
+        dir.join("run/locks").mkfile();
     }
 
     public String version() throws IOException {

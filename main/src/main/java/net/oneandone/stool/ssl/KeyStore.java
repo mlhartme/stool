@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.ssl;
 
-import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -60,7 +59,6 @@ public class KeyStore {
                     "-deststorepass", password(), "-srcstorepass", password()).exec();
             tmp.deleteFile();
         }
-        Files.stoolFile(file);
     }
 
     public String file() {

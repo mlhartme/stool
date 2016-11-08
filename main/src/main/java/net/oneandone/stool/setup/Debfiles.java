@@ -16,7 +16,6 @@
 package net.oneandone.stool.setup;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -41,7 +40,6 @@ public class Debfiles {
         man = target.join("man");
         man.mkdir();
         world.resource("templates/man").copyDirectory(man);
-        Files.stoolTree(console.verbose, man);
 
         home = target.join("stool-3.4");
         Home.create(console, home, "/usr/share/stool-3.4", null, true);

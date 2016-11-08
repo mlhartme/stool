@@ -18,7 +18,6 @@ package net.oneandone.stool.extensions;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -75,7 +74,6 @@ public class Fitnesse implements Extension {
             log = stage.getBackstage().join("tomcat/logs/fitness-" + port + ".log");
             if (!log.exists()) {
                 log.mkfile();
-                Files.stoolFile(log);
             }
             // no exec -- keeps running until stopped; no way to detect failures
             // no log.close!

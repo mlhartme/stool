@@ -17,7 +17,6 @@ package net.oneandone.stool.dashboard;
 
 import com.google.gson.Gson;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -82,7 +81,7 @@ public class BuildStats {
     }
 
     public void save() throws IOException {
-        Files.stoolFile(file.writeString(gson.toJson(this)));
+        file.writeString(gson.toJson(this));
     }
 
     public void add(String command, long latest) {

@@ -195,7 +195,7 @@ public class Pool {
         for (Vhost vhost : vhosts) {
             lines.add(vhost.toLine());
         }
-        Files.stoolFile(file.writeLines(lines));
+        file.writeLines(lines);
     }
 
     private Vhost allocate(String name, String stage, String id, FileNode docroot) throws IOException {

@@ -352,8 +352,6 @@ public class Start extends StageCommand {
                     "org.apache.catalina.core.ContainerBase.[Catalina].level = INFO",
                     "org.apache.catalina.core.ContainerBase.[Catalina].handlers = 1catalina.org.apache.juli.FileHandler"
             );
-
-            Files.stoolTree(console.verbose, dest);
         }
     }
 

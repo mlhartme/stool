@@ -57,16 +57,6 @@ import java.util.Map;
  */
 public final class Files {
     /**
-     * Set permissions of a backstage file.
-     * Assumes the files is owned by the current user (usually because it was just created by us)
-     * or otherwise already has the proper permissions.
-     */
-    public static Node stoolFile(Node file) throws IOException {
-        permissions(file, "rw-rw-r--");
-        return file;
-    }
-
-    /**
      * Set permissions of a backstage directory.
      * Assumes the directory is owned by the current user (usually because it was just created by us)
      * or otherwise already has the proper permissions.
@@ -108,23 +98,6 @@ public final class Files {
         old = file.getPermissions();
         if (!old.equals(permissions)) {
             file.setPermissions(permissions);
-        }
-    }
-
-    /**
-     * Adjusts permissions for a tree of backstage files. The group is not touched.
-     *
-     * CAUTION: assumes that the files is owned by the current user (usually because it was just created by us) or otherwise
-     * already has the proper permissions.
-     */
-    public static void stoolTree(PrintWriter log, FileNode dir) throws IOException {
-        stoolDirectory(log, dir);
-        for (FileNode child : dir.list()) {
-            if (child.isDirectory()) {
-                stoolTree(log, child);
-            } else {
-                stoolFile(child);
-            }
         }
     }
 
@@ -184,15 +157,7 @@ public final class Files {
             } else {
                 if (node.getName().endsWith(".sh")) {
                     stoolExecutable(node);
-                } else {
-                    stoolFile(node);
                 }
-            }
-        }
-
-        for (Node<?> binary : src.find(selection)) {
-            if (isBinary(binary.getName())) {
-                Files.stoolFile(binary.copyFile(dest.join(binary.getRelative(src))));
             }
         }
     }

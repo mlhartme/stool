@@ -16,7 +16,6 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
-import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -74,7 +73,7 @@ public class Bedroom implements Iterable<String> {
     }
 
     public void save(Gson gson) throws IOException {
-        Files.stoolFile(file.writeString(gson.toJson(this)));
+        file.writeString(gson.toJson(this));
     }
 
     public FileNode file() {

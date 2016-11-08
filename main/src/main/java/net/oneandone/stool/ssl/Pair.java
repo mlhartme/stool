@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.ssl;
 
-import net.oneandone.stool.util.Files;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;
@@ -35,9 +34,6 @@ public class Pair {
             pair = fromCsr(workDir, scriptOrUrl, hostname);
         } else {
             pair = fromScript(workDir.getWorld().file(scriptOrUrl), workDir, hostname);
-        }
-        for (FileNode file : workDir.list()) {
-            Files.stoolFile(file);
         }
         return pair;
     }
