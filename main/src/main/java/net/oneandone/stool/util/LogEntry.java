@@ -28,7 +28,7 @@ public class LogEntry {
         LocalTime timeObj;
         LocalDate dateObj;
         int len;
-        int date;
+        int time;
         int id;
         String idStr;
         int logger;
@@ -39,8 +39,8 @@ public class LogEntry {
         len = line.length();
 
         // CAUTION: do not use split, because messages may contain separators
-        date = line.indexOf('|');
-        id = line.indexOf('|', date + 1);
+        time = line.indexOf('|');
+        id = line.indexOf('|', time + 1); // invocation id
         logger = line.indexOf('|', id + 1);
         user = line.indexOf('|', logger + 1);
         stageId = line.indexOf('|', user + 1);
@@ -53,8 +53,8 @@ public class LogEntry {
         }
 
         // TODO: doesn't work for commands running during midnight ...
-        timeObj = LocalTime.parse(line.substring(0, date), TIME_FMT);
-        idStr = line.substring(date + 1, id);
+        timeObj = LocalTime.parse(line.substring(0, time), TIME_FMT);
+        idStr = line.substring(time + 1, id);
         dateObj = LocalDate.parse(idStr.substring(0, idStr.indexOf(".")), Logging.DATE_FORMAT);
         return new LogEntry(LocalDateTime.of(dateObj, timeObj), idStr,
                 line.substring(id + 1, logger),
