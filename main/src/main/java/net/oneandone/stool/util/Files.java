@@ -19,8 +19,6 @@ import net.oneandone.sushi.fs.Copy;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
-import net.oneandone.sushi.io.OS;
-import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Substitution;
 
 import java.io.IOException;
@@ -56,29 +54,6 @@ import java.util.Map;
  */
 public final class Files {
     /**
-     * Set permissions of a backstage directory.
-     * Assumes the directory is owned by the current user (usually because it was just created by us)
-     * or otherwise already has the proper permissions.
-     */
-    public static FileNode stoolDirectory(PrintWriter log, FileNode dir) throws IOException {
-        String old;
-
-        // TODO: this is expensive, but otherwise, the setgid bit inherited from the lib directory is lost by the previous permissions call.
-        // see comments in createBackstageDirectory ...
-        if (OS.CURRENT == OS.MAC) {
-            old = dir.exec("stat", "-f", "%Op", ".");
-            // MAC OS returns an addition mode octet, mask it out:
-            old = Integer.toString(Integer.parseInt(old.trim(), 8) & 07777, 8);
-        } else {
-            old = dir.exec("stat", "--format", "%a", ".").trim();
-        }
-        if (!old.equals("2775")) {
-            exec(log, dir, "chmod", "2775", ".");
-        }
-        return dir;
-    }
-
-    /**
      * CAUTION: assumes that the files is owned by the current user (usually because it was just created by us) or otherwise
      * already has the proper permissions.
      */
@@ -94,13 +69,6 @@ public final class Files {
             file.setPermissions("rwxrwxr-x");
         }
         return file;
-    }
-
-    //--
-
-    public static void exec(PrintWriter log, FileNode lib, String ... cmd) throws IOException {
-        log.println("[" + lib + "] " + Separator.SPACE.join(cmd));
-        lib.execNoOutput(cmd);
     }
 
     //-- templates

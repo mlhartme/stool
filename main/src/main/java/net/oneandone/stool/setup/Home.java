@@ -27,6 +27,7 @@ import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -129,7 +130,8 @@ public class Home {
     }
 
     public void exec(String ... cmd) throws IOException {
-        Files.exec(console.info, dir, cmd);
+        console.info.println("[" + dir + "] " + Separator.SPACE.join(cmd));
+        dir.execNoOutput(cmd);
     }
 
     private Map<String, String> variables() {
