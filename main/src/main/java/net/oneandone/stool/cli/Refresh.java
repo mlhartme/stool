@@ -42,7 +42,7 @@ public class Refresh extends StageCommand {
 
     @Override
     public boolean isNoop(Stage stage) throws IOException {
-        return !build && stage.owner().equals(session.user) && !stage.refreshPending(console);
+        return !build && !stage.refreshPending(console);
     }
 
     public void invokeNormal(Stage stage) throws Exception {

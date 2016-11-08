@@ -15,12 +15,10 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -41,7 +39,7 @@ public class Ls extends InfoCommand {
         List<String> line;
 
         if (selected.isEmpty()) {
-            selected.addAll(defaults(session.property("name"), Field.STATE, Field.OWNER, Field.URL, Field.DIRECTORY));
+            selected.addAll(defaults(session.property("name"), Field.STATE, Field.URL, Field.DIRECTORY));
         }
         header("stages");
 

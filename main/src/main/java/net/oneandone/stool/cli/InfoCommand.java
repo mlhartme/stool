@@ -128,7 +128,6 @@ public abstract class InfoCommand extends StageCommand {
                 return stage.buildtime();
             }
         });
-        result.put(Field.OWNER, userName(session, stage.owner()));
         result.put(Field.CREATOR, userName(session, stage.creator()));
         result.put(Field.UPTIME, stage.uptime());
         result.put(Field.STATE, stage.state().toString());

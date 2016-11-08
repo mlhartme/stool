@@ -333,7 +333,7 @@ public abstract class Stage {
         String owner;
         Launcher launcher;
 
-        owner = owner();
+        owner = creator();
         launcher = new Launcher(getDirectory());
         launcher.getBuilder().environment().clear();
         launcher.getBuilder().environment().putAll(configuration.tomcatEnv);

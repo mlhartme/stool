@@ -232,9 +232,7 @@ public class Validate extends StageCommand {
             done = new HashSet<>();
             for (String user : stage.config().notify) {
                 switch (user) {
-                    case StageConfiguration.NOTIFY_OWNER:
-                        login = stage.owner();
-                        break;
+                    case StageConfiguration.NOTIFY_OWNER: // TODO: dump when migrating data
                     case StageConfiguration.NOTIFY_CREATOR:
                         login = stage.creator();
                         break;
