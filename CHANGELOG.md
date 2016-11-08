@@ -2,8 +2,14 @@
 
 ### 3.4.5 (pending)
 
-* added two new status fields to show who last changed a stage an when: `maintainer` and `last_maintenance`
+* added two new status fields:
+  * `maintainer` indicate the person that last changed a stage
+  * `last_maintenance` is the timestamp of this change
 
+* changed current user detection:
+  * first check SUDO_USER varianle
+  * next, check user.name system property
+  
 * chownloss operation:
   * dumped `chown` command since it's no longer needed; admins have to take care that sharing the files does not cause permission problems
   * removed -autoChown and -autoRechown options

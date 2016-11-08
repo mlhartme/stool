@@ -35,6 +35,17 @@ import java.util.List;
 import java.util.Map;
 
 public class Logging {
+    public static String detectUser() {
+        String name;
+
+        name = System.getenv("SUDO_USER");
+        if (name != null && !name.equals("root")) {
+            return name;
+        } else{
+            return System.getProperty("user.name");
+        }
+    }
+
     private static final String EXTENSION = ".log";
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
 
@@ -64,7 +75,7 @@ public class Logging {
     private String stageName;
 
     public Logging(String id, FileNode file) throws IOException {
-        this(id, file, System.getProperty("user.name"));
+        this(id, file, detectUser());
     }
 
     public Logging(String id, FileNode file, String user) throws IOException {
