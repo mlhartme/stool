@@ -16,7 +16,6 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.sushi.fs.Copy;
-import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
@@ -84,11 +83,6 @@ public final class Files {
      * already has the proper permissions.
      */
     public static Node stoolExecutable(Node file) throws IOException {
-        permissions(file, "rwxrwxr-x");
-        return file;
-    }
-
-    private static void permissions(Node file, String permissions) throws ModeException {
         // TODO: if Java overwrites an existing file, ownership and permissions are not changed!
         // As a consequence. setPermissions would fail.
         // To work-around this, I assume that the original creator of the file has already adjusted permissions;
@@ -96,9 +90,10 @@ public final class Files {
         String old;
 
         old = file.getPermissions();
-        if (!old.equals(permissions)) {
-            file.setPermissions(permissions);
+        if (!old.equals("rwxrwxr-x")) {
+            file.setPermissions("rwxrwxr-x");
         }
+        return file;
     }
 
     //--
@@ -113,15 +108,6 @@ public final class Files {
 
     /** files without keyword substitution */
     private static final String[] BINARY_EXTENSIONS = {".keystore", ".war", ".jar", ".gif", ".ico", ".class "};
-
-    public static boolean isBinary(String name) {
-        for (String ext : BINARY_EXTENSIONS) {
-            if (name.endsWith(ext)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private static Filter withoutBinary(Filter orig) {
         Filter result;
@@ -152,9 +138,7 @@ public final class Files {
         selection = src.getWorld().filter().includeAll();
         nodes = new Copy(src, withoutBinary(selection), false, variables, S).directory(dest);
         for (Node node : nodes) {
-            if (node.isDirectory()) {
-                stoolDirectory(log, (FileNode) node);
-            } else {
+            if (!node.isDirectory()) {
                 if (node.getName().endsWith(".sh")) {
                     stoolExecutable(node);
                 }
