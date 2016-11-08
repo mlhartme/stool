@@ -31,7 +31,7 @@ public class StoolCallable implements Callable<Failure> {
         Session session;
 
         session = stage.session;
-        return new StoolCallable(stool, command, options, stage, id, logs, session.configuration.shared, session.environment.get("PATH"), stage.creator());
+        return new StoolCallable(stool, command, options, stage, id, logs, session.configuration.shared, session.environment.get("PATH"), stage.maintainer());
     }
 
     private final FileNode stool;

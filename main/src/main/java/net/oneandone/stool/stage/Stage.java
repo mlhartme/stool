@@ -428,7 +428,7 @@ public abstract class Stage {
         file.writeString(session.user);
     }
 
-    public String getMaintainer() throws IOException {
+    public String maintainer() throws IOException {
         return maintainerFile().readString().trim();
     }
 

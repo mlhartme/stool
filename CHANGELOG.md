@@ -2,14 +2,16 @@
 
 ### 3.4.5 (pending)
 
+* added two new status fields to show who last changed a stage an when: `maintainer` and `last_maintenance`
+
 * chownloss operation:
   * dumped `chown` command since it's no longer needed; admins have to take care that sharing the files does not cause permission problems
   * removed -autoChown and -autoRechown options
-  * removed 'owner' status field; changed all usages to use the creator instead:
+  * removed 'owner' status field; changed all usages to use the maintainer of a stage instead:
     * user to start process as
     * user to start stool as
-    * dashboard shows the creator now
-  * fixes security risks by removing 'chowntree.sh' sudo script
+    * dashboard shows the maintainer now
+  * fixed security risks by removing 'chowntree.sh' sudo script
   * added maintainer and last_maintenance status fields
   
 * stool status: fixed exception is service wrapper has no child process

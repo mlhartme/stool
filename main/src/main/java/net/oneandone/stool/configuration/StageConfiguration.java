@@ -31,6 +31,7 @@ import java.util.Map;
 public class StageConfiguration {
     public static final String NOTIFY_OWNER = "@owner";
     public static final String NOTIFY_CREATOR = "@creator";
+    public static final String NOTIFY_MAINTAINER = "@maintainer";
 
     public static FileNode file(FileNode backstage) {
         return backstage.join("config.json");
@@ -118,7 +119,7 @@ public class StageConfiguration {
         this.build = "false";
         this.refresh = refresh;
         this.notify = new ArrayList<>();
-        this.notify.add(NOTIFY_OWNER);
+        this.notify.add(NOTIFY_MAINTAINER);
         this.notify.add(NOTIFY_CREATOR);
         this.pom = "pom.xml";
         this.quota = 10000;
