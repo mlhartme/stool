@@ -56,20 +56,6 @@ import java.util.Map;
  * * when overwriting files in Java, Java changes the content, but not the owner, group or permissions
  */
 public final class Files {
-    /** Creates a directory that's readable for all stool group users. */
-    public static void createSourceDirectory(PrintWriter log, FileNode dir, String group) throws IOException {
-        dir.mkdir();
-        sourceTree(log, dir, group);
-    }
-
-    /** Fixes permissions and group so that all files are stage files. */
-    public static void sourceTree(PrintWriter log, FileNode dir, String group) throws IOException {
-        // CAUTION: setPermission doesn't work, see the comment in createBackstageDirectory
-        exec(log, dir, "chgrp", "-R", group, ".");
-        exec(log, dir, "sh", "-c", "find . -type d | xargs chmod g+s");
-    }
-
-
     /**
      * Set permissions of a backstage file.
      * Assumes the files is owned by the current user (usually because it was just created by us)

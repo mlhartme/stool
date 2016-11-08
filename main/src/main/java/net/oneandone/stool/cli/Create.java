@@ -22,7 +22,6 @@ import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -198,7 +197,7 @@ public class Create extends SessionCommand {
         Stage stage;
         String prepare;
 
-        Files.createSourceDirectory(console.verbose, directory, session.group());
+        directory.mkdir();
         stage = stage(url);
 
         // make sure to run in stage environment, e.g. to have proper repository settings
