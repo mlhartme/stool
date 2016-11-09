@@ -9,6 +9,7 @@
 * improved `history` command:
   * speed-up
   * print latest command first
+  * properly log stacktraces, also fixed escaping
   * include create and import commands for the stage
   
 * changed current user detection:

@@ -21,6 +21,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.LogEntry;
 import net.oneandone.stool.util.LogReader;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.util.Strings;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -92,7 +93,7 @@ public class History extends StageCommand {
                     console.info.println("[" + counter + "] " + LogEntry.FULL_FMT.format(entry.dateTime) + " " + entry.user + ": " + entry.message);
                     if (details.contains(counter)) {
                         for (int i = lst.size() - 1; i >= 0; i--) {
-                            console.info.println("     " + lst.get(i).message);
+                            console.info.println(Strings.indent(lst.get(i).message, "     "));
                         }
                     }
                 }

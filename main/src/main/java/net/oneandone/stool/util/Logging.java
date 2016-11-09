@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.time.LocalDate;
@@ -125,7 +126,18 @@ public class Logging {
 
     public void error(String message, Throwable throwable) {
         log("ERROR", message);
-        // TODO: throwable is ignored
+        log("ERROR", stacktrace(throwable));
+    }
+
+    private static String stacktrace(Throwable throwable) {
+        StringWriter dest;
+        PrintWriter pw;
+
+        dest = new StringWriter();
+        pw = new PrefixWriter(dest);
+        throwable.printStackTrace(pw);
+        pw.close();
+        return dest.toString();
     }
 
     public PrintWriter writer(OutputStream stream, String logger) {

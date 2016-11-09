@@ -79,6 +79,20 @@ public class LogEntry {
                 c = message.charAt(i);
                 if (c != '\\') {
                     builder.append(c);
+                } else {
+                    i++;
+                    c = message.charAt(i);
+                    switch (c) {
+                        case 'n':
+                            builder.append('\n');
+                            break;
+                        case 'r':
+                            builder.append('\r');
+                            break;
+                        default:
+                            builder.append(c);
+                            break;
+                    }
                 }
             }
             return builder.toString();
