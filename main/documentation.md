@@ -237,10 +237,6 @@ Supported user default properties:
   controls the `-autorestart` option for every stage command
 * **auto.stop**
   controls the `-autostop` option for every stage command
-* **auto.rechown**
-  controls the `-autorechown` option for every stage command
-* **auto.restart**
-  controls the `-autochown` option for every stage command
 * **import.name**
   controls the `-name` option for the import command
 * **import.max**
@@ -314,7 +310,7 @@ stop and remove. A stage contains web applications built from source or availabl
 
 
 
-`stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] [`-autochown`|`-autorechown`] [`-autostop`|`-autorestart`] *command-options*...
+`stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] [`-autostop`|`-autorestart`] *command-options*...
 
 
 `stool` *global-option*... `build` *stage-option*...
@@ -334,10 +330,6 @@ stop and remove. A stage contains web applications built from source or availabl
 
 
 `stool` *global-option*... `refresh` *stage-option*... [`-build`] [`-restore`]
-
-
-
-`stool` *global-option*... `chown` *stage-option*... [`-batch`] [*user*]
 
 
 
@@ -646,7 +638,7 @@ Options available for all stage commands
 
 #### SYNOPSIS
 
-`stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] [`-autochown`|`-autorechown`] [`-autostop`|`-autorestart`] *command-options*...
+`stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] [`-autostop`|`-autorestart`] *command-options*...
 
 #### Selection options
 
@@ -693,10 +685,6 @@ invoke the command on remaining matching stages. This is the default.
 #### Auto options
 
 Stage commands provide auto options do deal with stages that are not stopped or not owned by the current user.
-
-With `-autorechown`, Stool checks the owner of a stage. If it is not the current user, it temporarily
-chowns the stage to the current user, invokes the actual command, and chowns the stage back to the original
-owner. `-autochown` is similar, the stage is not chowned back.
 
 With `-autorestart`, Stool checks the state of a stage. It the stage is up, Stool stops the stage,
 invokes the actual command, and starts the stage again. `-autostop` is similar, but the stage is not started
@@ -890,33 +878,6 @@ For artifact stages: check for new artifacts and installs them if any.
 
 For source changes: invokes the command specified by the `refresh` property. If `-build`
 is specified, also runs the command specified by the `build` property.
-
-[//]: # (include stageOptions.md)
-
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
-[//]: # (-)
-
-
-### stool-chown
-
-Change the stage owner
-
-#### SYNOPSIS
-
-`stool` *global-option*... `chown` *stage-option*... [`-batch`] [*user*]
-
-
-#### DESCRIPTION
-
-Changes the stage owner, i.e. the owner of all files and directories in the stage directory.
-
-Before executing, `chown` checks if the stage has modified source files. If so, it asks for confirmation
-before changing ownership. You can skip confirmation by specifying`-batch`.
-
-Reports an error if the stage is up. In this case, you can specify `-autostop` or
-`-autorestart` to stop the stage before changing ownership and also start it afterwards.
-
-*user* defaults to the current user.
 
 [//]: # (include stageOptions.md)
 
@@ -1210,7 +1171,7 @@ List stages
 #### DESCRIPTION
 
 Displays a short status of all stages (or the stages specified by `-stage`). See the `status`
-command for a list of available fields. Default fields are `state ower url directory`.
+command for a list of available fields. Default fields are `state maintainer url directory`.
 
 [//]: # (include stageOptions.md)
 
@@ -1300,9 +1261,8 @@ Dashboard setup:
 Shared setup is for you if you want to insteall Stool on a server, to be used by multiple users. Technically, shared setup means 
 that stages can be created, modified and removed by every other user on the machines.
 
-Security: you need root permission to setup Stool in shared mode. Having shared Stool on you machine allows every Stool user
+Security: you need root permission to setup Stool in shared mode. Having shared Stool on your machine allows every Stool user
 to execute arbitrary code as arbitrary Stool user (i.e. in a stage started by him or a Tomcat/Java Service Wrapper provided by him).
-In addition, Stool users can change arbitrary files in any of the stages (via stool chown).
 
 Debian package are available from [Maven Central](http://central.sonatype.org).
 (I'd like to have a public Debian repository instead, by I don't know who would host this for free). To install Stool:
