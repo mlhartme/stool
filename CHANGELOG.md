@@ -35,9 +35,13 @@
 
 * stool status: fixed exception is service wrapper has no child process
 
-* improved build command
+* improved build command (for Christina)
   * added command parameters to be executed instead of the configured `build` property 
   * added a `-here` option to execute in the current directory
+
+* improved expire command ()
+  * you can not specify a number instead of a date; it will be translated into the specified number of days from today
+  * you can specify the number in your defaults
 
 
 ### 3.4.4 (2016-10-17)

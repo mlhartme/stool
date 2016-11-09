@@ -94,7 +94,8 @@ public class Config extends StageCommand {
                 value = value.replace("{}", prop.get(configuration));
                 try {
                     prop.set(configuration, value);
-                    console.info.println(prop.name + "=" + value);
+                    // don't print the value - e.g. expire translates numbers into dates
+                    console.info.println(prop.name + "=" + prop.get(configuration));
                 } catch (RuntimeException e) {
                     console.info.println("invalid value for property " + prop.name + " : " + e.getMessage());
                     e.printStackTrace(console.verbose);

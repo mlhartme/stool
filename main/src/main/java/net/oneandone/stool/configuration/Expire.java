@@ -108,6 +108,14 @@ public class Expire {
     private static final DateTimeFormatter FORMAT =  DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private static LocalDate parse(String input) {
+        int number;
+
+        try {
+            number = Integer.parseInt(input);
+            return LocalDate.now().plusDays(number);
+        } catch (NumberFormatException e) {
+            // fall through
+        }
         try {
             return LocalDate.parse(input, FORMAT);
         } catch (DateTimeParseException e) {
