@@ -19,21 +19,6 @@ __stageDir() {
   return
 }
 
-__stageIndicatorColor() {
-    local RED="\033[0;31m"
-    local BLUE="\033[44;1;37m"
-    local dir="$1"
-    if [ ! -e "${dir}" ] ; then
-      echo -n -e "$BLUE"
-    else
-      if grep --quiet ^$(id -u -n)$ "${dir}/.backstage/run/maintainer" ; then
-        echo -n ""
-      else
-        echo -n -e "$RED"
-      fi
-    fi
-}
-
 __stageIndicator() {
   local stage="$1"
   if [ "x${stage}" != "x" ] ; then
@@ -50,7 +35,6 @@ if [ "x$BASH" != "x" ] ; then
             . ${{stool.home}}/bash.complete
             export STOOL_OLD_PROMPT_COMMAND=${PROMPT_COMMAND}
             __stoolPromptUpdate() {
-                local NO_COLOR="\033[0m"
                 eval "${STOOL_OLD_PROMPT_COMMAND}"
                 local dir=$(pwd)
                 if [ "x${dir}" != "x${__STAGE_DIR}" ] ; then
@@ -62,7 +46,7 @@ if [ "x$BASH" != "x" ] ; then
                   # Note that we have to delay this setup until the first PROMPT_COMMAND invocation to give users a chance to customize
                   # PS1 settings (e.g. in their ~/.bashrc for interactive shells)
                   export STOOL_PS1="${PS1}"
-                  PS1="\[\$(__stageIndicatorColor \${__STAGE_DIR})\]\$(__stageIndicator \${__STAGE_DIR})\[${NO_COLOR}\]${STOOL_PS1}"
+                  PS1="\$(__stageIndicator \${__STAGE_DIR})${STOOL_PS1}"
                 # else
                 #   already initialized, nothing to do
                 fi

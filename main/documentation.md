@@ -144,9 +144,7 @@ If you create a new stage, Stool changes the current working directory to the ne
 becomes the selected stage. `stool select` changes the current working directory to the respective stage directory,
 thus is just a convenience way for cd'ing between stage directories.
 
-The stage indicator is red when you're not the maintainer of the selected stage. It is blue, when the
-selected stage is broken or no longer exists. The stage indicator is invisible if you have no stage selected;
-select a stage to set a stage indicator.
+The stage indicator is invisible if you have no stage selected; select a stage to see a stage indicator.
 
 ### Properties
 

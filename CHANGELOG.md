@@ -19,18 +19,20 @@
 * changed current user detection:
   * first check SUDO_USER varianle
   * next, check user.name system property
-  
+
 * chown-less operation:
   * dumped `chown` command since it's no longer needed; admins have to take care that sharing the files does not cause permission problems
   * removed -autoChown and -autoRechown options
   * removed 'owner' status field; changed all usages to use the maintainer of a stage instead:
     * user to start process as
     * user to start stool as
-    * red prompt
     * dashboard shows the maintainer now
   * fixed security risks by removing 'chowntree.sh' sudo script
   * added maintainer and last_maintenance status fields
-  
+
+* stage indicator color is gone: red no longer makes sense, because there's no chown you have to use; and blue was already impossible since moving 
+  the backstage directory into the stage directory
+
 * stool status: fixed exception is service wrapper has no child process
 
 
