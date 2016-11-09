@@ -19,10 +19,13 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.LogEntry;
+import net.oneandone.stool.util.LogReader;
 import net.oneandone.stool.util.Session;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class History extends StageCommand {
     private int max;
@@ -62,28 +65,49 @@ public class History extends StageCommand {
     @Override
     public void doMain(Stage s) throws Exception {
         String stageId;
+        LogEntry entry;
+        Map<String, List<LogEntry>> detailsMap; /* id to it's details */
+        LogReader reader;
+        List<LogEntry> lst;
         int counter;
-        int remove;
-        List<LogEntry> commands;
 
         stageId = s.getId();
-        commands = session.logging.stageCommands(stageId);
-        if (commands.size() > max) {
-            remove = commands.size() - max;
-            console.info.println("(max entries reached: " + max + ", ignoring " + remove + " older commands)");
-            while (remove > 0) {
-                commands.remove(0);
-                remove--;
-            }
-        }
         counter = 0;
-        for (LogEntry command : commands) {
-            console.info.println("[" + ++counter + "] " + LogEntry.FULL_FMT.format(command.dateTime) + " " + command.user + ": " + command.message);
-            if (details.contains(counter)) {
-                for (LogEntry entry : session.logging.info(stageId, command.id)) {
-                    console.info.println("     " + entry.message);
+        detailsMap = new HashMap<>();
+        reader = LogReader.create(session.logging.directory());
+        while (true) {
+            entry = reader.prev();
+            if (entry == null) {
+                break;
+            }
+            lst = detailsMap.get(entry.id);
+            if (lst == null) {
+                lst = new ArrayList<>();
+                detailsMap.put(entry.id, lst);
+            }
+            if (entry.logger.equals("COMMAND")) {
+                detailsMap.remove(entry.id);
+                if (forStage(stageId, lst)) {
+                    counter++;
+                    console.info.println("[" + counter + "] " + LogEntry.FULL_FMT.format(entry.dateTime) + " " + entry.user + ": " + entry.message);
+                    if (details.contains(counter)) {
+                        for (int i = lst.size() - 1; i >= 0; i--) {
+                            console.info.println("     " + lst.get(i).message);
+                        }
+                    }
                 }
+            } else {
+                lst.add(entry);
             }
         }
+    }
+
+    private static boolean forStage(String stageId, List<LogEntry> lst) {
+        for (LogEntry entry : lst) {
+            if (stageId.equals(entry.stageId)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

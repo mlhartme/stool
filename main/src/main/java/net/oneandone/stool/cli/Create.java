@@ -101,6 +101,7 @@ public class Create extends SessionCommand {
         Runtime.getRuntime().removeShutdownHook(cleanup);
 
         session.add(stage.backstage, stage.getId());
+        session.logging.setStage(stage.getId(), stage.getName());
         console.info.println("stage created: " + stage.getName());
         session.cd(stage.getDirectory());
     }

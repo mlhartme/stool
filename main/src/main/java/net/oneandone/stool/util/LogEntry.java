@@ -24,6 +24,7 @@ public class LogEntry {
     public static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm:ss,SSS");
     public static final DateTimeFormatter FULL_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
 
+    /** Count-part of the Logging.log method. */
     public static LogEntry parse(String line) {
         LocalTime timeObj;
         LocalDate dateObj;

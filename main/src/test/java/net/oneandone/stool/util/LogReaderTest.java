@@ -33,7 +33,7 @@ public class LogReaderTest {
         reader = LogReader.create((FileNode) world.resource("logs/stool.log").getParent());
         count = 0;
         while (true) {
-            entry = reader.next();
+            entry = reader.prev();
             if (entry == null) {
                 break;
             }

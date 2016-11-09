@@ -22,12 +22,13 @@ import net.oneandone.sushi.io.LineReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-public class LogReader implements AutoCloseable {
+public class LogReader {
     public static LogReader create(FileNode directory) throws IOException {
         List<FileNode> files;
         Iterator<FileNode> iter;
@@ -48,43 +49,50 @@ public class LogReader implements AutoCloseable {
     }
 
     private final List<FileNode> files;
-    private LineReader reader;
+    private List<String> lines;
 
     public LogReader(List<FileNode> files) {
         this.files = files;
-        this.reader = null;
+        this.lines = null;
     }
 
-    public LogEntry next() throws IOException {
+    public LogEntry prev() throws IOException {
         FileNode file;
         String line;
         InputStream src;
+        LineReader reader;
+        LogEntry result;
+        int size;
 
         while (true) {
-            if (reader == null) {
-                if (files.isEmpty()) {
+            if (lines == null) {
+                size = files.size();
+                if (size == 0) {
                     return null;
                 }
-                file = files.remove(0);
+                file = files.remove(size - 1);
                 src = file.newInputStream();
                 if (file.getName().endsWith(".gz")) {
                     src = new GZIPInputStream(src);
                 }
+                lines = new ArrayList<>();
                 reader = new LineReader(new InputStreamReader(src, "utf8"), LineFormat.RAW_FORMAT);
+                while (true) {
+                    line = reader.next();
+                    if (line == null) {
+                        break;
+                    }
+                    lines.add(line);
+                }
+                reader.close();
             }
-            line = reader.next();
-            if (line != null) {
-                return LogEntry.parse(line);
+            size = lines.size();
+            if (size > 0) {
+                result = LogEntry.parse(lines.remove(size - 1));
+                return result;
+            } else {
+                lines = null;
             }
-            reader.close();
-            reader = null;
-        }
-    }
-
-    @Override
-    public void close() throws Exception {
-        if (reader != null) {
-            reader.close();
         }
     }
 }

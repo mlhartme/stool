@@ -215,6 +215,8 @@ public class Import extends SessionCommand {
         stage.initialize();
         stage.modify();
         session.add(stage.backstage, stage.getId());
+        session.logging.setStage(stage.getId(), stage.getName());
+        console.info.println("stage imported: " + stage.getName());
     }
 
     private String name(FileNode directory) {
