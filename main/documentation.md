@@ -927,7 +927,8 @@ Properties have a type: boolean, number, date, string, list of strings, or map o
 Boolean properties have the values `true` or `false`, case sensitive.
 
 Date properties have the form *yyyy-mm-dd*, so a valid value for
-`expire` is - e.g. -`2016-12-31`.
+`expire` is - e.g. -`2016-12-31`. Alternatively, you can specify a number which is translated into the date
+that number of days from now.
 
 List properties (e.g.`tomcat.select`) are separated by commas, whitespace before and after an item is ignored.
 

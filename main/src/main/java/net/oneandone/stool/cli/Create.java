@@ -30,9 +30,6 @@ import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.nio.file.LinkOption;
-import java.nio.file.attribute.PosixFileAttributes;
-import java.nio.file.attribute.PosixFilePermission;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -158,9 +155,6 @@ public class Create extends SessionCommand {
         if (!directory.getParent().isDirectory()) {
             throw new ArgumentException("parent directory for new stage does not exist: " + directory.getParent());
         }
-        if (session.configuration.shared) {
-            checkPermissions(directory.getParent());
-        }
         session.checkDiskFree(directory.getParent());
         np = properties.get("name");
         name = config.get(np);
@@ -174,23 +168,6 @@ public class Create extends SessionCommand {
         }
         if (stageConfiguration == null) {
             stageConfiguration = session.createStageConfiguration(url);
-        }
-    }
-
-    private void checkPermissions(FileNode node) throws IOException {
-        PosixFileAttributes attributes;
-        FileNode parent;
-
-        attributes = java.nio.file.Files.readAttributes(node.toPath(), PosixFileAttributes.class, LinkOption.NOFOLLOW_LINKS);
-        if (!attributes.permissions().contains(PosixFilePermission.GROUP_EXECUTE)
-                && !attributes.permissions().contains(PosixFilePermission.OTHERS_EXECUTE)) {
-            throw new IOException(node.getAbsolute() + ": missing execute permission for group or others. \n" +
-                    "You cannot create a stage in this directory because only you can access it.\n" +
-                    "Try to create your stage in a different directory.");
-        }
-        parent = node.getParent();
-        if (parent != null && !parent.equals(node)) {
-            checkPermissions(parent);
         }
     }
 

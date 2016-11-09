@@ -42,6 +42,7 @@
 * improved expire command ()
   * you can not specify a number instead of a date; it will be translated into the specified number of days from today
   * you can specify the number in your defaults
+  * build-in default is now always `never`, it no longer depends on the shared mode; use defaults to configure direfferent values
 
 
 ### 3.4.4 (2016-10-17)

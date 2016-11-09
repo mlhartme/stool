@@ -19,7 +19,6 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.Start;
-import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.scm.Scm;
@@ -481,12 +480,6 @@ public abstract class Stage {
         } else {
             configuration.url = "(http|https)://%h:%p/";
         }
-        if (session.configuration.shared) {
-            configuration.expire = Expire.withOffset(8);
-        } else {
-            configuration.expire = Expire.never();
-        }
-
     }
 
     public void initialize() throws IOException {
