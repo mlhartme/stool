@@ -2,12 +2,16 @@
 
 ### 3.4.5 (pending)
 
-* added two new status fields:
+* added three new status fields:
+  * `birthdate` indicates when a stage was created
   * `maintainer` indicates the person that last changed a stage
   * `last_maintenance` is the timestamp of this change
 
 * improved `history` command:
   * speed-up
+  * simplified details handling: 
+    * it's just a global switch now
+    * added `history.details` defaults settings
   * print latest command first
   * properly log stacktraces, also fixed escaping
   * include create and import commands for the stage

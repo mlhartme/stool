@@ -45,6 +45,7 @@ import org.eclipse.aether.repository.RepositoryPolicy;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -178,6 +179,10 @@ public abstract class Stage {
     /** @return login name */
     public String creator() throws IOException {
         return session.backstageLink(id).getOwner().getName();
+    }
+
+    public LocalDateTime birthdate() throws IOException {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(session.backstageLink(id).getLastModified()), ZoneId.systemDefault());
     }
 
     //-- pid file handling

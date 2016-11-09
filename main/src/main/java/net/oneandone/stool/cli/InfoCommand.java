@@ -21,6 +21,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
+import net.oneandone.stool.util.LogEntry;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
@@ -126,6 +127,7 @@ public abstract class InfoCommand extends StageCommand {
             }
         });
         result.put(Field.CREATOR, userName(session, stage.creator()));
+        result.put(Field.BIRTHDATE, LogEntry.FULL_FMT.format(stage.birthdate()));
         result.put(Field.MAINTAINER, stage.maintainer());
         result.put(Field.LAST_MAINTENANCE, Stage.timespan(stage.lastMaintenance()));
         result.put(Field.UPTIME, stage.uptime());

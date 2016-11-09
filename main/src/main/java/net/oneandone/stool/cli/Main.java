@@ -105,7 +105,7 @@ public class Main {
                       cli.add(Cd.class, "cd target?=null { setTarget(target) }");
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
-                      cli.add(History.class, "history -max=@history.max:20 detail* { detail*(detail) }");
+                      cli.add(History.class, "history -details=@history.details:false -max=@history.max:50");
                       cli.add(Ls.class, "list -defaults=@list.defaults field* { field*(field) }");
                       cli.add(Move.class, "move dest");
                       cli.add(Port.class, "port port { port*(port) }");

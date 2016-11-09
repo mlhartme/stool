@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.LogEntry;
@@ -29,42 +28,17 @@ import java.util.List;
 import java.util.Map;
 
 public class History extends StageCommand {
+    private boolean details;
     private int max;
 
-    /** history entry to show details for */
-    private List<Integer> details = new ArrayList<>();
-
-    public History(Session session, int max) {
+    public History(Session session, boolean details, int max) {
         super(false, session, Mode.NONE, Mode.SHARED, Mode.NONE);
+        this.details = details;
         this.max = max;
     }
 
-    public void detail(String str) {
-        int idx;
-        int first;
-        int last;
-
-        idx = str.indexOf('-');
-        if (idx == -1) {
-            try {
-                details.add(Integer.parseInt(str));
-            } catch (NumberFormatException e) {
-                throw new ArgumentException("number expected, got " + str);
-            }
-        } else {
-            first = idx == 0 ? 1 : Integer.parseInt(str.substring(0, idx));
-            last = idx == str.length() - 1 ? max : Integer.parseInt(str.substring(idx + 1));
-            if (first > last) {
-                throw new ArgumentException("invalid range: " + first + "-" + last);
-            }
-            for (int i = first; i <= last; i++) {
-                details.add(i);
-            }
-        }
-    }
-
     @Override
-    public void doMain(Stage s) throws Exception {
+    public void doMain(Stage stage) throws Exception {
         String stageId;
         LogEntry entry;
         Map<String, List<LogEntry>> detailsMap; /* id to it's details */
@@ -72,13 +46,17 @@ public class History extends StageCommand {
         List<LogEntry> lst;
         int counter;
 
-        stageId = s.getId();
+        stageId = stage.getId();
         counter = 0;
         detailsMap = new HashMap<>();
         reader = LogReader.create(session.logging.directory());
         while (true) {
             entry = reader.prev();
             if (entry == null) {
+                break;
+            }
+            if (entry.dateTime.plusHours(1).isBefore(stage.birthdate())) {
+                // this assumes that creating a stage does not take longer than 1 hour
                 break;
             }
             lst = detailsMap.get(entry.id);
@@ -90,8 +68,8 @@ public class History extends StageCommand {
                 detailsMap.remove(entry.id);
                 if (forStage(stageId, lst)) {
                     counter++;
-                    console.info.println("[" + counter + "] " + LogEntry.FULL_FMT.format(entry.dateTime) + " " + entry.user + ": " + entry.message);
-                    if (details.contains(counter)) {
+                    console.info.println("[" + LogEntry.FULL_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.message);
+                    if (details) {
                         for (int i = lst.size() - 1; i >= 0; i--) {
                             console.info.println(Strings.indent(lst.get(i).message, "     "));
                         }

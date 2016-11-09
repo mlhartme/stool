@@ -247,6 +247,8 @@ Supported user default properties:
   controls the `-max` option for the import command
 * **history.max**
   controls the `-max` option for the history command
+* **history.details**
+  controls the `-details` option for the history command
 * **tomcat.debug**
   controls the `-debug` option for the start and restart command
 * **tomcat.suspend**
@@ -339,7 +341,7 @@ stop and remove. A stage contains web applications built from source or availabl
 
 
 
-`stool` *global-option*... `history` *stage-option*... [`-max` *n*] *detail*...
+`stool` *global-option*... `history` *stage-option*... [`-details`] [`-max` *n*] 
 
 
 `stool` *global-option*... `cd` *stage-option*... *target*
@@ -924,17 +926,16 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 ### stool-history
 
-Display the command history
+Display command history
 
 #### SYNOPSIS
 
-`stool` *global-option*... `history` *stage-option*... [`-max` *n*] *detail*...
+`stool` *global-option*... `history` *stage-option*... [`-details`] [`-max` *n*] 
 
 #### DESCRIPTION
 
-Prints the command history of the stage. Specify *detail* with a command number or a command
-range to get the full command output for the respective command(s). If the max number
-*n* of commands is exceeded, older commands are ignored (*n* defauls is 999).
+Prints the command history of the stage. Specify `-details`to also print command output. If the max number
+*n* of commands is exceeded, older commands are ignored (*n* defauls is 50).
 
 [//]: # (include stageOptions.md)
 
