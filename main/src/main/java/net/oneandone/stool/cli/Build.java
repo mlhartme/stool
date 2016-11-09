@@ -18,25 +18,46 @@ package net.oneandone.stool.cli;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Build extends StageCommand {
+    private final boolean here;
+    private final List<String> command;
+
     public Build(Session session) {
+        this(session, false, new ArrayList<>());
+    }
+
+    public Build(Session session, boolean here, List<String> command) {
         super(true, session, Mode.NONE, Mode.SHARED, Mode.EXCLUSIVE);
+        this.here = here;
+        this.command = command;
     }
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        String command;
+        FileNode directory;
         Launcher launcher;
 
         stage.modify();
         stage.checkNotUp();
-        command = stage.getBuild();
-        console.info.println("[" + stage.getDirectory() + "] " + command);
+        if (command.isEmpty()) {
+            command.addAll(Separator.SPACE.split(stage.getBuild()));
+        }
+        if (here) {
+            directory = world.getWorking();
+        } else {
+            directory = stage.getDirectory();
+        }
         launcher = stage.launcher();
-        launcher.args(Separator.SPACE.split(command));
+        launcher.dir(directory);
+        console.info.println("[" + directory + "] " + command);
+        launcher.args(command);
         launcher.exec(console.info);
     }
 }

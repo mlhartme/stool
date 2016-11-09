@@ -272,7 +272,7 @@ stop and remove. A stage contains web applications built from source or availabl
 `stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] [`-autostop`|`-autorestart`] *command-options*...
 
 
-`stool` *global-option*... `build` *stage-option*...
+`stool` *global-option*... `build` *stage-option*... [`-here`] *command*
 
 
 `stool` *global-option*... `remove` *stage-option*... [`-force`] [`-batch`] [`-backstage`]
@@ -666,14 +666,15 @@ Build a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `build` *stage-option*...
+`stool` *global-option*... `build` *stage-option*... [`-here`] *command*
 
 #### Description
 
-Enters the stage directory, sets MAVEN_HOME, MAVEN_OPTS and JAVA_HOME as configured for the stage and executes the build command
-specified in the `build` property. Reports an error if the stage is not owned or if the stage is up.
+Executes the specified command or the command specified by the `build` property. Executes in the current directory
+when called with `-here`; otherwise, executes in the stage directory. Sets MAVEN_HOME, MAVEN_OPTS and JAVA_HOME 
+as configured for the stage. Reports an error if the stage is not owned or if the stage is up.
 
-You can see the configured build command with`stool config build`, and you can change it with
+You can see the configured build command with `stool config build`, and you can change it with
 `stool` *global-option*... `config "build="`
 *your command command*
 `"`
@@ -685,8 +686,11 @@ The pre-defined build command for artifact stages does nothing. Thus, you can in
 If you invoke `build` from the dashboard application, the build command executes in the environment
 defined for the dashboard stage with the additional environment variables mentioned above.
 
-If you work locally on your own machine, you'll normally prefer to directly invoke your build command. However, you have
-to use `stool build` because shared machine have a separate local Maven repository for every stage.
+The differences between using `stool build` and executing a build command directly is the execute directory
+and the build directory. When working in shared mode, you usually you have to use `stool build` because 
+shared machine need a separate local Maven repository for every stage - and that's configured in the stage
+environment.
+
 
 [//]: # (include stageOptions.md)
 

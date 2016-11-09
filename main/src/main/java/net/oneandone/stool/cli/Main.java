@@ -101,7 +101,7 @@ public class Main {
                     cli.add(Select.class, "select -fuzzy=@select.fuzzy name?=null");
                     cli.base(StageCommand.class, "-autorestart=@auto.restart -autostop=@auto.stop -stage=null -all -fail "
                             + "{ setAutoRestart(autorestart) setAutoStop(autostop) setStage(stage) setAll(all) setFail(fail) }");
-                      cli.add(Build.class, "build");
+                      cli.add(Build.class, "build -here command*");
                       cli.add(Cd.class, "cd target?=null { setTarget(target) }");
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
