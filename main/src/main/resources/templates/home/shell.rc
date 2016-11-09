@@ -26,12 +26,7 @@ __stageIndicatorColor() {
     if [ ! -e "${dir}" ] ; then
       echo -n -e "$BLUE"
     else
-      if [ `uname` = Darwin ] ; then
-        local fmt=-f
-      else
-        local fmt=--format
-      fi
-      if [ $(id -u) = "$(stat -L $fmt %u "$dir")" ] ; then
+      if grep --quiet ^$(id -u -n)$ "${dir}/.backstage/run/maintainer" ; then
         echo -n ""
       else
         echo -n -e "$RED"

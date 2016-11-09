@@ -126,8 +126,8 @@ A stage has a
     This state is used e.g. when a machine is rebooted, it flags the stages that should be started once the
     machine is up again.
   You can check the state with `stool status` or `stool list`.
-* **owner**
-  see below
+* **maintainer**
+  The user that last changed this stage.
 
 Note: A system stage is a stage whose directory is placed in $STOOL_HOME/system. System stages get special treatment in
 system-start and system stop and they are not listed by the Dashboard.
@@ -144,7 +144,7 @@ If you create a new stage, Stool changes the current working directory to the ne
 becomes the selected stage. `stool select` changes the current working directory to the respective stage directory,
 thus is just a convenience way for cd'ing between stage directories.
 
-The stage indicator is red when you're not the owner of the selected stage. It is blue, when the
+The stage indicator is red when you're not the maintainer of the selected stage. It is blue, when the
 selected stage is broken or no longer exists. The stage indicator is invisible if you have no stage selected;
 select a stage to set a stage indicator.
 
@@ -1150,6 +1150,8 @@ A field may be any stage property or one of the following status fields:
   Application urls this stage.
 * **backstage**
   Absolute path of the backage directory. Type string.
+* **birthdate**
+  When the stage was created*
 * **buildtime**
   Last modified date of the war files for this stage.
 * **cpu**
@@ -1166,12 +1168,14 @@ A field may be any stage property or one of the following status fields:
   Unique identifier for this stage. Type string.
 * **jmx**
   Some jmx tool invocations for this stage.
+* **last_maintenance**
+  When this stage was last changed.
+* **maintainer**
+  The user that last changed this stage, i.e. executed a stool command like build, start, or stop
 * **mem**
   Memory utilization reported by ps for this stage.
 * **others**
   Other urls this stage.
-* **owner**
-  Owner of this stage. Type string.
 * **selected**
   `true` if this is the selected stage. Type boolean.
 * **service**
