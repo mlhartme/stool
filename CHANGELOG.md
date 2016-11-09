@@ -3,9 +3,14 @@
 ### 3.4.5 (pending)
 
 * added two new status fields:
-  * `maintainer` indicate the person that last changed a stage
+  * `maintainer` indicates the person that last changed a stage
   * `last_maintenance` is the timestamp of this change
 
+* improved `history` command:
+  * speed-up
+  * print latest command first
+  * include create and import commands for the stage
+  
 * changed current user detection:
   * first check SUDO_USER varianle
   * next, check user.name system property

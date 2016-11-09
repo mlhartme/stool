@@ -96,6 +96,10 @@ public class History extends StageCommand {
                         }
                     }
                 }
+                if (counter == max) {
+                    console.info.println("(skipping after " + max + " commands; use -max <n> to see more)");
+                    break;
+                }
             } else {
                 lst.add(entry);
             }
