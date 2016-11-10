@@ -22,8 +22,9 @@
   * first check STOOL_USER varianle
   * next, check user.name system property
 
-* start service-wrapper without sudo
-
+* invoke service-wrapper without sudo
+  * changed wrapper configuration to allow every user with wx permissions on $backstage/run/tomcat.anchor to stop a stage 
+  
 * dashboard starts stool without sudo
 
 * chown-less operation:
