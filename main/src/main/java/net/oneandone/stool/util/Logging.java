@@ -35,8 +35,8 @@ public class Logging {
     public static String detectUser() {
         String name;
 
-        name = System.getenv("SUDO_USER");
-        if (name != null && !name.equals("root")) {
+        name = System.getenv(Environment.STOOL_USER);
+        if (name != null) {
             return name;
         } else{
             return System.getProperty("user.name");

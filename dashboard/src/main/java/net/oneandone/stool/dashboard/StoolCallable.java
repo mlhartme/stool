@@ -17,7 +17,7 @@ package net.oneandone.stool.dashboard;
 
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Credentials;
-import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Environment;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
@@ -28,10 +28,7 @@ import java.util.concurrent.Callable;
 
 public class StoolCallable implements Callable<Failure> {
     public static StoolCallable create(FileNode stool, String id, FileNode logs, Stage stage, String command, String ... options) throws IOException {
-        Session session;
-
-        session = stage.session;
-        return new StoolCallable(stool, command, options, stage, id, logs, session.configuration.shared, session.environment.get("PATH"), stage.maintainer());
+        return new StoolCallable(stool, command, options, stage, id, logs, stage.maintainer());
     }
 
     private final FileNode stool;
@@ -40,19 +37,15 @@ public class StoolCallable implements Callable<Failure> {
     private final String id;
     private final Stage stage;
     private final FileNode logDir;
-    private final boolean su;
-    private final String path;
     private final String runAs;
 
-    public StoolCallable(FileNode stool, String command, String[] options, Stage stage, String id, FileNode logDir, boolean su, String path, String runAs) {
+    public StoolCallable(FileNode stool, String command, String[] options, Stage stage, String id, FileNode logDir, String runAs) {
         this.stool = stool;
         this.command = command;
         this.options = options;
         this.id = id;
         this.stage = stage;
         this.logDir = logDir;
-        this.su = su;
-        this.path = path;
         this.runAs = runAs;
     }
 
@@ -68,10 +61,7 @@ public class StoolCallable implements Callable<Failure> {
         failure = null;
         time = System.currentTimeMillis();
         launcher = new Launcher(logDir);
-        if (su) {
-            // sudo does not pass PATH via -E. So I set it explicitly
-            launcher.arg("sudo", "-u", runAs, "-E", "PATH=" + path);
-        }
+        launcher.env(Environment.STOOL_USER, runAs);
         launcher.arg(stool.getAbsolute());
         svnCredentials = stage.session.svnCredentials();
         if (svnCredentials.username != null) {

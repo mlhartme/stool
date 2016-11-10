@@ -26,6 +26,7 @@ public class Environment {
     public static final String JAVA_HOME = "JAVA_HOME";
     public static final String MAVEN_HOME = "MAVEN_HOME";
     public static final String MAVEN_OPTS = "MAVEN_OPTS";
+    public static final String STOOL_USER = "STOOL_USER";
 
     public static Environment loadSystem() {
         Environment result;
