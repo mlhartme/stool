@@ -393,11 +393,6 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
 * **shared**
   `true` if multiple user may work on stages. When set to true, stool does:
   * use `.backstage/.m2` (instead of the current user's `~/.m2/repository`) as local Maven repository
-  * when creating a stage:
-    * default `expire` to `ever
-    * check directory permissions, that every stool user can access the new directory
-  * when starting/stopping a stage: uses `sudo` to be come the user who's the current maintainer of the stage.
-    Type boolean.
 * **search**
   Command line to execute if `stool create` is called with an % url.
   When calling the command, the placeholder `()` is replaced by the url.

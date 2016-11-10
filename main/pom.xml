@@ -314,18 +314,6 @@
                   </mapper>
                 </data>
                 <data>
-                  <src>${basedir}/src/deb/main/sudoers</src>
-                  <dst>/etc/sudoers.d/stool</dst>
-                  <conffile>true</conffile>
-                  <type>file</type>
-                  <mapper>
-                    <type>perm</type>
-                    <user>root</user>
-                    <group>root</group>
-                    <filemode>440</filemode>
-                  </mapper>
-                </data>
-                <data>
                   <src>${basedir}/src/deb/main/cron</src>
                   <dst>/etc/cron.d/stool</dst>
                   <type>file</type>
