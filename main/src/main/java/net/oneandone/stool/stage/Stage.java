@@ -310,28 +310,28 @@ public abstract class Stage {
             throw new IOException("tomcat is not running.");
         }
         extensions().beforeStop(this);
+        // IGNORE signals to stop via anchor file. This is crucial if a different user has to stop a stage
         return serviceWrapper("stop", "IGNORE_SIGNALS", "TRUE").launch();
     }
 
     private Launcher serviceWrapper(String action, String ... extraEnv) throws IOException {
-        String runAs;
         Launcher launcher;
         Map<String, String> env;
 
-        runAs = maintainer();
         launcher = new Launcher(getDirectory());
         env = launcher.getBuilder().environment();
         env.clear();
+        env.put("CATALINA_HOME", catalinaHome().getAbsolute());
+        env.put("CATALINA_BASE", backstage.join("tomcat").getAbsolute());
+        env.put("WRAPPER_HOME", serviceWrapperBase().getAbsolute());
+        env.put("WRAPPER_CMD", serviceWrapperBase().join("bin/wrapper").getAbsolute());
+        env.put("WRAPPER_CONF", backstage.join("service/service-wrapper.conf").getAbsolute());
+        env.put("PIDDIR", backstage.join("run").getAbsolute());
         env.putAll(configuration.tomcatEnv);
-        env.put("HOME", homeOf(runAs).getAbsolute());
-        env.put("USER", runAs);
         for (int i = 0; i < extraEnv.length; i += 2) {
             env.put(extraEnv[i], extraEnv[i + 1]);
         }
-        launcher.arg(session.bin("service-wrapper.sh").getAbsolute());
-        launcher.arg(catalinaHome().getAbsolute());
-        launcher.arg(serviceWrapperBase().getAbsolute());
-        launcher.arg(backstage.getAbsolute());
+        launcher.arg(backstage.join("service/service-wrapper.sh").getAbsolute());
         launcher.arg(action);
         return launcher;
     }

@@ -1252,8 +1252,6 @@ To upgrade from Stool versions before 3.4.0:
 
         |- config.json (Stool configuration)
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
-        |- bin
-        |  `- service-wrapper.sh
         |- run
         |  |- locks       (holds all locking data)
         |  |- ports       (lists all allocated ports)
