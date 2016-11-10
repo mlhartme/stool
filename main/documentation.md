@@ -1287,7 +1287,9 @@ To upgrade from Stool versions before 3.4.0:
           |- .m2 (Maven repository for this stage)
           |- buildstats.json
           |- ssl (generated certs)
-          |- run (pid stuff for service wrapper)
+          |- run
+          |  |- maintainer
+          |  :  (pid stuff for service wrappe)
           |- service
           |  |- service-wrapper.sh
           |  '- service-wrapper.conf
