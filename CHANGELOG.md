@@ -19,7 +19,8 @@
   * include create and import commands for the stage
   
 * Stool user
-  * Stool now distinguishes the Stool user (used for logging and emails) from the OS user (an account on the local machine)
+  * Stool now distinguishes the Stool user (used for logging and emails) from the OS user 
+    (owner of files and processes, someone with an account on the local machine)
   * configured via environment variable `STOOL_USER`, default it the Java system property `user.name`
 
 * changed current user detection:
