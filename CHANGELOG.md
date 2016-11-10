@@ -2,10 +2,12 @@
 
 ### 3.4.5 (pending)
 
-* added three new status fields:
-  * `birthdate` indicates when a stage was created
-  * `maintainer` indicates the person that last changed a stage
-  * `last_maintenance` is the timestamp of this change
+* stool status: 
+  * added new fields:
+    * `birthdate` indicates when a stage was created
+    * `maintainer` indicates the person that last changed a stage
+    * `last_maintenance` is the timestamp of this change
+  * fixed exception if service wrapper has no child process
 
 * improved `history` command:
   * speed-up
@@ -17,8 +19,12 @@
   * include create and import commands for the stage
   
 * changed current user detection:
-  * first check SUDO_USER varianle
+  * first check STOOL_USER varianle
   * next, check user.name system property
+
+* start service-wrapper without sudo
+
+* dashboard starts stool without sudo
 
 * chown-less operation:
   * dumped `chown` command since it's no longer needed; admins have to take care that sharing the files does not cause permission problems
@@ -32,8 +38,6 @@
 
 * stage indicator color is gone: red no longer makes sense, because there's no chown you have to use; and blue was already impossible since moving 
   the backstage directory into the stage directory
-
-* stool status: fixed exception is service wrapper has no child process
 
 * improved build command (for Christina)
   * added command parameters to be executed instead of the configured `build` property 

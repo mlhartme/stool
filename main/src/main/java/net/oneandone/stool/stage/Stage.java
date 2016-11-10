@@ -280,14 +280,6 @@ public abstract class Stage {
 
         checkMemory();
         console.info.println("starting tomcat ...");
-
-        // TODO workspace stages
-        // FileNode editorLocations = directory.join("tomcat/editor/WEB-INF/editor-locations.xml");
-        // if (editorLocations.exists()) {
-        //    editorLocations.writeString(editorLocations.readString().replace("8080", Integer.toString(configuration.ports.tomcatHttp())));
-        //    Files.stoolFile(editorLocations);
-        // }
-
         serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
         keystore = keystore();
         extensions = extensions();
@@ -318,22 +310,23 @@ public abstract class Stage {
             throw new IOException("tomcat is not running.");
         }
         extensions().beforeStop(this);
-        return serviceWrapper("stop").launch();
+        return serviceWrapper("stop", "IGNORE_SIGNALS", "TRUE").launch();
     }
 
-    private Launcher serviceWrapper(String ... action) throws IOException {
+    private Launcher serviceWrapper(String action, String ... extraEnv) throws IOException {
         String runAs;
         Launcher launcher;
+        Map<String, String> env;
 
-        runAs = creator();
+        runAs = maintainer();
         launcher = new Launcher(getDirectory());
-        launcher.getBuilder().environment().clear();
-        launcher.getBuilder().environment().putAll(configuration.tomcatEnv);
-        launcher.getBuilder().environment().put("HOME", homeOf(runAs).getAbsolute());
-        launcher.getBuilder().environment().put("USER", runAs);
-        if (session.configuration.shared) {
-            // sudo does not pass PATH via -E. So I set it explicitly
-            launcher.arg("sudo", "-u", runAs, "-E", "PATH=" + session.environment.get("PATH"));
+        env = launcher.getBuilder().environment();
+        env.clear();
+        env.putAll(configuration.tomcatEnv);
+        env.put("HOME", homeOf(runAs).getAbsolute());
+        env.put("USER", runAs);
+        for (int i = 0; i < extraEnv.length; i += 2) {
+            env.put(extraEnv[i], extraEnv[i + 1]);
         }
         launcher.arg(session.bin("service-wrapper.sh").getAbsolute());
         launcher.arg(catalinaHome().getAbsolute());
