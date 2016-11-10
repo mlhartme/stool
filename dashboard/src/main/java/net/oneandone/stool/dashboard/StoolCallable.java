@@ -21,14 +21,26 @@ import net.oneandone.stool.util.Environment;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.ldap.userdetails.InetOrgPerson;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.concurrent.Callable;
 
 public class StoolCallable implements Callable<Failure> {
-    public static StoolCallable create(FileNode stool, String id, FileNode logs, Stage stage, String command, String ... options) throws IOException {
-        return new StoolCallable(stool, command, options, stage, id, logs, stage.maintainer());
+    public static StoolCallable create(FileNode stool, String id, FileNode logs, Stage stage, String unauthenticatedUser, String command,
+                                       String ... options) throws IOException {
+        String runAs;
+        Object username;
+
+        username = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (username instanceof InetOrgPerson) {
+            runAs = ((InetOrgPerson) username).getUid();
+        } else {
+            runAs = unauthenticatedUser;
+        }
+        return new StoolCallable(stool, command, options, stage, id, logs, runAs);
     }
 
     private final FileNode stool;

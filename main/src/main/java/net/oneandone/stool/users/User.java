@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.users;
 
+/** A stool user. Not that a user does not necessarily correspond to an OS user (i.e. a user account on the current machine) */
 public class User {
     public final String login;
     public final String name;

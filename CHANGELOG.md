@@ -22,11 +22,6 @@
   * first check STOOL_USER varianle
   * next, check user.name system property
 
-* invoke service-wrapper without sudo
-  * changed wrapper configuration to allow every user with wx permissions on $backstage/run/tomcat.anchor to stop a stage 
-  
-* dashboard starts stool without sudo
-
 * chown-less operation:
   * dumped `chown` command since it's no longer needed; admins have to take care that sharing the files does not cause permission problems
   * removed -autoChown and -autoRechown options
@@ -36,6 +31,12 @@
     * dashboard shows the maintainer now
   * fixed security risks by removing 'chowntree.sh' sudo script
   * added maintainer and last_maintenance status fields
+
+* dumped all sudo rules/scripts
+  * chowntree (see chown-less operation above)
+  * invoke service-wrapper without sudo
+    * changed wrapper configuration to allow every user with wx permissions on $backstage/run/tomcat.anchor to stop a stage 
+  * dashboard starts Stool without sudo, stool user is the authenticated user (or, it not authenticated, the Stool user of the dashboard itself)
 
 * stage indicator color is gone: red no longer makes sense, because there's no chown you have to use; and blue was already impossible since moving 
   the backstage directory into the stage directory
