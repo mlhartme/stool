@@ -103,7 +103,7 @@ public class Start extends StageCommand {
         ports = session.pool().allocate(stage, Collections.emptyMap());
         copyTemplate(stage, ports);
         createServiceLauncher(stage);
-        copyTomcatBaseOpt(download, stage.getBackstage(), stage.config().tomcatVersion);
+        copyCatalinaBaseOpt(download, stage.getBackstage(), stage.config().tomcatVersion);
         if (session.bedroom.contains(stage.getId())) {
             console.info.println("leaving sleeping state");
             session.bedroom.remove(session.gson, stage.getId());
@@ -326,7 +326,7 @@ public class Start extends StageCommand {
         }
     }
 
-    private void copyTomcatBaseOpt(FileNode download, FileNode backstage, String version) throws IOException, SAXException {
+    private void copyCatalinaBaseOpt(FileNode download, FileNode backstage, String version) throws IOException, SAXException {
         String name;
         FileNode src;
         FileNode dest;
@@ -340,6 +340,8 @@ public class Start extends StageCommand {
                     download.getAbsolute(), "--exclude", name + "/lib", "--exclude", name + "/bin", "--exclude", name + "/webapps");
             src = backstage.join(name);
             src.move(dest);
+            // TODO: work-around for a problem I have with tar: it applies the umask to the permissions stored in the file ...
+            dest.execNoOutput("chmod", "-R", "g+rwxs", ".");
 
             file = dest.join("conf/server.xml");
             serverXml = ServerXml.load(file, session.configuration.hostname);

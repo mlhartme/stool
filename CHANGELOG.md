@@ -4,7 +4,7 @@
 
 * improved `import` command: re-use backstage directory if it already exists
 
-* stool status: 
+* `stool status`: 
   * added new fields:
     * `birthdate` indicates when a stage was created
     * `maintainer` indicates the person that last changed a stage
