@@ -43,6 +43,8 @@ import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.repository.RepositoryPolicy;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -182,18 +184,20 @@ public abstract class Stage {
 
     private FileNode creatorFile() throws IOException {
         FileNode file;
+        FileNode link;
 
         file = getBackstage().join("run/creator");
-        if (!file.exists()) { // TODO: dump this migration code
+        if (!file.exists()) { // TODO: move this into the 3.4 -> 3.5 migration code
+            link = session.backstageLink(id);
             file.getParent().mkdirOpt();
-            file.writeString(session.backstageLink(id).getOwner().getName());
+            file.writeString(link.getOwner().getName());
+            file.setLastModified(Files.getLastModifiedTime(link.toPath(), LinkOption.NOFOLLOW_LINKS).toMillis());
         }
         return file;
     }
 
     public LocalDateTime birthdate() throws IOException {
-        // TODO: change this to check the creator file when migration is done
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(session.backstageLink(id).getLastModified()), ZoneId.systemDefault());
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(creatorFile().getLastModified()), ZoneId.systemDefault());
     }
 
     //-- pid file handling
