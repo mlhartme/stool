@@ -317,10 +317,18 @@ public abstract class Stage {
     private Launcher serviceWrapper(String action, String ... extraEnv) throws IOException {
         Launcher launcher;
         Map<String, String> env;
+        String home;
+        String user;
 
         launcher = new Launcher(getDirectory());
         env = launcher.getBuilder().environment();
+        home = env.get("HOME");
+        user = env.get("USER");
         env.clear();
+        if (home != null) {
+            env.put("HOME", home);
+            env.put("USER", user);
+        }
         env.put("CATALINA_HOME", catalinaHome().getAbsolute());
         env.put("CATALINA_BASE", backstage.join("tomcat").getAbsolute());
         env.put("WRAPPER_HOME", serviceWrapperBase().getAbsolute());
