@@ -205,14 +205,20 @@ public class Import extends SessionCommand {
 
     private void doImport(Stage stage, String forceName) throws IOException {
         FileNode directory;
+        FileNode backstage;
         String name;
 
         directory = stage.getDirectory();
         name = forceName != null ? forceName : name(directory);
-        Stage.backstageDirectory(directory).mkdir();
-        stage.config().name = name;
-        stage.tuneConfiguration();
-        stage.initialize();
+        backstage = Stage.backstageDirectory(directory);
+        if (backstage.exists()) {
+            console.info.println("re-using " + backstage);
+        } else {
+            backstage.mkdir();
+            stage.config().name = name;
+            stage.tuneConfiguration();
+            stage.initialize();
+        }
         stage.modify();
         session.add(stage.backstage, stage.getId());
         session.logging.setStage(stage.getId(), stage.getName());
