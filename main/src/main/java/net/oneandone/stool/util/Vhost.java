@@ -110,9 +110,7 @@ public class Vhost {
         if (docroot.getName().equals("ROOT")) {
             return docroot.getParent().getAbsolute();
         } else {
-            // TODO: still needed?
-            // to force tomcat 6 not to load catalina base and its subdirectory
-            return "noSuchDirectory";
+            return "webapps";
         }
     }
 
