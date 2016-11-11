@@ -82,7 +82,7 @@ public class Main {
             OutputStream devNull = MultiOutputStream.createNullStream();
             console = console(logging, devNull, devNull);
         }
-        command = "stool " + command(args);
+        command = "stool " + hideCredentials(args);
         logging.log("COMMAND", command);
         globals = new Globals(setenv, home, logging, command, console, world);
         cli = new Cli(globals::handleException);
@@ -149,8 +149,7 @@ public class Main {
                 new InputLogStream(System.in, new LogOutputStream(logging, "IN")));
     }
 
-    /** hide shell and svn arguments */
-    private static String command(String[] args) {
+    private static String hideCredentials(String[] args) {
         StringBuilder result;
         boolean options;
         String arg;
@@ -161,15 +160,17 @@ public class Main {
             arg = args[i];
             if (options) {
                 switch (arg) {
-                    case "-shell":
-                        i++;
-                        continue;
                     case "-svnuser":
                     case "-svnpassword":
                         arg = arg + " ********";
                         i++;
                         break;
                     default:
+                        if (arg.startsWith("-svnuser=")) {
+                            arg = "-svnuser=******";
+                        } else if (arg.startsWith("-svnpassword=")) {
+                            arg = "-svnpassword=*******";
+                        }
                         if (!arg.startsWith("-")) {
                             options = false;
                         }

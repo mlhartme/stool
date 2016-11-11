@@ -57,7 +57,7 @@
   * you can specify the number in your defaults
   * build-in default is now always `never`, it no longer depends on the shared mode; use defaults to configure direfferent values
 
-* fixed `noSuchDirectory` in catalina base (there's now an empty webapps directory instead)
+* fixed `noSuchDirectory` in catalina base, there's now an empty webapps directory instead. (for Felix)
 
 
 ### 3.4.4 (2016-10-17)
@@ -206,6 +206,8 @@
     * Maven Embedded 3.11.1 to 3.12.1
     * gson 2.2.4 to 2.7
   * dumped dependencies to slf4j-api and logback
+
+* fixed logging of credential arguments
 
 
 ### 3.3.5 (2016-03-16)
