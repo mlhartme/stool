@@ -1088,10 +1088,10 @@ A field may be any stage property or one of the following status fields:
   Unique identifier for this stage. Type string.
 * **jmx**
   Some jmx tool invocations for this stage.
-* **last_maintenance**
-  When this stage was last changed.
+* **maintained**
+  When this stage was last maintained.
 * **maintainer**
-  The user that last changed this stage, i.e. executed a stool command like build, start, or stop
+  The user that last maintained this stage, i.e. executed a Stool command like build, start, or stop
 * **mem**
   Memory utilization reported by ps for this stage.
 * **others**

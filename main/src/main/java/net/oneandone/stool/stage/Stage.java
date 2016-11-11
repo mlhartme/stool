@@ -459,7 +459,7 @@ public abstract class Stage {
         return maintainerFile().readString().trim();
     }
 
-    public long lastMaintenance() throws IOException {
+    public long maintained() throws IOException {
         return maintainerFile().getLastModified();
     }
 
