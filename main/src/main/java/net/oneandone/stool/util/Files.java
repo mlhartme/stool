@@ -29,14 +29,18 @@ public final class Files {
     public static Node executable(Node file) throws IOException {
         String old;
         StringBuilder next;
+        String nextStr;
 
         old = file.getPermissions();
         next = new StringBuilder(old);
         next.setCharAt(2, 'x');
         next.setCharAt(5, 'x');
         next.setCharAt(8, 'x');
-        if (!old.equals(next)) {
-            file.setPermissions(next.toString());
+        nextStr = next.toString();
+
+        // CAUTION: only the owner may change permissions
+        if (!old.equals(nextStr)) {
+            file.setPermissions(nextStr);
         }
         return file;
     }

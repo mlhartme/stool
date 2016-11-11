@@ -341,7 +341,8 @@ public class Start extends StageCommand {
             src = backstage.join(name);
             src.move(dest);
             // TODO: work-around for a problem I have with tar: it applies the umask to the permissions stored in the file ...
-            dest.execNoOutput("chmod", "-R", "g+rwxs", ".");
+            dest.execNoOutput("chmod", "-R", "g+rw", ".");
+            dest.execNoOutput("chmod", "g+x", "conf"); // for Tomcat 8.5
 
             file = dest.join("conf/server.xml");
             serverXml = ServerXml.load(file, session.configuration.hostname);
