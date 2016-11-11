@@ -1075,7 +1075,7 @@ A field may be any stage property or one of the following status fields:
 * **cpu**
   Cpu utilization for this stage reported by `ps`.
 * **created**
-  When the stage was created*
+  When the stage was created.
 * **creator**
   User who created this stage. Type string.
 * **debugger**
@@ -1091,7 +1091,7 @@ A field may be any stage property or one of the following status fields:
 * **maintained**
   When this stage was last maintained.
 * **maintainer**
-  The user that last maintained this stage, i.e. executed a Stool command like build, start, or stop
+  The user that last maintained this stage, i.e. executed a Stool command like build, start, or stop.
 * **mem**
   Memory utilization reported by ps for this stage.
 * **others**

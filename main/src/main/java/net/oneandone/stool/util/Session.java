@@ -36,8 +36,6 @@ import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.users.User;
-import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.LinkException;
 import net.oneandone.sushi.fs.ModeException;
@@ -49,7 +47,6 @@ import net.oneandone.sushi.util.Strings;
 import org.codehaus.plexus.DefaultPlexusContainer;
 
 import javax.mail.MessagingException;
-import javax.naming.NamingException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -446,14 +443,6 @@ public class Session {
     /** @return Free disk space in partition used for stool lib. TODO: not necessarily the partition used for stages. */
     public int diskFree(FileNode directory) {
         return (int) (directory.toPath().toFile().getUsableSpace() / 1024 / 1024);
-    }
-
-    public User lookupUser(String login) throws NamingException, UserNotFound {
-        if (configuration.shared) {
-            return users.byLogin(login);
-        } else {
-            return null;
-        }
     }
 
     public FileNode ports() {

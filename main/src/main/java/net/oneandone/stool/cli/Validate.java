@@ -290,8 +290,8 @@ public class Validate extends StageCommand {
                     return user;
                 }
                 try {
-                    userobj = session.lookupUser(user);
-                    email = (userobj == null ? session.configuration.admin : userobj.email);
+                    userobj = session.users.byLogin(user);
+                    email = (userobj.isGenerated() ? session.configuration.admin : userobj.email);
                 } catch (UserNotFound e) {
                     email = session.configuration.admin;
                 }

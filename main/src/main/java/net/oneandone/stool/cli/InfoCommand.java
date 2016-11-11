@@ -128,7 +128,7 @@ public abstract class InfoCommand extends StageCommand {
         });
         result.put(Field.CREATOR, userName(session, stage.creator()));
         result.put(Field.CREATED, LogEntry.FULL_FMT.format(stage.created()));
-        result.put(Field.MAINTAINER, stage.maintainer());
+        result.put(Field.MAINTAINER, userName(session, stage.maintainer()));
         result.put(Field.MAINTAINED, Stage.timespan(stage.maintained()));
         result.put(Field.UPTIME, stage.uptime());
         result.put(Field.STATE, stage.state().toString());
