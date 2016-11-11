@@ -6,7 +6,7 @@
 
 * `stool status`: 
   * added new fields:
-    * `birthdate` indicates when a stage was created
+    * `created` indicates when a stage was created
     * `maintainer` indicates the person that last changed a stage
     * `last_maintenance` is the timestamp of this change
   * fixed exception if service wrapper has no child process

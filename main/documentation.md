@@ -1070,12 +1070,12 @@ A field may be any stage property or one of the following status fields:
   Application urls this stage.
 * **backstage**
   Absolute path of the backage directory. Type string.
-* **birthdate**
-  When the stage was created*
 * **buildtime**
   Last modified date of the war files for this stage.
 * **cpu**
   Cpu utilization for this stage reported by `ps`.
+* **created**
+  When the stage was created*
 * **creator**
   User who created this stage. Type string.
 * **debugger**

@@ -55,7 +55,7 @@ public class History extends StageCommand {
             if (entry == null) {
                 break;
             }
-            if (entry.dateTime.plusHours(1).isBefore(stage.birthdate())) {
+            if (entry.dateTime.plusHours(1).isBefore(stage.created())) {
                 // this assumes that creating a stage does not take longer than 1 hour
                 break;
             }
