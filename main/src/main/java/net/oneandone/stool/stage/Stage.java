@@ -177,10 +177,22 @@ public abstract class Stage {
 
     /** @return login name */
     public String creator() throws IOException {
-        return session.backstageLink(id).getOwner().getName();
+        return creatorFile().readString().trim();
+    }
+
+    private FileNode creatorFile() throws IOException {
+        FileNode file;
+
+        file = getBackstage().join("run/creator");
+        if (!file.exists()) { // TODO: dump this migration code
+            file.getParent().mkdirOpt();
+            file.writeString(session.backstageLink(id).getOwner().getName());
+        }
+        return file;
     }
 
     public LocalDateTime birthdate() throws IOException {
+        // TODO: change this to check the creator file when migration is done
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(session.backstageLink(id).getLastModified()), ZoneId.systemDefault());
     }
 
@@ -420,9 +432,15 @@ public abstract class Stage {
         }
     }
 
-    /** @return pid or null */
-    public FileNode maintainerFile() {
-        return getBackstage().join("run/maintainer");
+    public FileNode maintainerFile() throws IOException {
+        FileNode file;
+
+        file = getBackstage().join("run/maintainer");
+        if (!file.exists()) { // TODO: dump this migration code
+            file.getParent().mkdirOpt();
+            file.writeString(session.user);
+        }
+        return file;
     }
 
     public void modify() throws IOException {
@@ -437,7 +455,7 @@ public abstract class Stage {
         return maintainerFile().readString().trim();
     }
 
-    public long lastMaintenance() throws GetLastModifiedException {
+    public long lastMaintenance() throws IOException {
         return maintainerFile().getLastModified();
     }
 

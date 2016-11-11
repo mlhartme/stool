@@ -1288,6 +1288,7 @@ To upgrade from Stool versions before 3.4.0:
           |- buildstats.json
           |- ssl (generated certs)
           |- run
+          |  |- creator
           |  |- maintainer
           |  :  (pid stuff for service wrappe)
           |- service
