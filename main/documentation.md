@@ -1189,10 +1189,10 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 Prerequisites:
 * Linux or Mac
-* Java 8 or higher. This is prerequisite because Stool is implemented in Java 8. However, you can build your stages with an
-  arbitrary Java version.
+* Java 8 or higher. This is prerequisite because Stool is implemented in Java 8. However, you can build your stages with any
+  Java version you choose.
 
-First of all: Stool is split into `stool` itself and the `dashboard`. The dashboard is optional, it  
+First of all: Stool is split into `stool` itself and the `dashboard`. The dashboard is optional, it
 makes some of Stool's functionality available in a browser.
 
 Next, you have to choose the appropriate of setup for your machine: isolated or shared.
@@ -1220,7 +1220,7 @@ Dashboard setup:
 
 ### Shared setup
 
-Shared setup is for you if you want to insteall Stool on a server, to be used by multiple users. Technically, shared setup means 
+Shared setup is for you if you want to install Stool on a server, to be used by multiple users. Technically, shared setup means 
 that stages can be created, modified and removed by every other user on the machines.
 
 Security: you need root permission to setup Stool in shared mode. Having shared Stool on your machine allows every Stool user
@@ -1233,6 +1233,8 @@ Debian package are available from [Maven Central](http://central.sonatype.org).
 * Run `dpkg -i stool-x.y.z.deb`
 * Optional, only if you want the dashboard: repeat the previous steps for setup-x.y.z-dashboard.deb
 * Adjust stool properties with `sudo nano /usr/share/stool-3.4/config.json`.
+* Create a base directory for all your stages, set the group to `stool`, and set the guid bit
+* make sure that all stool users get umask 0002
 * Restart your shell or re-login if you work on a VM/remote machine. (Otherwise, the stage indicator will not work properly
   and Stool cannot change the current directory).
 * Invoke `stool` to verify your setup. You should get a usage message.
