@@ -11,7 +11,7 @@ For setup instructions, please read the respective section below. The following 
 
 Here's an example, what you can do with Stool. 
 
-Create a new stage by checking out an application:
+Create a new stage by checking out application sources:
 
     stool create git:ssh://git@github.com/mlhartme/hellowar.git
 
@@ -47,6 +47,12 @@ to see what you have created and not yet removed. To switch to another stage, in
 
     stool select otherstage
 
+Use 
+
+    stool history
+    
+to see the Stool commands executed for your stage.
+
 You can get help with
 
     stool help
@@ -63,13 +69,16 @@ prints help about `create`.
 * `type writer font` marks things to type or technical terms from Stool.
 * italics mark *text* to be replaced by the user
 * bold face highlights term in definition lists
-* synopsis syntax: [] for optional, | for alternatives, ... for repeatable, `type writer` for literals, *italics* for replaceable)
+* synopsis syntax: `[]` for optional, `|` for alternatives, `...` for repeatable, `type writer` for literals, *italics* for replaceables)
 
 
 ### Rationale
 
 Why not setup Tomcat by hand or via the admin application? Because Stool makes it simpler, more robust,
 it deals with port allocation, different users sharing their stages, etc.
+
+Why about Carge? Use Carge for JEE applications or if you need to customized the servlet container. Use Stool if you have
+plain web applications - but many of them. 
 
 Why not use virtual machines instead of creating stages with Stool? Stool offers the following benefits:
 
@@ -95,12 +104,12 @@ A stage has a
   stage. You can change the stage directory with `stool move`.
 * **id**
   Unique identifier for a stage. The id is generated when creating a stage and it is never changed.
-  However, users normally work with the stage name instead.
+  However, users normally work with the stage name instead. You can see it with `stool status id`.
 * **name**
-  User readable indentification for a stage. Usually, the name is unique. The name of the selected
-  stage is shown in your shell prompt, you use it to switch between stages, and it's part of the application
+  User readable identification for a stage. Usually, the name is unique. The name of the selected stage 
+  is shown in your shell prompt, you use it to switch between stages, and it's usually part of the application
   url(s). The name is determined when you create a stage (in most cases it's simply the name of the stage
-  directory). You can change the name with `stool config name=`*renamed*.
+  directory). You can change the name with `stool config name=`*newname*.
 * **url**
   Specifies where the web applications come from: A Subversion URL, a git url, Maven coordinates, or
   a file url pointing to a war file. Examples:
@@ -119,7 +128,7 @@ A stage has a
     stage is not running, applications cannot be accessed. This is the initial state after creation or after
     it was stopped.
   * **up**
-    stage is running, applications can be access via application url(s). This is the state after successful
+    stage is running, applications can be accessed via application url(s). This is the state after successful
     start or restart.
   * **sleeping**
     stage is temporarily not running; state after stage was stopped with `-sleep`.
@@ -130,19 +139,20 @@ A stage has a
   The user that last changed this stage.
 
 Note: A system stage is a stage whose directory is placed in $STOOL_HOME/system. System stages get special treatment in
-system-start and system stop and they are not listed by the Dashboard.
+`system-start` and `system-stop` and they are not listed by the Dashboard.
 
 
 ### Selected stage and stage indicator
 
-The selected stage is the stage the current working directory belongs to. In other words: your current working directory is the
-stage directory or a direct or indirect subdirectory of it. Unless otherwise specified, stage commands operates on the selected stage.
+The selected stage is the stage the current working directory belongs to. In other words: your current working directory 
+is the stage directory or a (direct or indirect) subdirectory of it. Unless otherwise specified, stage commands operate 
+on the selected stage.
 
 The stage indicator `{somestage}` is display in front of your shell prompt, it shows the name of the selected stage.
 
 If you create a new stage, Stool changes the current working directory to the newly created stage directory. Thus, the new stage
 becomes the selected stage. `stool select` changes the current working directory to the respective stage directory,
-thus is just a convenience way for cd'ing between stage directories.
+thus it is just a convenient way for cd'ing between stage directories.
 
 The stage indicator is invisible if you have no stage selected; select a stage to see a stage indicator.
 
@@ -155,26 +165,29 @@ administrators (see [stool properties](#stool-properties)). Stage properties con
 respective stage only, every stage has its own set of stage properties. You can adjust stage properties 
 with [stool config](#stool-config).
 
+In contrast, every stage has status fields, you can view them with `stool status`. Status fields are similar to properties,
+but they are read-only.
+
+
 ### Backstage
 
-Every stage directory contains backstage directory `.backstage` that stores Stool-related
-data about the stage, e.g. the stage properties, Tomcat configuration and log files of the applications. The
+Every stage directory contains a backstage directory `.backstage` that stores Stool-related
+data about, e.g. the stage properties, Tomcat configuration and log files of the applications. The
 backstage directory is created when you create or import the stage. `$STOOL_HOME/backstages`
-contains a symlink *id*->*backstage*. Stool uses this
-directory to iterate all stages.
+contains a symlink *id*->*backstage* for every stage. Stool uses this to iterate all stages.
 
-Stool removes backstage symlinks either explicitly when you run`stool remove`, or
+Stool removes backstage symlinks either explicitly when you run `stool remove`, or
 implicitly when it detects that the target directory has been removed. Stool checks for - and cleans - stale
 backstage links before every command.
 
-### Stage Exiring
+### Stage Expiring
 
 Every stage has an `expire` property that specifies how long the stage is needed. You can
 see the expire date with `stool config expire`. If this date has passed, the stage is called
 expired, and it is automatically stopped, a notification email is sent and you cannot start it again
 unless you specify a new date with `stool config expire=`*yyyy-mm-dd*.
 
-Depending on the `autoRemove` Stool property, the stage will automatically be removed after
+Depending on the `autoRemove` Stool property, an expired stage will automatically be removed after
 the configured number of days. Stage expiring helps to detect and remove unused stages, which is crucial for
 shared machines. If you receive an email notification that your stage has expired, please check if your stage
 is still needed. If so, adjust the expire date, otherwise remove the stage.
@@ -182,7 +195,7 @@ is still needed. If so, adjust the expire date, otherwise remove the stage.
 ### User defaults
 
 Users can define default values for various option by placing a properties file `.stool.defaults` in
-their home drectory. If this file exists, Stool uses the contained properties as default values for various options.
+their home directory. If this file exists, Stool uses the contained properties as default values for various options.
 For example, a property `refresh.build=true` causes `stool refresh` to build a stage without
 explicitly specifing the `-build` option. (Note: To override this default, use `stool refresh -build=false`).
 
@@ -326,8 +339,8 @@ stop and remove. A stage contains web applications built from source or availabl
 
 * **-v** enables verbose output
 * **-e** prints stacktrace for all errors
-* **-svnuser** specifies the user name for svn operations
-* **-svnpassword** specifies the password for svn operations
+* **-svnuser** specifies the user name for Subversion operations
+* **-svnpassword** specifies the password for Subversion operations
 
 #### Stool Properties
 
@@ -345,13 +358,14 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
   Empty or script or url to generate certificates to make stages available via https. Empty to generate self-signed
   certificates. Otherwise, if it starts with `http://` or `https://` Stool generates a `csr` and posts it to
   *certificates*, expecting back the certificate. Otherwise, Stool invokes the specified script with the desired domain as
-  an argument. The script is invoked in the *.backstage/ssh* directory, it is expected to generate a tomcat.jks keystore with
-  Java's standard keysore password. (A note about re-generation: when starting a stage, Stool checks if *tomcat.jks* already exists;
-  if not, certificate generation is triggered). Type string.
+  an argument. The script is invoked in the *.backstage/ssh* directory, it is expected to generate a =tomcat.jks= keystore file
+  with Java's standard keystore password. (A note about re-generation: when starting a stage, Stool checks if =tomcat.jks= 
+  already exists; if not, certificate generation is triggered). Type string.
 * **committed**
   `true` if users have to commit source changes before Stool allows them to start the stage. Type boolean.
 * **defaults**
-  Default values for stage properties. Type map.
+  Default values for stage properties. Keys are stage url prefixe, values are maps of property name/values to set for 
+  a new stage with a matching url. Type map.
 * **diskMin**
   Minimum mb free space. If less space is available on the target partition, Stool refuses to create new stages. Type number. 
 * **downloadTomcat**
@@ -371,10 +385,8 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
 * **ldapUrl**
   Ldap url for user information. Empty string to disable ldap. Type string.
 * **macros**
-  String replacements for stage properties.
-  Stool automatically defines `directory` for the respective stage directory,
-  `localRepository` for the local Maven repository of this stage,
-  `svnCredentials` as expected by `svn`, and `stoolSvnCredentials`
+  String replacements for stage properties. Stool automatically defines `directory` for the respective stage directory,
+  `localRepository` for the local Maven repository of this stage, `svnCredentials` as expected by `svn`, and `stoolSvnCredentials`
   as expected by `stool`. Type map.
 * **mailHost**
   Smtp Host name to deliver emails. Empty to disable. Type string.
@@ -387,15 +399,14 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
 * **portLast**
   Last port available for stages. Has to be an odd number >1023. Type number.
 * **quota**
-  Megabytes available for stages. The sum of all stage quota properties cannot exceed this number. 0 disables this
-  feature. You'll usually set this to the size of the partition that will store your stages. Note that this quota
-  cannot prevent disk full problem because stages can be placed on arbitrary partitions. Type number. 
+  Megabytes of disk spaces available for stages. The sum of all stage quota properties cannot exceed this number. 0 disables this
+  feature. You'll usually set this to the size of the partition that will store your stages. Note that this quota cannot always
+  prevent disk full problem because stages can be placed on arbitrary partitions. Type number. 
 * **shared**
-  `true` if multiple user may work on stages. When set to true, stool does:
-  * use `.backstage/.m2` (instead of the current user's `~/.m2/repository`) as local Maven repository
+  `true` if multiple user may work on stages. When set to true, Stool uses `.backstage/.m2` (instead of the current user's 
+  `~/.m2/repository`) as local Maven repository. Type boolean.
 * **search**
-  Command line to execute if `stool create` is called with an % url.
-  When calling the command, the placeholder `()` is replaced by the url.
+  Command line to execute if `stool create` is called with an % url. When calling the command, the placeholder `()` is replaced by the url.
   Default is empty which disables this feature.
 * **vhosts**
   `true` to create application urls with vhosts for application and stage name.
@@ -408,7 +419,7 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
 Stool allocates ports in pairs: an even and the following odd number. To choose a port for a given Stage, Stool computes a hash between
 portFirst and portLast. If this pair if already allocated, the next higher pair is checked (with roll-over to portFirst if necessary).
 Even ports are used for http, odd ports for https. In addition to one pair for each application of the stage, Stool allocates two pairs 
-for internal use for every stage (jmx ports, debugger port, tomcat stop port and service wrapper ports). Thus, one stage needs at least 
+for internal use for every stage (jmx ports, debugger port, tomcat stop port and service wrapper port). Thus, one stage needs at least 
 3 pairs (= 6 ports).
 
 You can see the currently allocated ports in `$stoolHome/run/ports`

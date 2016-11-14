@@ -12,6 +12,8 @@ if [ ! -e ${jar} ] ; then
   jar=${dir}/postrm
 fi
 
+umask 0002
+
 # send normal output to debconf input
 java $STOOL_DEBIAN_OPTS -cp ${jar} %MAIN% "$@" 1>&3
 
