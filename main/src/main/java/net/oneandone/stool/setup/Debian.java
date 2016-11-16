@@ -25,7 +25,6 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -256,17 +255,6 @@ public class Debian {
         }
     }
 
-    protected List<String> groups(String user) throws IOException {
-        String output;
-
-        output = slurp("groups", user);
-        output = Strings.removeLeft(output, user).trim();
-        output = Strings.removeLeft(output, ":").trim();
-        return Separator.SPACE.split(output);
-    }
-
-    //--
-
     protected void db_version(String version) throws IOException {
         String result;
 
@@ -278,10 +266,6 @@ public class Debian {
 
     protected String db_get(String variable) throws IOException {
         return db_communicate("get " + variable);
-    }
-
-    protected String db_set(String variable, String value) throws IOException {
-        return db_communicate("set " + variable + " " + value);
     }
 
     protected void db_purge() throws IOException {
