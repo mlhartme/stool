@@ -952,7 +952,7 @@ Note that the default values below might be overwritten by Stool defaults on you
 * **cookies**
   Enable or disable cookies. Type boolean. Default value: `true`
 * **expire**
-  Defines when this stage [expires](#stage-exiring). Type date.
+  Defines when this stage [expires](#stage-expiring). Type date.
 * **java.home**
   Install directory of the JDK used to build and run this stage. Type string.
 * **maven.home**
