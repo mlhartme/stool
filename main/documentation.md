@@ -1230,6 +1230,7 @@ Debian package are available from [Maven Central](http://central.sonatype.org).
 (I'd like to have a public Debian repository instead, by I don't know who would host this for free). To install Stool:
 
 * Download the latest `deb` from [Maven central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22setup%22)
+* Preseed a group and make sure it exists
 * Run `dpkg -i stool-x.y.z.deb`
 * Optional, only if you want the dashboard: repeat the previous steps for setup-x.y.z-dashboard.deb
 * Adjust stool properties with `sudo nano /usr/share/stool-3.4/config.json`.

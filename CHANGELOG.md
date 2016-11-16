@@ -49,7 +49,11 @@
   * you can specify the number in your defaults
   * build-in default is now always `never`, it no longer depends on the shared mode; use defaults to configure direfferent values
 
-* fixed `noSuchDirectory` in catalina base, there's now an empty webapps directory instead. (for Felix)
+* fixed `noSuchDirectory` in catalina base, there's now an empty `webapps` directory instead (for Felix).
+
+* bumped lock timeout from 10 to 30 seconds (for Falk).
+
+* Stool Debian package no longer creates a group
 
 
 ### 3.4.4 (2016-10-17)

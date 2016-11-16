@@ -16,13 +16,10 @@
 package net.oneandone.stool.setup;
 
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DebianMainSetup extends Debian {
     public static void main(String[] args) throws IOException {
@@ -51,7 +48,6 @@ public class DebianMainSetup extends Debian {
 
     @Override
     public void postinstConfigure(String previous) throws IOException {
-        setupGroup();
         for (String dir : new String[] {"logs", "run", "downloads", "backstages", "service-wrapper", "tomcat", "system" }) {
             setGroup(world.file("/usr/share/stool-3.4/" + dir));
         }
@@ -74,30 +70,7 @@ public class DebianMainSetup extends Debian {
         exec("update-rc.d", "stool", "remove"); // Debian considers this a configuration file!?
     }
 
-    //--
-
-    private void setupGroup() throws IOException {
-        List<String> result;
-
-        if (test("getent", "group", group)) {
-            log("group: " + group + " (existing)");
-        } else {
-            result = new ArrayList<>();
-            exec("groupadd", group);
-            for (FileNode dir : world.file("/home/").list()) {
-                if (dir.isDirectory()) {
-                    String name = dir.getName();
-                    if (test("id", "-u", name)) {
-                        result.add(name);
-                        exec("usermod", "-a", "-G", group, name);
-                    }
-                }
-            }
-            log("group: " + group + " (created with " + Separator.SPACE.join(result) + ")");
-        }
-    }
-
-    // TOFO
+    // TODO
     private void setGroup(FileNode dir) throws IOException {
         exec("chgrp", "-R", group, dir.getAbsolute());
         // chgrp overwrites the permission - thus, i have to re-set permissions
