@@ -8,51 +8,43 @@
   * added new fields:
     * `created` indicates when a stage was created
     * `maintainer` indicates the person that last changed a stage
-    * `last_maintenance` is the timestamp of this change
+    * `maintained` is the timestamp of this change
   * fixed exception if service wrapper has no child process
 
 * improved `history` command:
   * speed-up
-  * simplified details handling: 
-    * it's just a global switch now
-    * added `history.details` defaults settings
   * print latest command first
+  * simplified details handling: 
+    * it's just a global `-details` switch now
+    * added `history.details` defaults settings
   * properly log stacktraces, also fixed escaping
   * include create and import commands for the stage
   
-* Stool user
+* Stool user (for Philipp)
   * Stool now distinguishes the Stool user (used for logging and emails) from the OS user 
     (owner of files and processes, someone with an account on the local machine)
-  * configured via environment variable `STOOL_USER`, default it the Java system property `user.name`
-
-* changed current user detection:
-  * first check STOOL_USER varianle
-  * next, check user.name system property
+  * configured via environment variable `STOOL_USER`. It not defined, Stool uses the Java system property `user.name`
 
 * chown-less operation:
-  * dumped `chown` command since it's no longer needed; admins have to take care that sharing the files does not cause permission problems
+  * dumped `chown` command since it's no longer needed; instead, admins now take care that sharing the files does not cause permission problems
   * removed -autoChown and -autoRechown options
-  * removed 'owner' status field; changed all usages to use the maintainer of a stage instead:
-    * user to start process as
-    * user to start stool as
-    * dashboard shows the maintainer now
-  * fixed security risks by removing 'chowntree.sh' sudo script
-  * added maintainer and last_maintenance status fields
+  * removed `owner` status field; changed the dashboard to show the `maintainer` instead
 
-* dumped all sudo rules/scripts
-  * chowntree (see chown-less operation above)
+* dumped all sudo rules and `$STOOL_HOME/bin` scripts
+  * =chowntree.sd= (no longer needed, because chown is gone; see chown-less operation above). This fixes a critical security problem (thanks to Bernd!)
   * invoke service-wrapper without sudo
+    * instead, it's now started as the current OS user
     * changed wrapper configuration to allow every user with wx permissions on $backstage/run/tomcat.anchor to stop a stage 
-  * dashboard starts Stool without sudo, stool user is the authenticated user (or, it not authenticated, the Stool user of the dashboard itself)
+  * dashboard now invokes Stool commands without sudo, it sets the Stool user to the authenticated user (or, it not authenticated, the Stool user of the dashboard itself)
 
-* stage indicator color is gone: red no longer makes sense, because there's no chown you have to use; and blue was already impossible since moving 
-  the backstage directory into the stage directory
+* stage indicator color is gone: red no longer makes sense, because there's no chown you have to use; and blue was already impossible since  
+  the backstage directory moved into the stage directory in Stool 3.4.0
 
 * improved build command (for Christina)
   * added command parameters to be executed instead of the configured `build` property 
   * added a `-here` option to execute in the current directory
 
-* improved expire command ()
+* improved expire command (for Stefan)
   * you can not specify a number instead of a date; it will be translated into the specified number of days from today
   * you can specify the number in your defaults
   * build-in default is now always `never`, it no longer depends on the shared mode; use defaults to configure direfferent values
