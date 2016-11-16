@@ -44,8 +44,8 @@
   * added command parameters to be executed instead of the configured `build` property 
   * added a `-here` option to execute in the current directory
 
-* improved expire command (for Stefan)
-  * you can not specify a number instead of a date; it will be translated into the specified number of days from today
+* improved expire property (for Stefan)
+  * you can now specify a number instead of a date; it will be translated into the specified number of days from today
   * you can specify the number in your defaults
   * build-in default is now always `never`, it no longer depends on the shared mode; use defaults to configure direfferent values
 
@@ -53,7 +53,7 @@
 
 * bumped lock timeout from 10 to 30 seconds (for Falk).
 
-* Stool Debian package no longer creates a group
+* Debian packages no longer create a group or a user - both are assumed to already exist now.
 
 
 ### 3.4.4 (2016-10-17)

@@ -64,7 +64,7 @@ public class DebianDashboardSetup extends Debian {
 
     @Override
     public void postinstConfigure(String previous) throws IOException {
-        setupUser();
+        log("user: " + user + " , group:" + group);
         log(stool("create", "file:///usr/share/stool-3.4-dashboard/dashboard.war", system.join("dashboard").getAbsolute(), "expire=never",
                 "url=https://%a.%s.%h:%p"));
         if (!port.isEmpty()) {
@@ -94,24 +94,5 @@ public class DebianDashboardSetup extends Debian {
             exec("chown", user, properties.getAbsolute());
             exec("chmod", "600", properties.getAbsolute());
         }
-    }
-
-    private void setupUser() throws IOException {
-        boolean existing;
-        boolean inGroup;
-
-        existing = test("id", "-u", user);
-        if (!existing) {
-            if (world.file("/home").join(user).isDirectory()) {
-                throw new IOException("cannot create user " + user + ": home directory already exists");
-            }
-            log(slurp("adduser", "--system", "--ingroup", group, "--home", "/home/" + user, user));
-        }
-
-        inGroup = groups(user).contains(group);
-        if (!inGroup) {
-            exec("usermod", "-a", "-G", group, user);
-        }
-        log("user: " + user + " (" + (existing ? "existing" : "created") + (inGroup ? "" : ", added to group" + group) + ")");
     }
 }
