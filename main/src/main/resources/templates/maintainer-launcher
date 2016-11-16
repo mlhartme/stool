@@ -12,6 +12,9 @@ if [ ! -e ${jar} ] ; then
   jar=${dir}/postrm
 fi
 
+# TODO
+# I need umask 0002 to create the dashboard, but dpkg seems to set an 0022 umask
+# (without this, log files are written rw-r--r--, although root has umask 0002)
 umask 0002
 
 # send normal output to debconf input
