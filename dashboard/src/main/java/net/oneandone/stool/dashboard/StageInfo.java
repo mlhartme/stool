@@ -45,7 +45,7 @@ public class StageInfo {
     private String category;
     private String state;
 
-    public static StageInfo fromStage(FileNode logDir, Stage stage, Users users) throws IOException, UserNotFound, NamingException {
+    public static StageInfo fromStage(FileNode logDir, Stage stage, Users users) throws IOException, NamingException {
         StageInfo stageInfo;
         Changes changes;
 
@@ -55,7 +55,11 @@ public class StageInfo {
         stageInfo.extractionUrl = stage.getUrl();
         stageInfo.running = stage.isWorking() ? Stage.State.WORKING : stage.state();
         stageInfo.urls = stage.urlMap();
-        stageInfo.maintainer = users.byLogin(stage.maintainer()).name;
+        try {
+            stageInfo.maintainer = users.byLogin(stage.maintainer()).name;
+        } catch (UserNotFound userNotFound) {
+            stageInfo.maintainer = "unknown: " + stage.maintainer();
+        }
         stageInfo.updateAvailable = stage.updateAvailable();
         stageInfo.expire = stage.config().expire;
 
