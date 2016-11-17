@@ -16,7 +16,6 @@
 package net.oneandone.stool.dashboard;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -42,7 +41,7 @@ public class StageInfoCache {
             for (Stage stage : session.listWithoutSystem()) {
                 try {
                     stages.add(StageInfo.fromStage(logs, stage, users));
-                } catch (UserNotFound | NamingException e) {
+                } catch (NamingException e) {
                     session.reportException("StageInfo.fromStage", e);
                     // fall-through
                 }
