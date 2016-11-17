@@ -53,7 +53,9 @@
 
 * bumped lock timeout from 10 to 30 seconds (for Falk).
 
-* Debian packages no longer create a group or a user - both are assumed to already exist now.
+* Debian packages
+  * no longer create a group or a user - both are assumed to already exist now.
+  * no longer create a cron jobs - that's up to the user now (because it easy to setup and every body has slightly different needs)
 
 
 ### 3.4.4 (2016-10-17)

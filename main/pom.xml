@@ -314,18 +314,6 @@
                   </mapper>
                 </data>
                 <data>
-                  <src>${basedir}/src/deb/main/cron</src>
-                  <dst>/etc/cron.d/stool</dst>
-                  <type>file</type>
-                  <conffile>true</conffile>
-                  <mapper>
-                    <type>perm</type>
-                    <user>root</user>
-                    <group>root</group>
-                    <filemode>644</filemode>
-                  </mapper>
-                </data>
-                <data>
                   <src>${basedir}/src/deb/main/service</src>
                   <dst>/etc/init.d/stool</dst>
                   <conffile>true</conffile>

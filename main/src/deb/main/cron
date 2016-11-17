@@ -1,1 +1,0 @@
-1 4 * * * stool umask 0002; /usr/bin/stool validate -all -email -repair > /dev/null
