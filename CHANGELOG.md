@@ -1,8 +1,8 @@
 ## Changelog 
 
-### 3.4.5 (pending)
+### 3.4.5 (2016-11-21)
 
-* CAUTION: before updating from 3.4.x: stop all stages. (Because the stop mechanism has changed, 3.4.5 cannot stop stages started from older versions.)
+* CAUTION: stop all stages before updating from 3.4.x. (Because the stop mechanism has changed, 3.4.5 cannot stop stages started from older versions.)
 
 * `stool status`: 
   * added new fields:
