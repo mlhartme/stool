@@ -33,14 +33,14 @@ public abstract class SessionCommand {
     protected final Console console;
     protected final World world;
     protected final Session session;
-    private final Mode globalLock;
+    private final Mode portsLock;
     private boolean nolock;
 
-    public SessionCommand(Session session, Mode globalLock) {
+    public SessionCommand(Session session, Mode portsLock) {
         this.console = session.console;
         this.world = session.world;
         this.session = session;
-        this.globalLock = globalLock;
+        this.portsLock = portsLock;
         this.nolock = false;
     }
 
@@ -49,7 +49,7 @@ public abstract class SessionCommand {
     }
 
     public void run() throws Exception {
-        try (Lock lock = createLock("ports", globalLock)) {
+        try (Lock lock = createLock("ports", portsLock)) {
             doRun();
         }
     }

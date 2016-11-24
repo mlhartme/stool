@@ -50,8 +50,8 @@ public abstract class StageCommand extends SessionCommand {
     private boolean all;
     private Fail fail = Fail.NORMAL;
 
-    public StageCommand(boolean withAutoRunning, Session session, Mode globalLock, Mode backstageLock, Mode directoryLock) {
-        super(session, globalLock);
+    public StageCommand(boolean withAutoRunning, Session session, Mode portsLock, Mode backstageLock, Mode directoryLock) {
+        super(session, portsLock);
         this.withAutoRunning = withAutoRunning;
         this.backstageLock = backstageLock;
         this.directoryLock = directoryLock;
