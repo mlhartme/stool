@@ -43,7 +43,11 @@ public abstract class InfoCommand extends StageCommand {
     private final String defaults;
 
     public InfoCommand(Session session, String defaults) {
-        super(false, session, Mode.SHARED, Mode.SHARED, Mode.SHARED);
+        super(false, session, Mode.SHARED, Mode.SHARED,
+                Mode.NONE
+                /* this is not 100% accurate, but it help to avoid annoging lock-waits:
+                1) diskused might be work in progress
+                2) buildtime might inaccurate */);
         this.defaults = defaults;
     }
 

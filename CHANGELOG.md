@@ -4,8 +4,9 @@
 
 * `stool validate`: fixed duplicate lines in console output
 * locking tweaks: 
-  * cleanup no longer fetches an exclusive directory lock
-
+  * `cleanup` no longer fetches an directory lock
+  * `list` and `status` no longer fetch an directory lock
+  
 
 ### 3.4.5 (2016-11-21)
 
