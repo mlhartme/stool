@@ -6,7 +6,7 @@
 * locking tweaks: 
   * `cleanup` no longer fetches an directory lock
   * `list` and `status` no longer fetch an directory lock
-  
+  * `move` acquires an exclude directory lock now
 
 ### 3.4.5 (2016-11-21)
 
