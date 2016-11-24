@@ -1,5 +1,10 @@
 ## Changelog 
 
+### 3.4.6 (pending)
+
+* `stool validate`: fixed duplicate lines in console output
+
+
 ### 3.4.5 (2016-11-21)
 
 * CAUTION: stop all stages before updating from 3.4.x. (Because the stop mechanism has changed, 3.4.5 cannot stop stages started from older versions.)

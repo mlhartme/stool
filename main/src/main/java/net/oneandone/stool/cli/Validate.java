@@ -248,9 +248,19 @@ public class Validate extends StageCommand {
         }
 
         public void console(Console console) {
+            List<String> done;
+
+            // Console output as to show all messages, no matter to which user is to be notified about it.
+            // So we have to remove duplicates: the same message is generally added to more than one users
+            // (an alternative implementation would map messages to user lists, but this makes
+            // it more difficult to collect fetch the messages to be sent to individual users)
+            done = new ArrayList<>();
             for (Map.Entry<String, List<String>> entry : users.entrySet()) {
                 for (String msg : entry.getValue()) {
-                    console.info.println(msg);
+                    if (!done.contains(msg)) {
+                        done.add(msg);
+                        console.info.println(msg);
+                    }
                 }
             }
         }
