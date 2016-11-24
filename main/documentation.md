@@ -792,12 +792,13 @@ Stop a stage
 Stops Tomcat of the respective stage. If `-sleep` is specified, the stage is also marked as sleeping.
 
 This command signals Tomcat to shutdown all applications and waits for up to 4 minutes to complete this. After this timeout,
-Tomcat is killed (with -9). If Tomcat shutdown is slow, try to debug the applications running in this stage and find out why
-the don't obey to the shutdown request. 
+Tomcat is killed (with -9). If Tomcat shutdown is slow, try to debug the applications running in this stage and find out how
+they handle the shutdown request. Or send `kill -3` to the Tomcat pid and check the stack trace in catalina.out.
 
-Technically, Stool does not send a kill signal to the service wrapper, because that's only allowed for the user that actually 
-started the stage. Instead, Stool removes the service wrapper anchor file to signal the shutdown request. As a result, any 
-user with rwx permissions on `$STAGE/.backstage/run` can stop a stage.
+Technically, Stool removes the service wrapper anchor file to signal the shutdown request to the service wrapper. The service wrapper
+first sends a normal kill signal to Tomcat. If that times out, it sends a kill -9 as described above.  
+Using anchor files is unusual, you'd normally send a kill signal to the service wrapper. But that's only allowed for the user that 
+actually startet the stage (or for root). By using anchor files, any user with `rwx` permissions on `$STAGE/.backstage/run` can stop a stage.
 
 [//]: # (include stageOptions.md)
 
@@ -1070,7 +1071,7 @@ Prints the specified status *field*s or properties. Default: print all fields.
 Available fields:
 
 * **apps**
-  Application urls or this stage.
+  Application urls or this stage. Point your browser to these urls to access your application(s).
 * **backstage**
   Absolute path of the backstage directory. Type string.
 * **buildtime**
