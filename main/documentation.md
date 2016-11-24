@@ -1241,6 +1241,15 @@ Debian package are available from [Maven Central](http://central.sonatype.org).
   and Stool cannot change the current directory).
 * Invoke `stool` to verify your setup. You should get a usage message.
 
+### Cron job
+
+For both setups, you should setup a cronjob that runs
+
+    stool validate -all -email -repair
+    
+every night. That will check for expired stages. And also rotate log files.
+
+
 ### Upgrading 
 
 To upgrade from Stool versions before 3.4.0:
