@@ -3,6 +3,8 @@
 ### 3.4.6 (pending)
 
 * `stool validate`: fixed duplicate lines in console output
+* locking tweaks: 
+  * cleanup no longer fetches an exclusive directory lock
 
 
 ### 3.4.5 (2016-11-21)
