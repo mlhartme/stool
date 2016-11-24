@@ -24,7 +24,7 @@ public class Restart extends StageCommand {
     private final boolean suspend;
 
     public Restart(Session session, boolean debug, boolean suspend) {
-        super(false, session, Mode.NONE, Mode.NONE, Mode.NONE);
+        super(false, session, /* locking done by subcommands */ Mode.NONE, Mode.NONE, Mode.NONE);
         this.debug = debug;
         this.suspend = suspend;
     }
