@@ -35,7 +35,6 @@ public class DebianDashboardSetup extends Debian {
     //--
 
     private final FileNode system;
-    private final String group;
     private final String user;
     private final String port;
     private final String svnuser;
@@ -44,8 +43,6 @@ public class DebianDashboardSetup extends Debian {
     public DebianDashboardSetup(PrintWriter out) throws IOException {
         super(out); // share log file with stool, to see timing
         system = world.file("/usr/share/stool-3.4/system");
-        group = db_get("stool/group");
-
         user = db_get("stool-dashboard/user");
         port = db_get("stool-dashboard/port");
         svnuser = db_get("stool-dashboard/svnuser");
@@ -64,7 +61,6 @@ public class DebianDashboardSetup extends Debian {
 
     @Override
     public void postinstConfigure(String previous) throws IOException {
-        log("user: " + user + " , group:" + group);
         log(stool("create", "file:///usr/share/stool-3.4-dashboard/dashboard.war", system.join("dashboard").getAbsolute(), "expire=never",
                 "url=https://%a.%s.%h:%p"));
         if (!port.isEmpty()) {
