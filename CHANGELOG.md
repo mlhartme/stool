@@ -3,6 +3,8 @@
 ### 3.4.6 (pending)
 
 * `stool validate`: fixed duplicate lines in console output
+* changed default `tomcat.version` from 8.5.6 to 8.5.8 
+* changed default `service.version` from 3.5.29 to 3.5.30
 * locking tweaks: 
   * `cleanup` no longer fetches an directory lock
   * `list` and `status` no longer fetch an directory lock
