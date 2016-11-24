@@ -125,7 +125,7 @@ public class StageConfiguration {
         this.quota = 10000;
         this.tomcatOpts = "";
         this.tomcatVersion = "8.5.8";
-        this.tomcatService = "3.5.29";
+        this.tomcatService = "3.5.30";
         this.tomcatHeap = 350;
         this.tomcatSelect = new ArrayList<>();
         this.tomcatEnv = new HashMap<>();
