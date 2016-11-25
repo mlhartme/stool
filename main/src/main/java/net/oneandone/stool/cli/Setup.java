@@ -15,8 +15,10 @@
  */
 package net.oneandone.stool.cli;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.setenv.Setenv;
+import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Session;
@@ -26,7 +28,9 @@ import net.oneandone.sushi.util.Diff;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Setup {
     private final World world;
@@ -35,12 +39,30 @@ public class Setup {
     private final String version;
     private final boolean batch;
 
+    private final Map properties;
+
     public Setup(Globals globals, boolean batch) {
         this.world = globals.world;
         this.home = globals.home;
         this.console = globals.console;
-        this.version = Main.versionString(home.getWorld());
+        this.version = Main.versionString(world);
         this.batch = batch;
+        this.properties = new HashMap<>();
+    }
+
+    public void property(String str) {
+        int idx;
+        String key;
+        String value;
+        Property property;
+
+        idx = str.indexOf('=');
+        if (idx == -1) {
+            throw new ArgumentException("expected key=value, got " + str);
+        }
+        key = str.substring(0, idx);
+        value = str.substring(idx + 1);
+        properties.put(key, value);
     }
 
     public void run() throws IOException {

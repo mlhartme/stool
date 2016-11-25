@@ -15,18 +15,14 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.Main;
-import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.util.Environment;
-import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Pool;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -35,40 +31,26 @@ import java.io.IOException;
 import static org.junit.Assert.fail;
 
 /**
- * Integration test for stool.
+ * Integration tests for Stool.
  */
 public class StoolIT {
-    private static int id = 0;
+    private static final World WORLD;
+    private static final FileNode IT;
 
-    private World world;
-    private Environment environment;
-    private FileNode home;
-    private String context;
-
-    public StoolIT() {
+    static {
+        try {
+            WORLD = Main.world();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+        IT = WORLD.guessProjectHome(StoolIT.class).join("target/it");
     }
 
-    @Before
-    public void before() throws Exception {
-        FileNode stages;
-        Integer start = 1300;
-        Integer end = 1319;
+    private static int id = 0;
 
-        for (int even = start; even < end; even += 2) {
-            Pool.checkFree(even);
-            Pool.checkFree(even + 1);
-        }
-        world = World.create();
-        environment = Environment.loadSystem();
-        home = world.guessProjectHome(StoolIT.class).join("target/it/lib");
-        home.getParent().mkdirsOpt();
-        home.deleteTreeOpt();
-        Home.create(environment, Console.create(), home, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
-        stages = home.getParent().join("stages");
-        stages.deleteTreeOpt();
-        stages.mkdir();
-        world.setWorking(stages);
-        stool("system-start");
+    private Environment environment;
+
+    public StoolIT() {
     }
 
     @After
@@ -85,7 +67,7 @@ public class StoolIT {
     public void turnaroundFileArtifact() throws IOException, ArtifactResolutionException {
         FileNode file;
 
-        file = Maven.withSettings(world).resolve("net.oneandone", "hellowar", "war", "1.0.3");
+        file = Maven.withSettings(WORLD).resolve("net.oneandone", "hellowar", "war", "1.0.3");
         turnaround("file", file.getUri().toString());
     }
 
@@ -105,8 +87,8 @@ public class StoolIT {
     }
 
     private void turnaround(String context, String url) throws IOException {
-        this.context = context;
         System.out.println("\nurl: " + url);
+        stoolSetup(context);
         stool("create", "-quiet", url, "it");
         stool("status", "-stage", "it");
         stool("validate", "-stage", "it");
@@ -136,18 +118,38 @@ public class StoolIT {
         stool("remove", "-stage", "renamed", "-batch");
     }
 
+    public void stoolSetup(String context) throws IOException {
+        FileNode home;
+        FileNode stages;
+        Integer start = 1300;
+        Integer end = 1319;
+
+        for (int even = start; even < end; even += 2) {
+            Pool.checkFree(even);
+            Pool.checkFree(even + 1);
+        }
+        environment = Environment.loadSystem();
+        IT.mkdirsOpt();
+        home = IT.join(context);
+        environment.setHome(home);
+        home.getParent().mkdirsOpt();
+        home.deleteTreeOpt();
+        stool("setup", "-batch", "diskMin=500", "portFirst=" + start, "portLast=" + end);
+        stages = home.getParent().join("stages");
+        stages.deleteTreeOpt();
+        stages.mkdir();
+        WORLD.setWorking(stages);
+        stool("system-start");
+    }
+
     private void stool(String... args) throws IOException {
-        FileNode logdir;
-        Logging logging;
         int result;
         String command;
 
-        logdir = home.getParent();
         id++;
-        logging = new Logging(Integer.toString(id), logdir.join(id + "-" + context + "-" + args[0]), environment.detectUser());
         command = command(args);
         System.out.print("  " + command);
-        result = Main.normal(environment, logging, home, args);
+        result = Main.run(environment, WORLD, false, args);
         if (result == 0) {
             System.out.println();
         } else {

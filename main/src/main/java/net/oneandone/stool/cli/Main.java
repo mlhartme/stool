@@ -27,7 +27,6 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
 import net.oneandone.sushi.io.InputLogStream;
-import net.oneandone.sushi.io.MultiOutputStream;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -49,44 +48,26 @@ public class Main {
     }
 
     public static int run(String[] args) throws IOException {
-        return run(Environment.loadSystem(), args);
+        return run(Environment.loadSystem(), world(), true, args);
     }
 
-    public static int run(Environment environment, String[] args) throws IOException {
-        World world;
+    public static int run(Environment environment, World world, boolean setenv, String[] args) throws IOException {
+        Logging logging;
         FileNode home;
-
-        world = world();
-        home = environment.locateHome(world);
-        return normal(environment,null, home, args);
-    }
-
-    public static int normal(Environment environment, Logging logging, FileNode home, String[] args) throws IOException {
-        World world;
         Cli cli;
         String command;
-        boolean setenv;
         Globals globals;
         Console console;
         FileNode tmp;
 
-        world = home.getWorld();
-        if (logging == null) {
-            // normal invocation
-            setenv = true;
-            if (home.exists()) {
-                logging = Logging.forHome(home, environment.detectUser());
-            } else {
-                tmp = world.getTemp().createTempDirectory();
-                logging = new Logging("1", tmp.join("homeless"), environment.detectUser());
-            }
-            console = console(logging, System.out, System.err);
+        home = environment.locateHome(world);
+        if (home.exists()) {
+            logging = Logging.forHome(home, environment.detectUser());
         } else {
-            // for integration tests
-            setenv = false;
-            OutputStream devNull = MultiOutputStream.createNullStream();
-            console = console(logging, devNull, devNull);
+            tmp = world.getTemp().createTempDirectory();
+            logging = new Logging("1", tmp.join("homeless"), environment.detectUser());
         }
+        console = console(logging, System.out, System.err);
         command = "stool " + hideCredentials(args);
         logging.log("COMMAND", command);
         globals = new Globals(setenv, environment, home, logging, command, console, world);
@@ -97,7 +78,7 @@ public class Main {
            cli.add(PackageVersion.class, "version");
            cli.begin("globals", globals,  "-svnuser=null -svnpassword=null -exception { setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) }");
               cli.addDefault(Help.class, "help command?=null");
-              cli.add(Setup.class, "setup -batch");
+              cli.add(Setup.class, "setup -batch property* { property*(property) }");
               cli.begin("globals.session", "");
                 cli.add(SystemImport.class, "system-import -withConfig from");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");

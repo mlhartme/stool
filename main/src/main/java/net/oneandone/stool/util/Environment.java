@@ -116,6 +116,10 @@ public class Environment {
         }
     }
 
+    public void setHome(FileNode home) {
+        set(STOOL_HOME, home.getAbsolute());
+    }
+
     public void save(Launcher launcher) {
         String value;
 
