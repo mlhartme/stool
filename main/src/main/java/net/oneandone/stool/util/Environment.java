@@ -17,7 +17,6 @@ package net.oneandone.stool.util;
 
 import net.oneandone.sushi.launcher.Launcher;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -101,16 +100,6 @@ public class Environment {
 
     //--
 
-    public Environment load(String... keys) {
-        Environment result;
-
-        result = new Environment();
-        for (String key : keys) {
-            result.set(key, getOpt(key));
-        }
-        return result;
-    }
-
     public void save(Launcher launcher) {
         String value;
 
@@ -122,55 +111,5 @@ public class Environment {
                 launcher.getBuilder().environment().remove(entry.getKey());
             }
         }
-    }
-
-    public Map<String, String> map() {
-        return Collections.unmodifiableMap(properties);
-    }
-
-    //-- proxyOpts
-
-    public String substitute(String str) {
-        StringBuilder builder;
-        char c;
-        int behind;
-        String key;
-
-        if (str.indexOf('$') == -1) {
-            return str;
-        }
-        builder = new StringBuilder();
-        for (int i = 0, max = str.length(); i < max; i++) {
-            c = str.charAt(i);
-            if (c == '$') {
-                if (i + 1 < max && str.charAt(i + 1) == '$') {
-                    builder.append(c);
-                    i++;
-                } else {
-                    behind = behind(str, i + 1);
-                    key = str.substring(i + 1, behind);
-                    builder.append(get(key));
-                    i = behind - 1;
-                }
-            } else {
-                builder.append(c);
-            }
-        }
-        return builder.toString();
-    }
-
-    private int behind(String str, int idx) {
-        int max;
-        char c;
-
-        max = str.length();
-        while (idx < max) {
-            c = str.charAt(idx);
-            if (!Character.isAlphabetic(c) && !Character.isDigit(c) && "_".indexOf(c) == -1) {
-                break;
-            }
-            idx++;
-        }
-        return idx;
     }
 }
