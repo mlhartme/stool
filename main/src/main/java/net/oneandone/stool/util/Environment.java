@@ -63,12 +63,6 @@ public class Environment {
         return properties.put(key, value);
     }
 
-    public void setAll(Environment from) {
-        for (Map.Entry<String, String> entry : from.properties.entrySet()) {
-            set(entry.getKey(), entry.getValue());
-        }
-    }
-
     public String get(String key) {
         String value;
 

@@ -104,9 +104,6 @@ public class Config extends StageCommand {
             }
             if (!error) {
                 session.saveStageProperties(configuration, stage.backstage);
-                if (session.isSelected(stage)) {
-                    session.environment.setAll(session.environment(stage));
-                }
             }
         } else {
             props = get ? selected.keySet() : all.values();

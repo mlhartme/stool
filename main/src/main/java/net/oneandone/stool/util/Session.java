@@ -92,12 +92,10 @@ public class Session {
         ExtensionsFactory factory;
         Gson gson;
         Session result;
-        Environment environment;
 
         factory = ExtensionsFactory.create(world);
         gson = gson(world, factory);
-        environment = Environment.loadSystem();
-        result = new Session(setenv, factory, gson, logging, command, home, console, world, environment,
+        result = new Session(setenv, factory, gson, logging, command, home, console, world,
                 StoolConfiguration.load(gson, home), Bedroom.loadOrCreate(gson, home), svnuser, svnpassword);
         return result;
     }
@@ -117,7 +115,6 @@ public class Session {
 
     public final Console console;
     public final World world;
-    public final Environment environment;
     public final StoolConfiguration configuration;
     public final Bedroom bedroom;
 
@@ -133,7 +130,7 @@ public class Session {
     private Pool lazyPool;
 
     public Session(boolean setenv, ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String command,
-                   FileNode home, Console console, World world, Environment environment, StoolConfiguration configuration,
+                   FileNode home, Console console, World world, StoolConfiguration configuration,
                    Bedroom bedroom, String svnuser, String svnpassword) {
         this.setenv = setenv;
         this.extensionsFactory = extensionsFactory;
@@ -144,7 +141,6 @@ public class Session {
         this.home = home;
         this.console = console;
         this.world = world;
-        this.environment = environment;
         this.configuration = configuration;
         this.bedroom = bedroom;
         this.backstages = home.join("backstages");
