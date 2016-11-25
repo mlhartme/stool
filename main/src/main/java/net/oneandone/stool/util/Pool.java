@@ -114,7 +114,7 @@ public class Pool {
         for (String name : names) {
             docroot = nameDocroots.get(name);
             port = fixed.get(name);
-            previous = lookup(name, stageName);
+            previous = lookupId(name, stageId);
             if (previous != null) {
                 modified = previous.set(port, docroot);
                 if (modified == null) {
@@ -179,9 +179,9 @@ public class Pool {
         }
     }
 
-    public Vhost lookup(String name, String stage) {
+    public Vhost lookupId(String name, String id) {
         for (Vhost vhost : vhosts) {
-            if (name.equals(vhost.name) && stage.equals(vhost.stage)) {
+            if (name.equals(vhost.name) && id.equals(vhost.id)) {
                 return vhost;
             }
         }
@@ -298,12 +298,12 @@ public class Pool {
         }
     }
 
-    public Ports stageOpt(String stage) {
+    public Ports stageOpt(String id) {
         List<Vhost> result;
 
         result = new ArrayList<>();
         for (Vhost vhost : vhosts) {
-            if (stage.equals(vhost.stage)) {
+            if (id.equals(vhost.id)) {
                 result.add(vhost);
             }
         }

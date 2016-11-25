@@ -16,6 +16,9 @@
     * no longer contains a home directory. Instead, the default is that every user create his own version.
     * removed the Debian service
   * Dumped Dashboard package. Because there's no longer a unique home to install it to.
+* Development:
+  * simplified build: no longer depends on a custom version of jdeb
+  * speedup dashboard build
   
 
 ### 3.4.5 (2016-11-21)

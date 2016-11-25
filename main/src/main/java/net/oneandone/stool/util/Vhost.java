@@ -26,11 +26,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-/** immutable */
+/** Represents one line in the "ports" file. Immutable */
 public class Vhost {
     private static final char SEP = ' ';
 
     // parses   <even> <name> <stage> <id> [<docroot>]
+    // where name is the application name and stage is the stage name.
     public static Vhost forLine(World world, String line) {
         int afterEven;
         int afterName;
