@@ -1264,7 +1264,7 @@ To upgrade from Stool versions before 3.4.0:
 
 ## Directory Layout
 
-... of $STOOL_HOME: either `/usr/share/stool-3.4` or `~/.stool`
+... of $STOOL_HOME (`~/.stool` if not defined)
 
         |- config.json (Stool configuration)
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)

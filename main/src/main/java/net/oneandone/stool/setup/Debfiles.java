@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.setup;
 
-import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -24,25 +23,19 @@ public class Debfiles {
     /** generate file hierarchy for Debian package */
     public static void main(String[] args) throws Exception {
         World world;
-        Console console;
         FileNode target;
         FileNode man;
-        FileNode home;
 
         if (args.length != 1) {
             throw new IllegalArgumentException();
         }
         world = World.create();
-        console = Console.create();
         target = world.file(args[0]);
         target.mkdir();
 
         man = target.join("man");
         man.mkdir();
         world.resource("templates/man").copyDirectory(man);
-
-        home = target.join("stool-3.4");
-        Home.create(console, home, "/usr/share/stool-3.4", null, true);
 
         System.exit(0);
     }

@@ -236,12 +236,6 @@
                 <java classname="net.oneandone.stool.setup.Debfiles" classpath="${project.build.directory}/stool" fork="false" failonerror="true">
                   <arg path="${project.build.directory}/debfiles" />
                 </java>
-                <java classname="net.oneandone.stool.setup.Control" classpath="${cp}" fork="false" failonerror="true">
-                  <arg value="net.oneandone.stool.setup.DebianMainSetup" />
-                  <arg path="${basedir}/src/deb/main/control/" />
-                  <arg path="${project.build.directory}/stool" />
-                  <arg path="${project.build.directory}/control" />
-                </java>
               </target>
             </configuration>
             <goals>
@@ -267,7 +261,7 @@
       <plugin>
         <artifactId>jdeb</artifactId>
         <groupId>org.vafer</groupId>
-        <version>1.4.1</version>
+        <version>1.5</version>
         <executions>
           <execution>
             <id>jdeb</id>
@@ -276,13 +270,10 @@
               <goal>jdeb</goal>
             </goals>
             <configuration>
-              <controlDir>${project.build.directory}/control</controlDir>
-              <!-- override deb and changes out because the artifact id is not suitable -->
-              <deb>${basedir}/target/stool_[[version]]_all.deb</deb>
-              <changesOut>${basedir}/target/stool_[[version]]_all.changes</changesOut>
               <name>stool</name>
-              <compression>bz2</compression>
               <snapshotExpand>true</snapshotExpand>
+              <deb>${basedir}/target/stool_[[version]]_all.deb</deb>
+              <compression>bz2</compression>
               <dataSet>
                 <data>
                   <type>file</type>
@@ -296,13 +287,7 @@
                   </mapper>
                 </data>
                 <data>
-                  <type>link</type>
-                  <linkName>/etc/bash_completion.d/stool</linkName>
-                  <linkTarget>/usr/share/stool-3.4/bash.complete</linkTarget>
-                  <symlink>true</symlink>
-                </data>
-                <data>
-                  <src>${basedir}/src/deb/main/profile</src>
+                  <src>${basedir}/src/deb/profile</src>
                   <dst>/etc/profile.d/stool.sh</dst>
                   <conffile>true</conffile>
                   <type>file</type>
@@ -311,18 +296,6 @@
                     <user>root</user>
                     <group>root</group>
                     <filemode>644</filemode>
-                  </mapper>
-                </data>
-                <data>
-                  <src>${basedir}/src/deb/main/service</src>
-                  <dst>/etc/init.d/stool</dst>
-                  <conffile>true</conffile>
-                  <type>file</type>
-                  <mapper>
-                    <type>perm</type>
-                    <user>root</user>
-                    <group>root</group>
-                    <filemode>755</filemode>
                   </mapper>
                 </data>
                 <data>

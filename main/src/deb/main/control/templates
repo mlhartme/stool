@@ -1,5 +1,0 @@
-Template: stool/group
-Type: string
-Default: stool
-Description: Group for all uses that share stages with Stool.
- If this group does not exist, it is created with a local users.

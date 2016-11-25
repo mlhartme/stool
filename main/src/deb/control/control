@@ -3,9 +3,7 @@ Version: [[version]]
 Section: misc
 Priority: optional
 Architecture: all
-# jdk is a work-around for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=803152.
-Pre-Depends: java8-sdk|java8-jdk, debconf
-# because otherwise jdeb add this field with java 6 defaults:
+# java8-jdk is a work-around for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=803152.
 Depends: java8-sdk|java8-jdk
 Maintainer: CISO Operating <ciso-ops@1und1.de>
 Description: [[description]]

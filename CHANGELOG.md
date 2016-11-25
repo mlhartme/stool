@@ -10,6 +10,11 @@
   * `list` and `status` no longer fetch an directory lock
   * `move` acquires an exclusive directory lock now
   * `remove` acquires exclusive backstage and directory locks now
+* Debian packages reworked:
+  * main no longer contains a home directory. Instead, the default is that every user create his own version.     
+  * $STOOL_HOME is configurable now, you can use this to setup a shared installation
+  * Dumped Dashboard package. Because there's no longer a unique home to install it to.
+  
 
 ### 3.4.5 (2016-11-21)
 
