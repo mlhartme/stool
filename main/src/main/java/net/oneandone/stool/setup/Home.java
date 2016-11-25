@@ -22,7 +22,6 @@ import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Autoconf;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
-import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
@@ -30,8 +29,6 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Stool home directory. In unix file system hierarchy this comes close to the lib directory - although it contains
@@ -72,7 +69,9 @@ public class Home {
         dir.mkdir();
 
         world = dir.getWorld();
-        Files.template(world.resource("templates/home"), dir, variables());
+        world.resource("files/home").copyDirectory(dir);
+        profile(dir.join("shell.rc"));
+        bashComplete(dir.join("bash.complete"));
         conf = Autoconf.stool(dir, debian);
         if (explicitConfig != null) {
             conf = conf.createPatched(gson, explicitConfig);
@@ -84,6 +83,18 @@ public class Home {
         }
         versionFile().writeString(Main.versionString(world));
         dir.join("run/locks").mkfile();
+    }
+
+    public void profile(FileNode dest) throws IOException {
+        dest.writeString(Setenv.get().setenvBash() + file("files/profile"));
+    }
+
+    public void bashComplete(FileNode dest) throws IOException {
+        dest.writeString(file("files/bash.complete"));
+    }
+
+    private String file(String name) throws IOException {
+        return dir.getWorld().resource(name).readString();
     }
 
     public String version() throws IOException {
@@ -106,13 +117,5 @@ public class Home {
     public void exec(String ... cmd) throws IOException {
         console.info.println("[" + dir + "] " + Separator.SPACE.join(cmd));
         dir.execNoOutput(cmd);
-    }
-
-    private Map<String, String> variables() {
-        Map<String, String> variables;
-
-        variables = new HashMap<>();
-        variables.put("setenv.rc", Setenv.get().setenvBash());
-        return variables;
     }
 }

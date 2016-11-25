@@ -1,7 +1,5 @@
 # Stool shell code
 
-${{setenv.rc}}
-
 __stageName() {
   grep \"name\" "$1"/.backstage/config.json | cut -d':' -f2 | cut -d'"' -f2
 }
