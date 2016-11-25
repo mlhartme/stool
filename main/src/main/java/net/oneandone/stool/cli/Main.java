@@ -18,6 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
 import net.oneandone.inline.commands.PackageVersion;
+import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.LogOutputStream;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
@@ -189,7 +190,7 @@ public class Main {
     public static FileNode locateHome(World world) {
         String value;
 
-        value = System.getenv("STOOL_HOME");
+        value = System.getenv(Environment.STOOL_HOME);
         if (value == null) {
             return world.getHome().join(".stool");
         } else {

@@ -27,6 +27,7 @@ public class Environment {
     public static final String MAVEN_HOME = "MAVEN_HOME";
     public static final String MAVEN_OPTS = "MAVEN_OPTS";
     public static final String STOOL_USER = "STOOL_USER";
+    public static final String STOOL_HOME = "STOOL_HOME";
 
     public static Environment loadSystem() {
         Environment result;
@@ -72,30 +73,15 @@ public class Environment {
     public String get(String key) {
         String value;
 
-        value = lookup(key);
+        value = getOpt(key);
         if (value == null) {
             throw new IllegalStateException("property not found: " + key);
         }
         return value;
     }
 
-    public String lookup(String key) {
-        return properties.get(key);
-    }
-
     public String getOpt(String key) {
         return properties.get(key);
-    }
-
-    public String code(String key) {
-        String value;
-
-        value = getOpt(key);
-        if (value == null) {
-            return "unset " + key;
-        } else {
-            return "export " + key + "='" + value + "'";
-        }
     }
 
     public int hashCode() {

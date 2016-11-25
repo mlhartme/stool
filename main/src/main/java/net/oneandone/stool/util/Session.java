@@ -56,7 +56,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Home with some session information. */
 public class Session {
     public static Session load(boolean setenv, FileNode home, Logging logging, String command, Console console, World world,
                                String svnuser, String svnpassword) throws IOException {

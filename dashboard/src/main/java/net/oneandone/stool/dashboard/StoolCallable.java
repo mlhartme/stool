@@ -76,7 +76,7 @@ public class StoolCallable implements Callable<Failure> {
         time = System.currentTimeMillis();
         launcher = new Launcher(logDir);
         launcher.env(Environment.STOOL_USER, runAs);
-        launcher.env("STOOL_HOME", home.getAbsolute());
+        launcher.env(Environment.STOOL_HOME, home.getAbsolute());
         launcher.arg(stool.getAbsolute());
         svnCredentials = stage.session.svnCredentials();
         if (svnCredentials.username != null) {
