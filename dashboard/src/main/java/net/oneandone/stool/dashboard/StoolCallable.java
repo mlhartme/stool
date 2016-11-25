@@ -29,8 +29,8 @@ import java.io.PrintWriter;
 import java.util.concurrent.Callable;
 
 public class StoolCallable implements Callable<Failure> {
-    public static StoolCallable create(FileNode stool, String id, FileNode logs, Stage stage, String unauthenticatedUser, String command,
-                                       String ... options) throws IOException {
+    public static StoolCallable create(FileNode stool, FileNode home, String id, FileNode logs, Stage stage, String unauthenticatedUser,
+                                       String command, String ... options) throws IOException {
         String runAs;
         Object username;
 
@@ -40,10 +40,11 @@ public class StoolCallable implements Callable<Failure> {
         } else {
             runAs = unauthenticatedUser;
         }
-        return new StoolCallable(stool, command, options, stage, id, logs, runAs);
+        return new StoolCallable(stool, home, command, options, stage, id, logs, runAs);
     }
 
     private final FileNode stool;
+    private final FileNode home;
     private final String command;
     private final String[] options;
     private final String id;
@@ -51,8 +52,9 @@ public class StoolCallable implements Callable<Failure> {
     private final FileNode logDir;
     private final String runAs;
 
-    public StoolCallable(FileNode stool, String command, String[] options, Stage stage, String id, FileNode logDir, String runAs) {
+    public StoolCallable(FileNode stool, FileNode home, String command, String[] options, Stage stage, String id, FileNode logDir, String runAs) {
         this.stool = stool;
+        this.home = home;
         this.command = command;
         this.options = options;
         this.id = id;
@@ -74,6 +76,7 @@ public class StoolCallable implements Callable<Failure> {
         time = System.currentTimeMillis();
         launcher = new Launcher(logDir);
         launcher.env(Environment.STOOL_USER, runAs);
+        launcher.env("STOOL_HOME", home.getAbsolute());
         launcher.arg(stool.getAbsolute());
         svnCredentials = stage.session.svnCredentials();
         if (svnCredentials.username != null) {

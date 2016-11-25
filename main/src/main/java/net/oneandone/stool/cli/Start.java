@@ -411,6 +411,7 @@ public class Start extends StageCommand {
 
         // this is a marker to indicate they are launched by stool; and this is used by the dashboard to locate stool
         opts.add("-Dstool.cp=" + Main.stoolCp(session.world).getAbsolute());
+        opts.add("-Dstool.home=" + session.home.getAbsolute());
         try {
             opts.add("-Dstool.idlink=" + session.backstageLink(stage.getId()).getAbsolute());
         } catch (ReadLinkException e) {

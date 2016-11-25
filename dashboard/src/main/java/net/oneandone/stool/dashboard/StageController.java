@@ -190,7 +190,7 @@ public class StageController {
         String id;
 
         id = UUID.randomUUID().toString();
-        executorService.submit(StoolCallable.create(jar, id, logs, resolveStage(stage), session.logging.getUser(), command, options));
+        executorService.submit(StoolCallable.create(jar, session.home, id, logs, resolveStage(stage), session.logging.getUser(), command, options));
         return id;
     }
 
