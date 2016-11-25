@@ -29,18 +29,18 @@ public class Ports {
     private final int jmxDebug;
 
     public Ports(List<Vhost> vhosts) {
-        String stage;
+        String id;
 
         if (vhosts.isEmpty()) {
             throw new IllegalStateException();
         }
-        stage = null;
+        id = null;
         for (Vhost v : vhosts) {
-            if (stage == null) {
-                stage = v.stage;
+            if (id == null) {
+                id = v.id;
             } else {
-                if (!stage.equals(v.stage)) {
-                    throw new IllegalArgumentException(stage + " vs " + v.stage);
+                if (!id.equals(v.id)) {
+                    throw new IllegalArgumentException(id + " vs " + v.id);
                 }
             }
         }
