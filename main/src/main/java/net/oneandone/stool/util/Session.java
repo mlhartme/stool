@@ -38,7 +38,6 @@ import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.LinkException;
-import net.oneandone.sushi.fs.ModeException;
 import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -116,7 +115,6 @@ public class Session {
     private final String command;
 
     public final FileNode home;
-    private String lazyGroup;
 
     public final Console console;
     public final World world;
@@ -145,7 +143,6 @@ public class Session {
         this.user = logging.getUser();
         this.command = command;
         this.home = home;
-        this.lazyGroup = null;
         this.console = console;
         this.world = world;
         this.environment = environment;
@@ -231,19 +228,6 @@ public class Session {
                 logging.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
             }
         }
-    }
-
-    //--
-
-    public String group() throws ModeException {
-        if (lazyGroup == null) {
-            lazyGroup = backstages.getGroup().toString();
-        }
-        return lazyGroup;
-    }
-
-    public FileNode bin(String name) {
-        return home.join("bin", name);
     }
 
     //-- environment handling
@@ -590,7 +574,7 @@ public class Session {
         }
     }
 
-    public static final String majorMinor(String version) {
+    public static String majorMinor(String version) {
         int major;
         int minor;
 

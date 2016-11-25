@@ -1289,7 +1289,7 @@ To upgrade from Stool versions before 3.4.0:
         |  :
         |- shell.rc (to initialized the users interactive shell)
         |- bash.complete
-        '- backstage
+        '- backstages
            |- id (symlink to a backstage directory
            :
 
