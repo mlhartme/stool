@@ -739,12 +739,12 @@ Start a stage
 #### Description
 
 Creates the necessary configuration and starts Tomcat with all applications for this stage. If the stage is an artifact stage, you can 
-start it right away; otherwise, you have to build it first. Depending on your applications, startup may take a while.
+start it right away; otherwise, you have to build it first. Depending on your application(s), startup may take a while.
 
 Startup is refused if your stage is expired. In this case, use `stool config expire=`*newdate*
 to configure a new `expire` date.
 
-Startup is also refused if the disk quota exceeded. In this case, delete some unused files, try `stool cleanup` or 
+Startup is also refused if the disk quota exceeded. In this case, delete some unused files, try `stool cleanup`, or use 
 `stool config quota=`*n*.
 
 `-debug` and `-suspend` enable the debugger. The difference is that `-suspend` waits for the debugger to connect before running 
@@ -769,8 +769,13 @@ version of the wrapper with the `tomcat.service` property.
 If you want to re-generated all files created by this command, use `stool cd backstage && rm -rf service ssl tomcat`. 
 This is useful e.g. to get certificates regenerated.
 
+The current working directory of the started VM is the stage directory.
+
 The environment of the started application is the environment specified by the `tomcat.env` property. In addition, you get 
-the `HOME` and `USER` variables of the current OS user.
+the `HOME` and `USER` variables of the current OS user. In addition, Stool defines two Java System properties in the VM running this 
+stage:
+* `stool.cp` points to the stool executable that started this stages
+* `stool.home` point to Stool's home directory
 
 
 [//]: # (include stageOptions.md)
@@ -1142,7 +1147,7 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 [//]: # (-)
 
 
-### stool-clenup
+### stool-cleanup
 
 Cleanup a stage
 
