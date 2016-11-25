@@ -73,7 +73,7 @@ public class DashboardConfiguration {
             svnuser = null;
             svnpassword = null;
         }
-        logging = Logging.create(logs(), "dashboard", Environment.loadSystem().detectUser() /* TODO */);
+        logging = Logging.create(logs(), "dashboard", Environment.loadSystem().detectUser());
         logging.log("dashboard", "startup");
         return Session.load(false, home, logging, "dashboard", console(), world(), svnuser, svnpassword);
     }

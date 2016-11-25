@@ -34,6 +34,7 @@ import java.util.Map;
 
 public class Setup {
     private final World world;
+    private final Environment environment;
     private final FileNode home;
     private final Console console;
     private final String version;
@@ -43,6 +44,7 @@ public class Setup {
 
     public Setup(Globals globals, boolean batch) {
         this.world = globals.world;
+        this.environment = globals.environment;
         this.home = globals.home;
         this.console = globals.console;
         this.version = Main.versionString(world);
@@ -87,7 +89,7 @@ public class Setup {
             console.pressReturn();
         }
         console.info.println("Creating " + home);
-        Home.create(Environment.loadSystem(), console, home, null);
+        Home.create(environment, console, home, null);
         console.info.println("Done.");
         console.info.println("Note: you can install the dashboard with");
         console.info.println("  stool create gav:net.oneandone.stool:dashboard:" + version + " " + home.getAbsolute() + "/system/dashboard");
@@ -96,7 +98,6 @@ public class Setup {
     private static final List<String> CONFIG = Strings.toList("config.json", "maven-settings.xml");
 
     private void update() throws IOException {
-        Environment environment;
         Home h;
         String was;
         FileNode fresh;
@@ -106,7 +107,6 @@ public class Setup {
         String right;
         int count;
 
-        environment = Environment.loadSystem();
         h = new Home(environment, console, home, null);
         was = h.version();
         if (!Session.majorMinor(was).equals(Session.majorMinor(version))) {
