@@ -39,10 +39,6 @@ import java.util.Map;
  */
 public class Home {
     public static void create(Console console, FileNode home, String config, boolean debian) throws IOException {
-        create(console, home, home.getAbsolute(), config, debian);
-    }
-
-    public static void create(Console console, FileNode home, String homeVariable, String config, boolean debian) throws IOException {
         RmRfThread cleanup;
         Home obj;
 
@@ -51,7 +47,6 @@ public class Home {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
         obj = new Home(console, home, config);
-        obj.setHomeVariable(homeVariable);
         obj.create(debian);
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
@@ -59,19 +54,13 @@ public class Home {
 
     private final Console console;
     public final FileNode dir;
-    private String homeVariable;
     /** json, may be null */
     private final String explicitConfig;
 
     public Home(Console console, FileNode dir, String explicitConfig) {
         this.console = console;
         this.dir = dir;
-        this.homeVariable = dir.getAbsolute();
         this.explicitConfig = explicitConfig;
-    }
-
-    public void setHomeVariable(String value) {
-        this.homeVariable = value;
     }
 
     public void create(boolean debian) throws IOException {
@@ -123,7 +112,6 @@ public class Home {
         Map<String, String> variables;
 
         variables = new HashMap<>();
-        variables.put("stool.home", homeVariable);
         variables.put("setenv.rc", Setenv.get().setenvBash());
         return variables;
     }

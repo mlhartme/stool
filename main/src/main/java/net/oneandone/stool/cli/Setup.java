@@ -94,7 +94,7 @@ public class Setup {
         console.info.println("Updating " + home);
         fresh = world.getTemp().createTempDirectory();
         fresh.deleteDirectory();
-        Home.create(console, fresh, home.getAbsolute(), null, false);
+        Home.create(console, fresh, null, false);
         count = 0;
         for (FileNode src : fresh.find("**/*")) {
             if (!src.isFile()) {
