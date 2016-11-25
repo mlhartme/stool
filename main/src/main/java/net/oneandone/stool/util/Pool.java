@@ -163,17 +163,17 @@ public class Pool {
         }
         for (String id : ids) {
             if (!backstages.join(id).isDirectory()) {
-                gc(id);
+                gcId(id);
             }
         }
     }
 
-    private void gc(String stage) {
+    private void gcId(String id) {
         Vhost vhost;
 
         for (int i = vhosts.size() - 1; i >= 0; i--) {
             vhost = vhosts.get(i);
-            if (stage.equals(vhost.stage)) {
+            if (id.equals(vhost.id)) {
                 vhosts.remove(i);
             }
         }
