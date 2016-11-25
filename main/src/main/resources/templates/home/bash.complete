@@ -1,5 +1,8 @@
-__stageList() {
-  local base=${{stool.home}}/backstages
+_stool_stageList() {
+  if [ -z $STOOL_HOME ] ; then
+    STOOL_HOME=$HOME/.stool
+  fi
+  local base=$STOOL_HOME/backstages
   # don't use ls, it's an alias on many systems:
   local lscmd=/bin/ls
   for dir in $($lscmd -1 $base); do
@@ -10,6 +13,7 @@ __stageList() {
   done
   echo none
 }
+
 _stool_complete() {
       local cur prev cmd
       local select_opts general_opts
@@ -42,12 +46,12 @@ _stool_complete() {
             fi
             ;;
         select)
-            local stages=$(__stageList)
+            local stages=$(_stool_stageList)
             COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
             return 0
             ;;
         status)
-            local stages=$(__stageList)
+            local stages=$(_stool_stageList)
             COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
             return 0
             ;;

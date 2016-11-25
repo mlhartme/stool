@@ -63,7 +63,7 @@ public class DashboardConfiguration {
         String svnpassword;
         Logging logging;
 
-        home = Main.locateHome(jar());
+        home = Main.locateHome(world());
         props = home.join("system/dashboard.properties");
         if (props.exists()) {
             p = props.readProperties();
