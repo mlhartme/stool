@@ -40,7 +40,7 @@ public class StoolIT {
     private static int id = 0;
 
     private World world;
-    private FileNode lib;
+    private FileNode home;
     private String context;
 
     public StoolIT() {
@@ -57,11 +57,11 @@ public class StoolIT {
             Pool.checkFree(even + 1);
         }
         world = World.create();
-        lib = world.guessProjectHome(StoolIT.class).join("target/it/lib");
-        lib.getParent().mkdirsOpt();
-        lib.deleteTreeOpt();
-        Home.create(Console.create(), lib, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}", false);
-        stages = lib.getParent().join("stages");
+        home = world.guessProjectHome(StoolIT.class).join("target/it/lib");
+        home.getParent().mkdirsOpt();
+        home.deleteTreeOpt();
+        Home.create(Console.create(), home, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
+        stages = home.getParent().join("stages");
         stages.deleteTreeOpt();
         stages.mkdir();
         world.setWorking(stages);
@@ -139,12 +139,12 @@ public class StoolIT {
         int result;
         String command;
 
-        logdir = lib.getParent();
+        logdir = home.getParent();
         id++;
         logging = new Logging(Integer.toString(id), logdir.join(id + "-" + context + "-" + args[0]));
         command = command(args);
         System.out.print("  " + command);
-        result = Main.normal(logging, lib, args);
+        result = Main.normal(logging, home, args);
         if (result == 0) {
             System.out.println();
         } else {

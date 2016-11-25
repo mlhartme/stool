@@ -27,7 +27,7 @@ public class Debfiles {
         FileNode target;
         FileNode man;
         FileNode profileD;
-        FileNode tmphome;
+        Home home;
 
         if (args.length != 1) {
             throw new IllegalArgumentException();
@@ -43,11 +43,9 @@ public class Debfiles {
         profileD = target.join("etc/profile.d");
         profileD.mkdirs();
 
-        tmphome = world.getTemp().createTempDirectory();
-        tmphome.deleteDirectory();
-        new Home(Console.create(), tmphome, null).create(true);
-        tmphome.join("shell.rc").copyFile(profileD.join("stool.sh"));
-        tmphome.join("bash.complete").copyFile(target.join("etc/bash_completion.d").mkdirs().join("stool"));
+        home = new Home(Console.create(), target, null);
+        home.profile(profileD.join("stool.sh"));
+        home.bashComplete(target.join("etc/bash_completion.d").mkdirs().join("stool"));
         System.exit(0);
     }
 }

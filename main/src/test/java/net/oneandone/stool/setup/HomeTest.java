@@ -36,14 +36,14 @@ public class HomeTest {
         World world;
         Console console;
         FileNode dir;
-        Home lib;
+        Home home;
 
         world = World.create();
         dir = world.getTemp().createTempDirectory();
         console = Console.create();
         dir.deleteDirectory();
-        lib = new Home(console, dir, null);
-        lib.create(false);
+        home = new Home(console, dir, null);
+        home.create();
         assertNotNull(StoolConfiguration.load(Session.gson(world, ExtensionsFactory.create(world)), dir));
     }
 
@@ -70,7 +70,7 @@ public class HomeTest {
         orig.execNoOutput("cp", "-a", ".", from.getAbsolute()); // TODO: sushi.copyDirectory messes up symlinks ...
         orig.copyDirectory(from);
         home = new Home(console, homedir, null);
-        home.create(false);
+        home.create();
         new UpgradeBuilder(console, home, from).run(true);
         stool = StoolConfiguration.load(gson, homedir);
         assertEquals("cpgem1.ciso.server.lan", stool.hostname);

@@ -64,7 +64,7 @@ public class Setup {
             console.pressReturn();
         }
         console.info.println("Creating " + home);
-        Home.create(console, home, null, false);
+        Home.create(console, home, null);
         console.info.println("Done.");
         console.info.println("Note: you can install the dashboard with");
         console.info.println("  stool create gav:net.oneandone.stool:dashboard:" + version + " " + home.getAbsolute() + "/system/dashboard");
@@ -94,7 +94,7 @@ public class Setup {
         console.info.println("Updating " + home);
         fresh = world.getTemp().createTempDirectory();
         fresh.deleteDirectory();
-        Home.create(console, fresh, null, false);
+        Home.create(console, fresh, null);
         count = 0;
         for (FileNode src : fresh.find("**/*")) {
             if (!src.isFile()) {

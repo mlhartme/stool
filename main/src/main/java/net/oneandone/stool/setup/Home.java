@@ -35,7 +35,7 @@ import java.io.IOException;
  * etc stuff (config.json) and log files.
  */
 public class Home {
-    public static void create(Console console, FileNode home, String config, boolean debian) throws IOException {
+    public static void create(Console console, FileNode home, String config) throws IOException {
         RmRfThread cleanup;
         Home obj;
 
@@ -44,7 +44,7 @@ public class Home {
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
         obj = new Home(console, home, config);
-        obj.create(debian);
+        obj.create();
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
@@ -60,7 +60,7 @@ public class Home {
         this.explicitConfig = explicitConfig;
     }
 
-    public void create(boolean debian) throws IOException {
+    public void create() throws IOException {
         World world;
         Gson gson;
         StoolConfiguration conf;
@@ -72,7 +72,7 @@ public class Home {
         world.resource("files/home").copyDirectory(dir);
         profile(dir.join("shell.rc"));
         bashComplete(dir.join("bash.complete"));
-        conf = Autoconf.stool(dir, debian);
+        conf = Autoconf.stool(dir);
         if (explicitConfig != null) {
             conf = conf.createPatched(gson, explicitConfig);
         }

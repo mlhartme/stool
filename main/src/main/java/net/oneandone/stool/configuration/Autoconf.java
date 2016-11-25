@@ -30,23 +30,14 @@ import java.util.Map;
  * This is the place for 1&amp;1 specific stuff ...
  */
 public class Autoconf {
-    public static StoolConfiguration stool(FileNode home, boolean debian) throws IOException {
+    public static StoolConfiguration stool(FileNode home) throws IOException {
         StoolConfiguration result;
 
-        result = new StoolConfiguration(downloadCache(debian, home));
+        result = new StoolConfiguration(downloadCache(home));
         result.hostname = hostname();
-        result.search = debian ? "" : search(home.getWorld());
-        if (debian) {
-            debian(result);
-        } else {
-            oneAndOne(result);
-        }
+        result.search = search(home.getWorld());
+        oneAndOne(result);
         return result;
-    }
-
-    private static void debian(StoolConfiguration dest) {
-        dest.hostname = "localhost";
-        // CAUTION: shared does not default to true to support workstation installs
     }
 
     private static void oneAndOne(StoolConfiguration dest) {
@@ -123,10 +114,10 @@ public class Autoconf {
         }
     }
 
-    private static FileNode downloadCache(boolean debian, FileNode home) {
+    private static FileNode downloadCache(FileNode home) {
         FileNode directory;
 
-        if (!debian && OS.CURRENT == OS.MAC) {
+        if (OS.CURRENT == OS.MAC) {
             directory = home.getWorld().getHome().join("Downloads");
             if (directory.isDirectory()) {
                 return directory;
