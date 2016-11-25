@@ -149,7 +149,7 @@ public class StoolIT {
         id++;
         command = command(args);
         System.out.print("  " + command);
-        result = Main.run(environment, WORLD, false, args);
+        result = Main.run(environment, WORLD, true, args);
         if (result == 0) {
             System.out.println();
         } else {

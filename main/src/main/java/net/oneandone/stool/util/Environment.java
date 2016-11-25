@@ -22,7 +22,7 @@ import net.oneandone.sushi.launcher.Launcher;
 import java.util.HashMap;
 import java.util.Map;
 
-/** Used instead of System.getenv. Allows to track changes and provides a simple mocking mechanism for integration tests */
+/** Used instead of System.getenv. Pprovides a simple mocking mechanism for integration tests */
 public class Environment {
     public static final String JAVA_HOME = "JAVA_HOME";
     public static final String MAVEN_HOME = "MAVEN_HOME";

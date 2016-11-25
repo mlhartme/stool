@@ -27,6 +27,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
 import net.oneandone.sushi.io.InputLogStream;
+import net.oneandone.sushi.io.MultiOutputStream;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -48,10 +49,10 @@ public class Main {
     }
 
     public static int run(String[] args) throws IOException {
-        return run(Environment.loadSystem(), world(), true, args);
+        return run(Environment.loadSystem(), world(), false, args);
     }
 
-    public static int run(Environment environment, World world, boolean setenv, String[] args) throws IOException {
+    public static int run(Environment environment, World world, boolean it, String[] args) throws IOException {
         Logging logging;
         FileNode home;
         Cli cli;
@@ -67,10 +68,15 @@ public class Main {
             tmp = world.getTemp().createTempDirectory();
             logging = new Logging("1", tmp.join("homeless"), environment.detectUser());
         }
-        console = console(logging, System.out, System.err);
+        if (it) {
+            OutputStream devNull = MultiOutputStream.createNullStream();
+            console = console(logging, devNull, devNull);
+        } else {
+            console = console(logging, System.out, System.err);
+        }
         command = "stool " + hideCredentials(args);
         logging.log("COMMAND", command);
-        globals = new Globals(setenv, environment, home, logging, command, console, world);
+        globals = new Globals(!it, environment, home, logging, command, console, world);
         cli = new Cli(globals::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
