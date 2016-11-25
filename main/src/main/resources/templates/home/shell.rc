@@ -32,7 +32,6 @@ __stageIndicator() {
 if [ "x$BASH" != "x" ] ; then
     if [ -z "${STOOL_NO_PROMPT}" ] ; then
         if [ -z ${STOOL_OLD_PROMPT_COMMAND} ] ; then
-            . ${{stool.home}}/bash.complete
             export STOOL_OLD_PROMPT_COMMAND=${PROMPT_COMMAND}
             __stoolPromptUpdate() {
                 eval "${STOOL_OLD_PROMPT_COMMAND}"
@@ -53,8 +52,9 @@ if [ "x$BASH" != "x" ] ; then
             }
             PROMPT_COMMAND=__stoolPromptUpdate
         # else
-        #   CAUTION: already initialized, do nothing, it would cause an infinite loop
-        #            because __stoolPromptCommand calls itself ::stoolPromptCommand from $STOOL_OLD_PROMPT_COMMAND
+        #   Already initialized, do nothing
+        #   CAUTION:
+        #   Initializing again would cause an infinite loop because __stoolPromptCommand calls itself ::stoolPromptCommand from $STOOL_OLD_PROMPT_COMMAND
         fi
     # else
     #   do nothing, the user does not want stool prompt

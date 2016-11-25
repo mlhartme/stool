@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.setup;
 
+import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -25,6 +26,8 @@ public class Debfiles {
         World world;
         FileNode target;
         FileNode man;
+        FileNode profileD;
+        FileNode tmphome;
 
         if (args.length != 1) {
             throw new IllegalArgumentException();
@@ -33,10 +36,18 @@ public class Debfiles {
         target = world.file(args[0]);
         target.mkdir();
 
-        man = target.join("man");
-        man.mkdir();
+        man = target.join("usr/share/man");
+        man.mkdirs();
         world.resource("templates/man").copyDirectory(man);
 
+        profileD = target.join("etc/profile.d");
+        profileD.mkdirs();
+
+        tmphome = world.getTemp().createTempDirectory();
+        tmphome.deleteDirectory();
+        new Home(Console.create(), tmphome, null).create(true);
+        tmphome.join("shell.rc").copyFile(profileD.join("stool.sh"));
+        tmphome.join("bash.complete").copyFile(target.join("etc/bash_completion.d").mkdirs().join("stool"));
         System.exit(0);
     }
 }
