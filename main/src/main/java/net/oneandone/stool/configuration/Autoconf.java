@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.configuration;
 
+import net.oneandone.stool.util.Environment;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
@@ -30,27 +31,27 @@ import java.util.Map;
  * This is the place for 1&amp;1 specific stuff ...
  */
 public class Autoconf {
-    public static StoolConfiguration stool(FileNode home) throws IOException {
+    public static StoolConfiguration stool(Environment environment, FileNode home) throws IOException {
         StoolConfiguration result;
 
         result = new StoolConfiguration(downloadCache(home));
         result.hostname = hostname();
         result.search = search(home.getWorld());
-        oneAndOne(result);
+        oneAndOne(environment, result);
         return result;
     }
 
-    private static void oneAndOne(StoolConfiguration dest) {
+    private static void oneAndOne(Environment environment, StoolConfiguration dest) {
         String tools;
         String lavender;
         Map<String, String> dflt;
 
-        tools = System.getenv("CISOTOOLS_HOME");
+        tools = environment.get("CISOTOOLS_HOME");
         if (tools == null) {
-            tools = System.getenv("WSDTOOLS_HOME");
+            tools = environment.get("WSDTOOLS_HOME");
         }
         if (tools != null) {
-            lavender = System.getenv("LAVENDER_PROPERTIES");
+            lavender = environment.get("LAVENDER_PROPERTIES");
             dest.admin = "michael.hartmeier@1und1.de";
             dest.mailHost = "mri.server.lan";
             dest.macros.put("trustStore", "-Djavax.net.ssl.trustStore=" + tools + "/cacerts");
@@ -58,7 +59,7 @@ public class Autoconf {
             // dest.certificates = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
             dflt = dest.defaults.get("");
             dflt.put("tomcat.opts", "@trustStore@");
-            dflt.put("tomcat.env", "PATH:" + System.getenv("PATH") + ",LAVENDER_PROPERTIES:" + lavender + ",LAVENDER_SETTINGS:" + lavender);
+            dflt.put("tomcat.env", "PATH:" + environment.get("PATH") + ",LAVENDER_PROPERTIES:" + lavender + ",LAVENDER_SETTINGS:" + lavender);
             dflt.put("maven.opts", "-Xmx1024m -Dmaven.repo.local=@localRepository@ @trustStore@");
             dflt.put("pustefix", "true");
             dflt.put("pustefix.mode", "test");

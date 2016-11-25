@@ -32,25 +32,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Logging {
-    public static String detectUser() {
-        String name;
-
-        name = System.getenv(Environment.STOOL_USER);
-        if (name != null) {
-            return name;
-        } else{
-            return System.getProperty("user.name");
-        }
-    }
-
     private static final String EXTENSION = ".log";
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
 
-    public static Logging forHome(FileNode home) throws IOException {
-        return create(home.join("logs"), "stool");
+    public static Logging forHome(FileNode home, String user) throws IOException {
+        return create(home.join("logs"), "stool", user);
     }
 
-    public static Logging create(FileNode dir, String name) throws IOException {
+    public static Logging create(FileNode dir, String name, String user) throws IOException {
         String date;
         String prefix;
         String id;
@@ -59,7 +48,7 @@ public class Logging {
         date = DATE_FORMAT.format(LocalDate.now());
         prefix = date + ".";
         id = prefix + Integer.toString(id(dir, prefix));
-        result = new Logging(id, dir.join(name + "-" + date + EXTENSION));
+        result = new Logging(id, dir.join(name + "-" + date + EXTENSION), user);
         return result;
     }
 
@@ -70,10 +59,6 @@ public class Logging {
 
     private String stageId;
     private String stageName;
-
-    public Logging(String id, FileNode file) throws IOException {
-        this(id, file, detectUser());
-    }
 
     public Logging(String id, FileNode file, String user) throws IOException {
         this.id = id;

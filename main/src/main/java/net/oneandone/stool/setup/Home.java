@@ -22,6 +22,7 @@ import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Autoconf;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
+import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
@@ -35,7 +36,7 @@ import java.io.IOException;
  * etc stuff (config.json) and log files.
  */
 public class Home {
-    public static void create(Console console, FileNode home, String config) throws IOException {
+    public static void create(Environment environment, Console console, FileNode home, String config) throws IOException {
         RmRfThread cleanup;
         Home obj;
 
@@ -43,18 +44,20 @@ public class Home {
         cleanup = new RmRfThread(console);
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
-        obj = new Home(console, home, config);
+        obj = new Home(environment, console, home, config);
         obj.create();
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
 
+    private final Environment environment;
     private final Console console;
     public final FileNode dir;
     /** json, may be null */
     private final String explicitConfig;
 
-    public Home(Console console, FileNode dir, String explicitConfig) {
+    public Home(Environment environment, Console console, FileNode dir, String explicitConfig) {
+        this.environment = environment;
         this.console = console;
         this.dir = dir;
         this.explicitConfig = explicitConfig;
@@ -72,7 +75,7 @@ public class Home {
         world.resource("files/home").copyDirectory(dir);
         profile(dir.join("shell.rc"));
         bashComplete(dir.join("bash.complete"));
-        conf = Autoconf.stool(dir);
+        conf = Autoconf.stool(environment, dir);
         if (explicitConfig != null) {
             conf = conf.createPatched(gson, explicitConfig);
         }

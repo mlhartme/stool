@@ -16,6 +16,7 @@
 package net.oneandone.stool.setup;
 
 import net.oneandone.inline.Console;
+import net.oneandone.stool.util.Environment;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -43,7 +44,7 @@ public class Debfiles {
         profileD = target.join("etc/profile.d");
         profileD.mkdirs();
 
-        home = new Home(Console.create(), target, null);
+        home = new Home(Environment.loadSystem(), Console.create(), target, null);
         home.profile(profileD.join("stool.sh"));
         home.bashComplete(target.join("etc/bash_completion.d").mkdirs().join("stool"));
         System.exit(0);

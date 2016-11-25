@@ -17,6 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
+import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
@@ -28,6 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 /** Basically a session factory */
 public class Globals {
     private final boolean setenv;
+    public final Environment environment;
     public final FileNode home;
     public final Logging logging;
     private final String command;
@@ -37,8 +39,9 @@ public class Globals {
     public String svnuser;
     public String svnpassword;
 
-    public Globals(boolean setenv, FileNode home, Logging logging, String command, Console console, World world) {
+    public Globals(boolean setenv, Environment environment, FileNode home, Logging logging, String command, Console console, World world) {
         this.setenv = setenv;
+        this.environment = environment;
         this.home = home;
         this.logging = logging;
         this.command = command;

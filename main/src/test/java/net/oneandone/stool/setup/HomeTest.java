@@ -21,6 +21,7 @@ import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.extensions.ExtensionsFactory;
+import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -42,13 +43,14 @@ public class HomeTest {
         dir = world.getTemp().createTempDirectory();
         console = Console.create();
         dir.deleteDirectory();
-        home = new Home(console, dir, null);
+        home = new Home(Environment.loadSystem(), console, dir, null);
         home.create();
         assertNotNull(StoolConfiguration.load(Session.gson(world, ExtensionsFactory.create(world)), dir));
     }
 
     @Test
     public void upgrade() throws Exception {
+        Environment environment;
         Gson gson;
         World world;
         Console console;
@@ -59,6 +61,7 @@ public class HomeTest {
         StoolConfiguration stool;
         StageConfiguration stage;
 
+        environment = Environment.loadSystem();
         world = World.create();
         console = Console.create();
         gson = Session.gson(world, ExtensionsFactory.create(world));
@@ -69,9 +72,9 @@ public class HomeTest {
         from.deleteDirectory();
         orig.execNoOutput("cp", "-a", ".", from.getAbsolute()); // TODO: sushi.copyDirectory messes up symlinks ...
         orig.copyDirectory(from);
-        home = new Home(console, homedir, null);
+        home = new Home(environment, console, homedir, null);
         home.create();
-        new UpgradeBuilder(console, home, from).run(true);
+        new UpgradeBuilder(environment, console, home, from).run(true);
         stool = StoolConfiguration.load(gson, homedir);
         assertEquals("cpgem1.ciso.server.lan", stool.hostname);
         assertEquals("admin@email", stool.admin);

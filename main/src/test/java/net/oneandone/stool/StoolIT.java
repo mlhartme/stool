@@ -19,6 +19,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.setup.Home;
+import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Pool;
 import net.oneandone.sushi.fs.World;
@@ -40,6 +41,7 @@ public class StoolIT {
     private static int id = 0;
 
     private World world;
+    private Environment environment;
     private FileNode home;
     private String context;
 
@@ -57,10 +59,11 @@ public class StoolIT {
             Pool.checkFree(even + 1);
         }
         world = World.create();
+        environment = Environment.loadSystem();
         home = world.guessProjectHome(StoolIT.class).join("target/it/lib");
         home.getParent().mkdirsOpt();
         home.deleteTreeOpt();
-        Home.create(Console.create(), home, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
+        Home.create(environment, Console.create(), home, "{'diskMin' : 500, 'portFirst' : " + start + ", 'portLast' : " + end + "}");
         stages = home.getParent().join("stages");
         stages.deleteTreeOpt();
         stages.mkdir();
@@ -141,10 +144,10 @@ public class StoolIT {
 
         logdir = home.getParent();
         id++;
-        logging = new Logging(Integer.toString(id), logdir.join(id + "-" + context + "-" + args[0]));
+        logging = new Logging(Integer.toString(id), logdir.join(id + "-" + context + "-" + args[0]), environment.detectUser());
         command = command(args);
         System.out.print("  " + command);
-        result = Main.normal(logging, home, args);
+        result = Main.normal(environment, logging, home, args);
         if (result == 0) {
             System.out.println();
         } else {

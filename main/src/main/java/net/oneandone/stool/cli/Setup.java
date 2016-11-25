@@ -18,6 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.Console;
 import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.setup.Home;
+import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -64,7 +65,7 @@ public class Setup {
             console.pressReturn();
         }
         console.info.println("Creating " + home);
-        Home.create(console, home, null);
+        Home.create(Environment.loadSystem(), console, home, null);
         console.info.println("Done.");
         console.info.println("Note: you can install the dashboard with");
         console.info.println("  stool create gav:net.oneandone.stool:dashboard:" + version + " " + home.getAbsolute() + "/system/dashboard");
@@ -73,6 +74,7 @@ public class Setup {
     private static final List<String> CONFIG = Strings.toList("config.json", "maven-settings.xml");
 
     private void update() throws IOException {
+        Environment environment;
         Home h;
         String was;
         FileNode fresh;
@@ -82,7 +84,8 @@ public class Setup {
         String right;
         int count;
 
-        h = new Home(console, home, null);
+        environment = Environment.loadSystem();
+        h = new Home(environment, console, home, null);
         was = h.version();
         if (!Session.majorMinor(was).equals(Session.majorMinor(version))) {
             throw new IOException("migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
@@ -94,7 +97,7 @@ public class Setup {
         console.info.println("Updating " + home);
         fresh = world.getTemp().createTempDirectory();
         fresh.deleteDirectory();
-        Home.create(console, fresh, null);
+        Home.create(environment, console, fresh, null);
         count = 0;
         for (FileNode src : fresh.find("**/*")) {
             if (!src.isFile()) {

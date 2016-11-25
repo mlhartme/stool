@@ -49,15 +49,19 @@ public class Main {
     }
 
     public static int run(String[] args) throws IOException {
+        return run(Environment.loadSystem(), args);
+    }
+
+    public static int run(Environment environment, String[] args) throws IOException {
         World world;
         FileNode home;
 
         world = world();
-        home = locateHome(world);
-        return normal(null, home, args);
+        home = environment.locateHome(world);
+        return normal(environment,null, home, args);
     }
 
-    public static int normal(Logging logging, FileNode home, String[] args) throws IOException {
+    public static int normal(Environment environment, Logging logging, FileNode home, String[] args) throws IOException {
         World world;
         Cli cli;
         String command;
@@ -71,10 +75,10 @@ public class Main {
             // normal invocation
             setenv = true;
             if (home.exists()) {
-                logging = Logging.forHome(home);
+                logging = Logging.forHome(home, environment.detectUser());
             } else {
                 tmp = world.getTemp().createTempDirectory();
-                logging = new Logging("1", tmp.join("homeless"));
+                logging = new Logging("1", tmp.join("homeless"), environment.detectUser());
             }
             console = console(logging, System.out, System.err);
         } else {
@@ -85,7 +89,7 @@ public class Main {
         }
         command = "stool " + hideCredentials(args);
         logging.log("COMMAND", command);
-        globals = new Globals(setenv, home, logging, command, console, world);
+        globals = new Globals(setenv, environment, home, logging, command, console, world);
         cli = new Cli(globals::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
@@ -186,17 +190,6 @@ public class Main {
     }
 
     //--
-
-    public static FileNode locateHome(World world) {
-        String value;
-
-        value = System.getenv(Environment.STOOL_HOME);
-        if (value == null) {
-            return world.getHome().join(".stool");
-        } else {
-            return world.file(value);
-        }
-    }
 
     public static String versionString(World world) {
         // don't use class.getPackage().getSpecificationVersion() because META-INF/META.MF

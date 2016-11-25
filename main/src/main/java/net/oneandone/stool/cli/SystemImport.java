@@ -18,17 +18,20 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.setup.UpgradeBuilder;
+import net.oneandone.stool.util.Environment;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
 public class SystemImport {
+    private final Environment environment;
     private final Console console;
     private final boolean withConfig;
     private final FileNode home;
     private final FileNode from;
 
     public SystemImport(Globals globals, boolean withConfig, FileNode from) {
+        this.environment = globals.environment;
         this.console = globals.console;
         this.withConfig = withConfig;
         this.home = globals.home;
@@ -42,8 +45,8 @@ public class SystemImport {
 
         from.checkDirectory();
         home.checkDirectory();
-        h = new Home(console, home, null);
-        u = new UpgradeBuilder(console, h, from);
+        h = new Home(environment, console, home, null);
+        u = new UpgradeBuilder(environment, console, h, from);
         version = Main.versionString(home.getWorld());
         console.info.println("Stool " + version);
         console.info.println("Ready to import global config and stages " + from + " (version " + u.version() + ") into " + home + " (version " + version + ")");

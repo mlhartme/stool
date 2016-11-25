@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 
 import java.util.HashMap;
@@ -77,6 +79,8 @@ public class Environment {
         return properties.get(key);
     }
 
+    //--
+
     public int hashCode() {
         return properties.hashCode();
     }
@@ -93,6 +97,24 @@ public class Environment {
     }
 
     //--
+
+    public String detectUser() {
+        String name;
+
+        name = getOpt(Environment.STOOL_USER);
+        return name != null ? name : System.getProperty("user.name");
+    }
+
+    public FileNode locateHome(World world) {
+        String value;
+
+        value = getOpt(STOOL_HOME);
+        if (value == null) {
+            return world.getHome().join(".stool");
+        } else {
+            return world.file(value);
+        }
+    }
 
     public void save(Launcher launcher) {
         String value;

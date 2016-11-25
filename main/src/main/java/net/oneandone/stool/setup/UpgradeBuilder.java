@@ -27,6 +27,7 @@ import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
+import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -42,6 +43,7 @@ import java.util.List;
 import java.util.Map;
 
 public class UpgradeBuilder {
+    private final Environment environment;
     private final Console console;
     private final Home home;
     private final FileNode from;
@@ -54,7 +56,8 @@ public class UpgradeBuilder {
     /** maps names to ids */
     private Map<String, String> stages = new HashMap<>();
 
-    public UpgradeBuilder(Console console, Home home, FileNode from) {
+    public UpgradeBuilder(Environment envivonment, Console console, Home home, FileNode from) {
+        this.environment = envivonment;
         this.console = console;
         this.home = home;
         this.from = from;
@@ -90,7 +93,7 @@ public class UpgradeBuilder {
         } else {
             stoolRaw = StoolConfiguration.load(home.gson(), home.dir);
         }
-        logging = Logging.forHome(home.dir);
+        logging = Logging.forHome(home.dir, environment.detectUser());
         session = Session.load(false, home.dir, logging, "upgrade", console, home.dir.getWorld(), null, null);
         if (!session.listWithoutSystem().isEmpty()) {
             console.info.println("warning: ports of existing and not imported stages get lost.");
