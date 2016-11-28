@@ -2,7 +2,7 @@
 
 ### 3.4.6 (pending)
 
-* fixed port garbage collection - unused ports have not been removed
+* fixed port garbage collection - unused ports have not been freed
 * `stool validate`: fixed duplicate lines in console output
 * changed default `tomcat.version` from 8.5.6 to 8.5.8 (which fixes "Unable to add the resource at *somePath* to the cache" )
 * changed default `service.version` from 3.5.29 to 3.5.30
@@ -15,7 +15,7 @@
 * Debian packages reworked:
   * Main package:
     * no longer contains a home directory. Instead, the default is that every user create his own version.
-    * removed the Debian service
+    * removed the Debian service. Because there's no longer a unique home to start stages from.
   * Dumped Dashboard package. Because there's no longer a unique home to install it to.
 * Development:
   * simplified build: no longer depends on a custom version of jdeb

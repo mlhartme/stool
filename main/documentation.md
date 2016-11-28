@@ -1201,64 +1201,73 @@ Prerequisites:
 First of all: Stool is split into `stool` itself and the `dashboard`. The dashboard is optional, it
 makes some of Stool's functionality available in a browser.
 
-Next, you have to choose the appropriate of setup for your machine: isolated or shared.
+### Install Stool
 
+You can install Stool on your machine either as a Debian package or from an application download:
 
-### Isolated setup
+Debian package:
+* Download the latest `deb` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22)
+  (I'd like to have a public Debian repository instead, by I don't know who would host this for free). To install Stool:
+* install it with `dpkg -i`
 
-Isolated setup is for you if you want to install Stool for yourself and nobody else. Technically, isolated setup means that stages created by 
-one user can only be seen and used by this user. Security: everything executes as the respective user, no `root` permissions or sudo rules required.
-
-Steps:
+Application download: 
 * Download the latest `application.sh` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22)
 * Make it executable, rename it to `stool` and add it to your $PATH.
+
+Now check your installation: invoke `stool` - you should get a usage message.
+
+
+### Isolated configuration
+
+You'll normally configure Stool to maintain separate stages for separate users, everything lives in the respective user's home directory. 
+This is called isolated configuration.
+
+For every user that wants to use Stool:
+* Optional: define an environment variable `STOOL_HOME` in your shell initialization (e.g. `~/.bash_profile`)
 * Run `stool setup` to create Stool's home directory (`~/.stool`).
-* Source `~/.stool/shell.rc` in your shell initialization file (e.g. `~/.bash_profile`).
 * Adjust `~/.stool/config.json` to your needs: see [stool properties](#stool-properties)
-* Optional: setup a cron job to run `stool validate -all -email -repair` every night.
-
-Dashboard setup:
-
-* `stool create gav:net.oneandone.stool:dashboard:`*version* `$STOOL_HOME/.stool/system/dashboard`
-* `stool port dashboard=8000`
-* `stool start`
+* If you did not install the Debian package: source `~/.stool/shell.rc` in your shell initialization file (e.g. `~/.bash_profile`).
 
 
-### Shared setup
+### Shared configuration
 
-Shared setup is for you if you want to install Stool on a server, to be used by multiple users. Technically, shared setup means 
-that stages can be created, modified and removed by every other user on the machines.
+Shared setup is for you if you want to install Stool on a server, where multiple users work on a shared set of stages. 
+Any user can create, modify and removed any stage on the system. Technically, this is done by configuring file system permissions
+to allow everybody in a group to access stool. 
 
-Security: you need root permission to setup Stool in shared mode. Having shared Stool on your machine allows every Stool user
-to execute arbitrary code as arbitrary Stool user (i.e. in a stage started by him or a Tomcat/Java Service Wrapper provided by him).
+To configure share stages:
 
-Debian package are available from [Maven Central](http://central.sonatype.org).
-(I'd like to have a public Debian repository instead, by I don't know who would host this for free). To install Stool:
+* become `root`
+* create a group `stool` and add all users you want to give access to the stages
+* create a folder `sharedstages` somewhere on your disk; invoke on this folder:
+  * `chgrp stool`
+  * `chmod 2775` 
+* for all `stool` users, define the environment variable `STOOL_HOME` and point it to `sharedstages/.stool`
+* with the root user, follow the instructions for shared configuration
+* optional: `chmod 422 $STOOL_HOME/config`
 
-* Download the latest `deb` from [Maven central](http://search.maven.org/#search%7Cga%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22setup%22)
-* Preseed a group and make sure it exists
-* Run `dpkg -i stool-x.y.z.deb`
-* Optional, only if you want the dashboard: repeat the previous steps for setup-x.y.z-dashboard.deb
-* Adjust stool properties with `sudo nano /usr/share/stool-3.4/config.json`.
-* Create a base directory for all your stages, set the group to `stool`, and set the guid bit
-* make sure that all stool users get umask 0002
-* Restart your shell or re-login if you work on a VM/remote machine. (Otherwise, the stage indicator will not work properly
-  and Stool cannot change the current directory).
-* Invoke `stool` to verify your setup. You should get a usage message.
 
 ### Cron job
 
-For both setups, you should setup a cronjob that runs
+You should setup a cronjob that runs
 
     stool validate -all -email -repair
     
 every night. That will check for expired stages. And also rotate log files.
 
 
+### Dashboard setup
+
+* cd into Stool's home directory
+* `stool create gav:net.oneandone.stool:dashboard:`*version* `.stool/system/dashboard`
+* `stool port dashboard=8000`
+* `stool start`
+
+
 ### Upgrading 
 
 To upgrade from Stool versions before 3.4.0:
-* uninstall the old version Stool; not stage stages are not removed
+* uninstall the old version Stool; but do not remove any stages
 * install 3.4 as described above
 * for every stage:
   * cd into the stage directory
@@ -1269,7 +1278,7 @@ To upgrade from Stool versions before 3.4.0:
 
 ## Directory Layout
 
-... of $STOOL_HOME (`~/.stool` if not defined)
+... of $STOOL_HOME (default is `~/.stool`)
 
         |- config.json (Stool configuration)
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
