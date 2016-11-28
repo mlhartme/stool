@@ -10,7 +10,7 @@
   <name>Stool Main</name>
   <artifactId>main</artifactId>
   <packaging>jar</packaging>
-  <description>Stool's main component. Java Library, cli, setup code.</description>
+  <description>Stool's main component. Command line tool and Java Library for dashboard.</description>
 
   <properties>
     <guava.version>19.0</guava.version>
