@@ -46,9 +46,9 @@ public class Autoconf {
         String lavender;
         Map<String, String> dflt;
 
-        tools = environment.get("CISOTOOLS_HOME");
+        tools = environment.getOpt("CISOTOOLS_HOME");
         if (tools == null) {
-            tools = environment.get("WSDTOOLS_HOME");
+            tools = environment.getOpt("WSDTOOLS_HOME");
         }
         if (tools != null) {
             lavender = environment.get("LAVENDER_PROPERTIES");
