@@ -98,6 +98,7 @@ public class Validate extends StageCommand {
             socket.close();
         } catch (IOException e) {
             report.admin("cannot open socket on machine " + session.configuration.hostname + ". Check the configured hostname.");
+            e.printStackTrace(console.verbose);
         }
 
         subDomain = digIp("foo." + session.configuration.hostname);
