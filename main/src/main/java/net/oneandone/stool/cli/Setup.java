@@ -49,6 +49,9 @@ public class Setup {
     }
 
     public void config(String str) {
+        if (str != null && str.trim().isEmpty()) {
+            str = null;
+        }
         explicitConfig = str;
     }
 

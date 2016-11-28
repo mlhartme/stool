@@ -1246,6 +1246,8 @@ To configure share stages:
 * with the root user, follow the instructions for shared configuration
 * optional: `chmod 422 $STOOL_HOME/config`
 
+Note that by placing stool home under the shared directory, all stool configuration is shared as well.
+
 
 ### Cron job
 
