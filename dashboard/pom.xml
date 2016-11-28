@@ -120,11 +120,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
-          <version>2.6</version><!-- TODO: 3.0 -->
-          <configuration>
-            <!-- defined by annotations -->
-            <failOnMissingWebXml>false</failOnMissingWebXml>
-          </configuration>
+          <version>3.0.0</version>
         </plugin>
       </plugins>
     </pluginManagement>

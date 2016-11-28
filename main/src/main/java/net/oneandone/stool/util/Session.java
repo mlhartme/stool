@@ -105,7 +105,7 @@ public class Session {
     //--
 
     private final boolean setenv;
-    public final ExtensionsFactory extensionsFactory;
+    private final ExtensionsFactory extensionsFactory;
     public final Gson gson;
     public final Logging logging;
     public final String user;
