@@ -27,9 +27,9 @@ import java.util.Map;
  * And it provides a simple mocking mechanism for integration tests
  */
 public class Environment {
-    public static final String JAVA_HOME = "JAVA_HOME";
-    public static final String MAVEN_HOME = "MAVEN_HOME";
-    public static final String MAVEN_OPTS = "MAVEN_OPTS";
+    private static final String JAVA_HOME = "JAVA_HOME";
+    private static final String MAVEN_HOME = "MAVEN_HOME";
+    private static final String MAVEN_OPTS = "MAVEN_OPTS";
     public static final String STOOL_USER = "STOOL_USER";
     public static final String STOOL_HOME = "STOOL_HOME";
 
@@ -121,6 +121,18 @@ public class Environment {
 
     public void setHome(FileNode home) {
         set(STOOL_HOME, home.getAbsolute());
+    }
+
+    public void setMavenHome(String mavenHome) {
+        set(MAVEN_HOME, mavenHome);
+    }
+
+    public void setMavenOpts(String mavenOpts) {
+        set(MAVEN_OPTS, mavenOpts);
+    }
+    
+    public void setJavaHome(String javaHome) {
+        set(JAVA_HOME, javaHome);
     }
 
     public void save(Launcher launcher) {

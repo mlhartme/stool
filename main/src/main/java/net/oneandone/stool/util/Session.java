@@ -378,9 +378,9 @@ public class Session {
         }
         env = new Environment();
         // note that both MAVEN and ANT use JAVA_HOME to locate their JVM - it's not necessary to add java to the PATH variable
-        env.set(Environment.JAVA_HOME, stage != null ? stage.config().javaHome : null);
-        env.set(Environment.MAVEN_HOME, (stage != null && stage.config().mavenHome() != null) ? stage.config().mavenHome() : null);
-        env.set(Environment.MAVEN_OPTS, mavenOpts);
+        env.setJavaHome(stage != null ? stage.config().javaHome : null);
+        env.setMavenHome((stage != null && stage.config().mavenHome() != null) ? stage.config().mavenHome() : null);
+        env.setMavenOpts(mavenOpts);
         return env;
     }
 
