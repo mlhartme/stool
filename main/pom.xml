@@ -186,10 +186,6 @@
             }
 
             # Stool
-            -keep public class net.oneandone.stool.setup.DebianMainSetup {
-            public static void main(java.lang.String[]);
-            }
-
             -keep public class net.oneandone.stool.cli.Main {
             public static void main(java.lang.String[]);
             }
