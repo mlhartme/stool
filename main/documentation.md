@@ -292,13 +292,13 @@ stop and remove. A stage contains web applications built from source or availabl
 `stool` *global-option*... `remove` *stage-option*... [`-force`] [`-batch`] [`-backstage`]
 
 
-`stool` *global-option*... `start` *stage-option*... [`-debug`|`-suspend`] [`-tail`]
+`stool` *global-option*... `start` *stage-option*... [`-fitnesse`|`-debug`|`-suspend`] [`-tail`]
 
 
 `stool` *global-option*... `stop` *stage-option*... [`-sleep`]
 
 
-`stool` *global-option*... `restart` *stage-option*... [`-debug`|`-suspend`]
+`stool` *global-option*... `restart` *stage-option*... [`-fitnesse`|`-debug`|`-suspend`]
 
 
 

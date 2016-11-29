@@ -44,8 +44,9 @@ import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.repository.RepositoryPolicy;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.io.InputStream;
+import java.net.Socket;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.time.Instant;
@@ -238,19 +239,18 @@ public abstract class Stage {
     }
 
     public boolean ping(Vhost vhost) throws IOException {
-        return pingUrl(httpUrl(vhost));
+        return ping(URI.create(httpUrl(vhost)));
     }
 
-    public static boolean pingUrl(String urlStr) throws IOException {
-        URL url;
-        HttpURLConnection conn;
+    public static boolean ping(URI uri) throws IOException {
+        Socket socket;
 
-        url = new URL(urlStr);
-        conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
         try {
-            return conn.getResponseCode() == 200;
-        } catch (Exception e) {
+            socket = new Socket(uri.getHost(), uri.getPort());
+            try (InputStream notused = socket.getInputStream()) {
+                return true;
+            }
+        } catch (IOException e) {
             return false;
         }
     }

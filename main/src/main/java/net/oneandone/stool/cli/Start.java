@@ -200,8 +200,6 @@ public class Start extends StageCommand {
 
     private void ping(Stage stage) throws IOException, URISyntaxException, InterruptedException {
         URI uri;
-        Socket socket;
-        InputStream in;
         int count;
 
         console.info.println("Ping'n Applications.");
@@ -210,19 +208,12 @@ public class Start extends StageCommand {
                 uri = new URI(url);
                 console.verbose.println("Ping'n " + url);
                 count = 0;
-                while (true) {
-                    try {
-                        socket = new Socket(uri.getHost(), uri.getPort());
-                        in = socket.getInputStream();
-                        in.close();
-                        break;
-                    } catch (IOException e) {
-                        console.verbose.println("port not ready yet: " + e.getCause());
-                        Thread.sleep(100);
-                        count++;
-                        if (count > 10 * 60 * 5) {
-                            throw new IOException(url + ": ping timed out");
-                        }
+                while (!Stage.ping(uri)) {
+                    console.verbose.println("port not ready yet");
+                    Thread.sleep(100);
+                    count++;
+                    if (count > 10 * 60 * 5) {
+                        throw new IOException(url + ": ping timed out");
                     }
                 }
             }
