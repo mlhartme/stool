@@ -97,6 +97,8 @@ public class Main {
                       cli.add(Cd.class, "cd target?=null { setTarget(target) }");
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
+                      cli.add(FitnesseStart.class, "fitnesse-start");
+                      cli.add(FitnesseStop.class, "fitnesse-stop");
                       cli.add(History.class, "history -details=@history.details:false -max=@history.max:50");
                       cli.add(Ls.class, "list -defaults=@list.defaults field* { field*(field) }");
                       cli.add(Move.class, "move dest");

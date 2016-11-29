@@ -2,6 +2,7 @@
 
 ### 3.4.6 (pending)
 
+* added `fitnesse-start` and `fitnesse-stop` commands
 * fixed port garbage collection - unused ports have not been freed
 * `stool validate`: fixed duplicate lines in console output
 * changed default `tomcat.version` from 8.5.6 to 8.5.8 (which fixes "Unable to add the resource at *somePath* to the cache" )
