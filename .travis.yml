@@ -3,4 +3,5 @@ jdk:
   - oraclejdk8
 before_install:
   - sudo apt-get install -qq ruby
-  - sudo gem install ronn
+  - which gem
+  - gem install ronn
