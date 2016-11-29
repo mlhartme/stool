@@ -45,7 +45,7 @@ public class Debfiles {
         profileD.mkdirs();
 
         home = new Home(Environment.loadSystem(), Console.create(), target, null);
-        home.profile(profileD.join("stool.sh"));
+        home.profile(profileD.join("stool.sh"), "");
         home.bashComplete(target.join("etc/bash_completion.d").mkdirs().join("stool"));
         System.exit(0);
     }

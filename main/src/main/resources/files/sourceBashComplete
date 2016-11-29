@@ -1,0 +1,8 @@
+if [ "x$BASH" != "x" ] ; then
+  if [ -z ${STOOL_HOME} ] ; then
+    h=${HOME}/.stool
+  else
+    h=${STOOL_HOME}
+  fi
+  . ${h}/bash.complete
+fi

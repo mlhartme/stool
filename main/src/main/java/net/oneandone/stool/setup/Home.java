@@ -73,7 +73,8 @@ public class Home {
 
         world = dir.getWorld();
         world.resource("files/home").copyDirectory(dir);
-        profile(dir.join("shell.rc"));
+        profile(dir.join("shell.rc"),
+                file("files/sourceBashComplete"));
         bashComplete(dir.join("bash.complete"));
         conf = Autoconf.stool(environment, dir);
         if (explicitConfig != null) {
@@ -88,8 +89,8 @@ public class Home {
         dir.join("run/locks").mkfile();
     }
 
-    public void profile(FileNode dest) throws IOException {
-        dest.writeString(Setenv.get().setenvBash() + file("files/profile"));
+    public void profile(FileNode dest, String extra) throws IOException {
+        dest.writeString(Setenv.get().setenvBash() + file("files/profile") + extra);
     }
 
     public void bashComplete(FileNode dest) throws IOException {
