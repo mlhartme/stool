@@ -233,7 +233,7 @@ public abstract class Stage {
             ports = loadPortsOpt();
             if (ports != null) {
                 for (Vhost vhost : ports.vhosts()) {
-                    if (ping(vhost)) {
+                    if (vhost.isWebapp() && ping(vhost)) {
                         return true;
                     }
                 }

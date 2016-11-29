@@ -49,6 +49,9 @@
                     <li><a href="#dashboard" data-estimate="${stage.stats.avgStart}" data-action="start"
                            data-stage="${stage.name}">Start</a>
                     </li>
+                    <li><a href="#dashboard" data-estimate="${stage.stats.avgStart}" data-action="start" data-option="-fitnesse"
+                           data-stage="${stage.name}">Start Fitnesse</a>
+                    </li>
                     <li><a href="#dashboard" data-estimate="${stage.stats.avgStop}" data-action="stop"
                            data-stage="${stage.name}">Stop</a></li>
                     <li><a href="#dashboard" data-estimate="${stage.stats.avgRestart}" data-action="restart" data-stage="${stage.name}">Restart</a>
