@@ -63,7 +63,7 @@ public class SystemStartStop extends StageCommand {
         if (start) {
             if (stage.isSystem() || stage.state() == Stage.State.SLEEPING) {
                 session.console.info.println("[" + stage.getName() + "]");
-                new Start(stage.session, false, false).doRun(stage);
+                new Start(stage.session, false, false, false).doRun(stage);
             }
         } else {
             if (stage.state() == Stage.State.UP) {

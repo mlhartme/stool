@@ -16,12 +16,14 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.ReadLinkException;
@@ -45,14 +47,16 @@ import java.util.List;
 import java.util.Map;
 
 public class Start extends StageCommand {
+    private boolean fitnesse;
     private boolean debug;
     private boolean suspend;
     private boolean tail;
 
     private Launcher.Handle mainResult;
 
-    public Start(Session session, boolean debug, boolean suspend) {
+    public Start(Session session, boolean fitnesse, boolean debug, boolean suspend) {
         super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);
+        this.fitnesse = fitnesse;
         this.debug = debug;
         this.suspend = suspend;
         this.tail = false;
@@ -83,41 +87,37 @@ public class Start extends StageCommand {
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        FileNode download;
-        Ports ports;
-
         stage.modify();
         // to avoid running into a ping timeout below:
         stage.session.configuration.verfiyHostname();
-
-        serviceWrapperOpt(stage);
-        download = tomcatOpt(stage.config().tomcatVersion);
         stage.checkConstraints();
         if (session.configuration.committed) {
             if (!stage.isCommitted()) {
                 throw new IOException("It's not allowed to start stages with local modifications.\n"
-                                + "Please commit your modified files in order to start the stage.");
+                        + "Please commit your modified files in order to start the stage.");
             }
         }
         checkNotStarted(stage);
-        ports = session.pool().allocate(stage, Collections.emptyMap());
-        copyTemplate(stage, ports);
-        createServiceLauncher(stage);
-        copyCatalinaBaseOpt(download, stage.getBackstage(), stage.config().tomcatVersion);
+
+        if (fitnesse) {
+            doFitnesse(stage);
+        } else {
+            doNormal(stage);
+        }
         if (session.bedroom.contains(stage.getId())) {
             console.info.println("leaving sleeping state");
             session.bedroom.remove(session.gson, stage.getId());
         }
-        if (debug || suspend) {
-            console.info.println("debugging enabled on port " + ports.debug());
-        }
-        mainResult = stage.start(console, ports);
     }
 
     @Override
     public void doFinish(Stage stage) throws Exception {
         int pid;
 
+        if (fitnesse) {
+            // nothing to finish
+            return;
+        }
         console.verbose.println(mainResult.awaitString());
         pid = stage.runningService();
         if (pid == 0) {
@@ -131,6 +131,24 @@ public class Start extends StageCommand {
         if (tail) {
             doTail(stage);
         }
+    }
+
+    //--
+
+    public void doNormal(Stage stage) throws Exception {
+        FileNode download;
+        Ports ports;
+
+        serviceWrapperOpt(stage);
+        download = tomcatOpt(stage.config().tomcatVersion);
+        ports = session.pool().allocate(stage, Collections.emptyMap());
+        copyTemplate(stage, ports);
+        createServiceLauncher(stage);
+        copyCatalinaBaseOpt(download, stage.getBackstage(), stage.config().tomcatVersion);
+        if (debug || suspend) {
+            console.info.println("debugging enabled on port " + ports.debug());
+        }
+        mainResult = stage.start(console, ports);
     }
 
     private void doTail(Stage stage) throws IOException {
@@ -445,5 +463,60 @@ public class Start extends StageCommand {
             i++;
         }
         return result.toString();
+    }
+
+    //-- fitnesse
+
+
+    public void doFitnesse(Stage stage) throws Exception {
+        Console console;
+        Ports ports;
+        Vhost host;
+        int port;
+        String url;
+        FileNode log;
+        Launcher launcher;
+
+        if (tail) {
+            throw new ArgumentException("-fitness -tail is not supported");
+        }
+        if (debug) {
+            throw new ArgumentException("-fitness -debug is not supported");
+        }
+        if (suspend) {
+            throw new ArgumentException("-fitness -suspend is not supported");
+        }
+        console = stage.session.console;
+        ports = session.pool().allocate(stage, Collections.emptyMap());
+        for (String vhost : stage.vhostNames()) {
+            host = ports.lookup(vhost);
+            port = host.httpPort();
+            url = findUrl(stage, host);
+            launcher = stage.launcher("mvn",
+                    "uk.co.javahelp.fitnesse:fitnesse-launcher-maven-plugin:wiki", "-Dfitnesse.port=" + port);
+            launcher.dir(stage.session.world.file(findProjectDir(ports, host)));
+
+            log = stage.getBackstage().join("tomcat/logs/fitness-" + port + ".log");
+            log.getParent().mkdirsOpt();
+            if (!log.exists()) {
+                log.mkfile();
+            }
+            // no exec -- keeps running until stopped; no way to detect failures
+            // no log.close!
+            launcher.launch(log.newWriter());
+            console.info.println(vhost + " fitnesse started: " + url);
+        }
+
+    }
+
+    private String findProjectDir(Ports ports, Vhost fitnesseHost) {
+        String path;
+
+        path = ports.lookup(fitnesseHost.name).docBase();
+        return path.substring(0, path.indexOf("/target"));
+    }
+
+    private String findUrl(Stage stage, Vhost host) {
+        return host.httpUrl(stage.session.configuration.vhosts, stage.session.configuration.hostname);
     }
 }

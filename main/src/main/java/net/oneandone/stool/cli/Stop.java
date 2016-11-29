@@ -15,9 +15,12 @@
  */
 package net.oneandone.stool.cli;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.launcher.Launcher;
 
 public class Stop extends StageCommand {
@@ -43,7 +46,11 @@ public class Stop extends StageCommand {
                 console.info.println("going from sleeping to stopped.");
             }
         } else {
-            mainResult = stage.stop(console);
+            if (stage.fitnesseRunning()) {
+                doFitnesse(stage);
+            } else {
+                doNormal(stage);
+            }
         }
     }
 
@@ -62,6 +69,32 @@ public class Stop extends StageCommand {
         } else {
             session.bedroom.remove(session.gson, stage.getId());
             console.info.println("state: down");
+        }
+    }
+
+    //--
+
+    public void doNormal(Stage stage) throws Exception {
+        mainResult = stage.stop(console);
+    }
+
+    public void doFitnesse(Stage stage) throws Exception {
+        Console console;
+        Ports ports;
+        String url;
+
+        mainResult = null;
+        console = stage.session.console;
+        ports = stage.loadPortsOpt();
+        for (Vhost vhost : ports.vhosts()) {
+            if (vhost.isWebapp()) {
+                url = stage.httpUrl(vhost);
+                if (stage.ping(vhost)) {
+                    console.verbose.println(stage.session.world.validNode(url + "?responder=shutdown").readString());
+                } else {
+                    console.info.println("fitnesse server is already down: " + url);
+                }
+            }
         }
     }
 }

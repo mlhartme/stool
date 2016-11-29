@@ -28,6 +28,7 @@ import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.ReadLinkException;
@@ -43,6 +44,8 @@ import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.repository.RepositoryPolicy;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.time.Instant;
@@ -209,12 +212,51 @@ public abstract class Stage {
     public State state() throws IOException {
         if (session.bedroom.contains(getId())) {
             return State.SLEEPING;
-        } else if (runningService() != 0) {
+        } else if (runningService() != 0 || fitnesseRunning()) {
             return State.UP;
         } else {
             return State.DOWN;
         }
 
+    }
+
+    /** TODO */
+    public boolean fitnesseRunning() throws IOException {
+        Ports ports;
+
+        if (runningService() == 0) {
+            ports = loadPortsOpt();
+            if (ports != null) {
+                for (Vhost vhost : ports.vhosts()) {
+                    if (ping(vhost)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean ping(Vhost vhost) throws IOException {
+        return pingUrl(httpUrl(vhost));
+    }
+
+    public static boolean pingUrl(String urlStr) throws IOException {
+        URL url;
+        HttpURLConnection conn;
+
+        url = new URL(urlStr);
+        conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("GET");
+        try {
+            return conn.getResponseCode() == 200;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String httpUrl(Vhost host) {
+        return host.httpUrl(session.configuration.vhosts, session.configuration.hostname);
     }
 
     public int runningService() throws IOException {

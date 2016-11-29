@@ -17,7 +17,7 @@ package net.oneandone.stool.util;
 
 public enum Field implements Info {
     ID, SELECTED, DIRECTORY, BACKSTAGE, URL, TYPE, CREATOR, CREATED, BUILDTIME, MAINTAINER, MAINTAINED,
-    DISK, STATE, UPTIME, CPU, MEM, SERVICE, TOMCAT, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
+    DISK, STATE, UPTIME, CPU, MEM, SERVICE, TOMCAT, FITNESSE, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
 
     public String toString() {
         return name().toLowerCase();

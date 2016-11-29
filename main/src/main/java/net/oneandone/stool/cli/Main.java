@@ -97,16 +97,14 @@ public class Main {
                       cli.add(Cd.class, "cd target?=null { setTarget(target) }");
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
-                      cli.add(FitnesseStart.class, "fitnesse-start");
-                      cli.add(FitnesseStop.class, "fitnesse-stop");
                       cli.add(History.class, "history -details=@history.details:false -max=@history.max:50");
                       cli.add(Ls.class, "list -defaults=@list.defaults field* { field*(field) }");
                       cli.add(Move.class, "move dest");
                       cli.add(Port.class, "port port { port*(port) }");
                       cli.add(Refresh.class, "refresh -build=@refresh.build -restore");
                       cli.add(Remove.class, "remove -batch -force -backstage { setBackstage(backstage) }");
-                      cli.add(Restart.class, "restart -debug=@tomcat.debug -suspend=@tomcat.suspend");
-                      cli.add(Start.class, "start -debug=@tomcat.debug -suspend=@tomcat.suspend -tail { setTail(tail) }");
+                      cli.add(Restart.class, "restart -fitnesse -debug=@tomcat.debug -suspend=@tomcat.suspend");
+                      cli.add(Start.class, "start -fitnesse -debug=@tomcat.debug -suspend=@tomcat.suspend -tail { setTail(tail) }");
                       cli.add(Status.class, "status -defaults=@status.defaults field* { field*(field) }");
                       cli.add(Stop.class, "stop -sleep");
                       cli.add(SystemStart.class, "system-start");

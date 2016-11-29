@@ -110,6 +110,7 @@ public abstract class InfoCommand extends StageCommand {
         Ports ports;
         List<String> jmx;
         String url;
+        Stage.State state;
 
         result = new HashMap<>();
         result.put(Field.ID, stage.getId());
@@ -135,8 +136,9 @@ public abstract class InfoCommand extends StageCommand {
         result.put(Field.MAINTAINER, userName(session, stage.maintainer()));
         result.put(Field.MAINTAINED, Stage.timespan(stage.maintained()));
         result.put(Field.UPTIME, stage.uptime());
-        result.put(Field.STATE, stage.state().toString());
-        ports = processStatus(processes, stage, result);
+        state = stage.state();
+        result.put(Field.STATE, state.toString());
+        ports = processStatus(state, processes, stage, result);
         result.put(Field.APPS, stage.namedUrls());
         result.put(Field.OTHER, other(stage, ports));
         jmx = new ArrayList<>();
@@ -179,7 +181,7 @@ public abstract class InfoCommand extends StageCommand {
         return result;
     }
 
-    public static Ports processStatus(Processes processes, Stage stage, Map<Info, Object> result) throws IOException {
+    public static Ports processStatus(Stage.State state, Processes processes, Stage stage, Map<Info, Object> result) throws IOException {
         int servicePid;
         int tomcatPid;
         String debug;
@@ -221,6 +223,7 @@ public abstract class InfoCommand extends StageCommand {
         result.put(Field.TOMCAT, opt(tomcatPid));
         result.put(Field.DEBUGGER, debug);
         result.put(Field.SUSPEND, suspend);
+        result.put(Field.FITNESSE, state == Stage.State.UP && servicePid == 0);
         return ports;
     }
 

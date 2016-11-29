@@ -205,11 +205,13 @@ public abstract class StageCommand extends SessionCommand {
     }
 
     private boolean autoStart(Stage stage, Map<Info, Object> status) throws Exception {
+        Stage.State state;
         boolean postStart;
 
-        if (stage.state() == Stage.State.UP && (withAutoRunning()) && (autoRestart || autoStop)) {
+        state = stage.state();
+        if (state == Stage.State.UP && (withAutoRunning()) && (autoRestart || autoStop)) {
             postStart = autoRestart;
-            Status.processStatus(processes(), stage, status);
+            Status.processStatus(state, processes(), stage, status);
             new Stop(session, false).doRun(stage);
         } else {
             postStart = false;
@@ -447,13 +449,15 @@ public abstract class StageCommand extends SessionCommand {
             Map<Info, Object> status;
             boolean debug;
             boolean suspend;
+            boolean fitnesse;
 
             console.verbose.println("*** stage main");
             status = new HashMap<>();
             if (autoStart(stage, status)) {
                 debug = status.get(Field.DEBUGGER) != null;
                 suspend = (Boolean) status.get(Field.SUSPEND);
-                postStarts.put(stage, new Start(session, debug, suspend));
+                fitnesse = (Boolean) status.get(Field.FITNESSE);
+                postStarts.put(stage, new Start(session, fitnesse, debug, suspend));
             }
             doMain(stage);
         }

@@ -2,7 +2,8 @@
 
 ### 3.4.6 (pending)
 
-* added `fitnesse-start` and `fitnesse-stop` commands
+* added `start -fitnesse` and `restart -fitnesse` options to start the fitnesse wiki instead of the applications; 
+  running fitnesse wikis is indicated by the new status field `fitnesse`
 * fixed port garbage collection - unused ports have not been freed
 * `stool validate`: fixed duplicate lines in console output
 * changed default `tomcat.version` from 8.5.6 to 8.5.8 (which fixes "Unable to add the resource at *somePath* to the cache" )
