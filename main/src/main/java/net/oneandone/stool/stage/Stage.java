@@ -75,7 +75,11 @@ public abstract class Stage {
     public static Stage load(Session session, FileNode backstageLink) throws IOException {
         FileNode backstageResolved;
 
-        backstageResolved = backstageLink.resolveLink();
+        try {
+            backstageResolved = backstageLink.resolveLink();
+        } catch (IOException e) {
+            throw new IOException("unknown stage id: " + backstageLink.getName(), e);
+        }
         return load(session, session.loadStageConfiguration(backstageResolved), backstageLink.getName(), backstageResolved.getParent());
     }
 
