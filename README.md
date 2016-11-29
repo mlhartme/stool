@@ -1,4 +1,4 @@
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.oneandone.stool/main/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.oneandone.stool/main)
+[![Build Status](https://secure.travis-ci.org/mlhartme/stool.png)](https://travis-ci.org/mlhartme/stool)  [![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.oneandone.stool/main/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.oneandone.stool/main)
 
 Homepage: https://github.com/mlhartme/stool
 
