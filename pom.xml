@@ -17,6 +17,11 @@
     (GAV coordinates).
   </description>
 
+  <ciManagement>
+    <system>Travis CI</system>
+    <url>https://travis-ci.org/mlhartme/stool</url>
+  </ciManagement>
+
   <groupId>net.oneandone.stool</groupId>
   <artifactId>stool</artifactId>
   <version>3.4.6-SNAPSHOT</version>
