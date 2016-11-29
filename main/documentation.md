@@ -734,7 +734,7 @@ Start a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `start` *stage-option*... [`-debug`|`-suspend`] [`-tail`]
+`stool` *global-option*... `start` *stage-option*... [`-fitnesse`|`-debug`|`-suspend`] [`-tail`]
 
 #### Description
 
@@ -746,6 +746,8 @@ to configure a new `expire` date.
 
 Startup is also refused if the disk quota exceeded. In this case, delete some unused files, try `stool cleanup`, or use 
 `stool config quota=`*n*.
+
+`-fitnesse` starts the FitNesse Wiki instead of the web application.
 
 `-debug` and `-suspend` enable the debugger. The difference is that `-suspend` waits for the debugger to connect before running 
 any application code.
@@ -817,7 +819,7 @@ Restart a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `restart` *stage-option*... [`-debug`|`-suspend`]
+`stool` *global-option*... `restart` *stage-option*... [`-fitnesse`|`-debug`|`-suspend`]
 
 
 #### DESCRIPTION
@@ -1093,6 +1095,8 @@ Available fields:
   Absolute path of the stage directory. Type string.
 * **disk**
   Disk space used for this stage in mb. Type number.
+* **fitnesse**
+  True if the fitnesse wiki is running, not the apps
 * **id**
   Unique identifier for this stage. Type string.
 * **jmx**
