@@ -2,23 +2,23 @@
 
 ### 3.4.6 (pending)
 
-* added `start -fitnesse` and `restart -fitnesse` options to start the fitnesse wiki instead of the applications; 
-  running fitnesse wikis is indicated by the new status field `fitnesse`. Also added a Start Fitness action to the dashboard.
+* added `start -fitnesse` and `restart -fitnesse` options to start the fitnesse wikis ` instead of the applications; 
+  also added a `Start Fitness action to the dashboard; running fitnesse wikis is indicated by the new status field `fitnesse`. 
 * fixed port garbage collection - unused ports have not been freed
 * `stool validate`: fixed duplicate lines in console output
 * changed default `tomcat.version` from 8.5.6 to 8.5.8 (which fixes "Unable to add the resource at *somePath* to the cache" )
 * changed default `service.version` from 3.5.29 to 3.5.30
 * locking tweaks: 
-  * `cleanup` no longer fetches an directory lock
-  * `list` and `status` no longer fetch an directory lock
-  * `move` acquires an exclusive directory lock now
+  * `cleanup` no longer acquires directory locks
+  * `list` and `status` no acquires fetches directory locks
+  * `move` acquires exclusive directory locks now
   * `remove` acquires exclusive backstage and directory locks now
 * $STOOL_HOME is configurable now
 * Debian packages reworked:
   * Main package:
-    * no longer contains a home directory. Instead, the default is that every user create his own version.
-    * removed the Debian service. Because there's no longer a unique home to start stages from.
-  * Dumped Dashboard package. Because there's no longer a unique home to install it to.
+    * No longer contains a home directory. Instead, the default is that every user creates his own version.
+    * Removed the Debian service. Because there's no longer a unique home to start stages from.
+  * Dashboard package: dumped. Because there's no longer a unique home to install it to.
 * Development:
   * simplified build: no longer depends on a custom version of jdeb
   * speedup dashboard build
