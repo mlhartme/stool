@@ -389,6 +389,8 @@ public abstract class Stage {
         env.clear();
         if (home != null) {
             env.put("HOME", home);
+        }
+        if (user != null) {
             env.put("USER", user);
         }
         env.put("CATALINA_HOME", catalinaHome().getAbsolute());
