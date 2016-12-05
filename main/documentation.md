@@ -432,8 +432,8 @@ You can see the currently allocated ports in `$STOOL_HOME/run/ports`
 
 `http_proxy`, `https_proxy` and `no_proxy` to configure proxy settings.
 
-Stool also accepts the system properties `stool.http.proxyHost`, `stool.http.proxyPort`, `stool.http.nonProxyHost`, the same with `https` 
-and Java standard system properties for proxy configuration.
+Stool also accepts the system properties `stool.http.proxyHost`, `stool.http.proxyPort`, `stool.http.nonProxyHost`, and the same with `https`.
+And standard system properties for proxy configuration, see https://docs.oracle.com/javase/8/docs/api/java/net/doc-files/net-properties.html.
 
 
 #### See Also
