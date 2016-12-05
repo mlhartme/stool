@@ -432,6 +432,10 @@ You can see the currently allocated ports in `$STOOL_HOME/run/ports`
 
 `http_proxy`, `https_proxy` and `no_proxy` to configure proxy settings.
 
+Stool also accepts the system properties `stool.http.proxyHost`, `stool.http.proxyPort`, `stool.http.nonProxyHost`, the same with `https` 
+and Java standard system properties for proxy configuration.
+
+
 #### See Also
 
 Homepage: https://github.com/mlhartme/stool

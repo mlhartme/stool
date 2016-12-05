@@ -217,7 +217,13 @@ public class Main {
         fs.setSocketFactorySelector((protocol, hostname) ->
                 protocol.equals("https") ? (LAZY_HOSTS.contains(hostname) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
         if (fs.getProxy(scheme) == null) {
-            proxy = Proxy.forEnvOpt(scheme);
+            proxy = Proxy.forPropertiesOpt("stool." + scheme);
+            if (proxy == null) {
+                proxy = Proxy.forPropertiesOpt(scheme);
+                if (proxy == null) {
+                    proxy = Proxy.forEnvOpt(scheme);
+                }
+            }
             if (proxy != null) {
                 fs.setProxy(scheme, proxy);
             }
