@@ -37,7 +37,6 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -459,6 +458,10 @@ public class Start extends StageCommand {
     //-- fitnesse
 
 
+    /**
+     * Launches Fitnesse (http://www.fitnesse.org) via
+     * fitnesse-launchner-maven-plugin (https://code.google.com/archive/p/fitnesse-launcher-maven-plugin/)
+     */
     public void doFitnesse(Stage stage) throws Exception {
         Console console;
         Ports ports;
