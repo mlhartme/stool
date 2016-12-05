@@ -82,6 +82,7 @@ public class Validate extends StageCommand {
     }
 
     private void dns() throws IOException {
+        int port;
         String ip;
         String subDomain;
         ServerSocket socket;
@@ -93,11 +94,12 @@ public class Validate extends StageCommand {
         }
 
         // make sure that hostname points to this machine. Help to detect actually adding the name of a different machine
+        port = session.pool().temp();
         try {
-            socket = new ServerSocket(session.pool().temp(), 50, InetAddress.getByName(session.configuration.hostname));
+            socket = new ServerSocket(port,50, InetAddress.getByName(session.configuration.hostname));
             socket.close();
         } catch (IOException e) {
-            report.admin("cannot open socket on machine " + session.configuration.hostname + ". Check the configured hostname.");
+            report.admin("cannot open socket on machine " + session.configuration.hostname + ", port " + port + ". Check the configured hostname.");
             e.printStackTrace(console.verbose);
         }
 
@@ -202,7 +204,11 @@ public class Validate extends StageCommand {
         notAfter = c.getNotAfter().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         left = ChronoUnit.DAYS.between(now, notAfter);
         if (left < 10) {
-            report.user(stage, "certifacte expires in " + left + " days");
+            if (left < 0) {
+                report.user(stage, "certifacte has expired");
+            } else {
+                report.user(stage, "certifacte expires in " + left + " days");
+            }
         }
     }
 
