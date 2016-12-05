@@ -457,10 +457,12 @@ public class Start extends StageCommand {
 
     //-- fitnesse
 
-
     /**
-     * Launches Fitnesse (http://www.fitnesse.org) via
-     * fitnesse-launchner-maven-plugin (https://code.google.com/archive/p/fitnesse-launcher-maven-plugin/)
+     * Launches Fitnesse Wiki (http://www.fitnesse.org).
+     *
+     * Fitnesse wiki does not implement the servlet interfaces, so I cannot use the normal startup code for tomcats.
+     * Instead, I invoke fitnesse-launchner-maven-plugin (https://code.google.com/archive/p/fitnesse-launcher-maven-plugin/)
+     * to launch the embedded web server.
      */
     public void doFitnesse(Stage stage) throws Exception {
         Console console;
