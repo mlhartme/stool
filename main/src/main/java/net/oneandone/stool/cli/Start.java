@@ -375,6 +375,7 @@ public class Start extends StageCommand {
         result.put("wrapper.port", Integer.toString(ports.wrapper()));
         result.put("wrapper.java.additional", wrapperJavaAdditional(ports, stage));
         result.put("wrapper.timeouts", wrapperTimeouts());
+        result.put("wrapper.debug", Boolean.toString(console.getVerbose()));
         return result;
     }
 

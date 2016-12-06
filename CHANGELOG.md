@@ -20,6 +20,7 @@
     * Removed the Debian service. Because there's no longer a unique home to start stages from.
   * Dashboard package: dumped. Because there's no longer a unique home to install it to.
 * Development:
+  * enable service wrapper debug output if stool was invoked with `-v`
   * simplified build: no longer depends on a custom version of jdeb
   * speedup dashboard build
   

@@ -770,7 +770,7 @@ you can place customized Tomcats tar balls into this directory, provided they un
 file name of the `tar.gz` file.
 
 Technically, Tomcat is started by the Java Service wrapper (http://wrapper.tanukisoftware.com/). You can configure the
-version of the wrapper with the `tomcat.service` property.
+version of the wrapper with the `tomcat.service` property. Run this command with `-v` enabled service wrapper debug output.
 
 If you want to re-generated all files created by this command, use `stool cd backstage && rm -rf service ssl tomcat`. 
 This is useful e.g. to get certificates regenerated.
