@@ -80,8 +80,12 @@ public class Session {
         s = System.currentTimeMillis();
         for (FileNode backstage : backstages.list()) {
             if (backstage.exists() && !backstage.isFile() && !backstage.isDirectory()) {
-                console.info.println("removing stale backstage: " + backstage);
-                backstage.deleteTree();
+                if (backstage.toPath().toFile().canRead()) {
+                    console.info.println("removing stale backstage: " + backstage);
+                    backstage.deleteTree();
+                } else {
+                    console.info.println("warning: cannot read backstage: " + backstage.getAbsolute());
+                }
             }
         }
         console.verbose.println("wipeStaleBackstages done, ms=" + ((System.currentTimeMillis() - s)));
@@ -361,6 +365,9 @@ public class Session {
                         lazySelectedId = link.getName();
                         break;
                     }
+                }
+                if (lazySelectedId == UNKNOWN) {
+                    throw new IllegalStateException(directory.getAbsolute() + ": stageId not found");
                 }
             }
         }
