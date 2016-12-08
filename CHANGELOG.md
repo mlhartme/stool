@@ -1,14 +1,15 @@
 ## Changelog 
 
-### 3.4.6 (pending)
+### 3.4.6 (2016-12-08)
 
 * added `start -fitnesse` and `restart -fitnesse` options to start the fitnesse wikis instead of the applications; 
   also added a `Start Fitness` action to the dashboard; running fitnesse wikis is indicated by the new status field `fitnesse`. 
+* disabled the fitnesse extension - setting the `fitnesse` property to true will abort `stool start` with an error
 * fixed port garbage collection - unused ports are properly freed now
 * `stool validate`: fixed duplicate lines in console output
 * changed default `tomcat.version` from 8.5.6 to 8.5.8 (which fixes "Unable to add the resource at *somePath* to the cache" )
 * changed default `service.version` from 3.5.29 to 3.5.30
-* locking tweaks: 
+* locking tweaks (for Stefan M. and Tesa): 
   * `cleanup` no longer acquires directory locks
   * `list` and `status` no acquires fetches directory locks
   * `move` acquires exclusive directory locks now
