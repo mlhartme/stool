@@ -23,7 +23,7 @@
   * enable service wrapper debug output if stool was invoked with `-v`
   * simplified build: no longer depends on a custom version of jdeb
   * speedup dashboard build
-* fix: do not wipe backstage links if the backstage is not readable (for Max).
+* improved error message if a backstage directory has no link in `backstages` (for Max).
 
 
 ### 3.4.5 (2016-11-21)

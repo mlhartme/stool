@@ -78,14 +78,12 @@ public class Session {
         long s;
 
         s = System.currentTimeMillis();
-        for (FileNode backstage : backstages.list()) {
-            if (backstage.exists() && !backstage.isFile() && !backstage.isDirectory()) {
-                if (backstage.toPath().toFile().canRead()) {
-                    console.info.println("removing stale backstage: " + backstage);
-                    backstage.deleteTree();
-                } else {
-                    console.info.println("warning: cannot read backstage: " + backstage.getAbsolute());
-                }
+        for (FileNode link : backstages.list()) {
+            if (link.exists() && !link.isFile() && !link.isDirectory()) {
+                // TODO: maybe we just don't have permissions to access the target directory
+                // But there's no way (neither java.nio.Files nor Sushi) to distinguish this with an "exists" call
+                console.info.println("removing stale backstage: " + link);
+                link.deleteTree();
             }
         }
         console.verbose.println("wipeStaleBackstages done, ms=" + ((System.currentTimeMillis() - s)));
