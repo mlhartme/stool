@@ -190,12 +190,20 @@ public abstract class InfoCommand extends StageCommand {
         String config;
         Double cpu;
         Double mem;
+        Processes.Data data;
 
         servicePid = stage.runningService();
         if (servicePid != 0) {
             tomcatPid = processes.oneChildOpt(servicePid);
-            cpu = processes.lookup(tomcatPid).cpu;
-            mem = processes.lookup(tomcatPid).mem;
+            data = processes.lookup(tomcatPid);
+            if (data == null) {
+                // tomcat pid was not found, e.g. kill -9 on both tomcat and wrapper -> tomcat.pid not deleted -> servicePid != 0
+                cpu = null;
+                mem = null;
+            } else {
+                cpu = data.cpu;
+                mem = data.mem;
+            }
             ports = stage.loadPortsOpt();
             if (ports == null) {
                 debug = null;

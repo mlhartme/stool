@@ -1,5 +1,10 @@
 ## Changelog 
 
+### 3.4.7 (pending)
+
+* fix NPE in `stool status` for stale tomcat.pid file (for Simon)
+
+
 ### 3.4.6 (2016-12-08)
 
 * added `start -fitnesse` and `restart -fitnesse` options to start the fitnesse wikis instead of the applications; 
