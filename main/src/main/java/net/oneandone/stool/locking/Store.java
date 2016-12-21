@@ -59,7 +59,7 @@ public class Store {
                     throw new IllegalStateException();
                 }
                 queue = result.getOrCreate(line.substring(1));
-                if (!queue.tryLock(mode, last)) {
+                if (!queue.tryLock(mode.toSharedExclusive(), last)) {
                     throw new IllegalStateException();
                 }
             }
@@ -91,16 +91,19 @@ public class Store {
         Process process;
         Queue queue;
 
+        if (mode == Mode.NONE) {
+            return null;
+        }
         process = intern(processExtern);
         queue = lookup(lock);
         if (queue == null) {
             queue = new Queue(lock);
-            if (!queue.tryLock(mode, process)) {
+            if (!queue.tryLock(mode.toSharedExclusive(), process)) {
                 throw new IllegalStateException();
             }
             queues.add(queue);
         } else {
-            if (!queue.tryLock(mode, process)) {
+            if (!queue.tryLock(mode.toSharedExclusive(), process)) {
                 return queue;
             }
         }
@@ -111,12 +114,15 @@ public class Store {
         Process process;
         Queue queue;
 
+        if (mode == Mode.NONE) {
+            return;
+        }
         process = intern(processExtern);
         queue = lookup(lock);
         if (queue == null) {
             throw new IllegalStateException(lock);
         }
-        queue.release(mode, process);
+        queue.release(mode.toSharedExclusive(), process);
     }
 
     public void releaseAll(Process processExtern) {

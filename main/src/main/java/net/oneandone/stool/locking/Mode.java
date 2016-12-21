@@ -16,5 +16,18 @@
 package net.oneandone.stool.locking;
 
 public enum Mode {
-    NONE, SHARED, EXCLUSIVE
+    NONE, SHARED, EXCLUSIVE;
+
+    public boolean toSharedExclusive() {
+        switch (this) {
+            case NONE:
+                throw new IllegalStateException();
+            case SHARED:
+                return false;
+            case EXCLUSIVE:
+                return true;
+            default:
+                throw new IllegalStateException();
+        }
+    }
 }

@@ -2,7 +2,9 @@
 
 ### 3.4.7 (pending)
 
-* fix NPE in `stool status` for stale tomcat.pid file (for Simon)
+* fixed build command locking: lock mode none created a shared lock (many thanks to Christina for detecting this!), which caused
+  a single build command to block any start command
+* fixed NPE in `stool status` for stale tomcat.pid file (for Simon)
 
 
 ### 3.4.6 (2016-12-08)

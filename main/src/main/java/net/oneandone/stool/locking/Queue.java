@@ -18,7 +18,7 @@ package net.oneandone.stool.locking;
 import java.util.ArrayList;
 import java.util.List;
 
-/** A lock with processes holding this lock. Internal class. */
+/** Shared or exclusive lock with processes holding this lock. Internal class. */
 class Queue {
     /** Name of the lock */
     public final String lock;
@@ -42,8 +42,8 @@ class Queue {
         return lock.equals(cmp);
     }
 
-    public boolean tryLock(Mode mode, Process process) {
-        if (mode == Mode.EXCLUSIVE) {
+    public boolean tryLock(boolean exclusive, Process process) {
+        if (exclusive) {
             if (containsOther(process)) {
                 return false;
             } else {
@@ -63,8 +63,8 @@ class Queue {
         }
     }
 
-    public void release(Mode mode, Process process) {
-        if (mode == Mode.EXCLUSIVE) {
+    public void release(boolean exclusive, Process process) {
+        if (exclusive) {
             if (process != exclusiveProcess) {
                 throw new IllegalStateException();
             }
