@@ -2,8 +2,8 @@
 
 ### 3.4.7 (pending)
 
-* fixed build command locking: lock mode none created a shared lock (many thanks to Christina for detecting this!), which caused
-  a single build command to block any start command
+* fixed build command locking: lock mode none erroneously created a shared lock, which caused a single build command to block any start command
+  lock (many thanks to Christina for detecting this!)
 * fixed NPE in `stool status` for stale tomcat.pid file (for Simon)
 
 
