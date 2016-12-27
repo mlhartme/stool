@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 3.4.7 (pending)
+### 3.4.7 (2016-12-27)
 
 * fixed build command locking: lock mode none erroneously created a shared lock, which caused a single build command to block any start command
   lock (many thanks to Christina for detecting this!)
