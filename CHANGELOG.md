@@ -1,5 +1,11 @@
 ## Changelog 
 
+### 3.4.8 (pending)
+
+* fixed url defaults, they never worked (thanks to Max)
+* adjust autoconf url for cp: replaced /xml/config by (/internal-login)
+
+
 ### 3.4.7 (2016-12-27)
 
 * fixed build command locking: lock mode none erroneously created a shared lock, which caused a single build command to block any start command

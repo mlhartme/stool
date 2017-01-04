@@ -84,7 +84,7 @@ public class Autoconf {
         result = new LinkedHashMap<>();
         result.put("build", "mvn clean install -Ppublish -U -B -T2C");
         result.put("tomcat.heap", "2000");
-        result.put("url", "(http:https)://%h/xml/config");
+        result.put("url", "https://%a.%s.%h:%p/(|internal-login)");
         result.put("maven.opts", "-Xmx2500m -Dmaven.repo.local=@localRepository@ @trustStore@");
         return result;
     }

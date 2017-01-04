@@ -485,6 +485,7 @@ public class Session {
         scm = scmOpt(url);
         refresh = scm == null ? "" : scm.refresh();
         result = new StageConfiguration(javaHome(), mavenHome, refresh, extensionsFactory.newInstance());
+        result.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
         configuration.setDefaults(properties(), result, url);
         return result;
     }

@@ -536,20 +536,11 @@ public abstract class Stage {
     //--
 
     public void tuneConfiguration() throws IOException {
-        int size;
-
-        size = size();
         if (configuration.tomcatHeap == 0 || configuration.tomcatHeap == 350) {
-            configuration.tomcatHeap = Math.min(4096, 150 + size * session.configuration.baseHeap);
+            configuration.tomcatHeap = Math.min(4096, 150 + size() * session.configuration.baseHeap);
         }
         if (configuration.build.isEmpty() || configuration.build.equals("false")) {
             configuration.build = getDefaultBuildCommand();
-        }
-
-        if (session.configuration.vhosts) {
-            configuration.url = "(http|https)://%a.%s.%h:%p/";
-        } else {
-            configuration.url = "(http|https)://%h:%p/";
         }
     }
 

@@ -45,7 +45,7 @@
   "certificates": "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=",
   "ldapUrl": "ldaps://ldap.1and1.org:636/ou=ims_service,o=1und1,c=DE",
   "ldapPrincipal": "uid=cisostages,ou=accounts,ou=ims_service,o=1und1,c=DE",
-  "ldapCredentials": "MzJmMWRhOG",
+  "ldapCredentials": "abcdefghij",
   "ldapSso": "https://login.1and1.org/ims-sso",
   "autoRemove": 5,
   "downloadTomcat": "http://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz",
