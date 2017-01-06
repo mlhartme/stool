@@ -37,7 +37,7 @@ public class StageInfo {
     /** Maps name to actual url */
     private Map<String, String> urls;
     private Stage.State running;
-    private String maintainer;
+    private String lastModifiedBy;
     private boolean updateAvailable;
     private Expire expire;
     private Changes changes;
@@ -56,9 +56,9 @@ public class StageInfo {
         stageInfo.running = stage.isWorking() ? Stage.State.WORKING : stage.state();
         stageInfo.urls = stage.urlMap();
         try {
-            stageInfo.maintainer = users.byLogin(stage.maintainer()).name;
+            stageInfo.lastModifiedBy = users.byLogin(stage.lastModifiedBy()).name;
         } catch (UserNotFound userNotFound) {
-            stageInfo.maintainer = "unknown: " + stage.maintainer();
+            stageInfo.lastModifiedBy = "unknown: " + stage.lastModifiedBy();
         }
         stageInfo.updateAvailable = stage.updateAvailable();
         stageInfo.expire = stage.config().expire;
@@ -126,8 +126,8 @@ public class StageInfo {
         return running.name().toLowerCase();
     }
 
-    public String getMaintainer() {
-        return maintainer;
+    public String getLastModifiedBy() {
+        return lastModifiedBy;
     }
 
     public String getShareText() throws UnsupportedEncodingException {
@@ -168,7 +168,7 @@ public class StageInfo {
           + ", urls=" + urls
           + ", changes=" + changes
           + ", running=" + running
-          + ", maintainer='" + maintainer + '\''
+          + ", last-modified-by='" + lastModifiedBy + '\''
           + ", updateAvailable=" + updateAvailable
           + ", category='" + category + '\''
           + ", state='" + state + '\''

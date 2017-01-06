@@ -5,6 +5,9 @@
 * fixed url defaults, they never worked (thanks to Max)
 * adjust autoconf url for cp: replaced /xml/config by (/internal-login)
 * changed default value for `notify` from `@maintainer @creator` to `@creator`
+* renamed status fields:
+  * `maintainer` becomes `last-modified-by`
+  * `maintained` becomes `last-modified-at`
 
 
 ### 3.4.7 (2016-12-27)
@@ -14,7 +17,7 @@
 * fixed NPE in `stool status` for stale tomcat.pid file (for Simon)
 
 
-### 3.4.6 (2016-12-08)
+### 3.4.6 (2016-12-08) 
 
 * added `start -fitnesse` and `restart -fitnesse` options to start the fitnesse wikis instead of the applications; 
   also added a `Start Fitness` action to the dashboard; running fitnesse wikis is indicated by the new status field `fitnesse`. 

@@ -239,8 +239,9 @@ public class Validate extends StageCommand {
             for (String user : stage.config().notify) {
                 switch (user) {
                     case StageConfiguration.NOTIFY_OWNER: // TODO: dump when migrating data
-                    case StageConfiguration.NOTIFY_MAINTAINER:
-                        login = stage.maintainer();
+                    case StageConfiguration.NOTIFY_MAINTAINER: // TODO: dump when migrating data
+                    case StageConfiguration.NOTIFY_LAST_MODIFIED_BY:
+                        login = stage.lastModifiedBy();
                         break;
                     case StageConfiguration.NOTIFY_CREATOR:
                         login = stage.creator();

@@ -16,14 +16,14 @@
 package net.oneandone.stool.util;
 
 public enum Field implements Info {
-    ID, SELECTED, DIRECTORY, BACKSTAGE, URL, TYPE, CREATOR, CREATED, BUILDTIME, MAINTAINER, MAINTAINED,
+    ID, SELECTED, DIRECTORY, BACKSTAGE, URL, TYPE, CREATOR, CREATED, BUILDTIME, LAST_MODIFIED_BY, LAST_MODIFIED_AT,
     DISK, STATE, UPTIME, CPU, MEM, SERVICE, TOMCAT, FITNESSE, DEBUGGER, SUSPEND, JMX, APPS, OTHER;
 
     public String toString() {
-        return name().toLowerCase();
+        return name().toLowerCase().replace('_', '-');
     }
 
     public String infoName() {
-        return name().toLowerCase();
+        return toString();
     }
 }

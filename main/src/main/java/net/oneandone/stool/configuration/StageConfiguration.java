@@ -32,6 +32,7 @@ public class StageConfiguration {
     public static final String NOTIFY_OWNER = "@owner";
     public static final String NOTIFY_CREATOR = "@creator";
     public static final String NOTIFY_MAINTAINER = "@maintainer";
+    public static final String NOTIFY_LAST_MODIFIED_BY = "@last-modified-by";
 
     public static FileNode file(FileNode backstage) {
         return backstage.join("config.json");
@@ -84,7 +85,7 @@ public class StageConfiguration {
     @Option(key = "tomcat.env")
     public Map<String, String> tomcatEnv;
 
-    /** login names or email addresses, or "@maintainer" or "@creator" */
+    /** login names or email addresses, or "@last-modified-by" or "@creator" */
     @Option(key = "notify")
     public List<String> notify;
 

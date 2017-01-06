@@ -484,10 +484,10 @@ public abstract class Stage {
         }
     }
 
-    public FileNode maintainerFile() throws IOException {
+    public FileNode modifiedFile() throws IOException {
         FileNode file;
 
-        file = getBackstage().join("run/maintainer");
+        file = getBackstage().join("run/maintainer"); // TODO: rename to "modified"
         if (!file.exists()) { // TODO: dump this migration code
             file.getParent().mkdirOpt();
             file.writeString(session.user);
@@ -498,17 +498,17 @@ public abstract class Stage {
     public void modify() throws IOException {
         FileNode file;
 
-        file = maintainerFile();
+        file = modifiedFile();
         file.getParent().mkdirOpt();
         file.writeString(session.user);
     }
 
-    public String maintainer() throws IOException {
-        return maintainerFile().readString().trim();
+    public String lastModifiedBy() throws IOException {
+        return modifiedFile().readString().trim();
     }
 
-    public long maintained() throws IOException {
-        return maintainerFile().getLastModified();
+    public long lastModifiedAt() throws IOException {
+        return modifiedFile().getLastModified();
     }
 
     public Launcher launcher(String... command) {

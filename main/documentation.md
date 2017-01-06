@@ -136,7 +136,7 @@ A stage has a
     This state is used e.g. when a machine is rebooted, it flags the stages that should be started once the
     machine is up again.
   You can check the state with `stool status` or `stool list`.
-* **maintainer**
+* **last-modified-by**
   The user that last changed this stage.
 
 Note: A system stage is a stage whose directory is placed in `$STOOL_HOME/system`. System stages get special treatment in
@@ -972,8 +972,8 @@ Note that the default values below might be overwritten by Stool defaults on you
 * **maven.opts**
   MAVEN_OPTS when building this stage. Type string. Default value: (empty)
 * **notify**
-  List of email address or `@maintainer` or `@creator` to send notifications about
-  this stage. Type list. Default value: `@maintainer, @creator`.
+  List of email address or `@last-modified-by` or `@creator` to send notifications about
+  this stage. Type list. Default value: `@creator`.
 * **pom**
   Path of the pom file in the stage directory. Type string. Default value: `pom.xml`.
 * **prepare**
@@ -1105,9 +1105,9 @@ Available fields:
   Unique identifier for this stage. Type string.
 * **jmx**
   Some jmx tool invocations for this stage.
-* **maintained**
-  When this stage was last maintained.
-* **maintainer**
+* **last-modified-at**
+  When this stage was last changed.
+* **last-modified-by**
   The user that last maintained this stage, i.e. executed a Stool command like build, start, or stop.
 * **mem**
   Memory utilization reported by ps for this stage.
@@ -1147,7 +1147,7 @@ List stages
 #### DESCRIPTION
 
 Displays status of all stages (or the stages specified by `-stage`) as a table. See the `status`
-command for a list of available fields. Default fields/properties are `name state maintainer url directory`.
+command for a list of available fields. Default fields/properties are `name state last-modified-by url directory`.
 
 [//]: # (include stageOptions.md)
 
