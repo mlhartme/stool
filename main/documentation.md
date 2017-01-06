@@ -139,10 +139,6 @@ A stage has a
 * **last-modified-by**
   The user that last changed this stage.
 
-Note: A system stage is a stage whose directory is placed in `$STOOL_HOME/system`. System stages get special treatment in
-`system-start` and `system-stop` and they are not listed by the Dashboard.
-
-
 ### Selected stage and stage indicator
 
 The selected stage is the stage the current working directory belongs to. In other words: your current working directory 
@@ -234,7 +230,7 @@ Supported user default properties:
 
 ### Dashboard
 
-The dashboard is a system stage you can install to control stages via browser.
+The dashboard is a special stage you can install to control stages via browser.
 
 ## Commands
 
@@ -263,12 +259,6 @@ stop and remove. A stage contains web applications built from source or availabl
 
 
 `stool` *global-option*... `version`
-
-
-`stool` *global-option*... `system-start`
-
-
-`stool` *global-option*... `system-stop`
 
 
 `stool` *global-option*... `create` [`-quiet`] (*url* | *directory*) *key*`=`*value*...
@@ -472,31 +462,6 @@ Display version info
 #### DESCRIPTION
 
 Prints Stool's version info. Use the global `-v` option to get additional diagnostic info.
-
-### stool-system-start
-
-Startup all stages
-
-#### SYNOPSIS
-
-`stool` *global-option*... `system-start`
-
-#### DESCRIPTION
-
-Start all system stages and all sleeping stages. Always uses fail mode `after`.
-
-
-### stool-system-stop
-
-Shutdown stages
-
-#### SYNOPSIS
-
-`stool` *global-option*... `system-stop`
-
-#### DESCRIPTION
-
-Stop all system stages and send all other running stages to sleep. Always uses fail mode `after`.
 
 ### stool-create
 

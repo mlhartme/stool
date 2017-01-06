@@ -21,7 +21,6 @@ import net.oneandone.inline.commands.PackageVersion;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.LogOutputStream;
 import net.oneandone.stool.util.Logging;
-import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
@@ -107,8 +106,6 @@ public class Main {
                       cli.add(Start.class, "start -fitnesse -debug=@tomcat.debug -suspend=@tomcat.suspend -tail { setTail(tail) }");
                       cli.add(Status.class, "status -defaults=@status.defaults field* { field*(field) }");
                       cli.add(Stop.class, "stop -sleep");
-                      cli.add(SystemStart.class, "system-start");
-                      cli.add(SystemStop.class, "system-stop");
                       cli.add(Validate.class, "validate -email -repair");
 
         return cli.run(args);
@@ -125,17 +122,6 @@ public class Main {
         }
     }
 
-    public static class SystemStart extends SystemStartStop {
-        public SystemStart(Session session) {
-            super(session, true);
-        }
-    }
-    public static class SystemStop extends SystemStartStop {
-        public SystemStop(Session session) {
-            super(session, false);
-        }
-
-    }
     public static Console console(Logging logging, OutputStream out, OutputStream err) {
         return new Console(logging.writer(out, "OUT"), logging.writer(err, "ERR"),
                 new InputLogStream(System.in, new LogOutputStream(logging, "IN")));

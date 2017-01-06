@@ -2,6 +2,7 @@
 
 ### 3.4.8 (pending)
 
+* dumped `system-start` and `system-stop`, use `start -all`  and `stop -all` instead
 * fixed url defaults, they never worked (thanks to Max)
 * adjust autoconf url for cp: replaced /xml/config by (/internal-login)
 * changed default value for `notify` from `@maintainer @creator` to `@creator`

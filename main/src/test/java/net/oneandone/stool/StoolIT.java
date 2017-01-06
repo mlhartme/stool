@@ -55,7 +55,7 @@ public class StoolIT {
 
     @After
     public void after() throws Exception {
-        stool("system-stop");
+        stool("stop", "-all");
     }
 
     @Test
@@ -139,7 +139,6 @@ public class StoolIT {
         stages.deleteTreeOpt();
         stages.mkdir();
         WORLD.setWorking(stages);
-        stool("system-start");
     }
 
     private void stool(String... args) throws IOException {
