@@ -4,6 +4,7 @@
 
 * fixed url defaults, they never worked (thanks to Max)
 * adjust autoconf url for cp: replaced /xml/config by (/internal-login)
+* changed default value for `notify` from `@maintainer @creator` to `@creator`
 
 
 ### 3.4.7 (2016-12-27)

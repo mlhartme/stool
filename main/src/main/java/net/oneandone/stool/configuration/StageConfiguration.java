@@ -84,7 +84,7 @@ public class StageConfiguration {
     @Option(key = "tomcat.env")
     public Map<String, String> tomcatEnv;
 
-    /** login names or email adresses, or "@owner" or "@creator" */
+    /** login names or email addresses, or "@maintainer" or "@creator" */
     @Option(key = "notify")
     public List<String> notify;
 
@@ -119,7 +119,6 @@ public class StageConfiguration {
         this.build = "false";
         this.refresh = refresh;
         this.notify = new ArrayList<>();
-        this.notify.add(NOTIFY_MAINTAINER);
         this.notify.add(NOTIFY_CREATOR);
         this.pom = "pom.xml";
         this.quota = 10000;
