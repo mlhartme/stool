@@ -345,13 +345,17 @@ public abstract class Stage {
         serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
         keystore = keystore();
         extensions = extensions();
-        serverXml.configure(ports, config().url, keystore, config().cookies, this);
+        serverXml.configure(ports, config().url, keystore, config().cookies, this, http2());
         serverXml.save(serverXml());
         catalinaBase().join("temp").deleteTree().mkdir();
         extensions.beforeStart(this);
         launcher = serviceWrapper("start");
         console.verbose.println("executing: " + launcher);
         return launcher.launch();
+    }
+
+    private boolean http2() {
+        return configuration.tomcatVersion.startsWith("8.5") || configuration.tomcatVersion.startsWith("9.");
     }
 
     private KeyStore keystore() throws IOException {

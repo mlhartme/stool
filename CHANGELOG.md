@@ -9,6 +9,7 @@
 * renamed status fields:
   * `maintainer` becomes `last-modified-by`
   * `maintained` becomes `last-modified-at`
+* enable http2 support in Tomcat 8.5 and 9
 
 
 ### 3.4.7 (2016-12-27)
