@@ -52,6 +52,7 @@ public class Autoconf {
         }
         if (tools != null) {
             lavender = environment.get("LAVENDER_PROPERTIES");
+            dest.ldapSso = "cisostages";
             dest.admin = "michael.hartmeier@1und1.de";
             dest.mailHost = "mri.server.lan";
             dest.macros.put("trustStore", "-Djavax.net.ssl.trustStore=" + tools + "/cacerts");

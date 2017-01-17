@@ -55,27 +55,24 @@ public class DashboardConfiguration {
     }
 
     @Bean
+    public FileNode home() throws IOException {
+        return world().file(System.getProperty("stool.home"));
+    }
+
+    @Bean
+    public DashboardProperties properties() throws IOException {
+        return DashboardProperties.load(home());
+    }
+
+    @Bean
     public Session session() throws IOException {
-        FileNode home;
-        FileNode props;
-        Properties p;
-        String svnuser;
-        String svnpassword;
+        DashboardProperties p;
         Logging logging;
 
-        home = world().file(System.getProperty("stool.home"));
-        props = home.join("system/dashboard.properties");
-        if (props.exists()) {
-            p = props.readProperties();
-            svnuser = p.getProperty("svnuser");
-            svnpassword = p.getProperty("svnpassword");
-        } else {
-            svnuser = null;
-            svnpassword = null;
-        }
+        p = properties();
         logging = Logging.create(logs(), "dashboard", Environment.loadSystem().detectUser());
         logging.log("dashboard", "startup");
-        return Session.load(false, home, logging, "dashboard", console(), world(), svnuser, svnpassword);
+        return Session.load(false, home(), logging, "dashboard", console(), world(), p.svnuser, p.svnpassword);
     }
 
     @Bean

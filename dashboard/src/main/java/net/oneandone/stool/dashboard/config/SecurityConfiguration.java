@@ -44,6 +44,9 @@ import java.io.IOException;
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
+    private DashboardProperties properties;
+
+    @Autowired
     private Session session;
 
     @Autowired
@@ -55,7 +58,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         provider = new CasAuthenticationProvider();
         provider.setServiceProperties(serviceProperties());
-        provider.setTicketValidator(new Cas20ServiceTicketValidator(session.configuration.ldapSso));
+        provider.setTicketValidator(new Cas20ServiceTicketValidator(properties.sso));
         provider.setKey("cas");
         provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsService()));
 
@@ -75,7 +78,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         filter = new CasAuthenticationFilter();
         filter.setAuthenticationManager(authenticationManager());
         entryPoint = new CasAuthenticationEntryPoint();
-        entryPoint.setLoginUrl(session.configuration.ldapSso + "/login/");
+        entryPoint.setLoginUrl(properties.sso + "/login/");
         entryPoint.setServiceProperties(serviceProperties());
         http.csrf().disable()
           .exceptionHandling().authenticationEntryPoint(entryPoint)
@@ -120,12 +123,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public UserDetailsService userDetailsService() {
+        String group;
         FilterBasedLdapUserSearch userSearch;
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
         LdapUserDetailsService result;
 
-        userSearch = new FilterBasedLdapUserSearch("ou=cisostages", "(uid={0})", contextSource());
-        authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=roles,ou=cisostages");
+        group = session.configuration.ldapSso;
+        userSearch = new FilterBasedLdapUserSearch("ou=" + group, "(uid={0})", contextSource());
+        authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=roles,ou=" + group);
         authoritiesPopulator.setGroupSearchFilter("(member=uid={1})");
         authoritiesPopulator.setGroupRoleAttribute("ou");
         authoritiesPopulator.setSearchSubtree(false);

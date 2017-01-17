@@ -21,8 +21,8 @@ import java.util.Map;
 
 /** Database of Stool users. Caution: does not necessarily match OS users! */
 public class Users {
-    public static Users fromLdap(String url, String principal, String credentials) {
-        return new Users(Ldap.create(url, principal, credentials));
+    public static Users fromLdap(String url, String principal, String credentials, String group) {
+        return new Users(Ldap.create(url, principal, credentials, group));
     }
 
     public static Users fromLogin() {

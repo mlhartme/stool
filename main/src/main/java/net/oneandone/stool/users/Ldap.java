@@ -36,7 +36,7 @@ import java.util.Map;
  * Note: I could Spring Ldap stuff for this, but I didn't succeed to intitiate these objects without injection.
  */
 public class Ldap {
-    public static Ldap create(String url, String principal, String credentials) {
+    public static Ldap create(String url, String principal, String credentials, String group) {
         Hashtable env;
 
         env = new Hashtable();
@@ -49,13 +49,15 @@ public class Ldap {
             env.put(Context.SECURITY_PRINCIPAL, principal);
             env.put(Context.SECURITY_CREDENTIALS, credentials);
         }
-        return new Ldap(env);
+        return new Ldap(group, env);
     }
 
+    private final String group;
     private final Hashtable environment;
     private DirContext lazyContext;
 
-    private Ldap(Hashtable environment) {
+    private Ldap(String group, Hashtable environment) {
+        this.group = group;
         this.environment = environment;
         this.lazyContext = null;
     }
@@ -90,7 +92,7 @@ public class Ldap {
         for (int i = 0; i < args.length; i+= 2) {
             matchAttrs.put(new BasicAttribute(args[i], args[i + 1]));
         }
-        answer = search("ou=users,ou=cisostages", matchAttrs);
+        answer = search("ou=users,ou=" + group, matchAttrs);
         result = new LinkedHashMap<>();
         while (answer.hasMore()) {
             SearchResult obj = answer.next();
