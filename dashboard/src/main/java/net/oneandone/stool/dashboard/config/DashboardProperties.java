@@ -26,11 +26,9 @@ public class DashboardProperties {
         Properties p;
 
         props = home.join("system/dashboard.properties");
-        if (!props.exists()) {
-            return new DashboardProperties(null, null, null);
-        }
-        p = props.readProperties();
-        return new DashboardProperties(p.getProperty("sso"), p.getProperty("svnuser"), p.getProperty("svnpassword"));
+        p = props.exists() ? props.readProperties() : new Properties();
+        return new DashboardProperties(p.getProperty("sso", ""),
+                p.getProperty("svnuser", ""), p.getProperty("svnpassword", ""));
     }
 
     public final String sso;

@@ -372,7 +372,7 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
 * **ldapPrincipal**
   User for Ldap authentication. Ignored if ldap is disabled. Type string.
 * **ldapSso**
-  To authenticate Dashboard users. Type string.
+  Will be renamed to ldapUnit in future version. Specifies the "organizational unit" to search for users. Type string.
 * **ldapUrl**
   Ldap url for user information. Empty string to disable ldap. Type string.
 * **macros**
@@ -1235,6 +1235,10 @@ every night. That will check for expired stages. And also rotate log files.
 
 * cd into Stool's home directory
 * `stool create gav:net.oneandone.stool:dashboard:`*version* `.stool/system/dashboard`
+* `nano ~/.stool/dashboard.properties` to specify 
+  * `sso`: single sign on url to access the dashboard; missing or empty means: no authentication
+  * `svnuser`: specifices value for `-svnuser` when invoking Stool
+  * `svnpassword`: specifies value for `-svnpassword` when invoking Stool
 * `stool port dashboard=8000`
 * `stool start`
 
