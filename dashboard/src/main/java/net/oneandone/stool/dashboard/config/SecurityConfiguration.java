@@ -84,7 +84,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
           .exceptionHandling().authenticationEntryPoint(entryPoint)
           .and()
           .addFilter(filter);
-        if (session.configuration.ldapUrl.isEmpty()) {
+        if (properties.sso.isEmpty()) {
             http.authorizeRequests().antMatchers("/**").anonymous();
         } else {
             http.authorizeRequests()
