@@ -123,14 +123,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public UserDetailsService userDetailsService() {
-        String group;
+        String unit;
         FilterBasedLdapUserSearch userSearch;
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
         LdapUserDetailsService result;
 
-        group = session.configuration.ldapSso;
-        userSearch = new FilterBasedLdapUserSearch("ou=" + group, "(uid={0})", contextSource());
-        authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=roles,ou=" + group);
+        unit = session.configuration.ldapSso;
+        userSearch = new FilterBasedLdapUserSearch("ou=" + unit, "(uid={0})", contextSource());
+        authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=roles,ou=" + unit);
         authoritiesPopulator.setGroupSearchFilter("(member=uid={1})");
         authoritiesPopulator.setGroupRoleAttribute("ou");
         authoritiesPopulator.setSearchSubtree(false);

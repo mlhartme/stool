@@ -4,8 +4,8 @@
 
 * ldap weaks
   * dashboard sso is no configured with `sso` in `dashboard.properties`
-  * ldap group (for ldap lookup and dashboard sso) is now configurable via ldap.sso 
-    (ldap.sso will be renamed to ldap.group in stool 3.5; it's not renamed now to avoid migration problems)
+  * ldap unit (for ldap lookup and dashboard sso) is now configurable via ldap.sso 
+    (ldap.sso will be renamed to ldap.unit in stool 3.5; it's not renamed now to avoid the migration efford)
 * dumped `system-start` and `system-stop`, use `start -all`  and `stop -all` instead
 * fixed url defaults, they never worked (thanks to Max)
 * adjust autoconf url for cp: replaced /xml/config by (/internal-login)

@@ -106,7 +106,7 @@ public class StoolConfiguration {
 
     public String ldapCredentials;
 
-    // TODO: renamed to ldapGroup
+    // TODO: renamed to ldapUnit
     public String ldapSso;
 
     /**
