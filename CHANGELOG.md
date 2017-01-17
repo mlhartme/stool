@@ -33,10 +33,10 @@
   * `list` and `status` no acquires fetches directory locks
   * `move` acquires exclusive directory locks now
   * `remove` acquires exclusive backstage and directory locks now
-* $STOOL_HOME is configurable now
+* $STOOL_HOME is configurable now, default is ~/.stool
 * Debian packages reworked:
   * Main package:
-    * No longer contains a home directory. Instead, the default is that every user creates his own version.
+    * No longer contains a home directory. Instead, the default is that every user creates his own home.
     * Removed the Debian service. Because there's no longer a unique home to start stages from.
   * Dashboard package: dumped. Because there's no longer a unique home to install it to.
 * Development:
