@@ -55,7 +55,7 @@ public class StoolIT {
 
     @After
     public void after() throws Exception {
-        stool("stop", "-all");
+        stool("stop", "-stage" , "state=up", "-fail", "after");
     }
 
     @Test
