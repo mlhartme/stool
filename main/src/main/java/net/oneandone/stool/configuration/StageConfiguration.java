@@ -29,9 +29,9 @@ import java.util.List;
 import java.util.Map;
 
 public class StageConfiguration {
-    public static final String NOTIFY_OWNER = "@owner";
+    public static final String NOTIFY_OWNER = "@owner"; // TODO: dump in 3.5
     public static final String NOTIFY_CREATOR = "@creator";
-    public static final String NOTIFY_MAINTAINER = "@maintainer";
+    public static final String NOTIFY_MAINTAINER = "@maintainer"; // TODO: dump in 3.5
     public static final String NOTIFY_LAST_MODIFIED_BY = "@last-modified-by";
 
     public static FileNode file(FileNode backstage) {

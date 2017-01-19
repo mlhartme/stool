@@ -2,17 +2,17 @@
 
 ### 3.4.8 (pending)
 
-* ldap weaks
-  * dashboard sso is no configured with `sso` in `dashboard.properties`
-  * ldap unit (for ldap lookup and dashboard sso) is now configurable via ldap.sso 
-    (ldap.sso will be renamed to ldap.unit in stool 3.5; it's not renamed now to avoid the migration efford)
-* dumped `system-start` and `system-stop`, use `start -all`  and `stop -all` instead
-* fixed url defaults, they never worked (thanks to Max)
-* adjust autoconf url for cp: replaced /xml/config by (/internal-login)
-* changed default value for `notify` from `@maintainer @creator` to `@creator`
 * renamed status fields:
   * `maintainer` becomes `last-modified-by`
   * `maintained` becomes `last-modified-at`
+* changed default value for `notify` from `@maintainer @creator` to `@creator`
+* fixed url defaults, they never worked (thanks to Max)
+* ldap tweaks (thanks to Stefan H)
+  * dashboard sso is now configured with the `sso` property in `$STOOL_HOME/system/dashboard.properties`
+  * ldap unit (for ldap lookup and dashboard sso) is now configurable via ldap.sso 
+    (ldap.sso will be renamed to ldap.unit in stool 3.5; it's not renamed now to avoid the migration efford)
+* dumped `system-start` and `system-stop`, use `start -all`  and `stop -all` instead
+* adjust autoconf url for cp: replaced /xml/config by (/internal-login)
 * added UpgradeProtocol configuration for Tomcat 8.5 and 9
 
 
