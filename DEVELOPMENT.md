@@ -5,3 +5,5 @@ To build Stool, you need:
 * Maven 3
 * [Ronn](https://github.com/rtomayko/ronn) to generate the man pages
   
+Releases go to Sonatype, you need the respective account. After running `mvn release:prepare` and `mvn release:perform`, got to
+the staging repository and promote the release.
