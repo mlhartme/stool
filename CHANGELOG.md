@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 3.4.8 (pending)
+### 3.4.8 (2017-01-23)
 
 * renamed status fields:
   * `maintainer` becomes `last-modified-by`
