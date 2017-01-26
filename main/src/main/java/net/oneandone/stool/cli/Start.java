@@ -78,7 +78,8 @@ public class Start extends StageCommand {
         if (global != 0) {
             reserved = session.quotaReserved();
             if (reserved > global) {
-                throw new IOException("stage quotas exceed available disk space: " + reserved + " mb > " + global + " mb");
+                throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
+                  + "Use 'stool list disk quota' to see actual disk usage vs configured quota.");
             }
         }
         return super.doBefore(stages, indent);

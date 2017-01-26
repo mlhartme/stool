@@ -1,5 +1,10 @@
 ## Changelog 
 
+### 3.4.9 (pending)
+
+* improved quota error message
+
+
 ### 3.4.8 (2017-01-23)
 
 * renamed status fields:
