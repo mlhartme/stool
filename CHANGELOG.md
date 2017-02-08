@@ -2,6 +2,7 @@
 
 ### 3.4.9 (pending)
 
+* added user defaults `svn.user` and `svn.password` to define defaults for `-svnuser` and `-svnpassword`
 * improved quota error message
 
 

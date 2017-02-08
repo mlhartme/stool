@@ -191,10 +191,10 @@ is still needed. If so, adjust the expire date, otherwise remove the stage.
 
 ### User defaults
 
-Users can define default values for various option by placing a properties file `.stool.defaults` in
+Users can define default values for various command line option by placing a properties file `.stool.defaults` in
 their home directory. If this file exists, Stool uses the contained properties as default values for various options.
 For example, a property `refresh.build=true` causes `stool refresh` to build a stage without
-explicitly specifing the `-build` option. (Note: To override this default, use `stool refresh -build=false`).
+explicitly specifying the `-build` option. (Note: To override this default, use `stool refresh -build=false`).
 
 Supported user default properties:
 
@@ -226,6 +226,8 @@ Supported user default properties:
   controls the `-fuzzy` option for the select command
 * **refresh.build**
   controls the `-build` option for the refresh command
+* **svn.user** and **svn.password** 
+  credentials the `-svnuser` and `-svnpassword` options for every Stool command.
 
 
 ### Dashboard
@@ -332,6 +334,10 @@ stop and remove. A stage contains web applications built from source or availabl
 * **-e** prints stacktrace for all errors
 * **-svnuser** specifies the user name for Subversion operations
 * **-svnpassword** specifies the password for Subversion operations
+
+Note: Subversion operations (e.g. checkout a new stage) invoke the `svn` command with credentials specified by `-svnuser` and `-svnpassword`. 
+If not specified, the defaults of svn `svn` command are used (usually stored in `~/.subversion/auth`).
+
 
 #### Stool Properties
 

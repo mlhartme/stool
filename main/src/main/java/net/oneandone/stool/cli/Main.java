@@ -81,7 +81,7 @@ public class Main {
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
         cli.begin(console, "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
-           cli.begin("globals", globals,  "-svnuser=null -svnpassword=null -exception { setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) }");
+           cli.begin("globals", globals,  "-svnuser=@svn.user:null -svnpassword=@svn.password:null -exception { setSvnuser(svnuser) setSvnpassword(svnpassword) setException(exception) }");
               cli.addDefault(Help.class, "help command?=null");
               cli.add(Setup.class, "setup -batch config? { config(config) }");
               cli.begin("globals.session", "");
