@@ -2,6 +2,7 @@
 
 ### 3.4.9 (pending)
 
+* changed default tomcat version from 8.5.8 to 8.5.16; switched the default download location from http to https
 * changed default service wrapper version from 3.5.30 to 3.5.32; adjusted default download location from
   http://wrapper.tanukisoftware.com/download/$v to https://wrapper.tanukisoftware.com/download/$v?mode=download
 * added `heap` status field indicating percentage of max heap actually used (thanks to Stefan H)

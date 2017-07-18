@@ -145,7 +145,7 @@ public class StoolConfiguration {
         mailUsername = "";
         mailPassword = "";
         certificates = "";
-        downloadTomcat =  "http://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz";
+        downloadTomcat =  "https://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz";
         downloadServiceWrapper = "https://wrapper.tanukisoftware.com/download/${version}/wrapper-"
                 + (OS.CURRENT == OS.LINUX ? "linux-x86-64" : "macosx-universal-64") + "-${version}.tar.gz?mode=download";
         this.downloadCache = downloadCache;
