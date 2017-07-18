@@ -2,7 +2,9 @@
 
 ### 3.4.9 (pending)
 
-* added `heap` status field indicating percentage of max heap actually used
+* changed default service wrapper version from 3.5.30 to 3.5.32; adjusted default download location from
+  http://wrapper.tanukisoftware.com/download/$v to https://wrapper.tanukisoftware.com/download/$v?mode=download
+* added `heap` status field indicating percentage of max heap actually used (thanks to Stefan H)
 * added user defaults `svn.user` and `svn.password` to define defaults for `-svnuser` and `-svnpassword` (for Stefan H)
 * improved quota error message (for Andreas K)
 
