@@ -2,6 +2,7 @@
 
 ### 3.4.9 (pending)
 
+* added `heap` status field indicating percentage of max heap actually used
 * added user defaults `svn.user` and `svn.password` to define defaults for `-svnuser` and `-svnpassword` (for Stefan H)
 * improved quota error message (for Andreas K)
 

@@ -28,8 +28,21 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.util.Separator;
 
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.JMX;
+import javax.management.MBeanException;
+import javax.management.MBeanServerConnection;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.management.openmbean.CompositeData;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 import javax.naming.NamingException;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -148,10 +161,47 @@ public abstract class InfoCommand extends StageCommand {
             jmx.add("jvisualvm --openjmx " + url);
         }
         result.put(Field.JMX, jmx);
+        result.put(Field.HEAP, jmxHeap(stage, state, ports));
         for (Property property: session.properties().values()) {
             result.put(property, property.get(stage.config()));
         }
         return result;
+    }
+
+    private static String jmxHeap(Stage stage, Stage.State state, Ports ports) throws IOException {
+        JMXServiceURL url;
+        MBeanServerConnection connection;
+        ObjectName name;
+        CompositeData result;
+        long used;
+        long max;
+
+        if (state != Stage.State.UP) {
+            return "";
+        }
+        if (ports == null) {
+            throw new IllegalStateException();
+        }
+        // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
+        try {
+            url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + stage.session.configuration.hostname + ":" + ports.jmx() + "/jmxrmi");
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
+        connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
+        try {
+            name = new ObjectName("java.lang:type=Memory");
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalStateException(e);
+        }
+        try {
+            result = (CompositeData) connection.getAttribute(name, "HeapMemoryUsage");
+        } catch (Exception e) {
+            throw new IOException("cannot get attribute", e);
+        }
+        used = (Long) result.get("used");
+        max = (Long) result.get("max");
+        return Float.toString(((float) (used * 1000 / max)) / 10);
     }
 
     private static String userName(Session session, String login) {

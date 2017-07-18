@@ -1059,7 +1059,7 @@ Available fields:
 * **buildtime**
   Last modified date of the war files for this stage.
 * **cpu**
-  Cpu utilization for this stage reported by `ps`.
+  Cpu utilization for this stage as reported by `ps`.
 * **created**
   When the stage was created.
 * **creator**
@@ -1081,7 +1081,9 @@ Available fields:
 * **last-modified-by**
   The user that last maintained this stage, i.e. executed a Stool command like build, start, or stop.
 * **mem**
-  Memory utilization reported by ps for this stage.
+  Memory utilization for this stage as reported by `ps`.
+* **heap** 
+  Heap usage for this stage as reported by Jmx. Percentage of used heap in relation to max heap.
 * **others**
   Other urls this stage.
 * **selected**
