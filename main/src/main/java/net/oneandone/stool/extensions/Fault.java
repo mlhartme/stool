@@ -26,7 +26,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Fault implements Extension {
+    private String project;
+
     public Fault() {
+        this.project = "";
     }
 
     @Override
@@ -40,7 +43,7 @@ public class Fault implements Extension {
         Launcher l;
         Launcher.Handle h;
 
-        prepare = "fault while -workspace " + wspath(stage) + " " + pidfile(stage); // TODO
+        prepare = "fault while -workspace " + wspath(stage) + " " + project + pidfile(stage);
         if (!prepare.isEmpty()) {
             l = stage.launcher(Strings.toArray(Separator.SPACE.split(prepare)));
             h = l.launch();
