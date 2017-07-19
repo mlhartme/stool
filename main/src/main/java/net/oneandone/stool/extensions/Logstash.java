@@ -84,4 +84,8 @@ public class Logstash implements Extension {
     @Override
     public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) {
     }
+
+    @Override
+    public void tomcatOpts(Stage stage, Map<String, String> result) {
+    }
 }

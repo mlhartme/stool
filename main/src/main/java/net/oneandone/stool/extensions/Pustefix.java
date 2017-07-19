@@ -57,4 +57,8 @@ public class Pustefix implements Extension {
         result.put("mode", mode);
         result.put("logroot", stage.getBackstage().join(APPLOGS, app).getAbsolute());
     }
+
+    @Override
+    public void tomcatOpts(Stage stage, Map<String, String> result) {
+    }
 }

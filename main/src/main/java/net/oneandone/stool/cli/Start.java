@@ -433,6 +433,10 @@ public class Start extends StageCommand {
 
         opts.add("-Xmx" + stage.config().tomcatHeap + "m");
 
+        for (Map.Entry<String,String> entry : stage.extensions().tomcatOpts(stage).entrySet()) {
+            opts.add("-D" + entry.getKey() + "=" + entry.getValue());
+        }
+
         // see http://docs.oracle.com/javase/7/docs/technotes/guides/management/agent.html
         opts.add("-Dcom.sun.management.jmxremote.authenticate=false");
         opts.add("-Dcom.sun.management.jmxremote.port=" + ports.jmx());

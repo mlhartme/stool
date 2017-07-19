@@ -162,6 +162,7 @@ public class Session {
     public Map<String, Property> properties() {
         Map<String, Property> result;
         Option option;
+        String df;
 
         result = new LinkedHashMap<>();
         for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {

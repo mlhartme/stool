@@ -17,22 +17,36 @@ package net.oneandone.stool.extensions;
 
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Fitnesse implements Extension {
-    private static final String FITNESSSE_PREFIX = "fitnesse.";
+public class Fault implements Extension {
+    public Fault() {
+    }
 
     @Override
-    public Map<String, FileNode> vhosts(Stage stage) throws IOException {
+    public Map<String, FileNode> vhosts(Stage stage) {
         return new HashMap<>();
     }
 
     @Override
     public void beforeStart(Stage stage) throws IOException {
-        throw new IOException("fitnesse property has been disabled, please use 'stool start -fitnesse' instead");
+        String prepare;
+        Launcher l;
+        Launcher.Handle h;
+
+        prepare = "fault while -workspace " + wspath(stage) + " " + pidfile(stage); // TODO
+        if (!prepare.isEmpty()) {
+            l = stage.launcher(Strings.toArray(Separator.SPACE.split(prepare)));
+            h = l.launch();
+            // TODO: log file
+            stage.session.console.verbose.println("launched '" + prepare + "': " + h.process.toString());
+        }
     }
 
     @Override
@@ -45,5 +59,13 @@ public class Fitnesse implements Extension {
 
     @Override
     public void tomcatOpts(Stage stage, Map<String, String> result) {
+        result.put("fault.workspace", wspath(stage));
+    }
+
+    private static String wspath(Stage stage) {
+        return stage.backstage.join("fault").getAbsolute();
+    }
+    private static String pidfile(Stage stage) {
+        return stage.servicePidFile().getAbsolute();
     }
 }

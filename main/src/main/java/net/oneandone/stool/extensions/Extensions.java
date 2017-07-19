@@ -82,4 +82,16 @@ public class Extensions {
     public Switch get(String extension) {
         return extensions.get(extension);
     }
+
+    public Map<String, String> tomcatOpts(Stage stage) {
+        Map<String, String> result;
+
+        result = new HashMap<>();
+        for (Switch s : extensions.values()) {
+            if (s.enabled) {
+                s.extension.tomcatOpts(stage, result);
+            }
+        }
+        return result;
+    }
 }
