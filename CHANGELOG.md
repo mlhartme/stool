@@ -9,8 +9,10 @@
 * added `heap` status field indicating percentage of max heap actually used (thanks to Stefan H)
 * added user defaults `svn.user` and `svn.password` to define defaults for `-svnuser` and `-svnpassword` (for Stefan H)
 * improved quota error message (for Andreas K)
-* fixed 'stool create gav:...' for multiple artifacts - refresh directory was created more once (for Radek S)
-
+* fixed `stool create gav:...` for multiple artifacts - refresh directory was created more once (for Radek S)
+* fixed tomcat configuration for non-empty context path - the initial slash was missing, which yields a Tomcat warning
+  (thanks to Max B)
+  
 
 ### 3.4.8 (2017-01-23)
 
