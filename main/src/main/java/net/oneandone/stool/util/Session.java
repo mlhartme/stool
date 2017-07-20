@@ -447,7 +447,16 @@ public class Session {
     }
 
     public StageConfiguration loadStageConfiguration(FileNode backstage) throws IOException {
-        return StageConfiguration.load(gson, StageConfiguration.file(backstage));
+        StageConfiguration result;
+
+        result = StageConfiguration.load(gson, StageConfiguration.file(backstage));
+        for (String name : extensionsFactory.typeNames()) {
+            if (result.extensions.get(name) == null) {
+                console.verbose.println("adding default config for new extension: " + name);
+                result.extensions.add(name, false, extensionsFactory.typeInstantiate(name));
+            }
+        }
+        return result;
     }
 
     //-- stool properties

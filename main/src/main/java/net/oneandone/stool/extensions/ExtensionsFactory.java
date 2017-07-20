@@ -22,6 +22,7 @@ import net.oneandone.sushi.fs.World;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -63,21 +64,28 @@ public class ExtensionsFactory {
         }
     }
 
+    public Collection<String> typeNames() {
+        return types.keySet();
+    }
+
     public Class<? extends Extension> type(String name) {
         return types.get(name);
+    }
+
+    public Extension typeInstantiate(String name) {
+        try {
+            return types.get(name).newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new IllegalArgumentException("cannot instantiate extension " + name + ": " + e.getMessage(), e);
+        }
     }
 
     public Extensions newInstance() {
         Extensions extensions;
 
         extensions = new Extensions();
-        for (Map.Entry<String, Class<? extends Extension>> entry : types.entrySet()) {
-            try {
-                extensions.add(entry.getKey(), false, entry.getValue().newInstance());
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new IllegalArgumentException("cannot instantiate extension " + entry.getValue().getName()
-                        + ": " + e.getMessage(), e);
-            }
+        for (String name: types.keySet()) {
+            extensions.add(name, false, typeInstantiate(name));
         }
         return extensions;
     }

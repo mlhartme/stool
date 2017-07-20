@@ -21,7 +21,9 @@ import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,17 +41,42 @@ public class Fault implements Extension {
 
     @Override
     public void beforeStart(Stage stage) throws IOException {
-        String prepare;
+        FileNode notify;
+        String fault;
         Launcher l;
-        Launcher.Handle h;
+        Launcher.Handle handle;
+        FileNode log;
+        long waiting;
+        int exitCode;
 
-        prepare = "fault while -workspace " + wspath(stage) + " " + project + pidfile(stage);
-        if (!prepare.isEmpty()) {
-            l = stage.launcher(Strings.toArray(Separator.SPACE.split(prepare)));
-            h = l.launch();
-            // TODO: log file
-            stage.session.console.verbose.println("launched '" + prepare + "': " + h.process.toString());
-        }
+        notify = stage.session.world.getTemp().createTempFile();
+        fault = "fault -auth=false while -workspace " + wspath(stage) + " -notify " + notify.getAbsolute() + " "
+                + project + " " + pidfile(stage);
+        log = stage.backstage.join("fault.log");
+        l = stage.launcher("bash", "-c", fault + ">" + log.getAbsolute() + " 2>&1");
+        handle = l.launch();
+        waiting = 0;
+        do {
+            try {
+                Thread.sleep(50);
+                waiting += 50;
+            } catch (InterruptedException e) {
+                // fall through
+            }
+            if (!handle.process.isAlive()) {
+                try {
+                    exitCode = handle.process.waitFor();
+                } catch (InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+                throw new IOException("fault terminated with exit code " + exitCode + ":\n" + log.readString());
+            }
+            if (waiting > 5000) {
+                handle.process.destroy();
+                throw new IOException("fault timed out, log output:\n" + log.readString());
+            }
+        } while (notify.isFile());
+        stage.session.console.verbose.println("started " + l);
     }
 
     @Override
