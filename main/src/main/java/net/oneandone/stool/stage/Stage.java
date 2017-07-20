@@ -47,8 +47,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.net.URI;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -61,6 +65,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Concrete implementations are SourceStage or ArtifactStage.
@@ -715,13 +720,37 @@ public abstract class Stage {
 
     /** @return megabytes */
     private static int used(FileNode dir) throws IOException {
-        String str;
+        Path path;
 
-        str = dir.exec("du", "-s", "-k", ".");
-        str = str.trim();
-        str = Strings.removeRight(str, ".");
-        str = str.trim();
-        return (Integer.parseInt(str) + 512) / 1024;
+        path = dir.toPath();
+        final AtomicLong size = new AtomicLong(0);
+        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                size.addAndGet(attrs.size());
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException e) throws IOException {
+                // TODO: hard-wired fault dependency
+                if (file.endsWith(".backstage/fault") && e instanceof java.nio.file.AccessDeniedException) {
+                    return FileVisitResult.CONTINUE;
+                } else {
+                    throw e;
+                }
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException e) throws IOException {
+                if (e != null) {
+                    throw e;
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
+
+        return (int) (size.get() / (1024 * 1024));
     }
 
     public static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());

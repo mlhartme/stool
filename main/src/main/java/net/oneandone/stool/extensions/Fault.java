@@ -41,6 +41,7 @@ public class Fault implements Extension {
 
     @Override
     public void beforeStart(Stage stage) throws IOException {
+        FileNode workspace;
         FileNode notify;
         String fault;
         Launcher l;
@@ -50,7 +51,8 @@ public class Fault implements Extension {
         int exitCode;
 
         notify = stage.session.world.getTemp().createTempFile();
-        fault = "fault -auth=false while -workspace " + wspath(stage) + " -notify " + notify.getAbsolute() + " "
+        workspace = workspace(stage);
+        fault = "fault -auth=false while -workspace " + workspace.getAbsolute() + " -notify " + notify.getAbsolute() + " "
                 + project + " " + pidfile(stage);
         log = stage.backstage.join("fault.log");
         l = stage.launcher("bash", "-c", fault + ">" + log.getAbsolute() + " 2>&1");
@@ -89,12 +91,13 @@ public class Fault implements Extension {
 
     @Override
     public void tomcatOpts(Stage stage, Map<String, String> result) {
-        result.put("fault.workspace", wspath(stage));
+        result.put("fault.workspace", workspace(stage).getAbsolute());
     }
 
-    private static String wspath(Stage stage) {
-        return stage.backstage.join("fault").getAbsolute();
+    private static FileNode workspace(Stage stage) {
+        return stage.backstage.join("fault");
     }
+
     private static String pidfile(Stage stage) {
         return stage.servicePidFile().getAbsolute();
     }
