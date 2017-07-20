@@ -367,7 +367,9 @@ public class Session {
                     }
                 }
                 if (lazySelectedId == UNKNOWN) {
-                    throw new IllegalStateException(directory.getAbsolute() + ": stageId not found");
+                    // directory has a backstage directory, but there's no link to it in stool/backstages
+                    // -> directory is not a stage
+                    lazySelectedId = null;
                 }
             }
         }
