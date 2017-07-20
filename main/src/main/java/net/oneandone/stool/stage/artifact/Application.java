@@ -50,7 +50,7 @@ public class Application {
 
     public void populate() throws MkdirException {
         base().mkdir();
-        refresh().mkdir();
+        refresh().mkdirOpt(); // opt because it's shared by all stages
     }
 
     private FileNode refresh() {
