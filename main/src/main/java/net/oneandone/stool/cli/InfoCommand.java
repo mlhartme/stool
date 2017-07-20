@@ -28,16 +28,10 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.util.Separator;
 
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.JMX;
-import javax.management.MBeanException;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.management.ReflectionException;
 import javax.management.openmbean.CompositeData;
-import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import javax.naming.NamingException;
@@ -168,7 +162,7 @@ public abstract class InfoCommand extends StageCommand {
         return result;
     }
 
-    private static String jmxHeap(Stage stage, Stage.State state, Ports ports) throws IOException {
+    private static String jmxHeap(Stage stage, Stage.State state, Ports ports) {
         JMXServiceURL url;
         MBeanServerConnection connection;
         ObjectName name;
@@ -188,7 +182,12 @@ public abstract class InfoCommand extends StageCommand {
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
         }
-        connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
+        try {
+            connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
+        } catch (IOException e) {
+            e.printStackTrace(stage.session.console.verbose);
+            return "[cannot connect jmx server: " + e.getMessage() + "]";
+        }
         try {
             name = new ObjectName("java.lang:type=Memory");
         } catch (MalformedObjectNameException e) {
@@ -197,7 +196,7 @@ public abstract class InfoCommand extends StageCommand {
         try {
             result = (CompositeData) connection.getAttribute(name, "HeapMemoryUsage");
         } catch (Exception e) {
-            throw new IOException("cannot get attribute", e);
+            return "[cannot get jmx attribute: " + e.getMessage() + "]";
         }
         used = (Long) result.get("used");
         max = (Long) result.get("max");
