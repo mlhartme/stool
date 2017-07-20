@@ -1176,8 +1176,8 @@ Note: This is a stage command, invoke `stool help stage-options` to see availabl
 
 Prerequisites:
 * Linux or Mac
-* Java 8 or higher. This is prerequisite because Stool is implemented in Java 8. However, you can build your stages with any
-  Java version you choose.
+* Java 8 or higher. This is prerequisite because Stool is implemented in Java 8, you need it to run Stool itself. 
+  However, you can build and run your stages with any Java version you choose.
 
 First of all: Stool is split into `stool` itself and the `dashboard`. The dashboard is optional, it
 makes some of Stool's functionality available in a browser.
@@ -1188,7 +1188,7 @@ You can install Stool on your machine either as a Debian package or from an appl
 
 Debian package:
 * Download the latest `deb` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22)
-  (I'd like to have a public Debian repository instead, by I don't know who would host this for free). To install Stool:
+  (I'd like to have a public Debian repository instead, by I don't know who would host this for free).
 * install it with `dpkg -i`
 
 Application download: 
@@ -1205,7 +1205,7 @@ This is called isolated configuration.
 
 For every user that wants to use Stool:
 * Optional: define an environment variable `STOOL_HOME` in your shell initialization (e.g. `~/.bash_profile`)
-* Run `stool setup` to create Stool's home directory (`~/.stool`).
+* Run `stool setup` to create Stool's home directory (default is `~/.stool`, override by defining `STOOL_HOME`).
 * Adjust `~/.stool/config.json` to your needs: see [stool properties](#stool-properties)
 * If you did not install the Debian package: source `~/.stool/shell.rc` in your shell initialization file (e.g. `~/.bash_profile`).
 
@@ -1213,11 +1213,10 @@ For every user that wants to use Stool:
 ### Shared configuration
 
 Shared setup is for you if you want to install Stool on a server, where multiple users work on a shared set of stages. 
-Any user can create, modify and removed any stage on the system. Technically, this is done by configuring file system permissions
-to allow everybody in a group to access stool. 
+Any user can create, modify and removed any stage on the system. Technically, this is done by configuring file system 
+permissions to allow everybody in a group to access Stool. 
 
-To configure share stages:
-
+Instructions
 * become `root`
 * create a group `stool` and add all users you want to give access to the stages
 * create a folder `sharedstages` somewhere on your disk; invoke on this folder:
@@ -1227,7 +1226,7 @@ To configure share stages:
 * with the root user, follow the instructions for shared configuration
 * optional: `chmod 422 $STOOL_HOME/config`
 
-Note that by placing stool home under the shared directory, all stool configuration is shared as well.
+Note that by placing Stool home under the shared directory, all Stool configuration is shared as well.
 
 
 ### Cron job
