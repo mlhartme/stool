@@ -12,8 +12,9 @@
 * fixed `stool create gav:...` for multiple artifacts - refresh directory was created more once (for Radek S)
 * fixed tomcat configuration for non-empty context path - the initial slash was missing, which yields a Tomcat warning
   (thanks to Max B)
-* fixed 'stool list' if the current directory has a backstage directory but no stool symlink to it: it's no longer
-  considered a stage
+* former stage fixes (a former stage is not a stage, it's just a directory with a .backstage subdirectory which is not
+  references from stool/backstages):  
+  * fixed 'stool list' if the current directory is a former stage 
 
 
 ### 3.4.8 (2017-01-23)
