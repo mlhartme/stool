@@ -12,6 +12,10 @@
 * fixed `stool create gav:...` for multiple artifacts - refresh directory was created more once (for Radek S)
 * fixed tomcat configuration for non-empty context path - the initial slash was missing, which yields a Tomcat warning
   (thanks to Max B)
+* fixed stale stage wiper to *not* remove inaccessible stages;
+  the old behaviour was very confusing: if a user created a stage in his home (and maybe started it), the stage was 
+  considered stale and automatically wiped (without any way to stop it) if a different user invoked Stool; 
+  the new behavior issues an 'inaccessible' stage instead of removing it
 * former stage fixes (a former stage is not a stage, it's just a directory with a .backstage subdirectory which is not
   references from stool/backstages):  
   * fixed 'stool list' if the current directory is a former stage 

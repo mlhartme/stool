@@ -51,6 +51,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Modifier;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -66,27 +67,52 @@ public class Session {
         // Stale backstage wiping: how to detect backstage directories who's stage directory was removed.
         //
         // My first thought was to watch for filesystem events to trigger backstage wiping.
-        // But there's quite a big delay and rmdir+mkdir is reported as modification. Plus the code is quite complex and
-        // I don't know how to handle overflow events.
-        // So I simply wipe them whenever I load stool a session. That's a well-defined timing and that's before stool might
-        // use a stale stage.
+        // But there's quite a big delay and rmdir+mkdir is reported as modification.
+        // Plus the code is quite complex and I don't know how to handle overflow events.
+        //
+        // So I simply wipe them whenever I load stool a session. That's a well-defined timing and that's before
+        // Stool might use a stale stage.
         session.wipeStaleBackstages();
         return session;
     }
 
     public void wipeStaleBackstages() throws IOException {
         long s;
+        Path path;
 
         s = System.currentTimeMillis();
         for (FileNode link : backstages.list()) {
-            if (link.exists() && !link.isFile() && !link.isDirectory()) {
-                // TODO: maybe we just don't have permissions to access the target directory
-                // But there's no way (neither java.nio.Files nor Sushi) to distinguish this with an "exists" call
-                console.info.println("removing stale backstage: " + link);
-                link.deleteTree();
+            path = link.toPath();
+            if (!java.nio.file.Files.isSymbolicLink(path)) {
+                console.error.println("error: symbolic link expected: " + path);
+            } else {
+                path = java.nio.file.Files.readSymbolicLink(path);
+                if (!java.nio.file.Files.exists(path)) {
+                    if (accessDenied(path)) {
+                        console.error.println("stage is not accessible: " + path);
+                    } else {
+                        console.info.println("removing stale backstage link: " + link);
+                        link.deleteTree();
+                    }
+                }
             }
         }
         console.verbose.println("wipeStaleBackstages done, ms=" + ((System.currentTimeMillis() - s)));
+    }
+
+    public static boolean accessDenied(Path dir) {
+        while (dir != null) {
+            if (java.nio.file.Files.isDirectory(dir)) {
+                if (!java.nio.file.Files.isReadable(dir)) {
+                    return true;
+                }
+                if (!java.nio.file.Files.isExecutable(dir)) {
+                    return true;
+                }
+            }
+            dir = dir.getParent();
+        }
+        return false;
     }
 
     private static Session loadWithoutBackstageWipe(boolean setenv, FileNode home, Logging logging, String command, Console console,
