@@ -19,6 +19,7 @@
 * former stage fixes (a former stage is not a stage, it's just a directory with a .backstage subdirectory which is not
   references from stool/backstages):  
   * fixed 'stool list' if the current directory is a former stage 
+  * fixed stage indicate to not flags former stages as stages
 
 
 ### 3.4.8 (2017-01-23)

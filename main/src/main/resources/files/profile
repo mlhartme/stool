@@ -27,6 +27,21 @@ __stageIndicator() {
   fi
 }
 
+__stageLinked() {
+  local home
+  if [ "x${STOOL_HOME}" != "x" ]; then
+    home=$STOOL_HOME
+  else
+    home=$HOME/.stool
+  fi
+  local found=$(find -L $home/backstages -maxdepth 1 -samefile $1/.backstage -print 2>/dev/null)
+  if [ "x$found" != "x" ] ; then
+    echo "0"
+  else
+    echo "1"
+  fi
+}
+
 if [ "x$BASH" != "x" ] ; then
     if [ -z "${STOOL_NO_PROMPT}" ] ; then
         if [ -z ${STOOL_OLD_PROMPT_COMMAND} ] ; then
@@ -37,6 +52,9 @@ if [ "x$BASH" != "x" ] ; then
                 if [ "x${dir}" != "x${__STAGE_DIR}" ] ; then
                   # cwd has changed, update stage dir
                   export __STAGE_DIR="$(__stageDir "$dir")"
+                  if [ $(__stageLinked $__STAGE_DIR) != "0" ] ; then
+                    export __STAGE_DIR=""
+                  fi
                 fi
                 if [ "x${STOOL_PS1}" = "x" ] ; then
                   # We're called for the first time: setup PS1.
