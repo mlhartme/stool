@@ -3,23 +3,23 @@
 ### 3.4.9 (pending)
 
 * added `fault` extension to start stages with fault workspace
-* changed default tomcat version from 8.5.8 to 8.5.16; switched the default download location from http to https
-* changed default service wrapper version from 3.5.30 to 3.5.32; adjusted default download location from
+* changed default Tomcat version from 8.5.8 to 8.5.16; switched the default download location from http to https
+* changed default Service Wrapper version from 3.5.30 to 3.5.32; adjusted default download location from
   http://wrapper.tanukisoftware.com/download/$v to https://wrapper.tanukisoftware.com/download/$v?mode=download
-* added `heap` status field indicating percentage of max heap actually used (thanks to Stefan H)
+* added `heap` status field indicating percentage of max heap actually used (for Stefan H)
 * added user defaults `svn.user` and `svn.password` to define defaults for `-svnuser` and `-svnpassword` (for Stefan H)
 * improved quota error message (for Andreas K)
 * fixed `stool create gav:...` for multiple artifacts - refresh directory was created more once (for Radek S)
-* fixed tomcat configuration for non-empty context path - the initial slash was missing, which yields a Tomcat warning
+* fixed Tomcat configuration for non-empty context path - the initial slash was missing, which yields a Tomcat warning
   (thanks to Max B)
 * fixed stale stage wiper to *not* remove inaccessible stages;
   the old behaviour was very confusing: if a user created a stage in his home (and maybe started it), the stage was 
-  considered stale and automatically wiped (without any way to stop it) if a different user invoked Stool; 
-  the new behavior issues an 'inaccessible' stage instead of removing it
+  considered stale and automatically wiped (without no way to stop it) if a different user invoked Stool; 
+  the new behavior issues an 'inaccessible' warning instead of removing it
 * former stage fixes (a former stage is not a stage, it's just a directory with a .backstage subdirectory which is not
   references from stool/backstages):  
-  * fixed 'stool list' if the current directory is a former stage 
-  * fixed stage indicate to not flags former stages as stages
+  * fixed stage indicate to *not* flag former stages as stages
+  * fixed 'stool list' and 'stool status' if the current directory is a former stage 
 
 
 ### 3.4.8 (2017-01-23)
