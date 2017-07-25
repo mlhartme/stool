@@ -1254,11 +1254,11 @@ every night. That will check for expired stages. And also rotate log files.
 
 To upgrade from Stool versions before 3.4.0:
 * uninstall the old version Stool; but do not remove any stages
-* install 3.4 as described above
+* install 3.4.x as described above
 * for every stage:
   * cd into the stage directory
   * run `stool import .`
-  * Unfortunatly, your previous stage configuration cannot be upgraded automatically, 
+  * Unfortunately, your previous stage configuration cannot be upgraded automatically, 
     you have to manually reconfigure your stage with `stool config`
 
 
