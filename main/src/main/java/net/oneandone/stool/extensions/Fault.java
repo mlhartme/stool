@@ -41,6 +41,7 @@ public class Fault implements Extension {
 
     @Override
     public void beforeStart(Stage stage) throws IOException {
+        String verbose;
         FileNode workspace;
         FileNode notify;
         String fault;
@@ -52,7 +53,8 @@ public class Fault implements Extension {
 
         notify = stage.session.world.getTemp().createTempFile();
         workspace = workspace(stage);
-        fault = "fault -auth=false while -workspace " + workspace.getAbsolute() + " -notify " + notify.getAbsolute() + " "
+        verbose = stage.session.console.getVerbose() ? "-v " : "";
+        fault = "fault " + verbose + "-auth=false while -workspace " + workspace.getAbsolute() + " -notify " + notify.getAbsolute() + " "
                 + project + " " + pidfile(stage);
         log = stage.backstage.join("fault.log");
         l = stage.launcher("bash", "-c", fault + ">" + log.getAbsolute() + " 2>&1");
