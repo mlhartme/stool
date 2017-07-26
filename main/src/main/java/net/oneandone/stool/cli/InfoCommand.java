@@ -174,7 +174,7 @@ public abstract class InfoCommand extends StageCommand {
             return "";
         }
         if (ports == null) {
-            throw new IllegalStateException();
+            return "[missing jmx port]"; // I've seen this happen on stages
         }
         // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
         try {

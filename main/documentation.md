@@ -430,7 +430,9 @@ You can see the currently allocated ports in `$STOOL_HOME/run/ports`
 
 Stool also accepts the system properties `stool.http.proxyHost`, `stool.http.proxyPort`, `stool.http.nonProxyHost`, and the same with `https`.
 And standard system properties for proxy configuration, see https://docs.oracle.com/javase/8/docs/api/java/net/doc-files/net-properties.html.
-
+Precedence is from most specific to most general, i.e. if you use stool properties, neither standard properties nor http environment variables
+will be checked. 
+ 
 
 #### See Also
 
