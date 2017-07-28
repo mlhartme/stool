@@ -55,7 +55,7 @@ public class Fault implements Extension {
         workspace = workspace(stage);
         verbose = stage.session.console.getVerbose() ? "-v " : "";
         fault = "fault " + verbose + "-auth=false while -workspace " + workspace.getAbsolute() + " -notify " + notify.getAbsolute() + " "
-                + project + " " + pidfile(stage);
+                + projects() + " " + pidfile(stage);
         log = stage.backstage.join("fault.log");
         l = stage.launcher("bash", "-c", fault + ">" + log.getAbsolute() + " 2>&1");
         handle = l.launch();
@@ -81,6 +81,26 @@ public class Fault implements Extension {
             }
         } while (notify.isFile());
         stage.session.console.verbose.println("started " + l);
+    }
+
+    // TODO: have a list of projects; always prepend @
+    private String projects() {
+        StringBuilder result;
+
+        if (project.isEmpty()) {
+            return project;
+        }
+        result = new StringBuilder();
+        for (String entry : Separator.SPACE.split(project)) {
+            if (result.length() > 0) {
+                result.append(' ');
+            }
+            if (!entry.startsWith("@")) {
+                result.append('@');
+            }
+            result.append(entry);
+        }
+        return result.toString();
     }
 
     @Override
