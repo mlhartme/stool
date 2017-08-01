@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 3.4.9 (pending)
+### 3.4.9 (2017-08-01)
 
 * added `fault` extension to start stages with fault workspace
 * changed default Tomcat version from 8.5.8 to 8.5.16; switched the default download location from http to https
