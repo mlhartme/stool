@@ -1,5 +1,11 @@
 ## Changelog 
 
+### 3.4.10 (pending)
+
+* update to sushi 3.8.10 to work with Jdk 1.8.0_144
+  * build was broken
+  
+
 ### 3.4.9 (2017-08-01)
 
 * added `fault` extension to start stages with fault workspace
