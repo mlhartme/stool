@@ -44,7 +44,7 @@
                 <li><a href="#branches" data-toggle="tab">Branches <span class="badge" id="branches-count">0</span></a></li>
                 <li><a href="#workspaces" data-toggle="tab">Workspaces <span class="badge"
                                                                              id="workspaces-count">0</span></a></li>
-                <li class="nav-search"><input class="form-control col-lg-8" placeholder="Search Stage / Application / User" type="text"
+                <li class="nav-search"><input tabindex="1" class="form-control col-lg-8" placeholder="Search Stage / Application / User" type="text"
                                               size="35" id="search"/></li>
             </ul>
 
