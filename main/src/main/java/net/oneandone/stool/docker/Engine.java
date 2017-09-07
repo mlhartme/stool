@@ -80,6 +80,10 @@ public class Engine {
         return settings.string(post(node, dest.toByteArray()));
     }
 
+    public void imageRemove(String id) throws IOException {
+        Method.delete(root.join("images", id));
+    }
+
 
     //-- containers
 

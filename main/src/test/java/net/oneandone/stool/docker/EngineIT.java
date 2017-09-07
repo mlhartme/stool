@@ -18,7 +18,7 @@ public class EngineIT {
         output = engine.build("mhmtest", "FROM debian:stretch-slim\nCMD [\"ls\", \"-la\", \"/\"]\n");
         System.out.println(output);
         assertNotNull(output);
-        //engine.imageRemove(output);
+        engine.imageRemove("mhmtest");
     }
 
     @Test
