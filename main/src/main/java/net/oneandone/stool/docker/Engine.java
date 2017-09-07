@@ -11,6 +11,7 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.StatusException;
+import net.oneandone.sushi.fs.http.model.Method;
 
 import javax.net.SocketFactory;
 import java.io.File;
@@ -70,6 +71,10 @@ public class Engine {
 
     public void containerStart(String id) throws IOException {
         post(root.join("containers", id, "start"), "");
+    }
+
+    public void containerRemove(String id) throws IOException {
+        Method.delete(root.join("containers", id));
     }
 
     public String containerLogs(String id) throws IOException {
