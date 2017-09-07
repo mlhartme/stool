@@ -7,21 +7,27 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
+import net.oneandone.sushi.fs.Settings;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.fs.http.model.Method;
+import org.kamranzafar.jtar.TarEntry;
+import org.kamranzafar.jtar.TarHeader;
+import org.kamranzafar.jtar.TarOutputStream;
 
 import javax.net.SocketFactory;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.URISyntaxException;
 
 public class Engine {
-    public static Engine create() throws IOException {
+    public static Engine open() throws IOException {
         World world;
         HttpFilesystem fs;
         HttpNode root;
@@ -43,9 +49,38 @@ public class Engine {
         this.parser = new JsonParser();
     }
 
+    //--
+
     public String version() throws IOException {
         return root.join("version").readString();
     }
+
+    //-- images
+
+
+    public String build(String name, String dockerfile) throws IOException {
+        Settings settings;
+        HttpNode node;
+        ByteArrayOutputStream dest;
+        TarOutputStream tar;
+        byte[] dockerfileBytes;
+
+        settings = root.getWorld().getSettings();
+        node = root.join("build");
+        node = node.getRoot().node(node.getPath(), "t=" + name);
+        dest = new ByteArrayOutputStream(dockerfile.length());
+        tar = new TarOutputStream(dest);
+        dockerfileBytes = settings.bytes(dockerfile);
+        tar.putNextEntry(new TarEntry(TarHeader.createHeader("Dockerfile", (long) dockerfileBytes.length, System.currentTimeMillis(), false)));
+        try (InputStream in = new ByteArrayInputStream(dockerfileBytes)) {
+            root.getWorld().getBuffer().copy(in, tar);
+        }
+        tar.close();
+        return settings.string(post(node, dest.toByteArray()));
+    }
+
+
+    //-- containers
 
     public String containerCreate(String image) throws IOException {
         JsonObject response;
@@ -101,6 +136,18 @@ public class Engine {
 
     private JsonObject post(HttpNode dest, JsonObject obj) throws IOException {
         return parser.parse(post(dest, obj.toString() + '\n')).getAsJsonObject();
+    }
+
+    private byte[] post(HttpNode dest, byte[] str) throws IOException {
+        try {
+            return dest.post(str);
+        } catch (StatusException e) {
+            if (e.getStatusLine().code == 204) {
+                return new byte[0];
+            } else {
+                throw e;
+            }
+        }
     }
 
     private String post(HttpNode dest, String str) throws IOException {

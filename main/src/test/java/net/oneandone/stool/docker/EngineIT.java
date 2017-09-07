@@ -3,7 +3,6 @@ package net.oneandone.stool.docker;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -11,12 +10,24 @@ import static org.junit.Assert.assertTrue;
 
 public class EngineIT {
     @Test
-    public void containers() throws IOException, URISyntaxException {
+    public void images() throws IOException {
+        Engine engine;
+        String output;
+
+        engine = Engine.open();
+        output = engine.build("mhmtest", "FROM debian:stretch-slim\nCMD [\"ls\", \"-la\", \"/\"]\n");
+        System.out.println(output);
+        assertNotNull(output);
+        //engine.imageRemove(output);
+    }
+
+    @Test
+    public void containers() throws IOException {
         Engine engine;
         String id;
         String output;
 
-        engine = Engine.create();
+        engine = Engine.open();
         id = engine.containerCreate("hello-world");
         assertNotNull(id);
         engine.containerStart(id);
