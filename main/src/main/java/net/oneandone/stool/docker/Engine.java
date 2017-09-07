@@ -65,12 +65,13 @@ public class Engine {
         TarOutputStream tar;
         byte[] dockerfileBytes;
 
-        settings = root.getWorld().getSettings();
         node = root.join("build");
         node = node.getRoot().node(node.getPath(), "t=" + name);
-        dest = new ByteArrayOutputStream(dockerfile.length());
-        tar = new TarOutputStream(dest);
+
+        settings = root.getWorld().getSettings();
         dockerfileBytes = settings.bytes(dockerfile);
+        dest = new ByteArrayOutputStream(dockerfileBytes.length + 100);
+        tar = new TarOutputStream(dest);
         tar.putNextEntry(new TarEntry(TarHeader.createHeader("Dockerfile", (long) dockerfileBytes.length, System.currentTimeMillis(), false)));
         try (InputStream in = new ByteArrayInputStream(dockerfileBytes)) {
             root.getWorld().getBuffer().copy(in, tar);
