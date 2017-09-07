@@ -136,15 +136,13 @@ public class Start extends StageCommand {
     //--
 
     public void doNormal(Stage stage) throws Exception {
-        FileNode download;
         Ports ports;
 
         serviceWrapperOpt(stage);
-        download = tomcatOpt(stage.config().tomcatVersion);
         ports = session.pool().allocate(stage, Collections.emptyMap());
         copyTemplate(stage, ports);
         createServiceLauncher(stage);
-        copyCatalinaBaseOpt(download, stage.getBackstage(), stage.config().tomcatVersion);
+        tomcatOpt(stage.getBackstage(), stage.config().tomcatVersion);
         if (debug || suspend) {
             console.info.println("debugging enabled on port " + ports.debug());
         }
@@ -266,25 +264,6 @@ public class Start extends StageCommand {
         return Strings.replace(str, in, out);
     }
 
-    private FileNode tomcatOpt(String version) throws IOException {
-        FileNode download;
-        String name;
-        FileNode base;
-
-        name = tomcatName(version);
-        download = session.downloadCache().join(name + ".tar.gz");
-        if (!download.exists()) {
-            downloadFile(subst(session.configuration.downloadTomcat, version), download);
-            download.checkFile();
-        }
-        base = session.home.join("tomcat", name);
-        if (!base.exists()) {
-            tar(base.getParent(), "zxf", download.getAbsolute(), name + "/lib", name + "/bin");
-            base.checkDirectory();
-        }
-        return download;
-    }
-
     private static String subst(String pattern, String version) {
         Map<String, String> variables;
 
@@ -335,18 +314,25 @@ public class Start extends StageCommand {
         }
     }
 
-    private void copyCatalinaBaseOpt(FileNode download, FileNode backstage, String version) throws IOException, SAXException {
+    private void tomcatOpt(FileNode backstage, String version) throws IOException, SAXException {
         String name;
+        FileNode download;
         FileNode src;
         FileNode dest;
         ServerXml serverXml;
         FileNode file;
 
         name = tomcatName(version);
+        download = session.downloadCache().join(name + ".tar.gz");
+        if (!download.exists()) {
+            downloadFile(subst(session.configuration.downloadTomcat, version), download);
+            download.checkFile();
+        }
+
+        name = tomcatName(version);
         dest = backstage.join("tomcat");
         if (!dest.exists()) {
-            tar(backstage, "zxf",
-                    download.getAbsolute(), "--exclude", name + "/lib", "--exclude", name + "/bin", "--exclude", name + "/webapps");
+            tar(backstage, "zxf", download.getAbsolute(), "--exclude", name + "/webapps");
             src = backstage.join(name);
             src.move(dest);
             // TODO: work-around for a problem I have with tar: it applies the umask to the permissions stored in the file ...

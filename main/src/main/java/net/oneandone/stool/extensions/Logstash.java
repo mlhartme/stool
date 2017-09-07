@@ -58,7 +58,7 @@ public class Logstash implements Extension {
         String bin;
 
         bin = link; // TODO: rename
-        stage.backstage.exec(bin, stage.getName(), stage.catalinaBase().getAbsolute(), pid(stage).getAbsolute());
+        stage.backstage.exec(bin, stage.getName(), stage.catalinaBaseAndHome().getAbsolute(), pid(stage).getAbsolute());
     }
 
     @Override

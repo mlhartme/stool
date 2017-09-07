@@ -333,10 +333,6 @@ public abstract class Stage {
 
     public abstract String getDefaultBuildCommand();
 
-    protected FileNode catalinaHome() {
-        return session.home.join("tomcat", Start.tomcatName(configuration.tomcatVersion));
-    }
-
     //-- tomcat helper
 
     public Launcher.Handle start(Console console, Ports ports) throws Exception {
@@ -352,7 +348,7 @@ public abstract class Stage {
         extensions = extensions();
         serverXml.configure(ports, config().url, keystore, config().cookies, this, http2());
         serverXml.save(serverXml());
-        catalinaBase().join("temp").deleteTree().mkdir();
+        catalinaBaseAndHome().join("temp").deleteTree().mkdir();
         extensions.beforeStart(this);
         launcher = serviceWrapper("start");
         console.verbose.println("executing: " + launcher);
@@ -402,8 +398,8 @@ public abstract class Stage {
         if (user != null) {
             env.put("USER", user);
         }
-        env.put("CATALINA_HOME", catalinaHome().getAbsolute());
-        env.put("CATALINA_BASE", backstage.join("tomcat").getAbsolute());
+        env.put("CATALINA_HOME", catalinaBaseAndHome().getAbsolute());
+        env.put("CATALINA_BASE", catalinaBaseAndHome().getAbsolute());
         env.put("WRAPPER_HOME", serviceWrapperBase().getAbsolute());
         env.put("WRAPPER_CMD", serviceWrapperBase().join("bin/wrapper").getAbsolute());
         env.put("WRAPPER_CONF", backstage.join("service/service-wrapper.conf").getAbsolute());
@@ -454,16 +450,16 @@ public abstract class Stage {
         }
     }
 
-    public FileNode catalinaBase() {
+    public FileNode catalinaBaseAndHome() {
         return getBackstage().join("tomcat");
     }
 
     public FileNode serverXml() {
-        return catalinaBase().join("conf", "server.xml");
+        return catalinaBaseAndHome().join("conf", "server.xml");
     }
 
     public FileNode serverXmlTemplate() {
-        return catalinaBase().join("conf", "server.xml.template");
+        return catalinaBaseAndHome().join("conf", "server.xml.template");
     }
 
     //--
