@@ -21,20 +21,6 @@ import java.net.Socket;
 import java.net.URISyntaxException;
 
 public class Engine {
-    public static void main(String[] args) throws IOException, URISyntaxException {
-        Engine engine;
-        String id;
-
-        engine = Engine.create();
-        System.out.println("version: " + engine.version());
-        id = engine.containerCreate("hello-world");
-        System.out.println("create: " + id);
-        engine.containerStart(id);
-        System.out.println("started");
-        System.out.println("wait:" + engine.containerWait(id));
-        System.out.println("logs" + engine.containerLogs(id));
-    }
-
     public static Engine create() throws IOException {
         World world;
         HttpFilesystem fs;
@@ -89,6 +75,20 @@ public class Engine {
 
         response = post(root.join("containers", id, "wait"), body());
         return response.get("StatusCode").getAsInt();
+    }
+
+    public String containerStatus(String id) throws IOException {
+        JsonObject response;
+        JsonObject state;
+        String error;
+
+        response = parser.parse(root.join("containers", id, "json").readString()).getAsJsonObject();
+        state = response.get("State").getAsJsonObject();
+        error = state.get("Error").getAsString();
+        if (!error.isEmpty()) {
+            throw new IOException("error state: " + error);
+        }
+        return state.get("Status").getAsString();
     }
 
     //--
