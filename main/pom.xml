@@ -63,6 +63,12 @@
       <scope>compile</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.github.jnr</groupId>
+      <artifactId>jnr-unixsocket</artifactId>
+      <version>0.18</version>
+    </dependency>
+
     <!-- test -->
     <dependency>
       <groupId>junit</groupId>
