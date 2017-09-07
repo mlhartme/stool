@@ -2,7 +2,7 @@
 
 ### 3.4.10 (pending)
 
-* no longer distingusish CATALINA_HOME and CATALINA_BASE
+* no longer distinguish CATALINA_HOME and CATALINA_BASE
 * update to sushi 3.8.10 to work with Jdk 1.8.0_144 (thanks to Marcus T)
   * Stool itself did not build
   * `stool start` failed to created the service-wrapper.sh
