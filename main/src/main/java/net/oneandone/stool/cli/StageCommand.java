@@ -211,7 +211,7 @@ public abstract class StageCommand extends SessionCommand {
         state = stage.state();
         if (state == Stage.State.UP && (withAutoRunning()) && (autoRestart || autoStop)) {
             postStart = autoRestart;
-            Status.processStatus(state, processes(), stage, status);
+            Status.processStatus(status);
             new Stop(session, false).doRun(stage);
         } else {
             postStart = false;
@@ -350,7 +350,7 @@ public abstract class StageCommand extends SessionCommand {
                 Property p;
 
                 if (constField != null) {
-                    status = Status.status(session, processes(), stage);
+                    status = Status.status(session, stage);
                     obj = status.get(constField);
                 } else {
                     p = properties.get(constProperty);

@@ -56,7 +56,7 @@ public class Ls extends InfoCommand {
         List<String> line;
         Map<Info, Object> status;
 
-        status = Status.status(session, processes(), stage);
+        status = Status.status(session, stage);
         line = new ArrayList<>();
         lines.add(line);
         for (Info info : selected) {
