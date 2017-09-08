@@ -22,7 +22,9 @@ import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -49,10 +51,6 @@ public class Processes {
         Processes result;
         Matcher matcher;
         int pid;
-        int ppid;
-        double cpu;
-        double mem;
-        String command;
 
         result = new Processes();
         for (String line : Separator.RAW_LINE.split(str)) {
@@ -62,97 +60,24 @@ public class Processes {
                 throw new IllegalArgumentException(line);
             }
             pid = Integer.parseInt(matcher.group(1));
-            ppid = Integer.parseInt(matcher.group(2));
-            cpu = Double.parseDouble(matcher.group(3));
-            mem = Double.parseDouble(matcher.group(4));
-            command = matcher.group(5);
-            result.add(new Data(pid, ppid, cpu, mem, command));
+            result.add(pid);
         }
         return result;
     }
 
-    public static class Data {
-        public final int pid;
-        public final int ppid;
-        public final double cpu;
-        public final double mem;
-        public final String command;
-
-        public Data(int pid, int ppid, double cpu, double mem, String command) {
-            this.pid = pid;
-            this.ppid = ppid;
-            this.cpu = cpu;
-            this.mem = mem;
-            this.command = command;
-        }
-
-        public String toString() {
-            return pid + " " + ppid + " " + cpu + " " + mem + " " + command;
-        }
-    }
-
-    //--
-
-    private final Map<Integer, Data> all;
+    private final Collection<Integer> all;
 
     public Processes() {
-        all = new HashMap<>();
+        all = new HashSet<>();
     }
 
-    public void add(Data data) {
-        if (all.put(data.pid, data) != null) {
-            throw new IllegalArgumentException(data.toString());
+    public void add(int pid) {
+        if (!all.add(pid)) {
+            throw new IllegalArgumentException("" + pid);
         }
-    }
-
-    public Data lookup(int pid) {
-        return all.get(pid);
     }
 
     public boolean hasPid(int pid) {
-        return all.containsKey(pid);
-    }
-
-    public int servicePid(FileNode backstage) {
-        String key;
-        int result;
-
-        result = 0;
-        key = "wrapper.statusfile=" + backstage.join("run/tomcat.status").getAbsolute();
-        for (Data data : all.values()) {
-            if (data.command.contains(key)) {
-                if (result != 0) {
-                    throw new IllegalStateException("ambiguous: " + result + " vs " + data.pid);
-                }
-                result = data.pid;
-            }
-        }
-        return result;
-    }
-
-    public int oneChildOpt(int pid) {
-        List<Integer> lst;
-
-        lst = children(pid);
-        switch (lst.size()) {
-            case 0:
-                return 0;
-            case 1:
-                return lst.get(0);
-            default:
-                throw new IllegalArgumentException("too many child processes for pid " + pid);
-        }
-    }
-
-    public List<Integer> children(int pid) {
-        List<Integer> result;
-
-        result = new ArrayList<>();
-        for (Data data : all.values()) {
-            if (data.ppid == pid) {
-                result.add(data.pid);
-            }
-        }
-        return result;
+        return all.contains(pid);
     }
 }

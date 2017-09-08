@@ -129,7 +129,7 @@ public class Validate extends StageCommand {
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        tomcat(stage);
+        container(stage);
         cert(stage);
         constraints(stage);
     }
@@ -173,15 +173,8 @@ public class Validate extends StageCommand {
         }
     }
 
-    private void tomcat(Stage stage) throws IOException {
-        int filePid;
-        int psPid;
-
-        filePid = stage.runningService();
-        psPid = processes().servicePid(stage.getBackstage());
-        if (filePid != psPid) {
-            report.admin(stage, "Service process mismatch: " + filePid + " vs " + psPid);
-        }
+    private void container(Stage stage) throws IOException {
+        // TODO
     }
 
     private void cert(Stage stage) throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
