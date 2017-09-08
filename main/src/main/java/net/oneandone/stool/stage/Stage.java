@@ -223,7 +223,7 @@ public abstract class Stage {
     public State state() throws IOException {
         if (session.bedroom.contains(getId())) {
             return State.SLEEPING;
-        } else if (runningService() != 0 || fitnesseRunning()) {
+        } else if (dockerContainer() != null || runningService() != 0 || fitnesseRunning()) {
             return State.UP;
         } else {
             return State.DOWN;
@@ -371,6 +371,13 @@ public abstract class Stage {
 
     private FileNode dockerContainerFile() {
         return backstage.join("run/docker.container");
+    }
+
+    public String dockerContainer() throws IOException {
+        FileNode file;
+
+        file = dockerContainerFile();
+        return file.exists() ? file.readString().trim() : null;
     }
 
     private String dockerfile() throws IOException {

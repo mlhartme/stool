@@ -143,6 +143,7 @@ public abstract class InfoCommand extends StageCommand {
         result.put(Field.LAST_MODIFIED_BY, userName(session, stage.lastModifiedBy()));
         result.put(Field.LAST_MODIFIED_AT, Stage.timespan(stage.lastModifiedAt()));
         result.put(Field.UPTIME, stage.uptime());
+        result.put(Field.CONTAINER, stage.dockerContainer());
         state = stage.state();
         result.put(Field.STATE, state.toString());
         ports = processStatus(state, processes, stage, result);
