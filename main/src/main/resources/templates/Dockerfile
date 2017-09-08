@@ -17,6 +17,4 @@ ENV CATALINA_HOME /stage/.backstage/tomcat
 ENV PATH $CATALINA_HOME/bin:$PATH
 WORKDIR $CATALINA_HOME
 
-EXPOSE 9684
-EXPOSE 9685
 CMD ["/stage/.backstage/tomcat/bin/catalina.sh", "run"]

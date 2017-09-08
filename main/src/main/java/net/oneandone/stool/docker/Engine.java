@@ -28,6 +28,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 public class Engine {
     public static Engine open(String wirelog) throws IOException {
@@ -119,10 +120,21 @@ public class Engine {
             portBindings.add(Integer.toString(entry.getKey()) + "/tcp", hp(entry.getValue()));
         }
         hostConfig.add("PortBindings", portBindings);
+        body.add("ExposedPorts", exposedPorts(ports.keySet()));
 
         response = post(root.join("containers/create"), body);
         checWarnings(response);
         return response.get("Id").getAsString();
+    }
+
+    private static JsonObject exposedPorts(Set<Integer> ports) {
+        JsonObject obj;
+
+        obj = new JsonObject();
+        for (Integer port : ports) {
+            obj.add(Integer.toString(port) + "/tcp", new JsonObject());
+        }
+        return obj;
     }
 
     private static JsonArray hp(int port) {
