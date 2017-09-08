@@ -343,6 +343,7 @@ public abstract class Stage {
         Extensions extensions;
         Engine engine;
         String container;
+        Engine.Status status;
 
         checkMemory();
         console.info.println("starting tomcat ...");
@@ -359,6 +360,10 @@ public abstract class Stage {
         container = engine.containerCreate(getName(), Strings.toMap(getDirectory().getAbsolute().toString(), "/stage"), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
+        status = engine.containerStatus(container);
+        if (status != Engine.Status.RUNNING) {
+            throw new IOException("unexpected status: " + status);
+        }
         return container;
     }
 

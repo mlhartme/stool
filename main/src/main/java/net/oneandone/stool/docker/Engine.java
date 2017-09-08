@@ -31,6 +31,12 @@ import java.util.Map;
 import java.util.Set;
 
 public class Engine {
+    public enum Status {
+        CREATED,
+        RUNNING,
+        EXITED,
+    }
+
     public static Engine open(String wirelog) throws IOException {
         World world;
         HttpFilesystem fs;
@@ -170,7 +176,7 @@ public class Engine {
         return response.get("StatusCode").getAsInt();
     }
 
-    public String containerStatus(String id) throws IOException {
+    public Status containerStatus(String id) throws IOException {
         JsonObject response;
         JsonObject state;
         String error;
@@ -181,7 +187,7 @@ public class Engine {
         if (!error.isEmpty()) {
             throw new IOException("error state: " + error);
         }
-        return state.get("Status").getAsString();
+        return Status.valueOf(state.get("Status").getAsString().toUpperCase());
     }
 
     //--

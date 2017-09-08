@@ -27,10 +27,11 @@ public class EngineIT {
 
         id = engine.containerCreate("mhmtest");
         assertNotNull(id);
+        assertEquals(Engine.Status.CREATED, engine.containerStatus(id));
         engine.containerStart(id);
-        assertEquals("running", engine.containerStatus(id));
+        assertEquals(Engine.Status.RUNNING, engine.containerStatus(id));
         assertEquals(0, engine.containerWait(id));
-        assertEquals("exited", engine.containerStatus(id));
+        assertEquals(Engine.Status.EXITED, engine.containerStatus(id));
         output = engine.containerLogs(id);
         assertTrue(output + " vs" + message, output.contains(message));
         engine.containerRemove(id);
