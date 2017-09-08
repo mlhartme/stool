@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.util;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,6 +113,19 @@ public class Ports {
                 result.putAll(vhost.urlMap(hostname, url));
             }
         }
+        return result;
+    }
+
+    public Map<Integer, Integer> dockerMap() {
+        Map<Integer, Integer> result;
+
+        result = new HashMap<>();
+        for (Vhost vhost : vhosts) {
+            result.put(vhost.even, vhost.even);
+            result.put(vhost.even + 1, vhost.even + 1);
+        }
+        result.put(jmx(), jmx());
+        result.put(debug(), debug());
         return result;
     }
 }

@@ -356,7 +356,7 @@ public abstract class Stage {
         engine = session.dockerEngine();
         console.verbose.println(engine.build(getName(), dockerfile()));
         console.verbose.println("image built");
-        container = engine.containerCreate(getName(), Strings.toMap(getDirectory().getAbsolute().toString(), "/stage"), Strings.toMap("9684", "9684", "9685", "9685"));
+        container = engine.containerCreate(getName(), Strings.toMap(getDirectory().getAbsolute().toString(), "/stage"), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
         return container;

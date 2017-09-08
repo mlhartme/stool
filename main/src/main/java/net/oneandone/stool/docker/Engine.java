@@ -96,7 +96,7 @@ public class Engine {
         return containerCreate(image, Collections.emptyMap(), Collections.emptyMap());
     }
 
-    public String containerCreate(String image, Map<String, String> bindMounts, Map<String, String> ports) throws IOException {
+    public String containerCreate(String image, Map<String, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
         JsonObject body;
         JsonObject response;
         JsonObject hostConfig;
@@ -115,8 +115,8 @@ public class Engine {
         }
 
         portBindings = new JsonObject();
-        for (Map.Entry<String, String> entry: ports.entrySet()) {
-            portBindings.add(entry.getKey() + "/tcp", hp(entry.getValue()));
+        for (Map.Entry<Integer, Integer> entry: ports.entrySet()) {
+            portBindings.add(Integer.toString(entry.getKey()) + "/tcp", hp(entry.getValue()));
         }
         hostConfig.add("PortBindings", portBindings);
 
@@ -125,12 +125,12 @@ public class Engine {
         return response.get("Id").getAsString();
     }
 
-    private static JsonArray hp(String port) {
+    private static JsonArray hp(int port) {
         JsonArray result;
         JsonObject obj;
 
         obj = new JsonObject();
-        obj.add("HostPort", new JsonPrimitive(port));
+        obj.add("HostPort", new JsonPrimitive(Integer.toString(port)));
         result = new JsonArray();
         result.add(obj);
         return result;
