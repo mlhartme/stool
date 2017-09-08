@@ -110,15 +110,9 @@ public class Start extends StageCommand {
 
     @Override
     public void doFinish(Stage stage) throws Exception {
-        int pid;
-
         if (fitnesse) {
             // nothing to finish
             return;
-        }
-        pid = stage.runningService();
-        if (pid == 0) {
-            throw new IOException("stage startup failed - no pid file found");
         }
         ping(stage);
         console.info.println("Applications available:");
