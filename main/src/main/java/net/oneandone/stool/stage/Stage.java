@@ -348,7 +348,7 @@ public abstract class Stage {
 
         checkMemory();
         console.info.println("starting container ...");
-        serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname, getDirectory());
+        serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
         keystore = keystore();
         extensions = extensions();
         serverXml.configure(ports, config().url, keystore, config().cookies, this, http2());

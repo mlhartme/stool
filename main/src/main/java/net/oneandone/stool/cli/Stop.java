@@ -21,7 +21,6 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
-import net.oneandone.sushi.launcher.Launcher;
 
 public class Stop extends StageCommand {
     private boolean sleep;

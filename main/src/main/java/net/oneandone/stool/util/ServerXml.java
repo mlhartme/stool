@@ -35,8 +35,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ServerXml {
-    public static ServerXml load(Node src, String hostname, FileNode stageHome) throws IOException, SAXException {
-        return new ServerXml(src.getWorld().getXml(), src.readXml(), hostname, stageHome);
+    public static ServerXml load(Node src, String hostname) throws IOException, SAXException {
+        return new ServerXml(src.getWorld().getXml(), src.readXml(), hostname);
     }
 
     private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";
@@ -45,13 +45,11 @@ public class ServerXml {
     private final Selector selector;
     private final Document document;
     private final String hostname;
-    private final String stageHome;
 
-    public ServerXml(Xml xml, Document document, String hostname, FileNode stageHome) {
+    public ServerXml(Xml xml, Document document, String hostname) {
         this.selector = xml.getSelector();
         this.document = document;
         this.hostname = hostname;
-        this.stageHome = stageHome.getAbsolute() + "/";
     }
 
     public void save(FileNode file) throws IOException {
@@ -68,15 +66,15 @@ public class ServerXml {
             if (vhost.isWebapp()) {
                 service = (Element) template.cloneNode(true);
                 document.getDocumentElement().appendChild(service);
-                service(service, vhost);
-                connectors(service, vhost, keystore, http2);
+                service(stage.getDirectory(), service, vhost);
+                connectors(stage.getDirectory(), service, vhost, keystore, http2);
                 contexts(stage, vhost.context(hostname, url), vhost.httpPort(), service, cookies, vhost.docroot.join("WEB-INF"));
             }
         }
         template.getParentNode().removeChild(template);
     }
 
-    private void service(Element service, Vhost object) throws XmlException {
+    private void service(FileNode stageDirectory, Element service, Vhost object) throws XmlException {
         String name;
         Element engine;
         Element host;
@@ -97,7 +95,7 @@ public class ServerXml {
         engine.appendChild(host);
         context = service.getOwnerDocument().createElement("Context");
         context.setAttribute("path", "");
-        context.setAttribute("docBase", toMount(object.docBase()));
+        context.setAttribute("docBase", toMount(stageDirectory, object.docBase()));
         host.appendChild(context);
 
         element = service.getOwnerDocument().createElement("Alias");
@@ -105,11 +103,11 @@ public class ServerXml {
         host.insertBefore(element, host.getFirstChild());
     }
 
-    private String toMount(String path) {
-        return "/stage/" + Strings.removeLeft(path, stageHome);
+    private String toMount(FileNode stageDirectory, String path) {
+        return "/stage/" + Strings.removeLeft(path, stageDirectory.getAbsolute() + "/");
     }
 
-    private void connectors(Element service, Vhost host, KeyStore keyStore, boolean http2) {
+    private void connectors(FileNode stageDirectory, Element service, Vhost host, KeyStore keyStore, boolean http2) {
         String ip;
 
         ip = "0.0.0.0";
@@ -117,7 +115,7 @@ public class ServerXml {
             connectorDisable(service, "Connector[starts-with(@protocol,'AJP')]");
             connectorEnable(service, HTTP_PATH, ip, host.httpPort(), host.httpsPort(), http2);
             if (keyStore != null) {
-                sslConnector(service, HTTPS_PATH, host.httpsPort(), ip, keyStore, http2);
+                sslConnector(stageDirectory, service, HTTPS_PATH, host.httpsPort(), ip, keyStore, http2);
             } else {
                 connectorDisable(service, HTTPS_PATH);
             }
@@ -157,7 +155,7 @@ public class ServerXml {
     }
 
 
-    private void sslConnector(Element service, String path, int port, String ip, KeyStore keystore, boolean http2) throws XmlException {
+    private void sslConnector(FileNode stageDirectory, Element service, String path, int port, String ip, KeyStore keystore, boolean http2) throws XmlException {
         Element element;
 
         element = selector.elementOpt(service, path);
@@ -177,7 +175,7 @@ public class ServerXml {
         element.setAttribute("useBodyEncodingForURI", "true");
 
         element.setAttribute("keystorePass", keystore.password());
-        element.setAttribute("keystoreFile", toMount(keystore.file()));
+        element.setAttribute("keystoreFile", toMount(stageDirectory, keystore.file()));
         element.setAttribute("keystoreType", keystore.type());
 
         element.removeAttribute("SSLCertificateFile");

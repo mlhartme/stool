@@ -331,7 +331,7 @@ public class Start extends StageCommand {
             dest.execNoOutput("chmod", "g+x", "conf"); // for Tomcat 8.5
 
             file = dest.join("conf/server.xml");
-            serverXml = ServerXml.load(file, session.configuration.hostname, backstage.getParent());
+            serverXml = ServerXml.load(file, session.configuration.hostname);
             serverXml.stripComments();
             serverXml.save(dest.join("conf/server.xml.template"));
             file.deleteFile();
