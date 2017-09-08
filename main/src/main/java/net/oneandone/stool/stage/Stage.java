@@ -233,6 +233,7 @@ public abstract class Stage {
 
     /** TODO */
     public boolean fitnesseRunning() throws IOException {
+        /* TODO
         Ports ports;
 
         if (runningService() == 0) {
@@ -244,7 +245,7 @@ public abstract class Stage {
                     }
                 }
             }
-        }
+        }*/
         return false;
     }
 
@@ -336,8 +337,7 @@ public abstract class Stage {
 
     //-- tomcat helper
 
-    /* return container id */
-    public String start(Console console, Ports ports) throws Exception {
+    public void start(Console console, Ports ports) throws Exception {
         ServerXml serverXml;
         KeyStore keystore;
         Extensions extensions;
@@ -347,7 +347,7 @@ public abstract class Stage {
         String imageName;
 
         checkMemory();
-        console.info.println("starting tomcat ...");
+        console.info.println("starting container ...");
         serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname, getDirectory());
         keystore = keystore();
         extensions = extensions();
@@ -366,7 +366,11 @@ public abstract class Stage {
         if (status != Engine.Status.RUNNING) {
             throw new IOException("unexpected status: " + status);
         }
-        return container;
+        dockerContainerFile().writeString(container);
+    }
+
+    private FileNode dockerContainerFile() {
+        return backstage.join("run/docker.container");
     }
 
     private String dockerfile() throws IOException {
@@ -389,14 +393,21 @@ public abstract class Stage {
     }
 
     /** Fails if Tomcat is not running */
-    public Launcher.Handle stop(Console console) throws IOException {
-        console.info.println("stopping tomcat ...");
-        if (runningService() == 0) {
-            throw new IOException("tomcat is not running.");
+    public void stop(Console console) throws IOException {
+        FileNode file;
+        String container;
+        Engine engine;
+
+        file = dockerContainerFile();
+        if (!file.exists()) {
+            throw new IOException("container is not running.");
         }
+        console.info.println("stopping container ...");
+        container = dockerContainerFile().readString().trim();
         extensions().beforeStop(this);
-        // IGNORE signals to stop via anchor file. This is crucial if a different user has to stop a stage
-        return serviceWrapper("stop", "IGNORE_SIGNALS", "TRUE").launch();
+        engine = session.dockerEngine();
+        engine.containerStop(container);
+        file.deleteFile();
     }
 
     private Launcher serviceWrapper(String action, String ... extraEnv) throws IOException {

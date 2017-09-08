@@ -158,6 +158,10 @@ public class Engine {
         post(root.join("containers", id, "start"), "");
     }
 
+    public void containerStop(String id) throws IOException {
+        post(root.join("containers", id, "stop"), "");
+    }
+
     public void containerRemove(String id) throws IOException {
         Method.delete(root.join("containers", id));
     }
