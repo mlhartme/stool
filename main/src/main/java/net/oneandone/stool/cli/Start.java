@@ -19,17 +19,14 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
-import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
-import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
 import net.oneandone.sushi.util.SubstitutionException;
@@ -39,7 +36,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -304,99 +300,6 @@ public class Start extends StageCommand {
                     "org.apache.catalina.core.ContainerBase.[Catalina].handlers = 1catalina.org.apache.juli.FileHandler"
             );
         }
-    }
-
-    private Map<String, String> variables(Stage stage, Ports ports) {
-        Map<String, String> result;
-
-        result = new HashMap<>();
-        result.put("java.home", stage.config().javaHome);
-        result.put("wrapper.port", Integer.toString(ports.wrapper()));
-        result.put("wrapper.java.additional", wrapperJavaAdditional(ports, stage));
-        result.put("wrapper.timeouts", wrapperTimeouts());
-        result.put("wrapper.debug", Boolean.toString(console.getVerbose()));
-        return result;
-    }
-
-    private String wrapperTimeouts() {
-        StringBuilder result;
-
-        // because I know if a debugger is present, and I want special timeout settings
-        result = new StringBuilder("wrapper.java.detect_debug_jvm=FALSE\n");
-        if (debug) {
-            // long timeouts to give developers time for debugging;
-            // however: not infinite to avoid hanging stool validate runs.
-            result.append("wrapper.startup.timeout=3600\n");
-            result.append("wrapper.ping.timeout=3600\n");
-            result.append("wrapper.shutdown.timeout=3600\n");
-            result.append("wrapper.jvm_exit.timeout=3600\n");
-        } else {
-            // wait 4 minutes to make shutdown problem visible to users
-            // CAUTION: hat to be shorter than the systemctl shutdown timeout to avoid kill -9 and the resulting stage pid files.
-            // (see systemctl show stool.service -p TimeoutStopUSec)
-            result.append("wrapper.shutdown.timeout=240\n");
-            result.append("wrapper.jvm_exit.timeout=240\n");
-            // stick to defaults for other timeouts
-        }
-        return result.toString();
-    }
-
-    private String wrapperJavaAdditional(Ports ports, Stage stage) {
-        String tomcatOpts;
-        List<String> opts;
-        StringBuilder result;
-        int i;
-
-        opts = new ArrayList<>();
-
-        // for tomcat
-        opts.add("-Djava.endorsed.dirs=%CATALINA_HOME%/endorsed");
-        opts.add("-Djava.io.tmpdir=%CATALINA_BASE%/temp");
-        opts.add("-Djava.util.logging.config.file=%CATALINA_BASE%/conf/logging.properties");
-        opts.add("-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager");
-        opts.add("-Dcatalina.base=%CATALINA_BASE%");
-        opts.add("-Dcatalina.home=%CATALINA_HOME%");
-
-        // this is a marker to indicate they are launched by stool; and this is used by the dashboard to locate stool
-        opts.add("-Dstool.cp=" + Main.stoolCp(session.world).getAbsolute());
-        opts.add("-Dstool.home=" + session.home.getAbsolute());
-        try {
-            opts.add("-Dstool.idlink=" + session.backstageLink(stage.getId()).getAbsolute());
-        } catch (ReadLinkException e) {
-            throw new IllegalStateException(e);
-        }
-
-        tomcatOpts = stage.macros().replace(stage.config().tomcatOpts);
-        opts.addAll(Separator.SPACE.split(tomcatOpts));
-
-        opts.add("-Xmx" + stage.config().tomcatHeap + "m");
-
-        for (Map.Entry<String,String> entry : stage.extensions().tomcatOpts(stage).entrySet()) {
-            opts.add("-D" + entry.getKey() + "=" + entry.getValue());
-        }
-
-        // see http://docs.oracle.com/javase/7/docs/technotes/guides/management/agent.html
-        opts.add("-Dcom.sun.management.jmxremote.authenticate=false");
-        opts.add("-Dcom.sun.management.jmxremote.port=" + ports.jmx());
-        opts.add("-Dcom.sun.management.jmxremote.rmi.port=" + ports.jmx());
-        opts.add("-Dcom.sun.management.jmxremote.ssl=false");
-        if (debug || suspend) {
-            opts.add("-Xdebug");
-            opts.add("-Xnoagent");
-            opts.add("-Djava.compiler=NONE");
-            opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=" + ports.debug() + ",suspend=" + (suspend ? "y" : "n"));
-        }
-        i = 1;
-        result = new StringBuilder();
-        for (String opt : opts) {
-            result.append("wrapper.java.additional.");
-            result.append(i);
-            result.append('=');
-            result.append(opt);
-            result.append('\n');
-            i++;
-        }
-        return result.toString();
     }
 
     //-- fitnesse

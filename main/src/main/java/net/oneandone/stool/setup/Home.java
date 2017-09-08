@@ -82,7 +82,7 @@ public class Home {
         }
         conf.save(gson, dir);
         conf.downloadCache.mkdirOpt();
-        for (String name : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "tomcat", "system"}) {
+        for (String name : new String[]{"extensions", "backstages", "logs", "run", "tomcat", "system"}) {
             dir.join(name).mkdir();
         }
         versionFile().writeString(Main.versionString(world));

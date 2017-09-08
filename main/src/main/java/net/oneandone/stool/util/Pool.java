@@ -97,7 +97,7 @@ public class Pool {
         gc();
 
         names = new LinkedHashSet<>();
-        names.add(Ports.STOP_WRAPPER);
+        names.add(Ports.STOP);
         names.add(Ports.JMX_DEBUG);
 
         names.addAll(fixed.keySet());
