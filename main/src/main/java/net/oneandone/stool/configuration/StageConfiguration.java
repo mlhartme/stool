@@ -73,9 +73,6 @@ public class StageConfiguration {
     @Option(key = "tomcat.version")
     public String tomcatVersion;
 
-    @Option(key = "tomcat.service")
-    public String tomcatService;
-
     @Option(key = "tomcat.heap")
     public Integer tomcatHeap;
 
@@ -125,7 +122,6 @@ public class StageConfiguration {
         this.quota = 10000;
         this.tomcatOpts = "";
         this.tomcatVersion = "8.5.16";
-        this.tomcatService = "3.5.32";
         this.tomcatHeap = 350;
         this.tomcatSelect = new ArrayList<>();
         this.tomcatEnv = new HashMap<>();

@@ -129,10 +129,8 @@ public class Start extends StageCommand {
     public void doNormal(Stage stage) throws Exception {
         Ports ports;
 
-        serviceWrapperOpt(stage);
         ports = session.pool().allocate(stage, Collections.emptyMap());
-        copyTemplate(stage, ports);
-        createServiceLauncher(stage);
+        createBackstage(stage);
         tomcatOpt(stage.getBackstage(), stage.config().tomcatVersion);
         if (debug || suspend) {
             console.info.println("debugging enabled on port " + ports.debug());
@@ -209,35 +207,14 @@ public class Start extends StageCommand {
         }
     }
 
-    private void copyTemplate(Stage stage, Ports ports) throws Exception {
+    private void createBackstage(Stage stage) throws Exception {
         FileNode backstage;
 
-        backstage = stage.getBackstage();
-        Files.template(world.resource("templates/stage"), backstage, variables(stage, ports));
-        // manually create empty subdirectories, because git doesn't know them
+        backstage = stage.getBackstage().mkdirOpt();
         // CAUTION: the log directory is created by "stool create" (because it contains log files)
         for (String dir : new String[] {"ssl", "run" }) {
             backstage.join(dir).mkdirOpt();
         }
-    }
-
-    private void createServiceLauncher(Stage stage) throws IOException {
-        FileNode base;
-        String content;
-        FileNode wrapper;
-
-        base = stage.serviceWrapperBase();
-        content = base.join("src/bin/sh.script.in").readString();
-        content = Strings.replace(content, "@app.name@", "tomcat");
-        content = Strings.replace(content, "@app.long.name@", "Stage " + stage.getName() + " Tomcat");
-        content = Strings.replace(content, "@app.description@", "Tomcat for stage " + stage.getName() + " managed by Stool.");
-        content = uncomment(content, "PASS_THROUGH=true");
-        content = comment(content, "WRAPPER_CMD=\"./wrapper\"");
-        content = comment(content, "WRAPPER_CONF=\"../conf/wrapper.conf\"");
-        content = comment(content, "PIDDIR=\".\"");
-        wrapper = stage.getBackstage().join("service/service-wrapper.sh");
-        wrapper.writeString(content);
-        Files.executable(wrapper);
     }
 
     private String comment(String str, String line) {
@@ -265,22 +242,6 @@ public class Start extends StageCommand {
             return Substitution.ant().apply(pattern, variables);
         } catch (SubstitutionException e) {
             throw new ArgumentException("invalid url pattern: " + pattern, e);
-        }
-    }
-
-    private void serviceWrapperOpt(Stage stage) throws IOException {
-        FileNode download;
-        FileNode base;
-
-        base = stage.serviceWrapperBase();
-        download = session.downloadCache().join(base.getName() + ".tar.gz");
-        if (!download.exists()) {
-            downloadFile(subst(session.configuration.downloadServiceWrapper, stage.config().tomcatService), download);
-            download.checkFile();
-        }
-        if (!base.exists()) {
-            tar(base.getParent(), "zxf", download.getAbsolute());
-            base.checkDirectory();
         }
     }
 

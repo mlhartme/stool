@@ -417,48 +417,6 @@ public abstract class Stage {
         file.deleteFile();
     }
 
-    private Launcher serviceWrapper(String action, String ... extraEnv) throws IOException {
-        Launcher launcher;
-        Map<String, String> env;
-        String home;
-        String user;
-
-        launcher = new Launcher(getDirectory());
-        env = launcher.getBuilder().environment();
-        home = env.get("HOME");
-        user = env.get("USER");
-        env.clear();
-        if (home != null) {
-            env.put("HOME", home);
-        }
-        if (user != null) {
-            env.put("USER", user);
-        }
-        env.put("CATALINA_HOME", catalinaBaseAndHome().getAbsolute());
-        env.put("CATALINA_BASE", catalinaBaseAndHome().getAbsolute());
-        env.put("WRAPPER_HOME", serviceWrapperBase().getAbsolute());
-        env.put("WRAPPER_CMD", serviceWrapperBase().join("bin/wrapper").getAbsolute());
-        env.put("WRAPPER_CONF", backstage.join("service/service-wrapper.conf").getAbsolute());
-        env.put("PIDDIR", backstage.join("run").getAbsolute());
-        env.putAll(configuration.tomcatEnv);
-        for (int i = 0; i < extraEnv.length; i += 2) {
-            env.put(extraEnv[i], extraEnv[i + 1]);
-        }
-        launcher.arg(backstage.join("service/service-wrapper.sh").getAbsolute());
-        launcher.arg(action);
-        return launcher;
-    }
-
-    public FileNode serviceWrapperBase() {
-        String platform;
-        String name;
-
-        platform = (OS.CURRENT == OS.LINUX) ? "linux-x86-64" : "macosx-universal-64";
-        name = "wrapper-" + platform + "-" + config().tomcatService;
-        return session.home.join("service-wrapper", name);
-    }
-
-
     // TODO: only works for most basic setup ...
     private FileNode homeOf(String user) throws IOException {
         FileNode result;
