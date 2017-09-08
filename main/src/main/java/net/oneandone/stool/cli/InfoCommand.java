@@ -54,7 +54,7 @@ public abstract class InfoCommand extends StageCommand {
                 Mode.NONE
                 /* this is not 100% accurate, but it help to avoid annoging lock-waits:
                 1) diskused might be work in progress
-                2) buildtime might inaccurate */);
+                2) buildtime might be inaccurate */);
         this.defaults = defaults;
     }
 
@@ -268,7 +268,6 @@ public abstract class InfoCommand extends StageCommand {
                 suspend = debug != null && config.contains(",suspend=y");
             }
         } else {
-            tomcatPid = 0;
             cpu = null;
             mem = null;
             ports = null;
@@ -277,8 +276,6 @@ public abstract class InfoCommand extends StageCommand {
         }
         result.put(Field.CPU, cpu);
         result.put(Field.MEM, mem);
-        result.put(Field.SERVICE, opt(servicePid));
-        result.put(Field.TOMCAT, opt(tomcatPid));
         result.put(Field.DEBUGGER, debug);
         result.put(Field.SUSPEND, suspend);
         result.put(Field.FITNESSE, state == Stage.State.UP && servicePid == 0);
