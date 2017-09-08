@@ -21,7 +21,7 @@ public class EngineIT {
         System.out.println("message " + message);
 
         engine = Engine.open("target/wire.log");
-        output = engine.build("mhmtest", "FROM debian:stretch-slim\nCMD [\"echo\", \"" + message + "\", \"/\"]\n");
+        output = engine.build("stooltest", "FROM debian:stretch-slim\nCMD [\"echo\", \"" + message + "\", \"/\"]\n");
         System.out.println(output);
         assertNotNull(output);
 

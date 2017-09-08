@@ -344,6 +344,7 @@ public abstract class Stage {
         Engine engine;
         String container;
         Engine.Status status;
+        String imageName;
 
         checkMemory();
         console.info.println("starting tomcat ...");
@@ -355,9 +356,10 @@ public abstract class Stage {
         catalinaBaseAndHome().join("temp").deleteTree().mkdir();
         extensions.beforeStart(this);
         engine = session.dockerEngine();
-        console.verbose.println(engine.build(getName(), dockerfile()));
+        imageName = getId();
+        console.verbose.println(engine.build(imageName, dockerfile()));
         console.verbose.println("image built");
-        container = engine.containerCreate(getName(), Strings.toMap(getDirectory().getAbsolute().toString(), "/stage"), ports.dockerMap());
+        container = engine.containerCreate(imageName, Strings.toMap(getDirectory().getAbsolute().toString(), "/stage"), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
         status = engine.containerStatus(container);
