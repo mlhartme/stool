@@ -27,13 +27,15 @@ import java.net.InetAddress;
 import java.net.Socket;
 
 public class Engine {
-    public static Engine open() throws IOException {
+    public static Engine open(String wirelog) throws IOException {
         World world;
         HttpFilesystem fs;
         HttpNode root;
 
         world = World.create();
-        HttpFilesystem.wireLog("wire.log");
+        if (wirelog != null) {
+            HttpFilesystem.wireLog("target/wire.log");
+        }
         fs = (HttpFilesystem) world.getFilesystem("http");
         fs.setSocketFactorySelector(Engine::unixSocketFactorySelector);
         root = (HttpNode) world.validNode("http://localhost/v1.30");

@@ -20,7 +20,7 @@ public class EngineIT {
         message = UUID.randomUUID().toString();
         System.out.println("message " + message);
 
-        engine = Engine.open();
+        engine = Engine.open("target/wire.log");
         output = engine.build("mhmtest", "FROM debian:stretch-slim\nCMD [\"echo\", \"" + message + "\", \"/\"]\n");
         System.out.println(output);
         assertNotNull(output);
