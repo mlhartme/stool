@@ -20,6 +20,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.Start;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.ssl.KeyStore;
@@ -335,24 +336,34 @@ public abstract class Stage {
 
     //-- tomcat helper
 
-    public Launcher.Handle start(Console console, Ports ports) throws Exception {
+    /* return container id */
+    public String start(Console console, Ports ports) throws Exception {
         ServerXml serverXml;
         KeyStore keystore;
         Extensions extensions;
-        Launcher launcher;
+        Engine engine;
+        String container;
 
         checkMemory();
         console.info.println("starting tomcat ...");
-        serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
+        serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname, getDirectory());
         keystore = keystore();
         extensions = extensions();
         serverXml.configure(ports, config().url, keystore, config().cookies, this, http2());
         serverXml.save(serverXml());
         catalinaBaseAndHome().join("temp").deleteTree().mkdir();
         extensions.beforeStart(this);
-        launcher = serviceWrapper("start");
-        console.verbose.println("executing: " + launcher);
-        return launcher.launch();
+        engine = session.dockerEngine();
+        console.verbose.println(engine.build(getName(), dockerfile()));
+        console.verbose.println("image built");
+        container = engine.containerCreate(getName(), Strings.toMap(getDirectory().getAbsolute().toString(), "/stage"), Strings.toMap("9684", "9684", "9685", "9685"));
+        console.verbose.println("created container " + container);
+        engine.containerStart(container);
+        return container;
+    }
+
+    private String dockerfile() throws IOException {
+        return session.world.resource("templates/Dockerfile").readString();
     }
 
     private boolean http2() {

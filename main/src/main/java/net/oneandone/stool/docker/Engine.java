@@ -1,5 +1,6 @@
 package net.oneandone.stool.docker;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
@@ -25,6 +26,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Collections;
+import java.util.Map;
 
 public class Engine {
     public static Engine open(String wirelog) throws IOException {
@@ -34,7 +37,7 @@ public class Engine {
 
         world = World.create();
         if (wirelog != null) {
-            HttpFilesystem.wireLog("target/wire.log");
+            HttpFilesystem.wireLog(wirelog);
         }
         fs = (HttpFilesystem) world.getFilesystem("http");
         fs.setSocketFactorySelector(Engine::unixSocketFactorySelector);
@@ -90,11 +93,47 @@ public class Engine {
     //-- containers
 
     public String containerCreate(String image) throws IOException {
-        JsonObject response;
+        return containerCreate(image, Collections.emptyMap(), Collections.emptyMap());
+    }
 
-        response = post(root.join("containers/create"), body("Image", image));
+    public String containerCreate(String image, Map<String, String> bindMounts, Map<String, String> ports) throws IOException {
+        JsonObject body;
+        JsonObject response;
+        JsonObject hostConfig;
+        JsonArray binds;
+        JsonObject portBindings;
+
+        body = body("Image", image);
+
+        hostConfig = new JsonObject();
+
+        body.add("HostConfig", hostConfig);
+        binds = new JsonArray();
+        hostConfig.add("Binds", binds);
+        for (Map.Entry<String, String> entry : bindMounts.entrySet()) {
+            binds.add(entry.getKey() + ":" + entry.getValue());
+        }
+
+        portBindings = new JsonObject();
+        for (Map.Entry<String, String> entry: ports.entrySet()) {
+            portBindings.add(entry.getKey() + "/tcp", hp(entry.getValue()));
+        }
+        hostConfig.add("PortBindings", portBindings);
+
+        response = post(root.join("containers/create"), body);
         checWarnings(response);
         return response.get("Id").getAsString();
+    }
+
+    private static JsonArray hp(String port) {
+        JsonArray result;
+        JsonObject obj;
+
+        obj = new JsonObject();
+        obj.add("HostPort", new JsonPrimitive(port));
+        result = new JsonArray();
+        result.add(obj);
+        return result;
     }
 
     public void containerStart(String id) throws IOException {

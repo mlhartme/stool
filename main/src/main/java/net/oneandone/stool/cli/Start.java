@@ -51,8 +51,6 @@ public class Start extends StageCommand {
     private boolean suspend;
     private boolean tail;
 
-    private Launcher.Handle mainResult;
-
     public Start(Session session, boolean fitnesse, boolean debug, boolean suspend) {
         super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);
         this.fitnesse = fitnesse;
@@ -118,10 +116,9 @@ public class Start extends StageCommand {
             // nothing to finish
             return;
         }
-        console.verbose.println(mainResult.awaitString());
         pid = stage.runningService();
         if (pid == 0) {
-            throw new IOException("tomcat startup failed - no pid file found");
+            throw new IOException("stage startup failed - no pid file found");
         }
         ping(stage);
         console.info.println("Applications available:");
@@ -146,7 +143,7 @@ public class Start extends StageCommand {
         if (debug || suspend) {
             console.info.println("debugging enabled on port " + ports.debug());
         }
-        mainResult = stage.start(console, ports);
+        stage.start(console, ports);
     }
 
     private void doTail(Stage stage) throws IOException {
@@ -340,7 +337,7 @@ public class Start extends StageCommand {
             dest.execNoOutput("chmod", "g+x", "conf"); // for Tomcat 8.5
 
             file = dest.join("conf/server.xml");
-            serverXml = ServerXml.load(file, session.configuration.hostname);
+            serverXml = ServerXml.load(file, session.configuration.hostname, backstage.getParent());
             serverXml.stripComments();
             serverXml.save(dest.join("conf/server.xml.template"));
             file.deleteFile();

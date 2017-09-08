@@ -19,6 +19,7 @@ import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.xml.Selector;
 import net.oneandone.sushi.xml.Xml;
 import net.oneandone.sushi.xml.XmlException;
@@ -34,8 +35,8 @@ import java.util.List;
 import java.util.Map;
 
 public class ServerXml {
-    public static ServerXml load(Node src, String hostname) throws IOException, SAXException {
-        return new ServerXml(src.getWorld().getXml(), src.readXml(), hostname);
+    public static ServerXml load(Node src, String hostname, FileNode stageHome) throws IOException, SAXException {
+        return new ServerXml(src.getWorld().getXml(), src.readXml(), hostname, stageHome);
     }
 
     private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";
@@ -44,11 +45,13 @@ public class ServerXml {
     private final Selector selector;
     private final Document document;
     private final String hostname;
+    private final String stageHome;
 
-    public ServerXml(Xml xml, Document document, String hostname) {
+    public ServerXml(Xml xml, Document document, String hostname, FileNode stageHome) {
         this.selector = xml.getSelector();
         this.document = document;
         this.hostname = hostname;
+        this.stageHome = stageHome.getAbsolute() + "/";
     }
 
     public void save(FileNode file) throws IOException {
@@ -94,12 +97,16 @@ public class ServerXml {
         engine.appendChild(host);
         context = service.getOwnerDocument().createElement("Context");
         context.setAttribute("path", "");
-        context.setAttribute("docBase", object.docBase());
+        context.setAttribute("docBase", toMount(object.docBase()));
         host.appendChild(context);
 
         element = service.getOwnerDocument().createElement("Alias");
         element.setAttribute("name", object.fqdn(false, hostname));
         host.insertBefore(element, host.getFirstChild());
+    }
+
+    private String toMount(String path) {
+        return "/stage/" + Strings.removeLeft(path, stageHome);
     }
 
     private void connectors(Element service, Vhost host, KeyStore keyStore, boolean http2) {
@@ -170,7 +177,7 @@ public class ServerXml {
         element.setAttribute("useBodyEncodingForURI", "true");
 
         element.setAttribute("keystorePass", keystore.password());
-        element.setAttribute("keystoreFile", keystore.file());
+        element.setAttribute("keystoreFile", toMount(keystore.file()));
         element.setAttribute("keystoreType", keystore.type());
 
         element.removeAttribute("SSLCertificateFile");

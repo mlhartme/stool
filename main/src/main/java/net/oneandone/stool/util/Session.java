@@ -32,6 +32,7 @@ import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.configuration.adapter.ExtensionsAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
+import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
@@ -651,5 +652,11 @@ public class Session {
             reserved += Math.max(0, config.quota);
         }
         return reserved;
+    }
+
+    //--
+
+    public Engine dockerEngine() throws IOException {
+        return Engine.open("wire.log");
     }
 }
