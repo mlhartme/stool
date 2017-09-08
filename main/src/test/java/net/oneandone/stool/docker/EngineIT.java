@@ -12,30 +12,31 @@ import static org.junit.Assert.assertTrue;
 public class EngineIT {
     @Test
     public void turnaround() throws IOException {
+        String image = "stooltest";
         String message;
         Engine engine;
         String output;
-        String id;
+        String container;
 
         message = UUID.randomUUID().toString();
         System.out.println("message " + message);
 
         engine = Engine.open("target/wire.log");
-        output = engine.build("stooltest", "FROM debian:stretch-slim\nCMD [\"echo\", \"" + message + "\", \"/\"]\n");
+        output = engine.build(image, "FROM debian:stretch-slim\nCMD [\"echo\", \"" + message + "\", \"/\"]\n");
         System.out.println(output);
         assertNotNull(output);
 
-        id = engine.containerCreate("mhmtest");
-        assertNotNull(id);
-        assertEquals(Engine.Status.CREATED, engine.containerStatus(id));
-        engine.containerStart(id);
-        assertEquals(Engine.Status.RUNNING, engine.containerStatus(id));
-        assertEquals(0, engine.containerWait(id));
-        assertEquals(Engine.Status.EXITED, engine.containerStatus(id));
-        output = engine.containerLogs(id);
+        container = engine.containerCreate(image);
+        assertNotNull(container);
+        assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
+        engine.containerStart(container);
+        assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
+        assertEquals(0, engine.containerWait(container));
+        assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
+        output = engine.containerLogs(container);
         assertTrue(output + " vs" + message, output.contains(message));
-        engine.containerRemove(id);
+        engine.containerRemove(container);
 
-        engine.imageRemove("mhmtest");
+        engine.imageRemove(image);
     }
 }

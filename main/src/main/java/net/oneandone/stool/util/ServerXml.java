@@ -74,14 +74,14 @@ public class ServerXml {
         template.getParentNode().removeChild(template);
     }
 
-    private void service(FileNode stageDirectory, Element service, Vhost object) throws XmlException {
+    private void service(FileNode stageDirectory, Element service, Vhost vhost) throws XmlException {
         String name;
         Element engine;
         Element host;
         Element context;
         Element element;
 
-        name = object.fqdn(true, hostname);
+        name = vhost.fqdn(true, hostname);
         service.setAttribute("name", name);
         engine = selector.element(service, "Engine");
         engine.setAttribute("defaultHost", name);
@@ -90,21 +90,21 @@ public class ServerXml {
         }
         host = service.getOwnerDocument().createElement("Host");
         host.setAttribute("name", name);
-        host.setAttribute("appBase", object.appBase());
+        host.setAttribute("appBase", toMount(stageDirectory, vhost.appBase()));
         host.setAttribute("autoDeploy", "false");
         engine.appendChild(host);
         context = service.getOwnerDocument().createElement("Context");
         context.setAttribute("path", "");
-        context.setAttribute("docBase", toMount(stageDirectory, object.docBase()));
+        context.setAttribute("docBase", toMount(stageDirectory, vhost.docBase()));
         host.appendChild(context);
 
         element = service.getOwnerDocument().createElement("Alias");
-        element.setAttribute("name", object.fqdn(false, hostname));
+        element.setAttribute("name", vhost.fqdn(false, hostname));
         host.insertBefore(element, host.getFirstChild());
     }
 
     private String toMount(FileNode stageDirectory, String path) {
-        return "/stage/" + Strings.removeLeft(path, stageDirectory.getAbsolute() + "/");
+        return path.startsWith("/") ? "/stage/" + Strings.removeLeft(path, stageDirectory.getAbsolute() + "/") : path;
     }
 
     private void connectors(FileNode stageDirectory, Element service, Vhost host, KeyStore keyStore, boolean http2) {
