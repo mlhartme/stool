@@ -36,7 +36,7 @@ public class Restart extends StageCommand {
         if (stage.state() == Stage.State.UP || stage.state() == Stage.State.WORKING) {
             new Stop(session, false).doRun(stage);
         } else {
-            console.info.println("Tomcat is not running - starting a new instance.");
+            console.info.println("Container is not running - starting a new instance.");
         }
 
         new Start(session, fitnesse, debug, suspend).doRun(stage);

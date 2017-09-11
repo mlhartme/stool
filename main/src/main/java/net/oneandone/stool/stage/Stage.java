@@ -510,6 +510,7 @@ public abstract class Stage {
         return modifiedFile().getLastModified();
     }
 
+    /** @return launcher with build environment */
     public Launcher launcher(String... command) {
         return launcher(directory, command);
     }

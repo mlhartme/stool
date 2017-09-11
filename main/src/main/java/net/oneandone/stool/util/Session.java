@@ -403,6 +403,7 @@ public class Session {
         return lazySelectedId;
     }
 
+    /** returns the build environment */
     public Environment environment(Stage stage) {
         Environment env;
         String mavenOpts;
@@ -657,6 +658,6 @@ public class Session {
     //--
 
     public Engine dockerEngine() throws IOException {
-        return Engine.open("wire.log");
+        return Engine.open(null);
     }
 }
