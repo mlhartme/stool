@@ -22,11 +22,9 @@ import java.util.Map;
 
 /** Manage ports used for one stage. Immutable. Do not create directly, use Pool class instead. */
 public class Ports {
-    public static final String STOP = "+stop";
     public static final String JMX_DEBUG = "+jmx+debug";
 
     private final List<Vhost> vhosts;
-    private final int stop;
     private final int jmxDebug;
 
     public Ports(List<Vhost> vhosts) {
@@ -46,18 +44,10 @@ public class Ports {
             }
         }
         this.vhosts = vhosts;
-        this.stop = indexOf(STOP);
         this.jmxDebug = indexOf(JMX_DEBUG);
-        if (stop == -1) {
-            throw new IllegalArgumentException(vhosts.toString());
-        }
         if (jmxDebug == -1) {
             throw new IllegalArgumentException(vhosts.toString());
         }
-    }
-
-    public int stop() {
-        return vhosts.get(stop).even;
     }
 
     public int jmx() {

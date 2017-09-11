@@ -60,7 +60,7 @@ public class ServerXml {
         Element template;
         Element service;
 
-        document.getDocumentElement().setAttribute("port", Integer.toString(ports.stop()));
+        document.getDocumentElement().setAttribute("port", "-1");
         template = selector.element(document, "Server/Service");
         for (Vhost vhost : ports.vhosts()) {
             if (vhost.isWebapp()) {
