@@ -335,6 +335,7 @@ public abstract class Stage {
         Engine engine;
         String container;
         Engine.Status status;
+        String dockerfile;
         String imageName;
 
         checkMemory();
@@ -348,7 +349,9 @@ public abstract class Stage {
         extensions.beforeStart(this);
         engine = session.dockerEngine();
         imageName = getId();
-        console.verbose.println(engine.build(imageName, dockerfile(catalinaOpts)));
+        dockerfile = dockerfile(catalinaOpts, dockerEnv());
+        backstage.join("run/Dockerfile").writeString(dockerfile);
+        console.verbose.println(engine.build(imageName, dockerfile));
         console.verbose.println("image built");
         container = engine.containerCreate(imageName, Strings.toMap(getDirectory().getAbsolute().toString(), "/stage"), ports.dockerMap());
         console.verbose.println("created container " + container);
@@ -358,6 +361,26 @@ public abstract class Stage {
             throw new IOException("unexpected status: " + status);
         }
         dockerContainerFile().writeString(container);
+    }
+
+    private String dockerEnv() {
+        StringBuilder result;
+
+        if (configuration.tomcatEnv.isEmpty()) {
+            return "";
+        }
+
+        result = new StringBuilder();
+        for (Map.Entry<String, String> entry : configuration.tomcatEnv.entrySet()) {
+            if (result.length() == 0) {
+                result.append("ENV ");
+            } else {
+                result.append(" \\\n    ");
+            }
+            result.append(entry.getKey()).append('=').append(entry.getValue());
+        }
+        result.append('\n');
+        return result.toString();
     }
 
     private FileNode dockerContainerFile() {
@@ -373,13 +396,14 @@ public abstract class Stage {
 
     public static final Substitution S = new Substitution("${{", "}}", '\\');
 
-    private String dockerfile(String catalinaOpts) throws IOException {
+    private String dockerfile(String catalinaOpts, String catalinaEnv) throws IOException {
         String str;
         Map<String, String> variables;
 
         str = session.world.resource("templates/Dockerfile").readString();
         variables = new HashMap<>();
         variables.put("catalina.opts", catalinaOpts);
+        variables.put("catalina.env", catalinaEnv);
         try {
             return S.apply(str, variables);
         } catch (SubstitutionException e) {

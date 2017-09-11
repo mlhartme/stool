@@ -15,6 +15,7 @@ RUN set -x; \
 
 ENV CATALINA_HOME /stage/.backstage/tomcat
 ENV CATALINA_OPTS ${{catalina.opts}}
+${{catalina.env}}
 
 WORKDIR $CATALINA_HOME
 

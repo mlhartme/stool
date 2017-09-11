@@ -658,6 +658,6 @@ public class Session {
     //--
 
     public Engine dockerEngine() throws IOException {
-        return Engine.open(null);
+        return Engine.open(console.getVerbose() ? "wire.log" : null);
     }
 }
