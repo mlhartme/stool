@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -31,6 +32,7 @@ public class EngineIT {
         assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
         engine.containerStart(container);
         assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
+        assertNotEquals(0, engine.containerStartedAt(container));
         assertEquals(0, engine.containerWait(container));
         assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
         output = engine.containerLogs(container);

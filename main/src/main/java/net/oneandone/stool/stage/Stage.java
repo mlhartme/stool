@@ -675,7 +675,7 @@ public abstract class Stage {
         if (container == null) {
             return "";
         }
-        return session.dockerEngine().containerStartedAt(container);
+        return timespan(session.dockerEngine().containerStartedAt(container));
     }
 
     public static String timespan(long since) throws GetLastModifiedException {

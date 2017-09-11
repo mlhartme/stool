@@ -26,7 +26,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -187,11 +195,22 @@ public class Engine {
         return Status.valueOf(state.get("Status").getAsString().toUpperCase());
     }
 
-    public String containerStartedAt(String id) throws IOException {
+    // https://github.com/moby/moby/pull/15010
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
+
+    public long containerStartedAt(String id) throws IOException {
         JsonObject state;
+        String str;
+        LocalDateTime result;
 
         state = containerState(id);
-        return state.get("StartedAt").getAsString();
+        str = state.get("StartedAt").getAsString();
+        try {
+            result = LocalDateTime.parse(str, DATE_FORMAT);
+        } catch (DateTimeParseException e) {
+            throw new IOException("cannot parse date: " + str);
+        }
+        return result.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
     }
 
     private JsonObject containerState(String id) throws IOException {
