@@ -147,7 +147,7 @@ public class Validate extends StageCommand {
         }
         report.user(stage, message);
         if (repair) {
-            if (stage.runningService() != 0) {
+            if (stage.dockerContainer() != null) {
                 try {
                     new Stop(session, false).doRun(stage);
                     report.user(stage, "stage has been stopped");

@@ -223,7 +223,7 @@ public abstract class Stage {
     public State state() throws IOException {
         if (session.bedroom.contains(getId())) {
             return State.SLEEPING;
-        } else if (dockerContainer() != null || runningService() != 0 || fitnesseRunning()) {
+        } else if (dockerContainer() != null || fitnesseRunning()) {
             return State.UP;
         } else {
             return State.DOWN;
@@ -268,16 +268,6 @@ public abstract class Stage {
 
     public String httpUrl(Vhost host) {
         return host.httpUrl(session.configuration.vhosts, session.configuration.hostname);
-    }
-
-    public int runningService() throws IOException {
-        return readPidOpt(servicePidFile());
-    }
-
-    /** @return pid or null */
-    public FileNode servicePidFile() {
-        // Yes, that's the service pid (tomcat is a child process of the service)
-        return getBackstage().join("run/tomcat.pid");
     }
 
     //--
@@ -678,14 +668,14 @@ public abstract class Stage {
         return new Logs(getBackstage().join("tomcat/logs"));
     }
 
-    public String uptime() throws GetLastModifiedException {
-        FileNode file;
+    public String uptime() throws IOException {
+        String container;
 
-        file = servicePidFile();
-        if (!file.exists()) {
+        container = dockerContainer();
+        if (container == null) {
             return "";
         }
-        return timespan(file.getLastModified());
+        return session.dockerEngine().containerStartedAt(container);
     }
 
     public static String timespan(long since) throws GetLastModifiedException {

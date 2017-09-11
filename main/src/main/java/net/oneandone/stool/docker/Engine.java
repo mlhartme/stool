@@ -181,6 +181,20 @@ public class Engine {
     }
 
     public Status containerStatus(String id) throws IOException {
+        JsonObject state;
+
+        state = containerState(id);
+        return Status.valueOf(state.get("Status").getAsString().toUpperCase());
+    }
+
+    public String containerStartedAt(String id) throws IOException {
+        JsonObject state;
+
+        state = containerState(id);
+        return state.get("StartedAt").getAsString();
+    }
+
+    private JsonObject containerState(String id) throws IOException {
         JsonObject response;
         JsonObject state;
         String error;
@@ -191,7 +205,7 @@ public class Engine {
         if (!error.isEmpty()) {
             throw new IOException("error state: " + error);
         }
-        return Status.valueOf(state.get("Status").getAsString().toUpperCase());
+        return state;
     }
 
     //--

@@ -54,8 +54,7 @@ public class Fault implements Extension {
         notify = stage.session.world.getTemp().createTempFile();
         workspace = workspace(stage);
         verbose = stage.session.console.getVerbose() ? "-v " : "";
-        fault = "fault " + verbose + "-auth=false while -workspace " + workspace.getAbsolute() + " -notify " + notify.getAbsolute() + " "
-                + projects() + " " + pidfile(stage);
+        fault = "fault " + verbose + "-auth=false while -workspace " + workspace.getAbsolute() + " -notify " + notify.getAbsolute() + " " + projects();
         log = stage.backstage.join("fault.log");
         l = stage.launcher("bash", "-c", fault + ">" + log.getAbsolute() + " 2>&1");
         handle = l.launch();
@@ -118,9 +117,5 @@ public class Fault implements Extension {
 
     private static FileNode workspace(Stage stage) {
         return stage.backstage.join("fault");
-    }
-
-    private static String pidfile(Stage stage) {
-        return stage.servicePidFile().getAbsolute();
     }
 }
