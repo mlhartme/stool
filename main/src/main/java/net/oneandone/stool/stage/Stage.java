@@ -18,7 +18,6 @@ package net.oneandone.stool.stage;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.stool.cli.Start;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.extensions.Extensions;
@@ -39,6 +38,8 @@ import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
+import net.oneandone.sushi.util.Substitution;
+import net.oneandone.sushi.util.SubstitutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
@@ -327,7 +328,7 @@ public abstract class Stage {
 
     //-- tomcat helper
 
-    public void start(Console console, Ports ports) throws Exception {
+    public void start(Console console, Ports ports, String catalinaOpts) throws Exception {
         ServerXml serverXml;
         KeyStore keystore;
         Extensions extensions;
@@ -347,7 +348,7 @@ public abstract class Stage {
         extensions.beforeStart(this);
         engine = session.dockerEngine();
         imageName = getId();
-        console.verbose.println(engine.build(imageName, dockerfile()));
+        console.verbose.println(engine.build(imageName, dockerfile(catalinaOpts)));
         console.verbose.println("image built");
         container = engine.containerCreate(imageName, Strings.toMap(getDirectory().getAbsolute().toString(), "/stage"), ports.dockerMap());
         console.verbose.println("created container " + container);
@@ -370,8 +371,20 @@ public abstract class Stage {
         return file.exists() ? file.readString().trim() : null;
     }
 
-    private String dockerfile() throws IOException {
-        return session.world.resource("templates/Dockerfile").readString();
+    public static final Substitution S = new Substitution("${{", "}}", '\\');
+
+    private String dockerfile(String catalinaOpts) throws IOException {
+        String str;
+        Map<String, String> variables;
+
+        str = session.world.resource("templates/Dockerfile").readString();
+        variables = new HashMap<>();
+        variables.put("catalina.opts", catalinaOpts);
+        try {
+            return S.apply(str, variables);
+        } catch (SubstitutionException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private boolean http2() {

@@ -14,7 +14,8 @@ RUN set -x; \
 	apt-get update && apt-get install -y --no-install-recommends ca-certificates curl wget procps bzip2 unzip xz-utils openjdk-8-jre="$JAVA_DEBIAN_VERSION" && rm -rf /var/lib/apt/lists/*
 
 ENV CATALINA_HOME /stage/.backstage/tomcat
-ENV PATH $CATALINA_HOME/bin:$PATH
+ENV CATALINA_OPTS ${{catalina.opts}}
+
 WORKDIR $CATALINA_HOME
 
-CMD ["/stage/.backstage/tomcat/bin/catalina.sh", "run"]
+CMD ["bin/catalina.sh", "run"]

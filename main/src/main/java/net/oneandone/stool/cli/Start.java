@@ -25,8 +25,10 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
 import net.oneandone.sushi.util.SubstitutionException;
@@ -36,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -127,11 +130,11 @@ public class Start extends StageCommand {
 
         ports = session.pool().allocate(stage, Collections.emptyMap());
         createBackstage(stage);
-        tomcatOpt(stage.getBackstage(), stage.config().tomcatVersion);
+        unpackTomcatOpt(stage.getBackstage(), stage.config().tomcatVersion);
         if (debug || suspend) {
             console.info.println("debugging enabled on port " + ports.debug());
         }
-        stage.start(console, ports);
+        stage.start(console, ports, catalinaOpts(ports, stage));
     }
 
     private void doTail(Stage stage) throws IOException {
@@ -262,7 +265,7 @@ public class Start extends StageCommand {
         }
     }
 
-    private void tomcatOpt(FileNode backstage, String version) throws IOException, SAXException {
+    private void unpackTomcatOpt(FileNode backstage, String version) throws IOException, SAXException {
         String name;
         FileNode download;
         FileNode src;
@@ -300,6 +303,44 @@ public class Start extends StageCommand {
                     "org.apache.catalina.core.ContainerBase.[Catalina].handlers = 1catalina.org.apache.juli.FileHandler"
             );
         }
+    }
+
+    private String catalinaOpts(Ports ports, Stage stage) {
+        String tomcatOpts;
+        List<String> opts;
+
+        opts = new ArrayList<>();
+
+        // this is a marker to indicate they are launched by stool; and this is used by the dashboard to locate stool
+        opts.add("-Dstool.cp=" + Main.stoolCp(session.world).getAbsolute());
+        opts.add("-Dstool.home=" + session.home.getAbsolute());
+        try {
+            opts.add("-Dstool.idlink=" + session.backstageLink(stage.getId()).getAbsolute());
+        } catch (ReadLinkException e) {
+            throw new IllegalStateException(e);
+        }
+
+        tomcatOpts = stage.macros().replace(stage.config().tomcatOpts);
+        opts.addAll(Separator.SPACE.split(tomcatOpts));
+
+        opts.add("-Xmx" + stage.config().tomcatHeap + "m");
+
+        for (Map.Entry<String,String> entry : stage.extensions().tomcatOpts(stage).entrySet()) {
+            opts.add("-D" + entry.getKey() + "=" + entry.getValue());
+        }
+
+        // see http://docs.oracle.com/javase/7/docs/technotes/guides/management/agent.html
+        opts.add("-Dcom.sun.management.jmxremote.authenticate=false");
+        opts.add("-Dcom.sun.management.jmxremote.port=" + ports.jmx());
+        opts.add("-Dcom.sun.management.jmxremote.rmi.port=" + ports.jmx());
+        opts.add("-Dcom.sun.management.jmxremote.ssl=false");
+        if (debug || suspend) {
+            opts.add("-Xdebug");
+            opts.add("-Xnoagent");
+            opts.add("-Djava.compiler=NONE");
+            opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=" + ports.debug() + ",suspend=" + (suspend ? "y" : "n"));
+        }
+        return Separator.SPACE.join(opts);
     }
 
     //-- fitnesse
