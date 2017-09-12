@@ -79,9 +79,9 @@ public class Engine {
         HttpNode node;
         StringBuilder result;
         JsonObject object;
-        JsonElement msg;
-        JsonElement errorDetail;
         JsonObject error;
+        String key;
+        JsonElement code;
 
         node = root.join("build");
         node = node.getRoot().node(node.getPath(), "t=" + name);
@@ -89,48 +89,64 @@ public class Engine {
         error = null;
         for (String line : Separator.RAW_LINE.split(root.getWorld().getSettings().string(post(node, tar(context))))) {
             object = parser.parse(line).getAsJsonObject();
-            if (object.get("aux") != null) {
-                // image id, currently not used
-                continue;
-            }
-            msg = object.get("stream");
-            if (msg != null) {
-                result.append(msg.getAsString());
-            } else {
-                errorDetail = object.get("errorDetail");
-                if (errorDetail == null) {
-                    throw new IOException("unknown docker response: " + object);
-                }
-                if (error != null) {
-                    throw new IOException("");
-                }
-                error = errorDetail.getAsJsonObject();
+            key = getKey(object);
+            switch (key) {
+                case "aux":
+                    // image id, currently not used
+                    break;
+                case "stream":
+                    result.append(object.get(key).getAsString());
+                    break;
+                case "error":
+                    if (error != null) {
+                        throw new IOException("multiple errors");
+                    }
+                    error = object.get("errorDetail").getAsJsonObject();
+                    break;
+                default:
+                    throw new IOException("unknown docker response key '" + key + "' in object " + object);
             }
         }
         if (error != null) {
-            throw new BuildError(error.get("code").getAsInt(), error.get("message").getAsString(), result.toString());
+            code = error.get("code");
+            throw new BuildError(code != null ? code.getAsInt() : -1, error.get("message").getAsString(), result.toString());
         }
         return result.toString();
+    }
+
+    private static String getKey(JsonObject object) throws IOException {
+        JsonElement key;
+
+        switch (object.size()) {
+            case 1:
+                return object.entrySet().iterator().next().getKey();
+            case 2:
+                key = object.get("error");
+                if (key != null) {
+                    return "error";
+                }
+                // fall-through
+            default:
+                throw new IOException("unexpected object: " + object);
+        }
     }
 
     private byte[] tar(FileNode context) throws IOException {
         ByteArrayOutputStream dest;
         TarOutputStream tar;
-        byte[] dockerfileBytes;
+        byte[] bytes;
 
         dest = new ByteArrayOutputStream();
+        tar = new TarOutputStream(dest);
         for (FileNode file : context.find("**/*")) {
             if (file.isDirectory()) {
                 throw new IOException("todo");
             }
-            dockerfileBytes = file.readBytes();
-            tar = new TarOutputStream(dest);
-            tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), (long) dockerfileBytes.length, System.currentTimeMillis(), false)));
-            try (InputStream in = new ByteArrayInputStream(dockerfileBytes)) {
-                root.getWorld().getBuffer().copy(in, tar);
-            }
-            tar.close();
+            bytes = file.readBytes();
+            tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), bytes.length, System.currentTimeMillis(), false)));
+            tar.write(bytes);
         }
+        tar.close();
         return dest.toByteArray();
     }
 

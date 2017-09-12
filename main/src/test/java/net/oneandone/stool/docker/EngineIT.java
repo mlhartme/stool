@@ -46,16 +46,8 @@ public class EngineIT {
         engine.imageRemove(image);
     }
 
-    private FileNode df(String dockerfile) throws IOException {
-        FileNode dir;
-
-        dir = WORLD.getTemp().createTempDirectory();
-        dir.join("Dockerfile").writeString(dockerfile);
-        return dir;
-    }
-
     @Test
-    public void error() throws IOException {
+    public void runFailure() throws IOException {
         String image = "stooltest";
         Engine engine;
 
@@ -69,5 +61,42 @@ public class EngineIT {
             assertEquals(127, e.code);
             assertNotNull("", e.output);
         }
+    }
+
+    @Test
+    public void copy() throws IOException {
+        String image = "stooltest";
+        Engine engine;
+
+        engine = Engine.open("target/wire.log");
+        engine.imageBuild(image, WORLD.guessProjectHome(getClass()).join("src/test/docker"));
+        engine.imageRemove(image);
+    }
+
+    @Test
+    public void copyFailure() throws IOException {
+        String image = "stooltest";
+        Engine engine;
+
+        engine = Engine.open("target/wire.log");
+        try {
+            engine.imageBuild(image, df("FROM debian:stretch-slim\ncopy nosuchfile /nosuchfile\nCMD [\"echo\", \"hi\", \"/\"]\n"));
+            fail();
+        } catch (BuildError e) {
+            // ok
+            assertNotNull("", e.error);
+            assertEquals(-1, e.code);
+            assertNotNull("", e.output);
+        }
+    }
+
+    //--
+
+    private FileNode df(String dockerfile) throws IOException {
+        FileNode dir;
+
+        dir = WORLD.getTemp().createTempDirectory();
+        dir.join("Dockerfile").writeString(dockerfile);
+        return dir;
     }
 }
