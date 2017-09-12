@@ -306,7 +306,6 @@ public class Start extends StageCommand {
     }
 
     private String catalinaOpts(Ports ports, Stage stage) {
-        String tomcatOpts;
         List<String> opts;
 
         opts = new ArrayList<>();
@@ -319,9 +318,6 @@ public class Start extends StageCommand {
         } catch (ReadLinkException e) {
             throw new IllegalStateException(e);
         }
-
-        tomcatOpts = stage.macros().replace(stage.config().tomcatOpts);
-        opts.addAll(Separator.SPACE.split(tomcatOpts));
 
         opts.add("-Xmx" + stage.config().tomcatHeap + "m");
 

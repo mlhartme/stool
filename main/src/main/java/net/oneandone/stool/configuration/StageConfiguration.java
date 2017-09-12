@@ -24,7 +24,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class StageConfiguration {
     public static final String NOTIFY_OWNER = "@owner"; // TODO: dump in 3.5
@@ -65,8 +67,8 @@ public class StageConfiguration {
     @Option(key = "quota")
     public int quota;
 
-    @Option(key = "tomcat.opts")
-    public String tomcatOpts;
+    @Option(key = "container.opts")
+    public Map<String, String> containerOpts;
 
     @Option(key = "tomcat.version")
     public String tomcatVersion;
@@ -115,7 +117,7 @@ public class StageConfiguration {
         this.notify.add(NOTIFY_CREATOR);
         this.pom = "pom.xml";
         this.quota = 10000;
-        this.tomcatOpts = "";
+        this.containerOpts = new HashMap<>();
         this.tomcatVersion = "8.5.16";
         this.tomcatHeap = 350;
         this.tomcatSelect = new ArrayList<>();

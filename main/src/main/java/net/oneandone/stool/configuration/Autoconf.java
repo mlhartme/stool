@@ -57,7 +57,7 @@ public class Autoconf {
             // note: doesn't work on local machines, only for stages ...
             // dest.certificates = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
             dflt = dest.defaults.get("");
-            dflt.put("tomcat.opts", "");
+            dflt.put("container.opts", "");
             dflt.put("maven.opts", "-Xmx1024m -Dmaven.repo.local=@localRepository@ @trustStore@");
             dflt.put("pustefix", "true");
             dflt.put("pustefix.mode", "test");
