@@ -15,6 +15,9 @@
  */
 package net.oneandone.stool.stage;
 
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
@@ -48,6 +51,7 @@ import org.eclipse.aether.repository.RepositoryPolicy;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.Socket;
 import java.net.URI;
 import java.nio.file.FileVisitResult;
@@ -351,7 +355,7 @@ public abstract class Stage {
         engine = session.dockerEngine();
         imageName = getId();
         variables = new HashMap<>();
-        variables.put("catalina.opts", catalinaOpts);
+        variables.put("catalina_opts", catalinaOpts);
         variables.putAll(configuration.containerOpts);
         try {
             console.verbose.println(engine.imageBuild(imageName, dockerContext(variables)));
@@ -383,24 +387,41 @@ public abstract class Stage {
         return file.exists() ? file.readString().trim() : null;
     }
 
-    public static final Substitution S = new Substitution("${{", "}}", '\\');
-
-    private FileNode dockerContext(Map<String, String> variables) throws IOException, SubstitutionException {
+    private FileNode dockerContext(Map<String, String> variables) throws IOException, TemplateException {
+        Configuration configuration;
         FileNode src;
         FileNode dest;
         FileNode destfile;
+        Template template;
+        StringWriter tmp;
+
+        configuration = new Configuration(Configuration.VERSION_2_3_26);
+        configuration.setDefaultEncoding("UTF-8");
 
         // TODO
         src = session.world.file("/Users/mhm/Projects/github.com/net/oneandone/stool/stool/main/templates/ciso");
         dest = backstage.join("run/image");
         if (!dest.exists()) {
-            for (FileNode srcfile : src.find("**/*")) {
-                if (srcfile.isDirectory()) {
-                    continue;
+            try {
+                for (FileNode srcfile : src.find("**/*")) {
+                    if (srcfile.isDirectory()) {
+                        continue;
+                    }
+                    destfile = dest.join(srcfile.getRelative(src));
+                    destfile.getParent().mkdirsOpt();
+                    configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
+                    template = configuration.getTemplate(srcfile.getName());
+                    tmp = new StringWriter();
+                    template.process(variables, tmp);
+                    destfile.writeString(tmp.getBuffer().toString());
                 }
-                destfile = dest.join(srcfile.getRelative(src));
-                destfile.getParent().mkdirsOpt();
-                destfile.writeString(S.apply(srcfile.readString(), variables));
+            } catch (IOException e) {
+                // generate all or nothing
+                try {
+                    dest.deleteTreeOpt();
+                } catch (IOException nested) {
+                    e.addSuppressed(nested);
+                }
             }
         }
         return dest;
