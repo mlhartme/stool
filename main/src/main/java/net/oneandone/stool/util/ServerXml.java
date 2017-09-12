@@ -103,7 +103,7 @@ public class ServerXml {
         host.insertBefore(element, host.getFirstChild());
     }
 
-    private String toMount(FileNode stageDirectory, String path) {
+    public static String toMount(FileNode stageDirectory, String path) {
         return path.startsWith("/") ? "/stage/" + Strings.removeLeft(path, stageDirectory.getAbsolute() + "/") : path;
     }
 

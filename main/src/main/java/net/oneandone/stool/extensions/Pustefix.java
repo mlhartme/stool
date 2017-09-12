@@ -16,6 +16,7 @@
 package net.oneandone.stool.extensions;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.ServerXml;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -55,7 +56,7 @@ public class Pustefix implements Extension {
 
         app = host.substring(0, host.indexOf('.'));
         result.put("mode", mode);
-        result.put("logroot", stage.getBackstage().join(APPLOGS, app).getAbsolute());
+        result.put("logroot", ServerXml.toMount(stage.getDirectory(), stage.getBackstage().join(APPLOGS, app).getAbsolute()));
     }
 
     @Override
