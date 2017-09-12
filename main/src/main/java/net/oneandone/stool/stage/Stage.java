@@ -350,7 +350,7 @@ public abstract class Stage {
         extensions.beforeStart(this);
         engine = session.dockerEngine();
         imageName = getId();
-        dockerfile = dockerfile(catalinaOpts, dockerEnv());
+        dockerfile = dockerfile(catalinaOpts);
         backstage.join("run/Dockerfile").writeString(dockerfile);
         try {
             console.verbose.println(engine.imageBuild(imageName, dockerfile));
@@ -371,26 +371,6 @@ public abstract class Stage {
         dockerContainerFile().writeString(container);
     }
 
-    private String dockerEnv() {
-        StringBuilder result;
-
-        if (configuration.tomcatEnv.isEmpty()) {
-            return "";
-        }
-
-        result = new StringBuilder();
-        for (Map.Entry<String, String> entry : configuration.tomcatEnv.entrySet()) {
-            if (result.length() == 0) {
-                result.append("ENV ");
-            } else {
-                result.append(" \\\n    ");
-            }
-            result.append(entry.getKey()).append('=').append(entry.getValue());
-        }
-        result.append('\n');
-        return result.toString();
-    }
-
     private FileNode dockerContainerFile() {
         return backstage.join("run/container");
     }
@@ -404,14 +384,13 @@ public abstract class Stage {
 
     public static final Substitution S = new Substitution("${{", "}}", '\\');
 
-    private String dockerfile(String catalinaOpts, String catalinaEnv) throws IOException {
+    private String dockerfile(String catalinaOpts) throws IOException {
         String str;
         Map<String, String> variables;
 
         str = session.world.resource("templates/Dockerfile").readString();
         variables = new HashMap<>();
         variables.put("catalina.opts", catalinaOpts);
-        variables.put("catalina.env", catalinaEnv);
         try {
             return S.apply(str, variables);
         } catch (SubstitutionException e) {

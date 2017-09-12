@@ -15,7 +15,6 @@
   "defaults": {
     "": {
       "tomcat.opts": "@proxyOpts@ @trustStore@",
-      "tomcat.env": "PATH:/opt/ui/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/opt/ui/opt/tools/svn/bin:/opt/ui/opt/tools/svn/nodejs/bin,LAVENDER_PROPERTIES:/opt/ui/opt/tools/svn/lavender.properties,LAVENDER_SETTINGS:/opt/ui/opt/tools/svn/lavender.properties",
       "maven.opts": "-Xmx1024m -Dmaven.repo.local=@localRepository@ @proxyOpts@ @trustStore@",
       "pustefix": true,
       "pustefix.mode": "test",

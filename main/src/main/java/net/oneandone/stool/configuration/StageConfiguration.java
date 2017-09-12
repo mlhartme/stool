@@ -24,9 +24,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class StageConfiguration {
     public static final String NOTIFY_OWNER = "@owner"; // TODO: dump in 3.5
@@ -79,9 +77,6 @@ public class StageConfiguration {
     @Option(key = "tomcat.select")
     public List<String> tomcatSelect;
 
-    @Option(key = "tomcat.env")
-    public Map<String, String> tomcatEnv;
-
     /** login names or email addresses, or "@last-modified-by" or "@creator" */
     @Option(key = "notify")
     public List<String> notify;
@@ -124,7 +119,6 @@ public class StageConfiguration {
         this.tomcatVersion = "8.5.16";
         this.tomcatHeap = 350;
         this.tomcatSelect = new ArrayList<>();
-        this.tomcatEnv = new HashMap<>();
         this.javaHome = javaHome;
         this.mavenHome = mavenHome;
         this.mavenOpts = "";

@@ -43,7 +43,6 @@ public class Autoconf {
 
     private static void oneAndOne(Environment environment, StoolConfiguration dest) {
         String tools;
-        String lavender;
         Map<String, String> dflt;
 
         tools = environment.getOpt("CISOTOOLS_HOME");
@@ -51,7 +50,6 @@ public class Autoconf {
             tools = environment.getOpt("WSDTOOLS_HOME");
         }
         if (tools != null) {
-            lavender = environment.get("LAVENDER_PROPERTIES");
             dest.ldapSso = "cisostages";
             dest.admin = "michael.hartmeier@1und1.de";
             dest.mailHost = "mri.server.lan";
@@ -60,7 +58,6 @@ public class Autoconf {
             // dest.certificates = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
             dflt = dest.defaults.get("");
             dflt.put("tomcat.opts", "");
-            dflt.put("tomcat.env", "PATH:" + environment.get("PATH") + ",LAVENDER_PROPERTIES:" + lavender + ",LAVENDER_SETTINGS:" + lavender);
             dflt.put("maven.opts", "-Xmx1024m -Dmaven.repo.local=@localRepository@ @trustStore@");
             dflt.put("pustefix", "true");
             dflt.put("pustefix.mode", "test");
