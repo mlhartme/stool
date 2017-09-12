@@ -353,7 +353,8 @@ public abstract class Stage {
         backstage.join("run/Dockerfile").writeString(dockerfile);
         console.verbose.println(engine.build(imageName, dockerfile));
         console.verbose.println("image built");
-        container = engine.containerCreate(imageName, Strings.toMap(getDirectory().getAbsolute().toString(), "/stage"), ports.dockerMap());
+        container = engine.containerCreate(imageName, session.configuration.hostname,
+                Strings.toMap(getDirectory().getAbsolute().toString(), "/stage"), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
         status = engine.containerStatus(container);

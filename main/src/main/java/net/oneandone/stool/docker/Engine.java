@@ -107,18 +107,18 @@ public class Engine {
 
     //-- containers
 
-    public String containerCreate(String image) throws IOException {
-        return containerCreate(image, Collections.emptyMap(), Collections.emptyMap());
+    public String containerCreate(String image, String hostname) throws IOException {
+        return containerCreate(image, hostname, Collections.emptyMap(), Collections.emptyMap());
     }
 
-    public String containerCreate(String image, Map<String, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
+    public String containerCreate(String image, String hostname, Map<String, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
         JsonObject body;
         JsonObject response;
         JsonObject hostConfig;
         JsonArray binds;
         JsonObject portBindings;
 
-        body = body("Image", image);
+        body = body("Image", image, "hostname", hostname);
 
         hostConfig = new JsonObject();
 

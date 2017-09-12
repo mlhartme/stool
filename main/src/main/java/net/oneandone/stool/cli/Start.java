@@ -334,7 +334,7 @@ public class Start extends StageCommand {
         opts.add("-Dcom.sun.management.jmxremote.port=" + ports.jmx());
         opts.add("-Dcom.sun.management.jmxremote.rmi.port=" + ports.jmx());
         opts.add("-Dcom.sun.management.jmxremote.ssl=false");
-        // TODO: configure this hostname for container instead?
+        // TODO: why? the hostname is set properly ...
         opts.add("-Djava.rmi.server.hostname='" + session.configuration.hostname + "'");
         if (debug || suspend) {
             opts.add("-Xdebug");

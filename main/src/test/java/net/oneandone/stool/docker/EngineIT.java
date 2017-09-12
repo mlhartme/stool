@@ -27,7 +27,7 @@ public class EngineIT {
         System.out.println(output);
         assertNotNull(output);
 
-        container = engine.containerCreate(image);
+        container = engine.containerCreate(image, "foo");
         assertNotNull(container);
         assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
         engine.containerStart(container);
