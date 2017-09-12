@@ -388,7 +388,9 @@ public abstract class Stage {
         String str;
         Map<String, String> variables;
 
-        str = session.world.resource("templates/Dockerfile").readString();
+        // TODO
+        str = session.world.file("/Users/mhm/Projects/github.com/net/oneandone/stool/stool/main/src/main/resources/templates/Dockerfile").readString();
+        // str = session.world.resource("templates/Dockerfile").readString();
         variables = new HashMap<>();
         variables.put("catalina.opts", catalinaOpts);
         try {

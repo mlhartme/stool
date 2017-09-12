@@ -11,7 +11,14 @@ RUN set -x; \
 	if [ ! -d /usr/share/man/man1 ]; then \
 		mkdir -p /usr/share/man/man1; \
 	fi; \
-	apt-get update && apt-get install -y --no-install-recommends ca-certificates curl wget procps bzip2 unzip xz-utils openjdk-8-jre="$JAVA_DEBIAN_VERSION" && rm -rf /var/lib/apt/lists/*
+	apt-get update && apt-get install -y --no-install-recommends ca-certificates curl wget procps bzip2 unzip xz-utils gpg openjdk-8-jre="$JAVA_DEBIAN_VERSION" && rm -rf /var/lib/apt/lists/*
+
+RUN \
+    echo "deb http://1and1-deb.reposrv.server.lan/ciso/stable jessie contrib" | tee /etc/apt/sources.list.d/ciso-stable.list && \
+    curl -q http://1and1-deb.reposrv.server.lan/ciso/key.asc | apt-key add -
+
+RUN \
+    apt-get update && apt-get install -y lavender
 
 # puki, see https://wiki.1and1.org/PKI/HowtoRootCert
 RUN curl "http://ivar.santana.ciso.server.lan/pukirootca1.crt" >/tmp/puki.crt
