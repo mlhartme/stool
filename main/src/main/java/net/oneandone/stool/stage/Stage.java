@@ -382,7 +382,7 @@ public abstract class Stage {
     public static final Substitution S = new Substitution("${{", "}}", '\\');
 
     private FileNode dockerContext() throws IOException {
-        return session.world.file("/Users/mhm/Projects/github.com/net/oneandone/stool/stool/main/todo");
+        return session.world.file("/Users/mhm/Projects/github.com/net/oneandone/stool/stool/main/templates/ciso");
     }
 
     private boolean http2() {
