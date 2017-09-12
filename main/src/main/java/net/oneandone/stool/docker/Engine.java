@@ -14,6 +14,7 @@ import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.fs.http.model.Method;
+import net.oneandone.sushi.util.Separator;
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarHeader;
 import org.kamranzafar.jtar.TarOutputStream;
@@ -78,12 +79,17 @@ public class Engine {
     //-- images
 
 
-    public String build(String name, String dockerfile) throws IOException {
+    public String imageBuild(String name, String dockerfile) throws IOException {
         Settings settings;
         HttpNode node;
         ByteArrayOutputStream dest;
         TarOutputStream tar;
         byte[] dockerfileBytes;
+        StringBuilder result;
+        JsonObject object;
+        JsonElement msg;
+        JsonElement errorDetail;
+        JsonObject error;
 
         node = root.join("build");
         node = node.getRoot().node(node.getPath(), "t=" + name);
@@ -97,7 +103,32 @@ public class Engine {
             root.getWorld().getBuffer().copy(in, tar);
         }
         tar.close();
-        return settings.string(post(node, dest.toByteArray()));
+        result = new StringBuilder();
+        error = null;
+        for (String line : Separator.RAW_LINE.split(settings.string(post(node, dest.toByteArray())))) {
+            object = parser.parse(line).getAsJsonObject();
+            if (object.get("aux") != null) {
+                // image id, currently not used
+                continue;
+            }
+            msg = object.get("stream");
+            if (msg != null) {
+                result.append(msg.getAsString());
+            } else {
+                errorDetail = object.get("errorDetail");
+                if (errorDetail == null) {
+                    throw new IOException("unknown docker response: " + object);
+                }
+                if (error != null) {
+                    throw new IOException("");
+                }
+                error = errorDetail.getAsJsonObject();
+            }
+        }
+        if (error != null) {
+            throw new BuildError(error.get("code").getAsInt(), error.get("message").getAsString(), result.toString());
+        }
+        return result.toString();
     }
 
     public void imageRemove(String id) throws IOException {

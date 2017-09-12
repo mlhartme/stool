@@ -13,6 +13,11 @@ RUN set -x; \
 	fi; \
 	apt-get update && apt-get install -y --no-install-recommends ca-certificates curl wget procps bzip2 unzip xz-utils openjdk-8-jre="$JAVA_DEBIAN_VERSION" && rm -rf /var/lib/apt/lists/*
 
+# puki, see https://wiki.1and1.org/PKI/HowtoRootCert
+RUN curl "http://ivar.santana.ciso.server.lan/pukirootca1.crt" >/tmp/puki.crt
+RUN $JAVA_HOME/bin/keytool -keystore $JAVA_HOME/lib/security/cacerts -storepass changeit -import -trustcacerts -alias pukirootca1 -file /tmp/puki.crt -noprompt
+RUN rm /tmp/puki.crt
+
 ENV CATALINA_HOME /stage/.backstage/tomcat
 ENV CATALINA_OPTS ${{catalina.opts}}
 ${{catalina.env}}

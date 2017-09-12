@@ -19,6 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.stool.scm.Scm;
@@ -351,7 +352,13 @@ public abstract class Stage {
         imageName = getId();
         dockerfile = dockerfile(catalinaOpts, dockerEnv());
         backstage.join("run/Dockerfile").writeString(dockerfile);
-        console.verbose.println(engine.build(imageName, dockerfile));
+        try {
+            console.verbose.println(engine.imageBuild(imageName, dockerfile));
+        } catch (BuildError e) {
+            console.verbose.println("docker output");
+            console.verbose.println(e.output);
+            throw e;
+        }
         console.verbose.println("image built");
         container = engine.containerCreate(imageName, session.configuration.hostname,
                 Strings.toMap(getDirectory().getAbsolute().toString(), "/stage"), ports.dockerMap());
@@ -385,7 +392,7 @@ public abstract class Stage {
     }
 
     private FileNode dockerContainerFile() {
-        return backstage.join("run/docker.container");
+        return backstage.join("run/container");
     }
 
     public String dockerContainer() throws IOException {

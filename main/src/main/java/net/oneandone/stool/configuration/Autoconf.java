@@ -59,7 +59,7 @@ public class Autoconf {
             // note: doesn't work on local machines, only for stages ...
             // dest.certificates = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
             dflt = dest.defaults.get("");
-            dflt.put("tomcat.opts", "@trustStore@");
+            dflt.put("tomcat.opts", "");
             dflt.put("tomcat.env", "PATH:" + environment.get("PATH") + ",LAVENDER_PROPERTIES:" + lavender + ",LAVENDER_SETTINGS:" + lavender);
             dflt.put("maven.opts", "-Xmx1024m -Dmaven.repo.local=@localRepository@ @trustStore@");
             dflt.put("pustefix", "true");
