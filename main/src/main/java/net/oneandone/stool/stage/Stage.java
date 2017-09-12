@@ -336,7 +336,6 @@ public abstract class Stage {
         Engine engine;
         String container;
         Engine.Status status;
-        String dockerfile;
         String imageName;
 
         checkMemory();
@@ -350,10 +349,8 @@ public abstract class Stage {
         extensions.beforeStart(this);
         engine = session.dockerEngine();
         imageName = getId();
-        dockerfile = dockerfile(catalinaOpts);
-        backstage.join("run/Dockerfile").writeString(dockerfile);
         try {
-            console.verbose.println(engine.imageBuild(imageName, dockerfile));
+            console.verbose.println(engine.imageBuild(imageName, dockerContext()));
         } catch (BuildError e) {
             console.verbose.println("docker output");
             console.verbose.println(e.output);
@@ -384,20 +381,8 @@ public abstract class Stage {
 
     public static final Substitution S = new Substitution("${{", "}}", '\\');
 
-    private String dockerfile(String catalinaOpts) throws IOException {
-        String str;
-        Map<String, String> variables;
-
-        // TODO
-        str = session.world.file("/Users/mhm/Projects/github.com/net/oneandone/stool/stool/main/src/main/resources/templates/Dockerfile").readString();
-        // str = session.world.resource("templates/Dockerfile").readString();
-        variables = new HashMap<>();
-        variables.put("catalina.opts", catalinaOpts);
-        try {
-            return S.apply(str, variables);
-        } catch (SubstitutionException e) {
-            throw new IllegalStateException(e);
-        }
+    private FileNode dockerContext() throws IOException {
+        return session.world.file("/Users/mhm/Projects/github.com/net/oneandone/stool/stool/main/todo");
     }
 
     private boolean http2() {

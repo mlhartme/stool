@@ -1,5 +1,7 @@
 package net.oneandone.stool.docker;
 
+import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -12,6 +14,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 public class EngineIT {
+    private static final World WORLD = World.createMinimal();
+
     @Test
     public void turnaround() throws IOException {
         String image = "stooltest";
@@ -23,7 +27,7 @@ public class EngineIT {
         message = UUID.randomUUID().toString();
 
         engine = Engine.open("target/wire.log");
-        output = engine.imageBuild(image, "FROM debian:stretch-slim\nCMD [\"echo\", \"" + message + "\", \"/\"]\n");
+        output = engine.imageBuild(image, df("FROM debian:stretch-slim\nCMD [\"echo\", \"" + message + "\", \"/\"]\n"));
         System.out.println(output);
         assertNotNull(output);
 
@@ -42,6 +46,14 @@ public class EngineIT {
         engine.imageRemove(image);
     }
 
+    private FileNode df(String dockerfile) throws IOException {
+        FileNode dir;
+
+        dir = WORLD.getTemp().createTempDirectory();
+        dir.join("Dockerfile").writeString(dockerfile);
+        return dir;
+    }
+
     @Test
     public void error() throws IOException {
         String image = "stooltest";
@@ -49,7 +61,7 @@ public class EngineIT {
 
         engine = Engine.open("target/wire.log");
         try {
-            engine.imageBuild(image, "FROM debian:stretch-slim\nRUN /bin/nosuchcmd\nCMD [\"echo\", \"hi\", \"/\"]\n");
+            engine.imageBuild(image, df("FROM debian:stretch-slim\nRUN /bin/nosuchcmd\nCMD [\"echo\", \"hi\", \"/\"]\n"));
             fail();
         } catch (BuildError e) {
             // ok

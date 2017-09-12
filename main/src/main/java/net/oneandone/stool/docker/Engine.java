@@ -8,8 +8,8 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
-import net.oneandone.sushi.fs.Settings;
 import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.StatusException;
@@ -27,15 +27,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -79,12 +75,8 @@ public class Engine {
     //-- images
 
 
-    public String imageBuild(String name, String dockerfile) throws IOException {
-        Settings settings;
+    public String imageBuild(String name, FileNode context) throws IOException {
         HttpNode node;
-        ByteArrayOutputStream dest;
-        TarOutputStream tar;
-        byte[] dockerfileBytes;
         StringBuilder result;
         JsonObject object;
         JsonElement msg;
@@ -93,19 +85,9 @@ public class Engine {
 
         node = root.join("build");
         node = node.getRoot().node(node.getPath(), "t=" + name);
-
-        settings = root.getWorld().getSettings();
-        dockerfileBytes = settings.bytes(dockerfile);
-        dest = new ByteArrayOutputStream(dockerfileBytes.length + 100);
-        tar = new TarOutputStream(dest);
-        tar.putNextEntry(new TarEntry(TarHeader.createHeader("Dockerfile", (long) dockerfileBytes.length, System.currentTimeMillis(), false)));
-        try (InputStream in = new ByteArrayInputStream(dockerfileBytes)) {
-            root.getWorld().getBuffer().copy(in, tar);
-        }
-        tar.close();
         result = new StringBuilder();
         error = null;
-        for (String line : Separator.RAW_LINE.split(settings.string(post(node, dest.toByteArray())))) {
+        for (String line : Separator.RAW_LINE.split(root.getWorld().getSettings().string(post(node, tar(context))))) {
             object = parser.parse(line).getAsJsonObject();
             if (object.get("aux") != null) {
                 // image id, currently not used
@@ -129,6 +111,27 @@ public class Engine {
             throw new BuildError(error.get("code").getAsInt(), error.get("message").getAsString(), result.toString());
         }
         return result.toString();
+    }
+
+    private byte[] tar(FileNode context) throws IOException {
+        ByteArrayOutputStream dest;
+        TarOutputStream tar;
+        byte[] dockerfileBytes;
+
+        dest = new ByteArrayOutputStream();
+        for (FileNode file : context.find("**/*")) {
+            if (file.isDirectory()) {
+                throw new IOException("todo");
+            }
+            dockerfileBytes = file.readBytes();
+            tar = new TarOutputStream(dest);
+            tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), (long) dockerfileBytes.length, System.currentTimeMillis(), false)));
+            try (InputStream in = new ByteArrayInputStream(dockerfileBytes)) {
+                root.getWorld().getBuffer().copy(in, tar);
+            }
+            tar.close();
+        }
+        return dest.toByteArray();
     }
 
     public void imageRemove(String id) throws IOException {
