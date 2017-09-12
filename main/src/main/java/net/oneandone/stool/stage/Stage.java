@@ -337,6 +337,7 @@ public abstract class Stage {
         String container;
         Engine.Status status;
         String imageName;
+        Map<String, String> variables;
 
         checkMemory();
         console.info.println("starting container ...");
@@ -349,8 +350,11 @@ public abstract class Stage {
         extensions.beforeStart(this);
         engine = session.dockerEngine();
         imageName = getId();
+        variables = new HashMap<>();
+        variables.put("catalina.opts", catalinaOpts);
+        variables.putAll(configuration.containerOpts);
         try {
-            console.verbose.println(engine.imageBuild(imageName, dockerContext()));
+            console.verbose.println(engine.imageBuild(imageName, dockerContext(variables)));
         } catch (BuildError e) {
             console.verbose.println("docker output");
             console.verbose.println(e.output);
@@ -381,8 +385,25 @@ public abstract class Stage {
 
     public static final Substitution S = new Substitution("${{", "}}", '\\');
 
-    private FileNode dockerContext() throws IOException {
-        return session.world.file("/Users/mhm/Projects/github.com/net/oneandone/stool/stool/main/templates/ciso");
+    private FileNode dockerContext(Map<String, String> variables) throws IOException, SubstitutionException {
+        FileNode src;
+        FileNode dest;
+        FileNode destfile;
+
+        // TODO
+        src = session.world.file("/Users/mhm/Projects/github.com/net/oneandone/stool/stool/main/templates/ciso");
+        dest = backstage.join("run/image");
+        if (!dest.exists()) {
+            for (FileNode srcfile : src.find("**/*")) {
+                if (srcfile.isDirectory()) {
+                    continue;
+                }
+                destfile = dest.join(srcfile.getRelative(src));
+                destfile.getParent().mkdirsOpt();
+                destfile.writeString(S.apply(srcfile.readString(), variables));
+            }
+        }
+        return dest;
     }
 
     private boolean http2() {
