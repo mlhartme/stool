@@ -82,6 +82,11 @@ public class Fault implements Extension {
         result.put("fault_project", projects());
     }
 
+    @Override
+    public void files(FileNode dest) throws IOException {
+        
+    }
+
     private static FileNode workspace(Stage stage) {
         return stage.backstage.join("fault");
     }

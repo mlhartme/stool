@@ -11,7 +11,7 @@
   * `tomcat.env` dumped
     * adjust the container template instead
   * `tomcat.opts` dumped from stage configuration, it's defined by extensions instead
-  * added container.opts, configured by plugins
+  * extensions can not add container.opts and files to the docker context
         
         
 ### 3.4.10 (pending)

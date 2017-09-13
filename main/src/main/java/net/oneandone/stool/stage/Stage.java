@@ -403,6 +403,7 @@ public abstract class Stage {
         dest = backstage.join("run/image");
         if (!dest.exists()) {
             try {
+                extensions().files(dest);
                 for (FileNode srcfile : src.find("**/*")) {
                     if (srcfile.isDirectory()) {
                         continue;

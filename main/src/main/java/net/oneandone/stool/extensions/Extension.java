@@ -35,4 +35,6 @@ public interface Extension {
     void tomcatOpts(Stage stage, Map<String, String> result);
 
     void containerOpts(Stage stage, Map<String, Object> containerOpts);
+
+    void files(FileNode dest) throws IOException;
 }

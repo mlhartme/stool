@@ -66,4 +66,8 @@ public class Pustefix implements Extension {
     @Override
     public void containerOpts(Stage stage, Map<String, Object> result) {
     }
+
+    @Override
+    public void files(FileNode dest) throws IOException {
+    }
 }
