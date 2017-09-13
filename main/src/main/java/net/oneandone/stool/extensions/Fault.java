@@ -41,45 +41,6 @@ public class Fault implements Extension {
 
     @Override
     public void beforeStart(Stage stage) throws IOException {
-        String verbose;
-        FileNode workspace;
-        FileNode notify;
-        String fault;
-        Launcher l;
-        Launcher.Handle handle;
-        FileNode log;
-        long waiting;
-        int exitCode;
-
-        notify = stage.session.world.getTemp().createTempFile();
-        workspace = workspace(stage);
-        verbose = stage.session.console.getVerbose() ? "-v " : "";
-        fault = "fault " + verbose + "-auth=false while -workspace " + workspace.getAbsolute() + " -notify " + notify.getAbsolute() + " " + projects();
-        log = stage.backstage.join("fault.log");
-        l = stage.launcher("bash", "-c", fault + ">" + log.getAbsolute() + " 2>&1");
-        handle = l.launch();
-        waiting = 0;
-        do {
-            try {
-                Thread.sleep(50);
-                waiting += 50;
-            } catch (InterruptedException e) {
-                // fall through
-            }
-            if (!handle.process.isAlive()) {
-                try {
-                    exitCode = handle.process.waitFor();
-                } catch (InterruptedException e) {
-                    throw new IllegalStateException(e);
-                }
-                throw new IOException("fault terminated with exit code " + exitCode + ":\n" + log.readString());
-            }
-            if (waiting > 5000) {
-                handle.process.destroy();
-                throw new IOException("fault timed out, log output:\n" + log.readString());
-            }
-        } while (notify.isFile());
-        stage.session.console.verbose.println("started " + l);
     }
 
     // TODO: have a list of projects; always prepend @
@@ -118,6 +79,7 @@ public class Fault implements Extension {
     @Override
     public void containerOpts(Stage stage, Map<String, Object> result) {
         result.put("fault", Boolean.TRUE);
+        result.put("fault_project", projects());
     }
 
     private static FileNode workspace(Stage stage) {

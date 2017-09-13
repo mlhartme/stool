@@ -10,8 +10,8 @@
   * stages no longer need a service wrapper port and a tomcat stop port
   * `tomcat.env` dumped
     * adjust the container template instead
-  * tomcat.opts dumped
-    * extensions configure catalina.opts instead
+  * `tomcat.opts` dumped from stage configuration, it's defined by extensions instead
+  * added container.opts, configured by plugins
         
         
 ### 3.4.10 (pending)

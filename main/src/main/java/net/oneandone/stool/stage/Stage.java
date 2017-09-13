@@ -42,8 +42,6 @@ import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
-import net.oneandone.sushi.util.Substitution;
-import net.oneandone.sushi.util.SubstitutionException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
@@ -386,10 +384,13 @@ public abstract class Stage {
         return file.exists() ? file.readString().trim() : null;
     }
 
+    private static final String FREEMARKER_EXT = ".fm";
+
     private FileNode dockerContext(Map<String, Object> variables) throws IOException, TemplateException {
         Configuration configuration;
         FileNode src;
         FileNode dest;
+        FileNode destparent;
         FileNode destfile;
         Template template;
         StringWriter tmp;
@@ -407,20 +408,27 @@ public abstract class Stage {
                         continue;
                     }
                     destfile = dest.join(srcfile.getRelative(src));
-                    destfile.getParent().mkdirsOpt();
-                    configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
-                    template = configuration.getTemplate(srcfile.getName());
-                    tmp = new StringWriter();
-                    template.process(variables, tmp);
-                    destfile.writeString(tmp.getBuffer().toString());
+                    destparent = destfile.getParent();
+                    destparent.mkdirsOpt();
+                    if (destfile.getName().endsWith(FREEMARKER_EXT)) {
+                        configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
+                        template = configuration.getTemplate(srcfile.getName());
+                        tmp = new StringWriter();
+                        template.process(variables, tmp);
+                        destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
+                        destfile.writeString(tmp.getBuffer().toString());
+                    } else {
+                        srcfile.copy(destfile);
+                    }
                 }
-            } catch (IOException e) {
+            } catch (IOException | TemplateException | RuntimeException | Error e) {
                 // generate all or nothing
                 try {
                     dest.deleteTreeOpt();
                 } catch (IOException nested) {
                     e.addSuppressed(nested);
                 }
+                throw e;
             }
         }
         return dest;
