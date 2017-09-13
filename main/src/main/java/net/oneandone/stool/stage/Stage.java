@@ -401,36 +401,36 @@ public abstract class Stage {
         // TODO
         src = session.world.file("/Users/mhm/Projects/github.com/net/oneandone/stool/stool/main/templates/ciso");
         dest = backstage.join("run/image");
-        if (!dest.exists()) {
-            try {
-                extensions().files(dest);
-                for (FileNode srcfile : src.find("**/*")) {
-                    if (srcfile.isDirectory()) {
-                        continue;
-                    }
-                    destfile = dest.join(srcfile.getRelative(src));
-                    destparent = destfile.getParent();
-                    destparent.mkdirsOpt();
-                    if (destfile.getName().endsWith(FREEMARKER_EXT)) {
-                        configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
-                        template = configuration.getTemplate(srcfile.getName());
-                        tmp = new StringWriter();
-                        template.process(variables, tmp);
-                        destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
-                        destfile.writeString(tmp.getBuffer().toString());
-                    } else {
-                        srcfile.copy(destfile);
-                    }
+        dest.deleteTreeOpt();
+        dest.mkdir();
+        try {
+            extensions().files(this, dest);
+            for (FileNode srcfile : src.find("**/*")) {
+                if (srcfile.isDirectory()) {
+                    continue;
                 }
-            } catch (IOException | TemplateException | RuntimeException | Error e) {
-                // generate all or nothing
-                try {
-                    dest.deleteTreeOpt();
-                } catch (IOException nested) {
-                    e.addSuppressed(nested);
+                destfile = dest.join(srcfile.getRelative(src));
+                destparent = destfile.getParent();
+                destparent.mkdirsOpt();
+                if (destfile.getName().endsWith(FREEMARKER_EXT)) {
+                    configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
+                    template = configuration.getTemplate(srcfile.getName());
+                    tmp = new StringWriter();
+                    template.process(variables, tmp);
+                    destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
+                    destfile.writeString(tmp.getBuffer().toString());
+                } else {
+                    srcfile.copy(destfile);
                 }
-                throw e;
             }
+        } catch (IOException | TemplateException | RuntimeException | Error e) {
+            // generate all or nothing
+            try {
+                dest.deleteTreeOpt();
+            } catch (IOException nested) {
+                e.addSuppressed(nested);
+            }
+            throw e;
         }
         return dest;
     }

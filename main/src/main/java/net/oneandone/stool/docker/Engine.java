@@ -20,11 +20,9 @@ import org.kamranzafar.jtar.TarHeader;
 import org.kamranzafar.jtar.TarOutputStream;
 
 import javax.net.SocketFactory;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.time.LocalDateTime;
@@ -32,6 +30,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -132,18 +132,31 @@ public class Engine {
     }
 
     private byte[] tar(FileNode context) throws IOException {
+        List<FileNode> all;
         ByteArrayOutputStream dest;
         TarOutputStream tar;
         byte[] bytes;
+        Iterator<FileNode> iter;
+        FileNode file;
+        long now;
 
         dest = new ByteArrayOutputStream();
         tar = new TarOutputStream(dest);
-        for (FileNode file : context.find("**/*")) {
+        now = System.currentTimeMillis();
+        all = context.find("**/*");
+        iter = all.iterator();
+        while (iter.hasNext()) {
+            file = iter.next();
             if (file.isDirectory()) {
-                throw new IOException("todo");
+                tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), 0, now, true)));
+                iter.remove();
             }
+        }
+        iter = all.iterator();
+        while (iter.hasNext()) {
+            file = iter.next();
             bytes = file.readBytes();
-            tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), bytes.length, System.currentTimeMillis(), false)));
+            tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), bytes.length, now, false)));
             tar.write(bytes);
         }
         tar.close();

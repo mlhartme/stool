@@ -36,5 +36,5 @@ public interface Extension {
 
     void containerOpts(Stage stage, Map<String, Object> containerOpts);
 
-    void files(FileNode dest) throws IOException;
+    void files(Stage stage, FileNode dest) throws IOException;
 }

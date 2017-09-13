@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.extensions;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
@@ -73,7 +74,7 @@ public class Fault implements Extension {
 
     @Override
     public void tomcatOpts(Stage stage, Map<String, String> result) {
-        result.put("fault.workspace", workspace(stage).getAbsolute());
+        result.put("fault.workspace", "/etc/secrets");
     }
 
     @Override
@@ -83,11 +84,18 @@ public class Fault implements Extension {
     }
 
     @Override
-    public void files(FileNode dest) throws IOException {
-        
-    }
+    public void files(Stage stage, FileNode dir) throws IOException {
+        Console console;
+        Launcher launcher;
 
-    private static FileNode workspace(Stage stage) {
-        return stage.backstage.join("fault");
+        launcher = stage.launcher("fault");
+        console = stage.session.console;
+        if (console.getVerbose()) {
+            launcher.arg("-v");
+        }
+        launcher.arg("-auth=false");
+        launcher.arg("run", projects(), "cp", "-r", dir.getWorld().getHome().join(".fault").getAbsolute(), dir.getAbsolute());
+        console.verbose.println("executing " + launcher);
+        console.verbose.println(launcher.exec());
     }
 }

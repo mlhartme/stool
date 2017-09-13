@@ -107,10 +107,10 @@ public class Extensions {
         return result;
     }
 
-    public void files(FileNode dest) throws IOException {
+    public void files(Stage stage, FileNode dest) throws IOException {
         for (Switch s : extensions.values()) {
             if (s.enabled) {
-                s.extension.files(dest);
+                s.extension.files(stage, dest);
             }
         }
     }

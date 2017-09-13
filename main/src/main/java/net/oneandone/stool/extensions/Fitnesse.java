@@ -52,6 +52,6 @@ public class Fitnesse implements Extension {
     }
 
     @Override
-    public void files(FileNode dest) throws IOException {
+    public void files(Stage stage, FileNode dest) throws IOException {
     }
 }
