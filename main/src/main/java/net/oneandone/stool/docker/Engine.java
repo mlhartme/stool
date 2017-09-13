@@ -271,7 +271,21 @@ public class Engine {
         node = node.getRoot().node(node.getPath(), "stream=false");
         stats = parser.parse(node.readString()).getAsJsonObject();
         memory = stats.get("memory_stats").getAsJsonObject();
-        return new Stats(memory.get("usage").getAsInt(), memory.get("limit").getAsInt());
+        return new Stats(cpu(stats), memory.get("usage").getAsInt(), memory.get("limit").getAsInt());
+    }
+
+    private static int cpu(JsonObject stats) {
+        JsonObject current;
+        JsonObject previous;
+        long cpuDelta;
+        long systemDelta;
+
+        current = stats.get("cpu_stats").getAsJsonObject();
+        previous = stats.get("precpu_stats").getAsJsonObject();
+
+        cpuDelta = current.get("cpu_usage").getAsJsonObject().get("total_usage").getAsLong() - previous.get("cpu_usage").getAsJsonObject().get("total_usage").getAsLong();
+        systemDelta = current.get("system_cpu_usage").getAsLong() - previous.get("system_cpu_usage").getAsLong();
+        return (int) (cpuDelta * 100 / systemDelta);
     }
 
     // https://github.com/moby/moby/pull/15010

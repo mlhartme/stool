@@ -39,6 +39,7 @@ public class EngineIT {
         assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
         engine.containerStart(container);
         stats = engine.containerStats(container);
+        assertEquals(0, stats.cpu);
         assertEquals(limit, stats.memoryLimit);
         assertTrue(stats.memoryUsage <= stats.memoryLimit);
         assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
