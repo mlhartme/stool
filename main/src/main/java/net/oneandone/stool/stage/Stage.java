@@ -354,7 +354,7 @@ public abstract class Stage {
         extensions.beforeStart(this);
         engine = session.dockerEngine();
         imageName = getId();
-        variables = new HashMap<>();
+        variables = extensions().containerOpts(this);
         variables.put("catalina_opts", catalinaOpts);
         try {
             console.verbose.println(engine.imageBuild(imageName, dockerContext(variables)));

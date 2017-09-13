@@ -88,4 +88,8 @@ public class Logstash implements Extension {
     @Override
     public void tomcatOpts(Stage stage, Map<String, String> result) {
     }
+
+    @Override
+    public void containerOpts(Stage stage, Map<String, Object> result) {
+    }
 }

@@ -94,4 +94,16 @@ public class Extensions {
         }
         return result;
     }
+
+    public Map<String, Object> containerOpts(Stage stage) {
+        Map<String, Object> result;
+
+        result = new HashMap<>();
+        for (Switch s : extensions.values()) {
+            if (s.enabled) {
+                s.extension.containerOpts(stage, result);
+            }
+        }
+        return result;
+    }
 }

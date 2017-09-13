@@ -115,6 +115,11 @@ public class Fault implements Extension {
         result.put("fault.workspace", workspace(stage).getAbsolute());
     }
 
+    @Override
+    public void containerOpts(Stage stage, Map<String, Object> result) {
+        result.put("fault", Boolean.TRUE);
+    }
+
     private static FileNode workspace(Stage stage) {
         return stage.backstage.join("fault");
     }
