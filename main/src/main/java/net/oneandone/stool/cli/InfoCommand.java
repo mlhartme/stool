@@ -16,6 +16,8 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.configuration.Property;
+import net.oneandone.stool.docker.Engine;
+import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.UserNotFound;
@@ -141,11 +143,10 @@ public abstract class InfoCommand extends StageCommand {
         result.put(Field.CREATED, LogEntry.FULL_FMT.format(stage.created()));
         result.put(Field.LAST_MODIFIED_BY, userName(session, stage.lastModifiedBy()));
         result.put(Field.LAST_MODIFIED_AT, Stage.timespan(stage.lastModifiedAt()));
-        result.put(Field.UPTIME, stage.uptime());
         result.put(Field.CONTAINER, stage.dockerContainer());
         state = stage.state();
         result.put(Field.STATE, state.toString());
-        processStatus(result);
+        processStatus(stage, result);
         result.put(Field.APPS, stage.namedUrls());
         ports = stage.loadPortsOpt();
         result.put(Field.OTHER, other(stage, ports));
@@ -231,10 +232,25 @@ public abstract class InfoCommand extends StageCommand {
         return result;
     }
 
-    // TODO
-    public static void processStatus(Map<Info, Object> result) throws IOException {
-        result.put(Field.CPU, null);
-        result.put(Field.MEM, null);
+    public static void processStatus(Stage stage, Map<Info, Object> result) throws IOException {
+        String container;
+        Engine engine;
+        Stats stats;
+
+        container = stage.dockerContainer();
+        if (container == null) {
+            result.put(Field.UPTIME, null);
+            result.put(Field.CPU, null);
+            result.put(Field.MEM, null);
+        } else {
+            engine = stage.session.dockerEngine();
+            stats = engine.containerStats(container);
+            result.put(Field.UPTIME, Stage.timespan(engine.containerStartedAt(container)));
+            result.put(Field.CPU, stats.cpu);
+            result.put(Field.MEM, stats.memoryUsage * 100 / stats.memoryLimit);
+        }
+
+        // TODO
         result.put(Field.DEBUGGER, null);
         result.put(Field.SUSPEND, null);
         result.put(Field.FITNESSE, null);

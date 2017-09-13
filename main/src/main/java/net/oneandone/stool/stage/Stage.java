@@ -729,16 +729,6 @@ public abstract class Stage {
         return new Logs(getBackstage().join("tomcat/logs"));
     }
 
-    public String uptime() throws IOException {
-        String container;
-
-        container = dockerContainer();
-        if (container == null) {
-            return "";
-        }
-        return timespan(session.dockerEngine().containerStartedAt(container));
-    }
-
     public static String timespan(long since) throws GetLastModifiedException {
         long diff;
         StringBuilder result;

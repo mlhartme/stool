@@ -211,7 +211,7 @@ public abstract class StageCommand extends SessionCommand {
         state = stage.state();
         if (state == Stage.State.UP && (withAutoRunning()) && (autoRestart || autoStop)) {
             postStart = autoRestart;
-            Status.processStatus(status);
+            Status.processStatus(stage, status);
             new Stop(session, false).doRun(stage);
         } else {
             postStart = false;
