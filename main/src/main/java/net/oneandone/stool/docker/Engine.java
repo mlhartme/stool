@@ -172,10 +172,10 @@ public class Engine {
     //-- containers
 
     public String containerCreate(String image, String hostname) throws IOException {
-        return containerCreate(image, hostname, Collections.emptyMap(), Collections.emptyMap());
+        return containerCreate(image, hostname, 0, Collections.emptyMap(), Collections.emptyMap());
     }
 
-    public String containerCreate(String image, String hostname, Map<String, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
+    public String containerCreate(String image, String hostname, int memory, Map<String, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
         JsonObject body;
         JsonObject response;
         JsonObject hostConfig;
@@ -187,6 +187,7 @@ public class Engine {
         hostConfig = new JsonObject();
 
         body.add("HostConfig", hostConfig);
+        hostConfig.add("Memory", new JsonPrimitive(memory));
         binds = new JsonArray();
         hostConfig.add("Binds", binds);
         for (Map.Entry<String, String> entry : bindMounts.entrySet()) {
@@ -257,6 +258,18 @@ public class Engine {
 
         state = containerState(id);
         return Status.valueOf(state.get("Status").getAsString().toUpperCase());
+    }
+
+    public Stats containerStats(String id) throws IOException {
+        HttpNode node;
+        JsonObject stats;
+        JsonObject memory;
+
+        node = root.join("containers", id, "stats");
+        node = node.getRoot().node(node.getPath(), "stream=false");
+        stats = parser.parse(node.readString()).getAsJsonObject();
+        memory = stats.get("memory_stats").getAsJsonObject();
+        return new Stats(memory.get("usage").getAsInt(), memory.get("limit").getAsInt());
     }
 
     // https://github.com/moby/moby/pull/15010

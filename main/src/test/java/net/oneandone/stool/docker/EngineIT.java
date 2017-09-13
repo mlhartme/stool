@@ -6,6 +6,7 @@ import net.oneandone.sushi.fs.http.StatusException;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -19,23 +20,27 @@ public class EngineIT {
 
     @Test
     public void turnaround() throws IOException {
+        final int limit = 1024*1024*5;
         String image = "stooltest";
         String message;
         Engine engine;
         String output;
         String container;
+        Stats stats;
 
         message = UUID.randomUUID().toString();
 
         engine = Engine.open("target/wire.log");
-        output = engine.imageBuild(image, df("FROM debian:stretch-slim\nCMD [\"echo\", \"" + message + "\", \"/\"]\n"));
-        System.out.println(output);
+        output = engine.imageBuild(image, df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"));
         assertNotNull(output);
 
-        container = engine.containerCreate(image, "foo");
+        container = engine.containerCreate(image, "foo", limit, Collections.emptyMap(), Collections.emptyMap());
         assertNotNull(container);
         assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
         engine.containerStart(container);
+        stats = engine.containerStats(container);
+        assertEquals(limit, stats.memoryLimit);
+        assertTrue(stats.memoryUsage <= stats.memoryLimit);
         assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
         assertNotEquals(0, engine.containerStartedAt(container));
         assertEquals(0, engine.containerWait(container));

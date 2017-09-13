@@ -362,7 +362,7 @@ public abstract class Stage {
             throw e;
         }
         console.verbose.println("image built");
-        container = engine.containerCreate(imageName, session.configuration.hostname,
+        container = engine.containerCreate(imageName, session.configuration.hostname, 0,
                 Strings.toMap(getDirectory().getAbsolute().toString(), "/stage"), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
