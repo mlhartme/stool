@@ -341,7 +341,7 @@ public abstract class Stage {
         String container;
         Engine.Status status;
         String imageName;
-        Map<String, String> variables;
+        Map<String, Object> variables;
 
         checkMemory();
         console.info.println("starting container ...");
@@ -356,7 +356,6 @@ public abstract class Stage {
         imageName = getId();
         variables = new HashMap<>();
         variables.put("catalina_opts", catalinaOpts);
-        variables.putAll(configuration.containerOpts);
         try {
             console.verbose.println(engine.imageBuild(imageName, dockerContext(variables)));
         } catch (BuildError e) {
@@ -387,7 +386,7 @@ public abstract class Stage {
         return file.exists() ? file.readString().trim() : null;
     }
 
-    private FileNode dockerContext(Map<String, String> variables) throws IOException, TemplateException {
+    private FileNode dockerContext(Map<String, Object> variables) throws IOException, TemplateException {
         Configuration configuration;
         FileNode src;
         FileNode dest;
