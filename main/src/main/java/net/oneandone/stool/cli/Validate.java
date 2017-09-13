@@ -28,6 +28,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
+import net.oneandone.stool.docker.Engine.Status;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
@@ -174,7 +175,18 @@ public class Validate extends StageCommand {
     }
 
     private void container(Stage stage) throws IOException {
-        // TODO
+        String container;
+        Status status;
+
+        container = stage.dockerContainer();
+        if (container == null) {
+            // not running, nothing to check
+            return;
+        }
+        status = session.dockerEngine().containerStatus(container);
+        if (status != Status.RUNNING) {
+            report.admin(stage, container + ": container is not running: " + status);
+        }
     }
 
     private void cert(Stage stage) throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
