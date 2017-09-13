@@ -67,6 +67,9 @@ public class StageConfiguration {
     @Option(key = "quota")
     public int quota;
 
+    @Option(key = "tomcat.opts")
+    public String tomcatOpts;
+
     @Option(key = "tomcat.version")
     public String tomcatVersion;
 
@@ -115,6 +118,7 @@ public class StageConfiguration {
         this.pom = "pom.xml";
         this.quota = 10000;
         this.tomcatVersion = "8.5.16";
+        this.tomcatOpts = "";
         this.tomcatHeap = 350;
         this.tomcatSelect = new ArrayList<>();
         this.javaHome = javaHome;

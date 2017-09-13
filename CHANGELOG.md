@@ -8,9 +8,8 @@
   * adjusted Status fields: `container` replaces `tomcat` and `service`
   * `.backage/service` is gone
   * stages no longer need a service wrapper port and a tomcat stop port
-  * `tomcat.env` dumped
-    * adjust the container template instead
-  * `tomcat.opts` dumped from stage configuration, it's defined by extensions instead
+  * `tomcat.env` dumped: adjust the container template instead; note that `tomcat.opts` are kept because their 
+    are useful for quick application configuration, and they are used for proxy configuration
   * extensions can not add container.opts and files to the docker context
         
         
