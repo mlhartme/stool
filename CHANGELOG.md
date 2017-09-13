@@ -11,8 +11,9 @@
   * `tomcat.env` dumped: adjust the container template instead; note that `tomcat.opts` are kept because their 
     are useful for quick application configuration, and they are used for proxy configuration
   * extensions can not add container.opts and files to the docker context
-        
-        
+  * Docker template files ending with .fm will are handled as FreeMarkerTemplate (http://freemarker.org/docs/ref_directives.html)        
+
+
 ### 3.4.10 (pending)
 
 * no longer distinguish CATALINA_HOME and CATALINA_BASE

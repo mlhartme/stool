@@ -75,6 +75,7 @@ public class Engine {
     //-- images
 
 
+    /** @return build output */
     public String imageBuild(String name, FileNode context) throws IOException {
         HttpNode node;
         StringBuilder result;

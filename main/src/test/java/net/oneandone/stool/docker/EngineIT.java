@@ -2,6 +2,7 @@ package net.oneandone.stool.docker;
 
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.fs.http.StatusException;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -60,6 +61,25 @@ public class EngineIT {
             assertNotNull("", e.error);
             assertEquals(127, e.code);
             assertNotNull("", e.output);
+        }
+    }
+
+    @Test
+    public void cmdFNotFound() throws IOException {
+        String image = "stooltest";
+        Engine engine;
+        String container;
+
+        engine = Engine.open("target/wire.log");
+        engine.imageBuild(image, df("FROM debian:stretch-slim\nCMD [\"/nosuchcmd\"]\n"));
+        container = engine.containerCreate(image, "foo");
+        assertNotNull(container);
+        assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
+        try {
+            engine.containerStart(container);
+            fail();
+        } catch (StatusException e) {
+            assertEquals(404, e.getStatusLine().code);
         }
     }
 
