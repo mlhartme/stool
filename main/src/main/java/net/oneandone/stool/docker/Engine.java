@@ -303,7 +303,8 @@ public class Engine {
         } catch (DateTimeParseException e) {
             throw new IOException("cannot parse date: " + str);
         }
-        return result.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        // CAUTION: container executes in GMT timezone
+        return result.atZone(ZoneId.of("GMT")).toInstant().toEpochMilli();
     }
 
     private JsonObject containerState(String id) throws IOException {
