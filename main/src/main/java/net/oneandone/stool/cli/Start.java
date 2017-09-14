@@ -312,10 +312,10 @@ public class Start extends StageCommand {
         opts = new ArrayList<>();
 
         // this is a marker to indicate they are launched by stool; and this is used by the dashboard to locate the stool binary
-        opts.add("-Dstool.cp=/stoolbin/" + Main.stoolCp(session.world).getName());
-        opts.add("-Dstool.home=/stoolhome/");
+        opts.add("-Dstool.cp=" + Main.stoolCp(session.world).getAbsolute());
+        opts.add("-Dstool.home=" + session.home.getAbsolute());
         try {
-            opts.add("-Dstool.idlink=/stoolhome/backstages/" + session.backstageLink(stage.getId()).getName());
+            opts.add("-Dstool.idlink=" + session.backstageLink(stage.getId()).getAbsolute());
         } catch (ReadLinkException e) {
             throw new IllegalStateException(e);
         }

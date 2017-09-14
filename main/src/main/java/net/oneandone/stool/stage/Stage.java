@@ -373,18 +373,40 @@ public abstract class Stage {
         dockerContainerFile().writeString(container);
     }
 
-    private Map<String, String> bindMounts() {
+    private Map<String, String> bindMounts() throws IOException {
         Map<String, String> result;
+        List<FileNode> lst;
+        Iterator<FileNode> iter;
+        FileNode merged;
+
 
         result = new HashMap<>();
-        // for any stage
-        result.put(getDirectory().getAbsolute().toString(), "/stage");
+        result.put(getDirectory().getAbsolute(), "/stage");
 
-        // for properties currently used by Dashboard only
-        result.put(Main.stoolCp(session.world).getParent().getAbsolute(), "/stoolbin");
-        result.put(session.home.getAbsolute(), "/stoolhome");
+        // TODO: needed for Dashboard
+        lst = new ArrayList<>();
+        lst.add(session.home);
+        lst.add(Main.stoolCp(session.world).getParent());
+        lst.addAll(session.stageDirectories());
+
+        iter = lst.iterator();
+        merged = iter.next();
+        while (iter.hasNext()) {
+            merged = merge(merged, iter.next());
+        }
+        result.put(merged.getAbsolute(), merged.getAbsolute());
 
         return result;
+    }
+
+    private static FileNode merge(FileNode left, FileNode right) {
+        FileNode current;
+
+        current = right;
+        while (!left.hasAnchestor(current)) {
+            current = current.getParent();
+        }
+        return current;
     }
 
     private FileNode dockerContainerFile() {
