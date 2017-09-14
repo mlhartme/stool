@@ -23,8 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Fitnesse implements Extension {
-    private static final String FITNESSSE_PREFIX = "fitnesse.";
-
     @Override
     public Map<String, FileNode> vhosts(Stage stage) throws IOException {
         return new HashMap<>();
