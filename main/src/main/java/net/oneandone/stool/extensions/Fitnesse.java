@@ -15,10 +15,15 @@
  */
 package net.oneandone.stool.extensions;
 
+import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Ports;
+import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +35,6 @@ public class Fitnesse implements Extension {
 
     @Override
     public void beforeStart(Stage stage) throws IOException {
-        throw new IOException("fitnesse property has been disabled, please use 'stool start -fitnesse' instead");
     }
 
     @Override
@@ -46,7 +50,43 @@ public class Fitnesse implements Extension {
     }
 
     @Override
-    public void containerOpts(Stage stage, Map<String, Object> result) {
+    public void containerOpts(Stage stage, Map<String, Object> result) throws IOException {
+        result.put("fitnesse", true);
+        result.put("fitnesse_command", cmd(stage));
+    }
+
+    private String cmd(Stage stage) throws IOException {
+        StringBuilder result;
+        Ports ports;
+        Vhost host;
+        int port;
+
+        result = new StringBuilder();
+        ports = stage.session.pool().allocate(stage, Collections.emptyMap());
+        for (String vhost : stage.vhostNames()) {
+            host = ports.lookup(vhost);
+            port = host.httpPort();
+            if (result.length() == 0) {
+                result.append("CMD ");
+            } else {
+                result.append("&& \\\n    ");
+            }
+            FileNode dir = stage.session.world.file(findProjectDir(ports, host));
+            result.append("cd " + dir.getAbsolute());
+            result.append(" && ");
+            result.append("mvn ");
+            result.append("--settings /Users/mhm/.m2/settings.xml "); // TODO
+            result.append("uk.co.javahelp.fitnesse:fitnesse-launcher-maven-plugin:wiki -Dfitnesse.port=" + port);
+        }
+        result.append("\n");
+        return result.toString();
+    }
+
+    private static String findProjectDir(Ports ports, Vhost fitnesseHost) {
+        String path;
+
+        path = ports.lookup(fitnesseHost.name).docBase();
+        return path.substring(0, path.indexOf("/target"));
     }
 
     @Override

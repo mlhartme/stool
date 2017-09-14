@@ -363,7 +363,7 @@ public abstract class Stage {
             throw e;
         }
         console.verbose.println("image built");
-        container = engine.containerCreate(imageName, session.configuration.hostname, 0, bindMounts(), ports.dockerMap());
+        container = engine.containerCreate(imageName, session.configuration.hostname, 0, bindMounts(systemBinds(variables)), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
         status = engine.containerStatus(container);
@@ -373,7 +373,12 @@ public abstract class Stage {
         dockerContainerFile().writeString(container);
     }
 
-    private Map<String, String> bindMounts() throws IOException {
+    private boolean systemBinds(Map<String, Object> containerOpts) {
+        // TODO: fitnesse needs system mounts to see maven etc ...
+        return isSystem() || Boolean.TRUE.equals(containerOpts.get("fitnesse"));
+    }
+
+    private Map<String, String> bindMounts(boolean systemBinds) throws IOException {
         Map<String, String> result;
         List<FileNode> lst;
         Iterator<FileNode> iter;
@@ -383,7 +388,7 @@ public abstract class Stage {
         result = new HashMap<>();
         result.put(getDirectory().getAbsolute(), "/stage");
 
-        if (isSystem()) {
+        if (systemBinds) {
             // needed for Dashboard
             result.put("/var/run/docker.sock", "/var/run/docker.sock");
             lst = new ArrayList<>();

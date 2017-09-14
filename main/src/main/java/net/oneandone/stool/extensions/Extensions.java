@@ -95,7 +95,7 @@ public class Extensions {
         return result;
     }
 
-    public Map<String, Object> containerOpts(Stage stage) {
+    public Map<String, Object> containerOpts(Stage stage) throws IOException {
         Map<String, Object> result;
 
         result = new HashMap<>();
