@@ -383,19 +383,21 @@ public abstract class Stage {
         result = new HashMap<>();
         result.put(getDirectory().getAbsolute(), "/stage");
 
-        // TODO: needed for Dashboard
-        lst = new ArrayList<>();
-        lst.add(session.home);
-        lst.add(Main.stoolCp(session.world).getParent());
-        lst.addAll(session.stageDirectories());
+        if (isSystem()) {
+            // needed for Dashboard
+            result.put("/var/run/docker.sock", "/var/run/docker.sock");
+            lst = new ArrayList<>();
+            lst.add(session.home);
+            lst.add(Main.stoolCp(session.world).getParent());
+            lst.addAll(session.stageDirectories());
 
-        iter = lst.iterator();
-        merged = iter.next();
-        while (iter.hasNext()) {
-            merged = merge(merged, iter.next());
+            iter = lst.iterator();
+            merged = iter.next();
+            while (iter.hasNext()) {
+                merged = merge(merged, iter.next());
+            }
+            result.put(merged.getAbsolute(), merged.getAbsolute());
         }
-        result.put(merged.getAbsolute(), merged.getAbsolute());
-
         return result;
     }
 
