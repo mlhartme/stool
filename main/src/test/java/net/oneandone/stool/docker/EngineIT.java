@@ -64,7 +64,7 @@ public class EngineIT {
         String container;
 
         home = WORLD.getHome();
-        file = home.join("foo").mkfile(); // home.createTempFile();
+        file = home.createTempFile();
         engine = Engine.open("target/wire.log");
         output = engine.imageBuild(image, df("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "\n"));
         assertNotNull(output);
@@ -75,7 +75,7 @@ public class EngineIT {
         engine.containerStart(container);
         assertEquals(0, engine.containerWait(container));
         output = engine.containerLogs(container);
-        assertEquals(file.getAbsolute(), output.trim());
+        assertTrue(output.contains(file.getAbsolute()));
         engine.containerRemove(container);
 
         engine.imageRemove(image);
