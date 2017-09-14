@@ -16,18 +16,15 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.inline.Console;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
@@ -45,14 +42,12 @@ import java.util.List;
 import java.util.Map;
 
 public class Start extends StageCommand {
-    private boolean fitnesse;
     private boolean debug;
     private boolean suspend;
     private boolean tail;
 
-    public Start(Session session, boolean fitnesse, boolean debug, boolean suspend) {
+    public Start(Session session, boolean debug, boolean suspend) {
         super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);
-        this.fitnesse = fitnesse;
         this.debug = debug;
         this.suspend = suspend;
         this.tail = false;
@@ -96,11 +91,7 @@ public class Start extends StageCommand {
         }
         checkNotStarted(stage);
 
-        if (fitnesse) {
-            doFitnesse(stage);
-        } else {
-            doNormal(stage);
-        }
+        doNormal(stage);
         if (session.bedroom.contains(stage.getId())) {
             console.info.println("leaving sleeping state");
             session.bedroom.remove(session.gson, stage.getId());
@@ -109,10 +100,6 @@ public class Start extends StageCommand {
 
     @Override
     public void doFinish(Stage stage) throws Exception {
-        if (fitnesse) {
-            // nothing to finish
-            return;
-        }
         ping(stage);
         console.info.println("Applications available:");
         for (String app : stage.namedUrls()) {
@@ -344,66 +331,5 @@ public class Start extends StageCommand {
             opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=" + ports.debug() + ",suspend=" + (suspend ? "y" : "n"));
         }
         return Separator.SPACE.join(opts);
-    }
-
-    //-- fitnesse
-
-    /**
-     * Launches Fitnesse Wiki (http://www.fitnesse.org).
-     *
-     * Fitnesse wiki does not implement the servlet interfaces, so I cannot use the normal startup code for tomcats.
-     * Instead, I invoke fitnesse-launchner-maven-plugin (https://code.google.com/archive/p/fitnesse-launcher-maven-plugin/)
-     * to launch the embedded web server.
-     */
-    public void doFitnesse(Stage stage) throws Exception {
-        Console console;
-        Ports ports;
-        Vhost host;
-        int port;
-        String url;
-        FileNode log;
-        Launcher launcher;
-
-        if (tail) {
-            throw new ArgumentException("-fitness -tail is not supported");
-        }
-        if (debug) {
-            throw new ArgumentException("-fitness -debug is not supported");
-        }
-        if (suspend) {
-            throw new ArgumentException("-fitness -suspend is not supported");
-        }
-        console = stage.session.console;
-        ports = session.pool().allocate(stage, Collections.emptyMap());
-        for (String vhost : stage.vhostNames()) {
-            host = ports.lookup(vhost);
-            port = host.httpPort();
-            url = findUrl(stage, host);
-            launcher = stage.launcher("mvn",
-                    "uk.co.javahelp.fitnesse:fitnesse-launcher-maven-plugin:wiki", "-Dfitnesse.port=" + port);
-            launcher.dir(stage.session.world.file(findProjectDir(ports, host)));
-
-            log = stage.getBackstage().join("tomcat/logs/fitness-" + port + ".log");
-            log.getParent().mkdirsOpt();
-            if (!log.exists()) {
-                log.mkfile();
-            }
-            // no exec -- keeps running until stopped; no way to detect failures
-            // no log.close!
-            launcher.launch(log.newWriter());
-            console.info.println(vhost + " fitnesse started: " + url);
-        }
-
-    }
-
-    private String findProjectDir(Ports ports, Vhost fitnesseHost) {
-        String path;
-
-        path = ports.lookup(fitnesseHost.name).docBase();
-        return path.substring(0, path.indexOf("/target"));
-    }
-
-    private String findUrl(Stage stage, Vhost host) {
-        return host.httpUrl(stage.session.configuration.vhosts, stage.session.configuration.hostname);
     }
 }

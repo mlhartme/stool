@@ -253,7 +253,6 @@ public abstract class InfoCommand extends StageCommand {
         // TODO
         result.put(Field.DEBUGGER, null);
         result.put(Field.SUSPEND, null);
-        result.put(Field.FITNESSE, null);
     }
 
     private static Integer opt(int i) {

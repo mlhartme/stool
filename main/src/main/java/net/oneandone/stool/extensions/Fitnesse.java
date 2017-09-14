@@ -55,6 +55,13 @@ public class Fitnesse implements Extension {
         result.put("fitnesse_command", cmd(stage));
     }
 
+    /**
+     *  Launches Fitnesse Wiki (http://www.fitnesse.org).
+     *
+     * Fitnesse wiki does not implement the servlet interfaces, so I cannot use the normal startup code for tomcats.
+     * Instead, I invoke fitnesse-launchner-maven-plugin (https://code.google.com/archive/p/fitnesse-launcher-maven-plugin/)
+     * to launch the embedded web server.
+     */
     private String cmd(Stage stage) throws IOException {
         StringBuilder result;
         Ports ports;

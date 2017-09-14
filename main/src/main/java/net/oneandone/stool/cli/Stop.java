@@ -15,12 +15,9 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.inline.Console;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.Vhost;
 
 public class Stop extends StageCommand {
     private boolean sleep;
@@ -43,11 +40,7 @@ public class Stop extends StageCommand {
                 console.info.println("going from sleeping to stopped.");
             }
         } else {
-            if (stage.fitnesseRunning()) {
-                doFitnesse(stage);
-            } else {
-                doNormal(stage);
-            }
+            doNormal(stage);
         }
     }
 
@@ -70,24 +63,5 @@ public class Stop extends StageCommand {
 
     public void doNormal(Stage stage) throws Exception {
         stage.stop(console);
-    }
-
-    public void doFitnesse(Stage stage) throws Exception {
-        Console console;
-        Ports ports;
-        String url;
-
-        console = stage.session.console;
-        ports = stage.loadPortsOpt();
-        for (Vhost vhost : ports.vhosts()) {
-            if (vhost.isWebapp()) {
-                url = stage.httpUrl(vhost);
-                if (stage.ping(vhost)) {
-                    console.verbose.println(stage.session.world.validNode(url + "?responder=shutdown").readString());
-                } else {
-                    console.info.println("fitnesse server is already down: " + url);
-                }
-            }
-        }
     }
 }

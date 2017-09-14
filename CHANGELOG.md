@@ -12,7 +12,8 @@
     are useful for quick application configuration, and they are used for proxy configuration
   * extensions can not add container.opts and files to the docker context
   * Docker template files ending with .fm will are handled as FreeMarkerTemplate (http://freemarker.org/docs/ref_directives.html)        
-
+  * replace `-fitnesse` option by a plugin again; also removed fitnesse status field
+  
 
 ### 3.4.10 (pending)
 

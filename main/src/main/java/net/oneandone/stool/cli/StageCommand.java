@@ -449,15 +449,13 @@ public abstract class StageCommand extends SessionCommand {
             Map<Info, Object> status;
             boolean debug;
             boolean suspend;
-            boolean fitnesse;
 
             console.verbose.println("*** stage main");
             status = new HashMap<>();
             if (autoStart(stage, status)) {
                 debug = status.get(Field.DEBUGGER) != null;
                 suspend = (Boolean) status.get(Field.SUSPEND);
-                fitnesse = (Boolean) status.get(Field.FITNESSE);
-                postStarts.put(stage, new Start(session, fitnesse, debug, suspend));
+                postStarts.put(stage, new Start(session, debug, suspend));
             }
             doMain(stage);
         }

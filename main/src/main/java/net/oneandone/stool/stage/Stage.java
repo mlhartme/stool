@@ -228,30 +228,12 @@ public abstract class Stage {
     public State state() throws IOException {
         if (session.bedroom.contains(getId())) {
             return State.SLEEPING;
-        } else if (dockerContainer() != null || fitnesseRunning()) {
+        } else if (dockerContainer() != null) {
             return State.UP;
         } else {
             return State.DOWN;
         }
 
-    }
-
-    /** TODO */
-    public boolean fitnesseRunning() throws IOException {
-        /* TODO
-        Ports ports;
-
-        if (runningService() == 0) {
-            ports = loadPortsOpt();
-            if (ports != null) {
-                for (Vhost vhost : ports.vhosts()) {
-                    if (vhost.isWebapp() && ping(vhost)) {
-                        return true;
-                    }
-                }
-            }
-        }*/
-        return false;
     }
 
     public boolean ping(Vhost vhost) throws IOException {
