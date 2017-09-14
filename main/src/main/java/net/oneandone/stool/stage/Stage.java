@@ -21,6 +21,7 @@ import freemarker.template.TemplateException;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
+import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
@@ -362,8 +363,7 @@ public abstract class Stage {
             throw e;
         }
         console.verbose.println("image built");
-        container = engine.containerCreate(imageName, session.configuration.hostname, 0,
-                Strings.toMap(getDirectory().getAbsolute().toString(), "/stage"), ports.dockerMap());
+        container = engine.containerCreate(imageName, session.configuration.hostname, 0, bindMounts(), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
         status = engine.containerStatus(container);
@@ -371,6 +371,20 @@ public abstract class Stage {
             throw new IOException("unexpected status: " + status);
         }
         dockerContainerFile().writeString(container);
+    }
+
+    private Map<String, String> bindMounts() {
+        Map<String, String> result;
+
+        result = new HashMap<>();
+        // for any stage
+        result.put(getDirectory().getAbsolute().toString(), "/stage");
+
+        // for properties currently used by Dashboard only
+        result.put(Main.stoolCp(session.world).getParent().getAbsolute(), "/stoolbin");
+        result.put(session.home.getAbsolute(), "/stoolhome");
+
+        return result;
     }
 
     private FileNode dockerContainerFile() {

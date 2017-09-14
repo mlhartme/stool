@@ -3,6 +3,7 @@ package net.oneandone.stool.docker;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.StatusException;
+import net.oneandone.sushi.util.Strings;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -48,6 +49,33 @@ public class EngineIT {
         assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
         output = engine.containerLogs(container);
         assertTrue(output + " vs" + message, output.contains(message));
+        engine.containerRemove(container);
+
+        engine.imageRemove(image);
+    }
+
+    @Test
+    public void bindMount() throws IOException {
+        FileNode home;
+        FileNode file;
+        String image = "stooltest";
+        Engine engine;
+        String output;
+        String container;
+
+        home = WORLD.getHome();
+        file = home.join("foo").mkfile(); // home.createTempFile();
+        engine = Engine.open("target/wire.log");
+        output = engine.imageBuild(image, df("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "\n"));
+        assertNotNull(output);
+
+        container = engine.containerCreate(image, "foo", 0, Strings.toMap(home.getAbsolute(), home.getAbsolute()), Collections.emptyMap());
+        assertNotNull(container);
+        assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
+        engine.containerStart(container);
+        assertEquals(0, engine.containerWait(container));
+        output = engine.containerLogs(container);
+        assertEquals(file.getAbsolute(), output.trim());
         engine.containerRemove(container);
 
         engine.imageRemove(image);
