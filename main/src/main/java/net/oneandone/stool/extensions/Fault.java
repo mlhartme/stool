@@ -28,10 +28,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Fault implements Extension {
-    private String project;
+    private String projects;
 
     public Fault() {
-        this.project = "";
+        this.projects = "";
     }
 
     @Override
@@ -87,11 +87,11 @@ public class Fault implements Extension {
     private String projects() {
         StringBuilder result;
 
-        if (project.isEmpty()) {
-            return project;
+        if (projects.isEmpty()) {
+            return projects;
         }
         result = new StringBuilder();
-        for (String entry : Separator.SPACE.split(project)) {
+        for (String entry : Separator.SPACE.split(projects)) {
             if (result.length() > 0) {
                 result.append(' ');
             }
