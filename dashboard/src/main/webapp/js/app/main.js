@@ -34,13 +34,13 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
 
                     dashboard.bootstrap.activeFilter = filter;
 
-                    if (filter == 'all') {
+                    if (filter==='all') {
                         stages.removeClass('filter');
                     } else {
                         stages.addClass('filter');
                     }
 
-                    if (parseInt($(this).find('.badge').html()) == 0) {
+                    if (parseInt($(this).find('.badge').html()) === 0) {
                         $('#empty').removeClass('hidden');
                     } else {
                         $('#empty').addClass('hidden');
@@ -48,7 +48,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
 
                     stages.each(function () {
 
-                        if ($(this).attr('data-extractionurl') != null) {
+                        if ($(this).attr('data-extractionurl')) {
 
                             if (filter === "trunks") {
                                 check = '/trunk';
@@ -88,7 +88,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                     hash = params[0];
                 }
                 this.hashChange()
-                this.loadContentByHash(hash != '' ? hash : 'dashboard');
+                this.loadContentByHash(hash !== '' ? hash : 'dashboard');
 
 
             },
@@ -102,7 +102,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                         params = h.split(':');
                         h = params[0];
                     }
-                    if (h != '') {
+                    if (h !== '') {
                         dashboard.navigation.loadContentByHash(h, params);
                     }
                     dashboard.navigation.checkLocationHash();
@@ -111,7 +111,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
 
             loadContentByHash: function (h) {
 
-                if ($('div').find('.content.' + h).length == 0) {
+                if ($('div').find('.content.' + h).length === 0) {
 
                     $('.content').addClass('hidden');
                     $('.tab').removeClass('active');
@@ -123,7 +123,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                         $(this).addClass('hidden');
                         if ($(this).hasClass(h)) {
                             $(this).removeClass('hidden');
-                            if ($(this).attr('data-title') != '') {
+                            if ($(this).attr('data-title') !== '') {
                                 document.title = 'Stage  ' + $(this).attr('data-title');
                             }
                         }
@@ -150,9 +150,9 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                         parameter = parameters[i];
                         if (parameter.indexOf('=') > -1) {
                             param = parameter.split('=');
-                            if (param[0] == 'search') {
+                            if (param[0] === 'search') {
                                 dashboard.stages.filter(param[1]);
-                            } else if (param[0] == 'stage') {
+                            } else if (param[0] === 'stage') {
                                 dashboard.navigation.updateStageBreadcrump(param[1]);
                             }
                         }
@@ -334,12 +334,15 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
             fetchLog: function (element, id, index, spinner, lastSize, parent) {
                 $.get("/processes/" + id + "/log", {"index": index}).done(function (data, status, response) {
                     newSize = response.getResponseHeader("X-Size");
-                    if (newSize != lastSize) {
+                    if (newSize !== lastSize) {
                         lastSize = newSize;
+                        if ($(element).text().length > 100000) {
+                            $(element).empty();
+                        }
                         $(element).append(data);
                         $(parent).animate({scrollTop: $(element).height()}, 'fast');
                     }
-                    if ("true" == response.getResponseHeader("X-Running")) {
+                    if ("true" === response.getResponseHeader("X-Running")) {
                         setTimeout(function () {
                             dashboard.stages.fetchLog(element, id, index, spinner, lastSize, parent);
                         }, 1000);
@@ -361,7 +364,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
 
                     found = 0;
 
-                    $('#all-stages').find('tr.stage' + (activeFilter == 'all' ? '' : '.' + activeFilter)).each(function () {
+                    $('#all-stages').find('tr.stage' + (activeFilter === 'all' ? '' : '.' + activeFilter)).each(function () {
                         if ($(this).attr('data-extractionurl').indexOf(search) > -1 || $(this).attr('data-user').indexOf(search) > -1 || $(this).find('td.name span').html().indexOf(search) > -1) {
                             $(this).removeClass('hidden');
                             found++;
@@ -375,7 +378,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                 } else {
                     document.location.hash = '#dashboard';
                     $('#empty').addClass('hidden');
-                    $('#all-stages').find('tr.stage' + (activeFilter == 'all' ? '' : '.' + activeFilter)).removeClass('hidden');
+                    $('#all-stages').find('tr.stage' + (activeFilter === 'all' ? '' : '.' + activeFilter)).removeClass('hidden');
                 }
 
             }
@@ -385,7 +388,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                 $('#feedback-submit').bind('click', function (e) {
                     e.preventDefault();
                     var text = $('#feedback-text');
-                    if (text.val() != "") {
+                    if (text.val() !== "") {
                         $.post("/feedback", { message: text.val()})
                             .done(function () {
                                 text.parent().parent().prepend("<div class=\"alert alert-success\">Thanks.</div>");
