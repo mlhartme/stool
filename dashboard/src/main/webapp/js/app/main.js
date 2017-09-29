@@ -223,7 +223,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                             id = tr.id;
 
                             if (id !== undefined) {
-                                id = id.replace(/\./g, "\\.");
+                                id = id.replace(/\./g, "\\.")
                             }
                             oldTr = wrapper.find('#' + id);
 
@@ -267,7 +267,8 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                 $(p).find('.fa').removeClass('hidden');
                 $(p).find('.label').attr('class', 'label label-primary').html('n/a');
 
-                //setInfoText(i, $(this).attr('data-title'));
+                //setInfo
+                (i, $(this).attr('data-title'));
                 //showInfo('info', stage, $(this).attr('data-title'));
 
                 if (options != null) {
@@ -327,7 +328,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                     } else {
                         parent.append('<div class="progress logprogress">' +
                             '<div class="progress-bar" role="progressbar" aria-valuenow="' + percent + '" aria-valuemin="0" aria-valuemax="100" style="width: ' + percent + '%;">' +
-                            text + '</div></div>');
+                            text + '</div>' + text + '</div>');
                     }
                 },
             },
