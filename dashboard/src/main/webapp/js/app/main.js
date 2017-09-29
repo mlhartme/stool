@@ -223,7 +223,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                             id = tr.id;
 
                             if (id !== undefined) {
-                                id = id.replace(/\./g, "\\.")
+                                id = id.replace(/\./g, "\\.");
                             }
                             oldTr = wrapper.find('#' + id);
 
@@ -267,8 +267,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                 $(p).find('.fa').removeClass('hidden');
                 $(p).find('.label').attr('class', 'label label-primary').html('n/a');
 
-                //setInfo
-                (i, $(this).attr('data-title'));
+                //setInfo(i, $(this).attr('data-title'));
                 //showInfo('info', stage, $(this).attr('data-title'));
 
                 if (options != null) {
