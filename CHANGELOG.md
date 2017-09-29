@@ -2,6 +2,10 @@
 
 ### 3.4.10 (pending)
 
+* fixed `stool cd` for stages started with fault
+* dashboard: (contributed by maxbraun)
+  * added time-left estimate
+  * fixed browser freeze it build output becomes too long
 * update to sushi 3.8.10 to work with Jdk 1.8.0_144 (thanks to Marcus T)
   * Stool itself did not build
   * `stool start` failed to created the service-wrapper.sh
