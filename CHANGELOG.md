@@ -3,7 +3,7 @@
 ### 3.4.10 (pending)
 
 * renamed `fault.project` property to `fault.projects`
-  Migration note: old `fault.project` settings will be ignored, am empty value is used instead; changing an arbitrary 
+  Migration note: old `fault.project` settings will be ignored, and an empty value is used instead; changing an arbitrary 
   property replaces the `fault.project` with an empty `fault.projects` entry in `.backstage/config.json`
 * fixed `stool cd` for stages started with fault
 * dashboard: (contributed by maxbraun)
