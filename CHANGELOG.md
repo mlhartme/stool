@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 3.4.10 (pending)
+### 3.4.10 (2017-10-05)
 
 * renamed `fault.project` property to `fault.projects`
   Migration note: old `fault.project` settings will be ignored, and an empty value is used instead; changing an arbitrary 
