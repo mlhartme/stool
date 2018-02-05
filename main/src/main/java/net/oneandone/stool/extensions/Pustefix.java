@@ -15,16 +15,25 @@
  */
 package net.oneandone.stool.extensions;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Pustefix implements Extension {
+    private static final String APPLOGS = "tomcat/logs/applogs";
+
     private final String mode;
+
+    private boolean fault;
+    private String faultProject;
+
 
     public Pustefix() {
         this("test");
@@ -32,14 +41,14 @@ public class Pustefix implements Extension {
 
     public Pustefix(String mode) {
         this.mode = mode;
+        this.fault = false;
+        this.faultProject = "";
     }
 
     @Override
     public Map<String, FileNode> vhosts(Stage stage) {
         return new HashMap<>();
     }
-
-    public static final String APPLOGS = "tomcat/logs/applogs";
 
     @Override
     public void beforeStart(Stage stage) throws IOException {
@@ -65,9 +74,47 @@ public class Pustefix implements Extension {
 
     @Override
     public void containerOpts(Stage stage, Map<String, Object> result) {
+        if (fault) {
+            result.put("fault", fault);
+            result.put("fault_project", projects());
+        }
+    }
+
+    // TODO: have a list of projects; always prepend @
+    private String projects() {
+        StringBuilder result;
+
+        if (faultProject.isEmpty()) {
+            return faultProject;
+        }
+        result = new StringBuilder();
+        for (String entry : Separator.SPACE.split(faultProject)) {
+            if (result.length() > 0) {
+                result.append(' ');
+            }
+            if (!entry.startsWith("@")) {
+                result.append('@');
+            }
+            result.append(entry);
+        }
+        return result.toString();
     }
 
     @Override
-    public void files(Stage stage, FileNode dest) {
+    public void files(Stage stage, FileNode dir) throws IOException {
+        Console console;
+        Launcher launcher;
+
+        if (fault) {
+            launcher = stage.launcher("fault");
+            console = stage.session.console;
+            if (console.getVerbose()) {
+                launcher.arg("-v");
+            }
+            launcher.arg("-auth=false");
+            launcher.arg("run", projects(), "cp", "-r", dir.getWorld().getHome().join(".fault").getAbsolute(), dir.getAbsolute());
+            console.verbose.println("executing " + launcher);
+            console.verbose.println(launcher.exec());
+        }
     }
 }
