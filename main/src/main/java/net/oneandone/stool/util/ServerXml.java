@@ -199,7 +199,7 @@ public class ServerXml {
                 manager.setAttribute("pathname", "");
                 context.appendChild(manager);
             }
-            map = stage.extensions().contextParameter(stage, host.getAttribute("name"), httpPort, webinf);
+            map = stage.templates().contextParameter(stage, host.getAttribute("name"), httpPort, webinf);
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 parameter(context, entry.getKey()).setAttribute("value", entry.getValue());
             }

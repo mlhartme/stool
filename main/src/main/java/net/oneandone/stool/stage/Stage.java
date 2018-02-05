@@ -328,14 +328,14 @@ public abstract class Stage {
         console.info.println("starting container ...");
         serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
         keystore = keystore();
-        extensions = extensions();
+        extensions = templates();
         serverXml.configure(ports, config().url, keystore, config().cookies, this, http2());
         serverXml.save(serverXml());
         catalinaBaseAndHome().join("temp").deleteTree().mkdir();
         extensions.beforeStart(this);
         engine = session.dockerEngine();
         imageName = getId();
-        variables = extensions().containerOpts(this);
+        variables = templates().containerOpts(this);
         variables.put("catalina_opts", catalinaOpts);
         try {
             console.verbose.println(engine.imageBuild(imageName, dockerContext(variables)));
@@ -429,7 +429,7 @@ public abstract class Stage {
         dest.deleteTreeOpt();
         dest.mkdir();
         try {
-            extensions().files(this, dest);
+            templates().files(this, dest);
             for (FileNode srcfile : src.find("**/*")) {
                 if (srcfile.isDirectory()) {
                     continue;
@@ -487,7 +487,7 @@ public abstract class Stage {
         }
         console.info.println("stopping container ...");
         container = dockerContainerFile().readString().trim();
-        extensions().beforeStop(this);
+        templates().beforeStop(this);
         engine = session.dockerEngine();
         engine.containerStop(container);
         file.deleteFile();
@@ -959,7 +959,7 @@ public abstract class Stage {
 
     //--
 
-    public Templates extensions() {
+    public Templates templates() {
         return configuration.extensions;
     }
 

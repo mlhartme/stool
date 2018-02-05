@@ -1275,7 +1275,7 @@ To upgrade from Stool versions before 3.4.0:
         |  |- ports       (lists all allocated ports)
         |  '- sleep.json  (optional, holds sleeping stages)
         |- downloads (caches Tomcat- and Service Wrapper downloads)
-        |- extensions (for jars with Stool extensions)
+        |- templates (for jars with Stool Templates)
         |- logs
         |  |- stool-YYmmDD.log(.gz)
         |  :

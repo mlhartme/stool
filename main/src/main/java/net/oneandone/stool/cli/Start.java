@@ -312,7 +312,7 @@ public class Start extends StageCommand {
 
         opts.add("-Xmx" + stage.config().tomcatHeap + "m");
 
-        for (Map.Entry<String,String> entry : stage.extensions().tomcatOpts(stage).entrySet()) {
+        for (Map.Entry<String,String> entry : stage.templates().tomcatOpts(stage).entrySet()) {
             opts.add("-D" + entry.getKey() + "=" + entry.getValue());
         }
 
