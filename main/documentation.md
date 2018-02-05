@@ -1317,4 +1317,4 @@ To upgrade from Stool versions before 3.4.0:
              |- temp (standard tomcat directory)
              |- work (standard tomcat directory)
              '- logs
-                '- applogs (application log files for pustefix apps)
+                '- applogs (application log files for tomcat apps)

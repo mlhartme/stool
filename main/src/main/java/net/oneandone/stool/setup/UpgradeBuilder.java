@@ -250,8 +250,8 @@ public class UpgradeBuilder {
                 }
                 // in stage
                 extensions = e.getAsJsonObject();
-                extensions.remove("-pustefix.editor");
-                extensions.remove("+pustefix.editor");
+                extensions.remove("-tomcat.editor");
+                extensions.remove("+tomcat.editor");
                 return e;
             }
             void idRemove() {
@@ -301,8 +301,8 @@ public class UpgradeBuilder {
 
                 if (session == null) {
                     // this call is to upgrade defaults
-                    dest.remove("pustefix.editor.version");
-                    dest.remove("pustefix.editor.userdata");
+                    dest.remove("tomcat.editor.version");
+                    dest.remove("tomcat.editor.userdata");
                 } else {
                     array = new JsonArray();
                     array.add(new JsonPrimitive(StageConfiguration.NOTIFY_MAINTAINER));

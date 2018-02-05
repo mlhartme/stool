@@ -81,11 +81,6 @@ public class StoolIT {
         turnaround("git", "git:git@github.com:mlhartme/hellowar.git");
     }
 
-    @Ignore // TODO
-    public void turnaroundSourceMultiModule() throws IOException {
-        turnaround("multi", "svn:https://svn.code.sf.net/p/pustefix/code/tags/pustefixframework-0.18.84/pustefix-samples");
-    }
-
     private void turnaround(String context, String url) throws IOException {
         System.out.println("\nurl: " + url);
         stoolSetup(context);

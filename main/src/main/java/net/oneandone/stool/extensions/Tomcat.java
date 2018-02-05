@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Pustefix implements Extension {
+public class Tomcat implements Extension {
     private static final String APPLOGS = "tomcat/logs/applogs";
 
     private final String mode;
@@ -35,11 +35,11 @@ public class Pustefix implements Extension {
     private String faultProject;
 
 
-    public Pustefix() {
+    public Tomcat() {
         this("test");
     }
 
-    public Pustefix(String mode) {
+    public Tomcat(String mode) {
         this.mode = mode;
         this.fault = false;
         this.faultProject = "";

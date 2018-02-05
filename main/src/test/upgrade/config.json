@@ -15,10 +15,10 @@
   "defaults": {
     "": {
       "maven.opts": "-Xmx1024m -Dmaven.repo.local=@localRepository@ @proxyOpts@ @trustStore@",
-      "pustefix": true,
-      "pustefix.mode": "test",
-      "pustefix.editor.version": "0.18.70",
-      "pustefix.editor.userdata": "https://svn.1and1.org/svn/sales/workspaces/editor/userdata.xml"
+      "tomcat": true,
+      "tomcat.mode": "test",
+      "tomcat.editor.version": "0.18.70",
+      "tomcat.editor.userdata": "https://svn.1and1.org/svn/sales/workspaces/editor/userdata.xml"
     },
     "https://svn.1and1.org/svn/controlpanel_app/controlpanel/": {
       "build": "mvn clean install -Ppublish  -U -B -T2C",

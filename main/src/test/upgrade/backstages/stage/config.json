@@ -25,11 +25,11 @@
   "autoRefresh": false,
   "comment": "",
   "extensions": {
-    "-pustefix.editor": {
+    "-tomcat.editor": {
       "version": "0.18.70",
       "userdata": "https://svn.1and1.org/svn/sales/workspaces/editor/userdata.xml"
     },
-    "+pustefix": {
+    "+tomcat": {
       "mode": "test"
     },
     "-fitnesse": {}
