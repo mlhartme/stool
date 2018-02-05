@@ -149,7 +149,7 @@ public class Engine {
         while (iter.hasNext()) {
             file = iter.next();
             if (file.isDirectory()) {
-                tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), 0, now, true)));
+                tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), 0, now, true, 0700)));
                 iter.remove();
             }
         }
@@ -157,7 +157,7 @@ public class Engine {
         while (iter.hasNext()) {
             file = iter.next();
             bytes = file.readBytes();
-            tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), bytes.length, now, false)));
+            tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), bytes.length, now, false, 0700)));
             tar.write(bytes);
         }
         tar.close();
