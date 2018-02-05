@@ -4,14 +4,15 @@
 
 * install all of Tomcat in .backstage/tomcat, no longer distinguish CATALINA_HOME and CATALINA_BASE
 * run stages in a docker container
-  * dumped Java Service Wrpaer and stage properties `tomcat.service` and Stool property `downloadServiceWrapper
-  * adjusted Status fields: `container` replaces `tomcat` and `service`
-  * `.backage/service` is gone
-  * stages no longer need a service wrapper port and a tomcat stop port
-  * `tomcat.env` dumped: adjust the container template instead; note that `tomcat.opts` are kept because their 
+  * dumped Java Service Wrapper
+    * dumped stage properties `tomcat.service` and Stool property `downloadServiceWrapper
+    * adjusted Status fields: `container` (with the container hash) replaces `tomcat` and `service`
+    * `.backage/service` is gone
+    * stages no longer allocate a service wrapper port and a tomcat stop port
+  * dumped `tomcat.env`: adjust the container template instead; note that `tomcat.opts` have *not* been because they
     are useful for quick application configuration, and they are used for proxy configuration
-  * extensions can not add container.opts and files to the docker context
-  * Docker template files ending with .fm will are handled as FreeMarkerTemplate (http://freemarker.org/docs/ref_directives.html)        
+  * extensions can now add `container.opts` and files to the docker context
+  * Docker template files ending with .fm will are handled as [FreeMarkerTemplate](http://freemarker.org/docs/ref_directives.html)        
   * replace `-fitnesse` option by a plugin again; also removed fitnesse status field
   
 
