@@ -47,7 +47,7 @@ public class Pustefix implements Extension {
     }
 
     @Override
-    public void beforeStop(Stage stage) throws IOException {
+    public void beforeStop(Stage stage) {
     }
 
     @Override
@@ -68,6 +68,6 @@ public class Pustefix implements Extension {
     }
 
     @Override
-    public void files(Stage stage, FileNode dest) throws IOException {
+    public void files(Stage stage, FileNode dest) {
     }
 }

@@ -65,7 +65,7 @@ public class Fault implements Extension {
     }
 
     @Override
-    public void beforeStop(Stage stage) throws IOException {
+    public void beforeStop(Stage stage) {
     }
 
     @Override

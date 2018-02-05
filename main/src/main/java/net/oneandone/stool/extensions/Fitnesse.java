@@ -27,16 +27,16 @@ import java.util.Map;
 
 public class Fitnesse implements Extension {
     @Override
-    public Map<String, FileNode> vhosts(Stage stage) throws IOException {
+    public Map<String, FileNode> vhosts(Stage stage) {
         return new HashMap<>();
     }
 
     @Override
-    public void beforeStart(Stage stage) throws IOException {
+    public void beforeStart(Stage stage) {
     }
 
     @Override
-    public void beforeStop(Stage stage) throws IOException {
+    public void beforeStop(Stage stage) {
     }
 
     @Override
@@ -49,6 +49,7 @@ public class Fitnesse implements Extension {
 
     @Override
     public void containerOpts(Stage stage, Map<String, Object> result) throws IOException {
+
         result.put("fitnesse", true);
         result.put("fitnesse_command", cmd(stage));
     }

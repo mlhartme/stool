@@ -252,10 +252,6 @@ public class UpgradeBuilder {
                 extensions = e.getAsJsonObject();
                 extensions.remove("-pustefix.editor");
                 extensions.remove("+pustefix.editor");
-                logstash = new JsonObject();
-                logstash.add("output", new JsonPrimitive(""));
-                logstash.add("link", new JsonPrimitive(""));
-                extensions.add("-logstash", logstash);
                 return e;
             }
             void idRemove() {

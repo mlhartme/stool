@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/** Connect to local docker engine via unix socket. https://docs.docker.com/engine/api/v1.33/ */
 public class Engine {
     public enum Status {
         CREATED,
@@ -132,6 +133,7 @@ public class Engine {
         }
     }
 
+    /** tar directory into byte array */
     private byte[] tar(FileNode context) throws IOException {
         List<FileNode> all;
         ByteArrayOutputStream dest;
@@ -201,7 +203,7 @@ public class Engine {
 
         portBindings = new JsonObject();
         for (Map.Entry<Integer, Integer> entry: ports.entrySet()) {
-            portBindings.add(Integer.toString(entry.getKey()) + "/tcp", hp(entry.getValue()));
+            portBindings.add(Integer.toString(entry.getKey()) + "/tcp", hostPort(entry.getValue()));
         }
         hostConfig.add("PortBindings", portBindings);
         body.add("ExposedPorts", exposedPorts(ports.keySet()));
@@ -221,7 +223,7 @@ public class Engine {
         return obj;
     }
 
-    private static JsonArray hp(int port) {
+    private static JsonArray hostPort(int port) {
         JsonArray result;
         JsonObject obj;
 
