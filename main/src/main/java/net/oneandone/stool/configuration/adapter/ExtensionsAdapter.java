@@ -24,19 +24,19 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import net.oneandone.stool.templates.Template;
-import net.oneandone.stool.templates.Extensions;
-import net.oneandone.stool.templates.ExtensionsFactory;
+import net.oneandone.stool.templates.Templates;
+import net.oneandone.stool.templates.TemplatesFactory;
 import net.oneandone.stool.templates.Switch;
 
 import java.io.IOException;
 import java.util.Map;
 
-public class ExtensionsAdapter extends TypeAdapter<Extensions> {
-    public static TypeAdapterFactory factory(final ExtensionsFactory factory) {
+public class ExtensionsAdapter extends TypeAdapter<Templates> {
+    public static TypeAdapterFactory factory(final TemplatesFactory factory) {
         return new TypeAdapterFactory() {
             @SuppressWarnings("unchecked")
             public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-                if (type.getRawType().equals(Extensions.class)) {
+                if (type.getRawType().equals(Templates.class)) {
                     return (TypeAdapter<T>) new ExtensionsAdapter(gson, factory);
                 }
                 return null;
@@ -45,15 +45,15 @@ public class ExtensionsAdapter extends TypeAdapter<Extensions> {
     }
 
     private final Gson gson;
-    private final ExtensionsFactory factory;
+    private final TemplatesFactory factory;
 
-    public ExtensionsAdapter(Gson gson, ExtensionsFactory factory) {
+    public ExtensionsAdapter(Gson gson, TemplatesFactory factory) {
         this.gson = gson;
         this.factory = factory;
     }
 
     @Override
-    public void write(JsonWriter out, Extensions value) throws IOException {
+    public void write(JsonWriter out, Templates value) throws IOException {
         Switch s;
 
         out.beginObject();
@@ -66,14 +66,14 @@ public class ExtensionsAdapter extends TypeAdapter<Extensions> {
     }
 
     @Override
-    public Extensions read(JsonReader in) throws IOException {
-        Extensions extensions;
+    public Templates read(JsonReader in) throws IOException {
+        Templates extensions;
         String str;
         String name;
         Template extension;
         Class<? extends Template> clazz;
 
-        extensions = new Extensions();
+        extensions = new Templates();
         in.beginObject();
         while (in.peek() == JsonToken.NAME) {
             str = in.nextName();

@@ -33,7 +33,7 @@ import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.configuration.adapter.ExtensionsAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
-import net.oneandone.stool.templates.ExtensionsFactory;
+import net.oneandone.stool.templates.TemplatesFactory;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.Stage;
@@ -118,11 +118,11 @@ public class Session {
 
     private static Session loadWithoutBackstageWipe(boolean setenv, FileNode home, Logging logging, String command, Console console,
                                                   World world, String svnuser, String svnpassword) throws IOException {
-        ExtensionsFactory factory;
+        TemplatesFactory factory;
         Gson gson;
         Session result;
 
-        factory = ExtensionsFactory.create(world);
+        factory = TemplatesFactory.create(world);
         gson = gson(world, factory);
         result = new Session(setenv, factory, gson, logging, command, home, console, world,
                 StoolConfiguration.load(gson, home), Bedroom.loadOrCreate(gson, home), svnuser, svnpassword);
@@ -134,7 +134,7 @@ public class Session {
     //--
 
     private final boolean setenv;
-    private final ExtensionsFactory extensionsFactory;
+    private final TemplatesFactory extensionsFactory;
     public final Gson gson;
     public final Logging logging;
     public final String user;
@@ -158,7 +158,7 @@ public class Session {
 
     private Pool lazyPool;
 
-    public Session(boolean setenv, ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String command,
+    public Session(boolean setenv, TemplatesFactory extensionsFactory, Gson gson, Logging logging, String command,
                    FileNode home, Console console, World world, StoolConfiguration configuration,
                    Bedroom bedroom, String svnuser, String svnpassword) {
         this.setenv = setenv;
@@ -558,7 +558,7 @@ public class Session {
         return lazyPlexus;
     }
 
-    public static Gson gson(World world, ExtensionsFactory factory) {
+    public static Gson gson(World world, TemplatesFactory factory) {
         return new GsonBuilder()
                 .registerTypeAdapter(FileNode.class, new FileNodeTypeAdapter(world))
                 .registerTypeAdapter(Expire.class, new ExpireTypeAdapter())

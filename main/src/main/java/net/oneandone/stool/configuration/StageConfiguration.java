@@ -16,7 +16,7 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
-import net.oneandone.stool.templates.Extensions;
+import net.oneandone.stool.templates.Templates;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -103,9 +103,9 @@ public class StageConfiguration {
     @Option(key = "comment")
     public String comment;
 
-    public final Extensions extensions;
+    public final Templates extensions;
 
-    public StageConfiguration(String javaHome, String mavenHome, String refresh, Extensions extensions) {
+    public StageConfiguration(String javaHome, String mavenHome, String refresh, Templates extensions) {
         this.name = "noname";
         this.cookies = true;
         this.prepare = "";

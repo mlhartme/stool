@@ -25,7 +25,7 @@ import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
-import net.oneandone.stool.templates.Extensions;
+import net.oneandone.stool.templates.Templates;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.stage.artifact.Changes;
@@ -317,7 +317,7 @@ public abstract class Stage {
     public void start(Console console, Ports ports, String catalinaOpts) throws Exception {
         ServerXml serverXml;
         KeyStore keystore;
-        Extensions extensions;
+        Templates extensions;
         Engine engine;
         String container;
         Engine.Status status;
@@ -959,7 +959,7 @@ public abstract class Stage {
 
     //--
 
-    public Extensions extensions() {
+    public Templates extensions() {
         return configuration.extensions;
     }
 

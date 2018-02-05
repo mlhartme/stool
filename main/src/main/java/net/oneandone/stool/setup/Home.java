@@ -21,7 +21,7 @@ import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Autoconf;
 import net.oneandone.stool.configuration.StoolConfiguration;
-import net.oneandone.stool.templates.ExtensionsFactory;
+import net.oneandone.stool.templates.TemplatesFactory;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
@@ -114,7 +114,7 @@ public class Home {
         Gson gson;
 
         world = dir.getWorld();
-        gson = Session.gson(world, ExtensionsFactory.create(world));
+        gson = Session.gson(world, TemplatesFactory.create(world));
         return gson;
     }
 
