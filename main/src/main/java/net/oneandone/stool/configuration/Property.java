@@ -31,12 +31,12 @@ import java.util.Map;
 public class Property implements Info {
     public final String name;
     private final Field field;
-    private final String extension;
+    private final String template;
 
-    public Property(String name, Field field, String extension) {
+    public Property(String name, Field field, String template) {
         this.name = name;
         this.field = field;
-        this.extension = extension;
+        this.template = template;
         field.setAccessible(true);
     }
 
@@ -148,14 +148,14 @@ public class Property implements Info {
     private Object object(Object configuration) {
         Switch s;
 
-        if (extension == null) {
+        if (template == null) {
             return configuration;
         } else {
-            s = ((StageConfiguration) configuration).extensions.get(extension);
+            s = ((StageConfiguration) configuration).templates.get(template);
             if (s == null) {
-                throw new IllegalStateException("missing extension: " + extension);
+                throw new IllegalStateException("missing template: " + template);
             }
-            if (name.equals(extension)) {
+            if (name.equals(template)) {
                 return s;
             } else {
                 return s.extension;

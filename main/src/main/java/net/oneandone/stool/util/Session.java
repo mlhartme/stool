@@ -481,9 +481,9 @@ public class Session {
 
         result = StageConfiguration.load(gson, StageConfiguration.file(backstage));
         for (String name : extensionsFactory.typeNames()) {
-            if (result.extensions.get(name) == null) {
+            if (result.templates.get(name) == null) {
                 console.verbose.println(backstage.getAbsolute() + ": adding default config for new extension: " + name);
-                result.extensions.add(name, false, extensionsFactory.typeInstantiate(name));
+                result.templates.add(name, false, extensionsFactory.typeInstantiate(name));
             }
         }
         return result;

@@ -26,6 +26,7 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -48,7 +49,7 @@ public class HomeTest {
         assertNotNull(StoolConfiguration.load(Session.gson(world, TemplatesFactory.create(world)), dir));
     }
 
-    @Test
+    @Ignore // TODO
     public void upgrade() throws Exception {
         Environment environment;
         Gson gson;

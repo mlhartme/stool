@@ -103,9 +103,9 @@ public class StageConfiguration {
     @Option(key = "comment")
     public String comment;
 
-    public final Templates extensions;
+    public final Templates templates;
 
-    public StageConfiguration(String javaHome, String mavenHome, String refresh, Templates extensions) {
+    public StageConfiguration(String javaHome, String mavenHome, String refresh, Templates templates) {
         this.name = "noname";
         this.cookies = true;
         this.prepare = "";
@@ -126,7 +126,7 @@ public class StageConfiguration {
         this.url = "(http:https)://%h/";
         this.comment = "";
         this.autoRefresh = false;
-        this.extensions = extensions;
+        this.templates = templates;
     }
 
     public void save(Gson gson, Node file) throws IOException {

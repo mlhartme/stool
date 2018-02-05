@@ -960,7 +960,7 @@ public abstract class Stage {
     //--
 
     public Templates templates() {
-        return configuration.extensions;
+        return configuration.templates;
     }
 
     //--
