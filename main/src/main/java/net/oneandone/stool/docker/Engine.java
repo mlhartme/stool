@@ -53,7 +53,7 @@ public class Engine {
         }
         fs = (HttpFilesystem) world.getFilesystem("http");
         fs.setSocketFactorySelector(Engine::unixSocketFactorySelector);
-        root = (HttpNode) world.validNode("http://localhost/v1.30");
+        root = (HttpNode) world.validNode("http://localhost/v1.33");
         root.getRoot().addExtraHeader("Content-Type", "application/json");
         return new Engine(root);
     }
@@ -175,8 +175,11 @@ public class Engine {
         return containerCreate(image, hostname, 0, Collections.emptyMap(), Collections.emptyMap());
     }
 
-    /** @param memory is the memory limit in bytes. At least 1024*1024*4. The actual value used by docker is something
-     *                rounded of this parameter */
+    /**
+     * @param memory is the memory limit in bytes. At least 1024*1024*4. The actual value used by docker is something
+     *               rounded of this parameter
+     * @return container id
+     */
     public String containerCreate(String image, String hostname, int memory, Map<String, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
         JsonObject body;
         JsonObject response;

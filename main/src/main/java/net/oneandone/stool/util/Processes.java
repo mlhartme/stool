@@ -47,7 +47,7 @@ public class Processes {
         return create(launcher.exec());
     }
 
-    public static Processes create(String str) throws Failure {
+    public static Processes create(String str) {
         Processes result;
         Matcher matcher;
         int pid;
