@@ -23,10 +23,10 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import net.oneandone.stool.extensions.Extension;
-import net.oneandone.stool.extensions.Extensions;
-import net.oneandone.stool.extensions.ExtensionsFactory;
-import net.oneandone.stool.extensions.Switch;
+import net.oneandone.stool.templates.Template;
+import net.oneandone.stool.templates.Extensions;
+import net.oneandone.stool.templates.ExtensionsFactory;
+import net.oneandone.stool.templates.Switch;
 
 import java.io.IOException;
 import java.util.Map;
@@ -70,8 +70,8 @@ public class ExtensionsAdapter extends TypeAdapter<Extensions> {
         Extensions extensions;
         String str;
         String name;
-        Extension extension;
-        Class<? extends Extension> clazz;
+        Template extension;
+        Class<? extends Template> clazz;
 
         extensions = new Extensions();
         in.beginObject();

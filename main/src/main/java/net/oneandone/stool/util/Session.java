@@ -33,7 +33,7 @@ import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.configuration.adapter.ExtensionsAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
-import net.oneandone.stool.extensions.ExtensionsFactory;
+import net.oneandone.stool.templates.ExtensionsFactory;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.Stage;

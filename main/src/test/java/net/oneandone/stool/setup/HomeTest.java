@@ -20,7 +20,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
-import net.oneandone.stool.extensions.ExtensionsFactory;
+import net.oneandone.stool.templates.ExtensionsFactory;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;

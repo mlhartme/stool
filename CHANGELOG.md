@@ -14,8 +14,9 @@
   * extensions can now add `container.opts` and files to the docker context
   * Docker template files ending with .fm will are handled as [FreeMarkerTemplate](http://freemarker.org/docs/ref_directives.html)        
   * replace `-fitnesse` option by a plugin again; also removed fitnesse status field
-* renamed pustefix to tomcat extension; merged fault into it
-* dumped logstash extension, it was never used, and we'll have filebeat instead
+* templates replace extensions; and:
+  * renamed pustefix to tomcat; merged fault into it
+  * dumped logstash, it was never used, and we'll have filebeat instead
 
 
 ### 3.4.10 (pending)

@@ -16,7 +16,7 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
-import net.oneandone.stool.extensions.Extensions;
+import net.oneandone.stool.templates.Extensions;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -24,9 +24,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class StageConfiguration {
     public static final String NOTIFY_OWNER = "@owner"; // TODO: dump in 3.5
