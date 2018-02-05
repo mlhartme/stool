@@ -99,7 +99,7 @@ public class EngineIT {
     }
 
     @Test
-    public void cmdFNotFound() throws IOException {
+    public void cmdNotFound() throws IOException {
         String image = "stooltest";
         Engine engine;
         String container;
@@ -113,7 +113,7 @@ public class EngineIT {
             engine.containerStart(container);
             fail();
         } catch (StatusException e) {
-            assertEquals(404, e.getStatusLine().code);
+            assertEquals(400, e.getStatusLine().code);
         }
     }
 
