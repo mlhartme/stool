@@ -134,7 +134,7 @@ public class Session {
     //--
 
     private final boolean setenv;
-    private final TemplatesFactory extensionsFactory;
+    private final TemplatesFactory templatesFactory;
     public final Gson gson;
     public final Logging logging;
     public final String user;
@@ -158,11 +158,11 @@ public class Session {
 
     private Pool lazyPool;
 
-    public Session(boolean setenv, TemplatesFactory extensionsFactory, Gson gson, Logging logging, String command,
+    public Session(boolean setenv, TemplatesFactory templatesFactory, Gson gson, Logging logging, String command,
                    FileNode home, Console console, World world, StoolConfiguration configuration,
                    Bedroom bedroom, String svnuser, String svnpassword) {
         this.setenv = setenv;
-        this.extensionsFactory = extensionsFactory;
+        this.templatesFactory = templatesFactory;
         this.gson = gson;
         this.logging = logging;
         this.user = logging.getUser();
@@ -198,7 +198,7 @@ public class Session {
                 result.put(option.key(), new Property(option.key(), field, null));
             }
         }
-        extensionsFactory.fields(result);
+        templatesFactory.fields(result);
         return result;
     }
 
@@ -480,10 +480,10 @@ public class Session {
         StageConfiguration result;
 
         result = StageConfiguration.load(gson, StageConfiguration.file(backstage));
-        for (String name : extensionsFactory.typeNames()) {
+        for (String name : templatesFactory.typeNames()) {
             if (result.templates.get(name) == null) {
                 console.verbose.println(backstage.getAbsolute() + ": adding default config for new extension: " + name);
-                result.templates.add(name, false, extensionsFactory.typeInstantiate(name));
+                result.templates.add(name, false, templatesFactory.typeInstantiate(name));
             }
         }
         return result;
@@ -525,7 +525,7 @@ public class Session {
         }
         scm = scmOpt(url);
         refresh = scm == null ? "" : scm.refresh();
-        result = new StageConfiguration(javaHome(), mavenHome, refresh, extensionsFactory.newInstance());
+        result = new StageConfiguration(javaHome(), mavenHome, refresh, templatesFactory.newInstance());
         result.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
         configuration.setDefaults(properties(), result, url);
         return result;
