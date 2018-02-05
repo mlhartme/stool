@@ -158,7 +158,7 @@ public class Property implements Info {
             if (name.equals(template)) {
                 return s;
             } else {
-                return s.extension;
+                return s.template;
             }
         }
     }

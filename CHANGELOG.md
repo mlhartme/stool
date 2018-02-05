@@ -15,6 +15,7 @@
   * Docker template files ending with .fm will are handled as [FreeMarkerTemplate](http://freemarker.org/docs/ref_directives.html)        
   * replace `-fitnesse` option by a plugin again; also removed fitnesse status field
 * templates replace templates; and:
+  * renamed $HOME/extensions directory to $HOME/templates
   * renamed pustefix to tomcat; merged fault into it
   * dumped logstash, it was never used, and we'll have filebeat instead
 

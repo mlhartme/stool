@@ -60,7 +60,7 @@ public class TemplatesAdapter extends TypeAdapter<Templates> {
         for (Map.Entry<String, Switch> entry : value.templates.entrySet()) {
             s = entry.getValue();
             out.name(s.marker() + entry.getKey());
-            Streams.write(gson.toJsonTree(s.extension), out);
+            Streams.write(gson.toJsonTree(s.template), out);
         }
         out.endObject();
     }
@@ -70,7 +70,7 @@ public class TemplatesAdapter extends TypeAdapter<Templates> {
         Templates templates;
         String str;
         String name;
-        Template extension;
+        Template template;
         Class<? extends Template> clazz;
 
         templates = new Templates();
@@ -80,10 +80,10 @@ public class TemplatesAdapter extends TypeAdapter<Templates> {
             name = str.substring(1);
             clazz = factory.type(name);
             if (clazz == null) {
-                throw new IOException("extension not found: " + name);
+                throw new IOException("template not found: " + name);
             }
-            extension = gson.fromJson(in, clazz);
-            templates.add(name, str.startsWith("+"), extension);
+            template = gson.fromJson(in, clazz);
+            templates.add(name, str.startsWith("+"), template);
         }
         in.endObject();
         return templates;

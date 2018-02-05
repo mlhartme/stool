@@ -482,7 +482,7 @@ public class Session {
         result = StageConfiguration.load(gson, StageConfiguration.file(backstage));
         for (String name : templatesFactory.typeNames()) {
             if (result.templates.get(name) == null) {
-                console.verbose.println(backstage.getAbsolute() + ": adding default config for new extension: " + name);
+                console.verbose.println(backstage.getAbsolute() + ": adding default config for new template: " + name);
                 result.templates.add(name, false, templatesFactory.typeInstantiate(name));
             }
         }
