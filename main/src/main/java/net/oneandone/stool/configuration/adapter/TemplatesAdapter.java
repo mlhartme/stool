@@ -31,13 +31,13 @@ import net.oneandone.stool.templates.Switch;
 import java.io.IOException;
 import java.util.Map;
 
-public class ExtensionsAdapter extends TypeAdapter<Templates> {
+public class TemplatesAdapter extends TypeAdapter<Templates> {
     public static TypeAdapterFactory factory(final TemplatesFactory factory) {
         return new TypeAdapterFactory() {
             @SuppressWarnings("unchecked")
             public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
                 if (type.getRawType().equals(Templates.class)) {
-                    return (TypeAdapter<T>) new ExtensionsAdapter(gson, factory);
+                    return (TypeAdapter<T>) new TemplatesAdapter(gson, factory);
                 }
                 return null;
             }
@@ -47,7 +47,7 @@ public class ExtensionsAdapter extends TypeAdapter<Templates> {
     private final Gson gson;
     private final TemplatesFactory factory;
 
-    public ExtensionsAdapter(Gson gson, TemplatesFactory factory) {
+    public TemplatesAdapter(Gson gson, TemplatesFactory factory) {
         this.gson = gson;
         this.factory = factory;
     }
@@ -57,7 +57,7 @@ public class ExtensionsAdapter extends TypeAdapter<Templates> {
         Switch s;
 
         out.beginObject();
-        for (Map.Entry<String, Switch> entry : value.extensions.entrySet()) {
+        for (Map.Entry<String, Switch> entry : value.templates.entrySet()) {
             s = entry.getValue();
             out.name(s.marker() + entry.getKey());
             Streams.write(gson.toJsonTree(s.extension), out);
@@ -67,13 +67,13 @@ public class ExtensionsAdapter extends TypeAdapter<Templates> {
 
     @Override
     public Templates read(JsonReader in) throws IOException {
-        Templates extensions;
+        Templates templates;
         String str;
         String name;
         Template extension;
         Class<? extends Template> clazz;
 
-        extensions = new Templates();
+        templates = new Templates();
         in.beginObject();
         while (in.peek() == JsonToken.NAME) {
             str = in.nextName();
@@ -83,9 +83,9 @@ public class ExtensionsAdapter extends TypeAdapter<Templates> {
                 throw new IOException("extension not found: " + name);
             }
             extension = gson.fromJson(in, clazz);
-            extensions.add(name, str.startsWith("+"), extension);
+            templates.add(name, str.startsWith("+"), extension);
         }
         in.endObject();
-        return extensions;
+        return templates;
     }
 }

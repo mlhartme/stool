@@ -240,18 +240,17 @@ public class UpgradeBuilder {
 
     public Upgrade stage33_34() {
         return new Upgrade() {
-            JsonElement extensionsTransform(JsonElement e) {
-                JsonObject extensions;
-                JsonObject logstash;
+            JsonElement templatesTransform(JsonElement e) {
+                JsonObject templates;
 
                 if (session == null) {
                     // in defaults -- handled in globals below
                     throw new IllegalStateException();
                 }
                 // in stage
-                extensions = e.getAsJsonObject();
-                extensions.remove("-tomcat.editor");
-                extensions.remove("+tomcat.editor");
+                templates = e.getAsJsonObject();
+                templates.remove("-tomcat.editor");
+                templates.remove("+tomcat.editor");
                 return e;
             }
             void idRemove() {

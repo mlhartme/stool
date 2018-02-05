@@ -317,7 +317,7 @@ public abstract class Stage {
     public void start(Console console, Ports ports, String catalinaOpts) throws Exception {
         ServerXml serverXml;
         KeyStore keystore;
-        Templates extensions;
+        Templates templates;
         Engine engine;
         String container;
         Engine.Status status;
@@ -328,11 +328,11 @@ public abstract class Stage {
         console.info.println("starting container ...");
         serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
         keystore = keystore();
-        extensions = templates();
+        templates = templates();
         serverXml.configure(ports, config().url, keystore, config().cookies, this, http2());
         serverXml.save(serverXml());
         catalinaBaseAndHome().join("temp").deleteTree().mkdir();
-        extensions.beforeStart(this);
+        templates.beforeStart(this);
         engine = session.dockerEngine();
         imageName = getId();
         variables = templates().containerOpts(this);

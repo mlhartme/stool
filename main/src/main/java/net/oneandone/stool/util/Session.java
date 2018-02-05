@@ -30,7 +30,7 @@ import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
-import net.oneandone.stool.configuration.adapter.ExtensionsAdapter;
+import net.oneandone.stool.configuration.adapter.TemplatesAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.templates.TemplatesFactory;
@@ -562,7 +562,7 @@ public class Session {
         return new GsonBuilder()
                 .registerTypeAdapter(FileNode.class, new FileNodeTypeAdapter(world))
                 .registerTypeAdapter(Expire.class, new ExpireTypeAdapter())
-                .registerTypeAdapterFactory(ExtensionsAdapter.factory(factory))
+                .registerTypeAdapterFactory(TemplatesAdapter.factory(factory))
                 .disableHtmlEscaping()
                 .serializeNulls()
                 .excludeFieldsWithModifiers(Modifier.STATIC, Modifier.TRANSIENT)
