@@ -41,7 +41,7 @@ public class Fault implements Extension {
     }
 
     @Override
-    public void beforeStart(Stage stage) throws IOException {
+    public void beforeStart(Stage stage) {
     }
 
     // TODO: have a list of projects; always prepend @
