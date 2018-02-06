@@ -46,7 +46,8 @@ public class Autoconf {
 
         src = dest.getWorld().getHome().join("Projects/ciso-templates");
         if (src.exists()) {
-            src.copyDirectory(dest.mkdir());
+            dest.deleteTree().mkdir();
+            src.copyDirectory(dest);
             return true;
         } else {
             return false;
