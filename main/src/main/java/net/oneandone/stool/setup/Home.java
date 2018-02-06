@@ -85,9 +85,7 @@ public class Home {
         for (String name : new String[]{"backstages", "logs", "run", "tomcat", "system"}) {
             dir.join(name).mkdir();
         }
-        if (Autoconf.templates(dir.join("templates"))) {
-            console.info.println("custom templates installed");
-        }
+        Autoconf.templates(dir.join("templates"), console);
         versionFile().writeString(Main.versionString(world));
         dir.join("run/locks").mkfile();
     }

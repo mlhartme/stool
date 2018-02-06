@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.configuration;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -41,13 +42,18 @@ public class Autoconf {
         return result;
     }
 
-    public static boolean templates(FileNode dest) throws IOException {
+    public static boolean templates(FileNode dest, Console console) throws IOException {
         FileNode src;
+        FileNode destDir;
 
         src = dest.getWorld().getHome().join("Projects/ciso-templates");
         if (src.exists()) {
-            dest.deleteTree().mkdir();
-            src.copyDirectory(dest);
+            for (FileNode srcDir : src.list()) {
+                console.info.println("custom template: " + srcDir.getName());
+                destDir = dest.join(srcDir.getName());
+                destDir.mkdir();
+                srcDir.copyDirectory(destDir);
+            }
             return true;
         } else {
             return false;
