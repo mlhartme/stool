@@ -74,8 +74,8 @@ public class Autoconf {
             // dest.certificates = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
             dflt = dest.defaults.get("");
             dflt.put("maven.opts", "-Xmx1024m -Dmaven.repo.local=@localRepository@ @trustStore@");
-            dflt.put("template", "tomcat");
-            dflt.put("tomcat.mode", "test");
+            dflt.put("template", "ciso-tomcat");
+            dflt.put("ciso-tomcat.mode", "test");
             dest.defaults.put("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/", cp());
             dest.defaults.put("svn:https://svn.1and1.org/svn/sales/workspaces/", workspace());
         }
