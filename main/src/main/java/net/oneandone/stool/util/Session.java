@@ -39,7 +39,6 @@ import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.LinkException;
-import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -101,7 +100,7 @@ public class Session {
         console.verbose.println("wipeStaleBackstages done, ms=" + ((System.currentTimeMillis() - s)));
     }
 
-    public static boolean accessDenied(Path dir) {
+    private static boolean accessDenied(Path dir) {
         while (dir != null) {
             if (java.nio.file.Files.isDirectory(dir)) {
                 if (!java.nio.file.Files.isReadable(dir)) {
@@ -189,7 +188,6 @@ public class Session {
     public Map<String, Property> properties() {
         Map<String, Property> result;
         Option option;
-        String df;
 
         result = new LinkedHashMap<>();
         for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
@@ -207,7 +205,7 @@ public class Session {
         backstage.link(backstages.join(id));
     }
 
-    public FileNode backstageLink(String id) throws ReadLinkException {
+    public FileNode backstageLink(String id) {
         return backstages.join(id);
     }
 
@@ -258,7 +256,7 @@ public class Session {
 
     //-- environment handling
 
-    public static int memTotal() {
+    private static int memTotal() {
         long result;
 
         result = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
@@ -313,7 +311,7 @@ public class Session {
         return Scm.forUrl(url, svnCredentials);
     }
 
-    public Scm scmOpt(String url) {
+    private Scm scmOpt(String url) {
         return Scm.forUrlOpt(url, svnCredentials);
     }
 
@@ -457,7 +455,7 @@ public class Session {
     }
 
     /** @return Free disk space in partition used for stool lib. TODO: not necessarily the partition used for stages. */
-    public int diskFree(FileNode directory) {
+    private int diskFree(FileNode directory) {
         return (int) (directory.toPath().toFile().getUsableSpace() / 1024 / 1024);
     }
 
@@ -536,7 +534,7 @@ public class Session {
         return stageIdPrefix + nextStageId;
     }
 
-    public static String javaHome() {
+    private static String javaHome() {
         String result;
 
         result = System.getProperty("java.home");
