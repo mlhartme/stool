@@ -32,14 +32,6 @@ public class Fitnesse implements Template {
     }
 
     @Override
-    public void beforeStart(Stage stage) {
-    }
-
-    @Override
-    public void beforeStop(Stage stage) {
-    }
-
-    @Override
     public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) {
     }
 

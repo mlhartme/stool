@@ -28,9 +28,6 @@ public interface Template {
      */
     Map<String, FileNode> vhosts(Stage stage) throws IOException;
 
-    void beforeStart(Stage stage) throws IOException;
-
-    void beforeStop(Stage stage) throws IOException;
     void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result);
     void tomcatOpts(Stage stage, Map<String, String> result);
 

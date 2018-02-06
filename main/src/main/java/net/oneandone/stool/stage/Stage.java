@@ -332,7 +332,6 @@ public abstract class Stage {
         serverXml.configure(ports, config().url, keystore, config().cookies, this, http2());
         serverXml.save(serverXml());
         catalinaBaseAndHome().join("temp").deleteTree().mkdir();
-        templates.beforeStart(this);
         engine = session.dockerEngine();
         imageName = getId();
         variables = templates().containerOpts(this);
@@ -486,7 +485,6 @@ public abstract class Stage {
         }
         console.info.println("stopping container ...");
         container = dockerContainerFile().readString().trim();
-        templates().beforeStop(this);
         engine = session.dockerEngine();
         engine.containerStop(container);
         file.deleteFile();

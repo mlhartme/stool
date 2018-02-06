@@ -51,15 +51,6 @@ public class CisoTomcat implements Template {
     }
 
     @Override
-    public void beforeStart(Stage stage) throws IOException {
-        stage.getBackstage().join(APPLOGS).mkdirOpt();
-    }
-
-    @Override
-    public void beforeStop(Stage stage) {
-    }
-
-    @Override
     public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) {
         String app;
 

@@ -70,14 +70,6 @@ public class Templates {
         return result;
     }
 
-    public void beforeStart(Stage stage) throws IOException {
-        templates.get(selected).beforeStart(stage);
-    }
-
-    public void beforeStop(Stage stage) throws IOException {
-        templates.get(selected).beforeStop(stage);
-    }
-
     /** @param host  the vhost name, even if global vhosts config is false */
     public Map<String, String> contextParameter(Stage stage, String host, int httpPort, FileNode webinf) {
         Map<String, String> result;
