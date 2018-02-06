@@ -22,12 +22,6 @@ import java.io.IOException;
 import java.util.Map;
 
 public interface Template {
-    /**
-     * @return vhost names mapped to a docroot. Docroot may be null which indicates that this vhost must not be added
-     * to the tomcat configration (this is useful to only allocate ports)
-     */
-    Map<String, FileNode> vhosts(Stage stage) throws IOException;
-
     void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result);
     void tomcatOpts(Stage stage, Map<String, String> result);
 

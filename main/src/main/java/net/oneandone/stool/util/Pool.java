@@ -103,7 +103,6 @@ public class Pool {
 
         nameDocroots = new LinkedHashMap<>();
         nameDocroots.putAll(stage.selectedVhosts());
-        nameDocroots.putAll(stage.templates().vhosts(stage));
         names.addAll(nameDocroots.keySet());
 
         stageName = stage.getName();

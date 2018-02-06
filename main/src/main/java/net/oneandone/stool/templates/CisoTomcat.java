@@ -46,11 +46,6 @@ public class CisoTomcat implements Template {
     }
 
     @Override
-    public Map<String, FileNode> vhosts(Stage stage) {
-        return new HashMap<>();
-    }
-
-    @Override
     public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) {
         String app;
 

@@ -62,14 +62,6 @@ public class Templates {
         }
     }
 
-    public Map<String, FileNode> vhosts(Stage stage) throws IOException {
-        Map<String, FileNode> result;
-
-        result = new HashMap<>();
-        templates.get(selected).vhosts(stage);
-        return result;
-    }
-
     /** @param host  the vhost name, even if global vhosts config is false */
     public Map<String, String> contextParameter(Stage stage, String host, int httpPort, FileNode webinf) {
         Map<String, String> result;

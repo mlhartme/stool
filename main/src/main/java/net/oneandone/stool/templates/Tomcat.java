@@ -18,16 +18,10 @@ package net.oneandone.stool.templates;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class Tomcat implements Template {
     public Tomcat() {
-    }
-
-    @Override
-    public Map<String, FileNode> vhosts(Stage stage) {
-        return new HashMap<>();
     }
 
     @Override
