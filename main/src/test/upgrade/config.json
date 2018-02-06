@@ -16,7 +16,6 @@
     "": {
       "maven.opts": "-Xmx1024m -Dmaven.repo.local=@localRepository@ @proxyOpts@ @trustStore@",
       "template": "tomcat",
-      "tomcat.mode": "test",
       "tomcat.editor.version": "0.18.70",
       "tomcat.editor.userdata": "https://svn.1and1.org/svn/sales/workspaces/editor/userdata.xml"
     },
