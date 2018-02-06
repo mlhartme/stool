@@ -19,21 +19,41 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Templates {
-    public final Map<String, Switch> templates;
+    public static final Field FIELD;
+
+    static {
+        try {
+            FIELD = Templates.class.getDeclaredField("selected");
+        } catch (NoSuchFieldException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public final Map<String, Template> templates;
+    private String selected;
 
     public Templates() {
         this.templates = new HashMap<>();
+        this.selected = null;
     }
 
-    public void add(String name, boolean enabled, Template template) {
+    public String marker(String template) {
+        return template.equals(selected) ? "+" : "-";
+    }
+
+    public void add(String name, boolean select, Template template) {
         if (template == null) {
             throw new IllegalArgumentException();
         }
-        if (templates.put(name, new Switch(enabled, template)) != null) {
+        if (select) {
+            this.selected = name;
+        }
+        if (templates.put(name, template) != null) {
             throw new IllegalArgumentException("duplicate template: " + name);
         }
     }
@@ -42,28 +62,16 @@ public class Templates {
         Map<String, FileNode> result;
 
         result = new HashMap<>();
-        for (Switch s : templates.values()) {
-            if (s.enabled) {
-                result.putAll(s.template.vhosts(stage));
-            }
-        }
+        templates.get(selected).vhosts(stage);
         return result;
     }
 
     public void beforeStart(Stage stage) throws IOException {
-        for (Switch s : templates.values()) {
-            if (s.enabled) {
-                s.template.beforeStart(stage);
-            }
-        }
+        templates.get(selected).beforeStart(stage);
     }
 
     public void beforeStop(Stage stage) throws IOException {
-        for (Switch s : templates.values()) {
-            if (s.enabled) {
-                s.template.beforeStop(stage);
-            }
-        }
+        templates.get(selected).beforeStop(stage);
     }
 
     /** @param host  the vhost name, even if global vhosts config is false */
@@ -71,15 +79,11 @@ public class Templates {
         Map<String, String> result;
 
         result = new HashMap<>();
-        for (Switch s : templates.values()) {
-            if (s.enabled) {
-                s.template.contextParameter(stage, host, httpPort, webinf, result);
-            }
-        }
+        templates.get(selected).contextParameter(stage, host, httpPort, webinf, result);
         return result;
     }
 
-    public Switch get(String template) {
+    public Template get(String template) {
         return templates.get(template);
     }
 
@@ -87,11 +91,7 @@ public class Templates {
         Map<String, String> result;
 
         result = new HashMap<>();
-        for (Switch s : templates.values()) {
-            if (s.enabled) {
-                s.template.tomcatOpts(stage, result);
-            }
-        }
+        templates.get(selected).tomcatOpts(stage, result);
         return result;
     }
 
@@ -99,19 +99,11 @@ public class Templates {
         Map<String, Object> result;
 
         result = new HashMap<>();
-        for (Switch s : templates.values()) {
-            if (s.enabled) {
-                s.template.containerOpts(stage, result);
-            }
-        }
+        templates.get(selected).containerOpts(stage, result);
         return result;
     }
 
     public void files(Stage stage, FileNode dest) throws IOException {
-        for (Switch s : templates.values()) {
-            if (s.enabled) {
-                s.template.files(stage, dest);
-            }
-        }
+        templates.get(selected).files(stage, dest);
     }
 }

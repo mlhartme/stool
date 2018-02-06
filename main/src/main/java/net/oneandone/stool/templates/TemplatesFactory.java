@@ -96,10 +96,11 @@ public class TemplatesFactory {
         Class<? extends Template> template;
         int modifiers;
 
+        name = "template";
+        result.put(name, new Property(name, Templates.FIELD, name));
         for (Map.Entry<String, Class<? extends Template>> entry : types.entrySet()) {
             name = entry.getKey();
             template = entry.getValue();
-            result.put(name, new Property(name, Switch.FIELD, name));
             for (Field field : template.getDeclaredFields()) {
                 modifiers = field.getModifiers();
                 if (!Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers)) {

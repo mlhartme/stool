@@ -16,7 +16,8 @@
 package net.oneandone.stool.configuration;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.templates.Switch;
+import net.oneandone.stool.templates.Template;
+import net.oneandone.stool.templates.Templates;
 import net.oneandone.stool.util.Info;
 
 import java.lang.reflect.Field;
@@ -146,20 +147,21 @@ public class Property implements Info {
     }
 
     private Object object(Object configuration) {
-        Switch s;
+        Templates all;
+        Template t;
 
         if (template == null) {
             return configuration;
         } else {
-            s = ((StageConfiguration) configuration).templates.get(template);
-            if (s == null) {
+            all = ((StageConfiguration) configuration).templates;
+            if (name.equals("template")) {
+                return all;
+            }
+            t = all.get(template);
+            if (t == null) {
                 throw new IllegalStateException("missing template: " + template);
             }
-            if (name.equals(template)) {
-                return s;
-            } else {
-                return s.template;
-            }
+            return t;
         }
     }
 

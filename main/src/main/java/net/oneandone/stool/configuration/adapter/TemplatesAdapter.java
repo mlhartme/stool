@@ -26,7 +26,6 @@ import com.google.gson.stream.JsonWriter;
 import net.oneandone.stool.templates.Template;
 import net.oneandone.stool.templates.Templates;
 import net.oneandone.stool.templates.TemplatesFactory;
-import net.oneandone.stool.templates.Switch;
 
 import java.io.IOException;
 import java.util.Map;
@@ -53,14 +52,14 @@ public class TemplatesAdapter extends TypeAdapter<Templates> {
     }
 
     @Override
-    public void write(JsonWriter out, Templates value) throws IOException {
-        Switch s;
+    public void write(JsonWriter out, Templates templates) throws IOException {
+        Template t;
 
         out.beginObject();
-        for (Map.Entry<String, Switch> entry : value.templates.entrySet()) {
-            s = entry.getValue();
-            out.name(s.marker() + entry.getKey());
-            Streams.write(gson.toJsonTree(s.template), out);
+        for (Map.Entry<String, Template> entry : templates.templates.entrySet()) {
+            t = entry.getValue();
+            out.name(templates.marker(entry.getKey()) + entry.getKey());
+            Streams.write(gson.toJsonTree(t), out);
         }
         out.endObject();
     }
