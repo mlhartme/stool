@@ -75,14 +75,6 @@ public class Templates {
         return templates.get(template);
     }
 
-    public Map<String, String> tomcatOpts(Stage stage) {
-        Map<String, String> result;
-
-        result = new HashMap<>();
-        templates.get(selected).tomcatOpts(stage, result);
-        return result;
-    }
-
     public Map<String, Object> containerOpts(Stage stage) throws IOException {
         Map<String, Object> result;
 

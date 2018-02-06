@@ -31,10 +31,6 @@ public class Fitnesse implements Template {
     }
 
     @Override
-    public void tomcatOpts(Stage stage, Map<String, String> result) {
-    }
-
-    @Override
     public void containerOpts(Stage stage, Map<String, Object> result) throws IOException {
 
         result.put("fitnesse", true);

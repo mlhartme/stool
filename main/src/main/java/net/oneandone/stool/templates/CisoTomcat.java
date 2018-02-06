@@ -23,7 +23,6 @@ import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 public class CisoTomcat implements Template {
@@ -52,10 +51,6 @@ public class CisoTomcat implements Template {
         app = host.substring(0, host.indexOf('.'));
         result.put("mode", mode);
         result.put("logroot", ServerXml.toMount(stage.getDirectory(), stage.getBackstage().join(APPLOGS, app).getAbsolute()));
-    }
-
-    @Override
-    public void tomcatOpts(Stage stage, Map<String, String> result) {
     }
 
     @Override
