@@ -18,11 +18,18 @@
   * renamed $HOME/extensions directory to $HOME/templates
   * renamed pustefix to tomcat; merged fault into it
   * dumped logstash, it was never used, and we'll have filebeat instead
+* no longer distinguish CATALINA_HOME and CATALINA_BASE
 
 
 ### 3.4.10 (pending)
 
-* no longer distinguish CATALINA_HOME and CATALINA_BASE
+* renamed `fault.project` property to `fault.projects`
+  Migration note: old `fault.project` settings will be ignored, and an empty value is used instead; changing an arbitrary 
+  property replaces the `fault.project` with an empty `fault.projects` entry in `.backstage/config.json`
+* fixed `stool cd` for stages started with fault
+* dashboard: (contributed by maxbraun)
+  * added time-left estimate
+  * fixed browser freeze it build output becomes too long
 * update to sushi 3.8.10 to work with Jdk 1.8.0_144 (thanks to Marcus T)
   * Stool itself did not build
   * `stool start` failed to created the service-wrapper.sh

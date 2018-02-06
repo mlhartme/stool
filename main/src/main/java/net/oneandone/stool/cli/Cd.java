@@ -51,6 +51,10 @@ public class Cd extends StageCommand {
         } else {
             filter = world.filter();
             filter.includeAll();
+
+            // not accessible
+            filter.exclude("fault"); filter.exclude("fault/**/*");
+
             filter.maxDepth(2);
             filter.predicate(Predicate.DIRECTORY);
             lst = stage.getBackstage().find(filter);
