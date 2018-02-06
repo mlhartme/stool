@@ -82,8 +82,11 @@ public class Home {
         }
         conf.save(gson, dir);
         conf.downloadCache.mkdirOpt();
-        for (String name : new String[]{"templates", "backstages", "logs", "run", "tomcat", "system"}) {
+        for (String name : new String[]{"backstages", "logs", "run", "tomcat", "system"}) {
             dir.join(name).mkdir();
+        }
+        if (!Autoconf.templates(dir.join("templates"))) {
+            throw new IOException("no templates found");
         }
         versionFile().writeString(Main.versionString(world));
         dir.join("run/locks").mkfile();

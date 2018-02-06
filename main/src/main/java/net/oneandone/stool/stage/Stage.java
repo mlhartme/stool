@@ -423,8 +423,7 @@ public abstract class Stage {
         configuration = new Configuration(Configuration.VERSION_2_3_26);
         configuration.setDefaultEncoding("UTF-8");
 
-        // TODO
-        src = session.world.file("/Users/mhm/Projects/github.com/net/oneandone/stool/stool/main/templates/ciso");
+        src = session.home.join("templates").join(templates().getSelected());
         dest = backstage.join("run/image");
         dest.deleteTreeOpt();
         dest.mkdir();

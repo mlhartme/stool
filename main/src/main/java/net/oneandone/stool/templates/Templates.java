@@ -42,6 +42,10 @@ public class Templates {
         this.selected = null;
     }
 
+    public String getSelected() {
+        return selected;
+    }
+
     public String marker(String template) {
         return template.equals(selected) ? "+" : "-";
     }

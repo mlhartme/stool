@@ -41,14 +41,23 @@ public class Autoconf {
         return result;
     }
 
+    public static boolean templates(FileNode dest) throws IOException {
+        FileNode src;
+
+        src = dest.getWorld().getHome().join("Projects/ciso-templates");
+        if (src.exists()) {
+            src.copyDirectory(dest.mkdir());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private static void oneAndOne(Environment environment, StoolConfiguration dest) {
         String tools;
         Map<String, String> dflt;
 
-        tools = environment.getOpt("CISOTOOLS_HOME");
-        if (tools == null) {
-            tools = environment.getOpt("WSDTOOLS_HOME");
-        }
+        tools = oneAndOneTools(environment);
         if (tools != null) {
             dest.ldapSso = "cisostages";
             dest.admin = "michael.hartmeier@1und1.de";
@@ -63,6 +72,16 @@ public class Autoconf {
             dest.defaults.put("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/", cp());
             dest.defaults.put("svn:https://svn.1and1.org/svn/sales/workspaces/", workspace());
         }
+    }
+
+    private static String oneAndOneTools(Environment environment) {
+        String tools;
+
+        tools = environment.getOpt("CISOTOOLS_HOME");
+        if (tools == null) {
+            tools = environment.getOpt("WSDTOOLS_HOME");
+        }
+        return tools;
     }
 
     private static Map<String, String> cp() {
