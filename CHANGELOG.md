@@ -19,6 +19,7 @@
   * renamed $HOME/extensions directory to $HOME/templates
   * renamed pustefix to tomcat; merged fault into it
   * dumped logstash, it was never used, and we'll have filebeat instead
+  * added `container.env` property to configure container data
 * no longer distinguish CATALINA_HOME and CATALINA_BASE
 
 

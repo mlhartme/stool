@@ -321,6 +321,7 @@ public abstract class Stage {
         Engine.Status status;
         String imageName;
         Map<String, Object> variables;
+        FileNode context;
 
         checkMemory();
         console.info.println("starting container ...");
@@ -331,16 +332,16 @@ public abstract class Stage {
         catalinaBaseAndHome().join("temp").deleteTree().mkdir();
         engine = session.dockerEngine();
         imageName = getId();
-        variables = containerOpts(catalinaOpts);
+        context = dockerContext(catalinaOpts);
         try {
-            console.verbose.println(engine.imageBuild(imageName, dockerContext(variables)));
+            console.verbose.println(engine.imageBuild(imageName, context));
         } catch (BuildError e) {
             console.verbose.println("docker output");
             console.verbose.println(e.output);
             throw e;
         }
         console.verbose.println("image built");
-        container = engine.containerCreate(imageName, session.configuration.hostname, 0, bindMounts(systemBinds(variables)), ports.dockerMap());
+        container = engine.containerCreate(imageName, session.configuration.hostname, 0, bindMounts(isSystem()), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
         status = engine.containerStatus(container);
@@ -350,17 +351,20 @@ public abstract class Stage {
         dockerContainerFile().writeString(container);
     }
 
-    private Map<String, Object> containerOpts(String catalinaOpts) {
+    private Map<String, Object> containerOpts(String catalinaOpts, List<String> containerEnv) throws IOException {
         Map<String, Object> result;
+        String value;
 
         result = new HashMap<>();
+        for (String env : containerEnv) {
+            value = config().containerEnv.get(env);
+            if (value == null) {
+                throw new IOException("missing variable in container.env: " + env);
+            }
+            result.put(env, value);
+        }
         result.put("catalina_opts", catalinaOpts);
         return result;
-    }
-
-    private boolean systemBinds(Map<String, Object> containerOpts) {
-        // TODO: fitnesse needs system mounts to see maven etc ...
-        return isSystem() || Boolean.TRUE.equals(containerOpts.get("fitnesse"));
     }
 
     private Map<String, String> bindMounts(boolean systemBinds) throws IOException {
@@ -414,7 +418,7 @@ public abstract class Stage {
 
     private static final String FREEMARKER_EXT = ".fm";
 
-    private FileNode dockerContext(Map<String, Object> variables) throws IOException, TemplateException {
+    private FileNode dockerContext(String catalinaOpts) throws IOException, TemplateException {
         Configuration configuration;
         FileNode src;
         FileNode dest;
@@ -442,7 +446,7 @@ public abstract class Stage {
                     configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
                     template = configuration.getTemplate(srcfile.getName());
                     tmp = new StringWriter();
-                    template.process(variables, tmp);
+                    template.process(containerOpts(catalinaOpts, containerEnv(srcfile.readLines())), tmp);
                     destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
                     destfile.writeString(tmp.getBuffer().toString());
                 } else {
@@ -459,6 +463,19 @@ public abstract class Stage {
             throw e;
         }
         return dest;
+    }
+
+    private List<String> containerEnv(List<String> lines) {
+        List<String> result;
+
+        result = new ArrayList<>();
+        for (String line : lines) {
+            line = line.trim();
+            if (line.startsWith("#ENV")) {
+                result.add(line.substring(4).trim());
+            }
+        }
+        return result;
     }
 
     private boolean http2() {
