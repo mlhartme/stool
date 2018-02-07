@@ -78,9 +78,6 @@ public class StageConfiguration {
     @Option(key = "tomcat.select")
     public List<String> tomcatSelect;
 
-    @Option(key = "container.env")
-    public Map<String, String> containerEnv;
-
     /** login names or email addresses, or "@last-modified-by" or "@creator" */
     @Option(key = "notify")
     public List<String> notify;
@@ -110,6 +107,9 @@ public class StageConfiguration {
     @Option(key = "template")
     public String template;
 
+    @Option(key = "template.env")
+    public Map<String, String> templateEnv;
+
     public StageConfiguration(String javaHome, String mavenHome, String refresh) {
         this.name = "noname";
         this.cookies = true;
@@ -124,7 +124,6 @@ public class StageConfiguration {
         this.tomcatOpts = "";
         this.tomcatHeap = 350;
         this.tomcatSelect = new ArrayList<>();
-        this.containerEnv = new HashMap<>();
         this.javaHome = javaHome;
         this.mavenHome = mavenHome;
         this.mavenOpts = "";
@@ -133,6 +132,7 @@ public class StageConfiguration {
         this.comment = "";
         this.autoRefresh = false;
         this.template = "undefined";
+        this.templateEnv = new HashMap<>();
     }
 
     public void save(Gson gson, Node file) throws IOException {

@@ -351,22 +351,6 @@ public abstract class Stage {
         dockerContainerFile().writeString(container);
     }
 
-    private Map<String, Object> containerOpts(String catalinaOpts, List<String> containerEnv) throws IOException {
-        Map<String, Object> result;
-        String value;
-
-        result = new HashMap<>();
-        for (String env : containerEnv) {
-            value = config().containerEnv.get(env);
-            if (value == null) {
-                throw new IOException("missing variable in container.env: " + env);
-            }
-            result.put(env, value);
-        }
-        result.put("catalina_opts", catalinaOpts);
-        return result;
-    }
-
     private Map<String, String> bindMounts(boolean systemBinds) throws IOException {
         Map<String, String> result;
         List<FileNode> lst;
@@ -446,7 +430,7 @@ public abstract class Stage {
                     configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
                     template = configuration.getTemplate(srcfile.getName());
                     tmp = new StringWriter();
-                    template.process(containerOpts(catalinaOpts, containerEnv(srcfile.readLines())), tmp);
+                    template.process(templateEnv(srcfile.readLines(), catalinaOpts), tmp);
                     destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
                     destfile.writeString(tmp.getBuffer().toString());
                 } else {
@@ -465,14 +449,41 @@ public abstract class Stage {
         return dest;
     }
 
-    private List<String> containerEnv(List<String> lines) {
-        List<String> result;
+    private Map<String, Object> templateEnv(List<String> lines, String catalinaOpts) throws IOException {
+        Map<String, Object> result;
+        List<String> lst;
+        String key;
+        String valueStr;
+        Object value;
 
-        result = new ArrayList<>();
+        result = new HashMap<>();
+        result.put("catalina_opts", catalinaOpts);
         for (String line : lines) {
             line = line.trim();
             if (line.startsWith("#ENV")) {
-                result.add(line.substring(4).trim());
+                lst = Separator.SPACE.split(line.substring(4).trim());
+                if (lst.size() != 2) {
+                    throw new IOException("invalid env directive, expected '#ENV <type> <name>', got '" + line + "'");
+                }
+                key = lst.get(1);
+                valueStr = config().templateEnv.get(key);
+                if (valueStr == null) {
+                    throw new IOException("missing variable in template.env: " + key);
+                }
+                switch (lst.get(0)) {
+                    case "Integer":
+                        value = Integer.parseInt(valueStr);
+                        break;
+                    case "Boolean":
+                        value = Boolean.parseBoolean(valueStr);
+                        break;
+                    case "String":
+                        value = valueStr;
+                        break;
+                    default:
+                        throw new IOException("invalid env type, expected 'Integer', 'Boolean' or 'String', got '" + lst.get(0) + "'");
+                }
+                result.put(key, value);
             }
         }
         return result;

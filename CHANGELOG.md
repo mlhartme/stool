@@ -11,7 +11,6 @@
     * stages no longer allocate a service wrapper port and a tomcat stop port
   * dumped `tomcat.env`: adjust the container template instead; note that `tomcat.opts` have *not* been because they
     are useful for quick application configuration, and they are used for proxy configuration
-  * templates can now add `container.opts` and files to the docker context
   * Docker template files ending with .fm will are handled as [FreeMarkerTemplate](http://freemarker.org/docs/ref_directives.html)        
   * replace `-fitnesse` option by a plugin again; also removed fitnesse status field
 * templates replace extensions
@@ -19,7 +18,7 @@
   * renamed $HOME/extensions directory to $HOME/templates
   * renamed pustefix to tomcat; merged fault into it
   * dumped logstash, it was never used, and we'll have filebeat instead
-  * added `container.env` property to configure container data
+  * added `template.env` property pass configuration into templates (declared via `#ENV <type> <name>`)
 * no longer distinguish CATALINA_HOME and CATALINA_BASE
 
 
