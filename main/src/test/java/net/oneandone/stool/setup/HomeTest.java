@@ -20,7 +20,6 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
-import net.oneandone.stool.templates.TemplatesFactory;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
@@ -45,7 +44,7 @@ public class HomeTest {
         dir.deleteDirectory();
         home = new Home(Environment.loadSystem(), console, dir, null);
         home.create();
-        assertNotNull(StoolConfiguration.load(Session.gson(world, TemplatesFactory.create(world)), dir));
+        assertNotNull(StoolConfiguration.load(Session.gson(world), dir));
     }
 
     @Test
@@ -64,7 +63,7 @@ public class HomeTest {
         environment = Environment.loadSystem();
         world = World.create();
         console = Console.create();
-        gson = Session.gson(world, TemplatesFactory.create(world));
+        gson = Session.gson(world);
         homedir = world.getTemp().createTempDirectory();
         homedir.deleteDirectory();
         orig = world.guessProjectHome(getClass()).join("src/test/upgrade");

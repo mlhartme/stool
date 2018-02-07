@@ -31,6 +31,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -199,7 +200,9 @@ public class ServerXml {
                 manager.setAttribute("pathname", "");
                 context.appendChild(manager);
             }
-            map = stage.templates().contextParameter(stage, host.getAttribute("name"), httpPort, webinf);
+            // TODO:
+            //map = stage.templates().contextParameter(stage, host.getAttribute("name"), httpPort, webinf);
+            map = new HashMap<>();
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 parameter(context, entry.getKey()).setAttribute("value", entry.getValue());
             }

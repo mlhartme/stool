@@ -75,7 +75,7 @@ public class Autoconf {
             dflt = dest.defaults.get("");
             dflt.put("maven.opts", "-Xmx1024m -Dmaven.repo.local=@localRepository@ @trustStore@");
             dflt.put("template", "ciso-tomcat");
-            dflt.put("ciso-tomcat.mode", "test");
+            // TODO: dflt.put("ciso-tomcat.mode", "test");
             dest.defaults.put("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/", cp());
             dest.defaults.put("svn:https://svn.1and1.org/svn/sales/workspaces/", workspace());
         }

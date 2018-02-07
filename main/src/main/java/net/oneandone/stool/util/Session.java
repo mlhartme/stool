@@ -30,10 +30,8 @@ import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
-import net.oneandone.stool.configuration.adapter.TemplatesAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
-import net.oneandone.stool.templates.TemplatesFactory;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.Stage;
@@ -117,13 +115,11 @@ public class Session {
 
     private static Session loadWithoutBackstageWipe(boolean setenv, FileNode home, Logging logging, String command, Console console,
                                                   World world, String svnuser, String svnpassword) throws IOException {
-        TemplatesFactory factory;
         Gson gson;
         Session result;
 
-        factory = TemplatesFactory.create(world);
-        gson = gson(world, factory);
-        result = new Session(setenv, factory, gson, logging, command, home, console, world,
+        gson = gson(world);
+        result = new Session(setenv, gson, logging, command, home, console, world,
                 StoolConfiguration.load(gson, home), Bedroom.loadOrCreate(gson, home), svnuser, svnpassword);
         return result;
     }
@@ -133,7 +129,6 @@ public class Session {
     //--
 
     private final boolean setenv;
-    private final TemplatesFactory templatesFactory;
     public final Gson gson;
     public final Logging logging;
     public final String user;
@@ -157,11 +152,10 @@ public class Session {
 
     private Pool lazyPool;
 
-    public Session(boolean setenv, TemplatesFactory templatesFactory, Gson gson, Logging logging, String command,
+    public Session(boolean setenv, Gson gson, Logging logging, String command,
                    FileNode home, Console console, World world, StoolConfiguration configuration,
                    Bedroom bedroom, String svnuser, String svnpassword) {
         this.setenv = setenv;
-        this.templatesFactory = templatesFactory;
         this.gson = gson;
         this.logging = logging;
         this.user = logging.getUser();
@@ -193,10 +187,9 @@ public class Session {
         for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
             option = field.getAnnotation(Option.class);
             if (option != null) {
-                result.put(option.key(), new Property(option.key(), field, null));
+                result.put(option.key(), new Property(option.key(), field));
             }
         }
-        templatesFactory.fields(result);
         return result;
     }
 
@@ -475,16 +468,7 @@ public class Session {
     }
 
     public StageConfiguration loadStageConfiguration(FileNode backstage) throws IOException {
-        StageConfiguration result;
-
-        result = StageConfiguration.load(gson, StageConfiguration.file(backstage));
-        for (String name : templatesFactory.typeNames()) {
-            if (result.templates.get(name) == null) {
-                console.verbose.println(backstage.getAbsolute() + ": adding default config for new template: " + name);
-                result.templates.add(name, false, templatesFactory.typeInstantiate(name));
-            }
-        }
-        return result;
+        return StageConfiguration.load(gson, StageConfiguration.file(backstage));
     }
 
     //-- stool properties
@@ -523,7 +507,7 @@ public class Session {
         }
         scm = scmOpt(url);
         refresh = scm == null ? "" : scm.refresh();
-        result = new StageConfiguration(javaHome(), mavenHome, refresh, templatesFactory.newInstance());
+        result = new StageConfiguration(javaHome(), mavenHome, refresh);
         result.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
         configuration.setDefaults(properties(), result, url);
         return result;
@@ -556,11 +540,10 @@ public class Session {
         return lazyPlexus;
     }
 
-    public static Gson gson(World world, TemplatesFactory factory) {
+    public static Gson gson(World world) {
         return new GsonBuilder()
                 .registerTypeAdapter(FileNode.class, new FileNodeTypeAdapter(world))
                 .registerTypeAdapter(Expire.class, new ExpireTypeAdapter())
-                .registerTypeAdapterFactory(TemplatesAdapter.factory(factory))
                 .disableHtmlEscaping()
                 .serializeNulls()
                 .excludeFieldsWithModifiers(Modifier.STATIC, Modifier.TRANSIENT)

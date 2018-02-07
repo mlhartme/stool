@@ -16,7 +16,6 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
-import net.oneandone.stool.templates.TemplatesFactory;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -28,15 +27,13 @@ public class StageConfigurationTest {
     @Test
     public void io() throws IOException {
         World world;
-        TemplatesFactory factory;
         Gson gson;
         StageConfiguration configuration;
         FileNode tmp;
 
         world = World.create();
-        factory = TemplatesFactory.create(world);
-        gson = Session.gson(world, factory);
-        configuration = new StageConfiguration("a", "b", "refresh", factory.newInstance());
+        gson = Session.gson(world);
+        configuration = new StageConfiguration("a", "b", "refresh");
         tmp = world.getTemp().createTempFile();
         configuration.save(gson, tmp);
         StageConfiguration.load(gson, tmp);

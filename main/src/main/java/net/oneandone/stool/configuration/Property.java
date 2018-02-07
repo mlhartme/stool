@@ -16,8 +16,6 @@
 package net.oneandone.stool.configuration;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.templates.Template;
-import net.oneandone.stool.templates.Templates;
 import net.oneandone.stool.util.Info;
 
 import java.lang.reflect.Field;
@@ -32,12 +30,10 @@ import java.util.Map;
 public class Property implements Info {
     public final String name;
     private final Field field;
-    private final String template;
 
-    public Property(String name, Field field, String template) {
+    public Property(String name, Field field) {
         this.name = name;
         this.field = field;
-        this.template = template;
         field.setAccessible(true);
     }
 
@@ -54,7 +50,7 @@ public class Property implements Info {
         boolean first;
 
         try {
-            obj = field.get(object(configuration));
+            obj = field.get(configuration);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
@@ -125,7 +121,7 @@ public class Property implements Info {
             throw new IllegalStateException(name + ": cannot convert String to " + type.getSimpleName());
         }
         try {
-            field.set(object(configuration), value);
+            field.set(configuration, value);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
@@ -144,25 +140,6 @@ public class Property implements Info {
             result = Collections.emptyList();
         }
         return result;
-    }
-
-    private Object object(Object configuration) {
-        Templates all;
-        Template t;
-
-        if (template == null) {
-            return configuration;
-        } else {
-            all = ((StageConfiguration) configuration).templates;
-            if (name.equals("template")) {
-                return all;
-            }
-            t = all.get(template);
-            if (t == null) {
-                throw new IllegalStateException("missing template: " + template);
-            }
-            return t;
-        }
     }
 
     public int hashCode() {

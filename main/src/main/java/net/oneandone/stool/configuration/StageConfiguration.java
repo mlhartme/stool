@@ -16,7 +16,6 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
-import net.oneandone.stool.templates.Templates;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -103,9 +102,10 @@ public class StageConfiguration {
     @Option(key = "comment")
     public String comment;
 
-    public final Templates templates;
+    @Option(key = "template")
+    public String template;
 
-    public StageConfiguration(String javaHome, String mavenHome, String refresh, Templates templates) {
+    public StageConfiguration(String javaHome, String mavenHome, String refresh) {
         this.name = "noname";
         this.cookies = true;
         this.prepare = "";
@@ -126,7 +126,7 @@ public class StageConfiguration {
         this.url = "(http:https)://%h/";
         this.comment = "";
         this.autoRefresh = false;
-        this.templates = templates;
+        this.template = "undefined";
     }
 
     public void save(Gson gson, Node file) throws IOException {

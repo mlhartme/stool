@@ -25,7 +25,6 @@ import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
-import net.oneandone.stool.templates.Templates;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.stage.artifact.Changes;
@@ -317,7 +316,6 @@ public abstract class Stage {
     public void start(Console console, Ports ports, String catalinaOpts) throws Exception {
         ServerXml serverXml;
         KeyStore keystore;
-        Templates templates;
         Engine engine;
         String container;
         Engine.Status status;
@@ -328,14 +326,12 @@ public abstract class Stage {
         console.info.println("starting container ...");
         serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
         keystore = keystore();
-        templates = templates();
         serverXml.configure(ports, config().url, keystore, config().cookies, this, http2());
         serverXml.save(serverXml());
         catalinaBaseAndHome().join("temp").deleteTree().mkdir();
         engine = session.dockerEngine();
         imageName = getId();
-        variables = templates().containerOpts(this);
-        variables.put("catalina_opts", catalinaOpts);
+        variables = containerOpts(catalinaOpts);
         try {
             console.verbose.println(engine.imageBuild(imageName, dockerContext(variables)));
         } catch (BuildError e) {
@@ -352,6 +348,14 @@ public abstract class Stage {
             throw new IOException("unexpected status: " + status);
         }
         dockerContainerFile().writeString(container);
+    }
+
+    private Map<String, Object> containerOpts(String catalinaOpts) {
+        Map<String, Object> result;
+
+        result = new HashMap<>();
+        result.put("catalina_opts", catalinaOpts);
+        return result;
     }
 
     private boolean systemBinds(Map<String, Object> containerOpts) {
@@ -422,12 +426,11 @@ public abstract class Stage {
         configuration = new Configuration(Configuration.VERSION_2_3_26);
         configuration.setDefaultEncoding("UTF-8");
 
-        src = session.home.join("templates").join(templates().getSelected());
+        src = session.home.join("templates").join(config().template);
         dest = backstage.join("run/image");
         dest.deleteTreeOpt();
         dest.mkdir();
         try {
-            templates().files(this, dest);
             for (FileNode srcfile : src.find("**/*")) {
                 if (srcfile.isDirectory()) {
                     continue;
@@ -952,12 +955,6 @@ public abstract class Stage {
         result = result.substring(idx + 1); // ok for -1
         result = Strings.removeRightOpt(result, ".git");
         return result.isEmpty() ? "stage" : result;
-    }
-
-    //--
-
-    public Templates templates() {
-        return configuration.templates;
     }
 
     //--

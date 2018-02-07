@@ -15,27 +15,70 @@
  */
 package net.oneandone.stool.templates;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
+import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
-public class Fitnesse implements Template {
-    @Override
-    public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result) {
+public class Code {
+    // tomcat
+
+    private static final String APPLOGS = "tomcat/logs/applogs";
+
+    // TODO
+    public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result, String mode) {
+        String app;
+
+        app = host.substring(0, host.indexOf('.'));
+        result.put("mode", mode);
+        result.put("logroot", ServerXml.toMount(stage.getDirectory(), stage.getBackstage().join(APPLOGS, app).getAbsolute()));
     }
 
-    @Override
-    public void containerOpts(Stage stage, Map<String, Object> result) throws IOException {
 
-        result.put("fitnesse", true);
-        result.put("fitnesse_command", cmd(stage));
+    // TODO: have a list of projects; always prepend @
+    public static String faultProjects(String faultProject) {
+        StringBuilder result;
+
+        if (faultProject.isEmpty()) {
+            return faultProject;
+        }
+        result = new StringBuilder();
+        for (String entry : Separator.SPACE.split(faultProject)) {
+            if (result.length() > 0) {
+                result.append(' ');
+            }
+            if (!entry.startsWith("@")) {
+                result.append('@');
+            }
+            result.append(entry);
+        }
+        return result.toString();
     }
+
+    public static void faultWorkspace(Stage stage, FileNode dir, String projects) throws IOException {
+        Console console;
+        Launcher launcher;
+
+        launcher = stage.launcher("fault");
+        console = stage.session.console;
+        if (console.getVerbose()) {
+            launcher.arg("-v");
+        }
+        launcher.arg("-auth=false");
+        launcher.arg("run", projects, "cp", "-r", dir.getWorld().getHome().join(".fault").getAbsolute(), dir.getAbsolute());
+        console.verbose.println("executing " + launcher);
+        console.verbose.println(launcher.exec());
+    }
+
+    //--
 
     /**
      *  Launches Fitnesse Wiki (http://www.fitnesse.org).
@@ -44,7 +87,7 @@ public class Fitnesse implements Template {
      * Instead, I invoke fitnesse-launchner-maven-plugin (https://code.google.com/archive/p/fitnesse-launcher-maven-plugin/)
      * to launch the embedded web server.
      */
-    private String cmd(Stage stage) throws IOException {
+    public static String fitnesseCommand(Stage stage) throws IOException {
         StringBuilder result;
         Ports ports;
         Vhost host;
@@ -76,9 +119,5 @@ public class Fitnesse implements Template {
 
         path = ports.lookup(fitnesseHost.name).docBase();
         return path.substring(0, path.indexOf("/target"));
-    }
-
-    @Override
-    public void files(Stage stage, FileNode dest) throws IOException {
     }
 }
