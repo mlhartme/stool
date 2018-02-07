@@ -17,4 +17,6 @@ ENV CATALINA_HOME /stage/.backstage/tomcat
 
 WORKDIR $CATALINA_HOME
 
+RUN echo ${stage.serverXml()}
+
 CMD ["bin/catalina.sh", "run"]
