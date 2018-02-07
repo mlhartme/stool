@@ -320,7 +320,6 @@ public abstract class Stage {
         String container;
         Engine.Status status;
         String imageName;
-        Map<String, Object> variables;
         FileNode context;
 
         checkMemory();
@@ -336,11 +335,11 @@ public abstract class Stage {
         try {
             console.verbose.println(engine.imageBuild(imageName, context));
         } catch (BuildError e) {
-            console.verbose.println("docker output");
+            console.verbose.println("image build output");
             console.verbose.println(e.output);
             throw e;
         }
-        console.verbose.println("image built");
+        console.verbose.println("image built: " + imageName);
         container = engine.containerCreate(imageName, session.configuration.hostname, 0, bindMounts(isSystem()), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
@@ -457,6 +456,7 @@ public abstract class Stage {
         Object value;
 
         result = new HashMap<>();
+        result.put("stage", this);
         result.put("catalina_opts", catalinaOpts);
         for (String line : lines) {
             line = line.trim();

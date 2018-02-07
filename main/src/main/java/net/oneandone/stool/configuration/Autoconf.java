@@ -49,6 +49,13 @@ public class Autoconf {
         src = dest.getWorld().getHome().join("Projects/ciso-templates");
         if (src.exists()) {
             for (FileNode srcDir : src.list()) {
+                if (srcDir.getName().startsWith(".")) {
+                    continue;
+                }
+                if (srcDir.isFile()) {
+                    console.info.println("skipping file: " + srcDir);
+                    continue;
+                }
                 console.info.println("custom template: " + srcDir.getName());
                 destDir = dest.join(srcDir.getName());
                 destDir.mkdir();
