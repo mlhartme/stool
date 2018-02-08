@@ -75,20 +75,6 @@ public class ServerXml {
         template.getParentNode().removeChild(template);
     }
 
-    public void addContextParameters(Stage stage, boolean logroot, Map<String, String> additionals) throws XmlException {
-        Element context;
-        Map<String, String> map;
-
-        for (Element host : selector.elements(document, "Service/Engine/Host")) {
-            context = selector.element(host, "Context");
-            map = contextParameter(stage, host.getAttribute("name"), logroot, additionals);
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                parameter(context, entry.getKey()).setAttribute("value", entry.getValue());
-            }
-        }
-    }
-
-
     private void service(FileNode stageDirectory, Element service, Vhost vhost) throws XmlException {
         String name;
         Element engine;
@@ -216,18 +202,27 @@ public class ServerXml {
         }
     }
 
-    private Map<String, String> contextParameter(Stage stage, String host, boolean logroot, Map<String, String> additionals) {
+    public void addContextParameters(Stage stage, boolean logroot, Map<String, String> additionals) throws XmlException {
+        Element context;
+        Map<String, String> map;
+        String name;
         String app;
-        Map<String, String> result;
 
-        app = host.substring(0, host.indexOf('.'));
-        result = new HashMap<>();
-        if (logroot) {
-            result.put("logroot", ServerXml.toMount(stage.getDirectory(), stage.getBackstage().join("tomcat/logs/applogs", app).getAbsolute()));
+        for (Element host : selector.elements(document, "Service/Engine/Host")) {
+            context = selector.element(host, "Context");
+            name = host.getAttribute("name");
+            app = name.substring(0, name.indexOf('.'));
+            map = new HashMap<>();
+            if (logroot) {
+                map.put("logroot", ServerXml.toMount(stage.getDirectory(), stage.getBackstage().join("tomcat/logs/applogs", app).getAbsolute()));
+            }
+            map.putAll(additionals);
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                parameter(context, entry.getKey()).setAttribute("value", entry.getValue());
+            }
         }
-        result.putAll(additionals);
-        return result;
     }
+
 
     private Element parameterOpt(Element context, String name) throws XmlException {
         return selector.elementOpt(context, "Parameter[@name='" + name + "']");
