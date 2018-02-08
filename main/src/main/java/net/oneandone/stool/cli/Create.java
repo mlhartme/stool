@@ -127,7 +127,7 @@ public class Create extends SessionCommand {
             console.info.println("[" + i + "] " + urls.get(i - 1));
         }
         while (true) {
-            input = console.readline("Choose url [1-" + urls.size() + "]) or press ctrl-c to abort: \n");
+            input = console.readline("Choose url [1-" + urls.size() + "]) or press ctrl-c to abort: ");
             try {
                 no = Integer.parseInt(input);
                 return Strings.removeLeftOpt(urls.get(no - 1), "scm:");

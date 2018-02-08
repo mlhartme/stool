@@ -208,7 +208,7 @@ public class ServerXml {
         String name;
         String app;
 
-        for (Element host : selector.elements(document, "Service/Engine/Host")) {
+        for (Element host : selector.elements(document, "Server/Service/Engine/Host")) {
             context = selector.element(host, "Context");
             name = host.getAttribute("name");
             app = name.substring(0, name.indexOf('.'));
