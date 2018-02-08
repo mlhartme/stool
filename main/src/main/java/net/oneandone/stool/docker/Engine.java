@@ -127,6 +127,10 @@ public class Engine {
                 if (key != null) {
                     return "error";
                 }
+                key = object.get("status");
+                if (key != null) {
+                    return "status";
+                }
                 // fall-through
             default:
                 throw new IOException("unexpected object: " + object);
