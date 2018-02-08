@@ -57,7 +57,7 @@ public class ServerXml {
         file.writeXml(document);
     }
 
-    public void configure(Ports ports, String url, KeyStore keystore, boolean cookies, Stage stage, boolean http2, boolean logroot, Map<String, String> additionals) throws XmlException {
+    public void configure(Ports ports, String url, KeyStore keystore, boolean cookies, Stage stage, boolean http2) throws XmlException {
         Element template;
         Element service;
 
@@ -69,11 +69,25 @@ public class ServerXml {
                 document.getDocumentElement().appendChild(service);
                 service(stage.getDirectory(), service, vhost);
                 connectors(stage.getDirectory(), service, vhost, keystore, http2);
-                contexts(stage, vhost.context(hostname, url), service, cookies, logroot, additionals);
+                contexts(vhost.context(hostname, url), service, cookies);
             }
         }
         template.getParentNode().removeChild(template);
     }
+
+    public void addContextParameters(Stage stage, boolean logroot, Map<String, String> additionals) throws XmlException {
+        Element context;
+        Map<String, String> map;
+
+        for (Element host : selector.elements(document, "Service/Engine/Host")) {
+            context = selector.element(host, "Context");
+            map = contextParameter(stage, host.getAttribute("name"), logroot, additionals);
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                parameter(context, entry.getKey()).setAttribute("value", entry.getValue());
+            }
+        }
+    }
+
 
     private void service(FileNode stageDirectory, Element service, Vhost vhost) throws XmlException {
         String name;
@@ -185,10 +199,9 @@ public class ServerXml {
 
     }
 
-    private void contexts(Stage stage, String path, Element service, boolean cookies, boolean logroot, Map<String, String> additionals) throws XmlException {
+    private void contexts(String path, Element service, boolean cookies) throws XmlException {
         Element context;
         Element manager;
-        Map<String, String> map;
 
         for (Element host : selector.elements(service, "Engine/Host")) {
             context = selector.element(host, "Context");
@@ -199,10 +212,6 @@ public class ServerXml {
                 manager = service.getOwnerDocument().createElement("Manager");
                 manager.setAttribute("pathname", "");
                 context.appendChild(manager);
-            }
-            map = contextParameter(stage, host.getAttribute("name"), logroot, additionals);
-            for (Map.Entry<String, String> entry : map.entrySet()) {
-                parameter(context, entry.getKey()).setAttribute("value", entry.getValue());
             }
         }
     }

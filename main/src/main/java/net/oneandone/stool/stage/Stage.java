@@ -316,6 +316,8 @@ public abstract class Stage {
     //-- tomcat helper
 
     public void start(Console console, Ports ports, String catalinaOpts) throws Exception {
+        ServerXml serverXml;
+        KeyStore keystore;
         Engine engine;
         String container;
         Engine.Status status;
@@ -324,7 +326,13 @@ public abstract class Stage {
 
         checkMemory();
         console.info.println("starting container ...");
-        serverXml(ports, false);
+
+        serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
+        keystore = keystore();
+        serverXml.configure(ports, config().url, keystore, config().cookies, this, http2());
+        serverXml.save(serverXml());
+        catalinaBaseAndHome().join("temp").deleteTree().mkdir();
+
         engine = session.dockerEngine();
         imageName = getId();
         context = dockerContext(catalinaOpts, ports);
@@ -346,13 +354,11 @@ public abstract class Stage {
         dockerContainerFile().writeString(container);
     }
 
-    public void serverXml(Ports ports, boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
+    public void addContextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
-        KeyStore keystore;
 
         serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
-        keystore = keystore();
-        serverXml.configure(ports, config().url, keystore, config().cookies, this, http2(), logroot, Strings.toMap(additionals));
+        serverXml.addContextParameters(this, logroot, Strings.toMap(additionals));
         serverXml.save(serverXml());
         catalinaBaseAndHome().join("temp").deleteTree().mkdir();
     }
@@ -464,7 +470,6 @@ public abstract class Stage {
 
         result = new HashMap<>();
         result.put("stage", this);
-        result.put("ports", ports);
         result.put("catalina_opts", catalinaOpts);
         for (String line : lines) {
             line = line.trim();
