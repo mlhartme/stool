@@ -357,7 +357,7 @@ public abstract class Stage {
     public void addContextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
 
-        serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
+        serverXml = ServerXml.load(serverXml(), session.configuration.hostname);
         serverXml.addContextParameters(this, logroot, Strings.toMap(additionals));
         serverXml.save(serverXml());
         catalinaBaseAndHome().join("temp").deleteTree().mkdir();

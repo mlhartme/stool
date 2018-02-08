@@ -131,7 +131,7 @@ public class StageConfiguration {
         this.url = "(http:https)://%h/";
         this.comment = "";
         this.autoRefresh = false;
-        this.template = "undefined";
+        this.template = "tomcat";
         this.templateEnv = new HashMap<>();
     }
 
