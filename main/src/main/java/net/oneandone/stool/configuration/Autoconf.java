@@ -46,7 +46,7 @@ public class Autoconf {
         FileNode src;
         FileNode destDir;
 
-        src = dest.getWorld().getHome().join("Projects/ciso-templates");
+        src = dest.getWorld().getHome().join("Projects/puppet-repo.server.lan/ciso/puppet4/environments/modules/stool/templates/stool-templates");
         if (src.exists()) {
             for (FileNode srcDir : src.list()) {
                 if (srcDir.getName().startsWith(".")) {
