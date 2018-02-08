@@ -42,10 +42,12 @@ import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
+import net.oneandone.sushi.xml.XmlException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.repository.RepositoryPolicy;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -314,8 +316,6 @@ public abstract class Stage {
     //-- tomcat helper
 
     public void start(Console console, Ports ports, String catalinaOpts) throws Exception {
-        ServerXml serverXml;
-        KeyStore keystore;
         Engine engine;
         String container;
         Engine.Status status;
@@ -324,11 +324,7 @@ public abstract class Stage {
 
         checkMemory();
         console.info.println("starting container ...");
-        serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
-        keystore = keystore();
-        serverXml.configure(ports, config().url, keystore, config().cookies, this, http2());
-        serverXml.save(serverXml());
-        catalinaBaseAndHome().join("temp").deleteTree().mkdir();
+        serverXml(ports, false);
         engine = session.dockerEngine();
         imageName = getId();
         context = dockerContext(catalinaOpts);
@@ -348,6 +344,17 @@ public abstract class Stage {
             throw new IOException("unexpected status: " + status);
         }
         dockerContainerFile().writeString(container);
+    }
+
+    public void serverXml(Ports ports, boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
+        ServerXml serverXml;
+        KeyStore keystore;
+
+        serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
+        keystore = keystore();
+        serverXml.configure(ports, config().url, keystore, config().cookies, this, http2(), logroot, Strings.toMap(additionals));
+        serverXml.save(serverXml());
+        catalinaBaseAndHome().join("temp").deleteTree().mkdir();
     }
 
     private Map<String, String> bindMounts(boolean systemBinds) throws IOException {

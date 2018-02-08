@@ -29,20 +29,6 @@ import java.util.Collections;
 import java.util.Map;
 
 public class Code {
-    // tomcat
-
-    private static final String APPLOGS = "tomcat/logs/applogs";
-
-    // TODO
-    public void contextParameter(Stage stage, String host, int httpPort, FileNode webinf, Map<String, String> result, String mode) {
-        String app;
-
-        app = host.substring(0, host.indexOf('.'));
-        result.put("mode", mode);
-        result.put("logroot", ServerXml.toMount(stage.getDirectory(), stage.getBackstage().join(APPLOGS, app).getAbsolute()));
-    }
-
-
     // TODO: have a list of projects; always prepend @
     public static String faultProjects(String faultProject) {
         StringBuilder result;

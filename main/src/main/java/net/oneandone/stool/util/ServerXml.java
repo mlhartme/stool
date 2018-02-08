@@ -57,7 +57,7 @@ public class ServerXml {
         file.writeXml(document);
     }
 
-    public void configure(Ports ports, String url, KeyStore keystore, boolean cookies, Stage stage, boolean http2) throws XmlException {
+    public void configure(Ports ports, String url, KeyStore keystore, boolean cookies, Stage stage, boolean http2, boolean logroot, Map<String, String> additionals) throws XmlException {
         Element template;
         Element service;
 
@@ -69,7 +69,7 @@ public class ServerXml {
                 document.getDocumentElement().appendChild(service);
                 service(stage.getDirectory(), service, vhost);
                 connectors(stage.getDirectory(), service, vhost, keystore, http2);
-                contexts(stage, vhost.context(hostname, url), vhost.httpPort(), service, cookies, vhost.docroot.join("WEB-INF"));
+                contexts(stage, vhost.context(hostname, url), service, cookies, logroot, additionals);
             }
         }
         template.getParentNode().removeChild(template);
@@ -185,7 +185,7 @@ public class ServerXml {
 
     }
 
-    private void contexts(Stage stage, String path, int httpPort, Element service, boolean cookies, FileNode webinf) throws XmlException {
+    private void contexts(Stage stage, String path, Element service, boolean cookies, boolean logroot, Map<String, String> additionals) throws XmlException {
         Element context;
         Element manager;
         Map<String, String> map;
@@ -200,13 +200,24 @@ public class ServerXml {
                 manager.setAttribute("pathname", "");
                 context.appendChild(manager);
             }
-            // TODO:
-            //map = stage.templates().contextParameter(stage, host.getAttribute("name"), httpPort, webinf);
-            map = new HashMap<>();
+            map = contextParameter(stage, host.getAttribute("name"), logroot, additionals);
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 parameter(context, entry.getKey()).setAttribute("value", entry.getValue());
             }
         }
+    }
+
+    private Map<String, String> contextParameter(Stage stage, String host, boolean logroot, Map<String, String> additionals) {
+        String app;
+        Map<String, String> result;
+
+        app = host.substring(0, host.indexOf('.'));
+        result = new HashMap<>();
+        if (logroot) {
+            result.put("logroot", ServerXml.toMount(stage.getDirectory(), stage.getBackstage().join("tomcat/logs/applogs", app).getAbsolute()));
+        }
+        additionals.putAll(additionals);
+        return result;
     }
 
     private Element parameterOpt(Element context, String name) throws XmlException {
