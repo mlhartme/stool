@@ -97,14 +97,12 @@ public class Pool {
         gc();
 
         names = new LinkedHashSet<>();
-        names.add(Ports.STOP_WRAPPER);
         names.add(Ports.JMX_DEBUG);
 
         names.addAll(fixed.keySet());
 
         nameDocroots = new LinkedHashMap<>();
         nameDocroots.putAll(stage.selectedVhosts());
-        nameDocroots.putAll(stage.extensions().vhosts(stage));
         names.addAll(nameDocroots.keySet());
 
         stageName = stage.getName();

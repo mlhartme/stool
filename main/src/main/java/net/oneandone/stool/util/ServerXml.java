@@ -19,6 +19,7 @@ import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.xml.Selector;
 import net.oneandone.sushi.xml.Xml;
 import net.oneandone.sushi.xml.XmlException;
@@ -30,6 +31,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,32 +57,32 @@ public class ServerXml {
         file.writeXml(document);
     }
 
-    public void configure(Ports ports, String url, KeyStore keystore, boolean cookies, Stage stage, boolean http2) throws XmlException {
+    public void configure(Ports ports, String url, KeyStore keystore, boolean cookies, Stage stage, boolean http2, boolean logroot, Map<String, String> additionals) throws XmlException {
         Element template;
         Element service;
 
-        document.getDocumentElement().setAttribute("port", Integer.toString(ports.stop()));
+        document.getDocumentElement().setAttribute("port", "-1");
         template = selector.element(document, "Server/Service");
         for (Vhost vhost : ports.vhosts()) {
             if (vhost.isWebapp()) {
                 service = (Element) template.cloneNode(true);
                 document.getDocumentElement().appendChild(service);
-                service(service, vhost);
-                connectors(service, vhost, keystore, http2);
-                contexts(stage, vhost.context(hostname, url), vhost.httpPort(), service, cookies, vhost.docroot.join("WEB-INF"));
+                service(stage.getDirectory(), service, vhost);
+                connectors(stage.getDirectory(), service, vhost, keystore, http2);
+                contexts(stage, vhost.context(hostname, url), service, cookies, logroot, additionals);
             }
         }
         template.getParentNode().removeChild(template);
     }
 
-    private void service(Element service, Vhost object) throws XmlException {
+    private void service(FileNode stageDirectory, Element service, Vhost vhost) throws XmlException {
         String name;
         Element engine;
         Element host;
         Element context;
         Element element;
 
-        name = object.fqdn(true, hostname);
+        name = vhost.fqdn(true, hostname);
         service.setAttribute("name", name);
         engine = selector.element(service, "Engine");
         engine.setAttribute("defaultHost", name);
@@ -89,20 +91,24 @@ public class ServerXml {
         }
         host = service.getOwnerDocument().createElement("Host");
         host.setAttribute("name", name);
-        host.setAttribute("appBase", object.appBase());
+        host.setAttribute("appBase", toMount(stageDirectory, vhost.appBase()));
         host.setAttribute("autoDeploy", "false");
         engine.appendChild(host);
         context = service.getOwnerDocument().createElement("Context");
         context.setAttribute("path", "");
-        context.setAttribute("docBase", object.docBase());
+        context.setAttribute("docBase", toMount(stageDirectory, vhost.docBase()));
         host.appendChild(context);
 
         element = service.getOwnerDocument().createElement("Alias");
-        element.setAttribute("name", object.fqdn(false, hostname));
+        element.setAttribute("name", vhost.fqdn(false, hostname));
         host.insertBefore(element, host.getFirstChild());
     }
 
-    private void connectors(Element service, Vhost host, KeyStore keyStore, boolean http2) {
+    public static String toMount(FileNode stageDirectory, String path) {
+        return path.startsWith("/") ? "/stage/" + Strings.removeLeft(path, stageDirectory.getAbsolute() + "/") : path;
+    }
+
+    private void connectors(FileNode stageDirectory, Element service, Vhost host, KeyStore keyStore, boolean http2) {
         String ip;
 
         ip = "0.0.0.0";
@@ -110,7 +116,7 @@ public class ServerXml {
             connectorDisable(service, "Connector[starts-with(@protocol,'AJP')]");
             connectorEnable(service, HTTP_PATH, ip, host.httpPort(), host.httpsPort(), http2);
             if (keyStore != null) {
-                sslConnector(service, HTTPS_PATH, host.httpsPort(), ip, keyStore, http2);
+                sslConnector(stageDirectory, service, HTTPS_PATH, host.httpsPort(), ip, keyStore, http2);
             } else {
                 connectorDisable(service, HTTPS_PATH);
             }
@@ -150,7 +156,7 @@ public class ServerXml {
     }
 
 
-    private void sslConnector(Element service, String path, int port, String ip, KeyStore keystore, boolean http2) throws XmlException {
+    private void sslConnector(FileNode stageDirectory, Element service, String path, int port, String ip, KeyStore keystore, boolean http2) throws XmlException {
         Element element;
 
         element = selector.elementOpt(service, path);
@@ -170,7 +176,7 @@ public class ServerXml {
         element.setAttribute("useBodyEncodingForURI", "true");
 
         element.setAttribute("keystorePass", keystore.password());
-        element.setAttribute("keystoreFile", keystore.file());
+        element.setAttribute("keystoreFile", toMount(stageDirectory, keystore.file()));
         element.setAttribute("keystoreType", keystore.type());
 
         element.removeAttribute("SSLCertificateFile");
@@ -179,7 +185,7 @@ public class ServerXml {
 
     }
 
-    private void contexts(Stage stage, String path, int httpPort, Element service, boolean cookies, FileNode webinf) throws XmlException {
+    private void contexts(Stage stage, String path, Element service, boolean cookies, boolean logroot, Map<String, String> additionals) throws XmlException {
         Element context;
         Element manager;
         Map<String, String> map;
@@ -194,11 +200,24 @@ public class ServerXml {
                 manager.setAttribute("pathname", "");
                 context.appendChild(manager);
             }
-            map = stage.extensions().contextParameter(stage, host.getAttribute("name"), httpPort, webinf);
+            map = contextParameter(stage, host.getAttribute("name"), logroot, additionals);
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 parameter(context, entry.getKey()).setAttribute("value", entry.getValue());
             }
         }
+    }
+
+    private Map<String, String> contextParameter(Stage stage, String host, boolean logroot, Map<String, String> additionals) {
+        String app;
+        Map<String, String> result;
+
+        app = host.substring(0, host.indexOf('.'));
+        result = new HashMap<>();
+        if (logroot) {
+            result.put("logroot", ServerXml.toMount(stage.getDirectory(), stage.getBackstage().join("tomcat/logs/applogs", app).getAbsolute()));
+        }
+        result.putAll(additionals);
+        return result;
     }
 
     private Element parameterOpt(Element context, String name) throws XmlException {

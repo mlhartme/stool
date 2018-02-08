@@ -15,17 +15,16 @@
  */
 package net.oneandone.stool.util;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 /** Manage ports used for one stage. Immutable. Do not create directly, use Pool class instead. */
 public class Ports {
-    public static final String STOP_WRAPPER = "+stop+wrapper";
     public static final String JMX_DEBUG = "+jmx+debug";
 
     private final List<Vhost> vhosts;
-    private final int stopWrapper;
     private final int jmxDebug;
 
     public Ports(List<Vhost> vhosts) {
@@ -45,22 +44,10 @@ public class Ports {
             }
         }
         this.vhosts = vhosts;
-        this.stopWrapper = indexOf(STOP_WRAPPER);
         this.jmxDebug = indexOf(JMX_DEBUG);
-        if (stopWrapper == -1) {
-            throw new IllegalArgumentException(vhosts.toString());
-        }
         if (jmxDebug == -1) {
             throw new IllegalArgumentException(vhosts.toString());
         }
-    }
-
-    public int stop() {
-        return vhosts.get(stopWrapper).even;
-    }
-
-    public int wrapper() {
-        return vhosts.get(stopWrapper).even + 1;
     }
 
     public int jmx() {
@@ -112,6 +99,19 @@ public class Ports {
                 result.putAll(vhost.urlMap(hostname, url));
             }
         }
+        return result;
+    }
+
+    public Map<Integer, Integer> dockerMap() {
+        Map<Integer, Integer> result;
+
+        result = new HashMap<>();
+        for (Vhost vhost : vhosts) {
+            result.put(vhost.even, vhost.even);
+            result.put(vhost.even + 1, vhost.even + 1);
+        }
+        result.put(jmx(), jmx());
+        result.put(debug(), debug());
         return result;
     }
 }

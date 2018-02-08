@@ -240,22 +240,17 @@ public class UpgradeBuilder {
 
     public Upgrade stage33_34() {
         return new Upgrade() {
-            JsonElement extensionsTransform(JsonElement e) {
-                JsonObject extensions;
-                JsonObject logstash;
+            JsonElement templatesTransform(JsonElement e) {
+                JsonObject templates;
 
                 if (session == null) {
                     // in defaults -- handled in globals below
                     throw new IllegalStateException();
                 }
                 // in stage
-                extensions = e.getAsJsonObject();
-                extensions.remove("-pustefix.editor");
-                extensions.remove("+pustefix.editor");
-                logstash = new JsonObject();
-                logstash.add("output", new JsonPrimitive(""));
-                logstash.add("link", new JsonPrimitive(""));
-                extensions.add("-logstash", logstash);
+                templates = e.getAsJsonObject();
+                templates.remove("-tomcat.editor");
+                templates.remove("+tomcat.editor");
                 return e;
             }
             void idRemove() {
@@ -305,8 +300,8 @@ public class UpgradeBuilder {
 
                 if (session == null) {
                     // this call is to upgrade defaults
-                    dest.remove("pustefix.editor.version");
-                    dest.remove("pustefix.editor.userdata");
+                    dest.remove("tomcat.editor.version");
+                    dest.remove("tomcat.editor.userdata");
                 } else {
                     array = new JsonArray();
                     array.add(new JsonPrimitive(StageConfiguration.NOTIFY_MAINTAINER));

@@ -21,7 +21,6 @@ import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Autoconf;
 import net.oneandone.stool.configuration.StoolConfiguration;
-import net.oneandone.stool.extensions.ExtensionsFactory;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
@@ -82,9 +81,10 @@ public class Home {
         }
         conf.save(gson, dir);
         conf.downloadCache.mkdirOpt();
-        for (String name : new String[]{"extensions", "backstages", "logs", "service-wrapper", "run", "tomcat", "system"}) {
+        for (String name : new String[]{"backstages", "logs", "run", "tomcat", "system"}) {
             dir.join(name).mkdir();
         }
+        Autoconf.templates(dir.join("templates"), console);
         versionFile().writeString(Main.versionString(world));
         dir.join("run/locks").mkfile();
     }
@@ -114,7 +114,7 @@ public class Home {
         Gson gson;
 
         world = dir.getWorld();
-        gson = Session.gson(world, ExtensionsFactory.create(world));
+        gson = Session.gson(world);
         return gson;
     }
 

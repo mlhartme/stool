@@ -16,7 +16,6 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
-import net.oneandone.stool.extensions.Extensions;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -73,17 +72,11 @@ public class StageConfiguration {
     @Option(key = "tomcat.version")
     public String tomcatVersion;
 
-    @Option(key = "tomcat.service")
-    public String tomcatService;
-
     @Option(key = "tomcat.heap")
     public Integer tomcatHeap;
 
     @Option(key = "tomcat.select")
     public List<String> tomcatSelect;
-
-    @Option(key = "tomcat.env")
-    public Map<String, String> tomcatEnv;
 
     /** login names or email addresses, or "@last-modified-by" or "@creator" */
     @Option(key = "notify")
@@ -111,9 +104,13 @@ public class StageConfiguration {
     @Option(key = "comment")
     public String comment;
 
-    public final Extensions extensions;
+    @Option(key = "template")
+    public String template;
 
-    public StageConfiguration(String javaHome, String mavenHome, String refresh, Extensions extensions) {
+    @Option(key = "template.env")
+    public Map<String, String> templateEnv;
+
+    public StageConfiguration(String javaHome, String mavenHome, String refresh) {
         this.name = "noname";
         this.cookies = true;
         this.prepare = "";
@@ -123,12 +120,10 @@ public class StageConfiguration {
         this.notify.add(NOTIFY_CREATOR);
         this.pom = "pom.xml";
         this.quota = 10000;
-        this.tomcatOpts = "";
         this.tomcatVersion = "8.5.16";
-        this.tomcatService = "3.5.32";
+        this.tomcatOpts = "";
         this.tomcatHeap = 350;
         this.tomcatSelect = new ArrayList<>();
-        this.tomcatEnv = new HashMap<>();
         this.javaHome = javaHome;
         this.mavenHome = mavenHome;
         this.mavenOpts = "";
@@ -136,7 +131,8 @@ public class StageConfiguration {
         this.url = "(http:https)://%h/";
         this.comment = "";
         this.autoRefresh = false;
-        this.extensions = extensions;
+        this.template = "undefined";
+        this.templateEnv = new HashMap<>();
     }
 
     public void save(Gson gson, Node file) throws IOException {

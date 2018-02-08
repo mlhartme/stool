@@ -1275,7 +1275,7 @@ To upgrade from Stool versions before 3.4.0:
         |  |- ports       (lists all allocated ports)
         |  '- sleep.json  (optional, holds sleeping stages)
         |- downloads (caches Tomcat- and Service Wrapper downloads)
-        |- extensions (for jars with Stool extensions)
+        |- templates (for jars with Stool Templates)
         |- logs
         |  |- stool-YYmmDD.log(.gz)
         |  :
@@ -1317,4 +1317,4 @@ To upgrade from Stool versions before 3.4.0:
              |- temp (standard tomcat directory)
              |- work (standard tomcat directory)
              '- logs
-                '- applogs (application log files for pustefix apps)
+                '- applogs (application log files for tomcat apps)

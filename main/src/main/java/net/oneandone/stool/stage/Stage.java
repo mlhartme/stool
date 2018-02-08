@@ -15,12 +15,16 @@
  */
 package net.oneandone.stool.stage;
 
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.stool.cli.Start;
+import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.extensions.Extensions;
+import net.oneandone.stool.docker.BuildError;
+import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.stage.artifact.Changes;
@@ -38,13 +42,16 @@ import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
+import net.oneandone.sushi.xml.XmlException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.repository.RepositoryPolicy;
+import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.net.Socket;
 import java.net.URI;
 import java.nio.file.FileVisitResult;
@@ -222,29 +229,12 @@ public abstract class Stage {
     public State state() throws IOException {
         if (session.bedroom.contains(getId())) {
             return State.SLEEPING;
-        } else if (runningService() != 0 || fitnesseRunning()) {
+        } else if (dockerContainer() != null) {
             return State.UP;
         } else {
             return State.DOWN;
         }
 
-    }
-
-    /** TODO */
-    public boolean fitnesseRunning() throws IOException {
-        Ports ports;
-
-        if (runningService() == 0) {
-            ports = loadPortsOpt();
-            if (ports != null) {
-                for (Vhost vhost : ports.vhosts()) {
-                    if (vhost.isWebapp() && ping(vhost)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
     }
 
     public boolean ping(Vhost vhost) throws IOException {
@@ -266,16 +256,6 @@ public abstract class Stage {
 
     public String httpUrl(Vhost host) {
         return host.httpUrl(session.configuration.vhosts, session.configuration.hostname);
-    }
-
-    public int runningService() throws IOException {
-        return readPidOpt(servicePidFile());
-    }
-
-    /** @return pid or null */
-    public FileNode servicePidFile() {
-        // Yes, that's the service pid (tomcat is a child process of the service)
-        return getBackstage().join("run/tomcat.pid");
     }
 
     //--
@@ -333,30 +313,188 @@ public abstract class Stage {
 
     public abstract String getDefaultBuildCommand();
 
-    protected FileNode catalinaHome() {
-        return session.home.join("tomcat", Start.tomcatName(configuration.tomcatVersion));
-    }
-
     //-- tomcat helper
 
-    public Launcher.Handle start(Console console, Ports ports) throws Exception {
-        ServerXml serverXml;
-        KeyStore keystore;
-        Extensions extensions;
-        Launcher launcher;
+    public void start(Console console, Ports ports, String catalinaOpts) throws Exception {
+        Engine engine;
+        String container;
+        Engine.Status status;
+        String imageName;
+        FileNode context;
 
         checkMemory();
-        console.info.println("starting tomcat ...");
+        console.info.println("starting container ...");
+        serverXml(ports, false);
+        engine = session.dockerEngine();
+        imageName = getId();
+        context = dockerContext(catalinaOpts, ports);
+        try {
+            console.verbose.println(engine.imageBuild(imageName, context));
+        } catch (BuildError e) {
+            console.verbose.println("image build output");
+            console.verbose.println(e.output);
+            throw e;
+        }
+        console.verbose.println("image built: " + imageName);
+        container = engine.containerCreate(imageName, session.configuration.hostname, 0, bindMounts(isSystem()), ports.dockerMap());
+        console.verbose.println("created container " + container);
+        engine.containerStart(container);
+        status = engine.containerStatus(container);
+        if (status != Engine.Status.RUNNING) {
+            throw new IOException("unexpected status: " + status);
+        }
+        dockerContainerFile().writeString(container);
+    }
+
+    public void serverXml(Ports ports, boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
+        ServerXml serverXml;
+        KeyStore keystore;
+
         serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
         keystore = keystore();
-        extensions = extensions();
-        serverXml.configure(ports, config().url, keystore, config().cookies, this, http2());
+        serverXml.configure(ports, config().url, keystore, config().cookies, this, http2(), logroot, Strings.toMap(additionals));
         serverXml.save(serverXml());
-        catalinaBase().join("temp").deleteTree().mkdir();
-        extensions.beforeStart(this);
-        launcher = serviceWrapper("start");
-        console.verbose.println("executing: " + launcher);
-        return launcher.launch();
+        catalinaBaseAndHome().join("temp").deleteTree().mkdir();
+    }
+
+    private Map<String, String> bindMounts(boolean systemBinds) throws IOException {
+        Map<String, String> result;
+        List<FileNode> lst;
+        Iterator<FileNode> iter;
+        FileNode merged;
+
+
+        result = new HashMap<>();
+        result.put(getDirectory().getAbsolute(), "/stage");
+
+        if (systemBinds) {
+            // needed for Dashboard
+            result.put("/var/run/docker.sock", "/var/run/docker.sock");
+            lst = new ArrayList<>();
+            lst.add(session.home);
+            lst.add(Main.stoolCp(session.world).getParent());
+            lst.addAll(session.stageDirectories());
+
+            iter = lst.iterator();
+            merged = iter.next();
+            while (iter.hasNext()) {
+                merged = merge(merged, iter.next());
+            }
+            result.put(merged.getAbsolute(), merged.getAbsolute());
+        }
+        return result;
+    }
+
+    private static FileNode merge(FileNode left, FileNode right) {
+        FileNode current;
+
+        current = right;
+        while (!left.hasAnchestor(current)) {
+            current = current.getParent();
+        }
+        return current;
+    }
+
+    private FileNode dockerContainerFile() {
+        return backstage.join("run/container");
+    }
+
+    public String dockerContainer() throws IOException {
+        FileNode file;
+
+        file = dockerContainerFile();
+        return file.exists() ? file.readString().trim() : null;
+    }
+
+    private static final String FREEMARKER_EXT = ".fm";
+
+    private FileNode dockerContext(String catalinaOpts, Ports ports) throws IOException, TemplateException {
+        Configuration configuration;
+        FileNode src;
+        FileNode dest;
+        FileNode destparent;
+        FileNode destfile;
+        Template template;
+        StringWriter tmp;
+
+        configuration = new Configuration(Configuration.VERSION_2_3_26);
+        configuration.setDefaultEncoding("UTF-8");
+
+        src = session.home.join("templates").join(config().template);
+        dest = backstage.join("run/image");
+        dest.deleteTreeOpt();
+        dest.mkdir();
+        try {
+            for (FileNode srcfile : src.find("**/*")) {
+                if (srcfile.isDirectory()) {
+                    continue;
+                }
+                destfile = dest.join(srcfile.getRelative(src));
+                destparent = destfile.getParent();
+                destparent.mkdirsOpt();
+                if (destfile.getName().endsWith(FREEMARKER_EXT)) {
+                    configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
+                    template = configuration.getTemplate(srcfile.getName());
+                    tmp = new StringWriter();
+                    template.process(templateEnv(srcfile.readLines(), catalinaOpts, ports), tmp);
+                    destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
+                    destfile.writeString(tmp.getBuffer().toString());
+                } else {
+                    srcfile.copy(destfile);
+                }
+            }
+        } catch (IOException | TemplateException | RuntimeException | Error e) {
+            // generate all or nothing
+            try {
+                dest.deleteTreeOpt();
+            } catch (IOException nested) {
+                e.addSuppressed(nested);
+            }
+            throw e;
+        }
+        return dest;
+    }
+
+    private Map<String, Object> templateEnv(List<String> lines, String catalinaOpts, Ports ports) throws IOException {
+        Map<String, Object> result;
+        List<String> lst;
+        String key;
+        String valueStr;
+        Object value;
+
+        result = new HashMap<>();
+        result.put("stage", this);
+        result.put("ports", ports);
+        result.put("catalina_opts", catalinaOpts);
+        for (String line : lines) {
+            line = line.trim();
+            if (line.startsWith("#ENV")) {
+                lst = Separator.SPACE.split(line.substring(4).trim());
+                if (lst.size() != 2) {
+                    throw new IOException("invalid env directive, expected '#ENV <type> <name>', got '" + line + "'");
+                }
+                key = lst.get(1);
+                valueStr = config().templateEnv.get(key);
+                if (valueStr == null) {
+                    throw new IOException("missing variable in template.env: " + key);
+                }
+                switch (lst.get(0)) {
+                    case "Integer":
+                        value = Integer.parseInt(valueStr);
+                        break;
+                    case "Boolean":
+                        value = Boolean.parseBoolean(valueStr);
+                        break;
+                    case "String":
+                        value = valueStr;
+                        break;
+                    default:
+                        throw new IOException("invalid env type, expected 'Integer', 'Boolean' or 'String', got '" + lst.get(0) + "'");
+                }
+                result.put(key, value);
+            }
+        }
+        return result;
     }
 
     private boolean http2() {
@@ -375,57 +513,21 @@ public abstract class Stage {
     }
 
     /** Fails if Tomcat is not running */
-    public Launcher.Handle stop(Console console) throws IOException {
-        console.info.println("stopping tomcat ...");
-        if (runningService() == 0) {
-            throw new IOException("tomcat is not running.");
+    public void stop(Console console) throws IOException {
+        FileNode file;
+        String container;
+        Engine engine;
+
+        file = dockerContainerFile();
+        if (!file.exists()) {
+            throw new IOException("container is not running.");
         }
-        extensions().beforeStop(this);
-        // IGNORE signals to stop via anchor file. This is crucial if a different user has to stop a stage
-        return serviceWrapper("stop", "IGNORE_SIGNALS", "TRUE").launch();
+        console.info.println("stopping container ...");
+        container = dockerContainerFile().readString().trim();
+        engine = session.dockerEngine();
+        engine.containerStop(container);
+        file.deleteFile();
     }
-
-    private Launcher serviceWrapper(String action, String ... extraEnv) throws IOException {
-        Launcher launcher;
-        Map<String, String> env;
-        String home;
-        String user;
-
-        launcher = new Launcher(getDirectory());
-        env = launcher.getBuilder().environment();
-        home = env.get("HOME");
-        user = env.get("USER");
-        env.clear();
-        if (home != null) {
-            env.put("HOME", home);
-        }
-        if (user != null) {
-            env.put("USER", user);
-        }
-        env.put("CATALINA_HOME", catalinaHome().getAbsolute());
-        env.put("CATALINA_BASE", backstage.join("tomcat").getAbsolute());
-        env.put("WRAPPER_HOME", serviceWrapperBase().getAbsolute());
-        env.put("WRAPPER_CMD", serviceWrapperBase().join("bin/wrapper").getAbsolute());
-        env.put("WRAPPER_CONF", backstage.join("service/service-wrapper.conf").getAbsolute());
-        env.put("PIDDIR", backstage.join("run").getAbsolute());
-        env.putAll(configuration.tomcatEnv);
-        for (int i = 0; i < extraEnv.length; i += 2) {
-            env.put(extraEnv[i], extraEnv[i + 1]);
-        }
-        launcher.arg(backstage.join("service/service-wrapper.sh").getAbsolute());
-        launcher.arg(action);
-        return launcher;
-    }
-
-    public FileNode serviceWrapperBase() {
-        String platform;
-        String name;
-
-        platform = (OS.CURRENT == OS.LINUX) ? "linux-x86-64" : "macosx-universal-64";
-        name = "wrapper-" + platform + "-" + config().tomcatService;
-        return session.home.join("service-wrapper", name);
-    }
-
 
     // TODO: only works for most basic setup ...
     private FileNode homeOf(String user) throws IOException {
@@ -454,16 +556,16 @@ public abstract class Stage {
         }
     }
 
-    public FileNode catalinaBase() {
+    public FileNode catalinaBaseAndHome() {
         return getBackstage().join("tomcat");
     }
 
     public FileNode serverXml() {
-        return catalinaBase().join("conf", "server.xml");
+        return catalinaBaseAndHome().join("conf", "server.xml");
     }
 
     public FileNode serverXmlTemplate() {
-        return catalinaBase().join("conf", "server.xml.template");
+        return catalinaBaseAndHome().join("conf", "server.xml.template");
     }
 
     //--
@@ -520,6 +622,7 @@ public abstract class Stage {
         return modifiedFile().getLastModified();
     }
 
+    /** @return launcher with build environment */
     public Launcher launcher(String... command) {
         return launcher(directory, command);
     }
@@ -685,16 +788,6 @@ public abstract class Stage {
 
     public Logs logs() {
         return new Logs(getBackstage().join("tomcat/logs"));
-    }
-
-    public String uptime() throws GetLastModifiedException {
-        FileNode file;
-
-        file = servicePidFile();
-        if (!file.exists()) {
-            return "";
-        }
-        return timespan(file.getLastModified());
     }
 
     public static String timespan(long since) throws GetLastModifiedException {
@@ -898,12 +991,6 @@ public abstract class Stage {
         result = result.substring(idx + 1); // ok for -1
         result = Strings.removeRightOpt(result, ".git");
         return result.isEmpty() ? "stage" : result;
-    }
-
-    //--
-
-    public Extensions extensions() {
-        return configuration.extensions;
     }
 
     //--

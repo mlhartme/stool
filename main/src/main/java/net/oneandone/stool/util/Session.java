@@ -30,15 +30,13 @@ import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
-import net.oneandone.stool.configuration.adapter.ExtensionsAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
-import net.oneandone.stool.extensions.ExtensionsFactory;
+import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.LinkException;
-import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -100,7 +98,7 @@ public class Session {
         console.verbose.println("wipeStaleBackstages done, ms=" + ((System.currentTimeMillis() - s)));
     }
 
-    public static boolean accessDenied(Path dir) {
+    private static boolean accessDenied(Path dir) {
         while (dir != null) {
             if (java.nio.file.Files.isDirectory(dir)) {
                 if (!java.nio.file.Files.isReadable(dir)) {
@@ -117,13 +115,11 @@ public class Session {
 
     private static Session loadWithoutBackstageWipe(boolean setenv, FileNode home, Logging logging, String command, Console console,
                                                   World world, String svnuser, String svnpassword) throws IOException {
-        ExtensionsFactory factory;
         Gson gson;
         Session result;
 
-        factory = ExtensionsFactory.create(world);
-        gson = gson(world, factory);
-        result = new Session(setenv, factory, gson, logging, command, home, console, world,
+        gson = gson(world);
+        result = new Session(setenv, gson, logging, command, home, console, world,
                 StoolConfiguration.load(gson, home), Bedroom.loadOrCreate(gson, home), svnuser, svnpassword);
         return result;
     }
@@ -133,7 +129,6 @@ public class Session {
     //--
 
     private final boolean setenv;
-    private final ExtensionsFactory extensionsFactory;
     public final Gson gson;
     public final Logging logging;
     public final String user;
@@ -157,11 +152,10 @@ public class Session {
 
     private Pool lazyPool;
 
-    public Session(boolean setenv, ExtensionsFactory extensionsFactory, Gson gson, Logging logging, String command,
+    public Session(boolean setenv, Gson gson, Logging logging, String command,
                    FileNode home, Console console, World world, StoolConfiguration configuration,
                    Bedroom bedroom, String svnuser, String svnpassword) {
         this.setenv = setenv;
-        this.extensionsFactory = extensionsFactory;
         this.gson = gson;
         this.logging = logging;
         this.user = logging.getUser();
@@ -188,16 +182,14 @@ public class Session {
     public Map<String, Property> properties() {
         Map<String, Property> result;
         Option option;
-        String df;
 
         result = new LinkedHashMap<>();
         for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
             option = field.getAnnotation(Option.class);
             if (option != null) {
-                result.put(option.key(), new Property(option.key(), field, null));
+                result.put(option.key(), new Property(option.key(), field));
             }
         }
-        extensionsFactory.fields(result);
         return result;
     }
 
@@ -206,7 +198,7 @@ public class Session {
         backstage.link(backstages.join(id));
     }
 
-    public FileNode backstageLink(String id) throws ReadLinkException {
+    public FileNode backstageLink(String id) {
         return backstages.join(id);
     }
 
@@ -257,7 +249,7 @@ public class Session {
 
     //-- environment handling
 
-    public static int memTotal() {
+    private static int memTotal() {
         long result;
 
         result = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
@@ -312,7 +304,7 @@ public class Session {
         return Scm.forUrl(url, svnCredentials);
     }
 
-    public Scm scmOpt(String url) {
+    private Scm scmOpt(String url) {
         return Scm.forUrlOpt(url, svnCredentials);
     }
 
@@ -402,6 +394,7 @@ public class Session {
         return lazySelectedId;
     }
 
+    /** returns the build environment */
     public Environment environment(Stage stage) {
         Environment env;
         String mavenOpts;
@@ -455,7 +448,7 @@ public class Session {
     }
 
     /** @return Free disk space in partition used for stool lib. TODO: not necessarily the partition used for stages. */
-    public int diskFree(FileNode directory) {
+    private int diskFree(FileNode directory) {
         return (int) (directory.toPath().toFile().getUsableSpace() / 1024 / 1024);
     }
 
@@ -475,16 +468,7 @@ public class Session {
     }
 
     public StageConfiguration loadStageConfiguration(FileNode backstage) throws IOException {
-        StageConfiguration result;
-
-        result = StageConfiguration.load(gson, StageConfiguration.file(backstage));
-        for (String name : extensionsFactory.typeNames()) {
-            if (result.extensions.get(name) == null) {
-                console.verbose.println(backstage.getAbsolute() + ": adding default config for new extension: " + name);
-                result.extensions.add(name, false, extensionsFactory.typeInstantiate(name));
-            }
-        }
-        return result;
+        return StageConfiguration.load(gson, StageConfiguration.file(backstage));
     }
 
     //-- stool properties
@@ -523,7 +507,7 @@ public class Session {
         }
         scm = scmOpt(url);
         refresh = scm == null ? "" : scm.refresh();
-        result = new StageConfiguration(javaHome(), mavenHome, refresh, extensionsFactory.newInstance());
+        result = new StageConfiguration(javaHome(), mavenHome, refresh);
         result.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
         configuration.setDefaults(properties(), result, url);
         return result;
@@ -534,7 +518,7 @@ public class Session {
         return stageIdPrefix + nextStageId;
     }
 
-    public static String javaHome() {
+    private static String javaHome() {
         String result;
 
         result = System.getProperty("java.home");
@@ -556,11 +540,10 @@ public class Session {
         return lazyPlexus;
     }
 
-    public static Gson gson(World world, ExtensionsFactory factory) {
+    public static Gson gson(World world) {
         return new GsonBuilder()
                 .registerTypeAdapter(FileNode.class, new FileNodeTypeAdapter(world))
                 .registerTypeAdapter(Expire.class, new ExpireTypeAdapter())
-                .registerTypeAdapterFactory(ExtensionsAdapter.factory(factory))
                 .disableHtmlEscaping()
                 .serializeNulls()
                 .excludeFieldsWithModifiers(Modifier.STATIC, Modifier.TRANSIENT)
@@ -651,5 +634,11 @@ public class Session {
             reserved += Math.max(0, config.quota);
         }
         return reserved;
+    }
+
+    //--
+
+    public Engine dockerEngine() throws IOException {
+        return Engine.open(console.getVerbose() ? "wire.log" : null);
     }
 }

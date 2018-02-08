@@ -39,7 +39,7 @@ public class Status extends InfoCommand {
         boolean first;
         String value;
 
-        status = status(session, processes(), stage);
+        status = status(session, stage);
         infos = selected.isEmpty() ? defaults(session.fieldsAndName()) : selected;
         width = 0;
         for (Info info : infos) {

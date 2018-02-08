@@ -20,13 +20,11 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
 public class Restart extends StageCommand {
-    private final boolean fitnesse;
     private final boolean debug;
     private final boolean suspend;
 
-    public Restart(Session session, boolean fitnesse, boolean debug, boolean suspend) {
+    public Restart(Session session, boolean debug, boolean suspend) {
         super(false, session, /* locking done by subcommands */ Mode.NONE, Mode.NONE, Mode.NONE);
-        this.fitnesse = fitnesse;
         this.debug = debug;
         this.suspend = suspend;
     }
@@ -36,10 +34,10 @@ public class Restart extends StageCommand {
         if (stage.state() == Stage.State.UP || stage.state() == Stage.State.WORKING) {
             new Stop(session, false).doRun(stage);
         } else {
-            console.info.println("Tomcat is not running - starting a new instance.");
+            console.info.println("Container is not running - starting a new instance.");
         }
 
-        new Start(session, fitnesse, debug, suspend).doRun(stage);
+        new Start(session, debug, suspend).doRun(stage);
         if (session.bedroom.contains(stage.getId())) {
             console.info.println("stopped sleeping");
         }

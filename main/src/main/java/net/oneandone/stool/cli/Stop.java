@@ -15,17 +15,12 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.inline.Console;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.Vhost;
-import net.oneandone.sushi.launcher.Launcher;
 
 public class Stop extends StageCommand {
     private boolean sleep;
-    private Launcher.Handle mainResult;
 
     public Stop(Session session, boolean sleep) {
         super(false, session, Mode.SHARED, Mode.SHARED, Mode.NONE);
@@ -39,31 +34,23 @@ public class Stop extends StageCommand {
         stage.modify();
         alreadySleeping = session.bedroom.contains(stage.getId());
         if (alreadySleeping) {
-            mainResult = null;
             if (sleep) {
                 console.info.println("warning: stage already marked as sleeping");
             } else {
                 console.info.println("going from sleeping to stopped.");
             }
         } else {
-            if (stage.fitnesseRunning()) {
-                doFitnesse(stage);
-            } else {
-                doNormal(stage);
-            }
+            doNormal(stage);
         }
     }
 
     @Override
     public void doFinish(Stage stage) throws Exception {
-        if (mainResult != null) {
-            console.verbose.println(mainResult.awaitString());
-        }
         if (sleep) {
-            if (mainResult != null) {
-                session.bedroom.add(session.gson, stage.getId());
+            if (session.bedroom.contains(stage.getId())) {
+                console.info.println("already sleeping");
             } else {
-                // nothing to do - already sleeping
+                session.bedroom.add(session.gson, stage.getId());
             }
             console.info.println("state: sleeping");
         } else {
@@ -75,26 +62,6 @@ public class Stop extends StageCommand {
     //--
 
     public void doNormal(Stage stage) throws Exception {
-        mainResult = stage.stop(console);
-    }
-
-    public void doFitnesse(Stage stage) throws Exception {
-        Console console;
-        Ports ports;
-        String url;
-
-        mainResult = null;
-        console = stage.session.console;
-        ports = stage.loadPortsOpt();
-        for (Vhost vhost : ports.vhosts()) {
-            if (vhost.isWebapp()) {
-                url = stage.httpUrl(vhost);
-                if (stage.ping(vhost)) {
-                    console.verbose.println(stage.session.world.validNode(url + "?responder=shutdown").readString());
-                } else {
-                    console.info.println("fitnesse server is already down: " + url);
-                }
-            }
-        }
+        stage.stop(console);
     }
 }

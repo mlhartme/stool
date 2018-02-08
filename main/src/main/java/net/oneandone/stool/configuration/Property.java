@@ -16,7 +16,6 @@
 package net.oneandone.stool.configuration;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.extensions.Switch;
 import net.oneandone.stool.util.Info;
 
 import java.lang.reflect.Field;
@@ -31,12 +30,10 @@ import java.util.Map;
 public class Property implements Info {
     public final String name;
     private final Field field;
-    private final String extension;
 
-    public Property(String name, Field field, String extension) {
+    public Property(String name, Field field) {
         this.name = name;
         this.field = field;
-        this.extension = extension;
         field.setAccessible(true);
     }
 
@@ -53,7 +50,7 @@ public class Property implements Info {
         boolean first;
 
         try {
-            obj = field.get(object(configuration));
+            obj = field.get(configuration);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
@@ -124,7 +121,7 @@ public class Property implements Info {
             throw new IllegalStateException(name + ": cannot convert String to " + type.getSimpleName());
         }
         try {
-            field.set(object(configuration), value);
+            field.set(configuration, value);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
@@ -143,24 +140,6 @@ public class Property implements Info {
             result = Collections.emptyList();
         }
         return result;
-    }
-
-    private Object object(Object configuration) {
-        Switch s;
-
-        if (extension == null) {
-            return configuration;
-        } else {
-            s = ((StageConfiguration) configuration).extensions.get(extension);
-            if (s == null) {
-                throw new IllegalStateException("missing extension: " + extension);
-            }
-            if (name.equals(extension)) {
-                return s;
-            } else {
-                return s.extension;
-            }
-        }
     }
 
     public int hashCode() {

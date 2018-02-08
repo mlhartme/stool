@@ -1,5 +1,27 @@
 ## Changelog 
 
+### 4.0.0 (pending)
+
+* install all of Tomcat in .backstage/tomcat, no longer distinguish CATALINA_HOME and CATALINA_BASE
+* run stages in a docker container
+  * dumped Java Service Wrapper
+    * dumped stage properties `tomcat.service` and Stool property `downloadServiceWrapper
+    * adjusted Status fields: `container` (with the container hash) replaces `tomcat` and `service`
+    * `.backage/service` is gone
+    * stages no longer allocate a service wrapper port and a tomcat stop port
+  * dumped `tomcat.env`: adjust the container template instead; note that `tomcat.opts` have *not* been because they
+    are useful for quick application configuration, and they are used for proxy configuration
+  * Docker template files ending with .fm will are handled as [FreeMarkerTemplate](http://freemarker.org/docs/ref_directives.html)        
+  * replace `-fitnesse` option by a plugin again; also removed fitnesse status field
+* templates replace extensions
+  * there's always exactly one template selected, switch between them by setting the `template` property
+  * renamed $HOME/extensions directory to $HOME/templates
+  * renamed pustefix to tomcat; merged fault into it
+  * dumped logstash, it was never used, and we'll have filebeat instead
+  * added `template.env` property pass configuration into templates (declared via `#ENV <type> <name>`)
+* no longer distinguish CATALINA_HOME and CATALINA_BASE
+
+
 ### 3.4.10 (2017-10-05)
 
 * renamed `fault.project` property to `fault.projects`
@@ -16,7 +38,7 @@
 
 ### 3.4.9 (2017-08-01)
 
-* added `fault` extension to start stages with fault workspace
+* added `fault` template to start stages with fault workspace
 * changed default Tomcat version from 8.5.8 to 8.5.16; switched the default download location from http to https
 * changed default Service Wrapper version from 3.5.30 to 3.5.32; adjusted default download location from
   http://wrapper.tanukisoftware.com/download/$v to https://wrapper.tanukisoftware.com/download/$v?mode=download
@@ -63,7 +85,7 @@
 
 * added `start -fitnesse` and `restart -fitnesse` options to start the fitnesse wikis instead of the applications; 
   also added a `Start Fitness` action to the dashboard; running fitnesse wikis is indicated by the new status field `fitnesse`. 
-* disabled the fitnesse extension - setting the `fitnesse` property to true will abort `stool start` with an error
+* disabled the fitnesse template - setting the `fitnesse` property to true will abort `stool start` with an error
 * fixed port garbage collection - unused ports are properly freed now
 * `stool validate`: fixed duplicate lines in console output
 * changed default `tomcat.version` from 8.5.6 to 8.5.8 (which fixes "Unable to add the resource at *somePath* to the cache" )
@@ -218,7 +240,7 @@
 
 * Added `select -fuzzy` option a stage if the specifed name is not found but there's ony one suggestion.
 
-* Logstash extension
+* Logstash template
 
 * `status` command
   * added `cpu`, `mem`, `selected` and `buildtime` fields
@@ -275,7 +297,7 @@
 * fixes
   * Fixed machine reboot problems with stale pid files by making the service wrapper timeout shorter than the systemctl timeout.
   * Fixed broken locks file for command lines containing \n
-  * Fixed stage stop for applications with fitnesse extension if war files have been remove
+  * Fixed stage stop for applications with fitnesse template if war files have been remove
   * Fixed `system-import` command.
   
 * cleanup
@@ -360,7 +382,7 @@
 * Updated default tomcat version from 7.0.57 to 8.0.26.
 * Fixed permission problem on Fitnesse log files; all output is written to backstage/shared/tomcat/logs/fitnesse.log now.
 * Retry ldap query if an CommunicationException occured.
-* Fitnesse extension: Fixed NPE during stage stop when fitnesse is enabled while tomcat is running.
+* Fitnesse template: Fixed NPE during stage stop when fitnesse is enabled while tomcat is running.
 * Fixed tomcat.perm configuration.
 * @proxyOpts@ is a normal macro now, and it is no longer computed from the stage owner's environment. If you need proxy configuration,
   you defined it in the global configuration and adjust your stage defaults to use it for all stages.

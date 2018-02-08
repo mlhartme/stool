@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.configuration;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -41,17 +42,37 @@ public class Autoconf {
         return result;
     }
 
+    public static boolean templates(FileNode dest, Console console) throws IOException {
+        FileNode src;
+        FileNode destDir;
+
+        src = dest.getWorld().getHome().join("Projects/ciso-templates");
+        if (src.exists()) {
+            for (FileNode srcDir : src.list()) {
+                if (srcDir.getName().startsWith(".")) {
+                    continue;
+                }
+                if (srcDir.isFile()) {
+                    console.info.println("skipping file: " + srcDir);
+                    continue;
+                }
+                console.info.println("custom template: " + srcDir.getName());
+                destDir = dest.join(srcDir.getName());
+                destDir.mkdir();
+                srcDir.copyDirectory(destDir);
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     private static void oneAndOne(Environment environment, StoolConfiguration dest) {
         String tools;
-        String lavender;
         Map<String, String> dflt;
 
-        tools = environment.getOpt("CISOTOOLS_HOME");
-        if (tools == null) {
-            tools = environment.getOpt("WSDTOOLS_HOME");
-        }
+        tools = oneAndOneTools(environment);
         if (tools != null) {
-            lavender = environment.get("LAVENDER_PROPERTIES");
             dest.ldapSso = "cisostages";
             dest.admin = "michael.hartmeier@1und1.de";
             dest.mailHost = "mri.server.lan";
@@ -59,24 +80,22 @@ public class Autoconf {
             // note: doesn't work on local machines, only for stages ...
             // dest.certificates = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
             dflt = dest.defaults.get("");
-            dflt.put("tomcat.opts", "@trustStore@");
-            dflt.put("tomcat.env", "PATH:" + environment.get("PATH") + ",LAVENDER_PROPERTIES:" + lavender + ",LAVENDER_SETTINGS:" + lavender);
             dflt.put("maven.opts", "-Xmx1024m -Dmaven.repo.local=@localRepository@ @trustStore@");
-            dflt.put("pustefix", "true");
-            dflt.put("pustefix.mode", "test");
-            dflt.put("logstash.output",
-                    "output { \n" +
-                    "  redis {\n" +
-                    "    key => 'logstash_stagehost'\n" +
-                    "    data_type => 'list'\n" +
-                    "    shuffle_hosts => true\n" +
-                    "    workers => 4\n" +
-                    "    host => [ \"10.76.80.152\", \"10.76.80.153\", \"10.76.80.154\" ]\n" +
-                    "  }\n" +
-                    "}\n");
+            dflt.put("template", "ciso-tomcat");
+            dflt.put("template.env", "mode:test,fault:false");
             dest.defaults.put("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/", cp());
             dest.defaults.put("svn:https://svn.1and1.org/svn/sales/workspaces/", workspace());
         }
+    }
+
+    private static String oneAndOneTools(Environment environment) {
+        String tools;
+
+        tools = environment.getOpt("CISOTOOLS_HOME");
+        if (tools == null) {
+            tools = environment.getOpt("WSDTOOLS_HOME");
+        }
+        return tools;
     }
 
     private static Map<String, String> cp() {

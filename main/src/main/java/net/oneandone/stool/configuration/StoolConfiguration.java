@@ -37,7 +37,7 @@ public class StoolConfiguration {
 
         result = new LinkedHashMap<>();
         for (Field field : StoolConfiguration.class.getFields()) {
-            result.put(field.getName(), new Property(field.getName(), field, null));
+            result.put(field.getName(), new Property(field.getName(), field));
         }
         return result;
     }
@@ -116,8 +116,6 @@ public class StoolConfiguration {
 
     public String downloadTomcat;
 
-    public String downloadServiceWrapper;
-
     public FileNode downloadCache;
 
     public String search;
@@ -146,8 +144,6 @@ public class StoolConfiguration {
         mailPassword = "";
         certificates = "";
         downloadTomcat =  "https://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz";
-        downloadServiceWrapper = "https://wrapper.tanukisoftware.com/download/${version}/wrapper-"
-                + (OS.CURRENT == OS.LINUX ? "linux-x86-64" : "macosx-universal-64") + "-${version}.tar.gz?mode=download";
         this.downloadCache = downloadCache;
         this.search = "";
         this.quota = 0;

@@ -28,6 +28,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
+import net.oneandone.stool.docker.Engine.Status;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
@@ -129,7 +130,7 @@ public class Validate extends StageCommand {
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        tomcat(stage);
+        container(stage);
         cert(stage);
         constraints(stage);
     }
@@ -147,7 +148,7 @@ public class Validate extends StageCommand {
         }
         report.user(stage, message);
         if (repair) {
-            if (stage.runningService() != 0) {
+            if (stage.dockerContainer() != null) {
                 try {
                     new Stop(session, false).doRun(stage);
                     report.user(stage, "stage has been stopped");
@@ -173,14 +174,18 @@ public class Validate extends StageCommand {
         }
     }
 
-    private void tomcat(Stage stage) throws IOException {
-        int filePid;
-        int psPid;
+    private void container(Stage stage) throws IOException {
+        String container;
+        Status status;
 
-        filePid = stage.runningService();
-        psPid = processes().servicePid(stage.getBackstage());
-        if (filePid != psPid) {
-            report.admin(stage, "Service process mismatch: " + filePid + " vs " + psPid);
+        container = stage.dockerContainer();
+        if (container == null) {
+            // not running, nothing to check
+            return;
+        }
+        status = session.dockerEngine().containerStatus(container);
+        if (status != Status.RUNNING) {
+            report.admin(stage, container + ": container is not running: " + status);
         }
     }
 

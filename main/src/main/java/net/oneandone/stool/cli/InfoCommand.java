@@ -16,6 +16,8 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.configuration.Property;
+import net.oneandone.stool.docker.Engine;
+import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.UserNotFound;
@@ -23,7 +25,6 @@ import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.LogEntry;
 import net.oneandone.stool.util.Ports;
-import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.util.Separator;
@@ -54,7 +55,7 @@ public abstract class InfoCommand extends StageCommand {
                 Mode.NONE
                 /* this is not 100% accurate, but it help to avoid annoging lock-waits:
                 1) diskused might be work in progress
-                2) buildtime might inaccurate */);
+                2) buildtime might be inaccurate */);
         this.defaults = defaults;
     }
 
@@ -112,7 +113,7 @@ public abstract class InfoCommand extends StageCommand {
         }
     }
 
-    public static Map<Info, Object> status(Session session, Processes processes, Stage stage) throws IOException {
+    public static Map<Info, Object> status(Session session, Stage stage) throws IOException {
         Map<Info, Object> result;
         Ports ports;
         List<String> jmx;
@@ -142,11 +143,12 @@ public abstract class InfoCommand extends StageCommand {
         result.put(Field.CREATED, LogEntry.FULL_FMT.format(stage.created()));
         result.put(Field.LAST_MODIFIED_BY, userName(session, stage.lastModifiedBy()));
         result.put(Field.LAST_MODIFIED_AT, Stage.timespan(stage.lastModifiedAt()));
-        result.put(Field.UPTIME, stage.uptime());
+        result.put(Field.CONTAINER, stage.dockerContainer());
         state = stage.state();
         result.put(Field.STATE, state.toString());
-        ports = processStatus(state, processes, stage, result);
+        processStatus(stage, result);
         result.put(Field.APPS, stage.namedUrls());
+        ports = stage.loadPortsOpt();
         result.put(Field.OTHER, other(stage, ports));
         jmx = new ArrayList<>();
         if (ports != null) {
@@ -230,58 +232,27 @@ public abstract class InfoCommand extends StageCommand {
         return result;
     }
 
-    public static Ports processStatus(Stage.State state, Processes processes, Stage stage, Map<Info, Object> result) throws IOException {
-        int servicePid;
-        int tomcatPid;
-        String debug;
-        boolean suspend;
-        Ports ports;
-        String config;
-        Double cpu;
-        Double mem;
-        Processes.Data data;
+    public static void processStatus(Stage stage, Map<Info, Object> result) throws IOException {
+        String container;
+        Engine engine;
+        Stats stats;
 
-        servicePid = stage.runningService();
-        if (servicePid != 0) {
-            tomcatPid = processes.oneChildOpt(servicePid);
-            data = processes.lookup(tomcatPid);
-            if (data == null) {
-                // tomcat pid was not found, e.g. kill -9 on both tomcat and wrapper -> tomcat.pid not deleted -> servicePid != 0
-                cpu = null;
-                mem = null;
-            } else {
-                cpu = data.cpu;
-                mem = data.mem;
-            }
-            ports = stage.loadPortsOpt();
-            if (ports == null) {
-                debug = null;
-                suspend = false;
-            } else {
-                config = stage.getBackstage().join("service/service-wrapper.conf").readString();
-                if (config.contains("=-Xdebug\n")) {
-                    debug = Integer.toString(ports.debug());
-                } else {
-                    debug = null;
-                }
-                suspend = debug != null && config.contains(",suspend=y");
-            }
+        container = stage.dockerContainer();
+        if (container == null) {
+            result.put(Field.UPTIME, null);
+            result.put(Field.CPU, null);
+            result.put(Field.MEM, null);
         } else {
-            tomcatPid = 0;
-            cpu = null;
-            mem = null;
-            ports = null;
-            debug = null;
-            suspend = false;
+            engine = stage.session.dockerEngine();
+            stats = engine.containerStats(container);
+            result.put(Field.UPTIME, Stage.timespan(engine.containerStartedAt(container)));
+            result.put(Field.CPU, stats.cpu);
+            result.put(Field.MEM, stats.memoryUsage * 100 / stats.memoryLimit);
         }
-        result.put(Field.CPU, cpu);
-        result.put(Field.MEM, mem);
-        result.put(Field.SERVICE, opt(servicePid));
-        result.put(Field.TOMCAT, opt(tomcatPid));
-        result.put(Field.DEBUGGER, debug);
-        result.put(Field.SUSPEND, suspend);
-        result.put(Field.FITNESSE, state == Stage.State.UP && servicePid == 0);
-        return ports;
+
+        // TODO
+        result.put(Field.DEBUGGER, null);
+        result.put(Field.SUSPEND, null);
     }
 
     private static Integer opt(int i) {

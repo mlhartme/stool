@@ -16,19 +16,15 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.inline.Console;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Files;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
@@ -46,16 +42,12 @@ import java.util.List;
 import java.util.Map;
 
 public class Start extends StageCommand {
-    private boolean fitnesse;
     private boolean debug;
     private boolean suspend;
     private boolean tail;
 
-    private Launcher.Handle mainResult;
-
-    public Start(Session session, boolean fitnesse, boolean debug, boolean suspend) {
+    public Start(Session session, boolean debug, boolean suspend) {
         super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);
-        this.fitnesse = fitnesse;
         this.debug = debug;
         this.suspend = suspend;
         this.tail = false;
@@ -99,11 +91,7 @@ public class Start extends StageCommand {
         }
         checkNotStarted(stage);
 
-        if (fitnesse) {
-            doFitnesse(stage);
-        } else {
-            doNormal(stage);
-        }
+        doNormal(stage);
         if (session.bedroom.contains(stage.getId())) {
             console.info.println("leaving sleeping state");
             session.bedroom.remove(session.gson, stage.getId());
@@ -112,17 +100,6 @@ public class Start extends StageCommand {
 
     @Override
     public void doFinish(Stage stage) throws Exception {
-        int pid;
-
-        if (fitnesse) {
-            // nothing to finish
-            return;
-        }
-        console.verbose.println(mainResult.awaitString());
-        pid = stage.runningService();
-        if (pid == 0) {
-            throw new IOException("tomcat startup failed - no pid file found");
-        }
         ping(stage);
         console.info.println("Applications available:");
         for (String app : stage.namedUrls()) {
@@ -136,19 +113,15 @@ public class Start extends StageCommand {
     //--
 
     public void doNormal(Stage stage) throws Exception {
-        FileNode download;
         Ports ports;
 
-        serviceWrapperOpt(stage);
-        download = tomcatOpt(stage.config().tomcatVersion);
         ports = session.pool().allocate(stage, Collections.emptyMap());
-        copyTemplate(stage, ports);
-        createServiceLauncher(stage);
-        copyCatalinaBaseOpt(download, stage.getBackstage(), stage.config().tomcatVersion);
+        createBackstage(stage);
+        unpackTomcatOpt(stage.getBackstage(), stage.config().tomcatVersion);
         if (debug || suspend) {
             console.info.println("debugging enabled on port " + ports.debug());
         }
-        mainResult = stage.start(console, ports);
+        stage.start(console, ports, catalinaOpts(ports, stage));
     }
 
     private void doTail(Stage stage) throws IOException {
@@ -220,35 +193,14 @@ public class Start extends StageCommand {
         }
     }
 
-    private void copyTemplate(Stage stage, Ports ports) throws Exception {
+    private void createBackstage(Stage stage) throws Exception {
         FileNode backstage;
 
-        backstage = stage.getBackstage();
-        Files.template(world.resource("templates/stage"), backstage, variables(stage, ports));
-        // manually create empty subdirectories, because git doesn't know them
+        backstage = stage.getBackstage().mkdirOpt();
         // CAUTION: the log directory is created by "stool create" (because it contains log files)
         for (String dir : new String[] {"ssl", "run" }) {
             backstage.join(dir).mkdirOpt();
         }
-    }
-
-    private void createServiceLauncher(Stage stage) throws IOException {
-        FileNode base;
-        String content;
-        FileNode wrapper;
-
-        base = stage.serviceWrapperBase();
-        content = base.join("src/bin/sh.script.in").readString();
-        content = Strings.replace(content, "@app.name@", "tomcat");
-        content = Strings.replace(content, "@app.long.name@", "Stage " + stage.getName() + " Tomcat");
-        content = Strings.replace(content, "@app.description@", "Tomcat for stage " + stage.getName() + " managed by Stool.");
-        content = uncomment(content, "PASS_THROUGH=true");
-        content = comment(content, "WRAPPER_CMD=\"./wrapper\"");
-        content = comment(content, "WRAPPER_CONF=\"../conf/wrapper.conf\"");
-        content = comment(content, "PIDDIR=\".\"");
-        wrapper = stage.getBackstage().join("service/service-wrapper.sh");
-        wrapper.writeString(content);
-        Files.executable(wrapper);
     }
 
     private String comment(String str, String line) {
@@ -266,25 +218,6 @@ public class Start extends StageCommand {
         return Strings.replace(str, in, out);
     }
 
-    private FileNode tomcatOpt(String version) throws IOException {
-        FileNode download;
-        String name;
-        FileNode base;
-
-        name = tomcatName(version);
-        download = session.downloadCache().join(name + ".tar.gz");
-        if (!download.exists()) {
-            downloadFile(subst(session.configuration.downloadTomcat, version), download);
-            download.checkFile();
-        }
-        base = session.home.join("tomcat", name);
-        if (!base.exists()) {
-            tar(base.getParent(), "zxf", download.getAbsolute(), name + "/lib", name + "/bin");
-            base.checkDirectory();
-        }
-        return download;
-    }
-
     private static String subst(String pattern, String version) {
         Map<String, String> variables;
 
@@ -295,22 +228,6 @@ public class Start extends StageCommand {
             return Substitution.ant().apply(pattern, variables);
         } catch (SubstitutionException e) {
             throw new ArgumentException("invalid url pattern: " + pattern, e);
-        }
-    }
-
-    private void serviceWrapperOpt(Stage stage) throws IOException {
-        FileNode download;
-        FileNode base;
-
-        base = stage.serviceWrapperBase();
-        download = session.downloadCache().join(base.getName() + ".tar.gz");
-        if (!download.exists()) {
-            downloadFile(subst(session.configuration.downloadServiceWrapper, stage.config().tomcatService), download);
-            download.checkFile();
-        }
-        if (!base.exists()) {
-            tar(base.getParent(), "zxf", download.getAbsolute());
-            base.checkDirectory();
         }
     }
 
@@ -335,18 +252,25 @@ public class Start extends StageCommand {
         }
     }
 
-    private void copyCatalinaBaseOpt(FileNode download, FileNode backstage, String version) throws IOException, SAXException {
+    private void unpackTomcatOpt(FileNode backstage, String version) throws IOException, SAXException {
         String name;
+        FileNode download;
         FileNode src;
         FileNode dest;
         ServerXml serverXml;
         FileNode file;
 
         name = tomcatName(version);
+        download = session.downloadCache().join(name + ".tar.gz");
+        if (!download.exists()) {
+            downloadFile(subst(session.configuration.downloadTomcat, version), download);
+            download.checkFile();
+        }
+
+        name = tomcatName(version);
         dest = backstage.join("tomcat");
         if (!dest.exists()) {
-            tar(backstage, "zxf",
-                    download.getAbsolute(), "--exclude", name + "/lib", "--exclude", name + "/bin", "--exclude", name + "/webapps");
+            tar(backstage, "zxf", download.getAbsolute(), "--exclude", name + "/webapps");
             src = backstage.join(name);
             src.move(dest);
             // TODO: work-around for a problem I have with tar: it applies the umask to the permissions stored in the file ...
@@ -368,157 +292,36 @@ public class Start extends StageCommand {
         }
     }
 
-    private Map<String, String> variables(Stage stage, Ports ports) {
-        Map<String, String> result;
-
-        result = new HashMap<>();
-        result.put("java.home", stage.config().javaHome);
-        result.put("wrapper.port", Integer.toString(ports.wrapper()));
-        result.put("wrapper.java.additional", wrapperJavaAdditional(ports, stage));
-        result.put("wrapper.timeouts", wrapperTimeouts());
-        result.put("wrapper.debug", Boolean.toString(console.getVerbose()));
-        return result;
-    }
-
-    private String wrapperTimeouts() {
-        StringBuilder result;
-
-        // because I know if a debugger is present, and I want special timeout settings
-        result = new StringBuilder("wrapper.java.detect_debug_jvm=FALSE\n");
-        if (debug) {
-            // long timeouts to give developers time for debugging;
-            // however: not infinite to avoid hanging stool validate runs.
-            result.append("wrapper.startup.timeout=3600\n");
-            result.append("wrapper.ping.timeout=3600\n");
-            result.append("wrapper.shutdown.timeout=3600\n");
-            result.append("wrapper.jvm_exit.timeout=3600\n");
-        } else {
-            // wait 4 minutes to make shutdown problem visible to users
-            // CAUTION: hat to be shorter than the systemctl shutdown timeout to avoid kill -9 and the resulting stage pid files.
-            // (see systemctl show stool.service -p TimeoutStopUSec)
-            result.append("wrapper.shutdown.timeout=240\n");
-            result.append("wrapper.jvm_exit.timeout=240\n");
-            // stick to defaults for other timeouts
-        }
-        return result.toString();
-    }
-
-    private String wrapperJavaAdditional(Ports ports, Stage stage) {
-        String tomcatOpts;
+    private String catalinaOpts(Ports ports, Stage stage) {
         List<String> opts;
-        StringBuilder result;
-        int i;
+        String tomcatOpts;
 
         opts = new ArrayList<>();
 
-        // for tomcat
-        opts.add("-Djava.endorsed.dirs=%CATALINA_HOME%/endorsed");
-        opts.add("-Djava.io.tmpdir=%CATALINA_BASE%/temp");
-        opts.add("-Djava.util.logging.config.file=%CATALINA_BASE%/conf/logging.properties");
-        opts.add("-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager");
-        opts.add("-Dcatalina.base=%CATALINA_BASE%");
-        opts.add("-Dcatalina.home=%CATALINA_HOME%");
-
-        // this is a marker to indicate they are launched by stool; and this is used by the dashboard to locate stool
+        // this is a marker to indicate they are launched by stool; and this is used by the dashboard to locate the stool binary
         opts.add("-Dstool.cp=" + Main.stoolCp(session.world).getAbsolute());
         opts.add("-Dstool.home=" + session.home.getAbsolute());
-        try {
-            opts.add("-Dstool.idlink=" + session.backstageLink(stage.getId()).getAbsolute());
-        } catch (ReadLinkException e) {
-            throw new IllegalStateException(e);
-        }
+        opts.add("-Dstool.idlink=" + session.backstageLink(stage.getId()).getAbsolute());
 
         tomcatOpts = stage.macros().replace(stage.config().tomcatOpts);
         opts.addAll(Separator.SPACE.split(tomcatOpts));
 
         opts.add("-Xmx" + stage.config().tomcatHeap + "m");
 
-        for (Map.Entry<String,String> entry : stage.extensions().tomcatOpts(stage).entrySet()) {
-            opts.add("-D" + entry.getKey() + "=" + entry.getValue());
-        }
-
         // see http://docs.oracle.com/javase/7/docs/technotes/guides/management/agent.html
         opts.add("-Dcom.sun.management.jmxremote.authenticate=false");
         opts.add("-Dcom.sun.management.jmxremote.port=" + ports.jmx());
         opts.add("-Dcom.sun.management.jmxremote.rmi.port=" + ports.jmx());
         opts.add("-Dcom.sun.management.jmxremote.ssl=false");
+        // TODO: why? the container hostname is set properly ...
+        opts.add("-Djava.rmi.server.hostname='" + session.configuration.hostname + "'");
+
         if (debug || suspend) {
             opts.add("-Xdebug");
             opts.add("-Xnoagent");
             opts.add("-Djava.compiler=NONE");
             opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=" + ports.debug() + ",suspend=" + (suspend ? "y" : "n"));
         }
-        i = 1;
-        result = new StringBuilder();
-        for (String opt : opts) {
-            result.append("wrapper.java.additional.");
-            result.append(i);
-            result.append('=');
-            result.append(opt);
-            result.append('\n');
-            i++;
-        }
-        return result.toString();
-    }
-
-    //-- fitnesse
-
-    /**
-     * Launches Fitnesse Wiki (http://www.fitnesse.org).
-     *
-     * Fitnesse wiki does not implement the servlet interfaces, so I cannot use the normal startup code for tomcats.
-     * Instead, I invoke fitnesse-launchner-maven-plugin (https://code.google.com/archive/p/fitnesse-launcher-maven-plugin/)
-     * to launch the embedded web server.
-     */
-    public void doFitnesse(Stage stage) throws Exception {
-        Console console;
-        Ports ports;
-        Vhost host;
-        int port;
-        String url;
-        FileNode log;
-        Launcher launcher;
-
-        if (tail) {
-            throw new ArgumentException("-fitness -tail is not supported");
-        }
-        if (debug) {
-            throw new ArgumentException("-fitness -debug is not supported");
-        }
-        if (suspend) {
-            throw new ArgumentException("-fitness -suspend is not supported");
-        }
-        console = stage.session.console;
-        ports = session.pool().allocate(stage, Collections.emptyMap());
-        for (String vhost : stage.vhostNames()) {
-            host = ports.lookup(vhost);
-            port = host.httpPort();
-            url = findUrl(stage, host);
-            launcher = stage.launcher("mvn",
-                    "uk.co.javahelp.fitnesse:fitnesse-launcher-maven-plugin:wiki", "-Dfitnesse.port=" + port);
-            launcher.dir(stage.session.world.file(findProjectDir(ports, host)));
-
-            log = stage.getBackstage().join("tomcat/logs/fitness-" + port + ".log");
-            log.getParent().mkdirsOpt();
-            if (!log.exists()) {
-                log.mkfile();
-            }
-            // no exec -- keeps running until stopped; no way to detect failures
-            // no log.close!
-            launcher.launch(log.newWriter());
-            console.info.println(vhost + " fitnesse started: " + url);
-        }
-
-    }
-
-    private String findProjectDir(Ports ports, Vhost fitnesseHost) {
-        String path;
-
-        path = ports.lookup(fitnesseHost.name).docBase();
-        return path.substring(0, path.indexOf("/target"));
-    }
-
-    private String findUrl(Stage stage, Vhost host) {
-        return host.httpUrl(stage.session.configuration.vhosts, stage.session.configuration.hostname);
+        return Separator.SPACE.join(opts);
     }
 }

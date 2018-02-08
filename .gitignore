@@ -1,5 +1,4 @@
-.backstage
-.idea
-stool.iml
-target/
+/.idea/
+/stool.iml
+/target/
 
