@@ -296,7 +296,11 @@ public class Engine {
     }
 
     public void containerStop(String id) throws IOException {
-        post(root.join("containers", id, "stop"), "");
+        HttpNode stop;
+
+        stop = root.join("containers", id, "stop");
+        stop = stop.getRoot().node(stop.getPath(), "timeout=300");
+        post(stop, "");
     }
 
     public void containerRemove(String id) throws IOException {
@@ -449,9 +453,9 @@ public class Engine {
     }
 
 
-    private String post(HttpNode dest, String str) throws IOException {
+    private String post(HttpNode dest, String body) throws IOException {
         try {
-            return dest.post(str);
+            return dest.post(body);
         } catch (StatusException e) {
             if (e.getStatusLine().code == 204) {
                 return "";

@@ -540,33 +540,17 @@ public abstract class Stage {
 
     /** Fails if Tomcat is not running */
     public void stop(Console console) throws IOException {
-        FileNode file;
         String container;
         Engine engine;
 
-        file = dockerContainerFile();
-        if (!file.exists()) {
+        container = dockerContainer();
+        if (container == null) {
             throw new IOException("container is not running.");
         }
         console.info.println("stopping container ...");
-        container = dockerContainerFile().readString().trim();
         engine = session.dockerEngine();
         engine.containerStop(container);
-        file.deleteFile();
-    }
-
-    // TODO: only works for most basic setup ...
-    private FileNode homeOf(String user) throws IOException {
-        FileNode result;
-
-        if (OS.CURRENT == OS.MAC) {
-            result = directory.getWorld().file("/Users");
-        } else {
-            result = directory.getWorld().file("/home");
-        }
-        result = result.join(user);
-        result.checkDirectory();
-        return result;
+        dockerContainerFile().deleteFile();
     }
 
     private void checkMemory() throws IOException {
