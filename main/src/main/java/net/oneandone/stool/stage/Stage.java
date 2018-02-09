@@ -39,6 +39,7 @@ import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.io.AsciiInputStream;
+import net.oneandone.sushi.io.MultiWriter;
 import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -54,7 +55,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.net.Socket;
 import java.net.URI;
 import java.nio.file.FileVisitResult;
@@ -338,8 +338,9 @@ public abstract class Stage {
         engine = session.dockerEngine();
         imageName = getId();
         context = dockerContext(catalinaOpts, ports);
-        try {
-            backstage.join("run/image.log").writeString(engine.imageBuild(imageName, context, console.verbose));
+        try (PrintWriter log = new PrintWriter(backstage.join("run/image.log").newWriter(), true)) {
+            // don't close the tee write, it would close console output as well
+            engine.imageBuild(imageName, context, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {
             console.verbose.println("image build output");
             console.verbose.println(e.output);

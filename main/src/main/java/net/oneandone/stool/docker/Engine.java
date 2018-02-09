@@ -332,6 +332,7 @@ public class Engine {
         return Status.valueOf(state.get("Status").getAsString().toUpperCase());
     }
 
+    /** @return null if container is not started */
     public Stats containerStats(String id) throws IOException {
         HttpNode node;
         JsonObject stats;
@@ -340,6 +341,10 @@ public class Engine {
         node = root.join("containers", id, "stats");
         node = node.getRoot().node(node.getPath(), "stream=false");
         stats = parser.parse(node.readString()).getAsJsonObject();
+        if (stats.get("cpu_stats").getAsJsonObject().get("system_cpu_usage") == null) {
+            // empty default document - this is returned if that container id is invalid
+            return null;
+        }
         memory = stats.get("memory_stats").getAsJsonObject();
         return new Stats(cpu(stats), memory.get("usage").getAsInt(), memory.get("limit").getAsInt());
     }

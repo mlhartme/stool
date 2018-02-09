@@ -1,5 +1,6 @@
 package net.oneandone.stool.docker;
 
+import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.StatusException;
@@ -13,6 +14,7 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -38,6 +40,7 @@ public class EngineIT {
         container = engine.containerCreate(image, "foo", limit, Collections.emptyMap(), Collections.emptyMap());
         assertNotNull(container);
         assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
+        assertNull(engine.containerStats(container));
         engine.containerStart(container);
         stats = engine.containerStats(container);
         assertEquals(0, stats.cpu);
@@ -47,10 +50,16 @@ public class EngineIT {
         assertNotEquals(0, engine.containerStartedAt(container));
         assertEquals(0, engine.containerWait(container));
         assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
+        assertNull(engine.containerStats(container));
         output = engine.containerLogs(container);
         assertTrue(output + " vs" + message, output.contains(message));
         engine.containerRemove(container);
-
+        try {
+            assertNull(engine.containerStats(container));
+            fail();
+        } catch (FileNotFoundException e) {
+            // ok
+        }
         engine.imageRemove(image);
     }
 
