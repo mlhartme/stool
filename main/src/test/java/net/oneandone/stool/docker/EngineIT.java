@@ -93,7 +93,7 @@ public class EngineIT {
         } catch (BuildError e) {
             // ok
             assertNotNull("", e.error);
-            assertEquals(127, e.code);
+            assertEquals(127, e.details.get("code").getAsInt());
             assertNotNull("", e.output);
         }
     }
@@ -138,8 +138,7 @@ public class EngineIT {
             fail();
         } catch (BuildError e) {
             // ok
-            assertNotNull("", e.error);
-            assertEquals(-1, e.code);
+            assertTrue(e.error.contains("COPY failed"));
             assertNotNull("", e.output);
         }
     }

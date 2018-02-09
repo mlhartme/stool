@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.io.Writer;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.time.LocalDateTime;
@@ -56,6 +57,7 @@ public class Engine {
         CREATED,
         RUNNING,
         EXITED,
+        REMOVING
     }
 
     public static Engine open(String wirelog) throws IOException {
@@ -91,14 +93,20 @@ public class Engine {
     //-- images
 
 
-    /** @return build output */
     public String imageBuild(String name, FileNode context) throws IOException {
+        return imageBuild(name, context, null);
+    }
+
+    /**
+     * @param log may be null
+     * @return build output */
+    public String imageBuild(String name, FileNode context, Writer log) throws IOException {
         HttpNode node;
         StringBuilder result;
         JsonObject object;
-        JsonObject error;
-        String key;
-        JsonElement code;
+        String error;
+        JsonObject errorDetail;
+        JsonElement value;
         AsciiInputStream in;
         String line;
 
@@ -106,6 +114,7 @@ public class Engine {
         node = node.getRoot().node(node.getPath(), "t=" + name);
         result = new StringBuilder();
         error = null;
+        errorDetail = null;
         try (InputStream raw = postStream(node, tar(context))) {
             // TODO: hangs if I use as InputStreamReader instead ...
             in = new AsciiInputStream(raw, 4096);
@@ -113,53 +122,72 @@ public class Engine {
                 line = in.readLine();
                 if (line == null) {
                     if (error != null) {
-                        code = error.get("code");
-                        throw new BuildError(code != null ? code.getAsInt() : -1, error.get("message").getAsString(), result.toString());
+                        throw new BuildError(error, errorDetail, result.toString());
                     }
                     return result.toString();
                 }
                 object = parser.parse(line).getAsJsonObject();
-                key = getKey(object);
-                switch (key) {
-                    case "aux":
-                        // image id, currently not used
-                        break;
-                    case "stream":
-                        result.append(object.get(key).getAsString());
-                        break;
-                    case "error":
-                        if (error != null) {
-                            throw new IOException("multiple errors");
-                        }
-                        error = object.get("errorDetail").getAsJsonObject();
-                        break;
-                    default:
-                        throw new IOException("unknown docker response key '" + key + "' in object " + object);
+
+                eatStream(object, result, log);
+                eatString(object, "status", result, log);
+                eatString(object, "id", result, log);
+                eatString(object, "progress", result, log);
+                eatObject(object, "progressDetail", result, log);
+                eatObject(object, "aux", result, log);
+
+                value = eatString(object, "error", result, log);
+                if (value != null) {
+                    if (error != null) {
+                        throw new IOException("multiple errors");
+                    }
+                    error = value.getAsString();
+                }
+                value = eatObject(object, "errorDetail", result, log);
+                if (value != null) {
+                    if (errorDetail != null) {
+                        throw new IOException("multiple errors");
+                    }
+                    errorDetail = value.getAsJsonObject();
+                }
+
+                if (object.size() > 0) {
+                    throw new IOException("unknown build output: " + object);
                 }
             }
-
         }
     }
 
-    private static String getKey(JsonObject object) throws IOException {
-        JsonElement key;
+    private void eatStream(JsonObject object, StringBuilder result, Writer log) throws IOException {
+        eat(object, "stream", "", "", true, result, log);
+    }
 
-        switch (object.size()) {
-            case 1:
-                return object.entrySet().iterator().next().getKey();
-            case 2:
-                key = object.get("error");
-                if (key != null) {
-                    return "error";
-                }
-                key = object.get("status");
-                if (key != null) {
-                    return "status";
-                }
-                // fall-through
-            default:
-                throw new IOException("unexpected object: " + object);
+    private JsonElement eatString(JsonObject object, String key, StringBuilder result, Writer log) throws IOException {
+        return eat(object, key, "[" + key + "] ", "\n", true, result, log);
+    }
+
+    private JsonElement eatObject(JsonObject object, String key, StringBuilder result, Writer log) throws IOException {
+        return eat(object, key, "[" + key + "] ", "\n",false, result, log);
+    }
+
+    private JsonElement eat(JsonObject object, String key, String prefix, String suffix, boolean isString, StringBuilder result, Writer log) throws IOException {
+        JsonElement value;
+        String str;
+
+        value = object.remove(key);
+        if (value == null) {
+            return null;
         }
+        if (isString) {
+            str = value.getAsString();
+        } else {
+            str = value.getAsJsonObject().toString();
+        }
+        str = prefix + str + suffix;
+        result.append(str);
+        if (log != null) {
+            log.write(str);
+        }
+        return value;
     }
 
     /** tar directory into byte array */

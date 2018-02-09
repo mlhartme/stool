@@ -51,7 +51,9 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.net.Socket;
 import java.net.URI;
 import java.nio.file.FileVisitResult;
@@ -325,8 +327,7 @@ public abstract class Stage {
         FileNode context;
 
         checkMemory();
-        console.info.println("starting container ...");
-
+        console.verbose.println("building container ... ");
         serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
         keystore = keystore();
         serverXml.configure(ports, config().url, keystore, config().cookies, this, http2());
@@ -337,13 +338,14 @@ public abstract class Stage {
         imageName = getId();
         context = dockerContext(catalinaOpts, ports);
         try {
-            console.verbose.println(engine.imageBuild(imageName, context));
+            backstage.join("run/image.log").writeString(engine.imageBuild(imageName, context, console.verbose));
         } catch (BuildError e) {
             console.verbose.println("image build output");
             console.verbose.println(e.output);
             throw e;
         }
         console.verbose.println("image built: " + imageName);
+        console.info.println("starting container ...");
         container = engine.containerCreate(imageName, session.configuration.hostname, 0, bindMounts(isSystem()), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
