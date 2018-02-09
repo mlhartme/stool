@@ -549,7 +549,7 @@ public abstract class Stage {
         }
         console.info.println("stopping container ...");
         engine = session.dockerEngine();
-        engine.containerStop(container);
+        engine.containerStop(container, 300);
         dockerContainerFile().deleteFile();
     }
 

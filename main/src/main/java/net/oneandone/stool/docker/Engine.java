@@ -295,11 +295,11 @@ public class Engine {
         post(root.join("containers", id, "start"), "");
     }
 
-    public void containerStop(String id) throws IOException {
+    public void containerStop(String id, int timeout) throws IOException {
         HttpNode stop;
 
         stop = root.join("containers", id, "stop");
-        stop = stop.getRoot().node(stop.getPath(), "timeout=300");
+        stop = stop.getRoot().node(stop.getPath(), "timeout=" + timeout);
         post(stop, "");
     }
 

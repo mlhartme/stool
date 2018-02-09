@@ -53,6 +53,13 @@ public class EngineIT {
         assertNull(engine.containerStats(container));
         output = engine.containerLogs(container);
         assertTrue(output + " vs" + message, output.contains(message));
+        engine.containerStop(container, 300);
+        try {
+            assertNull(engine.containerStats(container));
+            fail();
+        } catch (FileNotFoundException e) {
+            // ok
+        }
         engine.containerRemove(container);
         try {
             assertNull(engine.containerStats(container));
