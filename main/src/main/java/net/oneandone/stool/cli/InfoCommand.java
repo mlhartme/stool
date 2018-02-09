@@ -244,10 +244,16 @@ public abstract class InfoCommand extends StageCommand {
             result.put(Field.MEM, null);
         } else {
             engine = stage.session.dockerEngine();
-            stats = engine.containerStats(container);
             result.put(Field.UPTIME, Stage.timespan(engine.containerStartedAt(container)));
-            result.put(Field.CPU, stats.cpu);
-            result.put(Field.MEM, stats.memoryUsage * 100 / stats.memoryLimit);
+            stats = engine.containerStats(container);
+            if (stats != null) {
+                result.put(Field.CPU, stats.cpu);
+                result.put(Field.MEM, stats.memoryUsage * 100 / stats.memoryLimit);
+            } else {
+                // not started
+                result.put(Field.CPU, 0);
+                result.put(Field.MEM, 0);
+            }
         }
 
         // TODO
