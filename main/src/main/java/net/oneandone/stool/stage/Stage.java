@@ -38,6 +38,7 @@ import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.fs.http.io.AsciiInputStream;
 import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -356,27 +357,20 @@ public abstract class Stage {
         dockerContainerFile().writeString(container);
     }
 
-    // TODO: expensive!
     // CAUTION: blocks until ctrl-c
     public void tailF(PrintWriter dest) throws IOException {
         Engine engine;
-        String str;
-        String next;
+        AsciiInputStream src;
+        String line;
 
         engine = session.dockerEngine();
-        str = engine.containerLogs(dockerContainer());
-        dest.print(str);
+        src = new AsciiInputStream(engine.containerLogsFollow(dockerContainer()), 4096);
         while (true) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                return;
+            line = src.readLine();
+            if (line == null) {
+                break;
             }
-            next = engine.containerLogs(dockerContainer());
-            if (next.startsWith(str)) {
-                dest.print(next.substring(str.length()));
-                str = next;
-            }
+            dest.println(line);
         }
     }
 

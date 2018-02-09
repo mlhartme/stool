@@ -307,7 +307,35 @@ public class Engine {
         HttpNode node;
 
         node = root.join("containers", id, "logs");
-        return node.getRoot().node(node.getPath(), "stdout=1&stderr=true").readString();
+        return node.getRoot().node(node.getPath(), "stdout=1&stderr=1").readString();
+    }
+
+    public InputStream containerLogsFollow(String id) throws IOException {
+        HttpNode logs;
+        Request get;
+        Response response;
+
+        logs = root.getRoot().node(root.join("containers", id, "logs").getPath(), "stdout=1&stderr=1&follow=1");
+        System.out.println("url: " + logs);
+        get = new Request("GET", logs);
+        get.bodyHeader(null);
+        response = get.responseHeader(get.open(null));
+        if (response.getStatusLine().code == 200) {
+            return new FilterInputStream(response.getBody().content) {
+                private boolean freed = false;
+
+                @Override
+                public void close() throws IOException {
+                    if (!freed) {
+                        freed = true;
+                        get.free(response);
+                    }
+                    super.close();
+                }
+            };
+        } else {
+            throw StatusException.forResponse(response);
+        }
     }
 
     public int containerWait(String id) throws IOException {
