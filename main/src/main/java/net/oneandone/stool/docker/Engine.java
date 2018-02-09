@@ -307,7 +307,7 @@ public class Engine {
         HttpNode node;
 
         node = root.join("containers", id, "logs");
-        return node.getRoot().node(node.getPath(), "stdout=1").readString();
+        return node.getRoot().node(node.getPath(), "stdout=1&stderr=true").readString();
     }
 
     public int containerWait(String id) throws IOException {

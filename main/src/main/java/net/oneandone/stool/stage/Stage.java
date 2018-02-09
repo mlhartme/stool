@@ -356,6 +356,30 @@ public abstract class Stage {
         dockerContainerFile().writeString(container);
     }
 
+    // TODO: expensive!
+    // CAUTION: blocks until ctrl-c
+    public void tailF(PrintWriter dest) throws IOException {
+        Engine engine;
+        String str;
+        String next;
+
+        engine = session.dockerEngine();
+        str = engine.containerLogs(dockerContainer());
+        dest.print(str);
+        while (true) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                return;
+            }
+            next = engine.containerLogs(dockerContainer());
+            if (next.startsWith(str)) {
+                dest.print(next.substring(str.length()));
+                str = next;
+            }
+        }
+    }
+
     public void addContextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
 

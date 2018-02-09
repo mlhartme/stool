@@ -13,6 +13,7 @@
     are useful for quick application configuration, and they are used for proxy configuration
   * Docker template files ending with .fm will are handled as [FreeMarkerTemplate](http://freemarker.org/docs/ref_directives.html)        
   * replace `-fitnesse` option by a plugin again; also removed fitnesse status field
+  * `start -tail` now tails container logs
 * templates replace extensions
   * there's always exactly one template selected, switch between them by setting the `template` property
   * renamed $HOME/extensions directory to $HOME/templates

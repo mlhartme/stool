@@ -21,9 +21,6 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.GetLastModifiedException;
-import net.oneandone.sushi.fs.Node;
-import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -32,7 +29,6 @@ import net.oneandone.sushi.util.SubstitutionException;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -125,43 +121,10 @@ public class Start extends StageCommand {
     }
 
     private void doTail(Stage stage) throws IOException {
-        List<FileNode> logs;
-        int c;
-        Node log;
-
-        logs = stage.getBackstage().find("tomcat/logs/catalina*.log");
-        if (logs.size() == 0) {
-            throw new IOException("no log files found");
-        }
-        Collections.sort(logs, (left, right) -> {
-            try {
-                return (int) (right.getLastModified() - left.getLastModified());
-            } catch (GetLastModifiedException e) {
-                throw new IllegalStateException(e);
-            }
-        });
-        log = logs.get(0);
-        console.info.println("tail " + log);
+        console.info.println("Tailing container output.");
         console.info.println("Press Ctrl-C to abort.");
-        try (InputStream src = log.newInputStream()) {
-            while (true) {
-                if (src.available() == 0) {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        console.info.println("[interrupted]");
-                        break;
-                    }
-                    continue;
-                }
-                c = src.read();
-                if (c == -1) {
-                    console.info.println("[closed]");
-                    break;
-                }
-                console.info.print((char) c);
-            }
-        }
+        console.info.println();
+        stage.tailF(console.info);
     }
 
     private void checkNotStarted(Stage stage) throws IOException {
