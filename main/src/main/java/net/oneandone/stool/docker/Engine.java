@@ -8,21 +8,36 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
+import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
+import net.oneandone.sushi.fs.http.MovedTemporarilyException;
 import net.oneandone.sushi.fs.http.StatusException;
+import net.oneandone.sushi.fs.http.io.AsciiInputStream;
+import net.oneandone.sushi.fs.http.model.Body;
 import net.oneandone.sushi.fs.http.model.Method;
+import net.oneandone.sushi.fs.http.model.Request;
+import net.oneandone.sushi.fs.http.model.Response;
+import net.oneandone.sushi.fs.http.model.StatusCode;
+import net.oneandone.sushi.io.LineFormat;
+import net.oneandone.sushi.io.LineReader;
 import net.oneandone.sushi.util.Separator;
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarHeader;
 import org.kamranzafar.jtar.TarOutputStream;
 
 import javax.net.SocketFactory;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FilterInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.time.LocalDateTime;
@@ -84,36 +99,46 @@ public class Engine {
         JsonObject error;
         String key;
         JsonElement code;
+        AsciiInputStream in;
+        String line;
 
         node = root.join("build");
         node = node.getRoot().node(node.getPath(), "t=" + name);
         result = new StringBuilder();
         error = null;
-        for (String line : Separator.RAW_LINE.split(root.getWorld().getSettings().string(post(node, tar(context))))) {
-            object = parser.parse(line).getAsJsonObject();
-            key = getKey(object);
-            switch (key) {
-                case "aux":
-                    // image id, currently not used
-                    break;
-                case "stream":
-                    result.append(object.get(key).getAsString());
-                    break;
-                case "error":
+        try (InputStream raw = postStream(node, tar(context))) {
+            // TODO: hangs if I use as InputStreamReader instead ...
+            in = new AsciiInputStream(raw, 4096);
+            while (true) {
+                line = in.readLine();
+                if (line == null) {
                     if (error != null) {
-                        throw new IOException("multiple errors");
+                        code = error.get("code");
+                        throw new BuildError(code != null ? code.getAsInt() : -1, error.get("message").getAsString(), result.toString());
                     }
-                    error = object.get("errorDetail").getAsJsonObject();
-                    break;
-                default:
-                    throw new IOException("unknown docker response key '" + key + "' in object " + object);
+                    return result.toString();
+                }
+                object = parser.parse(line).getAsJsonObject();
+                key = getKey(object);
+                switch (key) {
+                    case "aux":
+                        // image id, currently not used
+                        break;
+                    case "stream":
+                        result.append(object.get(key).getAsString());
+                        break;
+                    case "error":
+                        if (error != null) {
+                            throw new IOException("multiple errors");
+                        }
+                        error = object.get("errorDetail").getAsJsonObject();
+                        break;
+                    default:
+                        throw new IOException("unknown docker response key '" + key + "' in object " + object);
+                }
             }
+
         }
-        if (error != null) {
-            code = error.get("code");
-            throw new BuildError(code != null ? code.getAsInt() : -1, error.get("message").getAsString(), result.toString());
-        }
-        return result.toString();
     }
 
     private static String getKey(JsonObject object) throws IOException {
@@ -342,17 +367,46 @@ public class Engine {
         return parser.parse(post(dest, obj.toString() + '\n')).getAsJsonObject();
     }
 
-    private byte[] post(HttpNode dest, byte[] str) throws IOException {
-        try {
-            return dest.post(str);
-        } catch (StatusException e) {
-            if (e.getStatusLine().code == 204) {
-                return new byte[0];
-            } else {
-                throw e;
+    private InputStream postStream(HttpNode dest, byte[] body) throws IOException {
+        return postStream(dest, new Body(null, null, body.length, new ByteArrayInputStream(body), false));
+    }
+
+    // TODO: move to sushi
+    private static InputStream postStream(HttpNode resource, Body body) throws IOException {
+        Request post;
+        Response response;
+
+        post = new Request("POST", resource);
+        post.bodyHeader(body);
+        response = post.responseHeader(post.open(body));
+        if (response.getStatusLine().code == StatusCode.OK) {
+            return new FilterInputStream(response.getBody().content) {
+                private boolean freed = false;
+
+                @Override
+                public void close() throws IOException {
+                    if (!freed) {
+                        freed = true;
+                        post.free(response);
+                    }
+                    super.close();
+                }
+            };
+        } else {
+            post.free(response);
+            switch (response.getStatusLine().code) {
+                case StatusCode.MOVED_TEMPORARILY:
+                    throw new MovedTemporarilyException(response.getHeaderList().getFirstValue("Location"));
+                case StatusCode.NOT_FOUND:
+                case StatusCode.GONE:
+                case StatusCode.MOVED_PERMANENTLY:
+                    throw new FileNotFoundException(resource);
+                default:
+                    throw StatusException.forResponse(response);
             }
         }
     }
+
 
     private String post(HttpNode dest, String str) throws IOException {
         try {
