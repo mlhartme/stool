@@ -17,6 +17,7 @@ package net.oneandone.stool.util;
 
 import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
@@ -202,11 +203,12 @@ public class ServerXml {
         }
     }
 
-    public void addContextParameters(Stage stage, boolean logroot, Map<String, String> additionals) throws XmlException {
+    public void addContextParameters(Stage stage, boolean logroot, Map<String, String> additionals) throws XmlException, MkdirException {
         Element context;
         Map<String, String> map;
         String name;
         String app;
+        FileNode dir;
 
         for (Element host : selector.elements(document, "Server/Service/Engine/Host")) {
             context = selector.element(host, "Context");
@@ -214,7 +216,9 @@ public class ServerXml {
             app = name.substring(0, name.indexOf('.'));
             map = new HashMap<>();
             if (logroot) {
-                map.put("logroot", ServerXml.toMount(stage.getDirectory(), stage.getBackstage().join("tomcat/logs/applogs", app).getAbsolute()));
+                dir = stage.getBackstage().join("tomcat/logs/applogs", app);
+                dir.mkdirsOpt();
+                map.put("logroot", ServerXml.toMount(stage.getDirectory(), dir.getAbsolute()));
             }
             map.putAll(additionals);
             for (Map.Entry<String, String> entry : map.entrySet()) {

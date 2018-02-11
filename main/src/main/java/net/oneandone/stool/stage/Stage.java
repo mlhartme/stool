@@ -40,7 +40,6 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.io.AsciiInputStream;
 import net.oneandone.sushi.io.MultiWriter;
-import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -881,13 +880,6 @@ public abstract class Stage {
         public String toString() {
             return name().toLowerCase();
         }
-    }
-
-    //--
-
-    /** @return pid or null */
-    private static int readPidOpt(FileNode file) throws IOException {
-        return file.exists() ? Integer.parseInt(file.readString().trim()) : 0;
     }
 
     //-- stage name
