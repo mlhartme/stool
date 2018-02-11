@@ -295,6 +295,7 @@ public class Engine {
         post(root.join("containers", id, "start"), "");
     }
 
+    /** sends SIGNTERM to pid 1. If process does not terminate after timeout, SIGKILL is used */
     public void containerStop(String id, int timeout) throws IOException {
         HttpNode stop;
 

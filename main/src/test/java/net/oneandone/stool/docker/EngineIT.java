@@ -53,13 +53,13 @@ public class EngineIT {
         assertNull(engine.containerStats(container));
         output = engine.containerLogs(container);
         assertTrue(output + " vs" + message, output.contains(message));
-        engine.containerStop(container, 300);
         try {
-            assertNull(engine.containerStats(container));
+            engine.containerStop(container, 300);
             fail();
-        } catch (FileNotFoundException e) {
-            // ok
+        } catch (StatusException e) {
+            assertEquals(304, e.getStatusLine().code);
         }
+        assertNull(engine.containerStats(container));
         engine.containerRemove(container);
         try {
             assertNull(engine.containerStats(container));
@@ -67,6 +67,27 @@ public class EngineIT {
         } catch (FileNotFoundException e) {
             // ok
         }
+        engine.imageRemove(image);
+    }
+
+    @Test
+    public void stop() throws IOException {
+        final int limit = 1024*1024*5;
+        String image = "stooltest";
+        Engine engine;
+        String output;
+        String container;
+
+        engine = Engine.open("target/wire.log");
+        output = engine.imageBuild(image, df("FROM debian:stretch-slim\nCMD sleep 30\n"));
+        assertNotNull(output);
+
+        container = engine.containerCreate(image, "foo", limit, Collections.emptyMap(), Collections.emptyMap());
+        engine.containerStart(container);
+        assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
+        engine.containerStop(container, 1);
+        System.out.println("logs: " + engine.containerLogs(container));
+        engine.containerRemove(container);
         engine.imageRemove(image);
     }
 
