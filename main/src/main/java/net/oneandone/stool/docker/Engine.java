@@ -34,6 +34,7 @@ import java.io.File;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -305,34 +306,42 @@ public class Engine {
     }
 
     public String containerLogs(String id) throws IOException {
+        final StringBuilder str;
+        OutputStream dest;
+
+        str = new StringBuilder();
+        dest = new OutputStream() {
+            @Override
+            public void write(int b) {
+                str.append((char) b);
+            }
+        };
+        doContainerLogs(id, "stdout=1&stderr=1", dest);
+        return str.toString();
+    }
+
+    public void containerLogsFollow(String id, OutputStream dest) throws IOException {
+        doContainerLogs(id, "stdout=1&stderr=1&follow=1", dest);
+    }
+
+    private void doContainerLogs(String id, String options, OutputStream dest) throws IOException {
         HttpNode node;
         DataInputStream data;
-        StringBuilder result;
         int len;
 
         node = root.join("containers", id, "logs");
-        data = new DataInputStream(node.getRoot().node(node.getPath(), "stdout=1&stderr=1").newInputStream());
-        result = new StringBuilder();
+        data = new DataInputStream(node.getRoot().node(node.getPath(), options).newInputStream());
         while (true) {
             try {
-                System.out.println("type: " + data.readInt()); // type is ignored
+                data.readInt(); // type is ignored
             } catch (EOFException e) {
-                return result.toString();
+                return;
             }
             len = data.readInt();
             for (int i = 0; i < len; i++) {
-                result.append((char) data.readByte());
+                dest.write(data.readByte());
             }
-            System.out.println("len read: " + len);
         }
-    }
-
-    public InputStream containerLogsFollow(String id) throws IOException {
-        HttpNode node;
-
-        node = root.join("containers", id, "logs");
-        // TODO: api docs state the response code is 101. But I get 200 and a normal stream
-        return node.getRoot().node(node.getPath(), "stdout=1&stderr=1&follow=1").newInputStream();
     }
 
     public int containerWait(String id) throws IOException {

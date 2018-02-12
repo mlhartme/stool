@@ -54,8 +54,10 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.net.Socket;
 import java.net.URI;
 import java.nio.file.FileVisitResult;
@@ -339,8 +341,8 @@ public abstract class Stage {
         engine = session.dockerEngine();
         imageName = getId();
         context = dockerContext(catalinaOpts, ports);
-        try (PrintWriter log = new PrintWriter(backstage.join("run/image.log").newWriter(), true)) {
-            // don't close the tee write, it would close console output as well
+        try (Writer log = new FlushWriter(backstage.join("run/image.log").newWriter())) {
+            // don't close the tee writer, it would close console output as well
             engine.imageBuild(imageName, context, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {
             console.verbose.println("image build output");
@@ -359,26 +361,53 @@ public abstract class Stage {
         dockerContainerFile().writeString(container);
     }
 
+    private static class FlushWriter extends Writer {
+        private final Writer dest;
+
+        private FlushWriter(Writer dest) {
+            this.dest = dest;
+        }
+
+
+        @Override
+        public void write(char[] chars, int ofs, int len) throws IOException {
+            int c;
+
+            for (int i = 0; i < len; i++) {
+                c = chars[ofs + i];
+                dest.write(c);
+                if (c == '\n') {
+                    flush();
+                }
+            }
+        }
+
+        @Override
+        public void flush() throws IOException {
+            dest.flush();
+        }
+
+        @Override
+        public void close() throws IOException {
+            dest.close();
+        }
+    }
+
     // CAUTION: blocks until ctrl-c.
     // Format: https://docs.docker.com/engine/api/v1.33/#operation/ContainerAttach
     public void tailF(PrintWriter dest) throws IOException {
         Engine engine;
-        DataInputStream src;
-        int len;
 
         engine = session.dockerEngine();
-        src = new DataInputStream(engine.containerLogsFollow(dockerContainer()));
-        while (true) {
-            try {
-                src.readInt(); // type is ignored
-            } catch (EOFException e) {
-                return;
+        engine.containerLogsFollow(dockerContainer(), new OutputStream() {
+            @Override
+            public void write(int b) {
+                dest.write(b);
+                if (b == 10) {
+                    dest.flush(); // newline
+                }
             }
-            len = src.readInt();
-            for (int i = 0; i < len; i++) {
-                dest.print((char) src.readByte());
-            }
-        }
+        });
     }
 
     public void addContextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
