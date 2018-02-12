@@ -27,6 +27,7 @@ import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.artifact.Changes;
+import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Ports;
@@ -477,6 +478,7 @@ public abstract class Stage {
         FileNode destfile;
         Template template;
         StringWriter tmp;
+        Collection<Variable> environment;
 
         configuration = new Configuration(Configuration.VERSION_2_3_26);
         configuration.setDefaultEncoding("UTF-8");
@@ -485,6 +487,7 @@ public abstract class Stage {
         dest = backstage.join("run/image");
         dest.deleteTreeOpt();
         dest.mkdir();
+        environment = Variable.scanTemplate(src).values();
         try {
             for (FileNode srcfile : src.find("**/*")) {
                 if (srcfile.isDirectory()) {
@@ -497,7 +500,7 @@ public abstract class Stage {
                     configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
                     template = configuration.getTemplate(srcfile.getName());
                     tmp = new StringWriter();
-                    template.process(templateEnv(ports, srcfile.readLines()), tmp);
+                    template.process(templateEnv(ports, environment), tmp);
                     destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
                     destfile.writeString(tmp.getBuffer().toString());
                 } else {
@@ -516,43 +519,19 @@ public abstract class Stage {
         return dest;
     }
 
-    private Map<String, Object> templateEnv(Ports ports, List<String> lines) throws IOException {
+    private Map<String, Object> templateEnv(Ports ports, Collection<Variable> environment) throws IOException {
         Map<String, Object> result;
-        List<String> lst;
-        String key;
-        String valueStr;
-        Object value;
+        String value;
 
         result = new HashMap<>();
         result.put("stage", this);
         result.put("ports", ports);
-        for (String line : lines) {
-            line = line.trim();
-            if (line.startsWith("#ENV")) {
-                lst = Separator.SPACE.split(line.substring(4).trim());
-                if (lst.size() != 2) {
-                    throw new IOException("invalid env directive, expected '#ENV <type> <name>', got '" + line + "'");
-                }
-                key = lst.get(1);
-                valueStr = config().templateEnv.get(key);
-                if (valueStr == null) {
-                    throw new IOException("missing variable in template.env: " + key);
-                }
-                switch (lst.get(0)) {
-                    case "Integer":
-                        value = Integer.parseInt(valueStr);
-                        break;
-                    case "Boolean":
-                        value = Boolean.parseBoolean(valueStr);
-                        break;
-                    case "String":
-                        value = valueStr;
-                        break;
-                    default:
-                        throw new IOException("invalid env type, expected 'Integer', 'Boolean' or 'String', got '" + lst.get(0) + "'");
-                }
-                result.put(key, value);
+        for (Variable env : environment) {
+            value = config().templateEnv.get(env.name);
+            if (value == null) {
+                throw new IOException("missing variable in template.env: " + env.name);
             }
+            result.put(env.name, env.parse(value));
         }
         return result;
     }

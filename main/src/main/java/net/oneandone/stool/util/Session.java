@@ -35,6 +35,7 @@ import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.LinkException;
 import net.oneandone.sushi.fs.World;
@@ -195,7 +196,7 @@ public class Session {
         return result;
     }
 
-    public void templateSetter(Object stageConfig, String template) {
+    public void templateSetter(Object stageConfig, String template) throws IOException {
         FileNode src;
         StageConfiguration config;
 
@@ -209,7 +210,7 @@ public class Session {
             throw new ArgumentException("no such template: " + template);
         }
         config.template = template;
-        config.templateEnv.clear();
+        config.templateEnv = Variable.defaultMap(Variable.scanTemplate(src).values());
     }
 
 
