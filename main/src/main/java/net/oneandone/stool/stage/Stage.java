@@ -50,6 +50,8 @@ import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.repository.RepositoryPolicy;
 import org.xml.sax.SAXException;
 
+import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
@@ -357,20 +359,25 @@ public abstract class Stage {
         dockerContainerFile().writeString(container);
     }
 
-    // CAUTION: blocks until ctrl-c
+    // CAUTION: blocks until ctrl-c.
+    // Format: https://docs.docker.com/engine/api/v1.33/#operation/ContainerAttach
     public void tailF(PrintWriter dest) throws IOException {
         Engine engine;
-        AsciiInputStream src;
-        String line;
+        DataInputStream src;
+        int len;
 
         engine = session.dockerEngine();
-        src = new AsciiInputStream(engine.containerLogsFollow(dockerContainer()), 4096);
+        src = new DataInputStream(engine.containerLogsFollow(dockerContainer()));
         while (true) {
-            line = src.readLine();
-            if (line == null) {
-                break;
+            try {
+                src.readInt(); // type is ignored
+            } catch (EOFException e) {
+                return;
             }
-            dest.println(line);
+            len = src.readInt();
+            for (int i = 0; i < len; i++) {
+                dest.print((char) src.readByte());
+            }
         }
     }
 

@@ -455,7 +455,7 @@ public abstract class StageCommand extends SessionCommand {
             if (autoStart(stage, status)) {
                 debug = status.get(Field.DEBUGGER) != null;
                 suspend = (Boolean) status.get(Field.SUSPEND);
-                postStarts.put(stage, new Start(session, debug, suspend));
+                postStarts.put(stage, new Start(session, debug, suspend, false));
             }
             doMain(stage);
         }

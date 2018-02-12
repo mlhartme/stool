@@ -37,7 +37,7 @@ public class Restart extends StageCommand {
             console.info.println("Container is not running - starting a new instance.");
         }
 
-        new Start(session, debug, suspend).doRun(stage);
+        new Start(session, debug, suspend, false).doRun(stage);
         if (session.bedroom.contains(stage.getId())) {
             console.info.println("stopped sleeping");
         }

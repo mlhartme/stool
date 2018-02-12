@@ -28,6 +28,8 @@ import org.kamranzafar.jtar.TarOutputStream;
 import javax.net.SocketFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.EOFException;
 import java.io.File;
 import java.io.FilterInputStream;
 import java.io.IOException;
@@ -304,9 +306,25 @@ public class Engine {
 
     public String containerLogs(String id) throws IOException {
         HttpNode node;
+        DataInputStream data;
+        StringBuilder result;
+        int len;
 
         node = root.join("containers", id, "logs");
-        return node.getRoot().node(node.getPath(), "stdout=1&stderr=1").readString();
+        data = new DataInputStream(node.getRoot().node(node.getPath(), "stdout=1&stderr=1").newInputStream());
+        result = new StringBuilder();
+        while (true) {
+            try {
+                System.out.println("type: " + data.readInt()); // type is ignored
+            } catch (EOFException e) {
+                return result.toString();
+            }
+            len = data.readInt();
+            for (int i = 0; i < len; i++) {
+                result.append((char) data.readByte());
+            }
+            System.out.println("len read: " + len);
+        }
     }
 
     public InputStream containerLogsFollow(String id) throws IOException {

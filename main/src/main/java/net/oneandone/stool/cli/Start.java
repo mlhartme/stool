@@ -42,14 +42,10 @@ public class Start extends StageCommand {
     private boolean suspend;
     private boolean tail;
 
-    public Start(Session session, boolean debug, boolean suspend) {
+    public Start(Session session, boolean debug, boolean suspend, boolean tail) {
         super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);
         this.debug = debug;
         this.suspend = suspend;
-        this.tail = false;
-    }
-
-    public void setTail(boolean tail) {
         this.tail = tail;
     }
 

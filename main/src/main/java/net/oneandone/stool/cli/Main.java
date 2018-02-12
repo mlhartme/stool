@@ -103,7 +103,7 @@ public class Main {
                       cli.add(Refresh.class, "refresh -build=@refresh.build -restore");
                       cli.add(Remove.class, "remove -batch -force -backstage { setBackstage(backstage) }");
                       cli.add(Restart.class, "restart -debug=@tomcat.debug -suspend=@tomcat.suspend");
-                      cli.add(Start.class, "start -debug=@tomcat.debug -suspend=@tomcat.suspend -tail { setTail(tail) }");
+                      cli.add(Start.class, "start -debug=@tomcat.debug -suspend=@tomcat.suspend -tail");
                       cli.add(Status.class, "status -defaults=@status.defaults field* { field*(field) }");
                       cli.add(Stop.class, "stop -sleep");
                       cli.add(Validate.class, "validate -email -repair");
