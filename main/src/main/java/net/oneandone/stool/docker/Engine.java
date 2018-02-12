@@ -113,7 +113,6 @@ public class Engine {
         error = null;
         errorDetail = null;
         try (InputStream raw = postStream(node, tar(context))) {
-            // TODO: hangs if I use as InputStreamReader instead ...
             in = new AsciiInputStream(raw, 4096);
             while (true) {
                 line = in.readLine();

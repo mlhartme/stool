@@ -73,7 +73,7 @@ public class Autoconf {
 
         tools = oneAndOneTools(environment);
         if (tools != null) {
-            dest.ldapSso = "cisostages";
+            dest.ldapUnit = "cisostages";
             dest.admin = "michael.hartmeier@1und1.de";
             dest.mailHost = "mri.server.lan";
             dest.macros.put("trustStore", "-Djavax.net.ssl.trustStore=" + tools + "/cacerts");

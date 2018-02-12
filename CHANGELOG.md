@@ -21,8 +21,11 @@
   * dumped logstash, it was never used, and we'll have filebeat instead
   * added `template.env` property pass configuration into templates (declared via `#ENV <type> <name>`)
 * no longer distinguish CATALINA_HOME and CATALINA_BASE
-
-
+* config cleanup
+  * removed deprecated @owner and @maintainer contact shortcuts
+  * renamed `ldapSso` to `ldapUnit`
+  
+  
 ### 3.4.10 (2017-10-05)
 
 * renamed `fault.project` property to `fault.projects`

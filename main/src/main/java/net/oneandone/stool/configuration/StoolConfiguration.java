@@ -21,7 +21,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.io.OS;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -106,8 +105,7 @@ public class StoolConfiguration {
 
     public String ldapCredentials;
 
-    // TODO: renamed to ldapUnit
-    public String ldapSso;
+    public String ldapUnit;
 
     /**
      * Number of days to wait before removing an expired stage.
@@ -138,7 +136,7 @@ public class StoolConfiguration {
         ldapUrl = "";
         ldapPrincipal = "";
         ldapCredentials = "";
-        ldapSso = "";
+        ldapUnit = "";
         mailHost = "";
         mailUsername = "";
         mailPassword = "";

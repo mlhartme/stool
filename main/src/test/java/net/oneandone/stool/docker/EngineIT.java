@@ -86,7 +86,7 @@ public class EngineIT {
         engine.containerStart(container);
         assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
         engine.containerStop(container, 1);
-        System.out.println("logs: " + engine.containerLogs(container));
+        assertNotNull(engine.containerLogs(container));
         engine.containerRemove(container);
         engine.imageRemove(image);
     }

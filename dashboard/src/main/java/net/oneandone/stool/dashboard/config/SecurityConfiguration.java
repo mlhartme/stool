@@ -128,7 +128,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
         LdapUserDetailsService result;
 
-        unit = session.configuration.ldapSso;
+        unit = session.configuration.ldapUnit;
         userSearch = new FilterBasedLdapUserSearch("ou=" + unit, "(uid={0})", contextSource());
         authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=roles,ou=" + unit);
         authoritiesPopulator.setGroupSearchFilter("(member=uid={1})");
