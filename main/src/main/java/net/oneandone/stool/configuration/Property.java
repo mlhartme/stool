@@ -17,23 +17,31 @@ package net.oneandone.stool.configuration;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.util.Info;
+import net.oneandone.stool.util.Session;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 /** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
 public class Property implements Info {
     public final String name;
     private final Field field;
+    private final Method setter;
+    private final Object setterTarget;
 
-    public Property(String name, Field field) {
+    public Property(String name, Field field, Method setter, Object setterTarget) {
         this.name = name;
         this.field = field;
+        this.setter = setter;
+        this.setterTarget = setterTarget;
         field.setAccessible(true);
     }
 
@@ -93,37 +101,47 @@ public class Property implements Info {
         Map<String, String> map;
 
         type = field.getType();
-        if (type.equals(String.class)) {
-            value = str;
-        } else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
-            value = Boolean.valueOf(str);
-        } else if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {
-            value = Integer.valueOf(str);
-        } else if (Enum.class.isAssignableFrom(type)) {
-            value = Enum.valueOf(type, str);
-        } else if (type.equals(List.class)) {
-            value = asList(str);
-        } else if (type.equals(Map.class)) {
-            map = new HashMap<>();
-            for (String item : asList(str)) {
-                idx = item.indexOf(':');
-                if (idx == -1) {
-                    throw new ArgumentException("cannot set property '" + name + "': expected key:value, got " + item);
-                }
-                map.put(item.substring(0, idx).trim(), item.substring(idx + 1).trim());
+        if (setter != null) {
+            try {
+                setter.invoke(setterTarget, configuration, str);
+            } catch (IllegalAccessException e) {
+                throw new IllegalStateException(e);
+            } catch (InvocationTargetException e) {
+                throw (RuntimeException) e.getTargetException();
             }
-            value = map;
-        } else if (type.equals(Expire.class)) {
-            value = Expire.fromHuman(str);
-        } else if (Map.class.isAssignableFrom(type)) {
-            value = str;
         } else {
-            throw new IllegalStateException(name + ": cannot convert String to " + type.getSimpleName());
-        }
-        try {
-            field.set(configuration, value);
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException(e);
+            if (type.equals(String.class)) {
+                value = str;
+            } else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
+                value = Boolean.valueOf(str);
+            } else if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {
+                value = Integer.valueOf(str);
+            } else if (Enum.class.isAssignableFrom(type)) {
+                value = Enum.valueOf(type, str);
+            } else if (type.equals(List.class)) {
+                value = asList(str);
+            } else if (type.equals(Map.class)) {
+                map = new HashMap<>();
+                for (String item : asList(str)) {
+                    idx = item.indexOf(':');
+                    if (idx == -1) {
+                        throw new ArgumentException("cannot set property '" + name + "': expected key:value, got " + item);
+                    }
+                    map.put(item.substring(0, idx).trim(), item.substring(idx + 1).trim());
+                }
+                value = map;
+            } else if (type.equals(Expire.class)) {
+                value = Expire.fromHuman(str);
+            } else if (Map.class.isAssignableFrom(type)) {
+                value = str;
+            } else {
+                throw new IllegalStateException(name + ": cannot convert String to " + type.getSimpleName());
+            }
+            try {
+                field.set(configuration, value);
+            } catch (IllegalAccessException e) {
+                throw new IllegalStateException(e);
+            }
         }
     }
 
@@ -133,9 +151,8 @@ public class Property implements Info {
         if (str.contains(",")) {
             result = Arrays.asList(str.split(","));
         } else if (str.length() > 0) {
-            ArrayList<String> list = new ArrayList<>();
-            list.add(str);
-            result = list;
+            result = new ArrayList<>();
+            result.add(str);
         } else {
             result = Collections.emptyList();
         }

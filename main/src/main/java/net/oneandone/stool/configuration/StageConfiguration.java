@@ -16,6 +16,7 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
+import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -131,6 +132,9 @@ public class StageConfiguration {
         this.autoRefresh = false;
         this.template = "tomcat";
         this.templateEnv = new HashMap<>();
+    }
+
+    public static void templateCheck(String value, Session session) {
     }
 
     public void save(Gson gson, Node file) throws IOException {

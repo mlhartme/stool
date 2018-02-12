@@ -48,9 +48,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -187,12 +189,44 @@ public class Session {
         for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
             option = field.getAnnotation(Option.class);
             if (option != null) {
-                result.put(option.key(), new Property(option.key(), field));
+                result.put(option.key(), new Property(option.key(), field, findCheck(this.getClass(), option.key() + "Setter"), this));
             }
         }
         return result;
     }
 
+    public void templateSetter(Object stageConfig, String template) {
+        StageConfiguration config;
+
+        if (template.isEmpty()) {
+            throw new ArgumentException("illegal template: " + template);
+        }
+        config = (StageConfiguration) stageConfig;
+        config.template = template;
+        config.templateEnv.clear();
+    }
+
+
+    private static Method findCheck(Class<?> clazz, String name) {
+        Method result;
+
+        result = null;
+        for (Method m : clazz.getDeclaredMethods()) {
+            if (name.equals(m.getName())) {
+                if (!Arrays.equals(new Class[] { Object.class, String.class }, m.getParameterTypes())) {
+                    throw new IllegalStateException(name + ": string argument expected");
+                }
+                if (!Void.TYPE.equals(m.getReturnType())) {
+                    throw new IllegalStateException(name + ": void result expected");
+                }
+                if (result != null) {
+                    throw new IllegalStateException("setter ambiguous");
+                }
+                result = m;
+            }
+        }
+        return result;
+    }
 
     public void add(FileNode backstage, String id) throws LinkException {
         backstage.link(backstages.join(id));
