@@ -134,9 +134,6 @@ public class StageConfiguration {
         this.templateEnv = new HashMap<>();
     }
 
-    public static void templateCheck(String value, Session session) {
-    }
-
     public void save(Gson gson, Node file) throws IOException {
         try (Writer writer = file.newWriter()) {
             gson.toJson(this, writer);

@@ -196,12 +196,18 @@ public class Session {
     }
 
     public void templateSetter(Object stageConfig, String template) {
+        FileNode src;
         StageConfiguration config;
 
-        if (template.isEmpty()) {
-            throw new ArgumentException("illegal template: " + template);
-        }
         config = (StageConfiguration) stageConfig;
+        if (config.template.equals(template)) {
+            // no changes
+            return;
+        }
+        src = home.join("templates").join(template);
+        if (!src.isDirectory()) {
+            throw new ArgumentException("no such template: " + template);
+        }
         config.template = template;
         config.templateEnv.clear();
     }
