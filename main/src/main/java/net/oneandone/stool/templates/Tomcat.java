@@ -19,7 +19,9 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.cli.StageCommand;
+import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
+import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
@@ -29,6 +31,7 @@ import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
 import net.oneandone.sushi.util.SubstitutionException;
+import net.oneandone.sushi.xml.XmlException;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -41,12 +44,20 @@ import java.util.List;
 import java.util.Map;
 
 public class Tomcat {
+    private final Stage stage;
+    private final StageConfiguration configuration;
     private final Session session;
     private final Console console;
 
-    public Tomcat(Session session) {
+    public Tomcat(Stage stage, Session session) {
+        this.stage = stage;
+        this.configuration = stage.config();
         this.session = session;
         this.console = session.console;
+    }
+
+    public FileNode serverXmlTemplate() {
+        return stage.catalinaBaseAndHome().join("conf", "server.xml.template");
     }
 
     public void unpackTomcatOpt(FileNode backstage, String version) throws IOException, SAXException {
@@ -89,6 +100,17 @@ public class Tomcat {
         }
     }
 
+    public void configure(Ports ports) throws IOException, SAXException, XmlException {
+        ServerXml serverXml;
+        KeyStore keystore;
+
+        serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
+        keystore = keystore();
+        serverXml.configure(ports, configuration.url, keystore, configuration.cookies, stage, http2());
+        serverXml.save(stage.serverXml());
+        stage.catalinaBaseAndHome().join("temp").deleteTree().mkdir();
+    }
+
     public String catalinaOpts(Ports ports, Stage stage) {
         List<String> opts;
         String tomcatOpts;
@@ -113,6 +135,22 @@ public class Tomcat {
         // TODO: why? the container hostname is set properly ...
         opts.add("-Djava.rmi.server.hostname='" + session.configuration.hostname + "'");
         return Separator.SPACE.join(opts);
+    }
+
+    private boolean http2() {
+        return configuration.tomcatVersion.startsWith("8.5") || configuration.tomcatVersion.startsWith("9.");
+    }
+
+
+    private KeyStore keystore() throws IOException {
+        String hostname;
+
+        if (session.configuration.vhosts) {
+            hostname = "*." + stage.getName() + "." + session.configuration.hostname;
+        } else {
+            hostname = session.configuration.hostname;
+        }
+        return KeyStore.create(session.configuration.certificates, hostname, stage.getBackstage().join("ssl"));
     }
 
     //--

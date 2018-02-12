@@ -26,8 +26,8 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.scm.Scm;
-import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.stage.artifact.Changes;
+import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.ServerXml;
@@ -38,7 +38,6 @@ import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.fs.http.io.AsciiInputStream;
 import net.oneandone.sushi.io.MultiWriter;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -50,8 +49,6 @@ import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.repository.RepositoryPolicy;
 import org.xml.sax.SAXException;
 
-import java.io.DataInputStream;
-import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -321,9 +318,7 @@ public abstract class Stage {
 
     //-- tomcat helper
 
-    public void start(Console console, Ports ports, String catalinaOpts) throws Exception {
-        ServerXml serverXml;
-        KeyStore keystore;
+    public void start(Console console, Ports ports) throws Exception {
         Engine engine;
         String container;
         Engine.Status status;
@@ -332,15 +327,9 @@ public abstract class Stage {
 
         checkMemory();
         console.verbose.println("building container ... ");
-        serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
-        keystore = keystore();
-        serverXml.configure(ports, config().url, keystore, config().cookies, this, http2());
-        serverXml.save(serverXml());
-        catalinaBaseAndHome().join("temp").deleteTree().mkdir();
-
         engine = session.dockerEngine();
         imageName = getId();
-        context = dockerContext(catalinaOpts, ports);
+        context = dockerContext(ports);
         try (Writer log = new FlushWriter(backstage.join("run/image.log").newWriter())) {
             // don't close the tee writer, it would close console output as well
             engine.imageBuild(imageName, context, MultiWriter.createTeeWriter(log, console.verbose));
@@ -410,7 +399,17 @@ public abstract class Stage {
         });
     }
 
-    public void addContextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
+    /** @return catalina_opts */
+    public String tomcat(Ports ports) throws IOException, SAXException, XmlException {
+        Tomcat tomcat;
+
+        tomcat = new Tomcat(this, session);
+        tomcat.unpackTomcatOpt(getBackstage(), config().tomcatVersion);
+        tomcat.configure(ports);
+        return tomcat.catalinaOpts(ports, this);
+    }
+
+    public void tomcatContextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
 
         serverXml = ServerXml.load(serverXml(), session.configuration.hostname);
@@ -470,7 +469,7 @@ public abstract class Stage {
 
     private static final String FREEMARKER_EXT = ".fm";
 
-    private FileNode dockerContext(String catalinaOpts, Ports ports) throws IOException, TemplateException {
+    private FileNode dockerContext(Ports ports) throws IOException, TemplateException {
         Configuration configuration;
         FileNode src;
         FileNode dest;
@@ -498,7 +497,7 @@ public abstract class Stage {
                     configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
                     template = configuration.getTemplate(srcfile.getName());
                     tmp = new StringWriter();
-                    template.process(templateEnv(srcfile.readLines(), catalinaOpts, ports), tmp);
+                    template.process(templateEnv(ports, srcfile.readLines()), tmp);
                     destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
                     destfile.writeString(tmp.getBuffer().toString());
                 } else {
@@ -517,7 +516,7 @@ public abstract class Stage {
         return dest;
     }
 
-    private Map<String, Object> templateEnv(List<String> lines, String catalinaOpts, Ports ports) throws IOException {
+    private Map<String, Object> templateEnv(Ports ports, List<String> lines) throws IOException {
         Map<String, Object> result;
         List<String> lst;
         String key;
@@ -526,7 +525,7 @@ public abstract class Stage {
 
         result = new HashMap<>();
         result.put("stage", this);
-        result.put("catalina_opts", catalinaOpts);
+        result.put("ports", ports);
         for (String line : lines) {
             line = line.trim();
             if (line.startsWith("#ENV")) {
@@ -556,21 +555,6 @@ public abstract class Stage {
             }
         }
         return result;
-    }
-
-    private boolean http2() {
-        return configuration.tomcatVersion.startsWith("8.5") || configuration.tomcatVersion.startsWith("9.");
-    }
-
-    private KeyStore keystore() throws IOException {
-        String hostname;
-
-        if (session.configuration.vhosts) {
-            hostname = "*." + getName() + "." + session.configuration.hostname;
-        } else {
-            hostname = session.configuration.hostname;
-        }
-        return KeyStore.create(session.configuration.certificates, hostname, getBackstage().join("ssl"));
     }
 
     /** Fails if Tomcat is not running */
@@ -607,10 +591,6 @@ public abstract class Stage {
 
     public FileNode serverXml() {
         return catalinaBaseAndHome().join("conf", "server.xml");
-    }
-
-    public FileNode serverXmlTemplate() {
-        return catalinaBaseAndHome().join("conf", "server.xml.template");
     }
 
     //--

@@ -93,16 +93,13 @@ public class Start extends StageCommand {
 
     public void doNormal(Stage stage) throws Exception {
         Ports ports;
-        Tomcat tomcat;
 
         ports = session.pool().allocate(stage, Collections.emptyMap());
         createBackstage(stage);
-        tomcat = new Tomcat(session);
-        tomcat.unpackTomcatOpt(stage.getBackstage(), stage.config().tomcatVersion);
         if (debug || suspend) {
             console.info.println("debugging enabled on port " + ports.debug());
         }
-        stage.start(console, ports, tomcat.catalinaOpts(ports, stage));
+        stage.start(console, ports);
     }
 
     private void doTail(Stage stage) throws IOException {
