@@ -1,0 +1,164 @@
+/*
+ * Copyright 1&1 Internet AG, https://github.com/1and1/
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.oneandone.stool.templates;
+
+import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
+import net.oneandone.stool.cli.Main;
+import net.oneandone.stool.cli.StageCommand;
+import net.oneandone.stool.locking.Mode;
+import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Ports;
+import net.oneandone.stool.util.ServerXml;
+import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.util.Strings;
+import net.oneandone.sushi.util.Substitution;
+import net.oneandone.sushi.util.SubstitutionException;
+import org.xml.sax.SAXException;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Tomcat {
+    private final Session session;
+    private final Console console;
+
+    public Tomcat(Session session) {
+        this.session = session;
+        this.console = session.console;
+    }
+
+    public void unpackTomcatOpt(FileNode backstage, String version) throws IOException, SAXException {
+        String name;
+        FileNode download;
+        FileNode src;
+        FileNode dest;
+        ServerXml serverXml;
+        FileNode file;
+
+        name = tomcatName(version);
+        download = session.downloadCache().join(name + ".tar.gz");
+        if (!download.exists()) {
+            downloadFile(subst(session.configuration.downloadTomcat, version), download);
+            download.checkFile();
+        }
+
+        name = tomcatName(version);
+        dest = backstage.join("tomcat");
+        if (!dest.exists()) {
+            tar(backstage, "zxf", download.getAbsolute(), "--exclude", name + "/webapps");
+            src = backstage.join(name);
+            src.move(dest);
+            // TODO: work-around for a problem I have with tar: it applies the umask to the permissions stored in the file ...
+            dest.execNoOutput("chmod", "-R", "g+rw", ".");
+            dest.execNoOutput("chmod", "g+x", "conf"); // for Tomcat 8.5
+
+            file = dest.join("conf/server.xml");
+            serverXml = ServerXml.load(file, session.configuration.hostname);
+            serverXml.stripComments();
+            serverXml.save(dest.join("conf/server.xml.template"));
+            file.deleteFile();
+
+            dest.join("conf/logging.properties").appendLines(
+                    "",
+                    "# appended by Stool: make sure we see application output in catalina.out",
+                    "org.apache.catalina.core.ContainerBase.[Catalina].level = INFO",
+                    "org.apache.catalina.core.ContainerBase.[Catalina].handlers = 1catalina.org.apache.juli.FileHandler"
+            );
+        }
+    }
+
+    public String catalinaOpts(Ports ports, Stage stage) {
+        List<String> opts;
+        String tomcatOpts;
+
+        opts = new ArrayList<>();
+
+        // this is a marker to indicate they are launched by stool; and this is used by the dashboard to locate the stool binary
+        opts.add("-Dstool.cp=" + Main.stoolCp(session.world).getAbsolute());
+        opts.add("-Dstool.home=" + session.home.getAbsolute());
+        opts.add("-Dstool.idlink=" + session.backstageLink(stage.getId()).getAbsolute());
+
+        tomcatOpts = stage.macros().replace(stage.config().tomcatOpts);
+        opts.addAll(Separator.SPACE.split(tomcatOpts));
+
+        opts.add("-Xmx" + stage.config().tomcatHeap + "m");
+
+        // see http://docs.oracle.com/javase/7/docs/technotes/guides/management/agent.html
+        opts.add("-Dcom.sun.management.jmxremote.authenticate=false");
+        opts.add("-Dcom.sun.management.jmxremote.port=" + ports.jmx());
+        opts.add("-Dcom.sun.management.jmxremote.rmi.port=" + ports.jmx());
+        opts.add("-Dcom.sun.management.jmxremote.ssl=false");
+        // TODO: why? the container hostname is set properly ...
+        opts.add("-Djava.rmi.server.hostname='" + session.configuration.hostname + "'");
+        return Separator.SPACE.join(opts);
+    }
+
+    //--
+
+    private static String tomcatName(String version) {
+        return "apache-tomcat-" + version;
+    }
+
+    private String replace1(String str, String in, String out) {
+        if (Strings.count(str, in) != 1) {
+            throw new IllegalStateException(str);
+        }
+        return Strings.replace(str, in, out);
+    }
+
+    private static String subst(String pattern, String version) {
+        Map<String, String> variables;
+
+        variables = new HashMap<>();
+        variables.put("version", version);
+        variables.put("major", version.substring(0, version.indexOf('.')));
+        try {
+            return Substitution.ant().apply(pattern, variables);
+        } catch (SubstitutionException e) {
+            throw new ArgumentException("invalid url pattern: " + pattern, e);
+        }
+    }
+
+    private void downloadFile(String url, FileNode dest) throws IOException {
+        console.info.println("downloading " + url + " ...");
+        try {
+            dest.getWorld().validNode(url).copyFile(dest);
+        } catch (IOException e) {
+            dest.deleteFileOpt();
+            throw new IOException("download failed: " + url
+                    + "\nAs a work-around, you can download it manually an place it at " + dest.getAbsolute()
+                    + "\nDetails: " + e.getMessage(), e);
+        }
+    }
+
+    private void tar(FileNode directory, String... args) throws IOException {
+        String output;
+
+        output = directory.exec(Strings.cons("tar", args));
+        if (!output.trim().isEmpty()) {
+            throw new IOException("unexpected output by tar command: " + output);
+        }
+    }
+}
