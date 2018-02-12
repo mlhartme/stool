@@ -213,7 +213,7 @@ public abstract class Stage {
         FileNode link;
 
         file = getBackstage().join("run/creator");
-        if (!file.exists()) { // TODO: move this into the 3.4 -> 3.5 migration code
+        if (!file.exists()) {
             link = session.backstageLink(id);
             file.getParent().mkdirOpt();
             file.writeString(link.getOwner().getName());
@@ -643,8 +643,8 @@ public abstract class Stage {
     public FileNode modifiedFile() throws IOException {
         FileNode file;
 
-        file = getBackstage().join("run/maintainer"); // TODO: rename to "modified"
-        if (!file.exists()) { // TODO: dump this migration code
+        file = getBackstage().join("run/modified");
+        if (!file.exists()) {
             file.getParent().mkdirOpt();
             file.writeString(session.user);
         }

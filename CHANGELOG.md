@@ -24,8 +24,10 @@
 * config cleanup
   * removed deprecated @owner and @maintainer contact shortcuts
   * renamed `ldapSso` to `ldapUnit`
-  
-  
+* .backstage cleanup
+  * renamed `maintainer` to `modified`
+ 
+
 ### 3.4.10 (2017-10-05)
 
 * renamed `fault.project` property to `fault.projects`
