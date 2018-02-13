@@ -1,5 +1,9 @@
 FROM debian:stretch-slim
 
+#ENV String version 8.5.28
+#ENV Boolean debug false
+#ENV Boolean suspend false
+
 # Default to UTF-8 file.encoding
 ENV LANG C.UTF-8
 
@@ -13,7 +17,7 @@ RUN set -x; \
 	fi; \
 	apt-get update && apt-get install -y --no-install-recommends ca-certificates curl wget procps bzip2 unzip xz-utils gpg openjdk-8-jre="$JAVA_DEBIAN_VERSION" && rm -rf /var/lib/apt/lists/*
 
-ENV CATALINA_OPS ${tomcat.install(false, false)}
+ENV CATALINA_OPS ${tomcat.install(version, debug, suspend)}
 ENV CATALINA_HOME /stage/.backstage/tomcat
 
 WORKDIR $CATALINA_HOME

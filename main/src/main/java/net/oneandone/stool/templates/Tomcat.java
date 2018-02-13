@@ -53,12 +53,12 @@ public class Tomcat {
         this.ports = ports;
     }
 
-    //-- "public" methods
+    //-- public interface
 
     /** @return catalina_opts */
-    public String install(boolean debug, boolean suspend) throws IOException, SAXException, XmlException {
-        unpackTomcatOpt(stage.getBackstage(), stage.config().tomcatVersion);
-        configure();
+    public String install(String version, boolean debug, boolean suspend) throws IOException, SAXException, XmlException {
+        unpackTomcatOpt(stage.getBackstage(), version);
+        configure(version);
         return catalinaOpts(debug, suspend);
     }
 
@@ -125,13 +125,13 @@ public class Tomcat {
         }
     }
 
-    private void configure() throws IOException, SAXException, XmlException {
+    private void configure(String version) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
         KeyStore keystore;
 
         serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
         keystore = keystore();
-        serverXml.configure(ports, configuration.url, keystore, configuration.cookies, stage, http2());
+        serverXml.configure(ports, configuration.url, keystore, configuration.cookies, stage, http2(version));
         serverXml.save(serverXml());
         catalinaBaseAndHome().join("temp").deleteTree().mkdir();
     }
@@ -170,8 +170,8 @@ public class Tomcat {
         return Separator.SPACE.join(opts);
     }
 
-    private boolean http2() {
-        return configuration.tomcatVersion.startsWith("8.5") || configuration.tomcatVersion.startsWith("9.");
+    private boolean http2(String version) {
+        return version.startsWith("8.5") || version.startsWith("9.");
     }
 
 

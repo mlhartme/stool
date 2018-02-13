@@ -16,7 +16,6 @@
 package net.oneandone.stool.configuration;
 
 import com.google.gson.Gson;
-import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -68,9 +67,6 @@ public class StageConfiguration {
     @Option(key = "tomcat.opts")
     public String tomcatOpts;
 
-    @Option(key = "tomcat.version")
-    public String tomcatVersion;
-
     @Option(key = "tomcat.heap")
     public Integer tomcatHeap;
 
@@ -119,7 +115,6 @@ public class StageConfiguration {
         this.notify.add(NOTIFY_CREATOR);
         this.pom = "pom.xml";
         this.quota = 10000;
-        this.tomcatVersion = "8.5.16";
         this.tomcatOpts = "";
         this.tomcatHeap = 350;
         this.tomcatSelect = new ArrayList<>();
