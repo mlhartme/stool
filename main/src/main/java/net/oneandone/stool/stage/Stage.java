@@ -314,8 +314,6 @@ public abstract class Stage {
 
     public abstract String getDefaultBuildCommand();
 
-    //-- tomcat helper
-
     public void start(Console console, Ports ports) throws Exception {
         Engine engine;
         String container;
@@ -513,7 +511,7 @@ public abstract class Stage {
         return result;
     }
 
-    /** Fails if Tomcat is not running */
+    /** Fails if container is not running */
     public void stop(Console console) throws IOException {
         String container;
         Engine engine;
@@ -539,14 +537,6 @@ public abstract class Stage {
               + "  requested: " + requested + "\n"
               + "Consider stopping stages.");
         }
-    }
-
-    public FileNode catalinaBaseAndHome() {
-        return getBackstage().join("tomcat");
-    }
-
-    public FileNode serverXml() {
-        return catalinaBaseAndHome().join("conf", "server.xml");
     }
 
     //--
@@ -771,7 +761,7 @@ public abstract class Stage {
         return new Logs(getBackstage().join("tomcat/logs"));
     }
 
-    public static String timespan(long since) throws GetLastModifiedException {
+    public static String timespan(long since) {
         long diff;
         StringBuilder result;
         long hours;

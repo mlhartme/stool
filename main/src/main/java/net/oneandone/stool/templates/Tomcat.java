@@ -65,16 +65,24 @@ public class Tomcat {
     public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
 
-        serverXml = ServerXml.load(stage.serverXml(), session.configuration.hostname);
+        serverXml = ServerXml.load(serverXml(), session.configuration.hostname);
         serverXml.addContextParameters(stage, logroot, Strings.toMap(additionals));
-        serverXml.save(stage.serverXml());
-        stage.catalinaBaseAndHome().join("temp").deleteTree().mkdir();
+        serverXml.save(serverXml());
+        catalinaBaseAndHome().join("temp").deleteTree().mkdir();
     }
 
     //--
 
+    private FileNode catalinaBaseAndHome() {
+        return stage.getBackstage().join("tomcat");
+    }
+
+    private FileNode serverXml() {
+        return catalinaBaseAndHome().join("conf", "server.xml");
+    }
+
     private FileNode serverXmlTemplate() {
-        return stage.catalinaBaseAndHome().join("conf", "server.xml.template");
+        return catalinaBaseAndHome().join("conf", "server.xml.template");
     }
 
     private void unpackTomcatOpt(FileNode backstage, String version) throws IOException, SAXException {
@@ -124,8 +132,8 @@ public class Tomcat {
         serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
         keystore = keystore();
         serverXml.configure(ports, configuration.url, keystore, configuration.cookies, stage, http2());
-        serverXml.save(stage.serverXml());
-        stage.catalinaBaseAndHome().join("temp").deleteTree().mkdir();
+        serverXml.save(serverXml());
+        catalinaBaseAndHome().join("temp").deleteTree().mkdir();
     }
 
     private String catalinaOpts(boolean debug, boolean suspend) {
