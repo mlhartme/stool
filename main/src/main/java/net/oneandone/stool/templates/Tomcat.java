@@ -18,9 +18,7 @@ package net.oneandone.stool.templates;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Main;
-import net.oneandone.stool.cli.StageCommand;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
@@ -35,10 +33,7 @@ import net.oneandone.sushi.xml.XmlException;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,19 +43,41 @@ public class Tomcat {
     private final StageConfiguration configuration;
     private final Session session;
     private final Console console;
+    private final Ports ports;
 
-    public Tomcat(Stage stage, Session session) {
+    public Tomcat(Stage stage, Session session, Ports ports) {
         this.stage = stage;
         this.configuration = stage.config();
         this.session = session;
         this.console = session.console;
+        this.ports = ports;
     }
 
-    public FileNode serverXmlTemplate() {
+    //-- "public" methods
+
+    /** @return catalina_opts */
+    public String install(boolean debug, boolean suspend) throws IOException, SAXException, XmlException {
+        unpackTomcatOpt(stage.getBackstage(), stage.config().tomcatVersion);
+        configure();
+        return catalinaOpts(debug, suspend);
+    }
+
+    public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
+        ServerXml serverXml;
+
+        serverXml = ServerXml.load(stage.serverXml(), session.configuration.hostname);
+        serverXml.addContextParameters(stage, logroot, Strings.toMap(additionals));
+        serverXml.save(stage.serverXml());
+        stage.catalinaBaseAndHome().join("temp").deleteTree().mkdir();
+    }
+
+    //--
+
+    private FileNode serverXmlTemplate() {
         return stage.catalinaBaseAndHome().join("conf", "server.xml.template");
     }
 
-    public void unpackTomcatOpt(FileNode backstage, String version) throws IOException, SAXException {
+    private void unpackTomcatOpt(FileNode backstage, String version) throws IOException, SAXException {
         String name;
         FileNode download;
         FileNode src;
@@ -100,7 +117,7 @@ public class Tomcat {
         }
     }
 
-    public void configure(Ports ports) throws IOException, SAXException, XmlException {
+    private void configure() throws IOException, SAXException, XmlException {
         ServerXml serverXml;
         KeyStore keystore;
 
@@ -111,7 +128,7 @@ public class Tomcat {
         stage.catalinaBaseAndHome().join("temp").deleteTree().mkdir();
     }
 
-    public String catalinaOpts(Ports ports, boolean debug, boolean suspend, Stage stage) {
+    private String catalinaOpts(boolean debug, boolean suspend) {
         List<String> opts;
         String tomcatOpts;
 

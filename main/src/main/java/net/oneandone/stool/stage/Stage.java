@@ -27,11 +27,10 @@ import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.artifact.Changes;
-import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.templates.Tomcat;
+import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Ports;
-import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.GetLastModifiedException;
@@ -43,12 +42,10 @@ import net.oneandone.sushi.io.MultiWriter;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
-import net.oneandone.sushi.xml.XmlException;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.repository.RepositoryPolicy;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -400,25 +397,6 @@ public abstract class Stage {
         });
     }
 
-    /** @return catalina_opts */
-    public String tomcat(Ports ports, boolean debug, boolean suspend) throws IOException, SAXException, XmlException {
-        Tomcat tomcat;
-
-        tomcat = new Tomcat(this, session);
-        tomcat.unpackTomcatOpt(getBackstage(), config().tomcatVersion);
-        tomcat.configure(ports);
-        return tomcat.catalinaOpts(ports, debug, suspend, this);
-    }
-
-    public void tomcatContextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
-        ServerXml serverXml;
-
-        serverXml = ServerXml.load(serverXml(), session.configuration.hostname);
-        serverXml.addContextParameters(this, logroot, Strings.toMap(additionals));
-        serverXml.save(serverXml());
-        catalinaBaseAndHome().join("temp").deleteTree().mkdir();
-    }
-
     private Map<String, String> bindMounts(boolean systemBinds) throws IOException {
         Map<String, String> result;
         List<FileNode> lst;
@@ -524,8 +502,7 @@ public abstract class Stage {
         String value;
 
         result = new HashMap<>();
-        result.put("stage", this);
-        result.put("ports", ports);
+        result.put("tomcat", new Tomcat(this, session, ports));
         for (Variable env : environment) {
             value = config().templateEnv.get(env.name);
             if (value == null) {
