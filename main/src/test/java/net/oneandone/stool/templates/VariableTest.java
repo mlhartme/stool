@@ -16,7 +16,7 @@ public class VariableTest {
         v = Variable.scan("#ENV Integer a 7");
         assertEquals("a", v.name);
         assertEquals(7, v.dflt);
-        v = Variable.scan("#ENV Boolean b");
+        v = Variable.scan("#ENV Boolean b false");
         assertEquals("b", v.name);
         assertEquals(false, v.dflt);
         v = Variable.scan("#ENV Boolean b true");

@@ -54,7 +54,11 @@ public class Variable {
                 parser = Integer::parseInt;
                 break;
             case "Boolean":
-                parser = Boolean::parseBoolean;
+                parser = (String str) -> { switch (str) {
+                    case "true": return true;
+                    case "false": return false;
+                    default: throw new ArgumentException("expected 'true' or 'false', got '" + str + "'");
+                } };
                 break;
             case "String":
                 parser = (String arg) -> arg;

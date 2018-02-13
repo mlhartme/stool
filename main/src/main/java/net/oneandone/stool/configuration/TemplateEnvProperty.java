@@ -15,14 +15,23 @@
  */
 package net.oneandone.stool.configuration;
 
+import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.templates.Variable;
+import net.oneandone.sushi.fs.file.FileNode;
+
+import java.io.IOException;
+import java.util.Map;
+
 /** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
 public class TemplateEnvProperty extends Property {
     private static final String PREFIX = "template.";
 
+    private final FileNode home;
     private final String subname;
 
-    public TemplateEnvProperty(String name, String subname) {
+    public TemplateEnvProperty(String name, FileNode home, String subname) {
         super(name);
+        this.home = home;
         this.subname = subname;
     }
 
@@ -35,15 +44,36 @@ public class TemplateEnvProperty extends Property {
 
     protected void doSet(Object configuration, String value) {
         StageConfiguration config;
+        FileNode src;
+        Map<String, Variable> environment;
+        Variable variable;
 
         config = (StageConfiguration) configuration;
+        src = home.join("templates").join(config.template);
+        if (!src.isDirectory()) {
+            throw new ArgumentException("cannot set template variable '" + subname + "': template '" + config.template + "' is undefined");
+        }
+        try {
+            environment = Variable.scanTemplate(src);
+        } catch (IOException e) {
+            throw new ArgumentException("cannot set template variable '" + subname + "': cannot load template '" + config.template + ": " + e.getMessage(), e);
+        }
+        variable = environment.get(subname);
+        if (variable == null) {
+            throw new ArgumentException("cannot set template variable '" + subname + "': no such variable in template '" + config.template);
+        }
+        try {
+            variable.parse(value);
+        } catch (RuntimeException e) {
+            throw new ArgumentException("cannot set template variable '" + subname + "': invalid value '" + value + "'", e);
+        }
         config.templateEnv.put(subname, value);
     }
 
-    public static Property createOpt(String name) {
+    public static Property createOpt(FileNode home, String name) {
         if (!name.startsWith(PREFIX)) {
             return null;
         }
-        return new TemplateEnvProperty(name, name.substring(PREFIX.length()));
+        return new TemplateEnvProperty(name, home, name.substring(PREFIX.length()));
     }
 }
