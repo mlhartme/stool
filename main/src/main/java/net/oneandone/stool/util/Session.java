@@ -27,6 +27,7 @@ import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.Option;
 import net.oneandone.stool.configuration.Property;
+import net.oneandone.stool.configuration.ReflectProperty;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
@@ -192,7 +193,7 @@ public class Session {
             for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
                 option = field.getAnnotation(Option.class);
                 if (option != null) {
-                    lazyProperties.put(option.key(), new Property(option.key(), field, findCheck(this.getClass(), option.key() + "Setter"), this));
+                    lazyProperties.put(option.key(), new ReflectProperty(option.key(), field, findCheck(this.getClass(), option.key() + "Setter"), this));
                 }
             }
         }
