@@ -26,6 +26,7 @@
   * renamed `ldapSso` to `ldapUnit`
 * .backstage cleanup
   * renamed `maintainer` to `modified`
+* dumped `-debug` and `-suspend` options from `start` and `restart`
  
 
 ### 3.4.10 (2017-10-05)

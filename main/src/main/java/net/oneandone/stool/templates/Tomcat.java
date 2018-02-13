@@ -111,7 +111,7 @@ public class Tomcat {
         stage.catalinaBaseAndHome().join("temp").deleteTree().mkdir();
     }
 
-    public String catalinaOpts(Ports ports, Stage stage) {
+    public String catalinaOpts(Ports ports, boolean debug, boolean suspend, Stage stage) {
         List<String> opts;
         String tomcatOpts;
 
@@ -132,6 +132,14 @@ public class Tomcat {
         opts.add("-Dcom.sun.management.jmxremote.port=" + ports.jmx());
         opts.add("-Dcom.sun.management.jmxremote.rmi.port=" + ports.jmx());
         opts.add("-Dcom.sun.management.jmxremote.ssl=false");
+
+        if (debug || suspend) {
+            opts.add("-Xdebug");
+            opts.add("-Xnoagent");
+            opts.add("-Djava.compiler=NONE");
+            opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=" + ports.debug() + ",suspend=" + (suspend ? "y" : "n"));
+        }
+
         // TODO: why? the container hostname is set properly ...
         opts.add("-Djava.rmi.server.hostname='" + session.configuration.hostname + "'");
         return Separator.SPACE.join(opts);

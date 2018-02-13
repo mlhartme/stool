@@ -401,13 +401,13 @@ public abstract class Stage {
     }
 
     /** @return catalina_opts */
-    public String tomcat(Ports ports) throws IOException, SAXException, XmlException {
+    public String tomcat(Ports ports, boolean debug, boolean suspend) throws IOException, SAXException, XmlException {
         Tomcat tomcat;
 
         tomcat = new Tomcat(this, session);
         tomcat.unpackTomcatOpt(getBackstage(), config().tomcatVersion);
         tomcat.configure(ports);
-        return tomcat.catalinaOpts(ports, this);
+        return tomcat.catalinaOpts(ports, debug, suspend, this);
     }
 
     public void tomcatContextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {

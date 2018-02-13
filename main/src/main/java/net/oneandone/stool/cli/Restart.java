@@ -20,13 +20,8 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
 public class Restart extends StageCommand {
-    private final boolean debug;
-    private final boolean suspend;
-
-    public Restart(Session session, boolean debug, boolean suspend) {
+    public Restart(Session session) {
         super(false, session, /* locking done by subcommands */ Mode.NONE, Mode.NONE, Mode.NONE);
-        this.debug = debug;
-        this.suspend = suspend;
     }
 
     @Override
@@ -37,7 +32,7 @@ public class Restart extends StageCommand {
             console.info.println("Container is not running - starting a new instance.");
         }
 
-        new Start(session, debug, suspend, false).doRun(stage);
+        new Start(session, false).doRun(stage);
         if (session.bedroom.contains(stage.getId())) {
             console.info.println("stopped sleeping");
         }

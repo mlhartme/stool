@@ -28,14 +28,10 @@ import java.util.Collections;
 import java.util.List;
 
 public class Start extends StageCommand {
-    private boolean debug;
-    private boolean suspend;
     private boolean tail;
 
-    public Start(Session session, boolean debug, boolean suspend, boolean tail) {
+    public Start(Session session, boolean tail) {
         super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);
-        this.debug = debug;
-        this.suspend = suspend;
         this.tail = tail;
     }
 
@@ -95,9 +91,6 @@ public class Start extends StageCommand {
 
         ports = session.pool().allocate(stage, Collections.emptyMap());
         createBackstage(stage);
-        if (debug || suspend) {
-            console.info.println("debugging enabled on port " + ports.debug());
-        }
         stage.start(console, ports);
     }
 
