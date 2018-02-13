@@ -21,7 +21,7 @@
     },
     "https://svn.1and1.org/svn/controlpanel_app/controlpanel/": {
       "build": "mvn clean install -Ppublish  -U -B -T2C",
-      "tomcat.heap": "2000",
+      "memory": "2800",
       "tomcat.perm": "512",
       "suffixes": "/xml/config",
       "maven.opts": "-Xmx2500m -XX:MaxPermSize=512m -Dmaven.repo.local=@localRepository@ @proxyOpts@ @trustStore@"

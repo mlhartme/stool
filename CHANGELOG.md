@@ -29,6 +29,8 @@
 * dumped `-debug` and `-suspend` options from `start` and `restart`
 * replaced stage property `tomcat.version` by template variable `version`; changed default value from 8.5.16 to 8.5.28
 * replaced stage property `tomcat.opts` by template variable `opts`
+* renamed stage property `tomcat.heap` to `memory`, changed default from 350 to 400 or 200m for every webapp; 
+  tomcat heap is set to 75% of that
 
 
 ### 3.4.10 (2017-10-05)

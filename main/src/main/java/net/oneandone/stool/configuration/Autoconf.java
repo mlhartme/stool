@@ -81,7 +81,7 @@ public class Autoconf {
             // dest.certificates = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
             dflt = dest.defaults.get("");
             dflt.put("maven.opts", "-Xmx1024m -Dmaven.repo.local=@localRepository@ @trustStore@");
-            dflt.put("template", "tomcat");
+            dflt.put("template", "ciso-tomcat");
             dflt.put("template.env", "version:8.5.28,opts:,mode:test,fault:false,debug:false,suspend:false");
             dest.defaults.put("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/", cp());
             dest.defaults.put("svn:https://svn.1and1.org/svn/sales/workspaces/", workspace());
@@ -103,7 +103,7 @@ public class Autoconf {
 
         result = new LinkedHashMap<>();
         result.put("build", "mvn clean install -Ppublish -U -B -T2C");
-        result.put("tomcat.heap", "2000");
+        result.put("memory", "3000");
         result.put("url", "https://%a.%s.%h:%p/(|internal-login)");
         result.put("maven.opts", "-Xmx2500m -Dmaven.repo.local=@localRepository@ @trustStore@");
         return result;

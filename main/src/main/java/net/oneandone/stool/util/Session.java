@@ -427,11 +427,11 @@ public class Session {
 
     /** @return memory not yet reserved */
     public int memUnreserved() throws IOException {
-        return memTotal() - MEM_RESERVED_OS - memReservedTomcats();
+        return memTotal() - MEM_RESERVED_OS - memReservedContainers();
     }
 
-    /** used for running tomcat */
-    private int memReservedTomcats() throws IOException {
+    /** used for running containers */
+    private int memReservedContainers() throws IOException {
         int reserved;
         StageConfiguration stage;
         FileNode backstage;
@@ -439,9 +439,9 @@ public class Session {
         reserved = 0;
         for (FileNode link : backstages.list()) {
             backstage = link.resolveLink();
-            if (backstage.join("run/tomcat.pid").exists()) {
+            if (backstage.join("run/container").exists()) {
                 stage = loadStageConfiguration(backstage);
-                reserved += stage.tomcatHeap;
+                reserved += stage.memory;
             }
         }
         return reserved;

@@ -89,7 +89,7 @@ public class StoolIT {
         stool("validate", "-stage", "it");
         stool("build", "-stage", "it");
         stool("history", "-stage", "it");
-        stool("config", "-stage", "it", "tomcat.heap=300");
+        stool("config", "-stage", "it", "memory=300");
         stool("refresh", "-stage", "it");
         stool("validate", "-stage", "it");
         stool("start", "-stage", "it");

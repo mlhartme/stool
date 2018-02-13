@@ -63,7 +63,7 @@ _stool_complete() {
             ;;
         config)
             compopt +o nospace &>/dev/null
-            local option="suffix expire maven.opts java.home tomcat.select tomcat.perm tomcat.heap tomcat.version tomcat.opts port.prefix build cookies tomcat.mode autoRefresh comment fitnesse logstash"
+            local option="suffix expire maven.opts java.home tomcat.select port.prefix build cookies tomcat.mode autoRefresh comment fitnesse logstash"
             COMPREPLY=( $(compgen -o nospace -W "${option}" -- ${cur}) )
             return 0
             ;;

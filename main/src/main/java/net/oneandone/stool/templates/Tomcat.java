@@ -150,7 +150,7 @@ public class Tomcat {
         tomcatOpts = stage.macros().replace(extraOpts);
         opts.addAll(Separator.SPACE.split(tomcatOpts));
 
-        opts.add("-Xmx" + stage.config().tomcatHeap + "m");
+        opts.add("-Xmx" + stage.config().memory * 3 / 4 + "m");
 
         // see http://docs.oracle.com/javase/7/docs/technotes/guides/management/agent.html
         opts.add("-Dcom.sun.management.jmxremote.authenticate=false");

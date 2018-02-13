@@ -64,8 +64,8 @@ public class StageConfiguration {
     @Option(key = "quota")
     public int quota;
 
-    @Option(key = "tomcat.heap")
-    public Integer tomcatHeap;
+    @Option(key = "memory")
+    public Integer memory;
 
     @Option(key = "tomcat.select")
     public List<String> tomcatSelect;
@@ -112,7 +112,7 @@ public class StageConfiguration {
         this.notify.add(NOTIFY_CREATOR);
         this.pom = "pom.xml";
         this.quota = 10000;
-        this.tomcatHeap = 350;
+        this.memory = 400;
         this.tomcatSelect = new ArrayList<>();
         this.javaHome = javaHome;
         this.mavenHome = mavenHome;
