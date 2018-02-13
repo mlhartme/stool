@@ -33,18 +33,17 @@ import java.util.Map;
 
 /** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
 public class TemplateProperty extends Property {
-    private final Session session;
+    private final FileNode home;
 
-    public TemplateProperty(String name, Session session) {
+    public TemplateProperty(String name, FileNode home) {
         super(name);
-        this.session = session;
+        this.home = home;
     }
 
     protected String doGet(Object configuration) {
         return ((StageConfiguration) configuration).template;
     }
 
-    // TODO: change strOrMap to str when it's no longer used for stool.defaults
     protected void doSet(Object configuration, String template) {
         FileNode src;
         StageConfiguration config;
@@ -54,7 +53,7 @@ public class TemplateProperty extends Property {
             // no changes
             return;
         }
-        src = session.home.join("templates").join(template);
+        src = home.join("templates").join(template);
         if (!src.isDirectory()) {
             throw new ArgumentException("no such template: " + template);
         }

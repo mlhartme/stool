@@ -16,6 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.configuration.TemplateEnvProperty;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
@@ -25,6 +26,7 @@ import net.oneandone.sushi.util.Strings;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Config extends StageCommand {
@@ -59,7 +61,10 @@ public class Config extends StageCommand {
         try {
             property = all.get(key);
             if (property == null) {
-                throw new ArgumentException("unknown property: " + key);
+                property = TemplateEnvProperty.createOpt(key);
+                if (property == null) {
+                    throw new ArgumentException("unknown property: " + key);
+                }
             }
         } catch (SecurityException e) {
             throw new ArgumentException(e.getMessage());
