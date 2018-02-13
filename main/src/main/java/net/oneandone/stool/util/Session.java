@@ -153,6 +153,7 @@ public class Session {
     public final Users users;
     public final LockManager lockManager;
 
+    private Map<String, Property> lazyProperties;
     private Pool lazyPool;
 
     public Session(boolean setenv, Gson gson, Logging logging, String command,
@@ -179,21 +180,23 @@ public class Session {
                     "ou=users,ou=" + configuration.ldapUnit);
         }
         this.lockManager = LockManager.create(home.join("run/locks"), user + ":" + command.replace("\n", "\\n"), 30);
+        this.lazyProperties = null;
         this.lazyPool= null;
     }
 
     public Map<String, Property> properties() {
-        Map<String, Property> result;
         Option option;
 
-        result = new LinkedHashMap<>();
-        for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
-            option = field.getAnnotation(Option.class);
-            if (option != null) {
-                result.put(option.key(), new Property(option.key(), field, findCheck(this.getClass(), option.key() + "Setter"), this));
+        if (lazyProperties == null) {
+            lazyProperties = new LinkedHashMap<>();
+            for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
+                option = field.getAnnotation(Option.class);
+                if (option != null) {
+                    lazyProperties.put(option.key(), new Property(option.key(), field, findCheck(this.getClass(), option.key() + "Setter"), this));
+                }
             }
         }
-        return result;
+        return lazyProperties;
     }
 
     public void templateSetter(Object stageConfig, String template) throws IOException {
