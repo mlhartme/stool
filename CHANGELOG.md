@@ -27,8 +27,9 @@
 * .backstage cleanup
   * renamed `maintainer` to `modified`
 * dumped `-debug` and `-suspend` options from `start` and `restart`
-* replaced stage property `tomcat.version` by tomcat variable; changed default value from 8.5.16 to 8.5.28
- 
+* replaced stage property `tomcat.version` by template variable `version`; changed default value from 8.5.16 to 8.5.28
+* replaced stage property `tomcat.opts` by template variable `opts`
+
 
 ### 3.4.10 (2017-10-05)
 

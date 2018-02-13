@@ -56,10 +56,10 @@ public class Tomcat {
     //-- public interface
 
     /** @return catalina_opts */
-    public String install(String version, boolean debug, boolean suspend) throws IOException, SAXException, XmlException {
+    public String install(String version, String opts, boolean debug, boolean suspend) throws IOException, SAXException, XmlException {
         unpackTomcatOpt(stage.getBackstage(), version);
         configure(version);
-        return catalinaOpts(debug, suspend);
+        return catalinaOpts(opts, debug, suspend);
     }
 
     public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
@@ -136,7 +136,7 @@ public class Tomcat {
         catalinaBaseAndHome().join("temp").deleteTree().mkdir();
     }
 
-    private String catalinaOpts(boolean debug, boolean suspend) {
+    private String catalinaOpts(String extraOpts, boolean debug, boolean suspend) {
         List<String> opts;
         String tomcatOpts;
 
@@ -147,7 +147,7 @@ public class Tomcat {
         opts.add("-Dstool.home=" + session.home.getAbsolute());
         opts.add("-Dstool.idlink=" + session.backstageLink(stage.getId()).getAbsolute());
 
-        tomcatOpts = stage.macros().replace(stage.config().tomcatOpts);
+        tomcatOpts = stage.macros().replace(extraOpts);
         opts.addAll(Separator.SPACE.split(tomcatOpts));
 
         opts.add("-Xmx" + stage.config().tomcatHeap + "m");
