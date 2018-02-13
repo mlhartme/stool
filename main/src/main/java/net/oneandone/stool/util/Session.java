@@ -30,6 +30,7 @@ import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.ReflectProperty;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
+import net.oneandone.stool.configuration.TemplateProperty;
 import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
@@ -193,50 +194,15 @@ public class Session {
             for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
                 option = field.getAnnotation(Option.class);
                 if (option != null) {
-                    lazyProperties.put(option.key(), new ReflectProperty(option.key(), field, findCheck(this.getClass(), option.key() + "Setter"), this));
+                    if (option.key().equals("template")) {
+                        lazyProperties.put(option.key(), new TemplateProperty(option.key(), this));
+                    } else {
+                        lazyProperties.put(option.key(), new ReflectProperty(option.key(), field));
+                    }
                 }
             }
         }
         return lazyProperties;
-    }
-
-    public void templateSetter(Object stageConfig, String template) throws IOException {
-        FileNode src;
-        StageConfiguration config;
-
-        config = (StageConfiguration) stageConfig;
-        if (config.template.equals(template)) {
-            // no changes
-            return;
-        }
-        src = home.join("templates").join(template);
-        if (!src.isDirectory()) {
-            throw new ArgumentException("no such template: " + template);
-        }
-        config.template = template;
-        config.templateEnv = Variable.defaultMap(Variable.scanTemplate(src).values());
-    }
-
-
-    private static Method findCheck(Class<?> clazz, String name) {
-        Method result;
-
-        result = null;
-        for (Method m : clazz.getDeclaredMethods()) {
-            if (name.equals(m.getName())) {
-                if (!Arrays.equals(new Class[] { Object.class, String.class }, m.getParameterTypes())) {
-                    throw new IllegalStateException(name + ": string argument expected");
-                }
-                if (!Void.TYPE.equals(m.getReturnType())) {
-                    throw new IllegalStateException(name + ": void result expected");
-                }
-                if (result != null) {
-                    throw new IllegalStateException("setter ambiguous");
-                }
-                result = m;
-            }
-        }
-        return result;
     }
 
     public void add(FileNode backstage, String id) throws LinkException {

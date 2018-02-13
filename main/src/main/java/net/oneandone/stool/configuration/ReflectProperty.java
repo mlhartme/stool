@@ -31,14 +31,10 @@ import java.util.Map;
 /** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
 public class ReflectProperty extends Property {
     private final Field field;
-    private final Method setter;
-    private final Object setterTarget;
 
-    public ReflectProperty(String name, Field field, Method setter, Object setterTarget) {
+    public ReflectProperty(String name, Field field) {
         super(name);
         this.field = field;
-        this.setter = setter;
-        this.setterTarget = setterTarget;
         field.setAccessible(true);
     }
 
@@ -91,47 +87,37 @@ public class ReflectProperty extends Property {
         Map<String, String> map;
 
         type = field.getType();
-        if (setter != null) {
-            try {
-                setter.invoke(setterTarget, configuration, str);
-            } catch (IllegalAccessException e) {
-                throw new IllegalStateException(e);
-            } catch (InvocationTargetException e) {
-                throw (RuntimeException) e.getTargetException();
-            }
-        } else {
-            if (type.equals(String.class)) {
-                value = str;
-            } else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
-                value = Boolean.valueOf(str);
-            } else if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {
-                value = Integer.valueOf(str);
-            } else if (Enum.class.isAssignableFrom(type)) {
-                value = Enum.valueOf(type, str);
-            } else if (type.equals(List.class)) {
-                value = asList(str);
-            } else if (type.equals(Map.class)) {
-                map = new HashMap<>();
-                for (String item : asList(str)) {
-                    idx = item.indexOf(':');
-                    if (idx == -1) {
-                        throw new ArgumentException("cannot set property '" + name + "': expected key:value, got " + item);
-                    }
-                    map.put(item.substring(0, idx).trim(), item.substring(idx + 1).trim());
+        if (type.equals(String.class)) {
+            value = str;
+        } else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE)) {
+            value = Boolean.valueOf(str);
+        } else if (type.equals(Integer.class) || type.equals(Integer.TYPE)) {
+            value = Integer.valueOf(str);
+        } else if (Enum.class.isAssignableFrom(type)) {
+            value = Enum.valueOf(type, str);
+        } else if (type.equals(List.class)) {
+            value = asList(str);
+        } else if (type.equals(Map.class)) {
+            map = new HashMap<>();
+            for (String item : asList(str)) {
+                idx = item.indexOf(':');
+                if (idx == -1) {
+                    throw new ArgumentException("cannot set property '" + name + "': expected key:value, got " + item);
                 }
-                value = map;
-            } else if (type.equals(Expire.class)) {
-                value = Expire.fromHuman(str);
-            } else if (Map.class.isAssignableFrom(type)) {
-                value = str;
-            } else {
-                throw new IllegalStateException(name + ": cannot convert String to " + type.getSimpleName());
+                map.put(item.substring(0, idx).trim(), item.substring(idx + 1).trim());
             }
-            try {
-                field.set(configuration, value);
-            } catch (IllegalAccessException e) {
-                throw new IllegalStateException(e);
-            }
+            value = map;
+        } else if (type.equals(Expire.class)) {
+            value = Expire.fromHuman(str);
+        } else if (Map.class.isAssignableFrom(type)) {
+            value = str;
+        } else {
+            throw new IllegalStateException(name + ": cannot convert String to " + type.getSimpleName());
+        }
+        try {
+            field.set(configuration, value);
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -147,16 +133,5 @@ public class ReflectProperty extends Property {
             result = Collections.emptyList();
         }
         return result;
-    }
-
-    public int hashCode() {
-        return name.hashCode();
-    }
-
-    public boolean equals(Object obj) {
-        if (obj instanceof ReflectProperty) {
-            return name.equals(((ReflectProperty) obj).name);
-        }
-        return false;
     }
 }

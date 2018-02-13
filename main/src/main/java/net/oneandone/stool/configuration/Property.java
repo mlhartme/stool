@@ -49,4 +49,15 @@ public abstract class Property implements Info {
     public String infoName() {
         return name;
     }
+
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof Property) {
+            return name.equals(((Property) obj).name);
+        }
+        return false;
+    }
 }

@@ -36,7 +36,7 @@ public class StoolConfiguration {
 
         result = new LinkedHashMap<>();
         for (Field field : StoolConfiguration.class.getFields()) {
-            result.put(field.getName(), new ReflectProperty(field.getName(), field, null, null));
+            result.put(field.getName(), new ReflectProperty(field.getName(), field));
         }
         return result;
     }
