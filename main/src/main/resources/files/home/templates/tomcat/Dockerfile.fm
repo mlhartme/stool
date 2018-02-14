@@ -1,6 +1,6 @@
 FROM debian:stretch-slim
 
-#ENV String version 8.5.28
+#ENV String version 9.0.5
 #ENV String opts
 #ENV Boolean debug false
 #ENV Boolean suspend false
@@ -18,7 +18,7 @@ RUN set -x; \
 	fi; \
 	apt-get update && apt-get install -y --no-install-recommends ca-certificates curl wget procps bzip2 unzip xz-utils gpg openjdk-8-jre="$JAVA_DEBIAN_VERSION" && rm -rf /var/lib/apt/lists/*
 
-ENV CATALINA_OPS ${tomcat.install(r"https://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz", version, "LEGACY", opts, debug, suspend)}
+ENV CATALINA_OPS ${tomcat.install(r"https://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz", version, "STRICT", opts, debug, suspend)}
 ENV CATALINA_HOME /stage/.backstage/tomcat
 
 WORKDIR $CATALINA_HOME
