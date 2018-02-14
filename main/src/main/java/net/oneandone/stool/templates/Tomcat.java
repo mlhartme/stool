@@ -67,7 +67,6 @@ public class Tomcat {
         serverXml = ServerXml.load(serverXml(), session.configuration.hostname);
         serverXml.addContextParameters(stage, logroot, Strings.toMap(additionals));
         serverXml.save(serverXml());
-        catalinaBaseAndHome().join("temp").deleteTree().mkdir();
     }
 
     //--
@@ -98,8 +97,6 @@ public class Tomcat {
             downloadFile(subst(downloadUrl, version), download);
             download.checkFile();
         }
-
-        name = tomcatName(version);
         dest = backstage.join("tomcat");
         if (!dest.exists()) {
             tar(backstage, "zxf", download.getAbsolute(), "--exclude", name + "/webapps");
@@ -192,6 +189,7 @@ public class Tomcat {
             hostname = session.configuration.hostname;
         }
         return KeyStore.create(session.configuration.certificates, hostname, stage.getBackstage().join("ssl"));
+        
     }
 
     //--

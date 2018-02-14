@@ -5,7 +5,7 @@ FROM debian:stretch-slim
 #ENV Boolean debug false
 #ENV Boolean suspend false
 
-# Default to UTF-8 file.encoding
+# make sure we get UTF-8 file.encoding
 ENV LANG C.UTF-8
 
 ENV JAVA_VERSION 8u151
