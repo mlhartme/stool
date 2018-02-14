@@ -273,7 +273,7 @@ public abstract class Stage {
         String vhostname;
 
         vhosts = vhosts();
-        selected = configuration.tomcatSelect;
+        selected = configuration.select;
         if (!selected.isEmpty()) {
             iter = vhosts.entrySet().iterator();
             while (iter.hasNext()) {

@@ -68,8 +68,8 @@ public class StageConfiguration {
     @Option(key = "memory")
     public Integer memory;
 
-    @Option(key = "tomcat.select")
-    public List<String> tomcatSelect;
+    @Option(key = "select")
+    public List<String> select;
 
     /** login names or email addresses, or "@last-modified-by" or "@creator" */
     @Option(key = "notify")
@@ -114,7 +114,7 @@ public class StageConfiguration {
         this.pom = "pom.xml";
         this.quota = 10000;
         this.memory = 400;
-        this.tomcatSelect = new ArrayList<>();
+        this.select = new ArrayList<>();
         this.javaHome = javaHome;
         this.mavenHome = mavenHome;
         this.mavenOpts = "";

@@ -913,7 +913,7 @@ Boolean properties have the values `true` or `false`, case sensitive.
 Date properties have the form *yyyy-mm-dd*, so a valid value for `expire` is - e.g. -`2016-12-31`. Alternatively, 
 you can specify a number which is translated into the date that number of days from now (e.g. `1` means tomorrow).
 
-List properties (e.g. `tomcat.select`) are separated by commas, whitespace before and after an item is ignored.
+List properties (e.g. `select`) are separated by commas, whitespace before and after an item is ignored.
 
 Map properties (e.g. `tomcat.env`) separate entries by commas, whitespace before and after is ignored.
 Each entry separates key and value by a colon. Example `PATH:/bin, HOME:/home/me`
@@ -964,12 +964,10 @@ Note that the default values below might be overwritten by Stool defaults on you
   CATALINA_OPTS without heap settings. Type string. Default value: (empty)
 * **tomcat.heap**
   Java heap memory ("-Xmx") in mb when running Tomcat. Type number.
-* **tomcat.select**
-  List of selected applications. When starting a stage, Stool configures Tomcat only for the selected
+* **select**
+  List of selected applications. When starting a stage, Stool configures the container only for the selected
   applications. If none is selected (which is the default), it configures all applications. Type list.
   Default value: (empty)
-* **tomcat.service**
-  Version of the Java Service Wrapper to use. Default value: `3.5.29`. Type string.
 * **tomcat.version**
   Tomcat version to use. Type string. Default value: `8.5.6`. If you change this property,
   you have to stop tomcat, delete the `.backstage/tomcat` directory, and start Tomcat again.
@@ -989,7 +987,7 @@ Note that the default values below might be overwritten by Stool defaults on you
 
 `stool config "build=mvn clean package"` sets a value with spaces.
 
-`stool config tomcat.select=foo,bar` configures a list property. Do not use spaces around
+`stool config select=foo,bar` configures a list property. Do not use spaces around
 the comma because the shell would consider this as a new key-value argument -- or quote the whole argument.
 
 ### stool-move
