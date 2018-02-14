@@ -226,6 +226,9 @@ public class ServerXml {
             for (Map.Entry<String, String> entry : map.entrySet()) {
                 parameter(context, entry.getKey()).setAttribute("value", entry.getValue());
             }
+            for (Map.Entry<String, String> entry : map.entrySet()) {
+                environment(context, entry.getKey()).setAttribute("value", entry.getValue());
+            }
         }
     }
 
@@ -233,7 +236,6 @@ public class ServerXml {
     private Element parameterOpt(Element context, String name) throws XmlException {
         return selector.elementOpt(context, "Parameter[@name='" + name + "']");
     }
-
     private Element parameter(Element context, String name) throws XmlException {
         Element parameter;
 
@@ -245,6 +247,23 @@ public class ServerXml {
             context.appendChild(parameter);
         }
         return parameter;
+    }
+
+    private Element environmentOpt(Element context, String name) throws XmlException {
+        return selector.elementOpt(context, "Environment[@name='" + name + "']");
+    }
+    private Element environment(Element context, String name) throws XmlException {
+        Element environment;
+
+        environment = environmentOpt(context, name);
+        if (environment == null) {
+            environment = context.getOwnerDocument().createElement("Environment");
+            environment.setAttribute("name", name);
+            environment.setAttribute("type", "java.lang.String");
+            environment.setAttribute("override", "false");
+            context.appendChild(environment);
+        }
+        return environment;
     }
 
     //--

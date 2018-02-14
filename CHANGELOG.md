@@ -35,6 +35,7 @@
 * renamed stage property `tomcat.select` to `select`
 * dumped stool property `downloadTomcat`, this value is hard-coded into the respective template now
 * dumped `system-import` command (and also the upgrade code)
+* tomcat: define an environment variable for every context parameter 
 
 
 ### 3.4.10 (2017-10-05)
