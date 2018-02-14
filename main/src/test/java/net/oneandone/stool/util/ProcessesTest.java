@@ -26,7 +26,7 @@ public class ProcessesTest {
     private static final World WORLD = World.createMinimal();
 
     @Test
-    public void tomcat() throws IOException {
+    public void normal() throws IOException {
         Processes p;
 
         p = Processes.create(WORLD.guessProjectHome(getClass()).join("src/test/psoutput").readString());

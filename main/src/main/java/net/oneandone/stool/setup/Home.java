@@ -81,7 +81,7 @@ public class Home {
         }
         conf.save(gson, dir);
         conf.downloadCache.mkdirOpt();
-        for (String name : new String[]{"backstages", "logs", "run", "tomcat", "system"}) {
+        for (String name : new String[]{"backstages", "logs", "run", "system"}) {
             dir.join(name).mkdir();
         }
         Autoconf.templates(dir.join("templates"), console);

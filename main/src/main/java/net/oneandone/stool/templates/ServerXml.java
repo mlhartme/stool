@@ -13,10 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.util;
+package net.oneandone.stool.templates;
 
 import net.oneandone.stool.ssl.KeyStore;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Ports;
+import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;

@@ -5,17 +5,6 @@
   "build": "echo nothing to build",
   "refresh": "svn @svnCredentials@ up",
   "pom": "pom.xml",
-  "tomcatOpts": "@proxyOpts@ @trustStore@",
-  "tomcatVersion": "8.0.26",
-  "tomcatService": "3.5.26",
-  "tomcatHeap": 1950,
-  "tomcatPerm": 640,
-  "tomcatSelect": [],
-  "tomcatEnv": {
-    "PATH": "/opt/ui/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games:/opt/ui/opt/tools/svn/bin:/opt/ui/opt/tools/svn/nodejs/bin",
-    "LAVENDER_SETTINGS": "/opt/ui/opt/tools/svn/lavender.properties",
-    "LAVENDER_PROPERTIES": "/opt/ui/opt/tools/svn/lavender.properties"
-  },
   "javaHome": "/usr/lib/jvm/java-8-openjdk-amd64/jre",
   "mavenHome": "/opt/ui/opt/tools/svn/maven/current",
   "mavenOpts": "-Xmx1024m -Dmaven.repo.local=@localRepository@ @proxyOpts@ @trustStore@",
@@ -23,15 +12,5 @@
   "suffixes": [ "/xml/config" ],
   "sslUrl": "someSslUrl",
   "autoRefresh": false,
-  "comment": "",
-  "templates": {
-    "-tomcat.editor": {
-      "version": "0.18.70",
-      "userdata": "https://svn.1and1.org/svn/sales/workspaces/editor/userdata.xml"
-    },
-    "+tomcat": {
-      "mode": "test"
-    },
-    "-fitnesse": {}
-  }
+  "comment": ""
 }

@@ -63,7 +63,7 @@ _stool_complete() {
             ;;
         config)
             compopt +o nospace &>/dev/null
-            local option="suffix expire maven.opts java.home tomcat.select port.prefix build cookies tomcat.mode autoRefresh comment fitnesse logstash"
+            local option="suffix expire maven.opts java.home select port.prefix build autoRefresh comment fitnesse logstash"
             COMPREPLY=( $(compgen -o nospace -W "${option}" -- ${cur}) )
             return 0
             ;;
@@ -81,7 +81,7 @@ _stool_complete() {
             fi
             ;;
            cd)
-            local lst="backstage conf java jmx run tomcat conf logs temp work  "
+            local lst="backstage conf java jmx run container conf logs temp work  "
             COMPREPLY=( $(compgen -W "${lst}" -- ${cur}) )
             return 0
             ;;

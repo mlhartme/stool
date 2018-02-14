@@ -18,7 +18,6 @@ package net.oneandone.stool.templates;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
-import net.oneandone.stool.util.ServerXml;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
@@ -26,7 +25,6 @@ import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Map;
 
 public class Code {
     // TODO: have a list of projects; always prepend @
