@@ -88,7 +88,7 @@ public class StoolConfiguration {
     /**
      * Base value to calculate ram per application
      */
-    public int baseHeap;
+    public int baseMemory;
 
     public String mailHost;
 
@@ -123,7 +123,7 @@ public class StoolConfiguration {
     public StoolConfiguration(FileNode downloadCache) {
         portFirst = 9000;
         portLast = 9999;
-        baseHeap = 350;
+        baseMemory = 400;
         hostname = "localhost";
         diskMin = 1000;
         admin = "";

@@ -31,6 +31,7 @@
 * replaced stage property `tomcat.opts` by template variable `opts`
 * renamed stage property `tomcat.heap` to `memory`, changed default from 350 to 400 or 200m for every webapp; 
   tomcat heap is set to 75% of that
+* renamed stool property `baseHeap` to `baseMemory`, changed default form 350 to 400
 * renamed stage property `tomcat.select` to `select`
 
 

@@ -620,7 +620,7 @@ public abstract class Stage {
 
     public void tuneConfiguration() throws IOException {
         if (configuration.memory == 0 || configuration.memory == 400) {
-            configuration.memory = Math.min(4096, 200 + size() * session.configuration.baseHeap);
+            configuration.memory = Math.min(4096, 200 + size() * session.configuration.baseMemory);
         }
         if (configuration.build.isEmpty() || configuration.build.equals("false")) {
             configuration.build = getDefaultBuildCommand();

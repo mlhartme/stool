@@ -348,9 +348,8 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
   Type string. Example: `Max Mustermann <max@mustermann.org>`.
 * **autoRemove**
   Days to wait before removing an expired stage. -1 to disable this feature. Type number. 
-* baseHeap
-  Defines how to compute the initial `tomcat.heap` property for new stages:
-  `baseHeap` mb for every application. Type number.
+* **baseMemory**
+  Defines how to compute the initial `memory` property for new stages: `baseMemory` mb for every application. Type number.
 * **certificates**
   Empty or script or url to generate certificates to make stages available via https. Empty to generate self-signed
   certificates. Otherwise, if it starts with `http://` or `https://` Stool generates a `csr` and posts it to
