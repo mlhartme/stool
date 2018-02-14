@@ -31,7 +31,7 @@ import java.io.IOException;
 import static org.junit.Assert.fail;
 
 /**
- * Integration tests for Stool.
+ * Integration tests for the command line.
  */
 public class StoolIT {
     private static final World WORLD;

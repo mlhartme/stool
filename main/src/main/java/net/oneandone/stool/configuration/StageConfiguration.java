@@ -18,6 +18,7 @@ package net.oneandone.stool.configuration;
 import com.google.gson.Gson;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -119,7 +120,8 @@ public class StageConfiguration {
         this.comment = "";
         this.autoRefresh = false;
         this.template = "tomcat";
-        this.templateEnv = new HashMap<>();
+        // TODO: duplicates Dockerfile template defaults
+        this.templateEnv = Strings.toMap("version", "9.0.5", "opts", "", "debug", "false", "suspend", "false");
     }
 
     public void save(Gson gson, Node file) throws IOException {
