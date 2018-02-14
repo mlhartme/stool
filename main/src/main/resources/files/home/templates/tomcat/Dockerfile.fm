@@ -5,6 +5,15 @@ FROM debian:stretch-slim
 #ENV Boolean debug false
 #ENV Boolean suspend false
 
+
+# prepare context
+
+RUN echo ${tomcat.download(r"https://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz", version)}
+RUN echo ${tomcat.serverXml(version, "STRICT")}
+
+
+# real docker commands
+
 # make sure we get UTF-8 file.encoding
 ENV LANG C.UTF-8
 
@@ -18,8 +27,17 @@ RUN set -x; \
 	fi; \
 	apt-get update && apt-get install -y --no-install-recommends ca-certificates curl wget procps bzip2 unzip xz-utils gpg openjdk-8-jre="$JAVA_DEBIAN_VERSION" && rm -rf /var/lib/apt/lists/*
 
-ENV CATALINA_OPS ${tomcat.install(r"https://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz", version, "STRICT", opts, debug, suspend)}
-ENV CATALINA_HOME /stage/.backstage/tomcat
+COPY tomcat /tmp/tomcat
+ENV CATALINA_OPTS ${tomcat.catalinaOpts(opts, debug, suspend)}
+ENV CATALINA_HOME /usr/local/tomcat
+RUN set -x; \
+    mkdir $CATALINA_HOME; \
+    cd $CATALINA_HOME; \
+    tar zxf /tmp/tomcat/tomcat.tar.gz --strip-components=1; \
+    rm -rf $CATALINA_HOME/webapps; \
+    cp /tmp/tomcat/server.xml $CATALINA_HOME/conf/server.xml; \
+    rm -rf /tmp/tomcat
+
 
 WORKDIR $CATALINA_HOME
 

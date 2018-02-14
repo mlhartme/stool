@@ -54,85 +54,42 @@ public class Tomcat {
 
     //-- public interface
 
-    /** @return catalina_opts */
-    public String install(String downloadUrl, String version, String cookies, String opts, boolean debug, boolean suspend) throws IOException, SAXException, XmlException {
-        unpackTomcatOpt(downloadUrl, stage.getBackstage(), version);
-        configure(version, CookieMode.valueOf(cookies));
-        return catalinaOpts(opts, debug, suspend);
-    }
-
-    public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
-        ServerXml serverXml;
-
-        serverXml = ServerXml.load(serverXml(), session.configuration.hostname);
-        serverXml.addContextParameters(stage, logroot, Strings.toMap(additionals));
-        serverXml.save(serverXml());
-    }
-
-    //--
-
-    private FileNode catalinaBaseAndHome() {
-        return stage.getBackstage().join("tomcat");
-    }
-
-    private FileNode serverXml() {
-        return catalinaBaseAndHome().join("conf", "server.xml");
-    }
-
-    private FileNode serverXmlTemplate() {
-        return catalinaBaseAndHome().join("conf", "server.xml.template");
-    }
-
-    private void unpackTomcatOpt(String downloadUrl, FileNode backstage, String version) throws IOException, SAXException {
-        String name;
+    public void download(String downloadUrl, String version) throws IOException {
         FileNode download;
-        FileNode src;
         FileNode dest;
-        ServerXml serverXml;
-        FileNode file;
 
-        name = tomcatName(version);
-        download = session.downloadCache().join(name + ".tar.gz");
+        download = session.downloadCache().join(tomcatName(version) + ".tar.gz");
         if (!download.exists()) {
             downloadFile(subst(downloadUrl, version), download);
             download.checkFile();
         }
-        dest = backstage.join("tomcat");
-        if (!dest.exists()) {
-            tar(backstage, "zxf", download.getAbsolute(), "--exclude", name + "/webapps");
-            src = backstage.join(name);
-            src.move(dest);
-            // TODO: work-around for a problem I have with tar: it applies the umask to the permissions stored in the file ...
-            dest.execNoOutput("chmod", "-R", "g+rw", ".");
-            dest.execNoOutput("chmod", "g+x", "conf"); // for Tomcat 8.5
-
-            file = dest.join("conf/server.xml");
-            serverXml = ServerXml.load(file, session.configuration.hostname);
-            serverXml.stripComments();
-            serverXml.save(dest.join("conf/server.xml.template"));
-            file.deleteFile();
-
-            dest.join("conf/logging.properties").appendLines(
-                    "",
-                    "# appended by Stool: make sure we see application output in catalina.out",
-                    "org.apache.catalina.core.ContainerBase.[Catalina].level = INFO",
-                    "org.apache.catalina.core.ContainerBase.[Catalina].handlers = 1catalina.org.apache.juli.FileHandler"
-            );
-        }
+        dest = tomcatTarGz();
+        dest.getParent().mkdirsOpt();
+        download.copyFile(dest);
     }
 
-    private void configure(String version, CookieMode cookies) throws IOException, SAXException, XmlException {
+    public void serverXml(String version, String cookiesStr) throws IOException, SAXException, XmlException {
+        FileNode tomcatTarGz;
+        CookieMode cookies;
         ServerXml serverXml;
+        FileNode tomcat;
+        FileNode serverXmlDest;
         KeyStore keystore;
 
-        serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
+        cookies = CookieMode.valueOf(cookiesStr);
+        tomcatTarGz = tomcatTarGz();
+        tomcat = tomcatTarGz.getParent();
+        serverXmlDest = serverXml();
+        tar(tomcat, "zxf", tomcatTarGz.getName(), "--strip-components=2", tomcatName(version) + "/conf/server.xml");
+
+        serverXml = ServerXml.load(serverXmlDest, session.configuration.hostname);
+        serverXml.stripComments();
         keystore = keystore();
         serverXml.configure(ports, configuration.url, keystore, cookies, stage, legacyVersion(version));
-        serverXml.save(serverXml());
-        catalinaBaseAndHome().join("temp").deleteTree().mkdir();
+        serverXml.save(serverXmlDest);
     }
 
-    private String catalinaOpts(String extraOpts, boolean debug, boolean suspend) {
+    public String catalinaOpts(String extraOpts, boolean debug, boolean suspend) {
         List<String> opts;
         String tomcatOpts;
 
@@ -163,6 +120,24 @@ public class Tomcat {
         return Separator.SPACE.join(opts);
     }
 
+    public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
+        ServerXml serverXml;
+
+        serverXml = ServerXml.load(serverXml(), session.configuration.hostname);
+        serverXml.addContextParameters(stage, logroot, Strings.toMap(additionals));
+        serverXml.save(serverXml());
+    }
+
+    //--
+
+    private FileNode tomcatTarGz() {
+        return stage.backstage.join("run/image/tomcat/tomcat.tar.gz");
+    }
+
+    private FileNode serverXml() {
+        return stage.backstage.join("run/image/tomcat/server.xml");
+    }
+
     /** @return true for 8.0.x and older */
     private static boolean legacyVersion(String version) {
         int idx;
@@ -178,7 +153,6 @@ public class Tomcat {
         major = Integer.parseInt(version.substring(0, idx));
         return major < 8;
     }
-
 
     private KeyStore keystore() throws IOException {
         String hostname;
@@ -196,13 +170,6 @@ public class Tomcat {
 
     private static String tomcatName(String version) {
         return "apache-tomcat-" + version;
-    }
-
-    private String replace1(String str, String in, String out) {
-        if (Strings.count(str, in) != 1) {
-            throw new IllegalStateException(str);
-        }
-        return Strings.replace(str, in, out);
     }
 
     private static String subst(String pattern, String version) {
