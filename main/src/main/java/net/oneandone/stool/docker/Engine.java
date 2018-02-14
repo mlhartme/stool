@@ -227,15 +227,18 @@ public class Engine {
     //-- containers
 
     public String containerCreate(String image, String hostname) throws IOException {
-        return containerCreate(image, hostname, 0, Collections.emptyMap(), Collections.emptyMap());
+        return containerCreate(image, hostname, null, null, null, Collections.emptyMap(), Collections.emptyMap());
     }
 
     /**
-     * @param memory is the memory limit in bytes. At least 1024*1024*4. The actual value used by docker is something
+     * @param memory is the memory limit in bytes. Or null for no limit. At least 1024*1024*4. The actual value used by docker is something
      *               rounded of this parameter
+     * @param stopSignal or null to use default (SIGTERM)
+     * @param stopTimeout default timeout when stopping this container without explicit timeout value; null to use default (10 seconds)
      * @return container id
      */
-    public String containerCreate(String image, String hostname, int memory, Map<String, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
+    public String containerCreate(String image, String hostname, Integer memory, String stopSignal, Integer stopTimeout,
+                                  Map<String, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
         JsonObject body;
         JsonObject response;
         JsonObject hostConfig;
@@ -243,11 +246,18 @@ public class Engine {
         JsonObject portBindings;
 
         body = body("Image", image, "hostname", hostname);
-
+        if (stopSignal != null) {
+            body.add("StopSignal", new JsonPrimitive(stopSignal));
+        }
+        if (stopTimeout != null) {
+            body.add("StopTimeout", new JsonPrimitive(stopTimeout));
+        }
         hostConfig = new JsonObject();
 
         body.add("HostConfig", hostConfig);
-        hostConfig.add("Memory", new JsonPrimitive(memory));
+        if (memory != null) {
+            hostConfig.add("Memory", new JsonPrimitive(memory));
+        }
         binds = new JsonArray();
         hostConfig.add("Binds", binds);
         for (Map.Entry<String, String> entry : bindMounts.entrySet()) {
@@ -291,12 +301,17 @@ public class Engine {
         post(root.join("containers", id, "start"), "");
     }
 
-    /** sends SIGNTERM to pid 1. If process does not terminate after timeout, SIGKILL is used */
-    public void containerStop(String id, int timeout) throws IOException {
+    /**
+     * Sends stop signal as specified containerCreate to pid 1. If process does not terminate after timeout, SIGKILL is used
+     * @param timeout null to use timeout specified by containerCreate
+     * */
+    public void containerStop(String id, Integer timeout) throws IOException {
         HttpNode stop;
 
         stop = root.join("containers", id, "stop");
-        stop = stop.getRoot().node(stop.getPath(), "timeout=" + timeout);
+        if (timeout != null) {
+            stop = stop.getRoot().node(stop.getPath(), "t=" + timeout);
+        }
         post(stop, "");
     }
 
