@@ -130,7 +130,7 @@ public class Tomcat {
 
         serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
         keystore = keystore();
-        serverXml.configure(ports, configuration.url, keystore, configuration.cookies, stage, http2(version));
+        serverXml.configure(ports, configuration.url, keystore, configuration.cookies, stage, legacyVersion(version));
         serverXml.save(serverXml());
         catalinaBaseAndHome().join("temp").deleteTree().mkdir();
     }
@@ -166,8 +166,20 @@ public class Tomcat {
         return Separator.SPACE.join(opts);
     }
 
-    private boolean http2(String version) {
-        return version.startsWith("8.5") || version.startsWith("9.");
+    /** @return true for 8.0.x and older */
+    private static boolean legacyVersion(String version) {
+        int idx;
+        int major;
+
+        if (version.startsWith("8.0.")) {
+            return true;
+        }
+        idx = version.indexOf('.');
+        if (idx == -1) {
+            throw new IllegalArgumentException(version);
+        }
+        major = Integer.parseInt(version.substring(0, idx));
+        return major < 8;
     }
 
 

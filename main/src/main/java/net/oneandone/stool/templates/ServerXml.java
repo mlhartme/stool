@@ -60,7 +60,7 @@ public class ServerXml {
         file.writeXml(document);
     }
 
-    public void configure(Ports ports, String url, KeyStore keystore, boolean cookies, Stage stage, boolean http2) throws XmlException {
+    public void configure(Ports ports, String url, KeyStore keystore, boolean cookies, Stage stage, boolean legacy) throws XmlException {
         Element template;
         Element service;
 
@@ -71,7 +71,7 @@ public class ServerXml {
                 service = (Element) template.cloneNode(true);
                 document.getDocumentElement().appendChild(service);
                 service(stage.getDirectory(), service, vhost);
-                connectors(stage.getDirectory(), service, vhost, keystore, http2);
+                connectors(stage.getDirectory(), service, vhost, keystore, legacy);
                 contexts(vhost.context(hostname, url), service, cookies);
             }
         }
@@ -111,15 +111,15 @@ public class ServerXml {
         return path.startsWith("/") ? "/stage/" + Strings.removeLeft(path, stageDirectory.getAbsolute() + "/") : path;
     }
 
-    private void connectors(FileNode stageDirectory, Element service, Vhost host, KeyStore keyStore, boolean http2) {
+    private void connectors(FileNode stageDirectory, Element service, Vhost host, KeyStore keyStore, boolean legacy) {
         String ip;
 
         ip = "0.0.0.0";
         try {
             connectorDisable(service, "Connector[starts-with(@protocol,'AJP')]");
-            connectorEnable(service, HTTP_PATH, ip, host.httpPort(), host.httpsPort(), http2);
+            connectorEnable(service, HTTP_PATH, ip, host.httpPort(), host.httpsPort(), legacy);
             if (keyStore != null) {
-                sslConnector(stageDirectory, service, HTTPS_PATH, host.httpsPort(), ip, keyStore, http2);
+                sslConnector(stageDirectory, service, HTTPS_PATH, host.httpsPort(), ip, keyStore, legacy);
             } else {
                 connectorDisable(service, HTTPS_PATH);
             }
@@ -128,7 +128,7 @@ public class ServerXml {
         }
     }
 
-    private void connectorEnable(Element service, String path, String ip, int port, int sslport, boolean http2) throws XmlException {
+    private void connectorEnable(Element service, String path, String ip, int port, int sslport, boolean legacy) throws XmlException {
         Element element;
 
         element = selector.element(service, path);
@@ -136,17 +136,18 @@ public class ServerXml {
         element.setAttribute("address", ip);
         element.setAttribute("useBodyEncodingForURI", "true");
         element.setAttribute("redirectPort", Integer.toString(sslport));
-        http2(element, http2);
+        if (!legacy) {
+            http2(element);
+        }
     }
 
-    private void http2(Element element, boolean enable) {
-        if (enable) {
-            Element http2;// TODO: only Tomcat 8.5+
-            // https://tomcat.apache.org/tomcat-8.5-doc/config/http2.html
-            http2 = element.getOwnerDocument().createElement("UpgradeProtocol");
-            http2.setAttribute("className", "org.apache.coyote.http2.Http2Protocol");
-            element.appendChild(http2);
-        }
+    private void http2(Element element) {
+        Element http2;
+
+        // https://tomcat.apache.org/tomcat-8.5-doc/config/http2.html
+        http2 = element.getOwnerDocument().createElement("UpgradeProtocol");
+        http2.setAttribute("className", "org.apache.coyote.http2.Http2Protocol");
+        element.appendChild(http2);
     }
 
     private void connectorDisable(Element service, String path) throws XmlException {
@@ -159,7 +160,7 @@ public class ServerXml {
     }
 
 
-    private void sslConnector(FileNode stageDirectory, Element service, String path, int port, String ip, KeyStore keystore, boolean http2) throws XmlException {
+    private void sslConnector(FileNode stageDirectory, Element service, String path, int port, String ip, KeyStore keystore, boolean legacy) throws XmlException {
         Element element;
 
         element = selector.elementOpt(service, path);
@@ -184,7 +185,9 @@ public class ServerXml {
 
         element.removeAttribute("SSLCertificateFile");
         element.removeAttribute("SSLCertificateKeyFile");
-        http2(element, http2);
+        if (!legacy) {
+            http2(element);
+        }
 
     }
 
