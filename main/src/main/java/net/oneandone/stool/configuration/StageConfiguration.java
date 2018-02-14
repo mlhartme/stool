@@ -64,6 +64,7 @@ public class StageConfiguration {
     @Option(key = "quota")
     public int quota;
 
+    /** max ram for container, in MB */
     @Option(key = "memory")
     public Integer memory;
 
