@@ -34,6 +34,7 @@
 * renamed stool property `baseHeap` to `baseMemory`, changed default form 350 to 400
 * renamed stage property `tomcat.select` to `select`
 * dumped stool property `downloadTomcat`, this value is hard-coded into the respective template now
+* dumped `system-import` command (and also the upgrade code)
 
 
 ### 3.4.10 (2017-10-05)
