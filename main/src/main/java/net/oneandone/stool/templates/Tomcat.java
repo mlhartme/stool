@@ -189,7 +189,7 @@ public class Tomcat {
             hostname = session.configuration.hostname;
         }
         return KeyStore.create(session.configuration.certificates, hostname, stage.getBackstage().join("ssl"));
-        
+
     }
 
     //--
