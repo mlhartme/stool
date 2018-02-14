@@ -48,7 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** Connect to local docker engine via unix socket. https://docs.docker.com/engine/api/v1.33/ */
+/** Connect to local docker engine via unix socket. https://docs.docker.com/engine/api/v1.35/ */
 public class Engine {
     public enum Status {
         CREATED,
@@ -68,7 +68,7 @@ public class Engine {
         }
         fs = (HttpFilesystem) world.getFilesystem("http");
         fs.setSocketFactorySelector(Engine::unixSocketFactorySelector);
-        root = (HttpNode) world.validNode("http://localhost/v1.33");
+        root = (HttpNode) world.validNode("http://localhost/v1.35");
         root.getRoot().addExtraHeader("Content-Type", "application/json");
         return new Engine(root);
     }
@@ -245,7 +245,7 @@ public class Engine {
         JsonArray binds;
         JsonObject portBindings;
 
-        body = body("Image", image, "hostname", hostname);
+        body = body("Image", image, "Hostname", hostname);
         if (stopSignal != null) {
             body.add("StopSignal", new JsonPrimitive(stopSignal));
         }

@@ -164,9 +164,6 @@ public class Tomcat {
             opts.add("-Djava.compiler=NONE");
             opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=" + ports.debug() + ",suspend=" + (suspend ? "y" : "n"));
         }
-
-        // TODO: why? the container hostname is set properly ...
-        opts.add("-Djava.rmi.server.hostname='" + session.configuration.hostname + "'");
         return Separator.SPACE.join(opts);
     }
 

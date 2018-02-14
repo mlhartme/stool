@@ -85,7 +85,6 @@ public class EngineIT {
         container = engine.containerCreate(image, "foo", null, /*"SIGQUIT"*/ null, 3, Collections.emptyMap(), Collections.emptyMap());
         engine.containerStart(container);
         assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
-        System.out.println("stop ...");
         duration = System.currentTimeMillis();
         engine.containerStop(container, 6);
         duration = System.currentTimeMillis() - duration;
