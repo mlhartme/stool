@@ -33,6 +33,7 @@
   tomcat heap is set to 75% of that
 * renamed stool property `baseHeap` to `baseMemory`, changed default form 350 to 400
 * renamed stage property `tomcat.select` to `select`
+* dumped stool property `downloadTomcat`, this value is hard-coded into the respective template now
 
 
 ### 3.4.10 (2017-10-05)

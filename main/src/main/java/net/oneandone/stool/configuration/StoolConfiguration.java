@@ -112,8 +112,6 @@ public class StoolConfiguration {
      */
     public int autoRemove;
 
-    public String downloadTomcat;
-
     public FileNode downloadCache;
 
     public String search;
@@ -141,7 +139,6 @@ public class StoolConfiguration {
         mailUsername = "";
         mailPassword = "";
         certificates = "";
-        downloadTomcat =  "https://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz";
         this.downloadCache = downloadCache;
         this.search = "";
         this.quota = 0;

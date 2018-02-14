@@ -56,8 +56,8 @@ public class Tomcat {
     //-- public interface
 
     /** @return catalina_opts */
-    public String install(String version, String opts, boolean debug, boolean suspend) throws IOException, SAXException, XmlException {
-        unpackTomcatOpt(stage.getBackstage(), version);
+    public String install(String downloadUrl, String version, String opts, boolean debug, boolean suspend) throws IOException, SAXException, XmlException {
+        unpackTomcatOpt(downloadUrl, stage.getBackstage(), version);
         configure(version);
         return catalinaOpts(opts, debug, suspend);
     }
@@ -85,7 +85,7 @@ public class Tomcat {
         return catalinaBaseAndHome().join("conf", "server.xml.template");
     }
 
-    private void unpackTomcatOpt(FileNode backstage, String version) throws IOException, SAXException {
+    private void unpackTomcatOpt(String downloadUrl, FileNode backstage, String version) throws IOException, SAXException {
         String name;
         FileNode download;
         FileNode src;
@@ -96,7 +96,7 @@ public class Tomcat {
         name = tomcatName(version);
         download = session.downloadCache().join(name + ".tar.gz");
         if (!download.exists()) {
-            downloadFile(subst(session.configuration.downloadTomcat, version), download);
+            downloadFile(subst(downloadUrl, version), download);
             download.checkFile();
         }
 
