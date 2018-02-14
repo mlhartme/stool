@@ -46,9 +46,6 @@ public class StageConfiguration {
     @Option(key = "name")
     public String name;
 
-    @Option(key = "cookies")
-    public Boolean cookies;
-
     @Option(key = "prepare")
     public String prepare;
 
@@ -105,7 +102,6 @@ public class StageConfiguration {
 
     public StageConfiguration(String javaHome, String mavenHome, String refresh) {
         this.name = "noname";
-        this.cookies = true;
         this.prepare = "";
         this.build = "false";
         this.refresh = refresh;

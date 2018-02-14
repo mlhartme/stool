@@ -31,6 +31,7 @@
 * replaced stage property `tomcat.opts` by template variable `opts`
 * renamed stage property `tomcat.heap` to `memory`, changed default from 350 to 400 or 200m for every webapp; 
   tomcat heap is set to 75% of that
+* replaced stage property `cookies` by tomcat template code; the mode argument can be `OFF`, `STRICT` or `LEGACY`
 * renamed stool property `baseHeap` to `baseMemory`, changed default form 350 to 400
 * renamed stage property `tomcat.select` to `select`
 * dumped stool property `downloadTomcat`, this value is hard-coded into the respective template now

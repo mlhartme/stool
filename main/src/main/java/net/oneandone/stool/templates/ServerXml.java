@@ -38,6 +38,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static net.oneandone.stool.templates.CookieMode.LEGACY;
+import static net.oneandone.stool.templates.CookieMode.OFF;
+
 public class ServerXml {
     public static ServerXml load(Node src, String hostname) throws IOException, SAXException {
         return new ServerXml(src.getWorld().getXml(), src.readXml(), hostname);
@@ -60,7 +63,7 @@ public class ServerXml {
         file.writeXml(document);
     }
 
-    public void configure(Ports ports, String url, KeyStore keystore, boolean cookies, Stage stage, boolean legacy) throws XmlException {
+    public void configure(Ports ports, String url, KeyStore keystore, CookieMode cookies, Stage stage, boolean legacy) throws XmlException {
         Element template;
         Element service;
 
@@ -191,14 +194,21 @@ public class ServerXml {
 
     }
 
-    private void contexts(String path, Element service, boolean cookies) throws XmlException {
+    private void contexts(String path, Element service, CookieMode cookies) throws XmlException {
         Element context;
+        Element cp;
         Element manager;
 
         for (Element host : selector.elements(service, "Engine/Host")) {
             context = selector.element(host, "Context");
             context.setAttribute("path", path);
-            context.setAttribute("cookies", Boolean.toString(cookies));
+            context.setAttribute("cookies", Boolean.toString(cookies != OFF));
+            if (cookies == LEGACY) {
+                // disable session persistence
+                cp = service.getOwnerDocument().createElement("CookieProcessor");
+                cp.setAttribute("className", "org.apache.tomcat.util.http.LegacyCookieProcessor");
+                context.appendChild(cp);
+            }
             if (selector.elementOpt(context, "Manager") == null) {
                 // disable session persistence
                 manager = service.getOwnerDocument().createElement("Manager");

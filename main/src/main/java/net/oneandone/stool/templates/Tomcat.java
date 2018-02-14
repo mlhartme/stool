@@ -55,9 +55,9 @@ public class Tomcat {
     //-- public interface
 
     /** @return catalina_opts */
-    public String install(String downloadUrl, String version, String opts, boolean debug, boolean suspend) throws IOException, SAXException, XmlException {
+    public String install(String downloadUrl, String version, String cookies, String opts, boolean debug, boolean suspend) throws IOException, SAXException, XmlException {
         unpackTomcatOpt(downloadUrl, stage.getBackstage(), version);
-        configure(version);
+        configure(version, CookieMode.valueOf(cookies));
         return catalinaOpts(opts, debug, suspend);
     }
 
@@ -124,13 +124,13 @@ public class Tomcat {
         }
     }
 
-    private void configure(String version) throws IOException, SAXException, XmlException {
+    private void configure(String version, CookieMode cookies) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
         KeyStore keystore;
 
         serverXml = ServerXml.load(serverXmlTemplate(), session.configuration.hostname);
         keystore = keystore();
-        serverXml.configure(ports, configuration.url, keystore, configuration.cookies, stage, legacyVersion(version));
+        serverXml.configure(ports, configuration.url, keystore, cookies, stage, legacyVersion(version));
         serverXml.save(serverXml());
         catalinaBaseAndHome().join("temp").deleteTree().mkdir();
     }
