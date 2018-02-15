@@ -106,14 +106,6 @@ public class Vhost {
         return docroot != null;
     }
 
-    public String appBase() {
-        if (docroot.getName().equals("ROOT")) {
-            return docroot.getParent().getAbsolute();
-        } else {
-            return "webapps";
-        }
-    }
-
     public String docBase() {
         if (docroot.getName().equals("ROOT")) {
             return "ROOT";
