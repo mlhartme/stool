@@ -96,12 +96,23 @@ public class ServerXml {
         }
         host = service.getOwnerDocument().createElement("Host");
         host.setAttribute("name", name);
-        host.setAttribute("appBase", "/vhosts/");
+        if (vhost.isArtifact()) {
+            // this is where the artifact is unpacked
+            host.setAttribute("appBase", "/vhosts/" + vhost.name);
+        } else {
+            // not used, already unpacked
+            host.setAttribute("appBase", "/vhosts/");
+        }
         host.setAttribute("autoDeploy", "false");
         engine.appendChild(host);
         context = service.getOwnerDocument().createElement("Context");
         context.setAttribute("path", "");
-        context.setAttribute("docBase", "/vhosts/" + vhost.name);
+        if (vhost.isArtifact()) {
+            context.setAttribute("docBase", "/vhosts/" + vhost.name + "/ROOT");
+        } else {
+            context.setAttribute("docBase", "/vhosts/" + vhost.name);
+        }
+
         host.appendChild(context);
 
         element = service.getOwnerDocument().createElement("Alias");

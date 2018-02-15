@@ -101,7 +101,7 @@ public class Code {
     private static String findProjectDir(Ports ports, Vhost fitnesseHost) {
         String path;
 
-        path = ports.lookup(fitnesseHost.name).docBase();
+        path = ports.lookup(fitnesseHost.name).docroot.getAbsolute();
         return path.substring(0, path.indexOf("/target"));
     }
 }

@@ -407,7 +407,11 @@ public abstract class Stage {
         result.put(backstage.join("logs").mkdirOpt().getAbsolute(), "/usr/local/tomcat/logs");
         for (Vhost vhost : ports.vhosts()) {
             if (vhost.isWebapp()) {
-                result.put(vhost.docBase(), "/vhosts/" + vhost.name);
+                if (vhost.isArtifact()) {
+                    result.put(vhost.docroot.getParent().getAbsolute(), "/vhosts/" + vhost.name);
+                } else {
+                    result.put(vhost.docroot.getAbsolute(), "/vhosts/" + vhost.name);
+                }
             }
         }
 

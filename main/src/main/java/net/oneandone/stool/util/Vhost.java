@@ -106,8 +106,12 @@ public class Vhost {
         return docroot != null;
     }
 
+    public boolean isArtifact() {
+        return docroot != null && docroot.getName().equals("ROOT");
+    }
+
     public String docBase() {
-        if (docroot.getName().equals("ROOT")) {
+        if (isArtifact()) {
             return "ROOT";
         } else {
             return docroot.getAbsolute();

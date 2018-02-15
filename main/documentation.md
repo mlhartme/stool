@@ -1317,3 +1317,11 @@ Normal project files for source stages are simply the respective SCM files, for 
      :   |- ROOT.war
          `- ROOT
              :
+
+Bind mounts
+
+    |- logs             (-> .backstage/logs)
+    |- vhosts
+    |    |- source-app   (-> exploded webapp, e.g. target/source-app-SNAPSHOT/)
+    |    |- artifact-app (-> directory containing the artifact, e.g. artifact-app/) 
+    :    :
