@@ -39,7 +39,7 @@
 * tomcat: define an environment variable for every context parameter 
 * tomcat logs now go into `.backstage/logs`
 * `.backstage/tomcat` has gone
-* removed status fields `jmx` and `heap`, use template #STATUS instead
+* removed status fields `jmx` and `heap`, provided predefined template status fields instead
 * stool no longer adds
 
       org.apache.catalina.core.ContainerBase.[Catalina].level = INFO
