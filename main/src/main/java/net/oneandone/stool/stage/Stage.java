@@ -155,7 +155,7 @@ public abstract class Stage {
 
     //--
 
-    public Stage(Session session, String url, String id, FileNode directory, StageConfiguration configuration) throws ReadLinkException {
+    public Stage(Session session, String url, String id, FileNode directory, StageConfiguration configuration) {
         this.session = session;
         this.url = url;
         this.id = id;
@@ -764,7 +764,7 @@ public abstract class Stage {
     }
 
     public Logs logs() {
-        return new Logs(getBackstage().join("tomcat/logs"));
+        return new Logs(getBackstage().join("logs"));
     }
 
     public static String timespan(long since) {

@@ -37,6 +37,7 @@
 * dumped stool property `downloadTomcat`, this value is hard-coded into the respective template now
 * dumped `system-import` command (and also the upgrade code)
 * tomcat: define an environment variable for every context parameter 
+* tomcat logs now go into `.backstage/logs`
 
 
 ### 3.4.10 (2017-10-05)
