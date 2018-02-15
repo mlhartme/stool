@@ -336,7 +336,8 @@ public abstract class Stage {
         }
         console.verbose.println("image built: " + imageName);
         console.info.println("starting container ...");
-        container = engine.containerCreate(imageName, session.configuration.hostname, configuration.memory * 1024 * 1024, null, null, bindMounts(isSystem()), ports.dockerMap());
+        container = engine.containerCreate(imageName, session.configuration.hostname, configuration.memory * 1024 * 1024, null, null,
+                bindMounts(ports, isSystem()), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
         status = engine.containerStatus(container);
@@ -395,7 +396,7 @@ public abstract class Stage {
         });
     }
 
-    private Map<String, String> bindMounts(boolean systemBinds) throws IOException {
+    private Map<String, String> bindMounts(Ports ports, boolean systemBinds) throws IOException {
         Map<String, String> result;
         List<FileNode> lst;
         Iterator<FileNode> iter;
@@ -403,7 +404,12 @@ public abstract class Stage {
 
 
         result = new HashMap<>();
-        result.put(getDirectory().getAbsolute(), "/stage");
+        result.put(backstage.join("logs").mkdirOpt().getAbsolute(), "/usr/local/tomcat/logs");
+        for (Vhost vhost : ports.vhosts()) {
+            if (vhost.isWebapp()) {
+                result.put(vhost.docBase(), "/vhosts/" + vhost.name);
+            }
+        }
 
         if (systemBinds) {
             // needed for Dashboard

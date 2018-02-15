@@ -97,12 +97,12 @@ public class ServerXml {
         }
         host = service.getOwnerDocument().createElement("Host");
         host.setAttribute("name", name);
-        host.setAttribute("appBase", toMount(stageDirectory, vhost.appBase()));
+        host.setAttribute("appBase", "/vhosts/");
         host.setAttribute("autoDeploy", "false");
         engine.appendChild(host);
         context = service.getOwnerDocument().createElement("Context");
         context.setAttribute("path", "");
-        context.setAttribute("docBase", toMount(stageDirectory, vhost.docBase()));
+        context.setAttribute("docBase", "/vhosts/" + vhost.name);
         host.appendChild(context);
 
         element = service.getOwnerDocument().createElement("Alias");
@@ -110,6 +110,7 @@ public class ServerXml {
         host.insertBefore(element, host.getFirstChild());
     }
 
+    // TODO: dump
     public static String toMount(FileNode stageDirectory, String path) {
         return path.startsWith("/") ? "/stage/" + Strings.removeLeft(path, stageDirectory.getAbsolute() + "/") : path;
     }
@@ -233,7 +234,7 @@ public class ServerXml {
             if (logroot) {
                 dir = stage.getBackstage().join("tomcat/logs/applogs", app);
                 dir.mkdirsOpt();
-                map.put("logroot", ServerXml.toMount(stage.getDirectory(), dir.getAbsolute()));
+                map.put("logroot", "/usr/local/tomcat/logs/applogs/" + app);
             }
             map.putAll(additionals);
             for (Map.Entry<String, String> entry : map.entrySet()) {
