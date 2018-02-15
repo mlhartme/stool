@@ -1058,7 +1058,7 @@ Available fields:
 * **buildtime**
   Last modified date of the war files for this stage.
 * **cpu**
-  Cpu utilization for this stage as reported by `ps`.
+  Cpu usage reported by Docker: percentage of this container's cpu utilisation relative to total system utilisation.
 * **created**
   When the stage was created.
 * **creator**
@@ -1080,7 +1080,7 @@ Available fields:
 * **last-modified-by**
   The user that last maintained this stage, i.e. executed a Stool command like build, start, or stop.
 * **mem**
-  Memory utilization for this stage as reported by `ps`.
+  Memory usafe reported by Docker: percentage of memory limit actually used.
 * **heap** 
   Heap usage for this stage as reported by Jmx. Percentage of used heap in relation to max heap.
 * **others**
