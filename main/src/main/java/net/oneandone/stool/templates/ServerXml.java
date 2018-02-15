@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.templates;
 
-import net.oneandone.stool.ssl.KeyStore;
+import net.oneandone.stool.templates.ssl.KeyStore;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Vhost;

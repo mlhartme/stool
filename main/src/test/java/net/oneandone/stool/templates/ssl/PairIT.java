@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.ssl;
+package net.oneandone.stool.templates.ssl;
 
 import net.oneandone.stool.cli.Main;
 import net.oneandone.sushi.fs.World;
