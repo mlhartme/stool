@@ -38,6 +38,13 @@
 * dumped `system-import` command (and also the upgrade code)
 * tomcat: define an environment variable for every context parameter 
 * tomcat logs now go into `.backstage/logs`
+* `.backstage/tomcat` has gone
+* stool no longer adds
+
+      org.apache.catalina.core.ContainerBase.[Catalina].level = INFO
+      org.apache.catalina.core.ContainerBase.[Catalina].handlers = 1catalina.org.apache.juli.FileHandler
+
+  to Tomcat logging.properties
 
 
 ### 3.4.10 (2017-10-05)
