@@ -22,7 +22,6 @@ import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.xml.Selector;
 import net.oneandone.sushi.xml.Xml;
 import net.oneandone.sushi.xml.XmlException;
@@ -63,7 +62,7 @@ public class ServerXml {
         file.writeXml(document);
     }
 
-    public void configure(Ports ports, String url, KeyStore keystore, CookieMode cookies, Stage stage, boolean legacy) throws XmlException {
+    public void configure(Ports ports, String url, KeyStore keystore, CookieMode cookies, boolean legacy) throws XmlException {
         Element template;
         Element service;
 
@@ -73,15 +72,15 @@ public class ServerXml {
             if (vhost.isWebapp()) {
                 service = (Element) template.cloneNode(true);
                 document.getDocumentElement().appendChild(service);
-                service(stage.getDirectory(), service, vhost);
-                connectors(stage.getDirectory(), service, vhost, keystore, legacy);
+                service(service, vhost);
+                connectors(service, vhost, keystore, legacy);
                 contexts(vhost.context(hostname, url), service, cookies);
             }
         }
         template.getParentNode().removeChild(template);
     }
 
-    private void service(FileNode stageDirectory, Element service, Vhost vhost) throws XmlException {
+    private void service(Element service, Vhost vhost) throws XmlException {
         String name;
         Element engine;
         Element host;
@@ -110,12 +109,7 @@ public class ServerXml {
         host.insertBefore(element, host.getFirstChild());
     }
 
-    // TODO: dump
-    public static String toMount(FileNode stageDirectory, String path) {
-        return path.startsWith("/") ? "/stage/" + Strings.removeLeft(path, stageDirectory.getAbsolute() + "/") : path;
-    }
-
-    private void connectors(FileNode stageDirectory, Element service, Vhost host, KeyStore keyStore, boolean legacy) {
+    private void connectors(Element service, Vhost host, KeyStore keyStore, boolean legacy) {
         String ip;
 
         ip = "0.0.0.0";
@@ -123,7 +117,7 @@ public class ServerXml {
             connectorDisable(service, "Connector[starts-with(@protocol,'AJP')]");
             connectorEnable(service, HTTP_PATH, ip, host.httpPort(), host.httpsPort(), legacy);
             if (keyStore != null) {
-                sslConnector(stageDirectory, service, HTTPS_PATH, host.httpsPort(), ip, keyStore, legacy);
+                sslConnector(service, HTTPS_PATH, host.httpsPort(), ip, keyStore, legacy);
             } else {
                 connectorDisable(service, HTTPS_PATH);
             }
@@ -164,7 +158,7 @@ public class ServerXml {
     }
 
 
-    private void sslConnector(FileNode stageDirectory, Element service, String path, int port, String ip, KeyStore keystore, boolean legacy) throws XmlException {
+    private void sslConnector(Element service, String path, int port, String ip, KeyStore keystore, boolean legacy) throws XmlException {
         Element element;
 
         element = selector.elementOpt(service, path);
@@ -184,7 +178,7 @@ public class ServerXml {
         element.setAttribute("useBodyEncodingForURI", "true");
 
         element.setAttribute("keystorePass", keystore.password());
-        element.setAttribute("keystoreFile", toMount(stageDirectory, keystore.file()));
+        element.setAttribute("keystoreFile", "/usr/local/tomcat/conf/" + keystore.fileName());
         element.setAttribute("keystoreType", keystore.type());
 
         element.removeAttribute("SSLCertificateFile");

@@ -74,7 +74,6 @@ public class Tomcat {
         ServerXml serverXml;
         FileNode tomcat;
         FileNode serverXmlDest;
-        KeyStore keystore;
 
         cookies = CookieMode.valueOf(cookiesStr);
         tomcatTarGz = tomcatTarGz();
@@ -84,8 +83,7 @@ public class Tomcat {
 
         serverXml = ServerXml.load(serverXmlDest, session.configuration.hostname);
         serverXml.stripComments();
-        keystore = keystore();
-        serverXml.configure(ports, configuration.url, keystore, cookies, stage, legacyVersion(version));
+        serverXml.configure(ports, configuration.url, keystore(), cookies, legacyVersion(version));
         serverXml.save(serverXmlDest);
     }
 
@@ -162,8 +160,7 @@ public class Tomcat {
         } else {
             hostname = session.configuration.hostname;
         }
-        return KeyStore.create(session.configuration.certificates, hostname, stage.getBackstage().join("ssl"));
-
+        return KeyStore.create(session.configuration.certificates, hostname, stage.getBackstage().join("run/image/tomcat/ssl").mkdirsOpt());
     }
 
     //--

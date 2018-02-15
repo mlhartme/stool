@@ -61,8 +61,8 @@ public class KeyStore {
         }
     }
 
-    public String file() {
-        return file.getAbsolute();
+    public String fileName() {
+        return file.getName();
     }
 
     public String type() {

@@ -35,7 +35,8 @@ RUN set -x; \
     cd $CATALINA_HOME; \
     tar zxf /tmp/tomcat/tomcat.tar.gz --strip-components=1; \
     rm -rf $CATALINA_HOME/webapps; \
-    cp /tmp/tomcat/server.xml $CATALINA_HOME/conf/server.xml; \
+    cp /tmp/tomcat/server.xml $CATALINA_HOME/conf/; \
+    cp /tmp/tomcat/ssl/tomcat.jks $CATALINA_HOME/conf/; \
     rm -rf /tmp/tomcat
 
 
