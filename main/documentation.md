@@ -1271,20 +1271,14 @@ To upgrade from Stool versions before 3.4.0:
         |  |- locks       (holds all locking data)
         |  |- ports       (lists all allocated ports)
         |  '- sleep.json  (optional, holds sleeping stages)
-        |- downloads (caches Tomcat- and Service Wrapper downloads)
-        |- templates (for jars with Stool Templates)
-        |- logs
+        |- downloads      (caches Tomcat- and Service Wrapper downloads)
+        |- templates      (Docker templates)
+        |- logs           (Stool logs files)
         |  |- stool-YYmmDD.log(.gz)
         |  :
         |- system
         |  |- dashboard.properties (Dashboard configuration)
         |  |- dashboard (stage directory of the dashboard stage)
-        |  :
-        |- service-wrapper
-        |  |- wrapper-linux-x86-64-x.y.z (installed service wrapper)
-        |  :
-        |- tomcat
-        |  |- apache-tomcat-x.y.z (installed Tomcat)
         |  :
         |- shell.rc (to initialized the users interactive shell)
         |- bash.complete
@@ -1298,20 +1292,16 @@ To upgrade from Stool versions before 3.4.0:
         :  (normal project files)
         :
         '- .backstage
-          |- config.json (stage properties)
-          |- .m2 (Maven repository for this stage)
-          |- buildstats.json
-          |- ssl (generated certs)
-          |- run
-          |  |- creator
-          |  |- maintainer
-          |  :  (pid stuff for service wrappe)
-          |- service
-          |  |- service-wrapper.sh
-          |  '- service-wrapper.conf
-          '- tomcat (tomcat for this stage)
-             |- conf (standard tomcat directory with generated server.xml)
-             |- temp (standard tomcat directory)
-             |- work (standard tomcat directory)
-             '- logs
-                '- applogs (application log files for tomcat apps)
+          |- config.json      (stage configuration)
+          |- .m2              (Maven repository for this stage)
+          |- logs             (log file of running stage)
+          '- run
+             |- creator       (created when stage is created, tracks the Stage creator)
+             |- modified      (touched if Stool command modifies this stage)
+             |- image.log     (Docker's image build output) 
+             '- image         (context to build docker image)
+                  '- tomcat
+                       |- tomcat.tar.gz
+                       |- server.xml
+                       `- ssl
+                           '- tomcat.jks
