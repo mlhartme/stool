@@ -39,16 +39,18 @@ public class Variable {
         String name;
         Object dflt;
         Function<String, Object> parser;
+        String init;
 
         line = line.trim();
         if (!line.startsWith("#ENV")) {
             return null;
         }
         lst = Separator.SPACE.split(line.trim());
-        if (lst.size() != 3 && lst.size() != 4) {
+        if (lst.size() < 2) {
             throw new IOException("invalid env directive, expected '#ENV <type> <name> <default>?', got '" + line + "'");
         }
         type = lst.get(1);
+        init = Separator.SPACE.join(lst.subList(3, lst.size()));
         switch (type) {
             case "Integer":
                 parser = Integer::parseInt;
@@ -68,7 +70,7 @@ public class Variable {
         }
         name = lst.get(2);
         try {
-            dflt = parser.apply(lst.size() == 4 ? lst.get(3) : "");
+            dflt = parser.apply(init);
         } catch (RuntimeException e) {
             throw new ArgumentException(name + ": invalid default value", e);
         }

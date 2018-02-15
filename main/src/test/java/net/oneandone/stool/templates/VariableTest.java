@@ -22,5 +22,11 @@ public class VariableTest {
         v = Variable.scan("#ENV Boolean b true");
         assertEquals("b", v.name);
         assertEquals(true, v.dflt);
+        v = Variable.scan("#ENV String str");
+        assertEquals("str", v.name);
+        assertEquals("", v.dflt);
+        v = Variable.scan("#ENV String str a b c");
+        assertEquals("str", v.name);
+        assertEquals("a b c", v.dflt);
     }
 }
