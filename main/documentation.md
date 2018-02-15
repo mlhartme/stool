@@ -1305,3 +1305,15 @@ To upgrade from Stool versions before 3.4.0:
                        |- server.xml
                        `- ssl
                            '- tomcat.jks
+
+
+Normal project files for source stages are simply the respective SCM files, for artifact stages they are:
+
+     |- first-app
+     |   |- ROOT.war    (artifact was downloaded)
+     |   '– ROOT        (unpacked war, created by Tomcat)
+     :       :
+     |- second-app
+     :   |- ROOT.war
+         `- ROOT
+             :
