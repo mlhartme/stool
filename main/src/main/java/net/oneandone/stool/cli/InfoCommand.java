@@ -20,6 +20,7 @@ import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.templates.StatusHelper;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
@@ -116,8 +117,6 @@ public abstract class InfoCommand extends StageCommand {
     public static Map<Info, Object> status(Session session, Stage stage) throws IOException {
         Map<Info, Object> result;
         Ports ports;
-        List<String> jmx;
-        String url;
         Stage.State state;
 
         result = new HashMap<>();
@@ -150,59 +149,11 @@ public abstract class InfoCommand extends StageCommand {
         result.put(Field.APPS, stage.namedUrls());
         ports = stage.loadPortsOpt();
         result.put(Field.OTHER, other(stage, ports));
-        jmx = new ArrayList<>();
-        if (ports != null) {
-            url = stage.session.configuration.hostname + ":" + ports.jmx();
-            jmx.add("jconsole " + url);
-            jmx.add("jvisualvm --openjmx " + url);
-        }
-        result.put(Field.JMX, jmx);
-        result.put(Field.HEAP, jmxHeap(stage, state, ports));
+        StatusHelper.add(stage, state, ports, result);
         for (Property property: session.properties().values()) {
             result.put(property, property.get(stage.config()));
         }
         return result;
-    }
-
-    private static String jmxHeap(Stage stage, Stage.State state, Ports ports) {
-        JMXServiceURL url;
-        MBeanServerConnection connection;
-        ObjectName name;
-        CompositeData result;
-        long used;
-        long max;
-
-        if (state != Stage.State.UP) {
-            return "";
-        }
-        if (ports == null) {
-            return "[missing jmx port]"; // I've seen this happen on stages
-        }
-        // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-        try {
-            url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + stage.session.configuration.hostname + ":" + ports.jmx() + "/jmxrmi");
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
-        }
-        try {
-            connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
-        } catch (IOException e) {
-            e.printStackTrace(stage.session.console.verbose);
-            return "[cannot connect jmx server: " + e.getMessage() + "]";
-        }
-        try {
-            name = new ObjectName("java.lang:type=Memory");
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalStateException(e);
-        }
-        try {
-            result = (CompositeData) connection.getAttribute(name, "HeapMemoryUsage");
-        } catch (Exception e) {
-            return "[cannot get jmx attribute: " + e.getMessage() + "]";
-        }
-        used = (Long) result.get("used");
-        max = (Long) result.get("max");
-        return Float.toString(((float) (used * 1000 / max)) / 10);
     }
 
     private static String userName(Session session, String login) {
