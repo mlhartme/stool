@@ -257,6 +257,8 @@ public class Engine {
         body.add("HostConfig", hostConfig);
         if (memory != null) {
             hostConfig.add("Memory", new JsonPrimitive(memory));
+            // unlimited; important, because debian stretch kernal does not support this
+            hostConfig.add("MemorySwap", new JsonPrimitive(-1));
         }
         binds = new JsonArray();
         hostConfig.add("Binds", binds);
