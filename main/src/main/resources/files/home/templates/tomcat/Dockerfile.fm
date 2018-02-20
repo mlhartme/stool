@@ -5,7 +5,6 @@ FROM debian:stretch-slim
 #ENV Boolean debug false
 #ENV Boolean suspend false
 
-
 # prepare context
 
 RUN echo ${tomcat.download(r"https://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz", version)}
@@ -13,6 +12,11 @@ RUN echo ${tomcat.serverXml(version, "STRICT")}
 
 
 # real docker commands
+
+# internal debian mirrors - avoids proxy problems on pearls/gems
+# TODO: move into ciso-tomcat template
+RUN echo "deb http://reposrv.loc.lan/repository/debian/debian.org/debian stretch main\ndeb http://debian.reposrv.server.lan/debian-security stretch/updates main\ndeb http://reposrv.loc.lan/repository/debian/debian.org/debian stretch-updates main" > /etc/apt/sources.list; \
+	apt-get update
 
 # make sure we get UTF-8 file.encoding
 ENV LANG C.UTF-8
@@ -25,7 +29,7 @@ RUN set -x; \
 	if [ ! -d /usr/share/man/man1 ]; then \
 		mkdir -p /usr/share/man/man1; \
 	fi; \
-	apt-get update && apt-get install -y --no-install-recommends ca-certificates curl wget procps bzip2 unzip xz-utils gpg openjdk-8-jre="$JAVA_DEBIAN_VERSION" && rm -rf /var/lib/apt/lists/*
+	apt-get install -y --no-install-recommends ca-certificates curl wget procps bzip2 unzip xz-utils gpg openjdk-8-jre="$JAVA_DEBIAN_VERSION" && rm -rf /var/lib/apt/lists/*
 
 COPY tomcat /tmp/tomcat
 ENV CATALINA_OPTS ${tomcat.catalinaOpts(opts, debug, suspend)}
