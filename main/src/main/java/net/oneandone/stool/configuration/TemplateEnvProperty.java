@@ -26,12 +26,12 @@ import java.util.Map;
 public class TemplateEnvProperty extends Property {
     private static final String PREFIX = "template.";
 
-    private final FileNode home;
+    private final FileNode templates;
     private final String subname;
 
-    public TemplateEnvProperty(String name, FileNode home, String subname) {
+    public TemplateEnvProperty(String name, FileNode templates, String subname) {
         super(name);
-        this.home = home;
+        this.templates = templates;
         this.subname = subname;
     }
 
@@ -49,7 +49,7 @@ public class TemplateEnvProperty extends Property {
         Variable variable;
 
         config = (StageConfiguration) configuration;
-        src = home.join("templates").join(config.template);
+        src = templates.join(config.template);
         if (!src.isDirectory()) {
             throw new ArgumentException("cannot set template variable '" + subname + "': template '" + config.template + "' is undefined");
         }
