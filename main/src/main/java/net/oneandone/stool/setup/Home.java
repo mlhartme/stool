@@ -81,10 +81,10 @@ public class Home {
         }
         conf.save(gson, dir);
         conf.downloadCache.mkdirOpt();
+        conf.templates.mkdirOpt();
         for (String name : new String[]{"backstages", "logs", "run", "system"}) {
             dir.join(name).mkdir();
         }
-        Autoconf.templates(dir.join("templates"), console);
         versionFile().writeString(Main.versionString(world));
         dir.join("run/locks").mkfile();
     }

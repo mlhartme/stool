@@ -469,7 +469,7 @@ public abstract class Stage {
         configuration = new Configuration(Configuration.VERSION_2_3_26);
         configuration.setDefaultEncoding("UTF-8");
 
-        src = session.home.join("templates").join(config().template);
+        src = session.configuration.templates.join(config().template);
         dest = backstage.join("run/image");
         dest.deleteTreeOpt();
         dest.mkdir();

@@ -33,11 +33,11 @@ import java.util.Map;
 
 /** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
 public class TemplateProperty extends Property {
-    private final FileNode home;
+    private final FileNode templates;
 
-    public TemplateProperty(String name, FileNode home) {
+    public TemplateProperty(String name, FileNode templates) {
         super(name);
-        this.home = home;
+        this.templates = templates;
     }
 
     protected String doGet(Object configuration) {
@@ -53,7 +53,7 @@ public class TemplateProperty extends Property {
             // no changes
             return;
         }
-        src = home.join("templates").join(template);
+        src = templates.join(template);
         if (!src.isDirectory()) {
             throw new ArgumentException("no such template: " + template);
         }

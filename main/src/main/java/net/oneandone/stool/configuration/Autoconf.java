@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.configuration;
 
-import net.oneandone.inline.Console;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -35,36 +34,11 @@ public class Autoconf {
     public static StoolConfiguration stool(Environment environment, FileNode home) throws IOException {
         StoolConfiguration result;
 
-        result = new StoolConfiguration(downloadCache(home));
+        result = new StoolConfiguration(downloadCache(home), templates(environment, home));
         result.hostname = hostname();
         result.search = search(home.getWorld());
         oneAndOne(environment, result);
         return result;
-    }
-
-    public static boolean templates(FileNode dest, Console console) throws IOException {
-        FileNode src;
-        FileNode destDir;
-
-        src = dest.getWorld().getHome().join("Projects/puppet-repo.server.lan/ciso/puppet4/environments/modules/stool/templates/stool-templates");
-        if (src.exists()) {
-            for (FileNode srcDir : src.list()) {
-                if (srcDir.getName().startsWith(".")) {
-                    continue;
-                }
-                if (srcDir.isFile()) {
-                    console.info.println("skipping file: " + srcDir);
-                    continue;
-                }
-                console.info.println("custom template: " + srcDir.getName());
-                destDir = dest.join(srcDir.getName());
-                destDir.mkdir();
-                srcDir.copyDirectory(destDir);
-            }
-            return true;
-        } else {
-            return false;
-        }
     }
 
     private static void oneAndOne(Environment environment, StoolConfiguration dest) {
@@ -145,6 +119,20 @@ public class Autoconf {
             }
         }
         return home.join("downloads");
+    }
+
+    private static FileNode templates(Environment environment, FileNode home) {
+        String tools;
+        FileNode dir;
+
+        tools = oneAndOneTools(environment);
+        if (tools != null) {
+            dir = home.getWorld().file(tools).join("stool/templates");
+            if (dir.isDirectory()) {
+                return dir;
+            }
+        }
+        return home.join("templates");
     }
 
     private static String hostname() throws UnknownHostException {

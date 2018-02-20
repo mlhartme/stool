@@ -113,12 +113,13 @@ public class StoolConfiguration {
     public int autoRemove;
 
     public FileNode downloadCache;
+    public FileNode templates;
 
     public String search;
 
     public int quota;
 
-    public StoolConfiguration(FileNode downloadCache) {
+    public StoolConfiguration(FileNode downloadCache, FileNode templates) {
         portFirst = 9000;
         portLast = 9999;
         baseMemory = 400;
@@ -140,6 +141,7 @@ public class StoolConfiguration {
         mailPassword = "";
         certificates = "";
         this.downloadCache = downloadCache;
+        this.templates = templates;
         this.search = "";
         this.quota = 0;
     }

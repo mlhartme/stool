@@ -45,7 +45,7 @@ public class StatusHelper {
         Object object;
 
         helper = new StatusHelper(stage, state, ports);
-        status = scanTemplate(stage.session.home.join("templates", stage.config().template));
+        status = scanTemplate(stage.session.configuration.templates.join(stage.config().template));
         for (Map.Entry<String, String> entry : status.entrySet()) {
             method = entry.getValue();
             try {

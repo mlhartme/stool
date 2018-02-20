@@ -195,7 +195,7 @@ public class Session {
                 option = field.getAnnotation(Option.class);
                 if (option != null) {
                     if (option.key().equals("template")) {
-                        lazyProperties.put(option.key(), new TemplateProperty(option.key(), home));
+                        lazyProperties.put(option.key(), new TemplateProperty(option.key(), configuration.templates));
                     } else {
                         lazyProperties.put(option.key(), new ReflectProperty(option.key(), field));
                     }
