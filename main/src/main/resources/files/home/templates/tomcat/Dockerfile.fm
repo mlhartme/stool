@@ -5,13 +5,17 @@ FROM debian:stretch-slim
 #ENV Boolean debug false
 #ENV Boolean suspend false
 
+
+#
 # prepare context
+#
 
-RUN echo ${tomcat.download(r"https://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz", version)}
-RUN echo ${tomcat.serverXml(version, "STRICT")}
+# ${tomcat.download(r"https://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz", version)}
+# ${tomcat.serverXml(version, "STRICT")}
 
-
+#
 # real docker commands
+#
 
 # make sure we get UTF-8 file.encoding
 ENV LANG C.UTF-8
