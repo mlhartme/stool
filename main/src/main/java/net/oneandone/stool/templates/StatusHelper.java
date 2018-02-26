@@ -60,12 +60,7 @@ public class StatusHelper {
             } catch (InvocationTargetException e) {
                 throw new IOException("cannot invoke method: " + e.getMessage(), e);
             }
-            result.put(new Info() {
-                @Override
-                public String infoName() {
-                    return entry.getKey();
-                }
-            }, object);
+            result.put(() -> entry.getKey(), object);
         }
     }
 
@@ -93,7 +88,7 @@ public class StatusHelper {
         }
         lst = Separator.SPACE.split(line.trim());
         if (lst.size() != 3) {
-            throw new IOException("invalid env directive, expected '#STATUS <name> <method>', got '" + line + "'");
+            throw new IOException("invalid status directive, expected '#STATUS <name> <method>', got '" + line + "'");
         }
         result.put(lst.get(1), lst.get(2));
     }

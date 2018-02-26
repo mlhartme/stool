@@ -61,7 +61,7 @@ public class Config extends StageCommand {
         try {
             property = all.get(key);
             if (property == null) {
-                property = TemplateEnvProperty.createOpt(session.home, key);
+                property = TemplateEnvProperty.createOpt(session.configuration.templates, key);
                 if (property == null) {
                     throw new ArgumentException("unknown property: " + key);
                 }

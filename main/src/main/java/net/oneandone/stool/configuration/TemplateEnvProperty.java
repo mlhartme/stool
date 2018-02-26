@@ -70,10 +70,10 @@ public class TemplateEnvProperty extends Property {
         config.templateEnv.put(subname, value);
     }
 
-    public static Property createOpt(FileNode home, String name) {
+    public static Property createOpt(FileNode templates, String name) {
         if (!name.startsWith(PREFIX)) {
             return null;
         }
-        return new TemplateEnvProperty(name, home, name.substring(PREFIX.length()));
+        return new TemplateEnvProperty(name, templates, name.substring(PREFIX.length()));
     }
 }
