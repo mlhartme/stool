@@ -1,9 +1,9 @@
 FROM debian:stretch-slim
 
-#ENV String version 9.0.5
-#ENV String opts
-#ENV Boolean debug false
-#ENV Boolean suspend false
+#CONFIG String version 9.0.5
+#CONFIG String opts
+#CONFIG Boolean debug false
+#CONFIG Boolean suspend false
 
 
 #

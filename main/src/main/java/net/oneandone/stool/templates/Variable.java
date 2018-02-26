@@ -42,12 +42,12 @@ public class Variable {
         String init;
 
         line = line.trim();
-        if (!line.startsWith("#ENV")) {
+        if (!line.startsWith("#CONFIG")) {
             return null;
         }
         lst = Separator.SPACE.split(line.trim());
         if (lst.size() < 2) {
-            throw new IOException("invalid env directive, expected '#ENV <type> <name> <default>?', got '" + line + "'");
+            throw new IOException("invalid configuration directive, expected '#CONFIG <type> <name> <default>?', got '" + line + "'");
         }
         type = lst.get(1);
         init = Separator.SPACE.join(lst.subList(3, lst.size()));

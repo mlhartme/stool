@@ -19,7 +19,7 @@
   * renamed $HOME/extensions directory to $HOME/templates
   * renamed pustefix to tomcat; merged fault into it
   * dumped logstash, it was never used, and we'll have filebeat instead
-  * added `template.env` property pass configuration into templates (declared via `#ENV <type> <name>`)
+  * added `template.env` property pass configuration into templates (declared via `#CONFIG <type> <name>`)
 * no longer distinguish CATALINA_HOME and CATALINA_BASE
 * config cleanup
   * removed deprecated @owner and @maintainer contact shortcuts

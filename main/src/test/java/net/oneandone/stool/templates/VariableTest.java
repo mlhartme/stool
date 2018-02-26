@@ -13,19 +13,19 @@ public class VariableTest {
         Variable v;
 
         assertNull(Variable.scan("# foo"));
-        v = Variable.scan("#ENV Integer a 7");
+        v = Variable.scan("#CONFIG Integer a 7");
         assertEquals("a", v.name);
         assertEquals(7, v.dflt);
-        v = Variable.scan("#ENV Boolean b false");
+        v = Variable.scan("#CONFIG Boolean b false");
         assertEquals("b", v.name);
         assertEquals(false, v.dflt);
-        v = Variable.scan("#ENV Boolean b true");
+        v = Variable.scan("#CONFIG Boolean b true");
         assertEquals("b", v.name);
         assertEquals(true, v.dflt);
-        v = Variable.scan("#ENV String str");
+        v = Variable.scan("#CONFIG String str");
         assertEquals("str", v.name);
         assertEquals("", v.dflt);
-        v = Variable.scan("#ENV String str a b c");
+        v = Variable.scan("#CONFIG String str a b c");
         assertEquals("str", v.name);
         assertEquals("a b c", v.dflt);
     }
