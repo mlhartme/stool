@@ -25,23 +25,23 @@ import java.util.Map;
 /** Field or Property */
 public interface Info {
     static Info get(Map<String, Property> properties, String str) {
-        Property p;
+        Info result;
         List<String> lst;
 
-        try {
-            return Field.valueOf(str.toUpperCase());
-        } catch (IllegalArgumentException e) {
-            p = properties.get(str);
-            if (p == null) {
-                lst = new ArrayList<>();
-                for (Field f : Field.values()) {
-                    lst.add(f.name().toLowerCase());
-                }
-                lst.addAll(properties.keySet());
-                throw new ArgumentException(str + ": no such status field or property, choose one of " + lst);
-            }
-            return p;
+        result = Field.valueOfOpt(str);
+        if (result != null) {
+            return result;
         }
+        result = properties.get(str);
+        if (result != null) {
+            return result;
+        }
+        lst = new ArrayList<>();
+        for (Field f : Field.values()) {
+            lst.add(f.name);
+        }
+        lst.addAll(properties.keySet());
+        throw new ArgumentException(str + ": no such status field or property, choose one of " + lst);
     }
 
     String infoName();

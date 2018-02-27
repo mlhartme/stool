@@ -447,17 +447,20 @@ public abstract class Stage {
 
     public Info[] fieldsAndName() throws IOException {
         List<String> templateFields;
-        Field[] fields;
+        List<Field> fields;
         Info[] result;
         int i;
 
         fields = Field.values();
         templateFields = new ArrayList<>(StatusHelper.scanTemplate(session.configuration.templates.join(configuration.template)).keySet());
         Collections.sort(templateFields);
-        result = new Info[1 + fields.length + templateFields.size()];
+        result = new Info[1 + fields.size() + templateFields.size()];
         result[0] = session.property("name");
-        System.arraycopy(fields, 0, result, 1, fields.length);
-        i = 1 + fields.length;
+        i = 1;
+        for (Field f : fields) {
+            result[i] = f;
+            i++;
+        }
         for (String tf : templateFields) {
             result[i] = () -> tf;
             i++;

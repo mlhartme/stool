@@ -318,7 +318,7 @@ public abstract class StageCommand extends SessionCommand {
             name = string.substring(0, idx);
         }
         try {
-            field = Field.valueOf(name.toUpperCase());
+            field = Field.valueOfOpt(name);
             property = null;
         } catch (IllegalArgumentException e) {
             field = null;
