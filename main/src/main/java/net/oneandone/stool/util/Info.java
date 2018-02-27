@@ -17,6 +17,7 @@ package net.oneandone.stool.util;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.configuration.Property;
+import net.oneandone.stool.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +25,11 @@ import java.util.Map;
 
 /** Field or Property */
 public interface Info {
-    static Info get(Map<String, Property> properties, String str) {
+    static Info get(Stage stage, Map<String, Property> properties, String str) {
         Info result;
         List<String> lst;
 
-        result = Field.valueOfOpt(str);
+        result = stage.fieldOpt(str);
         if (result != null) {
             return result;
         }
@@ -37,7 +38,7 @@ public interface Info {
             return result;
         }
         lst = new ArrayList<>();
-        for (Field f : Field.values()) {
+        for (Field f : stage.fields()) {
             lst.add(f.name);
         }
         lst.addAll(properties.keySet());

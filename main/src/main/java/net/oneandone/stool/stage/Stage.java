@@ -451,7 +451,7 @@ public abstract class Stage {
         Info[] result;
         int i;
 
-        fields = Field.values();
+        fields = fields();
         templateFields = new ArrayList<>(StatusHelper.scanTemplate(session.configuration.templates.join(configuration.template)).keySet());
         Collections.sort(templateFields);
         result = new Info[1 + fields.size() + templateFields.size()];
@@ -1008,4 +1008,44 @@ public abstract class Stage {
                     "Consider running 'stool cleanup'.");
         }
     }
+
+    //--
+
+    public List<Field> fields() {
+        List<Field> fields;
+
+        fields = new ArrayList<>();
+        fields.add(Field.ID);
+        fields.add(Field.SELECTED);
+        fields.add(Field.DIRECTORY);
+        fields.add(Field.BACKSTAGE);
+        fields.add(Field.URL);
+        fields.add(Field.TYPE);
+        fields.add(Field.CREATOR);
+        fields.add(Field.CREATED);
+        fields.add(Field.BUILDTIME);
+        fields.add(Field.LAST_MODIFIED_BY);
+        fields.add(Field.LAST_MODIFIED_AT);
+        fields.add(Field.DISK);
+        fields.add(Field.STATE);
+        fields.add(Field.UPTIME);
+        fields.add(Field.CPU);
+        fields.add(Field.MEM);
+        fields.add(Field.CONTAINER);
+        fields.add(Field.DEBUGGER);
+        fields.add(Field.SUSPEND);
+        fields.add(Field.APPS);
+        fields.add(Field.OTHER);
+        return fields;
+    }
+
+    public Field fieldOpt(String str) {
+        for (Field f : fields()) {
+            if (str.equals(f.name)) {
+                return f;
+            }
+        }
+        return null;
+    }
+
 }

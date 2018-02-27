@@ -235,7 +235,7 @@ public abstract class StageCommand extends SessionCommand {
     //--
 
     /* Note that the stage is not locked when this method is called. */
-    public void doAfter() throws Exception {
+    public void doAfter() throws IOException {
     }
 
     public enum Fail {
@@ -245,22 +245,25 @@ public abstract class StageCommand extends SessionCommand {
 
     //--
 
-    private Predicate or(Map<String, Property> properties, String string) {
-        final List<Predicate> ops;
+    private Predicate or( Map<String, Property> properties, String string) {
+        List<String> args;
 
-        ops = new ArrayList<>();
-        for (String op : Separator.COMMA.split(string)) {
-            ops.add(and(properties, op));
-        }
+        args = Separator.COMMA.split(string);
         return new Predicate() {
             @Override
             public boolean matches(Stage stage) throws IOException {
-                for (Predicate op : ops) {
-                    if (op.matches(stage)) {
-                        return true;
-                    }
+            final List<Predicate> ops;
+
+            ops = new ArrayList<>();
+            for (String op : args) {
+                ops.add(and(properties, op));
+            }
+            for (Predicate op : ops) {
+                if (op.matches(stage)) {
+                    return true;
                 }
-                return false;
+            }
+            return false;
             }
         };
     }
@@ -268,27 +271,30 @@ public abstract class StageCommand extends SessionCommand {
     private static final Separator AND = Separator.on('+');
 
     private Predicate and(Map<String, Property> properties, String string) {
-        final List<Predicate> ops;
+        List<String> splitOps;
 
-        ops = new ArrayList<>();
-        for (String op : AND.split(string)) {
-            ops.add(compare(properties, op));
-        }
+        splitOps = AND.split(string);
         return new Predicate() {
             @Override
             public boolean matches(Stage stage) throws IOException {
-                for (Predicate op : ops) {
-                    if (!op.matches(stage)) {
-                        return false;
-                    }
+            final List<Predicate> ops;
+
+            ops = new ArrayList<>();
+            for (String op : splitOps) {
+                ops.add(compare(stage, properties, op));
+            }
+            for (Predicate op : ops) {
+                if (!op.matches(stage)) {
+                    return false;
                 }
-                return true;
+            }
+            return true;
             }
         };
     }
 
 
-    private Predicate compare(final Map<String, Property> properties, final String string) {
+    private Predicate compare(Stage stage, final Map<String, Property> properties, final String string) {
         int idx;
         String name;
         final boolean eq;
@@ -317,11 +323,10 @@ public abstract class StageCommand extends SessionCommand {
             eq = true;
             name = string.substring(0, idx);
         }
-        try {
-            field = Field.valueOfOpt(name);
+        field = stage.fieldOpt(name);
+        if (field != null) {
             property = null;
-        } catch (IllegalArgumentException e) {
-            field = null;
+        } else {
             property = name;
         }
         constField = field;

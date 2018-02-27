@@ -15,12 +15,7 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.stage.Stage;
-
-import java.util.List;
-import java.util.ArrayList;
-
-/** The computable value representing an aspect of the stage status. That this enum is only the status part, there are also dynamic fields defined in the template */
+/** The computable value representing an aspect of the stage status. */
 public class Field implements Info {
     public static final Field ID = new Field("id");
     public static final Field SELECTED = new Field("selected");
@@ -43,45 +38,6 @@ public class Field implements Info {
     public static final Field SUSPEND = new Field("suspend");
     public static final Field APPS = new Field("apps");
     public static final Field OTHER = new Field("other");
-
-    // TODO
-    public static List<Field> values() {
-        List<Field> fields;
-
-        fields = new ArrayList<>();
-        fields.add(ID);
-        fields.add(SELECTED);
-        fields.add(DIRECTORY);
-        fields.add(BACKSTAGE);
-        fields.add(URL);
-        fields.add(TYPE);
-        fields.add(CREATOR);
-        fields.add(CREATED);
-        fields.add(BUILDTIME);
-        fields.add(LAST_MODIFIED_BY);
-        fields.add(LAST_MODIFIED_AT);
-        fields.add(DISK);
-        fields.add(STATE);
-        fields.add(UPTIME);
-        fields.add(CPU);
-        fields.add(MEM);
-        fields.add(CONTAINER);
-        fields.add(DEBUGGER);
-        fields.add(SUSPEND);
-        fields.add(APPS);
-        fields.add(OTHER);
-        return fields;
-    }
-
-    // TODO
-    public static Field valueOfOpt(String str) {
-        for (Field f : values()) {
-            if (str.equals(f.name)) {
-                return f;
-            }
-        }
-        return null;
-    }
 
     //--
 

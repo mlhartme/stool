@@ -60,15 +60,15 @@ public abstract class InfoCommand extends StageCommand {
         this.defaults = defaults;
     }
 
-    public void field(String str) {
-        selected.add(get(str));
+    public void field(Stage stage, String str) {
+        selected.add(get(stage, str));
     }
 
-    private Info get(String str) {
-        return Info.get(session.properties(), str);
+    private Info get(Stage stage, String str) {
+        return Info.get(stage, session.properties(), str);
     }
 
-    protected List<Info> defaults(Info ... systemDefaults) {
+    protected List<Info> defaults(Stage stage, Info ... systemDefaults) {
         List<Info> result;
 
         if (defaults.isEmpty()) {
@@ -76,7 +76,7 @@ public abstract class InfoCommand extends StageCommand {
         }
         result = new ArrayList<>();
         for (String name : Separator.COMMA.split(defaults)) {
-            result.add(get(name));
+            result.add(get(stage, name));
         }
         return result;
     }
