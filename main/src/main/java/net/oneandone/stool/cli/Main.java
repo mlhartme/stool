@@ -96,14 +96,14 @@ public class Main {
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -details=@history.details:false -max=@history.max:50");
-                      cli.add(Ls.class, "list -defaults=@list.defaults field* { field*(field) }");
+                      cli.add(Ls.class, "list -defaults=@list.defaults info* { select*(info) }");
                       cli.add(Move.class, "move dest");
                       cli.add(Port.class, "port port { port*(port) }");
                       cli.add(Refresh.class, "refresh -build=@refresh.build -restore");
                       cli.add(Remove.class, "remove -batch -force -backstage { setBackstage(backstage) }");
                       cli.add(Restart.class, "restart");
                       cli.add(Start.class, "start -tail");
-                      cli.add(Status.class, "status -defaults=@status.defaults field* { field*(field) }");
+                      cli.add(Status.class, "status -defaults=@status.defaults info* { select*(info) }");
                       cli.add(Stop.class, "stop -sleep");
                       cli.add(Validate.class, "validate -email -repair");
 

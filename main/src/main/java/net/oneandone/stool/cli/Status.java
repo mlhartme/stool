@@ -21,6 +21,7 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,10 @@ public class Status extends InfoCommand {
         String value;
 
         status = status(session, stage);
-        infos = selected.isEmpty() ? defaults(stage, stage.fieldsAndName()) : selected;
+        infos = new ArrayList<>();
+        for (String name : selected.isEmpty() ? defaults(stage.fieldsAndName()) : selected) {
+            infos.add(Info.get(stage, stage.session.properties(), name));
+        }
         width = 0;
         for (Info info : infos) {
             width = Math.max(width, info.infoName().length());

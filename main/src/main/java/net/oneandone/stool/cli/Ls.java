@@ -39,14 +39,14 @@ public class Ls extends InfoCommand {
         List<String> line;
 
         if (selected.isEmpty()) {
-            selected.addAll(defaults(stages.get(0) /* TODO */, session.property("name"), Field.STATE, Field.LAST_MODIFIED_BY, Field.URL, Field.DIRECTORY));
+            selected.addAll(defaults(session.property("name"), Field.STATE, Field.LAST_MODIFIED_BY, Field.URL, Field.DIRECTORY));
         }
         header("stages");
 
         line = new ArrayList<>();
         lines.add(line);
-        for (Info info : selected) {
-            line.add('(' + info.infoName() + ')');
+        for (String infoName : selected) {
+            line.add('(' + infoName + ')');
         }
         return true;
     }
@@ -54,13 +54,15 @@ public class Ls extends InfoCommand {
     @Override
     public void doMain(Stage stage) throws Exception {
         List<String> line;
+        Info info;
         Map<Info, Object> status;
 
         status = Status.status(session, stage);
         line = new ArrayList<>();
         lines.add(line);
-        for (Info info : selected) {
-            line.add(Status.toString(status.get(info)).replace("\t", " "));
+        for (String infoName : selected) {
+            info = Info.get(stage, stage.session.properties(), infoName);
+            line.add(toString(status.get(info)).replace("\t", " "));
         }
     }
 

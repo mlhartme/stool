@@ -47,7 +47,7 @@ import java.util.Map;
 
 public abstract class InfoCommand extends StageCommand {
 
-    protected final List<Info> selected = new ArrayList<>();
+    protected final List<String> selected = new ArrayList<>();
 
     private final String defaults;
 
@@ -60,23 +60,20 @@ public abstract class InfoCommand extends StageCommand {
         this.defaults = defaults;
     }
 
-    public void field(Stage stage, String str) {
-        selected.add(get(stage, str));
+    public void select(String str) {
+        selected.add(str);
     }
 
-    private Info get(Stage stage, String str) {
-        return Info.get(stage, session.properties(), str);
-    }
+    protected List<String> defaults(Info ... systemDefaults) {
+        List<String> result;
 
-    protected List<Info> defaults(Stage stage, Info ... systemDefaults) {
-        List<Info> result;
-
-        if (defaults.isEmpty()) {
-            return Arrays.asList(systemDefaults);
-        }
         result = new ArrayList<>();
-        for (String name : Separator.COMMA.split(defaults)) {
-            result.add(get(stage, name));
+        if (defaults.isEmpty()) {
+            for (Info info : systemDefaults) {
+                result.add(info.infoName());
+            }
+        } else {
+            result.addAll(Separator.COMMA.split(defaults));
         }
         return result;
     }
