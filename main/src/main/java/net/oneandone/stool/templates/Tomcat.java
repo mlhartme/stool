@@ -107,6 +107,7 @@ public class Tomcat {
         opts.add("-Dcom.sun.management.jmxremote.authenticate=false");
         opts.add("-Dcom.sun.management.jmxremote.port=" + ports.jmx());
         opts.add("-Dcom.sun.management.jmxremote.rmi.port=" + ports.jmx());
+        opts.add("-Djava.rmi.server.hostname=" + session.configuration.hostname); // needed for jmx access - see https://forums.docker.com/t/enable-jmx-rmi-access-to-a-docker-container/625/2
         opts.add("-Dcom.sun.management.jmxremote.ssl=false");
 
         if (debug || suspend) {
