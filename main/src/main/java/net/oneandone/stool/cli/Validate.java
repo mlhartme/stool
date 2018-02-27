@@ -186,6 +186,10 @@ public class Validate extends StageCommand {
         status = session.dockerEngine().containerStatus(container);
         if (status != Status.RUNNING) {
             report.admin(stage, container + ": container is not running: " + status);
+            if (repair) {
+                stage.dockerContainerFile().deleteFile();
+                report.admin(stage, "repaired by deleting " + stage.dockerContainerFile());
+            }
         }
     }
 

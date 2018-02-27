@@ -443,7 +443,7 @@ public abstract class Stage {
         return current;
     }
 
-    private FileNode dockerContainerFile() {
+    public FileNode dockerContainerFile() {
         return backstage.join("run/container");
     }
 
