@@ -65,6 +65,7 @@ public class StatusHelper {
     }
 
 
+    /** @return name- to method name map */
     public static Map<String, String> scanTemplate(FileNode directory) throws IOException {
         FileNode file;
         Map<String, String> result;

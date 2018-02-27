@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.util;
 
+/** The computable value representing an aspect of the stage status. That this enum is only the status part, there are also dynamic fields defined in the template */
 public enum Field implements Info {
     ID, SELECTED, DIRECTORY, BACKSTAGE, URL, TYPE, CREATOR, CREATED, BUILDTIME, LAST_MODIFIED_BY, LAST_MODIFIED_AT,
     DISK, STATE, UPTIME, CPU, MEM, CONTAINER, DEBUGGER, SUSPEND, APPS, OTHER;

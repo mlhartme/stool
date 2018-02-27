@@ -624,17 +624,6 @@ public class Session {
         return properties().get(name);
     }
 
-    public Info[] fieldsAndName() {
-        Field[] fields;
-        Info[] result;
-
-        fields = Field.values();
-        result = new Info[fields.length + 1];
-        System.arraycopy(fields, 0, result, 1, fields.length);
-        result[0] = property("name");
-        return result;
-    }
-
     public int quotaReserved() throws IOException {
         int reserved;
         StageConfiguration config;

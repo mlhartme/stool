@@ -27,15 +27,16 @@ import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.artifact.Changes;
+import net.oneandone.stool.templates.StatusHelper;
 import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.templates.Variable;
+import net.oneandone.stool.util.Field;
+import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
-import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.Node;
-import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiWriter;
@@ -67,6 +68,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -441,6 +443,26 @@ public abstract class Stage {
             current = current.getParent();
         }
         return current;
+    }
+
+    public Info[] fieldsAndName() throws IOException {
+        List<String> templateFields;
+        Field[] fields;
+        Info[] result;
+        int i;
+
+        fields = Field.values();
+        templateFields = new ArrayList<>(StatusHelper.scanTemplate(session.configuration.templates.join(configuration.template)).keySet());
+        Collections.sort(templateFields);
+        result = new Info[1 + fields.length + templateFields.size()];
+        result[0] = session.property("name");
+        System.arraycopy(fields, 0, result, 1, fields.length);
+        i = 1 + fields.length;
+        for (String tf : templateFields) {
+            result[i] = () -> tf;
+            i++;
+        }
+        return result;
     }
 
     public FileNode dockerContainerFile() {

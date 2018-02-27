@@ -40,7 +40,7 @@ public class Status extends InfoCommand {
         String value;
 
         status = status(session, stage);
-        infos = selected.isEmpty() ? defaults(session.fieldsAndName()) : selected;
+        infos = selected.isEmpty() ? defaults(stage.fieldsAndName()) : selected;
         width = 0;
         for (Info info : infos) {
             width = Math.max(width, info.infoName().length());
