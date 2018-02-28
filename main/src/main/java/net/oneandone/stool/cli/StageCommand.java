@@ -252,13 +252,10 @@ public abstract class StageCommand extends SessionCommand {
         return new Predicate() {
             @Override
             public boolean matches(Stage stage) throws IOException {
-            final List<Predicate> ops;
+            Predicate op;
 
-            ops = new ArrayList<>();
-            for (String op : args) {
-                ops.add(and(properties, op));
-            }
-            for (Predicate op : ops) {
+            for (String arg : args) {
+                op = and(properties, arg);
                 if (op.matches(stage)) {
                     return true;
                 }
@@ -271,19 +268,16 @@ public abstract class StageCommand extends SessionCommand {
     private static final Separator AND = Separator.on('+');
 
     private Predicate and(Map<String, Property> properties, String string) {
-        List<String> splitOps;
+        List<String> args;
 
-        splitOps = AND.split(string);
+        args = AND.split(string);
         return new Predicate() {
             @Override
             public boolean matches(Stage stage) throws IOException {
-            final List<Predicate> ops;
+            Predicate op;
 
-            ops = new ArrayList<>();
-            for (String op : splitOps) {
-                ops.add(compare(stage, properties, op));
-            }
-            for (Predicate op : ops) {
+            for (String arg : args) {
+                op = compare(stage, properties, arg);
                 if (!op.matches(stage)) {
                     return false;
                 }
