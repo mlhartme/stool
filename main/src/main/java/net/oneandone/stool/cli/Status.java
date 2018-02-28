@@ -48,7 +48,7 @@ public class Status extends InfoCommand {
         }
         infos = new ArrayList<>();
         for (String name : selected) {
-            infos.add(Info.get(stage, stage.session.properties(), name));
+            infos.add(stage.info(name));
         }
         width = 0;
         for (Info info : infos) {

@@ -23,6 +23,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.InfoCommand;
 import net.oneandone.stool.cli.Main;
+import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
@@ -1080,7 +1081,7 @@ public abstract class Stage {
                 String container;
 
                 container = Stage.this.dockerContainer();
-                return container == null ? null : Stage.this.session.dockerEngine().containerStartedAt(container);
+                return container == null ? null : timespan(Stage.this.session.dockerEngine().containerStartedAt(container));
             }
         });
         fields.add(new Field("cpu") {
@@ -1177,4 +1178,29 @@ public abstract class Stage {
         result.addAll(fields());
         return result;
     }
+
+    //--
+
+    public Info info(String str) throws IOException {
+        Map<String, Property> properties;
+        Info result;
+        List<String> lst;
+
+        properties = session.properties();
+        result = properties.get(str);
+        if (result != null) {
+            return result;
+        }
+        result = fieldOpt(str);
+        if (result != null) {
+            return result;
+        }
+        lst = new ArrayList<>();
+        for (Field f : fields()) {
+            lst.add(f.name);
+        }
+        lst.addAll(properties.keySet());
+        throw new ArgumentException(str + ": no such status field or property, choose one of " + lst);
+    }
+
 }
