@@ -21,7 +21,6 @@ import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Field;
-import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Session;
@@ -33,7 +32,6 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -204,14 +202,13 @@ public abstract class StageCommand extends SessionCommand {
         return stages.size() != 1;
     }
 
-    private boolean autoStart(Stage stage, Map<Info, Object> status) throws Exception {
+    private boolean autoStart(Stage stage) throws Exception {
         Stage.State state;
         boolean postStart;
 
         state = stage.state();
         if (state == Stage.State.UP && (withAutoRunning()) && (autoRestart || autoStop)) {
             postStart = autoRestart;
-            Status.processStatus(stage, status);
             new Stop(session, false).doRun(stage);
         } else {
             postStart = false;
@@ -342,15 +339,13 @@ public abstract class StageCommand extends SessionCommand {
         return new Predicate() {
             @Override
             public boolean matches(Stage stage) throws IOException {
-                Map<Info, Object> status;
                 boolean result;
                 Object obj;
                 String str;
                 Property p;
 
                 if (constField != null) {
-                    status = Status.status(session, stage);
-                    obj = status.get(constField);
+                    obj = field.invoke();
                 } else {
                     p = properties.get(constProperty);
                     if (p == null) {
@@ -445,11 +440,8 @@ public abstract class StageCommand extends SessionCommand {
         }
 
         private void runMain(Stage stage) throws Exception {
-            Map<Info, Object> status;
-
             console.verbose.println("*** stage main");
-            status = new HashMap<>();
-            if (autoStart(stage, status)) {
+            if (autoStart(stage)) {
                 postStarts.put(stage, new Start(session, false));
             }
             doMain(stage);

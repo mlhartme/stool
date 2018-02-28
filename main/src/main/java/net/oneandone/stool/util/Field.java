@@ -15,32 +15,10 @@
  */
 package net.oneandone.stool.util;
 
+import java.io.IOException;
+
 /** A computable value representing one aspect of the stage status. */
-public class Field implements Info {
-    public static final Field ID = new Field("id");
-    public static final Field SELECTED = new Field("selected");
-    public static final Field DIRECTORY = new Field("directory");
-    public static final Field BACKSTAGE = new Field("backstage");
-    public static final Field URL = new Field("url");
-    public static final Field TYPE = new Field("type");
-    public static final Field CREATOR = new Field("creator");
-    public static final Field CREATED = new Field("created");
-    public static final Field BUILDTIME = new Field("buildtime");
-    public static final Field LAST_MODIFIED_BY = new Field("last-modified-by");
-    public static final Field LAST_MODIFIED_AT = new Field("last-modified-at");
-    public static final Field DISK = new Field("disk");
-    public static final Field STATE = new Field("state");
-    public static final Field UPTIME = new Field("uptime");
-    public static final Field CPU = new Field("cpu");
-    public static final Field MEM = new Field("mem");
-    public static final Field CONTAINER = new Field("container");
-    public static final Field DEBUGGER = new Field("debugger");
-    public static final Field SUSPEND = new Field("suspend");
-    public static final Field APPS = new Field("apps");
-    public static final Field OTHER = new Field("other");
-
-    //--
-
+public abstract class Field implements Info {
     public final String name;
 
     protected Field(String name) {
@@ -54,4 +32,6 @@ public class Field implements Info {
     public String infoName() {
         return name;
     }
+
+    public abstract Object invoke() throws IOException;
 }

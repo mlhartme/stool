@@ -16,15 +16,11 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.configuration.Property;
-import net.oneandone.stool.docker.Engine;
-import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.templates.StatusHelper;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
-import net.oneandone.stool.util.LogEntry;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
@@ -33,9 +29,7 @@ import net.oneandone.sushi.util.Separator;
 import javax.naming.NamingException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public abstract class InfoCommand extends StageCommand {
 
@@ -56,21 +50,22 @@ public abstract class InfoCommand extends StageCommand {
         selected.add(str);
     }
 
-    protected List<String> defaults(List<Info> systemDefaults) {
-        List<String> result;
-
-        result = new ArrayList<>();
-        if (defaults.isEmpty()) {
-            for (Info info : systemDefaults) {
-                result.add(info.infoName());
-            }
-        } else {
-            result.addAll(Separator.COMMA.split(defaults));
-        }
-        return result;
+    protected List<String> defaults() {
+        return Separator.COMMA.split(defaults);
     }
 
     //--
+
+    public static String infoToString(Stage stage, Info info) throws IOException {
+        Object value;
+
+        if (info instanceof Field) {
+            value = ((Field) info).invoke();
+        } else {
+            value = ((Property) info).get(stage.config());
+        }
+        return toString(value);
+    }
 
     public static String toString(Object value) {
         boolean first;
@@ -79,12 +74,6 @@ public abstract class InfoCommand extends StageCommand {
 
         if (value == null) {
             return "";
-        } else if (value instanceof Future) {
-            try {
-                return toString(((Future) value).get());
-            } catch (IOException e) {
-                return "[error: " + e.getMessage() + "]";
-            }
         } else if (value instanceof List) {
             first = true;
             lst = (List) value;
@@ -103,49 +92,7 @@ public abstract class InfoCommand extends StageCommand {
         }
     }
 
-    public static Map<Info, Object> status(Session session, Stage stage) throws IOException {
-        Map<Info, Object> result;
-        Ports ports;
-        Stage.State state;
-
-        result = new HashMap<>();
-        result.put(Field.ID, stage.getId());
-        result.put(Field.SELECTED, session.isSelected(stage));
-        result.put(Field.DIRECTORY, stage.getDirectory().getAbsolute());
-        result.put(Field.BACKSTAGE, stage.backstage.getAbsolute());
-        result.put(Field.DISK, new Future<Integer>() {
-            @Override
-            protected Integer doGet() throws IOException {
-                return stage.diskUsed();
-            }
-        });
-        result.put(Field.URL, stage.getUrl());
-        result.put(Field.TYPE, stage.getType());
-        result.put(Field.BUILDTIME, new Future<String>() {
-            @Override
-            protected String doGet() throws IOException {
-                return stage.buildtime();
-            }
-        });
-        result.put(Field.CREATOR, userName(session, stage.creator()));
-        result.put(Field.CREATED, LogEntry.FULL_FMT.format(stage.created()));
-        result.put(Field.LAST_MODIFIED_BY, userName(session, stage.lastModifiedBy()));
-        result.put(Field.LAST_MODIFIED_AT, Stage.timespan(stage.lastModifiedAt()));
-        result.put(Field.CONTAINER, stage.dockerContainer());
-        state = stage.state();
-        result.put(Field.STATE, state.toString());
-        processStatus(stage, result);
-        result.put(Field.APPS, stage.namedUrls());
-        ports = stage.loadPortsOpt();
-        result.put(Field.OTHER, other(stage, ports));
-        StatusHelper.add(stage, state, ports, result);
-        for (Property property: session.properties().values()) {
-            result.put(property, property.get(stage.config()));
-        }
-        return result;
-    }
-
-    private static String userName(Session session, String login) {
+    public static String userName(Session session, String login) {
         try {
             return session.users.byLogin(login).toStatus();
         } catch (NamingException | UserNotFound e) {
@@ -154,7 +101,7 @@ public abstract class InfoCommand extends StageCommand {
     }
 
     /** TODO: we need this field to list fitnesse urls ...*/
-    private static List<String> other(Stage stage, Ports ports) {
+    public static List<String> other(Stage stage, Ports ports) {
         List<String> result;
 
         result = new ArrayList<>();
@@ -170,49 +117,5 @@ public abstract class InfoCommand extends StageCommand {
             }
         }
         return result;
-    }
-
-    public static void processStatus(Stage stage, Map<Info, Object> result) throws IOException {
-        String container;
-        Engine engine;
-        Stats stats;
-
-        container = stage.dockerContainer();
-        if (container == null) {
-            result.put(Field.UPTIME, null);
-            result.put(Field.CPU, null);
-            result.put(Field.MEM, null);
-        } else {
-            engine = stage.session.dockerEngine();
-            result.put(Field.UPTIME, Stage.timespan(engine.containerStartedAt(container)));
-            stats = engine.containerStats(container);
-            if (stats != null) {
-                result.put(Field.CPU, stats.cpu);
-                result.put(Field.MEM, stats.memoryUsage * 100 / stats.memoryLimit);
-            } else {
-                // not started
-                result.put(Field.CPU, 0);
-                result.put(Field.MEM, 0);
-            }
-        }
-
-        // TODO
-        result.put(Field.DEBUGGER, null);
-        result.put(Field.SUSPEND, null);
-    }
-
-    private static Integer opt(int i) {
-        return i == 0 ? null : i;
-    }
-
-    public abstract static class Future<T> {
-        private T lazy = null;
-        public T get() throws IOException {
-            if (lazy == null) {
-                lazy = doGet();
-            }
-            return lazy;
-        }
-        protected abstract T doGet() throws IOException;
     }
 }

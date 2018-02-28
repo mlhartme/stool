@@ -16,7 +16,6 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Strings;
@@ -25,7 +24,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public class Ls extends InfoCommand {
     private List<List<String>> lines;
@@ -40,7 +38,10 @@ public class Ls extends InfoCommand {
         List<String> line;
 
         if (selected.isEmpty()) {
-            selected.addAll(defaults(Arrays.asList(session.property("name"), Field.STATE, Field.LAST_MODIFIED_BY, Field.URL, Field.DIRECTORY)));
+            selected.addAll(defaults());
+            if (selected.isEmpty()) {
+                selected.addAll(Arrays.asList("name", "state", "last-modified-by", "url", "directory"));
+            }
         }
         header("stages");
 
@@ -56,14 +57,12 @@ public class Ls extends InfoCommand {
     public void doMain(Stage stage) throws Exception {
         List<String> line;
         Info info;
-        Map<Info, Object> status;
 
-        status = Status.status(session, stage);
         line = new ArrayList<>();
         lines.add(line);
         for (String infoName : selected) {
             info = Info.get(stage, stage.session.properties(), infoName);
-            line.add(toString(status.get(info)).replace("\t", " "));
+            line.add(infoToString(stage, info).replace("\t", " "));
         }
     }
 

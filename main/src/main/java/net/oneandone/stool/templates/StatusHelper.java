@@ -29,22 +29,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class StatusHelper {
-    public static void add(Stage stage, Stage.State state, Ports ports, Map<Info, Object> result) throws IOException {
-        StatusHelper helper;
-        List<TemplateField> status;
-
-        helper = new StatusHelper(stage, state, ports);
-        status = TemplateField.scanTemplate(stage.session.configuration.templates.join(stage.config().template));
-        for (TemplateField field : status) {
-            result.put(() -> field.name, field.invoke(helper));
-        }
-    }
-
-    //--
-
     private final Stage stage;
     private final Stage.State state;
     private final Ports ports;

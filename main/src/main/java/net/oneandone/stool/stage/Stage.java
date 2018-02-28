@@ -21,18 +21,20 @@ import freemarker.template.TemplateException;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
+import net.oneandone.stool.cli.InfoCommand;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
+import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.artifact.Changes;
-import net.oneandone.stool.templates.StatusHelper;
 import net.oneandone.stool.templates.TemplateField;
 import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
+import net.oneandone.stool.util.LogEntry;
 import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
@@ -69,8 +71,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -994,28 +994,169 @@ public abstract class Stage {
         List<Field> fields;
 
         fields = new ArrayList<>();
-        fields.add(Field.ID);
-        fields.add(Field.SELECTED);
-        fields.add(Field.DIRECTORY);
-        fields.add(Field.BACKSTAGE);
-        fields.add(Field.URL);
-        fields.add(Field.TYPE);
-        fields.add(Field.CREATOR);
-        fields.add(Field.CREATED);
-        fields.add(Field.BUILDTIME);
-        fields.add(Field.LAST_MODIFIED_BY);
-        fields.add(Field.LAST_MODIFIED_AT);
-        fields.add(Field.DISK);
-        fields.add(Field.STATE);
-        fields.add(Field.UPTIME);
-        fields.add(Field.CPU);
-        fields.add(Field.MEM);
-        fields.add(Field.CONTAINER);
-        fields.add(Field.DEBUGGER);
-        fields.add(Field.SUSPEND);
-        fields.add(Field.APPS);
-        fields.add(Field.OTHER);
-        fields.addAll(TemplateField.scanTemplate(session.configuration.templates.join(config().template)));
+        fields.add(new Field("id") {
+            @Override
+            public Object invoke() {
+                return getId();
+            }
+        });
+        fields.add(new Field("selected") {
+            @Override
+            public Object invoke() throws IOException {
+                return session.isSelected(Stage.this);
+            }
+        });
+        fields.add(new Field("directory") {
+            @Override
+            public Object invoke() {
+                return Stage.this.directory.getAbsolute();
+            }
+        });
+        fields.add(new Field("backstage") {
+            @Override
+            public Object invoke() {
+                return Stage.this.backstage.getAbsolute();
+            }
+        });
+        fields.add(new Field("url") {
+            @Override
+            public Object invoke() {
+                return Stage.this.getUrl();
+            }
+        });
+        fields.add(new Field("type") {
+            @Override
+            public Object invoke() {
+                return Stage.this.getType();
+            }
+        });
+        fields.add(new Field("creator") {
+            @Override
+            public Object invoke() throws IOException {
+                return InfoCommand.userName(session, Stage.this.creator());
+            }
+
+        });
+        fields.add(new Field("created") {
+            @Override
+            public Object invoke() throws IOException {
+                return LogEntry.FULL_FMT.format(Stage.this.created());
+            }
+
+        });
+        fields.add(new Field("last-modified-by") {
+            @Override
+            public Object invoke() throws IOException {
+                return InfoCommand.userName(session, Stage.this.lastModifiedBy());
+            }
+        });
+        fields.add(new Field("last-modified-at") {
+            @Override
+            public Object invoke() throws IOException {
+                return Stage.timespan(Stage.this.lastModifiedAt());
+            }
+        });
+        fields.add(new Field("buildtime") {
+            @Override
+            public Object invoke() throws IOException {
+                return Stage.this.buildtime();
+            }
+        });
+        fields.add(new Field("disk") {
+            @Override
+            public Object invoke() throws IOException {
+                return Stage.this.diskUsed();
+            }
+        });
+        fields.add(new Field("state") {
+            @Override
+            public Object invoke() throws IOException {
+                return Stage.this.state().toString();
+            }
+        });
+        fields.add(new Field("uptime") {
+            @Override
+            public Object invoke() throws IOException {
+                String container;
+
+                container = Stage.this.dockerContainer();
+                return container == null ? null : Stage.this.session.dockerEngine().containerStartedAt(container);
+            }
+        });
+        fields.add(new Field("cpu") {
+            @Override
+            public Object invoke() throws IOException {
+                String container;
+                Engine engine;
+                Stats stats;
+
+                container = Stage.this.dockerContainer();
+                if (container == null) {
+                    return null;
+                }
+                engine = Stage.this.session.dockerEngine();
+                stats = engine.containerStats(container);
+                if (stats != null) {
+                    return stats.cpu;
+                } else {
+                    // not started
+                    return 0;
+                }
+            }
+        });
+        fields.add(new Field("mem") {
+            @Override
+            public Object invoke() throws IOException {
+                String container;
+                Engine engine;
+                Stats stats;
+
+                container = Stage.this.dockerContainer();
+                if (container == null) {
+                    return null;
+                }
+                engine = Stage.this.session.dockerEngine();
+                stats = engine.containerStats(container);
+                if (stats != null) {
+                    return stats.memoryUsage * 100 / stats.memoryLimit;
+                } else {
+                    // not started
+                    return 0;
+                }
+            }
+        });
+        fields.add(new Field("container") {
+            @Override
+            public Object invoke() throws IOException {
+                return Stage.this.dockerContainer();
+            }
+        });
+        fields.add(new Field("debugger") {
+            @Override
+            public Object invoke() {
+                return "TODO";
+            }
+        });
+        fields.add(new Field("suspend") {
+            @Override
+            public Object invoke() {
+                return "TODO";
+            }
+        });
+        fields.add(new Field("apps") {
+            @Override
+            public Object invoke() throws IOException {
+                return Stage.this.namedUrls();
+            }
+        });
+        fields.add(new Field("other") {
+            @Override
+            public Object invoke() throws IOException {
+                InfoCommand.other(Stage.this, Stage.this.loadPortsOpt());
+                return null;
+            }
+        });
+        fields.addAll(TemplateField.scanTemplate(this, session.configuration.templates.join(config().template)));
         return fields;
     }
 
@@ -1030,12 +1171,10 @@ public abstract class Stage {
 
     public List<Info> fieldsAndName() throws IOException {
         List<Info> result;
-        int i;
 
         result = new ArrayList();
         result.add(session.property("name"));
         result.addAll(fields());
-        result.addAll(TemplateField.scanTemplate(session.configuration.templates.join(configuration.template)));
         return result;
     }
 }

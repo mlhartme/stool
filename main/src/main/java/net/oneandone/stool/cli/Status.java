@@ -23,7 +23,6 @@ import net.oneandone.sushi.util.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class Status extends InfoCommand {
     public Status(Session session, String defaults) {
@@ -35,14 +34,20 @@ public class Status extends InfoCommand {
     @Override
     public void doMain(Stage stage) throws Exception {
         List<Info> infos;
-        Map<Info, Object> status;
         int width;
         boolean first;
         String value;
 
-        status = status(session, stage);
+        if (selected.isEmpty()) {
+            selected.addAll(defaults());
+            if (selected.isEmpty()) {
+                for (Info info : stage.fieldsAndName()) {
+                    selected.add(info.infoName());
+                }
+            }
+        }
         infos = new ArrayList<>();
-        for (String name : selected.isEmpty() ? defaults(stage.fieldsAndName()) : selected) {
+        for (String name : selected) {
             infos.add(Info.get(stage, stage.session.properties(), name));
         }
         width = 0;
@@ -55,7 +60,7 @@ public class Status extends InfoCommand {
             console.info.print(info.infoName());
             console.info.print(" : ");
             first = true;
-            value = toString(status.get(info));
+            value = infoToString(stage, info);
             if (value.isEmpty()) {
                 console.info.println();
             } else for (String str : TAB.split(value)) {
