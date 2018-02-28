@@ -18,7 +18,6 @@ package net.oneandone.stool.templates;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Ports;
-import net.oneandone.sushi.fs.file.FileNode;
 
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
@@ -38,30 +37,10 @@ public class StatusHelper {
         List<TemplateField> status;
 
         helper = new StatusHelper(stage, state, ports);
-        status = scanTemplate(stage.session.configuration.templates.join(stage.config().template));
+        status = TemplateField.scanTemplate(stage.session.configuration.templates.join(stage.config().template));
         for (TemplateField field : status) {
             result.put(() -> field.name, field.invoke(helper));
         }
-    }
-
-
-    /** @return name- to method name map */
-    public static List<TemplateField> scanTemplate(FileNode directory) throws IOException {
-        FileNode file;
-        List<TemplateField> result;
-        TemplateField f;
-
-        result = new ArrayList<>();
-        file = directory.join("Dockerfile.fm");
-        if (file.isFile()) {
-            for (String line : file.readLines()) {
-                f = TemplateField.parseOpt(line);
-                if (f != null) {
-                    result.add(f);
-                }
-            }
-        }
-        return result;
     }
 
     //--

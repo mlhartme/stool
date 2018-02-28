@@ -454,7 +454,7 @@ public abstract class Stage {
         int i;
 
         fields = fields();
-        templateFields = StatusHelper.scanTemplate(session.configuration.templates.join(configuration.template));
+        templateFields = TemplateField.scanTemplate(session.configuration.templates.join(configuration.template));
         Collections.sort(templateFields, Comparator.comparing(left -> left.name));
         result = new Info[1 + fields.size() + templateFields.size()];
         result[0] = session.property("name");
