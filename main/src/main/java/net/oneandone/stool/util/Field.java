@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.util;
 
-/** The computable value representing an aspect of the stage status. */
+/** A computable value representing one aspect of the stage status. */
 public class Field implements Info {
     public static final Field ID = new Field("id");
     public static final Field SELECTED = new Field("selected");

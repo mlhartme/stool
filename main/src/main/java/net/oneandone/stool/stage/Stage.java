@@ -447,29 +447,6 @@ public abstract class Stage {
         return current;
     }
 
-    public Info[] fieldsAndName() throws IOException {
-        List<Field> fields;
-        List<TemplateField> templateFields;
-        Info[] result;
-        int i;
-
-        fields = fields();
-        templateFields = TemplateField.scanTemplate(session.configuration.templates.join(configuration.template));
-        Collections.sort(templateFields, Comparator.comparing(left -> left.name));
-        result = new Info[1 + fields.size() + templateFields.size()];
-        result[0] = session.property("name");
-        i = 1;
-        for (Field f : fields) {
-            result[i] = f;
-            i++;
-        }
-        for (TemplateField f : templateFields) {
-            result[i] = f;
-            i++;
-        }
-        return result;
-    }
-
     public FileNode dockerContainerFile() {
         return backstage.join("run/container");
     }
@@ -1013,7 +990,7 @@ public abstract class Stage {
 
     //--
 
-    public List<Field> fields() {
+    public List<Field> fields() throws IOException {
         List<Field> fields;
 
         fields = new ArrayList<>();
@@ -1038,10 +1015,11 @@ public abstract class Stage {
         fields.add(Field.SUSPEND);
         fields.add(Field.APPS);
         fields.add(Field.OTHER);
+        fields.addAll(TemplateField.scanTemplate(session.configuration.templates.join(config().template)));
         return fields;
     }
 
-    public Field fieldOpt(String str) {
+    public Field fieldOpt(String str) throws IOException {
         for (Field f : fields()) {
             if (str.equals(f.name)) {
                 return f;
@@ -1050,4 +1028,14 @@ public abstract class Stage {
         return null;
     }
 
+    public List<Info> fieldsAndName() throws IOException {
+        List<Info> result;
+        int i;
+
+        result = new ArrayList();
+        result.add(session.property("name"));
+        result.addAll(fields());
+        result.addAll(TemplateField.scanTemplate(session.configuration.templates.join(configuration.template)));
+        return result;
+    }
 }

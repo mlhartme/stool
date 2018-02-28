@@ -288,7 +288,7 @@ public abstract class StageCommand extends SessionCommand {
     }
 
 
-    private Predicate compare(Stage stage, final Map<String, Property> properties, final String string) {
+    private Predicate compare(Stage stage, final Map<String, Property> properties, final String string) throws IOException {
         int idx;
         String name;
         final boolean eq;

@@ -23,6 +23,7 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ public class Ls extends InfoCommand {
         List<String> line;
 
         if (selected.isEmpty()) {
-            selected.addAll(defaults(session.property("name"), Field.STATE, Field.LAST_MODIFIED_BY, Field.URL, Field.DIRECTORY));
+            selected.addAll(defaults(Arrays.asList(session.property("name"), Field.STATE, Field.LAST_MODIFIED_BY, Field.URL, Field.DIRECTORY)));
         }
         header("stages");
 

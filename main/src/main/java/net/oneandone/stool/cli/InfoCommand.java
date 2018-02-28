@@ -30,17 +30,9 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.util.Separator;
 
-import javax.management.MBeanServerConnection;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.openmbean.CompositeData;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
 import javax.naming.NamingException;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +56,7 @@ public abstract class InfoCommand extends StageCommand {
         selected.add(str);
     }
 
-    protected List<String> defaults(Info ... systemDefaults) {
+    protected List<String> defaults(List<Info> systemDefaults) {
         List<String> result;
 
         result = new ArrayList<>();

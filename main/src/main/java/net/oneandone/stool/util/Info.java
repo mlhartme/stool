@@ -19,13 +19,14 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.configuration.Property;
 import net.oneandone.stool.stage.Stage;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 /** Field or Property */
 public interface Info {
-    static Info get(Stage stage, Map<String, Property> properties, String str) {
+    static Info get(Stage stage, Map<String, Property> properties, String str) throws IOException {
         Info result;
         List<String> lst;
 
