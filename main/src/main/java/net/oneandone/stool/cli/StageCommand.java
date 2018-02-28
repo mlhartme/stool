@@ -163,7 +163,7 @@ public abstract class StageCommand extends SessionCommand {
                 if (all) {
                     return all(problems);
                 } else if (stageClause != null) {
-                    return session.list(problems, or(session.properties(), stageClause));
+                    return session.list(problems, or(stageClause));
                 } else {
                     throw new IllegalStateException();
                 }
@@ -242,7 +242,7 @@ public abstract class StageCommand extends SessionCommand {
 
     //--
 
-    private Predicate or( Map<String, Property> properties, String string) {
+    private Predicate or(String string) {
         List<String> args;
 
         args = Separator.COMMA.split(string);
@@ -252,7 +252,7 @@ public abstract class StageCommand extends SessionCommand {
             Predicate op;
 
             for (String arg : args) {
-                op = and(properties, arg);
+                op = and(arg);
                 if (op.matches(stage)) {
                     return true;
                 }
@@ -264,7 +264,7 @@ public abstract class StageCommand extends SessionCommand {
 
     private static final Separator AND = Separator.on('+');
 
-    private Predicate and(Map<String, Property> properties, String string) {
+    private Predicate and(String string) {
         List<String> args;
 
         args = AND.split(string);
@@ -274,7 +274,7 @@ public abstract class StageCommand extends SessionCommand {
             Predicate op;
 
             for (String arg : args) {
-                op = compare(stage, properties, arg);
+                op = compare(stage, arg);
                 if (!op.matches(stage)) {
                     return false;
                 }
@@ -285,7 +285,7 @@ public abstract class StageCommand extends SessionCommand {
     }
 
 
-    private Predicate compare(Stage stage, final Map<String, Property> properties, final String string) throws IOException {
+    private Predicate compare(Stage stage, final String string) throws IOException {
         int idx;
         String name;
         final boolean eq;
@@ -347,7 +347,7 @@ public abstract class StageCommand extends SessionCommand {
                 if (constField != null) {
                     obj = field.invoke();
                 } else {
-                    p = properties.get(constProperty);
+                    p = session.properties().get(constProperty);
                     if (p == null) {
                         throw new PredicateException("property or status field not found: " + constProperty);
                     }

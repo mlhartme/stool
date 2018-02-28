@@ -1202,5 +1202,4 @@ public abstract class Stage {
         lst.addAll(properties.keySet());
         throw new ArgumentException(str + ": no such status field or property, choose one of " + lst);
     }
-
 }
