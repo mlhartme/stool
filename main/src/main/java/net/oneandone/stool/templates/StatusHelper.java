@@ -19,7 +19,6 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
 
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
@@ -28,70 +27,41 @@ import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class StatusHelper {
     public static void add(Stage stage, Stage.State state, Ports ports, Map<Info, Object> result) throws IOException {
         StatusHelper helper;
-        Map<String, String> status;
-        String method;
-        Method m;
-        Object object;
+        List<TemplateField> status;
 
         helper = new StatusHelper(stage, state, ports);
         status = scanTemplate(stage.session.configuration.templates.join(stage.config().template));
-        for (Map.Entry<String, String> entry : status.entrySet()) {
-            method = entry.getValue();
-            try {
-                m = helper.getClass().getDeclaredMethod(method, new Class[]{});
-            } catch (NoSuchMethodException e) {
-                throw new IOException("method not found: " + method);
-            }
-            try {
-                object = m.invoke(helper);
-            } catch (IllegalAccessException e) {
-                throw new IOException("cannot invoke method: " + e.getMessage(), e);
-            } catch (InvocationTargetException e) {
-                throw new IOException("cannot invoke method: " + e.getMessage(), e);
-            }
-            result.put(() -> entry.getKey(), object);
+        for (TemplateField field : status) {
+            result.put(() -> field.name, field.invoke(helper));
         }
     }
 
 
     /** @return name- to method name map */
-    public static Map<String, String> scanTemplate(FileNode directory) throws IOException {
+    public static List<TemplateField> scanTemplate(FileNode directory) throws IOException {
         FileNode file;
-        Map<String, String> result;
+        List<TemplateField> result;
+        TemplateField f;
 
-        result = new HashMap<>();
+        result = new ArrayList<>();
         file = directory.join("Dockerfile.fm");
         if (file.isFile()) {
             for (String line : file.readLines()) {
-                scan(line, result);
+                f = TemplateField.parseOpt(line);
+                if (f != null) {
+                    result.add(f);
+                }
             }
         }
         return result;
-    }
-
-    public static void scan(String line, Map<String, String> result) throws IOException {
-        List<String> lst;
-
-        line = line.trim();
-        if (!line.startsWith("#STATUS")) {
-            return;
-        }
-        lst = Separator.SPACE.split(line.trim());
-        if (lst.size() != 3) {
-            throw new IOException("invalid status directive, expected '#STATUS <name> <method>', got '" + line + "'");
-        }
-        result.put(lst.get(1), lst.get(2));
     }
 
     //--

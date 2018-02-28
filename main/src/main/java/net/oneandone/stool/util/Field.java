@@ -43,7 +43,7 @@ public class Field implements Info {
 
     public final String name;
 
-    private Field(String name) {
+    protected Field(String name) {
         this.name = name;
     }
 

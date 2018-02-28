@@ -28,6 +28,7 @@ import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.templates.StatusHelper;
+import net.oneandone.stool.templates.TemplateField;
 import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.util.Field;
@@ -69,6 +70,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -446,14 +448,14 @@ public abstract class Stage {
     }
 
     public Info[] fieldsAndName() throws IOException {
-        List<String> templateFields;
         List<Field> fields;
+        List<TemplateField> templateFields;
         Info[] result;
         int i;
 
         fields = fields();
-        templateFields = new ArrayList<>(StatusHelper.scanTemplate(session.configuration.templates.join(configuration.template)).keySet());
-        Collections.sort(templateFields);
+        templateFields = StatusHelper.scanTemplate(session.configuration.templates.join(configuration.template));
+        Collections.sort(templateFields, Comparator.comparing(left -> left.name));
         result = new Info[1 + fields.size() + templateFields.size()];
         result[0] = session.property("name");
         i = 1;
@@ -461,8 +463,8 @@ public abstract class Stage {
             result[i] = f;
             i++;
         }
-        for (String tf : templateFields) {
-            result[i] = () -> tf;
+        for (TemplateField f : templateFields) {
+            result[i] = f;
             i++;
         }
         return result;
