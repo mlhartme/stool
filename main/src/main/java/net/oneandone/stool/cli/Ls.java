@@ -62,7 +62,7 @@ public class Ls extends InfoCommand {
         lines.add(line);
         for (String infoName : selected) {
             info = stage.info(infoName);
-            line.add(infoToString(info).replace("\t", " "));
+            line.add(info.getString().replace("\t", " "));
         }
     }
 

@@ -18,16 +18,12 @@ package net.oneandone.stool.cli;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.UserNotFound;
-import net.oneandone.stool.util.Field;
-import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Ports;
-import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.util.Separator;
 
 import javax.naming.NamingException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,35 +51,6 @@ public abstract class InfoCommand extends StageCommand {
     }
 
     //--
-
-    public static String infoToString(Info info) throws IOException {
-        return toString(info.get());
-    }
-
-    public static String toString(Object value) {
-        boolean first;
-        List<Object> lst;
-        StringBuilder builder;
-
-        if (value == null) {
-            return "";
-        } else if (value instanceof List) {
-            first = true;
-            lst = (List) value;
-            builder = new StringBuilder();
-            for (Object item : lst) {
-                if (first) {
-                    first = false;
-                } else {
-                    builder.append('\t');
-                }
-                builder.append(toString(item));
-            }
-            return builder.toString();
-        } else {
-            return value.toString();
-        }
-    }
 
     public static String userName(Session session, String login) {
         try {

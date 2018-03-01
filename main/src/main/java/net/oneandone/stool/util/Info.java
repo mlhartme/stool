@@ -16,6 +16,7 @@
 package net.oneandone.stool.util;
 
 import java.io.IOException;
+import java.util.List;
 
 /** Field or Property */
 public abstract class Info {
@@ -25,8 +26,39 @@ public abstract class Info {
         this.name = name;
     }
 
-    public final String name() {
+    public String name() {
         return name;
     }
+
     public abstract Object get() throws IOException;
+
+    public String getString() throws IOException {
+        return valueString(get());
+
+    }
+
+    private static String valueString(Object value) {
+        boolean first;
+        List<Object> lst;
+        StringBuilder builder;
+
+        if (value == null) {
+            return "";
+        } else if (value instanceof List) {
+            first = true;
+            lst = (List) value;
+            builder = new StringBuilder();
+            for (Object item : lst) {
+                if (first) {
+                    first = false;
+                } else {
+                    builder.append('\t');
+                }
+                builder.append(valueString(item));
+            }
+            return builder.toString();
+        } else {
+            return value.toString();
+        }
+    }
 }
