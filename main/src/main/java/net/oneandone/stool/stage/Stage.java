@@ -39,6 +39,7 @@ import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.TypedProperty;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
@@ -1174,7 +1175,7 @@ public abstract class Stage {
         List<Info> result;
 
         result = new ArrayList();
-        result.add(new Property(session.property("name"), configuration));
+        result.add(new TypedProperty(session.property("name"), configuration));
         result.addAll(fields());
         return result;
     }
@@ -1211,7 +1212,7 @@ public abstract class Stage {
         result = new ArrayList<>();
         for (PropertyType type : session.properties().values()) {
             if (!type.name.equals("template.env")) {
-                result.add(new Property(type, configuration));
+                result.add(new TypedProperty(type, configuration));
             }
         }
         return result;

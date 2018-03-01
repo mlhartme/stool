@@ -15,13 +15,25 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.stool.configuration.PropertyType;
+import net.oneandone.stool.configuration.StageConfiguration;
+
 /** A computable value representing one aspect of the stage status. */
-public abstract class Property extends Info {
-    public Property(String name) {
-        super(name);
+public class TypedProperty extends Property {
+    private final PropertyType type;
+    private final StageConfiguration configuration;
+
+    public TypedProperty(PropertyType type, StageConfiguration configuration) {
+        super(type.name);
+        this.type = type;
+        this.configuration = configuration;
     }
 
-    public abstract String get();
+    public String get() {
+        return type.get(configuration);
+    }
 
-    public abstract void set(String str);
+    public void set(String str) {
+        type.set(configuration, str);
+    }
 }
