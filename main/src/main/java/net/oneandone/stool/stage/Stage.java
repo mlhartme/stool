@@ -40,7 +40,7 @@ import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.TemplateProperty;
-import net.oneandone.stool.util.TypedProperty;
+import net.oneandone.stool.util.StandardProperty;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
@@ -1215,7 +1215,7 @@ public abstract class Stage {
         result = new ArrayList<>();
         for (PropertyType type : session.properties().values()) {
             if (!type.name.equals("template.env")) {
-                result.add(new TypedProperty(type, configuration));
+                result.add(new StandardProperty(type, configuration));
             }
         }
         env = configuration.templateEnv;

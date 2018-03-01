@@ -19,11 +19,11 @@ import net.oneandone.stool.configuration.PropertyType;
 import net.oneandone.stool.configuration.StageConfiguration;
 
 /** A computable value representing one aspect of the stage status. */
-public class TypedProperty extends Property {
+public class StandardProperty extends Property {
     private final PropertyType type;
     private final StageConfiguration configuration;
 
-    public TypedProperty(PropertyType type, StageConfiguration configuration) {
+    public StandardProperty(PropertyType type, StageConfiguration configuration) {
         super(type.name);
         this.type = type;
         this.configuration = configuration;
