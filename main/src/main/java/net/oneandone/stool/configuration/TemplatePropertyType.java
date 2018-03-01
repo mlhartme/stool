@@ -17,25 +17,15 @@ package net.oneandone.stool.configuration;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.templates.Variable;
-import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
-public class TemplateProperty extends Property {
+public class TemplatePropertyType extends PropertyType {
     private final FileNode templates;
 
-    public TemplateProperty(String name, FileNode templates) {
+    public TemplatePropertyType(String name, FileNode templates) {
         super(name);
         this.templates = templates;
     }

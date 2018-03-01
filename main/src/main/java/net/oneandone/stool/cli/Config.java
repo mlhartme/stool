@@ -16,8 +16,8 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.configuration.TemplateEnvProperty;
-import net.oneandone.stool.configuration.Property;
+import net.oneandone.stool.configuration.TemplateEnvPropertyType;
+import net.oneandone.stool.configuration.PropertyType;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
@@ -26,12 +26,11 @@ import net.oneandone.sushi.util.Strings;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Config extends StageCommand {
-    private final Map<String, Property> all;
-    private final Map<Property, String> selected;
+    private final Map<String, PropertyType> all;
+    private final Map<PropertyType, String> selected;
 
     private boolean get;
     private boolean set;
@@ -46,7 +45,7 @@ public class Config extends StageCommand {
         int idx;
         String key;
         String value;
-        Property property;
+        PropertyType property;
 
         idx = str.indexOf('=');
         if (idx == -1) {
@@ -61,7 +60,7 @@ public class Config extends StageCommand {
         try {
             property = all.get(key);
             if (property == null) {
-                property = TemplateEnvProperty.createOpt(session.configuration.templates, key);
+                property = TemplateEnvPropertyType.createOpt(session.configuration.templates, key);
                 if (property == null) {
                     throw new ArgumentException("unknown property: " + key);
                 }
@@ -84,16 +83,16 @@ public class Config extends StageCommand {
     public void doMain(Stage stage) throws Exception {
         StageConfiguration configuration;
         boolean error;
-        Property prop;
+        PropertyType prop;
         String value;
-        Collection<Property> props;
+        Collection<PropertyType> props;
         int width;
 
         configuration = stage.config();
         if (set) {
             stage.modify();
             error = false;
-            for (Map.Entry<Property, String> entry : selected.entrySet()) {
+            for (Map.Entry<PropertyType, String> entry : selected.entrySet()) {
                 prop = entry.getKey();
                 value = entry.getValue();
                 value = value.replace("{}", prop.get(configuration));
@@ -114,12 +113,12 @@ public class Config extends StageCommand {
             props = get ? selected.keySet() : all.values();
             width = 0 ;
             if (props.size() > 1) {
-                for (Property property : props) {
+                for (PropertyType property : props) {
                     width = Math.max(width, property.name.length());
                 }
                 width += 3;
             }
-            for (Property property : props) {
+            for (PropertyType property : props) {
                 console.info.println(Strings.padLeft(property.name, width) + " : " + property.get(configuration));
             }
         }

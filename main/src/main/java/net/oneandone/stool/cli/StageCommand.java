@@ -16,7 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.configuration.Property;
+import net.oneandone.stool.configuration.PropertyType;
 import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
@@ -342,7 +342,7 @@ public abstract class StageCommand extends SessionCommand {
                 boolean result;
                 Object obj;
                 String str;
-                Property p;
+                PropertyType p;
 
                 if (constField != null) {
                     obj = field.invoke();

@@ -23,13 +23,13 @@ import java.io.IOException;
 import java.util.Map;
 
 /** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
-public class TemplateEnvProperty extends Property {
+public class TemplateEnvPropertyType extends PropertyType {
     private static final String PREFIX = "template.";
 
     private final FileNode templates;
     private final String subname;
 
-    public TemplateEnvProperty(String name, FileNode templates, String subname) {
+    public TemplateEnvPropertyType(String name, FileNode templates, String subname) {
         super(name);
         this.templates = templates;
         this.subname = subname;
@@ -70,10 +70,10 @@ public class TemplateEnvProperty extends Property {
         config.templateEnv.put(subname, value);
     }
 
-    public static Property createOpt(FileNode templates, String name) {
+    public static PropertyType createOpt(FileNode templates, String name) {
         if (!name.startsWith(PREFIX)) {
             return null;
         }
-        return new TemplateEnvProperty(name, templates, name.substring(PREFIX.length()));
+        return new TemplateEnvPropertyType(name, templates, name.substring(PREFIX.length()));
     }
 }

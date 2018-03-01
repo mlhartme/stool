@@ -26,18 +26,17 @@ import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.Option;
-import net.oneandone.stool.configuration.Property;
-import net.oneandone.stool.configuration.ReflectProperty;
+import net.oneandone.stool.configuration.PropertyType;
+import net.oneandone.stool.configuration.ReflectPropertyType;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
-import net.oneandone.stool.configuration.TemplateProperty;
+import net.oneandone.stool.configuration.TemplatePropertyType;
 import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.LinkException;
 import net.oneandone.sushi.fs.World;
@@ -51,11 +50,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,7 +152,7 @@ public class Session {
     public final Users users;
     public final LockManager lockManager;
 
-    private Map<String, Property> lazyProperties;
+    private Map<String, PropertyType> lazyProperties;
     private Pool lazyPool;
 
     public Session(boolean setenv, Gson gson, Logging logging, String command,
@@ -186,7 +183,7 @@ public class Session {
         this.lazyPool= null;
     }
 
-    public Map<String, Property> properties() {
+    public Map<String, PropertyType> properties() {
         Option option;
 
         if (lazyProperties == null) {
@@ -195,9 +192,9 @@ public class Session {
                 option = field.getAnnotation(Option.class);
                 if (option != null) {
                     if (option.key().equals("template")) {
-                        lazyProperties.put(option.key(), new TemplateProperty(option.key(), configuration.templates));
+                        lazyProperties.put(option.key(), new TemplatePropertyType(option.key(), configuration.templates));
                     } else {
-                        lazyProperties.put(option.key(), new ReflectProperty(option.key(), field));
+                        lazyProperties.put(option.key(), new ReflectPropertyType(option.key(), field));
                     }
                 }
             }
@@ -620,7 +617,7 @@ public class Session {
         return version.substring(0, minor);
     }
 
-    public Property property(String name) {
+    public PropertyType property(String name) {
         return properties().get(name);
     }
 

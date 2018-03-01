@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.dashboard;
 
-import net.oneandone.stool.configuration.Property;
+import net.oneandone.stool.configuration.PropertyType;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Session;
@@ -75,7 +75,7 @@ public class IndexController {
         Map<String, String> model;
 
         model = new HashMap<>();
-        for (Map.Entry<String, Property> entry : StoolConfiguration.properties().entrySet()) {
+        for (Map.Entry<String, PropertyType> entry : StoolConfiguration.properties().entrySet()) {
             model.put(entry.getKey(), entry.getValue().get(session.configuration));
         }
         return model;

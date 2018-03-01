@@ -31,12 +31,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class StoolConfiguration {
-    public static Map<String, Property> properties() {
-        Map<String, Property> result;
+    public static Map<String, PropertyType> properties() {
+        Map<String, PropertyType> result;
 
         result = new LinkedHashMap<>();
         for (Field field : StoolConfiguration.class.getFields()) {
-            result.put(field.getName(), new ReflectProperty(field.getName(), field));
+            result.put(field.getName(), new ReflectPropertyType(field.getName(), field));
         }
         return result;
     }
@@ -162,8 +162,8 @@ public class StoolConfiguration {
         configurationFile(home).writeString(gson.toJson(this, StoolConfiguration.class));
     }
 
-    public void setDefaults(Map<String, Property> properties, StageConfiguration configuration, String url) {
-        Property property;
+    public void setDefaults(Map<String, PropertyType> properties, StageConfiguration configuration, String url) {
+        PropertyType property;
 
         for (Map.Entry<String, Map<String, String>> outer : defaults.entrySet()) {
             if (url.startsWith(outer.getKey())) {

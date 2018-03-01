@@ -16,7 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.configuration.Property;
+import net.oneandone.stool.configuration.PropertyType;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.ArtifactStage;
@@ -40,11 +40,11 @@ public class Create extends SessionCommand {
 
     private FileNode directory;
 
-    private final Map<Property, String> config = new LinkedHashMap<>();
+    private final Map<PropertyType, String> config = new LinkedHashMap<>();
 
     private StageConfiguration stageConfiguration;
 
-    private final Map<String, Property> properties;
+    private final Map<String, PropertyType> properties;
 
     public Create(Session session, boolean quiet, String urlOrFileOrSearch) {
         super(session, Mode.NONE);
@@ -59,7 +59,7 @@ public class Create extends SessionCommand {
         int idx;
         String key;
         String value;
-        Property property;
+        PropertyType property;
 
         idx = str.indexOf('=');
         if (idx == -1) {
@@ -138,7 +138,7 @@ public class Create extends SessionCommand {
     }
 
     private void defaults(String url) throws IOException {
-        Property np;
+        PropertyType np;
         String name;
         FileNode surrounding;
 
@@ -190,7 +190,7 @@ public class Create extends SessionCommand {
             }
         }
         stage.tuneConfiguration();
-        for (Map.Entry<Property, String> entry : config.entrySet()) {
+        for (Map.Entry<PropertyType, String> entry : config.entrySet()) {
             entry.getKey().set(stage.config(), entry.getValue());
         }
         stage.initialize();

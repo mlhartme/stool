@@ -23,7 +23,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.InfoCommand;
 import net.oneandone.stool.cli.Main;
-import net.oneandone.stool.configuration.Property;
+import net.oneandone.stool.configuration.PropertyType;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
@@ -1182,7 +1182,7 @@ public abstract class Stage {
     //--
 
     public Info info(String str) throws IOException {
-        Map<String, Property> properties;
+        Map<String, PropertyType> properties;
         Info result;
         List<String> lst;
 

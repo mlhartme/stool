@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.stool.configuration.Property;
+import net.oneandone.stool.configuration.PropertyType;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.UserNotFound;
@@ -62,7 +62,7 @@ public abstract class InfoCommand extends StageCommand {
         if (info instanceof Field) {
             value = ((Field) info).invoke();
         } else {
-            value = ((Property) info).get(stage.config());
+            value = ((PropertyType) info).get(stage.config());
         }
         return toString(value);
     }

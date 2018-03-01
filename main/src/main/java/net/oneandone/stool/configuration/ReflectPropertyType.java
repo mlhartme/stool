@@ -16,11 +16,8 @@
 package net.oneandone.stool.configuration;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.util.Info;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,10 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 /** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
-public class ReflectProperty extends Property {
+public class ReflectPropertyType extends PropertyType {
     private final Field field;
 
-    public ReflectProperty(String name, Field field) {
+    public ReflectPropertyType(String name, Field field) {
         super(name);
         this.field = field;
         field.setAccessible(true);

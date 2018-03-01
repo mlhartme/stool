@@ -18,10 +18,10 @@ package net.oneandone.stool.configuration;
 import net.oneandone.stool.util.Info;
 
 /** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
-public abstract class Property implements Info {
+public abstract class PropertyType implements Info {
     public final String name;
 
-    public Property(String name) {
+    public PropertyType(String name) {
         this.name = name;
     }
 
@@ -55,8 +55,8 @@ public abstract class Property implements Info {
     }
 
     public boolean equals(Object obj) {
-        if (obj instanceof Property) {
-            return name.equals(((Property) obj).name);
+        if (obj instanceof PropertyType) {
+            return name.equals(((PropertyType) obj).name);
         }
         return false;
     }
