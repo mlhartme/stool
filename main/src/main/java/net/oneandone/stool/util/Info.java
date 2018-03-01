@@ -37,7 +37,7 @@ public abstract class Info {
 
     public abstract Object get() throws IOException;
 
-    public String getString() throws IOException {
+    public String getAsString() throws IOException {
         return valueString(get());
 
     }

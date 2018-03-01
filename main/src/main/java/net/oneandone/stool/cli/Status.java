@@ -60,7 +60,7 @@ public class Status extends InfoCommand {
             console.info.print(info.name());
             console.info.print(" : ");
             first = true;
-            value = info.getString();
+            value = info.getAsString();
             if (value.isEmpty()) {
                 console.info.println();
             } else for (String str : TAB.split(value)) {

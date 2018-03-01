@@ -16,13 +16,13 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.configuration.PropertyType;
 import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Processes;
+import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.launcher.Failure;
@@ -342,16 +342,16 @@ public abstract class StageCommand extends SessionCommand {
                 boolean result;
                 Object obj;
                 String str;
-                PropertyType p;
+                Property p;
 
                 if (constField != null) {
                     obj = field.get();
                 } else {
-                    p = session.properties().get(constProperty);
+                    p = stage.propertyOpt(constProperty);
                     if (p == null) {
                         throw new PredicateException("property or status field not found: " + constProperty);
                     }
-                    obj = p.get(stage.config());
+                    obj = p.get();
                 }
                 if (obj == null) {
                     str = "";
