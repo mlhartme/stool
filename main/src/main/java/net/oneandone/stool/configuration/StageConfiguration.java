@@ -25,6 +25,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -133,6 +134,27 @@ public class StageConfiguration {
 
     public String mavenHome() {
         return mavenHome.isEmpty() ? null : mavenHome;
+    }
+
+    //--
+
+    /** you'll usually invoke session.accessors instead */
+    public static Map<String,Accessor> accessors(FileNode templates) {
+        Map<String, Accessor> result;
+        Option option;
+
+        result = new LinkedHashMap<>();
+        for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
+            option = field.getAnnotation(Option.class);
+            if (option != null) {
+                if (option.key().equals("template")) {
+                    result.put(option.key(), new TemplateAccessor(option.key(), templates));
+                } else {
+                    result.put(option.key(), new ReflectAccessor(option.key(), field));
+                }
+            }
+        }
+        return result;
     }
 }
 

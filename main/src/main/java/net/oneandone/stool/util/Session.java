@@ -184,20 +184,8 @@ public class Session {
     }
 
     public Map<String, Accessor> accessors() {
-        Option option;
-
         if (lazyAccessors == null) {
-            lazyAccessors = new LinkedHashMap<>();
-            for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
-                option = field.getAnnotation(Option.class);
-                if (option != null) {
-                    if (option.key().equals("template")) {
-                        lazyAccessors.put(option.key(), new TemplateAccessor(option.key(), configuration.templates));
-                    } else {
-                        lazyAccessors.put(option.key(), new ReflectAccessor(option.key(), field));
-                    }
-                }
-            }
+            lazyAccessors = StageConfiguration.accessors(configuration.templates);
         }
         return lazyAccessors;
     }
