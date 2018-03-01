@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.configuration;
 
-/** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
+/** Handles Stool or Stage configuration access. Converts between strings an objects and deals with reflection */
 public abstract class PropertyType {
     public final String name;
 
