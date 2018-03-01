@@ -1213,7 +1213,7 @@ public abstract class Stage {
         String prefix;
 
         result = new ArrayList<>();
-        for (Accessor type : session.properties().values()) {
+        for (Accessor type : session.accessors().values()) {
             if (!type.name.equals("template.env")) {
                 result.add(new StandardProperty(type, configuration));
             }

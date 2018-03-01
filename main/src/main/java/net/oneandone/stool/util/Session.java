@@ -152,7 +152,7 @@ public class Session {
     public final Users users;
     public final LockManager lockManager;
 
-    private Map<String, Accessor> lazyProperties;
+    private Map<String, Accessor> lazyAccessors;
     private Pool lazyPool;
 
     public Session(boolean setenv, Gson gson, Logging logging, String command,
@@ -179,27 +179,27 @@ public class Session {
                     "ou=users,ou=" + configuration.ldapUnit);
         }
         this.lockManager = LockManager.create(home.join("run/locks"), user + ":" + command.replace("\n", "\\n"), 30);
-        this.lazyProperties = null;
+        this.lazyAccessors = null;
         this.lazyPool= null;
     }
 
-    public Map<String, Accessor> properties() {
+    public Map<String, Accessor> accessors() {
         Option option;
 
-        if (lazyProperties == null) {
-            lazyProperties = new LinkedHashMap<>();
+        if (lazyAccessors == null) {
+            lazyAccessors = new LinkedHashMap<>();
             for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
                 option = field.getAnnotation(Option.class);
                 if (option != null) {
                     if (option.key().equals("template")) {
-                        lazyProperties.put(option.key(), new TemplateAccessor(option.key(), configuration.templates));
+                        lazyAccessors.put(option.key(), new TemplateAccessor(option.key(), configuration.templates));
                     } else {
-                        lazyProperties.put(option.key(), new ReflectAccessor(option.key(), field));
+                        lazyAccessors.put(option.key(), new ReflectAccessor(option.key(), field));
                     }
                 }
             }
         }
-        return lazyProperties;
+        return lazyAccessors;
     }
 
     public void add(FileNode backstage, String id) throws LinkException {
@@ -517,7 +517,7 @@ public class Session {
         refresh = scm == null ? "" : scm.refresh();
         result = new StageConfiguration(javaHome(), mavenHome, refresh);
         result.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
-        configuration.setDefaults(properties(), result, url);
+        configuration.setDefaults(accessors(), result, url);
         return result;
     }
 
