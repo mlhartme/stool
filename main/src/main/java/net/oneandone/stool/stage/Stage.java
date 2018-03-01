@@ -1219,7 +1219,7 @@ public abstract class Stage {
             }
         }
         env = configuration.templateEnv;
-        prefix = configuration.template + ".";
+        prefix = configuration.template.getName() + ".";
         for (String name : configuration.templateEnv.keySet()) {
             result.add(new TemplateProperty(prefix + name, env, name));
         }

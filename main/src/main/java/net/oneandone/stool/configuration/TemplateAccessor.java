@@ -39,7 +39,7 @@ public class TemplateAccessor extends Accessor {
         StageConfiguration config;
 
         config = (StageConfiguration) configuration;
-        if (config.template.equals(template)) {
+        if (config.template.getName().equals(template)) {
             // no changes
             return;
         }
