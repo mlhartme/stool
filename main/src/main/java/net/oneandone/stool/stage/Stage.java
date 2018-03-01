@@ -38,6 +38,7 @@ import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.LogEntry;
 import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Ports;
+import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.Node;
@@ -1174,7 +1175,7 @@ public abstract class Stage {
         List<Info> result;
 
         result = new ArrayList();
-        result.add(session.property("name"));
+        result.add(new Property(session.property("name"), configuration));
         result.addAll(fields());
         return result;
     }
@@ -1182,12 +1183,10 @@ public abstract class Stage {
     //--
 
     public Info info(String str) throws IOException {
-        Map<String, PropertyType> properties;
         Info result;
         List<String> lst;
 
-        properties = session.properties();
-        result = properties.get(str);
+        result = propertyOpt(str);
         if (result != null) {
             return result;
         }
@@ -1199,7 +1198,30 @@ public abstract class Stage {
         for (Field f : fields()) {
             lst.add(f.name);
         }
-        lst.addAll(properties.keySet());
+        for (Property p : properties()) {
+            lst.add(p.infoName());
+        }
         throw new ArgumentException(str + ": no such status field or property, choose one of " + lst);
+    }
+
+    //--
+
+    public List<Property> properties() {
+        List<Property> result;
+
+        result = new ArrayList<>();
+        for (PropertyType type : session.properties().values()) {
+            result.add(new Property(type, configuration));
+        }
+        return result;
+    }
+
+    public Property propertyOpt(String name) {
+        for (Property property : properties()) {
+            if (name.equals(property.infoName())) {
+                return property;
+            }
+        }
+        return null;
     }
 }

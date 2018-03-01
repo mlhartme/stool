@@ -15,10 +15,8 @@
  */
 package net.oneandone.stool.configuration;
 
-import net.oneandone.stool.util.Info;
-
 /** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
-public abstract class PropertyType implements Info {
+public abstract class PropertyType {
     public final String name;
 
     public PropertyType(String name) {
@@ -44,11 +42,6 @@ public abstract class PropertyType implements Info {
 
     // TODO: change strOrMap to str when it's no longer used for stool.defaults
     protected abstract void doSet(Object configuration, String str);
-
-    @Override
-    public String infoName() {
-        return name;
-    }
 
     public int hashCode() {
         return name.hashCode();

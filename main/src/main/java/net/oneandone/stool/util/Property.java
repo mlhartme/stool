@@ -37,6 +37,6 @@ public class Property implements Info {
     }
 
     public String infoName() {
-        return type.infoName();
+        return type.name;
     }
 }
