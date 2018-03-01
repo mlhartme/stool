@@ -57,7 +57,7 @@ public class TemplateField extends Field {
     }
 
     @Override
-    public Object invoke() throws IOException {
+    public Object get() throws IOException {
         StatusHelper target;
         Method m;
 
@@ -70,9 +70,9 @@ public class TemplateField extends Field {
         try {
             return m.invoke(target);
         } catch (IllegalAccessException e) {
-            throw new IOException("cannot invoke method: " + e.getMessage(), e);
+            throw new IOException("cannot get method: " + e.getMessage(), e);
         } catch (InvocationTargetException e) {
-            throw new IOException("cannot invoke method: " + e.getMessage(), e);
+            throw new IOException("cannot get method: " + e.getMessage(), e);
         }
     }
 }

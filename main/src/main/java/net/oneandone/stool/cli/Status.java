@@ -42,7 +42,7 @@ public class Status extends InfoCommand {
             selected.addAll(defaults());
             if (selected.isEmpty()) {
                 for (Info info : stage.fieldsAndName()) {
-                    selected.add(info.infoName());
+                    selected.add(info.name());
                 }
             }
         }
@@ -52,15 +52,15 @@ public class Status extends InfoCommand {
         }
         width = 0;
         for (Info info : infos) {
-            width = Math.max(width, info.infoName().length());
+            width = Math.max(width, info.name().length());
         }
         width += 2;
         for (Info info : infos) {
-            console.info.print(Strings.times(' ', width - info.infoName().length()));
-            console.info.print(info.infoName());
+            console.info.print(Strings.times(' ', width - info.name().length()));
+            console.info.print(info.name());
             console.info.print(" : ");
             first = true;
-            value = infoToString(stage, info);
+            value = infoToString(info);
             if (value.isEmpty()) {
                 console.info.println();
             } else for (String str : TAB.split(value)) {

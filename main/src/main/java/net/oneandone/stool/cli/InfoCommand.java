@@ -56,15 +56,8 @@ public abstract class InfoCommand extends StageCommand {
 
     //--
 
-    public static String infoToString(Stage stage, Info info) throws IOException {
-        Object value;
-
-        if (info instanceof Field) {
-            value = ((Field) info).invoke();
-        } else {
-            value = ((Property) info).get();
-        }
-        return toString(value);
+    public static String infoToString(Info info) throws IOException {
+        return toString(info.get());
     }
 
     public static String toString(Object value) {

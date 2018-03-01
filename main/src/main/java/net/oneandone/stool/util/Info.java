@@ -15,7 +15,10 @@
  */
 package net.oneandone.stool.util;
 
+import java.io.IOException;
+
 /** Field or Property */
 public interface Info {
-    String infoName();
+    String name();
+    Object get() throws IOException;
 }

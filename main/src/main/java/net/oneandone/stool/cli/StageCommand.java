@@ -345,7 +345,7 @@ public abstract class StageCommand extends SessionCommand {
                 PropertyType p;
 
                 if (constField != null) {
-                    obj = field.invoke();
+                    obj = field.get();
                 } else {
                     p = session.properties().get(constProperty);
                     if (p == null) {

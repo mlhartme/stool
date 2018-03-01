@@ -998,87 +998,87 @@ public abstract class Stage {
         fields = new ArrayList<>();
         fields.add(new Field("id") {
             @Override
-            public Object invoke() {
+            public Object get() {
                 return getId();
             }
         });
         fields.add(new Field("selected") {
             @Override
-            public Object invoke() throws IOException {
+            public Object get() throws IOException {
                 return session.isSelected(Stage.this);
             }
         });
         fields.add(new Field("directory") {
             @Override
-            public Object invoke() {
+            public Object get() {
                 return Stage.this.directory.getAbsolute();
             }
         });
         fields.add(new Field("backstage") {
             @Override
-            public Object invoke() {
+            public Object get() {
                 return Stage.this.backstage.getAbsolute();
             }
         });
         fields.add(new Field("url") {
             @Override
-            public Object invoke() {
+            public Object get() {
                 return Stage.this.getUrl();
             }
         });
         fields.add(new Field("type") {
             @Override
-            public Object invoke() {
+            public Object get() {
                 return Stage.this.getType();
             }
         });
         fields.add(new Field("creator") {
             @Override
-            public Object invoke() throws IOException {
+            public Object get() throws IOException {
                 return InfoCommand.userName(session, Stage.this.creator());
             }
 
         });
         fields.add(new Field("created") {
             @Override
-            public Object invoke() throws IOException {
+            public Object get() throws IOException {
                 return LogEntry.FULL_FMT.format(Stage.this.created());
             }
 
         });
         fields.add(new Field("last-modified-by") {
             @Override
-            public Object invoke() throws IOException {
+            public Object get() throws IOException {
                 return InfoCommand.userName(session, Stage.this.lastModifiedBy());
             }
         });
         fields.add(new Field("last-modified-at") {
             @Override
-            public Object invoke() throws IOException {
+            public Object get() throws IOException {
                 return Stage.timespan(Stage.this.lastModifiedAt());
             }
         });
         fields.add(new Field("buildtime") {
             @Override
-            public Object invoke() throws IOException {
+            public Object get() throws IOException {
                 return Stage.this.buildtime();
             }
         });
         fields.add(new Field("disk") {
             @Override
-            public Object invoke() throws IOException {
+            public Object get() throws IOException {
                 return Stage.this.diskUsed();
             }
         });
         fields.add(new Field("state") {
             @Override
-            public Object invoke() throws IOException {
+            public Object get() throws IOException {
                 return Stage.this.state().toString();
             }
         });
         fields.add(new Field("uptime") {
             @Override
-            public Object invoke() throws IOException {
+            public Object get() throws IOException {
                 String container;
 
                 container = Stage.this.dockerContainer();
@@ -1087,7 +1087,7 @@ public abstract class Stage {
         });
         fields.add(new Field("cpu") {
             @Override
-            public Object invoke() throws IOException {
+            public Object get() throws IOException {
                 String container;
                 Engine engine;
                 Stats stats;
@@ -1108,7 +1108,7 @@ public abstract class Stage {
         });
         fields.add(new Field("mem") {
             @Override
-            public Object invoke() throws IOException {
+            public Object get() throws IOException {
                 String container;
                 Engine engine;
                 Stats stats;
@@ -1129,31 +1129,31 @@ public abstract class Stage {
         });
         fields.add(new Field("container") {
             @Override
-            public Object invoke() throws IOException {
+            public Object get() throws IOException {
                 return Stage.this.dockerContainer();
             }
         });
         fields.add(new Field("debugger") {
             @Override
-            public Object invoke() {
+            public Object get() {
                 return "TODO";
             }
         });
         fields.add(new Field("suspend") {
             @Override
-            public Object invoke() {
+            public Object get() {
                 return "TODO";
             }
         });
         fields.add(new Field("apps") {
             @Override
-            public Object invoke() throws IOException {
+            public Object get() throws IOException {
                 return Stage.this.namedUrls();
             }
         });
         fields.add(new Field("other") {
             @Override
-            public Object invoke() throws IOException {
+            public Object get() throws IOException {
                 InfoCommand.other(Stage.this, Stage.this.loadPortsOpt());
                 return null;
             }
@@ -1199,7 +1199,7 @@ public abstract class Stage {
             lst.add(f.name);
         }
         for (Property p : properties()) {
-            lst.add(p.infoName());
+            lst.add(p.name());
         }
         throw new ArgumentException(str + ": no such status field or property, choose one of " + lst);
     }
@@ -1218,7 +1218,7 @@ public abstract class Stage {
 
     public Property propertyOpt(String name) {
         for (Property property : properties()) {
-            if (name.equals(property.infoName())) {
+            if (name.equals(property.name())) {
                 return property;
             }
         }

@@ -36,7 +36,7 @@ public class Property implements Info {
         type.set(configuration, str);
     }
 
-    public String infoName() {
+    public String name() {
         return type.name;
     }
 }

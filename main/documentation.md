@@ -25,7 +25,7 @@ Start it:
 
 To see the running application, point your browser to the url printed by the `start` command.
 
-You can invoke
+You can get
 
     stool status
 
@@ -43,7 +43,7 @@ You can create an arbitrary number of stages. Invoke
 
     stool list
 
-to see what you have created and not yet removed. To switch to another stage, invoke
+to see what you have created and not yet removed. To switch to another stage, get
 
     stool select otherstage
 
@@ -313,7 +313,7 @@ stop and remove. A stage contains web applications built from source or availabl
 * **-svnuser** specifies the user name for Subversion operations
 * **-svnpassword** specifies the password for Subversion operations
 
-Note: Subversion operations (e.g. checkout a new stage) invoke the `svn` command with credentials specified by `-svnuser` and `-svnpassword`. 
+Note: Subversion operations (e.g. checkout a new stage) get the `svn` command with credentials specified by `-svnuser` and `-svnpassword`. 
 If not specified, the defaults of svn `svn` command are used (usually stored in `~/.subversion/auth`).
 
 
@@ -459,7 +459,7 @@ Create a new stage
 
 #### DESCRIPTION
 
-Creates a new stage- and backstage directory and enters the stage directory. In most cases, you can invoke `stool create` 
+Creates a new stage- and backstage directory and enters the stage directory. In most cases, you can get `stool create` 
 similar to `svn checkout`: with an url and a directory to checkout to.
 
 *url* specifies the application you want to run in your stage. In many cases, the url is a subversion url prefixed
@@ -552,7 +552,7 @@ stage commands are `status`, `build`, `start`, and `stop`. Note that `create` is
 because it does not initially have a stage to operate on (although it results in a new (and selected) 
 stage).
 
-All stage commands support stage options, invoke `stool help stage-options` for documentation.
+All stage commands support stage options, get `stool help stage-options` for documentation.
 
 ### stool-stage-options
 
@@ -584,7 +584,7 @@ By default, stage commands operate on the selected stage (as shown in the stage 
 
 
 The most basic predicate is a simple `NAME`. It matches only on the specified stage. This is handy
-to invoke one command for a stage without selecting it.
+to get one command for a stage without selecting it.
 
 Next, a predicate *FIELD*`=`*VALUE* matches stages who's status field has the specified value.
 *PROPERTY*`=`*VALUE* is similar, it matches stage properties.
@@ -594,7 +594,7 @@ Next, a predicate *FIELD*`=`*VALUE* matches stages who's status field has the sp
 Since stage commands operate on an arbitrary number of stages, you might want to specify what to do if the command
 fails on some stages. That's what `-fail` *mode* is for.
 
-Mode `normal` reports problems immediately and aborts execution, Stool does not try to invoke the command 
+Mode `normal` reports problems immediately and aborts execution, Stool does not try to get the command 
 on remaining matching stages. This is the default.
 
 `after` reports problems after the command was invoked on all matching stages.
@@ -637,10 +637,10 @@ as configured for the stage. Reports an error if the stage is not owned or if th
 You can see the configured build command with `stool config build`, and you can change it with
 `stool` *global-option*... `config "build="`*your command*`"`. Quotes are mandatory if your command contains spaces.
 
-The pre-defined build command for artifact stages does nothing. Thus, you can invoke
+The pre-defined build command for artifact stages does nothing. Thus, you can get
 `stool build` for artifact stages, it just has no effect.
 
-If you invoke `build` from the dashboard application, the build command executes in the environment
+If you get `build` from the dashboard application, the build command executes in the environment
 defined for the dashboard stage with the additional environment variables mentioned above.
 
 The differences between using `stool build` and executing a build command directly is the execute directory
@@ -650,7 +650,7 @@ need a separate local Maven repository for every stage - and that's configured i
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 ### stool-remove
@@ -678,7 +678,7 @@ list of stages. This is useful to "unimport" a stage, i.e. revert the effect of 
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -736,7 +736,7 @@ stage:
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -763,7 +763,7 @@ actually startet the stage (or for root). By using anchor files, any user with `
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -782,7 +782,7 @@ Shorthand for `stool stop && stool start` with the specified options.
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -806,7 +806,7 @@ is specified, also runs the command specified by the `build` property.
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -825,7 +825,7 @@ specified max number of commands (*n* defauls is 50).
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -848,7 +848,7 @@ Changes the current working directory to the specified *target*:
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -880,7 +880,7 @@ Property values may contain {} to refer to the previous value. You can use this,
 If you want to set a property to a value with spaces, you have to use quotes around the key-value pair.
 Otherwise, the Stool does not see what belongs to your value.
 
-If you change a property, you have to invoke the necessary re-builds or re-starts to make the changes
+If you change a property, you have to get the necessary re-builds or re-starts to make the changes
 effective. E.g. if you change `tomcat.heap`, you have to run `stool restart` to make the change effective.
 
 Properties have a type: boolean, number, date, string, list of strings, or map of strings to strings.
@@ -897,7 +897,7 @@ Each entry separates key and value by a colon. Example `PATH:/bin, HOME:/home/me
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -986,7 +986,7 @@ You might have to re-build your application after moving the stage if you have d
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -1010,7 +1010,7 @@ and instead get random ports automatically allocated when you start the stage.
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -1082,7 +1082,7 @@ Available fields:
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -1101,7 +1101,7 @@ command for a list of available fields. Default fields/properties are `name stat
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -1119,7 +1119,7 @@ Removes the Maven repository and rotates *.log into *.log.gz files.
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -1145,7 +1145,7 @@ Also checks Stool's locking system for stale locks and, if `-repair` is specifie
 
 [//]: # (include stageOptions.md)
 
-Note: This is a stage command, invoke `stool help stage-options` to see available [stage options](#stool-stage-options)
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
 [//]: # (-)
 
 
@@ -1172,7 +1172,7 @@ Application download:
 * Download the latest `application.sh` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22)
 * Make it executable, rename it to `stool` and add it to your $PATH.
 
-Now check your installation: invoke `stool` - you should get a usage message.
+Now check your installation: get `stool` - you should get a usage message.
 
 
 ### Isolated configuration
@@ -1196,7 +1196,7 @@ permissions to allow everybody in a group to access Stool.
 Instructions
 * become `root`
 * create a group `stool` and add all users you want to give access to the stages
-* create a folder `sharedstages` somewhere on your disk; invoke on this folder:
+* create a folder `sharedstages` somewhere on your disk; get on this folder:
   * `chgrp stool`
   * `chmod 2775` 
 * for all `stool` users, define the environment variable `STOOL_HOME` and point it to `sharedstages/.stool`

@@ -166,7 +166,7 @@
 
 * dumped all sudo rules and `$STOOL_HOME/bin` scripts
   * =chowntree.sd= (no longer needed, because chown is gone; see chown-less operation above). This fixes a critical security problem (thanks to Bernd!)
-  * invoke service-wrapper without sudo
+  * get service-wrapper without sudo
     * instead, it's now started as the current OS user
     * and it's stopped with via anchor file; every user with wx permissions on $backstage/run and $backstage/run/tomcat.anchor can stop a stage 
   * dashboard now invokes Stool commands without sudo, it sets the Stool user to the authenticated user (or, it not authenticated, the Stool user of the dashboard itself)
@@ -368,7 +368,7 @@
 * Allow unauthenticated http://dashboard/stages requests.
 * Add java8-sdk as an alternative package dependency (to fix install problem with OpenJdk from PPA).
 * Service wrapper: don't restart on OutOfMemory, the user should have a look instead.
-* Improved stale backstage wiper: invoke stop with proper user (and improved error message); wipe backstages without anchor file.
+* Improved stale backstage wiper: get stop with proper user (and improved error message); wipe backstages without anchor file.
 
 
 ### 3.3.2 (2016-01-18)
@@ -399,9 +399,9 @@
 
 * Renamed overview to dashboard.
 * Added '-autostop', '-autorestart', '-autochown' and '-autorechown' options for all stage commands.
-* 'stool refresh': Removed implicit re-chowning and re-starting. If you need this functionality, invoke 'refresh' with the new auto
+* 'stool refresh': Removed implicit re-chowning and re-starting. If you need this functionality, get 'refresh' with the new auto
   options for stage commands: use 'stool refresh -autorechown -autorestart' to get the old behavior.
-* 'stool remove': Removed implicit stopping. If you need this functionality, invoke 'stool remove -autostop'.
+* 'stool remove': Removed implicit stopping. If you need this functionality, get 'stool remove -autostop'.
 * Adjusted the 'chown' command for the new '-autorestart' options: 'chown' now reports an error, if the stage is up.
   Use  '-autorestart' to get the old behavior. The old '-stop' option is gone.
 * Removed the 'build -restart' option, use '-autorestart' instead.

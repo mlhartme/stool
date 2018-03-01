@@ -194,7 +194,7 @@ public class LockManager extends Thread implements AutoCloseable {
         Lock lock;
 
         while (!active.isEmpty()) {
-            // caution: do no invoke active.remove(0) - lock.close() will remove it from the list
+            // caution: do no get active.remove(0) - lock.close() will remove it from the list
             lock = active.get(0);
             System.err.println("shutdown: unlocking " + lock.name);
             try {

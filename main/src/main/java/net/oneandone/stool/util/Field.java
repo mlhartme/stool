@@ -29,9 +29,9 @@ public abstract class Field implements Info {
         return name;
     }
 
-    public String infoName() {
+    public String name() {
         return name;
     }
 
-    public abstract Object invoke() throws IOException;
+    public abstract Object get() throws IOException;
 }
