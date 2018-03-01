@@ -1035,7 +1035,7 @@ public abstract class Stage {
         fields.add(new Field("creator") {
             @Override
             public Object get() throws IOException {
-                return InfoCommand.userName(session, Stage.this.creator());
+                return Info.userName(session, Stage.this.creator());
             }
 
         });
@@ -1049,7 +1049,7 @@ public abstract class Stage {
         fields.add(new Field("last-modified-by") {
             @Override
             public Object get() throws IOException {
-                return InfoCommand.userName(session, Stage.this.lastModifiedBy());
+                return Info.userName(session, Stage.this.lastModifiedBy());
             }
         });
         fields.add(new Field("last-modified-at") {
@@ -1154,7 +1154,7 @@ public abstract class Stage {
         fields.add(new Field("other") {
             @Override
             public Object get() throws IOException {
-                InfoCommand.other(Stage.this, Stage.this.loadPortsOpt());
+                Info.other(Stage.this, Stage.this.loadPortsOpt());
                 return null;
             }
         });

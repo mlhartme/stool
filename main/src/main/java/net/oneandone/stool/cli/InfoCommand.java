@@ -16,14 +16,9 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.users.UserNotFound;
-import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.util.Separator;
 
-import javax.naming.NamingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,34 +43,5 @@ public abstract class InfoCommand extends StageCommand {
 
     protected List<String> defaults() {
         return Separator.COMMA.split(defaults);
-    }
-
-    //--
-
-    public static String userName(Session session, String login) {
-        try {
-            return session.users.byLogin(login).toStatus();
-        } catch (NamingException | UserNotFound e) {
-            return "[error: " + e.getMessage() + "]";
-        }
-    }
-
-    /** TODO: we need this field to list fitnesse urls ...*/
-    public static List<String> other(Stage stage, Ports ports) {
-        List<String> result;
-
-        result = new ArrayList<>();
-        if (ports != null) {
-            for (Vhost vhost : ports.vhosts()) {
-                if (vhost.isWebapp()) {
-                    continue;
-                }
-                if (vhost.name.contains("+")) {
-                    continue;
-                }
-                result.add(vhost.httpUrl(stage.session.configuration.vhosts, stage.session.configuration.hostname));
-            }
-        }
-        return result;
     }
 }

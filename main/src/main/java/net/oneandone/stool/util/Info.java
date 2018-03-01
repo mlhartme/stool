@@ -15,7 +15,12 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.users.UserNotFound;
+
+import javax.naming.NamingException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /** Field or Property */
@@ -60,5 +65,34 @@ public abstract class Info {
         } else {
             return value.toString();
         }
+    }
+
+    //--
+
+    public static String userName(Session session, String login) {
+        try {
+            return session.users.byLogin(login).toStatus();
+        } catch (NamingException | UserNotFound e) {
+            return "[error: " + e.getMessage() + "]";
+        }
+    }
+
+    /** TODO: we need this field to list fitnesse urls ...*/
+    public static List<String> other(Stage stage, Ports ports) {
+        List<String> result;
+
+        result = new ArrayList<>();
+        if (ports != null) {
+            for (Vhost vhost : ports.vhosts()) {
+                if (vhost.isWebapp()) {
+                    continue;
+                }
+                if (vhost.name.contains("+")) {
+                    continue;
+                }
+                result.add(vhost.httpUrl(stage.session.configuration.vhosts, stage.session.configuration.hostname));
+            }
+        }
+        return result;
     }
 }
