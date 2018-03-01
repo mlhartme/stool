@@ -3,7 +3,7 @@
 ## Introduction
 
 Stool is a command line tool that provides a lifecycle for stages: create, build, start, stop, remove.
-A stage is a Tomcat with web applications built from sources or downloaded as artifacts.
+A stage is a Docker Container with web applications, built from sources or downloaded as artifacts.
 
 ### Quick Tour
 
@@ -73,31 +73,13 @@ prints help about `create`.
 * $STAGE denotes the stage directory of the respective stage; 
 * $STOOL_HOME denotes Stools home directory 
 
-### Rationale
-
-Why not setup Tomcat by hand or via the admin application? Because Stool makes it simpler, more robust,
-it deals with port allocation, different users sharing their stages, etc.
-
-Why about Carge? Use Carge for JEE applications or if you need to customized the servlet container. Use Stool if you have
-plain web applications - but many of them. 
-
-Why not use virtual machines instead of creating stages with Stool? Stool offers the following benefits:
-
-* creating stages is faster
-* creating stages is fully automatic, virtual machine might need extra steps like dns setup, cerfificates etc.
-* if you have firewalls, you can set them up once for all stages; with virtual machine, you'll probably have to
-  request firewalls for every new vm.
-
-Thus, a stage is not a micro service - all stages shared the same container and os.
 
 ## Concepts
 
 ### Stage
 
-A stage is a Tomcat servlet container (http://tomcat.apache.org) with one or more Java web applications
-(https://en.wikipedia.org/wiki/Java_Servlet). The whole thing is wrapper by Java Service Wrapper
-(http://wrapper.tanukisoftware.com/doc/german/download.jsp) for robust start/stop handling.
-A stage has a
+A stage defines a Docker, typically containing a Tomcat servlet container (http://tomcat.apache.org) with one or more
+Java web applications (https://en.wikipedia.org/wiki/Java_Servlet). A stage has a
 
 * **directory**
   Where the stage is stored in your file system, it holds the source code or the war files of this stage.
@@ -121,8 +103,8 @@ A stage has a
       file:///home/mhm/foo.war
 
 * **type**
-  How the stage contains the application(s): source - checkout of a Maven project, or artifact - a Maven artifact.
-  The stage url implies the stage type.
+  How the stage contains the application(s): source - checkout of project sources, or artifact - an artifact
+  from a Maven repository. The stage url implies the stage type.
 * **state**
   one of
   * **down**
@@ -162,20 +144,20 @@ administrators (see [stool properties](#stool-properties)). Stage properties con
 respective stage only, every stage has its own set of stage properties. You can adjust stage properties 
 with [stool config](#stool-config).
 
-In contrast, every stage has status fields, you can view them with `stool status`. Status fields are similar to properties,
-but they are read-only.
+In contrast, every stage has status fields, you can view them with `stool status`. Status fields are similar to
+properties, but they are read-only.
 
 
 ### Backstage
 
 Every stage directory contains a backstage directory `.backstage` that stores Stool-related
-data about, e.g. the stage properties, Tomcat configuration and log files of the applications. The
-backstage directory is created when you create or import the stage. `$STOOL_HOME/backstages`
-contains a symlink *id*->*backstage* for every stage. Stool uses this to iterate all stages.
+data about, e.g. the stage properties or log files of the applications. The backstage directory is created
+when you create or import the stage. `$STOOL_HOME/backstages` contains a symlink *id*->*backstage* for every stage.
+Stool uses this to iterate all stages.
 
-Stool removes backstage symlinks either explicitly when you run `stool remove`, or
-implicitly when it detects that the target directory has been removed. Stool checks for - and cleans - stale
-backstage links before every command.
+Stool removes backstage symlinks either explicitly when you run `stool remove`, or implicitly when it detects that
+the target directory has been removed. Stool checks for - and cleans - stale backstage links before every command.
+
 
 ### Stage Expiring
 
@@ -187,7 +169,7 @@ unless you specify a new date with `stool config expire=`*yyyy-mm-dd*.
 Depending on the `autoRemove` Stool property, an expired stage will automatically be removed after
 the configured number of days. Stage expiring helps to detect and remove unused stages, which is crucial for
 shared machines. If you receive an email notification that your stage has expired, please check if your stage
-is still needed. If so, adjust the expire date, otherwise remove the stage.
+is still needed. If so, adjust the expire date. Otherwise, remove the stage.
 
 ### User defaults
 
@@ -214,10 +196,6 @@ Supported user default properties:
   controls the `-max` option for the history command
 * **history.details**
   controls the `-details` option for the history command
-* **tomcat.debug**
-  controls the `-debug` option for the start and restart command
-* **tomcat.suspend**
-  controls the `-suspend` option for the start and restart command
 * **list.defaults**
   controls the `-defaults` option for the list command
 * **status.defaults**
