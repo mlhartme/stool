@@ -1210,7 +1210,9 @@ public abstract class Stage {
 
         result = new ArrayList<>();
         for (PropertyType type : session.properties().values()) {
-            result.add(new Property(type, configuration));
+            if (!type.name.equals("template.env")) {
+                result.add(new Property(type, configuration));
+            }
         }
         return result;
     }

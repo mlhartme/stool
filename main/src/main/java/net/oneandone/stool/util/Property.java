@@ -20,7 +20,7 @@ import net.oneandone.stool.configuration.StageConfiguration;
 
 /** A computable value representing one aspect of the stage status. */
 public class Property extends Info {
-    public final PropertyType type;
+    private final PropertyType type;
     private final StageConfiguration configuration;
 
     public Property(PropertyType type, StageConfiguration configuration) {
