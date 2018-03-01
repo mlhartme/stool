@@ -202,10 +202,6 @@ public class Session {
         return lazyProperties;
     }
 
-    public PropertyType property(String name) {
-        return properties().get(name);
-    }
-
     public void add(FileNode backstage, String id) throws LinkException {
         backstage.link(backstages.join(id));
     }
