@@ -18,7 +18,15 @@ package net.oneandone.stool.util;
 import java.io.IOException;
 
 /** Field or Property */
-public interface Info {
-    String name();
-    Object get() throws IOException;
+public abstract class Info {
+    private final String name;
+
+    protected Info(String name) {
+        this.name = name;
+    }
+
+    public final String name() {
+        return name;
+    }
+    public abstract Object get() throws IOException;
 }

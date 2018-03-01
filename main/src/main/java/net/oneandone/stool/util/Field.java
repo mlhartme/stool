@@ -18,19 +18,13 @@ package net.oneandone.stool.util;
 import java.io.IOException;
 
 /** A computable value representing one aspect of the stage status. */
-public abstract class Field implements Info {
-    public final String name;
-
+public abstract class Field extends Info {
     protected Field(String name) {
-        this.name = name;
+        super(name);
     }
 
     public String toString() {
-        return name;
-    }
-
-    public String name() {
-        return name;
+        return name();
     }
 
     public abstract Object get() throws IOException;

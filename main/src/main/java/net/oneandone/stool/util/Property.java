@@ -19,11 +19,12 @@ import net.oneandone.stool.configuration.PropertyType;
 import net.oneandone.stool.configuration.StageConfiguration;
 
 /** A computable value representing one aspect of the stage status. */
-public class Property implements Info {
+public class Property extends Info {
     public final PropertyType type;
     private final StageConfiguration configuration;
 
     public Property(PropertyType type, StageConfiguration configuration) {
+        super(type.name);
         this.type = type;
         this.configuration = configuration;
     }
@@ -34,9 +35,5 @@ public class Property implements Info {
 
     public void set(String str) {
         type.set(configuration, str);
-    }
-
-    public String name() {
-        return type.name;
     }
 }

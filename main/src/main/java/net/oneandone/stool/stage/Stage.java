@@ -1164,7 +1164,7 @@ public abstract class Stage {
 
     public Field fieldOpt(String str) throws IOException {
         for (Field f : fields()) {
-            if (str.equals(f.name)) {
+            if (str.equals(f.name())) {
                 return f;
             }
         }
@@ -1196,7 +1196,7 @@ public abstract class Stage {
         }
         lst = new ArrayList<>();
         for (Field f : fields()) {
-            lst.add(f.name);
+            lst.add(f.name());
         }
         for (Property p : properties()) {
             lst.add(p.name());
