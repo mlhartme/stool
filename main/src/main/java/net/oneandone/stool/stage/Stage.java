@@ -22,7 +22,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.Main;
-import net.oneandone.stool.configuration.PropertyType;
+import net.oneandone.stool.configuration.Accessor;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
@@ -1213,7 +1213,7 @@ public abstract class Stage {
         String prefix;
 
         result = new ArrayList<>();
-        for (PropertyType type : session.properties().values()) {
+        for (Accessor type : session.properties().values()) {
             if (!type.name.equals("template.env")) {
                 result.add(new StandardProperty(type, configuration));
             }

@@ -16,10 +16,10 @@
 package net.oneandone.stool.configuration;
 
 /** Handles Stool or Stage configuration access. Converts between strings an objects and deals with reflection */
-public abstract class PropertyType {
+public abstract class Accessor {
     public final String name;
 
-    public PropertyType(String name) {
+    public Accessor(String name) {
         this.name = name;
     }
 
@@ -48,8 +48,8 @@ public abstract class PropertyType {
     }
 
     public boolean equals(Object obj) {
-        if (obj instanceof PropertyType) {
-            return name.equals(((PropertyType) obj).name);
+        if (obj instanceof Accessor) {
+            return name.equals(((Accessor) obj).name);
         }
         return false;
     }

@@ -26,11 +26,11 @@ import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.Option;
-import net.oneandone.stool.configuration.PropertyType;
-import net.oneandone.stool.configuration.ReflectPropertyType;
+import net.oneandone.stool.configuration.Accessor;
+import net.oneandone.stool.configuration.ReflectAccessor;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
-import net.oneandone.stool.configuration.TemplatePropertyType;
+import net.oneandone.stool.configuration.TemplateAccessor;
 import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
@@ -152,7 +152,7 @@ public class Session {
     public final Users users;
     public final LockManager lockManager;
 
-    private Map<String, PropertyType> lazyProperties;
+    private Map<String, Accessor> lazyProperties;
     private Pool lazyPool;
 
     public Session(boolean setenv, Gson gson, Logging logging, String command,
@@ -183,7 +183,7 @@ public class Session {
         this.lazyPool= null;
     }
 
-    public Map<String, PropertyType> properties() {
+    public Map<String, Accessor> properties() {
         Option option;
 
         if (lazyProperties == null) {
@@ -192,9 +192,9 @@ public class Session {
                 option = field.getAnnotation(Option.class);
                 if (option != null) {
                     if (option.key().equals("template")) {
-                        lazyProperties.put(option.key(), new TemplatePropertyType(option.key(), configuration.templates));
+                        lazyProperties.put(option.key(), new TemplateAccessor(option.key(), configuration.templates));
                     } else {
-                        lazyProperties.put(option.key(), new ReflectPropertyType(option.key(), field));
+                        lazyProperties.put(option.key(), new ReflectAccessor(option.key(), field));
                     }
                 }
             }

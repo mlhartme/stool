@@ -22,10 +22,10 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 
 /** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
-public class TemplatePropertyType extends PropertyType {
+public class TemplateAccessor extends Accessor {
     private final FileNode templates;
 
-    public TemplatePropertyType(String name, FileNode templates) {
+    public TemplateAccessor(String name, FileNode templates) {
         super(name);
         this.templates = templates;
     }

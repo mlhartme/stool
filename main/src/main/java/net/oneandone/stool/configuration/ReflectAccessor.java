@@ -26,10 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 /** Handles Stool or Stage property. Converts between strings an objects and deals with reflection */
-public class ReflectPropertyType extends PropertyType {
+public class ReflectAccessor extends Accessor {
     private final Field field;
 
-    public ReflectPropertyType(String name, Field field) {
+    public ReflectAccessor(String name, Field field) {
         super(name);
         this.field = field;
         field.setAccessible(true);
