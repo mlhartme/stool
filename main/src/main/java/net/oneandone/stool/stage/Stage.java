@@ -21,7 +21,6 @@ import freemarker.template.TemplateException;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.stool.cli.InfoCommand;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.PropertyType;
 import net.oneandone.stool.configuration.StageConfiguration;

@@ -16,36 +16,33 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.configuration.TemplateEnvPropertyType;
-import net.oneandone.stool.configuration.PropertyType;
-import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Strings;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Config extends StageCommand {
-    private final Map<String, PropertyType> all;
-    private final Map<PropertyType, String> selected;
+    private final Map<String, String> arguments;
 
     private boolean get;
     private boolean set;
 
     public Config(Session session) {
         super(false, session, Mode.NONE, Mode.EXCLUSIVE, Mode.NONE);
-        all = session.properties();
-        selected = new HashMap<>();
+        arguments = new LinkedHashMap<>();
     }
 
     public void property(String str) {
         int idx;
         String key;
         String value;
-        PropertyType property;
 
         idx = str.indexOf('=');
         if (idx == -1) {
@@ -57,70 +54,75 @@ public class Config extends StageCommand {
             value = str.substring(idx + 1);
             set = true;
         }
-        try {
-            property = all.get(key);
-            if (property == null) {
-                property = TemplateEnvPropertyType.createOpt(session.configuration.templates, key);
-                if (property == null) {
-                    throw new ArgumentException("unknown property: " + key);
-                }
-            }
-        } catch (SecurityException e) {
-            throw new ArgumentException(e.getMessage());
-        }
-        if (selected.containsKey(property)) {
+        if (arguments.containsKey(key)) {
             throw new ArgumentException("duplicate property: " + key);
         }
         if (get && set) {
             throw new ArgumentException("cannot mix get and set arguments");
         }
-        if (selected.put(property, value) != null) {
+        if (arguments.put(key, value) != null) {
             throw new ArgumentException("duplicate property: " + key);
         }
     }
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        StageConfiguration configuration;
         boolean error;
-        PropertyType prop;
+        Property prop;
         String value;
-        Collection<PropertyType> props;
+        Collection<Property> props;
         int width;
 
-        configuration = stage.config();
         if (set) {
             stage.modify();
             error = false;
-            for (Map.Entry<PropertyType, String> entry : selected.entrySet()) {
-                prop = entry.getKey();
+            for (Map.Entry<String, String> entry : arguments.entrySet()) {
+                prop = stage.propertyOpt(entry.getKey());
+                if (prop == null) {
+                    throw new ArgumentException("unknown property: " + entry.getKey());
+                }
                 value = entry.getValue();
-                value = value.replace("{}", prop.get(configuration));
+                value = value.replace("{}", prop.get());
                 try {
-                    prop.set(configuration, value);
+                    prop.set(value);
                     // don't print the value - e.g. expire translates numbers into dates
-                    console.info.println(prop.name + "=" + prop.get(configuration));
+                    console.info.println(prop.name() + "=" + prop.get());
                 } catch (RuntimeException e) {
-                    console.info.println("invalid value for property " + prop.name + " : " + e.getMessage());
+                    console.info.println("invalid value for property " + prop.name() + " : " + e.getMessage());
                     e.printStackTrace(console.verbose);
                     error = true;
                 }
             }
             if (!error) {
-                session.saveStageProperties(configuration, stage.backstage);
+                session.saveStageProperties(stage.config(), stage.backstage);
             }
         } else {
-            props = get ? selected.keySet() : all.values();
+            props = get ? argumentProperties(stage) : stage.properties();
             width = 0 ;
             if (props.size() > 1) {
-                for (PropertyType property : props) {
-                    width = Math.max(width, property.name.length());
+                for (Property property : props) {
+                    width = Math.max(width, property.name().length());
                 }
                 width += 3;
             }
-            for (PropertyType property : props) {
-                console.info.println(Strings.padLeft(property.name, width) + " : " + property.get(configuration));
+            for (Property property : props) {
+                console.info.println(Strings.padLeft(property.name(), width) + " : " + property.get());
             }
         }
+    }
+
+    private List<Property> argumentProperties(Stage stage) {
+        List<Property> result;
+        Property property;
+
+        result = new ArrayList<>();
+        for (String name : arguments.keySet()) {
+            property = stage.propertyOpt(name);
+            if (property == null) {
+                throw new ArgumentException("unknown property: " + name);
+            }
+            result.add(property);
+        }
+        return result;
     }
 }
