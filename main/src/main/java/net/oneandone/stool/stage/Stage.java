@@ -476,7 +476,7 @@ public abstract class Stage {
         configuration = new Configuration(Configuration.VERSION_2_3_26);
         configuration.setDefaultEncoding("UTF-8");
 
-        src = session.configuration.templates.join(config().template);
+        src = config().template;
         dest = backstage.join("run/image");
         dest.deleteTreeOpt();
         dest.mkdir();
@@ -1159,7 +1159,7 @@ public abstract class Stage {
                 return null;
             }
         });
-        fields.addAll(TemplateField.scanTemplate(this, session.configuration.templates.join(config().template)));
+        fields.addAll(TemplateField.scanTemplate(this, config().template));
         return fields;
     }
 

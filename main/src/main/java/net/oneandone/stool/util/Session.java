@@ -503,7 +503,7 @@ public class Session {
         }
         scm = scmOpt(url);
         refresh = scm == null ? "" : scm.refresh();
-        result = new StageConfiguration(javaHome(), mavenHome, refresh);
+        result = new StageConfiguration(javaHome(), mavenHome, configuration.templates.join("tomcat"), refresh);
         result.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
         configuration.setDefaults(accessors(), result, url);
         return result;

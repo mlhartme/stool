@@ -97,12 +97,12 @@ public class StageConfiguration {
     public String comment;
 
     @Option(key = "template")
-    public String template;
+    public FileNode template;
 
     @Option(key = "template.env")
     public Map<String, String> templateEnv;
 
-    public StageConfiguration(String javaHome, String mavenHome, String refresh) {
+    public StageConfiguration(String javaHome, String mavenHome, FileNode template, String refresh) {
         this.name = "noname";
         this.prepare = "";
         this.build = "false";
@@ -120,7 +120,7 @@ public class StageConfiguration {
         this.url = "(http:https)://%h/";
         this.comment = "";
         this.autoRefresh = false;
-        this.template = "tomcat";
+        this.template = template;
         // TODO: duplicates Dockerfile template defaults
         this.templateEnv = Strings.toMap("version", "9.0.5", "opts", "", "debug", "false", "suspend", "false");
     }
@@ -138,7 +138,7 @@ public class StageConfiguration {
 
     //--
 
-    /** you'll usually invoke session.accessors instead */
+    /** you'll usually invoke session.accessors() instead */
     public static Map<String,Accessor> accessors(FileNode templates) {
         Map<String, Accessor> result;
         Option option;

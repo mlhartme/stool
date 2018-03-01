@@ -184,7 +184,7 @@ public class Create extends SessionCommand {
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());
             if (property == null) {
-                throw new ArgumentException("unknown property to configure: " + property);
+                throw new ArgumentException("unknown property to configure: " + entry.getKey());
             }
             property.set(entry.getValue());
         }

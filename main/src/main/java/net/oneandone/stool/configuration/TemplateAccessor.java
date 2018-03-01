@@ -31,11 +31,11 @@ public class TemplateAccessor extends Accessor {
     }
 
     protected String doGet(Object configuration) {
-        return ((StageConfiguration) configuration).template;
+        return ((StageConfiguration) configuration).template.getName();
     }
 
     protected void doSet(Object configuration, String template) {
-        FileNode src;
+        FileNode dir;
         StageConfiguration config;
 
         config = (StageConfiguration) configuration;
@@ -43,13 +43,13 @@ public class TemplateAccessor extends Accessor {
             // no changes
             return;
         }
-        src = templates.join(template);
-        if (!src.isDirectory()) {
+        dir = templates.join(template);
+        if (!dir.isDirectory()) {
             throw new ArgumentException("no such template: " + template);
         }
-        config.template = template;
+        config.template = dir;
         try {
-            config.templateEnv = Variable.defaultMap(Variable.scanTemplate(src).values());
+            config.templateEnv = Variable.defaultMap(Variable.scanTemplate(dir).values());
         } catch (IOException e) {
             throw new ArgumentException("cannot set template: " + e.getMessage(), e);
         }

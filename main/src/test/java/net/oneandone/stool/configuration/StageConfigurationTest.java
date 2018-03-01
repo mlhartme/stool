@@ -33,7 +33,7 @@ public class StageConfigurationTest {
 
         world = World.create();
         gson = Session.gson(world);
-        configuration = new StageConfiguration("a", "b", "refresh");
+        configuration = new StageConfiguration("a", "b", null,"refresh");
         tmp = world.getTemp().createTempFile();
         configuration.save(gson, tmp);
         StageConfiguration.load(gson, tmp);
