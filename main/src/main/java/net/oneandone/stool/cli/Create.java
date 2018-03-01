@@ -16,12 +16,12 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.configuration.PropertyType;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.ArtifactStage;
 import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -40,18 +40,15 @@ public class Create extends SessionCommand {
 
     private FileNode directory;
 
-    private final Map<PropertyType, String> config = new LinkedHashMap<>();
+    private final Map<String, String> config = new LinkedHashMap<>();
 
     private StageConfiguration stageConfiguration;
-
-    private final Map<String, PropertyType> properties;
 
     public Create(Session session, boolean quiet, String urlOrFileOrSearch) {
         super(session, Mode.NONE);
         this.quiet = quiet;
         this.urlOrFileOrSearch = urlOrFileOrSearch;
         this.directory = null;
-        this.properties = session.properties();
     }
 
 
@@ -59,7 +56,6 @@ public class Create extends SessionCommand {
         int idx;
         String key;
         String value;
-        PropertyType property;
 
         idx = str.indexOf('=');
         if (idx == -1) {
@@ -71,11 +67,7 @@ public class Create extends SessionCommand {
         }
         key = str.substring(0, idx);
         value = str.substring(idx + 1);
-        property = properties.get(key);
-        if (property == null) {
-            throw new ArgumentException("unknown property: " + key);
-        }
-        if (config.put(property, value) != null) {
+        if (config.put(key, value) != null) {
             throw new ArgumentException("already configured: " + key);
         }
     }
@@ -138,7 +130,6 @@ public class Create extends SessionCommand {
     }
 
     private void defaults(String url) throws IOException {
-        PropertyType np;
         String name;
         FileNode surrounding;
 
@@ -156,11 +147,10 @@ public class Create extends SessionCommand {
             throw new ArgumentException("parent directory for new stage does not exist: " + directory.getParent());
         }
         session.checkDiskFree(directory.getParent());
-        np = properties.get("name");
-        name = config.get(np);
+        name = config.get("name");
         if (name == null) {
             name = directory.getName();
-            config.put(np, name);
+            config.put("name", name);
         }
         Stage.checkName(name);
         if (session.stageNames().contains(name)) {
@@ -174,6 +164,7 @@ public class Create extends SessionCommand {
     private Stage create(String url) throws Exception {
         Stage stage;
         String prepare;
+        Property property;
 
         directory.mkdir();
         stage = stage(url);
@@ -190,8 +181,12 @@ public class Create extends SessionCommand {
             }
         }
         stage.tuneConfiguration();
-        for (Map.Entry<PropertyType, String> entry : config.entrySet()) {
-            entry.getKey().set(stage.config(), entry.getValue());
+        for (Map.Entry<String, String> entry : config.entrySet()) {
+            property = stage.propertyOpt(entry.getKey());
+            if (property == null) {
+                throw new ArgumentException("unknown property to configure: " + property);
+            }
+            property.set(entry.getValue());
         }
         stage.initialize();
         return stage;

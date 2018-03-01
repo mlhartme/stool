@@ -202,6 +202,10 @@ public class Session {
         return lazyProperties;
     }
 
+    public PropertyType property(String name) {
+        return properties().get(name);
+    }
+
     public void add(FileNode backstage, String id) throws LinkException {
         backstage.link(backstages.join(id));
     }
@@ -615,10 +619,6 @@ public class Session {
             throw new IllegalArgumentException(version);
         }
         return version.substring(0, minor);
-    }
-
-    public PropertyType property(String name) {
-        return properties().get(name);
     }
 
     public int quotaReserved() throws IOException {
