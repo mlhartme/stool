@@ -31,7 +31,14 @@ public class TemplateAccessor extends Accessor {
     }
 
     protected String doGet(Object configuration) {
-        return ((StageConfiguration) configuration).template.getName();
+        FileNode template;
+
+        template = ((StageConfiguration) configuration).template;
+        if (template.hasAnchestor(templates)) {
+            return template.getRelative(templates);
+        } else {
+            return template.getAbsolute();
+        }
     }
 
     protected void doSet(Object configuration, String template) {
@@ -43,7 +50,7 @@ public class TemplateAccessor extends Accessor {
             // no changes
             return;
         }
-        dir = templates.join(template);
+        dir = templates.file(template);
         if (!dir.isDirectory()) {
             throw new ArgumentException("no such template: " + template);
         }
@@ -54,6 +61,4 @@ public class TemplateAccessor extends Accessor {
             throw new ArgumentException("cannot set template: " + e.getMessage(), e);
         }
     }
-
-
 }

@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 public class StageConfiguration {
-    public static final String NOTIFY_CREATOR = "@creator";
+    public static final String NOTIFY_CREATED_BY = "@created-by";
     public static final String NOTIFY_LAST_MODIFIED_BY = "@last-modified-by";
 
     public static FileNode file(FileNode backstage) {
@@ -70,7 +70,7 @@ public class StageConfiguration {
     @Option(key = "select")
     public List<String> select;
 
-    /** login names or email addresses, or "@last-modified-by" or "@creator" */
+    /** login names or email addresses, or "@last-modified-by" or "@created-by" */
     @Option(key = "notify")
     public List<String> notify;
 
@@ -108,7 +108,7 @@ public class StageConfiguration {
         this.build = "false";
         this.refresh = refresh;
         this.notify = new ArrayList<>();
-        this.notify.add(NOTIFY_CREATOR);
+        this.notify.add(NOTIFY_CREATED_BY);
         this.pom = "pom.xml";
         this.quota = 10000;
         this.memory = 400;

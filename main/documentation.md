@@ -922,8 +922,8 @@ Note that the default values below might be overwritten by Stool defaults on you
 * **maven.opts**
   MAVEN_OPTS when building this stage. Type string. Default value: (empty)
 * **notify**
-  List of email address or `@last-modified-by` or `@creator` to send notifications about
-  this stage. Type list. Default value: `@creator`.
+  List of email address or `@last-modified-by` or `@created-by` to send notifications about
+  this stage. Type list. Default value: `@created-by`.
 * **pom**
   Path of the pom file in the stage directory. Type string. Default value: `pom.xml`.
 * **prepare**
@@ -1037,9 +1037,9 @@ Available fields:
   Last modified date of the war files for this stage.
 * **cpu**
   Cpu usage reported by Docker: percentage of this container's cpu utilisation relative to total system utilisation.
-* **created**
+* **created-at**
   When the stage was created.
-* **creator**
+* **created-by**
   User who created this stage. Type string.
 * **debugger**
   Debugger port or empty if not running with debugger.
@@ -1274,7 +1274,7 @@ To upgrade from Stool versions before 3.4.0:
           |- .m2              (Maven repository for this stage)
           |- logs             (log file of running stage)
           '- run
-             |- creator       (created when stage is created, tracks the Stage creator)
+             |- creator       (created when stage is created, tracks created-by and created-at)
              |- modified      (touched if Stool command modifies this stage)
              |- image.log     (Docker's image build output) 
              '- image         (context to build docker image)

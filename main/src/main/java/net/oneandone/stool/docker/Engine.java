@@ -90,6 +90,10 @@ public class Engine {
     //-- images
 
 
+    public void imageList() throws IOException {
+        System.out.println("list" + root.join("images").readString());
+    }
+
     public String imageBuild(String name, FileNode context) throws IOException {
         return imageBuild(name, context, null);
     }

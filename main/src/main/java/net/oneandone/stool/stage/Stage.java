@@ -206,7 +206,7 @@ public abstract class Stage {
     public abstract boolean updateAvailable();
 
     /** @return login name */
-    public String creator() throws IOException {
+    public String createdBy() throws IOException {
         return creatorFile().readString().trim();
     }
 
@@ -1033,14 +1033,14 @@ public abstract class Stage {
                 return Stage.this.getType();
             }
         });
-        fields.add(new Field("creator") {
+        fields.add(new Field("created-by") {
             @Override
             public Object get() throws IOException {
-                return Info.userName(session, Stage.this.creator());
+                return Info.userName(session, Stage.this.createdBy());
             }
 
         });
-        fields.add(new Field("created") {
+        fields.add(new Field("created-at") {
             @Override
             public Object get() throws IOException {
                 return LogEntry.FULL_FMT.format(Stage.this.created());
@@ -1132,18 +1132,6 @@ public abstract class Stage {
             @Override
             public Object get() throws IOException {
                 return Stage.this.dockerContainer();
-            }
-        });
-        fields.add(new Field("debugger") {
-            @Override
-            public Object get() {
-                return "TODO";
-            }
-        });
-        fields.add(new Field("suspend") {
-            @Override
-            public Object get() {
-                return "TODO";
             }
         });
         fields.add(new Field("apps") {

@@ -250,8 +250,8 @@ public class Validate extends StageCommand {
                     case StageConfiguration.NOTIFY_LAST_MODIFIED_BY:
                         login = stage.lastModifiedBy();
                         break;
-                    case StageConfiguration.NOTIFY_CREATOR:
-                        login = stage.creator();
+                    case StageConfiguration.NOTIFY_CREATED_BY:
+                        login = stage.createdBy();
                         break;
                     default:
                         login = user;
