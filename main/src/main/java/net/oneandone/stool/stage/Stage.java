@@ -334,9 +334,10 @@ public abstract class Stage {
         engine = session.dockerEngine();
         imageName = getId();
         context = dockerContext(ports);
+        wipeImages(engine);
         try (Writer log = new FlushWriter(backstage.join("run/image.log").newWriter())) {
             // don't close the tee writer, it would close console output as well
-            engine.imageBuild(imageName, Collections.emptyMap(), context, MultiWriter.createTeeWriter(log, console.verbose));
+            engine.imageBuild(imageName, dockerLabel(), context, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {
             console.verbose.println("image build output");
             console.verbose.println(e.output);
@@ -353,6 +354,21 @@ public abstract class Stage {
             throw new IOException("unexpected status: " + status);
         }
         dockerContainerFile().writeString(container);
+    }
+
+    public void wipeImages(Engine engine) throws IOException {
+        for (String image : engine.imageList(dockerLabel())) {
+            session.console.verbose.println("remove image: " + image);
+            for (String container : engine.containerList(image)) {
+                session.console.verbose.println("  remove container: " + container);
+                engine.containerRemove(container);
+            }
+            engine.imageRemove(id);
+        }
+    }
+
+    private Map<String, String> dockerLabel() {
+        return Strings.toMap("stool", id);
     }
 
     private static class FlushWriter extends Writer {

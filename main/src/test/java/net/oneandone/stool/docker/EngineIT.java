@@ -8,8 +8,10 @@ import net.oneandone.sushi.util.Strings;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -26,13 +28,24 @@ public class EngineIT {
     public void list() throws IOException {
         Map<String, String> labels;
         Engine engine;
-        String image = "st";
+        List<String> ids;
+        String image;
+        String container;
 
         labels = Strings.toMap("stooltest", UUID.randomUUID().toString());
         engine = Engine.open("target/wire.log");
         assertTrue(engine.imageList(labels).isEmpty());
-        engine.imageBuild(image, labels, df("FROM debian:stretch-slim\nCMD echo hello\n"), null);
-        assertEquals(1, engine.imageList(labels).size());
+        engine.imageBuild("somename", labels, df("FROM debian:stretch-slim\nRUN touch abc\nCMD echo hello\n"), null);
+        ids = engine.imageList(labels);
+        assertEquals(1, ids.size());
+        image = ids.get(0);
+        assertEquals(Arrays.asList(), engine.containerList(image));
+        container = engine.containerCreate(image, "somehost");
+        assertEquals(Arrays.asList(container), engine.containerList(image));
+        engine.containerRemove(container);
+        assertEquals(Arrays.asList(), engine.containerList(image));
+        engine.imageRemove(image);
+        assertEquals(Arrays.asList(), engine.imageList(labels));
     }
 
     @Test

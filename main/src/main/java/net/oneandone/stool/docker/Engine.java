@@ -95,22 +95,45 @@ public class Engine {
     //-- images
 
 
-    /** @return container ids */
+    /** @return image ids */
     public List<String> imageList(Map<String, String> labels) throws IOException {
+        String filters;
         Node node;
         JsonArray array;
         List<String> result;
         String id;
 
         node = root.join("images/json");
-        if (!labels.isEmpty()) {
-            node = node.getRoot().node(node.getPath(), "filters=" + enc("{\"label\" : [" + labelsToJsonArray(labels) + "] }"));
-        }
+        filters = labels.isEmpty()? "" : "&filters=" + enc("{\"label\" : [" + labelsToJsonArray(labels) + "] }");
+        node = node.getRoot().node(node.getPath(), "all=true" + filters);
         array = parser.parse(node.readString()).getAsJsonArray();
         result = new ArrayList<>(array.size());
         for (JsonElement element : array) {
             id = element.getAsJsonObject().get("Id").getAsString();
             id = Strings.removeLeft(id, "sha256:");
+            result.add(id);
+        }
+        return result;
+    }
+
+    /**
+     * @param image may be null
+     * @return container ids
+     */
+    public List<String> containerList(String image) throws IOException {
+        String filters;
+        Node node;
+        JsonArray array;
+        List<String> result;
+        String id;
+
+        node = root.join("containers/json");
+        filters = image == null? "" : "&filters=" + enc("{\"ancestor\" : [\"" + image + "\"] }");
+        node = node.getRoot().node(node.getPath(), "all=true" + filters);
+        array = parser.parse(node.readString()).getAsJsonArray();
+        result = new ArrayList<>(array.size());
+        for (JsonElement element : array) {
+            id = element.getAsJsonObject().get("Id").getAsString();
             result.add(id);
         }
         return result;
