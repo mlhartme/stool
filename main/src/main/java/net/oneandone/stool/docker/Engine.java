@@ -9,6 +9,7 @@ import com.google.gson.JsonPrimitive;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
 import net.oneandone.sushi.fs.FileNotFoundException;
+import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
@@ -21,6 +22,7 @@ import net.oneandone.sushi.fs.http.model.Method;
 import net.oneandone.sushi.fs.http.model.Request;
 import net.oneandone.sushi.fs.http.model.Response;
 import net.oneandone.sushi.fs.http.model.StatusCode;
+import net.oneandone.sushi.util.Strings;
 import org.kamranzafar.jtar.TarEntry;
 import org.kamranzafar.jtar.TarHeader;
 import org.kamranzafar.jtar.TarOutputStream;
@@ -35,13 +37,16 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -90,18 +95,35 @@ public class Engine {
     //-- images
 
 
-    public void imageList() throws IOException {
-        System.out.println("list" + root.join("images").readString());
+    /** @return container ids */
+    public List<String> imageList(Map<String, String> labels) throws IOException {
+        Node node;
+        JsonArray array;
+        List<String> result;
+        String id;
+
+        node = root.join("images/json");
+        if (!labels.isEmpty()) {
+            node = node.getRoot().node(node.getPath(), "filters=" + enc("{\"label\" : [" + labelsToJsonArray(labels) + "] }"));
+        }
+        array = parser.parse(node.readString()).getAsJsonArray();
+        result = new ArrayList<>(array.size());
+        for (JsonElement element : array) {
+            id = element.getAsJsonObject().get("Id").getAsString();
+            id = Strings.removeLeft(id, "sha256:");
+            result.add(id);
+        }
+        return result;
     }
 
     public String imageBuild(String name, FileNode context) throws IOException {
-        return imageBuild(name, context, null);
+        return imageBuild(name, Collections.emptyMap(), context, null);
     }
 
     /**
      * @param log may be null
      * @return build output */
-    public String imageBuild(String name, FileNode context, Writer log) throws IOException {
+    public String imageBuild(String name, Map<String, String> labels, FileNode context, Writer log) throws IOException {
         HttpNode node;
         StringBuilder result;
         JsonObject object;
@@ -112,7 +134,7 @@ public class Engine {
         String line;
 
         node = root.join("build");
-        node = node.getRoot().node(node.getPath(), "t=" + name);
+        node = node.getRoot().node(node.getPath(), "t=" + name + labelsToJsonObject(labels));
         result = new StringBuilder();
         error = null;
         errorDetail = null;
@@ -527,6 +549,52 @@ public class Engine {
             body.add((String) keyvalues[i], (JsonElement) arg);
         }
         return body;
+    }
+
+    private static String labelsToJsonArray(Map<String, String> map) {
+        StringBuilder builder;
+
+        builder = new StringBuilder();
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            if (builder.length() > 0) {
+                builder.append(", ");
+            }
+            builder.append('"');
+            builder.append(entry.getKey());
+            builder.append('=');
+            builder.append(entry.getValue());
+            builder.append('"');
+        }
+        return builder.toString();
+    }
+
+    private static String labelsToJsonObject(Map<String, String> maps) {
+        StringBuilder result;
+
+        if (maps.isEmpty()) {
+            return "";
+        }
+        result = new StringBuilder();
+        result.append(obj(maps).toString());
+        return "&labels=" + enc(result.toString());
+    }
+
+    private static String enc(String str) {
+        try {
+            return URLEncoder.encode(str, "utf8");
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private static JsonObject obj(Map<String, String> obj) {
+        JsonObject result;
+
+        result = new JsonObject();
+        for (Map.Entry<String, String> entry : obj.entrySet()) {
+            result.add(entry.getKey(), new JsonPrimitive(entry.getValue()));
+        }
+        return result;
     }
 
     //--

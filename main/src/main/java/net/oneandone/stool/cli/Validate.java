@@ -45,6 +45,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -66,6 +67,7 @@ public class Validate extends StageCommand {
     @Override
     public void doRun() throws Exception {
         report = new Report();
+        docker();
         dns();
         session.logging.rotate();
         locks();
@@ -79,6 +81,15 @@ public class Validate extends StageCommand {
             }
             console.info.println();
             console.info.println("validate failed");
+        }
+    }
+
+    private void docker() {
+        try {
+            session.dockerEngine().imageList(Collections.emptyMap());
+        } catch (IOException e) {
+            report.admin("cannot access docker: " + e.getMessage());
+            e.printStackTrace(console.verbose);
         }
     }
 

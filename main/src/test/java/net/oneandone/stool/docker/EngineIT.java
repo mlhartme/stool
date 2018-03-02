@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -20,6 +21,19 @@ import static org.junit.Assert.fail;
 
 public class EngineIT {
     private static final World WORLD = World.createMinimal();
+
+    @Test
+    public void list() throws IOException {
+        Map<String, String> labels;
+        Engine engine;
+        String image = "st";
+
+        labels = Strings.toMap("stooltest", UUID.randomUUID().toString());
+        engine = Engine.open("target/wire.log");
+        assertTrue(engine.imageList(labels).isEmpty());
+        engine.imageBuild(image, labels, df("FROM debian:stretch-slim\nCMD echo hello\n"), null);
+        assertEquals(1, engine.imageList(labels).size());
+    }
 
     @Test
     public void turnaround() throws IOException {

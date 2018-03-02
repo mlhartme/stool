@@ -74,6 +74,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -335,7 +336,7 @@ public abstract class Stage {
         context = dockerContext(ports);
         try (Writer log = new FlushWriter(backstage.join("run/image.log").newWriter())) {
             // don't close the tee writer, it would close console output as well
-            engine.imageBuild(imageName, context, MultiWriter.createTeeWriter(log, console.verbose));
+            engine.imageBuild(imageName, Collections.emptyMap(), context, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {
             console.verbose.println("image build output");
             console.verbose.println(e.output);
