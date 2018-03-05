@@ -19,7 +19,6 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.templates.ssl.KeyStore;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
@@ -68,7 +67,7 @@ public class Tomcat {
         download.copyFile(dest);
     }
 
-    public void serverXml(String version, String cookiesStr) throws IOException, SAXException, XmlException {
+    public void serverXml(String version, String cookiesStr, String keystorePassword) throws IOException, SAXException, XmlException {
         FileNode tomcatTarGz;
         CookieMode cookies;
         ServerXml serverXml;
@@ -83,7 +82,7 @@ public class Tomcat {
 
         serverXml = ServerXml.load(serverXmlDest, session.configuration.hostname);
         serverXml.stripComments();
-        serverXml.configure(ports, configuration.url, keystore(), cookies, legacyVersion(version));
+        serverXml.configure(ports, configuration.url, keystorePassword, cookies, legacyVersion(version));
         serverXml.save(serverXmlDest);
     }
 
@@ -153,15 +152,12 @@ public class Tomcat {
         return major < 8;
     }
 
-    private KeyStore keystore() throws IOException {
-        String hostname;
-
+    private String certhost() {
         if (session.configuration.vhosts) {
-            hostname = "*." + stage.getName() + "." + session.configuration.hostname;
+            return "*." + stage.getName() + "." + session.configuration.hostname;
         } else {
-            hostname = session.configuration.hostname;
+            return session.configuration.hostname;
         }
-        return KeyStore.create(session.configuration.certificates, hostname, stage.getBackstage().join("run/image/tomcat/ssl").mkdirsOpt());
     }
 
     //--

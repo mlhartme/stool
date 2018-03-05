@@ -96,9 +96,6 @@ public class StoolConfiguration {
 
     public String mailPassword;
 
-    // URL to generate certificates
-    public String certificates;
-
     public String ldapUrl;
 
     public String ldapPrincipal;
@@ -139,7 +136,6 @@ public class StoolConfiguration {
         mailHost = "";
         mailUsername = "";
         mailPassword = "";
-        certificates = "";
         this.downloadCache = downloadCache;
         this.templates = templates;
         this.search = "";

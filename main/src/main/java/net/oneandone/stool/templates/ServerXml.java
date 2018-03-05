@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.templates;
 
-import net.oneandone.stool.templates.ssl.KeyStore;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Vhost;
@@ -62,7 +61,7 @@ public class ServerXml {
         file.writeXml(document);
     }
 
-    public void configure(Ports ports, String url, KeyStore keystore, CookieMode cookies, boolean legacy) throws XmlException {
+    public void configure(Ports ports, String url, String keystorePassword, CookieMode cookies, boolean legacy) throws XmlException {
         Element template;
         Element service;
 
@@ -73,7 +72,7 @@ public class ServerXml {
                 service = (Element) template.cloneNode(true);
                 document.getDocumentElement().appendChild(service);
                 service(service, vhost);
-                connectors(service, vhost, keystore, legacy);
+                connectors(service, vhost, keystorePassword, legacy);
                 contexts(vhost.context(hostname, url), service, cookies);
             }
         }
@@ -120,15 +119,15 @@ public class ServerXml {
         host.insertBefore(element, host.getFirstChild());
     }
 
-    private void connectors(Element service, Vhost host, KeyStore keyStore, boolean legacy) {
+    private void connectors(Element service, Vhost host, String keystorePassword, boolean legacy) {
         String ip;
 
         ip = "0.0.0.0";
         try {
             connectorDisable(service, "Connector[starts-with(@protocol,'AJP')]");
             connectorEnable(service, HTTP_PATH, ip, host.httpPort(), host.httpsPort(), legacy);
-            if (keyStore != null) {
-                sslConnector(service, HTTPS_PATH, host.httpsPort(), ip, keyStore, legacy);
+            if (keystorePassword != null) {
+                sslConnector(service, HTTPS_PATH, host.httpsPort(), ip, keystorePassword, legacy);
             } else {
                 connectorDisable(service, HTTPS_PATH);
             }
@@ -169,7 +168,7 @@ public class ServerXml {
     }
 
 
-    private void sslConnector(Element service, String path, int port, String ip, KeyStore keystore, boolean legacy) throws XmlException {
+    private void sslConnector(Element service, String path, int port, String ip, String keystorePassword, boolean legacy) throws XmlException {
         Element element;
 
         element = selector.elementOpt(service, path);
@@ -188,9 +187,9 @@ public class ServerXml {
         element.setAttribute("sslProtocol", "TLS");
         element.setAttribute("useBodyEncodingForURI", "true");
 
-        element.setAttribute("keystorePass", keystore.password());
-        element.setAttribute("keystoreFile", "/usr/local/tomcat/conf/" + keystore.fileName());
-        element.setAttribute("keystoreType", keystore.type());
+        element.setAttribute("keystorePass", keystorePassword);
+        element.setAttribute("keystoreFile", "/usr/local/tomcat/conf/tomcat.jks");
+        element.setAttribute("keystoreType", "JKS");
 
         element.removeAttribute("SSLCertificateFile");
         element.removeAttribute("SSLCertificateKeyFile");
