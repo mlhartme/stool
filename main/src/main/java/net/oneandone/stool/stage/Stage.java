@@ -74,7 +74,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -246,11 +245,11 @@ public abstract class Stage {
 
     }
 
-    public boolean ping(Vhost vhost) throws IOException {
+    public boolean ping(Vhost vhost) {
         return ping(URI.create(httpUrl(vhost)));
     }
 
-    public static boolean ping(URI uri) throws IOException {
+    public static boolean ping(URI uri) {
         Socket socket;
 
         try {
