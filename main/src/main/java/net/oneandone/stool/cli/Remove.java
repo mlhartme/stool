@@ -56,7 +56,7 @@ public class Remove extends StageCommand {
             console.info.println("Ready to delete " + dir.getAbsolute() + "?");
             console.pressReturn();
         }
-        stage.wipeImages(session.dockerEngine());
+        stage.wipeDocker(session.dockerEngine());
         dir.deleteTree();
         session.backstageLink(stage.getId()).deleteTree();
         session.bedroom.remove(session.gson, stage.getId());

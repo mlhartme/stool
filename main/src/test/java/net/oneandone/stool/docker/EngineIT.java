@@ -51,7 +51,7 @@ public class EngineIT {
     @Test
     public void turnaround() throws IOException {
         final int limit = 1024*1024*5;
-        String image = "stooltest";
+        String image;
         String message;
         Engine engine;
         String output;
@@ -61,8 +61,8 @@ public class EngineIT {
         message = UUID.randomUUID().toString();
 
         engine = Engine.open("target/wire.log");
-        output = engine.imageBuild(image, df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"));
-        assertNotNull(output);
+        image = engine.imageBuild("somename",  Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"),null);
+        assertNotNull(image);
 
         container = engine.containerCreate(image, "foo", limit, null, null, Collections.emptyMap(), Collections.emptyMap());
         assertNotNull(container);
@@ -106,7 +106,7 @@ public class EngineIT {
         long duration;
 
         engine = Engine.open("target/wire.log");
-        output = engine.imageBuild(image, df("FROM debian:stretch-slim\nCMD [\"/bin/sleep\", \"30\"]\n"));
+        output = engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\nCMD [\"/bin/sleep\", \"30\"]\n"));
         assertNotNull(output);
 
         container = engine.containerCreate(image, "foo", null, /*"SIGQUIT"*/ null, 3, Collections.emptyMap(), Collections.emptyMap());
@@ -134,7 +134,7 @@ public class EngineIT {
         home = WORLD.getHome();
         file = home.createTempFile();
         engine = Engine.open("target/wire.log");
-        output = engine.imageBuild(image, df("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "\n"));
+        output = engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "\n"));
         assertNotNull(output);
 
         container = engine.containerCreate(image, "foo", null, null, null,
@@ -157,7 +157,7 @@ public class EngineIT {
 
         engine = Engine.open("target/wire.log");
         try {
-            engine.imageBuild(image, df("FROM debian:stretch-slim\nRUN /bin/nosuchcmd\nCMD [\"echo\", \"hi\", \"/\"]\n"));
+            engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\nRUN /bin/nosuchcmd\nCMD [\"echo\", \"hi\", \"/\"]\n"));
             fail();
         } catch (BuildError e) {
             // ok
@@ -174,7 +174,7 @@ public class EngineIT {
         String container;
 
         engine = Engine.open("target/wire.log");
-        engine.imageBuild(image, df("FROM debian:stretch-slim\nCMD [\"/nosuchcmd\"]\n"));
+        engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\nCMD [\"/nosuchcmd\"]\n"));
         container = engine.containerCreate(image, "foo");
         assertNotNull(container);
         assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
@@ -192,7 +192,7 @@ public class EngineIT {
         Engine engine;
 
         engine = Engine.open("target/wire.log");
-        engine.imageBuild(image, WORLD.guessProjectHome(getClass()).join("src/test/docker"));
+        engine.imageBuildWithOutput(image, WORLD.guessProjectHome(getClass()).join("src/test/docker"));
         engine.imageRemove(image);
     }
 
@@ -203,7 +203,7 @@ public class EngineIT {
 
         engine = Engine.open("target/wire.log");
         try {
-            engine.imageBuild(image, df("FROM debian:stretch-slim\ncopy nosuchfile /nosuchfile\nCMD [\"echo\", \"hi\", \"/\"]\n"));
+            engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\ncopy nosuchfile /nosuchfile\nCMD [\"echo\", \"hi\", \"/\"]\n"));
             fail();
         } catch (BuildError e) {
             // ok

@@ -37,6 +37,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.InetAddress;
@@ -139,55 +140,71 @@ public class Engine {
         return result;
     }
 
-    public String imageBuild(String name, FileNode context) throws IOException {
-        return imageBuild(name, Collections.emptyMap(), context, null);
+    /** @return output */
+    public String imageBuildWithOutput(String name, FileNode context) throws IOException {
+        try (StringWriter dest = new StringWriter()) {
+            imageBuild(name, Collections.emptyMap(), context, dest);
+            return dest.toString();
+        }
     }
 
     /**
      * @param log may be null
-     * @return build output */
+     * @return image id */
     public String imageBuild(String name, Map<String, String> labels, FileNode context, Writer log) throws IOException {
         HttpNode node;
-        StringBuilder result;
+        StringBuilder output;
         JsonObject object;
         String error;
         JsonObject errorDetail;
         JsonElement value;
         AsciiInputStream in;
         String line;
+        JsonElement aux;
+        String id;
 
         node = root.join("build");
         node = node.getRoot().node(node.getPath(), "t=" + name + labelsToJsonObject(labels));
-        result = new StringBuilder();
+        output = new StringBuilder();
         error = null;
         errorDetail = null;
+        id = null;
         try (InputStream raw = postStream(node, tar(context))) {
             in = new AsciiInputStream(raw, 4096);
             while (true) {
                 line = in.readLine();
                 if (line == null) {
                     if (error != null) {
-                        throw new BuildError(error, errorDetail, result.toString());
+                        throw new BuildError(error, errorDetail, output.toString());
                     }
-                    return result.toString();
+                    if (id == null) {
+                        throw new IOException("missing id");
+                    }
+                    return id;
                 }
                 object = parser.parse(line).getAsJsonObject();
 
-                eatStream(object, result, log);
-                eatString(object, "status", result, log);
-                eatString(object, "id", result, log);
-                eatString(object, "progress", result, log);
-                eatObject(object, "progressDetail", result, log);
-                eatObject(object, "aux", result, log);
+                eatStream(object, output, log);
+                eatString(object, "status", output, log);
+                eatString(object, "id", output, log);
+                eatString(object, "progress", output, log);
+                eatObject(object, "progressDetail", output, log);
+                aux = eatObject(object, "aux", output, log);
+                if (aux != null) {
+                    if (id != null) {
+                        throw new IOException("duplicate id");
+                    }
+                    id = Strings.removeLeft(aux.getAsJsonObject().get("ID").getAsString(), "sha256:");
+                }
 
-                value = eatString(object, "error", result, log);
+                value = eatString(object, "error", output, log);
                 if (value != null) {
                     if (error != null) {
                         throw new IOException("multiple errors");
                     }
                     error = value.getAsString();
                 }
-                value = eatObject(object, "errorDetail", result, log);
+                value = eatObject(object, "errorDetail", output, log);
                 if (value != null) {
                     if (errorDetail != null) {
                         throw new IOException("multiple errors");

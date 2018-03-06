@@ -323,26 +323,28 @@ public abstract class Stage {
 
     public void start(Console console, Ports ports) throws Exception {
         Engine engine;
+        String image;
         String container;
         Engine.Status status;
         String imageName;
         FileNode context;
 
         checkMemory();
-        console.verbose.println("building container ... ");
         engine = session.dockerEngine();
         imageName = getId();
         context = dockerContext(ports);
-        wipeImages(engine);
+        wipeContainer(engine);
+        console.verbose.println("building container ... ");
         try (Writer log = new FlushWriter(backstage.join("run/image.log").newWriter())) {
             // don't close the tee writer, it would close console output as well
-            engine.imageBuild(imageName, dockerLabel(), context, MultiWriter.createTeeWriter(log, console.verbose));
+            image = engine.imageBuild(imageName, dockerLabel(), context, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {
             console.verbose.println("image build output");
             console.verbose.println(e.output);
             throw e;
         }
-        console.verbose.println("image built: " + imageName);
+        console.verbose.println("image built: " + imageName + " " + image);
+        wipeImages(engine, image);
         console.info.println("starting container ...");
         container = engine.containerCreate(imageName, session.configuration.hostname, configuration.memory * 1024 * 1024, null, null,
                 bindMounts(ports, isSystem()), ports.dockerMap());
@@ -355,9 +357,23 @@ public abstract class Stage {
         dockerContainerFile().writeString(container);
     }
 
-    public void wipeImages(Engine engine) throws IOException {
+
+    public void wipeDocker(Engine engine) throws IOException {
+        wipeContainer(engine);
+        wipeImages(engine, null);
+    }
+
+    public void wipeImages(Engine engine, String keep) throws IOException {
         for (String image : engine.imageList(dockerLabel())) {
-            session.console.verbose.println("remove image: " + image);
+            if (!image.equals(keep)) {
+                session.console.verbose.println("remove image: " + image);
+                engine.imageRemove(image);
+            }
+        }
+    }
+
+    public void wipeContainer(Engine engine) throws IOException {
+        for (String image : engine.imageList(dockerLabel())) {
             for (String container : engine.containerList(image)) {
                 session.console.verbose.println("  remove container: " + container);
                 engine.containerRemove(container);
