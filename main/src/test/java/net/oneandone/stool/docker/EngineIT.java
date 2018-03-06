@@ -10,6 +10,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.UUID;
@@ -214,11 +215,14 @@ public class EngineIT {
 
     //--
 
-    private FileNode df(String dockerfile) throws IOException {
+    private FileNode df(String dockerfile, FileNode ... extras) throws IOException {
         FileNode dir;
 
         dir = WORLD.getTemp().createTempDirectory();
         dir.join("Dockerfile").writeString(dockerfile);
+        for (FileNode extra : extras) {
+            extra.copyFile(dir.join(extra.getName()));
+        }
         return dir;
     }
 }

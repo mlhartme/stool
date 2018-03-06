@@ -375,10 +375,9 @@ public abstract class Stage {
     public void wipeContainer(Engine engine) throws IOException {
         for (String image : engine.imageList(dockerLabel())) {
             for (String container : engine.containerList(image)) {
-                session.console.verbose.println("  remove container: " + container);
+                session.console.verbose.println("remove container: " + container);
                 engine.containerRemove(container);
             }
-            engine.imageRemove(id);
         }
     }
 
