@@ -620,6 +620,6 @@ public class Session {
     //--
 
     public Engine dockerEngine() throws IOException {
-        return Engine.open(console.getVerbose() ? "wire.log" : null);
+        return Engine.open(console.getVerbose() ? "wire.log" /* TODO: place in logs directory */: null);
     }
 }
