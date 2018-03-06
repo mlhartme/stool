@@ -141,9 +141,9 @@ public class Engine {
     }
 
     /** @return output */
-    public String imageBuildWithOutput(String name, FileNode context) throws IOException {
+    public String imageBuildWithOutput(String tag, FileNode context) throws IOException {
         try (StringWriter dest = new StringWriter()) {
-            imageBuild(name, Collections.emptyMap(), context, dest);
+            imageBuild(tag, Collections.emptyMap(), context, dest);
             return dest.toString();
         }
     }
@@ -151,7 +151,7 @@ public class Engine {
     /**
      * @param log may be null
      * @return image id */
-    public String imageBuild(String name, Map<String, String> labels, FileNode context, Writer log) throws IOException {
+    public String imageBuild(String tag, Map<String, String> labels, FileNode context, Writer log) throws IOException {
         HttpNode node;
         StringBuilder output;
         JsonObject object;
@@ -164,7 +164,7 @@ public class Engine {
         String id;
 
         node = root.join("build");
-        node = node.getRoot().node(node.getPath(), "t=" + name + labelsToJsonObject(labels));
+        node = node.getRoot().node(node.getPath(), "t=" + tag + labelsToJsonObject(labels));
         output = new StringBuilder();
         error = null;
         errorDetail = null;

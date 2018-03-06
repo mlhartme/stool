@@ -35,7 +35,7 @@ public class EngineIT {
         labels = Strings.toMap("stooltest", UUID.randomUUID().toString());
         engine = Engine.open("target/wire.log");
         assertTrue(engine.imageList(labels).isEmpty());
-        engine.imageBuild("somename", labels, df("FROM debian:stretch-slim\nRUN touch abc\nCMD echo hello\n"), null);
+        engine.imageBuild("sometag", labels, df("FROM debian:stretch-slim\nRUN touch abc\nCMD echo hello\n"), null);
         ids = engine.imageList(labels);
         assertEquals(1, ids.size());
         image = ids.get(0);
@@ -61,7 +61,7 @@ public class EngineIT {
         message = UUID.randomUUID().toString();
 
         engine = Engine.open("target/wire.log");
-        image = engine.imageBuild("somename",  Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"),null);
+        image = engine.imageBuild("sometag",  Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"),null);
         assertNotNull(image);
 
         container = engine.containerCreate(image, "foo", limit, null, null, Collections.emptyMap(), Collections.emptyMap());

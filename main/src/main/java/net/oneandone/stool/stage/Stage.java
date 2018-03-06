@@ -326,27 +326,27 @@ public abstract class Stage {
         String image;
         String container;
         Engine.Status status;
-        String imageName;
+        String tag;
         FileNode context;
 
         checkMemory();
         engine = session.dockerEngine();
-        imageName = getId();
+        tag = getId();
         context = dockerContext(ports);
         wipeContainer(engine);
-        console.verbose.println("building container ... ");
+        console.verbose.println("building image ... ");
         try (Writer log = new FlushWriter(backstage.join("run/image.log").newWriter())) {
             // don't close the tee writer, it would close console output as well
-            image = engine.imageBuild(imageName, dockerLabel(), context, MultiWriter.createTeeWriter(log, console.verbose));
+            image = engine.imageBuild(tag, dockerLabel(), context, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {
             console.verbose.println("image build output");
             console.verbose.println(e.output);
             throw e;
         }
-        console.verbose.println("image built: " + imageName + " " + image);
+        console.verbose.println("image built: " + image);
         wipeImages(engine, image);
         console.info.println("starting container ...");
-        container = engine.containerCreate(imageName, session.configuration.hostname, configuration.memory * 1024 * 1024, null, null,
+        container = engine.containerCreate(tag, session.configuration.hostname, configuration.memory * 1024 * 1024, null, null,
                 bindMounts(ports, isSystem()), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
