@@ -53,6 +53,8 @@
 * dumped redundant 'stage' entry in ports file
 
 Some implementation notes:
+* I did *not* use a docker client library (docker-java) because I wanted to keep things small and I wanted to learn the
+  rest api myself
 * I use jnr-unixsocket to talk to docker daemons; there are more specialized libaries for that (e.g. junixsocket), but
   from what I found they need native code and/or are quiet old
 
