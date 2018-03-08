@@ -16,6 +16,7 @@
 package net.oneandone.stool.templates;
 
 import net.oneandone.inline.Console;
+import net.oneandone.stool.cli.Validate;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Vhost;
@@ -24,6 +25,15 @@ import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -127,4 +137,34 @@ public class Code {
         }
         return result;
     }
+
+    // TODO: validate certificate
+    public static void validateCert(Stage stage, Validate.Report report) throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
+        FileNode cert;
+        X509Certificate c;
+        LocalDate now;
+        LocalDate notAfter;
+        long left;
+
+        cert = stage.backstage.join("ssl/tomcat.jks");
+        if (!cert.exists()) {
+            return;
+        }
+        KeyStore ks = KeyStore.getInstance("JKS");
+        try (InputStream src = cert.newInputStream()) {
+            ks.load(src, "changeit".toCharArray());
+        }
+        c = (X509Certificate) ks.getCertificate("tomcat");
+        now = LocalDate.now();
+        notAfter = c.getNotAfter().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        left = ChronoUnit.DAYS.between(now, notAfter);
+        if (left < 10) {
+            if (left < 0) {
+                report.user(stage, "certifacte has expired");
+            } else {
+                report.user(stage, "certifacte expires in " + left + " days");
+            }
+        }
+    }
+
 }

@@ -142,7 +142,6 @@ public class Validate extends StageCommand {
     @Override
     public void doMain(Stage stage) throws Exception {
         container(stage);
-        cert(stage);
         constraints(stage);
     }
 
@@ -203,35 +202,6 @@ public class Validate extends StageCommand {
             }
         }
     }
-
-    private void cert(Stage stage) throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
-        FileNode cert;
-        X509Certificate c;
-        LocalDate now;
-        LocalDate notAfter;
-        long left;
-
-        cert = stage.backstage.join("ssl/tomcat.jks");
-        if (!cert.exists()) {
-            return;
-        }
-        KeyStore ks = KeyStore.getInstance("JKS");
-        try (InputStream src = cert.newInputStream()) {
-            ks.load(src, "changeit".toCharArray());
-        }
-        c = (X509Certificate) ks.getCertificate("tomcat");
-        now = LocalDate.now();
-        notAfter = c.getNotAfter().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        left = ChronoUnit.DAYS.between(now, notAfter);
-        if (left < 10) {
-            if (left < 0) {
-                report.user(stage, "certifacte has expired");
-            } else {
-                report.user(stage, "certifacte expires in " + left + " days");
-            }
-        }
-    }
-
 
     //--
 
