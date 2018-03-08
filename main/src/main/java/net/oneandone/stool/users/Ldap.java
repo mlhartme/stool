@@ -37,9 +37,9 @@ import java.util.Map;
  */
 public class Ldap {
     public static Ldap create(String url, String principal, String credentials, String context) {
-        Hashtable env;
+        Hashtable<String, String> env;
 
-        env = new Hashtable();
+        env = new Hashtable<>();
         env.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         env.put(Context.PROVIDER_URL, url);
 

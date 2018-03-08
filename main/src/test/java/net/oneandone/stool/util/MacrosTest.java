@@ -21,7 +21,7 @@ import org.junit.Test;
 
 public class MacrosTest {
     @Test
-    public void testReplace() throws Exception {
+    public void testReplace() {
         Macros macros;
 
         macros = new Macros();

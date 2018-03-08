@@ -153,7 +153,7 @@ public abstract class Stage {
 
     private final String id;
 
-    public FileNode backstage;
+    public final FileNode backstage;
 
     /** user visible directory */
     protected FileNode directory;
@@ -1187,7 +1187,7 @@ public abstract class Stage {
     public List<Info> fieldsAndName() throws IOException {
         List<Info> result;
 
-        result = new ArrayList();
+        result = new ArrayList<>();
         result.add(propertyOpt("name"));
         result.addAll(fields());
         return result;

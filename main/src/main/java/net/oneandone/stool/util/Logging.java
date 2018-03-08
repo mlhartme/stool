@@ -188,11 +188,10 @@ public class Logging {
         }
     }
 
-    private static FileNode touch(FileNode file) throws IOException {
+    private static void touch(FileNode file) throws IOException {
         if (!file.exists()) {
             file.mkfile();
         }
-        return file;
     }
 
     public FileNode directory() {
@@ -204,7 +203,7 @@ public class Logging {
     }
 
     public void rotate() throws IOException {
-        long daymillies = 1000l * 60 * 60 * 24;
+        long daymillies = 1000L * 60 * 60 * 24;
         long manydaysmillies = daymillies * 90;
         long now;
 

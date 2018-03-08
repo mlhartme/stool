@@ -20,7 +20,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
 public class Stop extends StageCommand {
-    private boolean sleep;
+    private final boolean sleep;
 
     public Stop(Session session, boolean sleep) {
         super(false, session, Mode.SHARED, Mode.SHARED, Mode.NONE);

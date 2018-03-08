@@ -105,7 +105,7 @@ public class ArtifactStage extends Stage {
     }
 
     @Override
-    public int size() throws IOException {
+    public int size() {
         return applications.size();
     }
 

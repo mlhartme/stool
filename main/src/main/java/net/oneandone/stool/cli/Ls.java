@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Ls extends InfoCommand {
-    private List<List<String>> lines;
+    private final List<List<String>> lines;
 
     public Ls(Session session, String defaults) {
         super(session, defaults);

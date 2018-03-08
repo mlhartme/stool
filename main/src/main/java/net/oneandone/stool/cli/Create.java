@@ -36,7 +36,7 @@ import java.util.Map;
 
 public class Create extends SessionCommand {
     private final boolean quiet;
-    private String urlOrFileOrSearch;
+    private final String urlOrFileOrSearch;
 
     private FileNode directory;
 

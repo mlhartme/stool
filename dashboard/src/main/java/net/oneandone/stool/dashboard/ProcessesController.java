@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.dashboard;
 
-import net.oneandone.sushi.fs.ExistsException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,7 +82,7 @@ public class ProcessesController {
         return new ResponseEntity<>(output.toString(), headers, HttpStatus.OK);
     }
 
-    public FileNode logFile(String id) throws InterruptedException, ExistsException {
+    private FileNode logFile(String id) throws InterruptedException {
         FileNode logfile;
 
         logfile = logs.join(id + ".log");

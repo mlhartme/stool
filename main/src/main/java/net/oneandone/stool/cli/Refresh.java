@@ -22,8 +22,8 @@ import net.oneandone.stool.util.Session;
 import java.io.IOException;
 
 public class Refresh extends StageCommand {
-    private boolean build;
-    private boolean restore;
+    private final boolean build;
+    private final boolean restore;
 
     public Refresh(Session session, boolean build, boolean restore) {
         super(true, session, Mode.NONE, Mode.SHARED, Mode.SHARED);

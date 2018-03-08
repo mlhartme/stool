@@ -26,13 +26,11 @@ import static org.junit.Assert.assertTrue;
 
 public class LockTest {
     private LockManager manager;
-    private World world;
     private Console console;
 
     @Before
     public void before() throws Exception {
-        world = World.create();
-        manager = LockManager.create(world.getTemp().createTempFile(), "", 2);
+        manager = LockManager.create(World.create().getTemp().createTempFile(), "", 2);
         console = Console.create();
     }
 

@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 public class History extends StageCommand {
-    private boolean details;
-    private int max;
+    private final boolean details;
+    private final int max;
 
     public History(Session session, boolean details, int max) {
         super(false, session, Mode.NONE, Mode.SHARED, Mode.NONE);

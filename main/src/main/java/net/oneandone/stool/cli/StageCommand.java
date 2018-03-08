@@ -302,7 +302,7 @@ public abstract class StageCommand extends SessionCommand {
         if (idx == -1) {
             return new Predicate() {
                 @Override
-                public boolean matches(Stage stage) throws IOException {
+                public boolean matches(Stage stage) {
                     return stage.getName().equals(string);
                 }
             };
@@ -418,15 +418,10 @@ public abstract class StageCommand extends SessionCommand {
                 } else {
                     runFinish(stage);
                 }
-            } catch (ArgumentException e) {
-                if (fail == Fail.NORMAL) {
-                    throw e;
-                }
-                failures.add(stage, e);
             } catch (Error | RuntimeException e) {
                 console.error.println(stage.getName() + ": " + e.getMessage());
                 throw e;
-            } catch (Exception e) {
+            } catch (Exception e /* esp. ArgumentException */) {
                 if (fail == Fail.NORMAL) {
                     throw e;
                 }

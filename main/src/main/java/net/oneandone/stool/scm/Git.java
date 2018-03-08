@@ -21,7 +21,6 @@ import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 
-import java.io.IOException;
 import java.io.Writer;
 
 public class Git extends Scm {
@@ -57,7 +56,7 @@ public class Git extends Scm {
     }
 
     @Override
-    public boolean isCommitted(Stage stage) throws IOException {
+    public boolean isCommitted(Stage stage) {
         FileNode checkout;
 
         checkout = stage.getDirectory();

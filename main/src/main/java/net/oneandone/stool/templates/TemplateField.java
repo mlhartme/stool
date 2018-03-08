@@ -69,9 +69,7 @@ public class TemplateField extends Field {
         }
         try {
             return m.invoke(target);
-        } catch (IllegalAccessException e) {
-            throw new IOException("cannot get method: " + e.getMessage(), e);
-        } catch (InvocationTargetException e) {
+        } catch (IllegalAccessException | InvocationTargetException e) {
             throw new IOException("cannot get method: " + e.getMessage(), e);
         }
     }

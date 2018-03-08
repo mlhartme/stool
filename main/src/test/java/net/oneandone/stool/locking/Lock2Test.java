@@ -29,15 +29,13 @@ import static org.junit.Assert.assertTrue;
 public class Lock2Test {
     private LockManager managerA;
     private LockManager managerB;
-    private World world;
     private Console console;
 
     @Before
     public void before() throws Exception {
         FileNode tmp;
 
-        world = World.create();
-        tmp = world.getTemp().createTempFile();
+        tmp = World.create().getTemp().createTempFile();
         managerA = LockManager.create(tmp, "a", 2);
         managerB = new LockManager(tmp, new Process(0, ""), 2);
         console = Console.create();

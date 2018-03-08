@@ -19,7 +19,6 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
@@ -33,7 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 public class SourceStage extends Stage {
-    public static SourceStage forUrl(Session session, String id, FileNode directory, String url, StageConfiguration configuration) throws ReadLinkException {
+    public static SourceStage forUrl(Session session, String id, FileNode directory, String url, StageConfiguration configuration) {
         return new SourceStage(session, id, directory, url, configuration);
     }
     public static SourceStage forLocal(Session session, String id, FileNode stage, StageConfiguration configuration)
@@ -46,7 +45,7 @@ public class SourceStage extends Stage {
     /** loaded on demand */
     private List<MavenProject> lazyWars;
 
-    public SourceStage(Session session, String id, FileNode directory, String url, StageConfiguration configuration) throws ReadLinkException {
+    public SourceStage(Session session, String id, FileNode directory, String url, StageConfiguration configuration) {
         super(session, url, id, directory, configuration);
     }
 
@@ -125,7 +124,7 @@ public class SourceStage extends Stage {
         filter.include("target/*/WEB-INF");
         filter.predicate((node, b) -> node.isDirectory() && (node.join("lib").isDirectory() || node.join("classes").isDirectory()));
         filter.exclude("target/test-classes/**/*");
-        result = (List) directory.find(filter);
+        result = directory.find(filter);
         switch (result.size()) {
             case 0:
                 throw new IOException("No web application found. Did you build the project?");

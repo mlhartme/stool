@@ -23,8 +23,8 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 
 public class Remove extends StageCommand {
-    private boolean batch;
-    private boolean force;
+    private final boolean batch;
+    private final boolean force;
     private boolean backstageOnly;
 
     public Remove(Session session, boolean batch, boolean force) {

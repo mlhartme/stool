@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class Start extends StageCommand {
-    private boolean tail;
+    private final boolean tail;
 
     public Start(Session session, boolean tail) {
         super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);

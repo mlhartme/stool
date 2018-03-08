@@ -29,7 +29,7 @@ public class Status extends InfoCommand {
         super(session, defaults);
     }
 
-    private static Separator TAB = Separator.on('\t');
+    private static final Separator TAB = Separator.on('\t');
 
     @Override
     public void doMain(Stage stage) throws Exception {

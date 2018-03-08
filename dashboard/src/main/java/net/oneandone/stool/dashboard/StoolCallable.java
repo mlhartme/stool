@@ -24,13 +24,12 @@ import net.oneandone.sushi.launcher.Launcher;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.ldap.userdetails.InetOrgPerson;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.concurrent.Callable;
 
 public class StoolCallable implements Callable<Failure> {
     public static StoolCallable create(FileNode stool, FileNode home, String id, FileNode logs, Stage stage, String unauthenticatedUser,
-                                       String command, String ... options) throws IOException {
+                                       String command, String ... options) {
         String runAs;
         Object username;
 

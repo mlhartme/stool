@@ -43,8 +43,8 @@ import java.util.Map;
 import java.util.Set;
 
 public class Validate extends StageCommand {
-    private boolean email;
-    private boolean repair;
+    private final boolean email;
+    private final boolean repair;
 
     private Report report;
 
@@ -197,7 +197,7 @@ public class Validate extends StageCommand {
 
     public static class Report {
         /** key is a userid or an emails address */
-        private Map<String, List<String>> users;
+        private final Map<String, List<String>> users;
 
         public Report() {
             this.users = new HashMap<>();

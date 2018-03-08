@@ -124,27 +124,30 @@ public class Import extends SessionCommand {
             console.info.println("[a] all of the above");
             console.info.println("[q] quit - none of the above");
             str = console.readline("Please select: ").toLowerCase().trim();
-            if ("q".equals(str)) {
-                return;
-            } else if ("a".equals(str)) {
-                for (Stage f : new ArrayList<>(candidates)) {
-                    importEntry(candidates, f, null);
-                }
-            } else {
-                idx = str.indexOf(' ');
-                if (idx != -1) {
-                    name = str.substring(idx + 1).trim();
-                    str = str.substring(0, idx);
-                } else {
-                    name = null;
-                }
-                try {
-                    n = Integer.parseInt(str) - 1;
-                } catch (NumberFormatException e) {
-                    console.info.println("invalid input: " + str);
-                    continue;
-                }
-                importEntry(candidates, candidates.get(n), name);
+            switch (str) {
+                case "q":
+                    return;
+                case "a":
+                    for (Stage f : new ArrayList<>(candidates)) {
+                        importEntry(candidates, f, null);
+                    }
+                    break;
+                default:
+                    idx = str.indexOf(' ');
+                    if (idx != -1) {
+                        name = str.substring(idx + 1).trim();
+                        str = str.substring(0, idx);
+                    } else {
+                        name = null;
+                    }
+                    try {
+                        n = Integer.parseInt(str) - 1;
+                    } catch (NumberFormatException e) {
+                        console.info.println("invalid input: " + str);
+                        continue;
+                    }
+                    importEntry(candidates, candidates.get(n), name);
+                    break;
             }
         }
     }

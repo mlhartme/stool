@@ -146,14 +146,13 @@ public class StageController {
     }
 
     @RequestMapping(value = "{name}/{action}", method = RequestMethod.POST)
-    public String action(@PathVariable(value = "name") String stageName, @PathVariable(value = "action") String action)
-      throws Exception {
+    public String action(@PathVariable(value = "name") String stageName, @PathVariable(value = "action") String action) {
         return execute(stageName, action);
     }
 
     @RequestMapping(value = "{name}/{action}/{options}", method = RequestMethod.POST)
     public String action(@PathVariable(value = "name") String stageName, @PathVariable(value = "action") String action,
-        @PathVariable(value = "options") String options) throws Exception {
+        @PathVariable(value = "options") String options) {
         List<String> lst;
 
         lst = Separator.COMMA.split(options);
@@ -186,7 +185,7 @@ public class StageController {
         return Console.create();
     }
 
-    public String execute(String stage, String command, String ... options) throws IOException {
+    public String execute(String stage, String command, String ... options) {
         String id;
 
         id = UUID.randomUUID().toString();
