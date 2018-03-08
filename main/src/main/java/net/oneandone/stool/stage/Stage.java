@@ -263,7 +263,7 @@ public abstract class Stage {
     }
 
     public String httpUrl(Vhost host) {
-        return host.httpUrl(session.configuration.vhosts, session.configuration.hostname);
+        return host.httpUrl(session.configuration.vhosts, getName(), session.configuration.hostname);
     }
 
     //--
@@ -313,7 +313,7 @@ public abstract class Stage {
         Ports ports;
 
         ports = loadPortsOpt();
-        return ports == null ? new HashMap<>() : ports.urlMap(session.configuration.hostname, config().url);
+        return ports == null ? new HashMap<>() : ports.urlMap(getName(), session.configuration.hostname, config().url);
     }
 
     /** @return nummer of applications */

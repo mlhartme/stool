@@ -132,7 +132,7 @@ public class Pool {
                 if (port == null) {
                     found = allocate(name, stageName, stageId, docroot);
                 } else {
-                    found = allocate(port, name, stageName, stageId, docroot);
+                    found = allocate(port, name, stageId, docroot);
                     if (found.even != port) {
                         throw new ArgumentException("port already in use: " + port);
                     }
@@ -143,7 +143,7 @@ public class Pool {
 
         // gc this stage, i.e. remove all vhosts that are now unused
         for (int i = vhosts.size() - 1; i >= 0; i--) {
-            if (stageName.equals(vhosts.get(i).stage) && !result.contains(vhosts.get(i))) {
+            if (stageId.equals(vhosts.get(i).id) && !result.contains(vhosts.get(i))) {
                 vhosts.remove(i);
             }
         }
@@ -196,10 +196,10 @@ public class Pool {
     }
 
     private Vhost allocate(String name, String stage, String id, FileNode docroot) throws IOException {
-        return allocate(forName(name, stage), name, stage, id, docroot);
+        return allocate(forName(name, stage), name, id, docroot);
     }
 
-    private Vhost allocate(int start, String name, String stage, String id, FileNode docroot) throws IOException {
+    private Vhost allocate(int start, String name, String id, FileNode docroot) throws IOException {
         int current;
         Vhost result;
 
@@ -214,7 +214,7 @@ public class Pool {
             if (!used(current)) {
                 checkFree(current);
                 checkFree(current + 1);
-                result = new Vhost(current, name, stage, id, docroot);
+                result = new Vhost(current, name, id, docroot);
                 vhosts.add(result);
                 return result;
             }

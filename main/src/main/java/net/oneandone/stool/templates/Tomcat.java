@@ -80,7 +80,7 @@ public class Tomcat {
         serverXmlDest = serverXml();
         tar(tomcat, "zxf", tomcatTarGz.getName(), "--strip-components=2", tomcatName(version) + "/conf/server.xml");
 
-        serverXml = ServerXml.load(serverXmlDest, session.configuration.hostname);
+        serverXml = ServerXml.load(serverXmlDest, stage.getName(), session.configuration.hostname);
         serverXml.stripComments();
         serverXml.configure(ports, configuration.url, keystorePassword, cookies, legacyVersion(version));
         serverXml.save(serverXmlDest);
@@ -121,7 +121,7 @@ public class Tomcat {
     public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
 
-        serverXml = ServerXml.load(serverXml(), session.configuration.hostname);
+        serverXml = ServerXml.load(serverXml(), stage.getName(), session.configuration.hostname);
         serverXml.addContextParameters(stage, logroot, Strings.toMap(additionals));
         serverXml.save(serverXml());
     }

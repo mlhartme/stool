@@ -90,13 +90,13 @@ public class Ports {
         return -1;
     }
 
-    public Map<String, String> urlMap(String hostname, String url) {
+    public Map<String, String> urlMap(String stageName, String hostname, String url) {
         Map<String, String> result;
 
         result = new LinkedHashMap<>();
         for (Vhost vhost : vhosts()) {
             if (vhost.isWebapp()) {
-                result.putAll(vhost.urlMap(hostname, url));
+                result.putAll(vhost.urlMap(stageName, hostname, url));
             }
         }
         return result;

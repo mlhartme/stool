@@ -122,7 +122,7 @@ public class Code {
                 if (vhost.name.contains("+")) {
                     continue;
                 }
-                result.add(vhost.httpUrl(stage.session.configuration.vhosts, stage.session.configuration.hostname));
+                result.add(vhost.httpUrl(stage.session.configuration.vhosts, stage.getName(), stage.session.configuration.hostname));
             }
         }
         return result;

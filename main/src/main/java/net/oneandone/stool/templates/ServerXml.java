@@ -40,8 +40,8 @@ import static net.oneandone.stool.templates.CookieMode.LEGACY;
 import static net.oneandone.stool.templates.CookieMode.OFF;
 
 public class ServerXml {
-    public static ServerXml load(Node src, String hostname) throws IOException, SAXException {
-        return new ServerXml(src.getWorld().getXml(), src.readXml(), hostname);
+    public static ServerXml load(Node src, String stageName, String hostname) throws IOException, SAXException {
+        return new ServerXml(src.getWorld().getXml(), src.readXml(), stageName, hostname);
     }
 
     private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";
@@ -49,11 +49,13 @@ public class ServerXml {
 
     private final Selector selector;
     private final Document document;
+    private final String stageName;
     private final String hostname;
 
-    public ServerXml(Xml xml, Document document, String hostname) {
+    public ServerXml(Xml xml, Document document, String stageName, String hostname) {
         this.selector = xml.getSelector();
         this.document = document;
+        this.stageName = stageName;
         this.hostname = hostname;
     }
 
@@ -73,7 +75,7 @@ public class ServerXml {
                 document.getDocumentElement().appendChild(service);
                 service(service, vhost);
                 connectors(service, vhost, keystorePassword, legacy);
-                contexts(vhost.context(hostname, url), service, cookies);
+                contexts(vhost.context(stageName, hostname, url), service, cookies);
             }
         }
         template.getParentNode().removeChild(template);
@@ -86,7 +88,7 @@ public class ServerXml {
         Element context;
         Element element;
 
-        name = vhost.fqdn(true, hostname);
+        name = vhost.fqdn(true, stageName, hostname);
         service.setAttribute("name", name);
         engine = selector.element(service, "Engine");
         engine.setAttribute("defaultHost", name);
@@ -115,7 +117,7 @@ public class ServerXml {
         host.appendChild(context);
 
         element = service.getOwnerDocument().createElement("Alias");
-        element.setAttribute("name", vhost.fqdn(false, hostname));
+        element.setAttribute("name", vhost.fqdn(false, stageName, hostname));
         host.insertBefore(element, host.getFirstChild());
     }
 
