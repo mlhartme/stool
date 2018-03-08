@@ -15,12 +15,10 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.UserNotFound;
 
 import javax.naming.NamingException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Field or Property */

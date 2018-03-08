@@ -16,7 +16,6 @@
 package net.oneandone.stool.templates;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Ports;
 
 import javax.management.MBeanServerConnection;

@@ -16,7 +16,6 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.sushi.fs.file.FileNode;
 
 import java.util.HashMap;
 import java.util.Map;
