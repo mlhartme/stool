@@ -118,7 +118,7 @@
           </remove>
           <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
           <attach>true</attach>
-          <shrink>false</shrink>
+          <shrink>true</shrink>
           <shrinkOptions>
               -dontoptimize # because of proguard bug
               -keepattributes *Annotation*
@@ -157,48 +157,45 @@
               -keep public class net.oneandone.inline.commands.PackageVersion {
               public *;
               }
-
-              -keep public class org.apache.commons.logging.** {
-              *;
-              }
-
-              #
-              -keep class ** extends javax.mail.Transport {
-              public &lt;init&gt;(...);
-              }
-
-              -keep public class ** implements org.eclipse.aether.spi.locator.Service {
-              }
-
-              -keep @org.codehaus.plexus.component.annotations.Component class *
-              -keep @com.google.inject.Singleton class *
-              -keep @javax.inject.Named class *
-
-              -keep class org.apache.maven.repository.internal.Default* {
-              *;
-              }
-
-              -keep class org.eclipse.sisu.** {
-              *;
-              }
-
-              -keep public class ** implements org.sonatype.plexus.components.sec.dispatcher.SecDispatcher {
-              }
-
-              -keep public class ** implements org.sonatype.plexus.components.cipher.PlexusCipher {
-              }
-
-              -keepclassmembers class * {
-              @javax.inject.Inject *;
-              }
-
               -keepclassmembers enum * {
               public static **[] values();
               public static ** valueOf(java.lang.String);
               }
 
-              -keepclassmembers class ** implements net.oneandone.stool.setup.Upgrade {
+              # email
+              -keep class ** extends javax.mail.Transport {
+              public &lt;init&gt;(...);
+              }
+
+              # repository access, eather
+              -keep public class ** implements org.eclipse.aether.spi.locator.Service {
+              }
+              -keep @org.codehaus.plexus.component.annotations.Component class *
+              -keep @com.google.inject.Singleton class *
+              -keep @javax.inject.Named class *
+              -keep class org.apache.maven.repository.internal.Default* {
               *;
+              }
+              -keep class org.eclipse.sisu.** {
+              *;
+              }
+              -keep public class ** implements org.sonatype.plexus.components.sec.dispatcher.SecDispatcher {
+              }
+              -keep public class ** implements org.sonatype.plexus.components.cipher.PlexusCipher {
+              }
+              -keepclassmembers class * {
+              @javax.inject.Inject *;
+              }
+              -keep public class org.apache.commons.logging.** {
+              *;
+              }
+
+              # jnr
+              -keep class jnr.** {
+                *;
+              }
+              -keep class com.kenai.** {
+                *;
               }
 
               # Stool
@@ -208,17 +205,19 @@
               -keep public class net.oneandone.stool.setup.Debfiles {
               public static void main(java.lang.String[]);
               }
-              -keep public class ** implements net.oneandone.stool.templates.Template {
-              public &lt;init&gt;(...);
+              -keepclassmembers public class net.oneandone.stool.configuration.StoolConfiguration {
+              !static !transient &lt;fields&gt;;
+              }
+              -keep class net.oneandone.stool.templates.Tomcat {
+                public *;
+              }
+              -keep class net.oneandone.stool.templates.StatusHelper {
+                public *;
               }
 
               # Sushi
               -keep public class ** extends net.oneandone.sushi.fs.Filesystem {
               public &lt;init&gt;(...);
-              }
-
-              -keepclassmembers public class net.oneandone.stool.configuration.StoolConfiguration {
-              !static !transient &lt;fields&gt;;
               }
           </shrinkOptions>
 
