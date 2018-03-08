@@ -110,14 +110,6 @@ public class Vhost {
         return docroot != null && docroot.getName().equals("ROOT");
     }
 
-    public String docBase() {
-        if (isArtifact()) {
-            return "ROOT";
-        } else {
-            return docroot.getAbsolute();
-        }
-    }
-
     public int httpPort() {
         return even;
     }

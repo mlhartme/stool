@@ -76,23 +76,4 @@ public abstract class Info {
             return "[error: " + e.getMessage() + "]";
         }
     }
-
-    /** TODO: we need this field to list fitnesse urls ...*/
-    public static List<String> other(Stage stage, Ports ports) {
-        List<String> result;
-
-        result = new ArrayList<>();
-        if (ports != null) {
-            for (Vhost vhost : ports.vhosts()) {
-                if (vhost.isWebapp()) {
-                    continue;
-                }
-                if (vhost.name.contains("+")) {
-                    continue;
-                }
-                result.add(vhost.httpUrl(stage.session.configuration.vhosts, stage.session.configuration.hostname));
-            }
-        }
-        return result;
-    }
 }

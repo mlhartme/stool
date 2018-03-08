@@ -49,6 +49,7 @@
       org.apache.catalina.core.ContainerBase.[Catalina].handlers = 1catalina.org.apache.juli.FileHandler
 
   to Tomcat logging.properties
+* dumped 'other' field
 
 
 ### 3.4.10 (2017-10-05)

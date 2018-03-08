@@ -24,7 +24,9 @@ import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class Code {
     // TODO: have a list of projects; always prepend @
@@ -103,5 +105,26 @@ public class Code {
 
         path = ports.lookup(fitnesseHost.name).docroot.getAbsolute();
         return path.substring(0, path.indexOf("/target"));
+    }
+
+    //--
+
+    /** TODO: we need this field to list fitnesse urls ...*/
+    public static List<String> other(Stage stage, Ports ports) {
+        List<String> result;
+
+        result = new ArrayList<>();
+        if (ports != null) {
+            for (Vhost vhost : ports.vhosts()) {
+                if (vhost.isWebapp()) {
+                    continue;
+                }
+                if (vhost.name.contains("+")) {
+                    continue;
+                }
+                result.add(vhost.httpUrl(stage.session.configuration.vhosts, stage.session.configuration.hostname));
+            }
+        }
+        return result;
     }
 }

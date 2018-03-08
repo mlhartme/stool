@@ -40,7 +40,6 @@ public abstract class Accessor {
         doSet(configuration, str);
     }
 
-    // TODO: change strOrMap to str when it's no longer used for stool.defaults
     protected abstract void doSet(Object configuration, String str);
 
     public int hashCode() {

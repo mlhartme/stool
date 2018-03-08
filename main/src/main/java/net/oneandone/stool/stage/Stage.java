@@ -1171,13 +1171,6 @@ public abstract class Stage {
                 return Stage.this.namedUrls();
             }
         });
-        fields.add(new Field("other") {
-            @Override
-            public Object get() throws IOException {
-                Info.other(Stage.this, Stage.this.loadPortsOpt());
-                return null;
-            }
-        });
         fields.addAll(TemplateField.scanTemplate(this, config().template));
         return fields;
     }
