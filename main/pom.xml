@@ -30,7 +30,7 @@
     <dependency>
       <groupId>net.oneandone</groupId>
       <artifactId>inline</artifactId>
-      <version>1.1.0</version>
+      <version>1.1.1</version>
     </dependency>
     <dependency>
       <groupId>net.oneandone.maven</groupId>
@@ -255,7 +255,7 @@
           </execution>
         </executions>
       </plugin>
-      <!-- plugin>
+      <plugin>
         <groupId>net.oneandone.maven.plugins</groupId>
         <artifactId>active-markdown</artifactId>
         <version>1.0.0</version>
@@ -268,7 +268,7 @@
             <goals><goal>run</goal></goals>
           </execution>
         </executions>
-      </plugin-->
+      </plugin>
       <plugin>
         <artifactId>jdeb</artifactId>
         <groupId>org.vafer</groupId>

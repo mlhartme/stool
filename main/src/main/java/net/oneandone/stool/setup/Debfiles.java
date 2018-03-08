@@ -39,8 +39,7 @@ public class Debfiles {
 
         man = target.join("usr/share/man");
         man.mkdirs();
-        // TODO: disabled as long as ronn is broken:
-        // world.resource("templates/man").copyDirectory(man);
+        world.resource("templates/man").copyDirectory(man);
 
         profileD = target.join("etc/profile.d");
         profileD.mkdirs();
