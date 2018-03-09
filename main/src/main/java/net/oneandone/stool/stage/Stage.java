@@ -442,7 +442,7 @@ public abstract class Stage {
 
 
         result = new HashMap<>();
-        result.put(backstage.join("logs").mkdirOpt().getAbsolute(), "/usr/local/tomcat/logs");
+        result.put(backstage.join("logs").mkdirOpt().getAbsolute(), "/var/log/stool");
         for (Vhost vhost : ports.vhosts()) {
             if (vhost.isWebapp()) {
                 if (vhost.isArtifact()) {
