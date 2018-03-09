@@ -1272,8 +1272,8 @@ To upgrade from Stool versions before 3.4.0:
         '- .backstage
           |- config.json      (stage configuration)
           |- .m2              (Maven repository for this stage)
-          |- creator          (created when stage is created, tracks created-by and created-at)
-          |- modified         (touched if Stool command modifies this stage)
+          |- creator.touch    (created when stage is created, tracks created-by and created-at)
+          |- modified.touch   (touched if Stool command modifies this stage)
           |- logs             (log file of running stage)
           |- container.id     (id of running container; does not exist otherwise)
           |- image.log        (Docker's image build output) 

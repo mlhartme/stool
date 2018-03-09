@@ -214,7 +214,7 @@ public abstract class Stage {
         FileNode file;
         FileNode link;
 
-        file = getBackstage().join("creator");
+        file = getBackstage().join("creator.touch");
         if (!file.exists()) {
             link = session.backstageLink(id);
             file.getParent().mkdirOpt();
@@ -617,7 +617,7 @@ public abstract class Stage {
     public FileNode modifiedFile() throws IOException {
         FileNode file;
 
-        file = getBackstage().join("modified");
+        file = getBackstage().join("modified.touch");
         if (!file.exists()) {
             file.getParent().mkdirOpt();
             file.writeString(session.user);
