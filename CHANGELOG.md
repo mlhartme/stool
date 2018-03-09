@@ -24,10 +24,11 @@
 * config cleanup
   * removed deprecated @owner and @maintainer contact shortcuts
   * renamed `ldapSso` to `ldapUnit`
+  * renamed `creator` field to `created-by` and `created` to `created-at`
   * removed "downloadsCache" property, use symlinks for $home/downloads instead
 * .backstage cleanup
   * renamed `maintainer` to `modified`
-  * renamed `creator` field to `created-by` and `created` to `created-at`
+  * dumped 'run' subdirectory
 * dumped `-debug` and `-suspend` options from `start` and `restart` (and the corresponding defaults); use the `config`
   command instead to set the respective template properties instead
 * dumped Stool config `certifiacates`, the respective code has moved into the template

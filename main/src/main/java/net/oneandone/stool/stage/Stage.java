@@ -214,7 +214,7 @@ public abstract class Stage {
         FileNode file;
         FileNode link;
 
-        file = getBackstage().join("run/creator");
+        file = getBackstage().join("creator");
         if (!file.exists()) {
             link = session.backstageLink(id);
             file.getParent().mkdirOpt();
@@ -335,7 +335,7 @@ public abstract class Stage {
         context = dockerContext(ports);
         wipeContainer(engine);
         console.verbose.println("building image ... ");
-        try (Writer log = new FlushWriter(backstage.join("run/image.log").newWriter())) {
+        try (Writer log = new FlushWriter(backstage.join("image.log").newWriter())) {
             // don't close the tee writer, it would close console output as well
             image = engine.imageBuild(tag, dockerLabel(), context, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {
@@ -482,7 +482,7 @@ public abstract class Stage {
     }
 
     public FileNode dockerContainerFile() {
-        return backstage.join("run/container.id");
+        return backstage.join("container.id");
     }
 
     public String dockerContainer() throws IOException {
@@ -508,7 +508,7 @@ public abstract class Stage {
         configuration.setDefaultEncoding("UTF-8");
 
         src = config().template;
-        dest = backstage.join("run/context");
+        dest = backstage.join("context");
         dest.deleteTreeOpt();
         dest.mkdir();
         environment = Variable.scanTemplate(src).values();
@@ -617,7 +617,7 @@ public abstract class Stage {
     public FileNode modifiedFile() throws IOException {
         FileNode file;
 
-        file = getBackstage().join("run/modified");
+        file = getBackstage().join("modified");
         if (!file.exists()) {
             file.getParent().mkdirOpt();
             file.writeString(session.user);

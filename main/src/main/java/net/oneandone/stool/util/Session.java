@@ -424,7 +424,7 @@ public class Session {
         reserved = 0;
         for (FileNode link : backstages.list()) {
             backstage = link.resolveLink();
-            if (backstage.join("run/container").exists()) {
+            if (backstage.join("container.id").exists()) {
                 stage = loadStageConfiguration(backstage);
                 reserved += stage.memory;
             }

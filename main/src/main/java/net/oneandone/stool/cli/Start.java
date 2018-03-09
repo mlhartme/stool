@@ -19,7 +19,6 @@ import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.net.URI;
@@ -90,7 +89,6 @@ public class Start extends StageCommand {
         Ports ports;
 
         ports = session.pool().allocate(stage, Collections.emptyMap());
-        createBackstage(stage);
         stage.start(console, ports);
     }
 
@@ -127,16 +125,6 @@ public class Start extends StageCommand {
                     }
                 }
             }
-        }
-    }
-
-    private void createBackstage(Stage stage) throws Exception {
-        FileNode backstage;
-
-        backstage = stage.getBackstage().mkdirOpt();
-        // CAUTION: the log directory is created by "stool create" (because it contains log files)
-        for (String dir : new String[] {"ssl", "run" }) {
-            backstage.join(dir).mkdirOpt();
         }
     }
 }
