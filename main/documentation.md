@@ -1275,14 +1275,13 @@ To upgrade from Stool versions before 3.4.0:
           |- logs             (log file of running stage)
           '- run
              |- creator       (created when stage is created, tracks created-by and created-at)
+             |- container.id  (id of running container; does not exist otherwise)
              |- modified      (touched if Stool command modifies this stage)
              |- image.log     (Docker's image build output) 
-             '- image         (context to build docker image)
+             '- context       (context to build docker image)
                   '- tomcat
                        |- tomcat.tar.gz
-                       |- server.xml
-                       `- ssl
-                           '- tomcat.jks
+                       '- server.xml
 
 
 Normal project files for source stages are simply the respective SCM files, for artifact stages they are:

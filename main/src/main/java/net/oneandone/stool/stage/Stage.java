@@ -482,7 +482,7 @@ public abstract class Stage {
     }
 
     public FileNode dockerContainerFile() {
-        return backstage.join("run/container");
+        return backstage.join("run/container.id");
     }
 
     public String dockerContainer() throws IOException {
@@ -508,7 +508,7 @@ public abstract class Stage {
         configuration.setDefaultEncoding("UTF-8");
 
         src = config().template;
-        dest = backstage.join("run/image");
+        dest = backstage.join("run/context");
         dest.deleteTreeOpt();
         dest.mkdir();
         environment = Variable.scanTemplate(src).values();

@@ -129,11 +129,11 @@ public class Tomcat {
     //--
 
     private FileNode tomcatTarGz() {
-        return stage.backstage.join("run/image/tomcat/tomcat.tar.gz");
+        return stage.backstage.join("run/context/tomcat/tomcat.tar.gz");
     }
 
     private FileNode serverXml() {
-        return stage.backstage.join("run/image/tomcat/server.xml");
+        return stage.backstage.join("run/context/tomcat/server.xml");
     }
 
     /** @return true for 8.0.x and older */
