@@ -181,9 +181,13 @@ public class Session {
 
     public Map<String, Accessor> accessors() {
         if (lazyAccessors == null) {
-            lazyAccessors = StageConfiguration.accessors(configuration.templates);
+            lazyAccessors = StageConfiguration.accessors(templates());
         }
         return lazyAccessors;
+    }
+
+    public FileNode templates() {
+        return home.join("templates");
     }
 
     public void add(FileNode backstage, String id) throws LinkException {
@@ -499,7 +503,7 @@ public class Session {
         }
         scm = scmOpt(url);
         refresh = scm == null ? "" : scm.refresh();
-        result = new StageConfiguration(javaHome(), mavenHome, configuration.templates.join("tomcat"), refresh);
+        result = new StageConfiguration(javaHome(), mavenHome, templates().join("tomcat"), refresh);
         result.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
         configuration.setDefaults(accessors(), result, url);
         return result;

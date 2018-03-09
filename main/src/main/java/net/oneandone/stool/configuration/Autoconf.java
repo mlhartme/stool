@@ -34,16 +34,17 @@ public class Autoconf {
     public static StoolConfiguration stool(Environment environment, FileNode home) throws IOException {
         StoolConfiguration result;
 
-        result = new StoolConfiguration(downloadCache(home), templates(environment, home));
+        result = new StoolConfiguration(downloadCache(home));
         result.hostname = hostname();
         result.search = search(home.getWorld());
-        oneAndOne(environment, result);
+        oneAndOne(environment, home, result);
         return result;
     }
 
-    private static void oneAndOne(Environment environment, StoolConfiguration dest) {
+    private static void oneAndOne(Environment environment, FileNode home, StoolConfiguration dest) throws IOException {
         String tools;
         Map<String, String> dflt;
+        FileNode templates;
 
         tools = oneAndOneTools(environment);
         if (tools != null) {
@@ -59,6 +60,11 @@ public class Autoconf {
             dflt.put("template.env", "version:9.0.5,opts:,mode:test,fault:false,debug:false,suspend:false");
             dest.defaults.put("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/", cp());
             dest.defaults.put("svn:https://svn.1and1.org/svn/sales/workspaces/", workspace());
+
+            templates = home.getWorld().file(tools).join("stool/templates");
+            if (templates.isDirectory()) {
+                templates.link(home.join("templates").deleteTree());
+            }
         }
     }
 
@@ -119,20 +125,6 @@ public class Autoconf {
             }
         }
         return home.join("downloads");
-    }
-
-    private static FileNode templates(Environment environment, FileNode home) {
-        String tools;
-        FileNode dir;
-
-        tools = oneAndOneTools(environment);
-        if (tools != null) {
-            dir = home.getWorld().file(tools).join("stool/templates");
-            if (dir.isDirectory()) {
-                return dir;
-            }
-        }
-        return home.join("templates");
     }
 
     private static String hostname() throws UnknownHostException {
