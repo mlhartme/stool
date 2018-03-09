@@ -34,7 +34,7 @@ public class Autoconf {
     public static StoolConfiguration stool(Environment environment, FileNode home) throws IOException {
         StoolConfiguration result;
 
-        result = new StoolConfiguration(downloadCache(home));
+        result = new StoolConfiguration();
         result.hostname = hostname();
         result.search = search(home.getWorld());
         oneAndOne(environment, home, result);
@@ -45,6 +45,7 @@ public class Autoconf {
         String tools;
         Map<String, String> dflt;
         FileNode templates;
+        FileNode downloadsCache;
 
         tools = oneAndOneTools(environment);
         if (tools != null) {
@@ -64,6 +65,12 @@ public class Autoconf {
             templates = home.getWorld().file(tools).join("stool/templates");
             if (templates.isDirectory()) {
                 templates.link(home.join("templates").deleteTree());
+            }
+        }
+        if (OS.CURRENT == OS.MAC) {
+            downloadsCache = home.getWorld().getHome().join("Downloads");
+            if (downloadsCache.isDirectory()) {
+                downloadsCache.link(home.join("downloads").deleteDirectory());
             }
         }
     }
@@ -113,18 +120,6 @@ public class Autoconf {
         } else {
             return "";
         }
-    }
-
-    private static FileNode downloadCache(FileNode home) {
-        FileNode directory;
-
-        if (OS.CURRENT == OS.MAC) {
-            directory = home.getWorld().getHome().join("Downloads");
-            if (directory.isDirectory()) {
-                return directory;
-            }
-        }
-        return home.join("downloads");
     }
 
     private static String hostname() throws UnknownHostException {

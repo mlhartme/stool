@@ -57,7 +57,7 @@ public class Tomcat {
         FileNode download;
         FileNode dest;
 
-        download = session.downloadCache().join(tomcatName(version) + ".tar.gz");
+        download = session.downloads().join(tomcatName(version) + ".tar.gz");
         if (!download.exists()) {
             downloadFile(subst(downloadUrl, version), download);
             download.checkFile();

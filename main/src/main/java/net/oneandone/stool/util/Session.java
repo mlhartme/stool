@@ -547,8 +547,8 @@ public class Session {
                 .create();
     }
 
-    public FileNode downloadCache() {
-        return configuration.downloadCache;
+    public FileNode downloads() {
+        return home.join("downloads");
     }
 
     public List<String> search(String search) throws IOException {

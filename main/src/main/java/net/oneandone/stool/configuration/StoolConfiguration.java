@@ -109,13 +109,11 @@ public class StoolConfiguration {
      */
     public int autoRemove;
 
-    public FileNode downloadCache;
-
     public String search;
 
     public int quota;
 
-    public StoolConfiguration(FileNode downloadCache) {
+    public StoolConfiguration() {
         portFirst = 9000;
         portLast = 9999;
         baseMemory = 400;
@@ -135,9 +133,8 @@ public class StoolConfiguration {
         mailHost = "";
         mailUsername = "";
         mailPassword = "";
-        this.downloadCache = downloadCache;
-        this.search = "";
-        this.quota = 0;
+        search = "";
+        quota = 0;
     }
 
     public static FileNode configurationFile(FileNode home) {

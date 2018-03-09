@@ -72,6 +72,9 @@ public class Home {
 
         world = dir.getWorld();
         world.resource("files/home").copyDirectory(dir);
+        for (String name : new String[]{"backstages", "logs", "run", "system", "downloads"}) {
+            dir.join(name).mkdir();
+        }
         profile(dir.join("shell.rc"),
                 file("files/sourceBashComplete"));
         bashComplete(dir.join("bash.complete"));
@@ -80,10 +83,6 @@ public class Home {
             conf = conf.createPatched(gson, explicitConfig);
         }
         conf.save(gson, dir);
-        conf.downloadCache.mkdirOpt();
-        for (String name : new String[]{"backstages", "logs", "run", "system"}) {
-            dir.join(name).mkdir();
-        }
         versionFile().writeString(Main.versionString(world));
         dir.join("run/locks").mkfile();
     }
