@@ -287,7 +287,7 @@ public class Engine {
     //-- containers
 
     public String containerCreate(String image, String hostname) throws IOException {
-        return containerCreate(image, hostname, null, null, null, Collections.emptyMap(), Collections.emptyMap());
+        return containerCreate(image, hostname, null, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
     }
 
     /**
@@ -298,7 +298,7 @@ public class Engine {
      * @return container id
      */
     public String containerCreate(String image, String hostname, Integer memory, String stopSignal, Integer stopTimeout,
-                                  Map<String, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
+                                  Map<String, String> env, Map<String, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
         JsonObject body;
         JsonObject response;
         JsonObject hostConfig;
@@ -315,6 +315,9 @@ public class Engine {
         hostConfig = new JsonObject();
 
         body.add("HostConfig", hostConfig);
+        if (!env.isEmpty()) {
+            body.add("Env", env(env));
+        }
         if (memory != null) {
             hostConfig.add("Memory", new JsonPrimitive(memory));
             // unlimited; important, because debian stretch kernal does not support this
@@ -336,6 +339,16 @@ public class Engine {
         response = post(root.join("containers/create"), body);
         checWarnings(response);
         return response.get("Id").getAsString();
+    }
+
+    private static JsonArray env(Map<String, String> env) {
+        JsonArray result;
+
+        result = new JsonArray();
+        for (Map.Entry<String, String> entry : env.entrySet()) {
+            result.add(entry.getKey() + "=" + entry.getValue());
+        }
+        return result;
     }
 
     private static JsonObject exposedPorts(Set<Integer> ports) {

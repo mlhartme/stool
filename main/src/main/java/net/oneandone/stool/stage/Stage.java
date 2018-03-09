@@ -74,6 +74,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -347,7 +348,7 @@ public abstract class Stage {
         wipeImages(engine, image);
         console.info.println("starting container ...");
         container = engine.containerCreate(tag, session.configuration.hostname, configuration.memory * 1024 * 1024, null, null,
-                bindMounts(ports, isSystem()), ports.dockerMap());
+                Collections.emptyMap(), bindMounts(ports, isSystem()), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
         status = engine.containerStatus(container);
@@ -434,7 +435,7 @@ public abstract class Stage {
         });
     }
 
-    private Map<String, String> bindMounts(Ports ports, boolean systemBinds) throws IOException {
+    private Map<String, String>bindMounts(Ports ports, boolean systemBinds) throws IOException {
         Map<String, String> result;
         List<FileNode> lst;
         Iterator<FileNode> iter;
