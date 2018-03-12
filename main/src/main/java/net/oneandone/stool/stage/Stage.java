@@ -348,7 +348,7 @@ public abstract class Stage {
         wipeImages(engine, image);
         console.info.println("starting container ...");
         container = engine.containerCreate(tag, session.configuration.hostname, configuration.memory * 1024 * 1024, null, null,
-                Collections.emptyMap(), bindMounts(ports, isSystem()), ports.dockerMap());
+                Strings.toMap("FAULT_TOKEN", faultToken()), bindMounts(ports, isSystem()), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
         status = engine.containerStatus(container);
@@ -358,6 +358,12 @@ public abstract class Stage {
         dockerContainerFile().writeString(container);
     }
 
+    private String faultToken() throws IOException {
+        FileNode file;
+
+        file = directory.getWorld().getHome().file(".fault-token");
+        return file.exists() ? file.readString().trim() : "";
+    }
 
     public void wipeDocker(Engine engine) throws IOException {
         wipeContainer(engine);

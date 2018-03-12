@@ -25,6 +25,21 @@ public class EngineIT {
     private static final World WORLD = World.createMinimal();
 
     @Test
+    public void deviceFuse() throws IOException, InterruptedException {
+        Engine engine;
+        String image;
+        String container;
+
+        engine = Engine.open("target/wire.log");
+        image = engine.imageBuild("sometag", Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD ls -la /dev/fuse\n"), null);
+        container = engine.containerCreate(image, "somehost");
+        engine.containerStart(container);
+        Thread.sleep(1000);
+        engine.containerRemove(container);
+        engine.imageRemove(image);
+    }
+
+    @Test
     public void list() throws IOException {
         Map<String, String> labels;
         Engine engine;

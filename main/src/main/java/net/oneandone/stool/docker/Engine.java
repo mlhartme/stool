@@ -304,6 +304,7 @@ public class Engine {
         JsonObject hostConfig;
         JsonArray binds;
         JsonObject portBindings;
+        JsonArray devices;
 
         body = body("Image", image, "Hostname", hostname);
         if (stopSignal != null) {
@@ -323,6 +324,11 @@ public class Engine {
             // unlimited; important, because debian stretch kernal does not support this
             hostConfig.add("MemorySwap", new JsonPrimitive(-1));
         }
+        hostConfig.add("Privileged", new JsonPrimitive(true));
+//        devices = new JsonArray();
+//        hostConfig.add("devices", devices);
+//        devices.add(fuseDevice());
+
         binds = new JsonArray();
         hostConfig.add("Binds", binds);
         for (Map.Entry<String, String> entry : bindMounts.entrySet()) {
@@ -341,6 +347,15 @@ public class Engine {
         return response.get("Id").getAsString();
     }
 
+    private static JsonObject fuseDevice() { // https://gist.github.com/dims/0d1ac1a5598e0b8a72e0
+        JsonObject result;
+
+        result = new JsonObject();
+        result.add("PathOnHost", new JsonPrimitive("/dev/fuse"));
+        result.add("PathInContainer", new JsonPrimitive("/dev/fuse"));
+        result.add("CgroupPermissions", new JsonPrimitive("mrw"));
+        return result;
+    }
     private static JsonArray env(Map<String, String> env) {
         JsonArray result;
 
