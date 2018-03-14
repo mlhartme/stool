@@ -19,18 +19,22 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
 import net.oneandone.sushi.util.SubstitutionException;
 import net.oneandone.sushi.xml.XmlException;
+import org.apache.maven.project.MavenProject;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,13 +42,15 @@ import java.util.Map;
 
 public class Tomcat {
     private final Stage stage;
+    private final FileNode context;
     private final StageConfiguration configuration;
     private final Session session;
     private final Console console;
     private final Ports ports;
 
-    public Tomcat(Stage stage, Session session, Ports ports) {
+    public Tomcat(Stage stage, FileNode context, Session session, Ports ports) {
         this.stage = stage;
+        this.context = context;
         this.configuration = stage.config();
         this.session = session;
         this.console = session.console;
@@ -52,6 +58,30 @@ public class Tomcat {
     }
 
     //-- public interface
+
+    public void fault() throws IOException {
+        Launcher launcher;
+        List<String> projects;
+        FileNode token;
+
+        launcher = context.launcher("fault", "resolve");
+        for (MavenProject project : ((SourceStage) stage).wars()) {
+            launcher.arg("file:" + project.getFile().getAbsolutePath());
+        }
+        projects = Separator.RAW_LINE.split(launcher.exec());
+        if (!projects.isEmpty()) {
+            try (Writer dest = context.join("fault").newWriter()) {
+                for (String project : projects) {
+                    dest.write(" @");
+                    dest.write(project);
+                }
+            }
+            token = context.join(".fault-token");
+            token.writeString("");
+            token.setPermissions("rx-------");
+            token.appendString(session.world.getHome().join(".fault-token").readString());
+        }
+    }
 
     public void download(String downloadUrl, String version) throws IOException {
         FileNode download;
