@@ -59,28 +59,31 @@ public class Tomcat {
 
     //-- public interface
 
-    public void fault() throws IOException {
+    public String fault() throws IOException {
+        FileNode dir;
         Launcher launcher;
         List<String> projects;
         FileNode token;
 
-        launcher = context.launcher("fault", "resolve");
+        dir = context.join("fault").deleteTreeOpt().mkdir();
+        launcher = dir.launcher("fault", "resolve");
         for (MavenProject project : ((SourceStage) stage).wars()) {
             launcher.arg("file:" + project.getFile().getAbsolutePath());
         }
-        projects = Separator.RAW_LINE.split(launcher.exec());
+        projects = Separator.on('\n').trim().skipEmpty().split(launcher.exec());
         if (!projects.isEmpty()) {
-            try (Writer dest = context.join("fault").newWriter()) {
+            token = dir.join(".fault-token");
+            token.writeString("");
+            token.setPermissions("rw-------");
+            token.appendString(session.world.getHome().join(token.getName()).readString());
+            try (Writer dest = dir.join("projects").newWriter()) {
                 for (String project : projects) {
-                    dest.write(" @");
+                    dest.write(' ');
                     dest.write(project);
                 }
             }
-            token = context.join(".fault-token");
-            token.writeString("");
-            token.setPermissions("rx-------");
-            token.appendString(session.world.getHome().join(".fault-token").readString());
         }
+        return "fault projects: " + projects;
     }
 
     public void download(String downloadUrl, String version) throws IOException {

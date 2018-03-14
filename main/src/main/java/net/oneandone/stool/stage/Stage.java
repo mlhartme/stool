@@ -347,8 +347,8 @@ public abstract class Stage {
         console.verbose.println("image built: " + image);
         wipeImages(engine, image);
         console.info.println("starting container ...");
-        container = engine.containerCreate(tag, session.configuration.hostname, configuration.memory * 1024 * 1024, null, null,
-                Strings.toMap("FAULT_TOKEN", faultToken()), bindMounts(ports, isSystem()), ports.dockerMap());
+        container = engine.containerCreate(tag, session.configuration.hostname, false, configuration.memory * 1024 * 1024, null, null,
+                Collections.emptyMap(), bindMounts(ports, isSystem()), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
         status = engine.containerStatus(container);
@@ -531,7 +531,7 @@ public abstract class Stage {
                     configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
                     template = configuration.getTemplate(srcfile.getName());
                     tmp = new StringWriter();
-                    template.process(templateEnv(ports, environment), tmp);
+                    template.process(templateEnv(dest, ports, environment), tmp);
                     destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
                     destfile.writeString(tmp.getBuffer().toString());
                 } else {
@@ -550,13 +550,14 @@ public abstract class Stage {
         return dest;
     }
 
-    private Map<String, Object> templateEnv(Ports ports, Collection<Variable> environment) throws IOException {
+    private Map<String, Object> templateEnv(FileNode context, Ports ports, Collection<Variable> environment) throws IOException {
         Map<String, Object> result;
         String value;
 
         result = new HashMap<>();
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
-        result.put("tomcat", new Tomcat(this, session, ports));
+        result.put("tomcat", new Tomcat(this, context, session, ports));
+        result.put("faultToken", faultToken()); // TODO
         for (Variable env : environment) {
             value = config().templateEnv.get(env.name);
             if (value == null) {

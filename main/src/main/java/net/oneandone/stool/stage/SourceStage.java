@@ -107,7 +107,7 @@ public class SourceStage extends Stage {
         return applications;
     }
 
-    private List<MavenProject> wars() throws IOException {
+    public List<MavenProject> wars() throws IOException {
         if (lazyWars == null) {
             lazyWars = loadWars(directory.join(config().pom));
         }

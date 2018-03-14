@@ -287,7 +287,7 @@ public class Engine {
     //-- containers
 
     public String containerCreate(String image, String hostname) throws IOException {
-        return containerCreate(image, hostname, null, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        return containerCreate(image, hostname, false, null, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
     }
 
     /**
@@ -297,7 +297,7 @@ public class Engine {
      * @param stopTimeout default timeout when stopping this container without explicit timeout value; null to use default (10 seconds)
      * @return container id
      */
-    public String containerCreate(String image, String hostname, Integer memory, String stopSignal, Integer stopTimeout,
+    public String containerCreate(String image, String hostname, boolean priviledged, Integer memory, String stopSignal, Integer stopTimeout,
                                   Map<String, String> env, Map<String, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
         JsonObject body;
         JsonObject response;
@@ -324,11 +324,12 @@ public class Engine {
             // unlimited; important, because debian stretch kernal does not support this
             hostConfig.add("MemorySwap", new JsonPrimitive(-1));
         }
-        hostConfig.add("Privileged", new JsonPrimitive(true));
+        if (priviledged) {
+            hostConfig.add("Privileged", new JsonPrimitive(true));
 //        devices = new JsonArray();
 //        hostConfig.add("devices", devices);
 //        devices.add(fuseDevice());
-
+        }
         binds = new JsonArray();
         hostConfig.add("Binds", binds);
         for (Map.Entry<String, String> entry : bindMounts.entrySet()) {
