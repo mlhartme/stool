@@ -25,6 +25,7 @@ import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -183,7 +184,16 @@ public class Validate extends StageCommand {
             // not running, nothing to check
             return;
         }
-        status = session.dockerEngine().containerStatus(container);
+        try {
+            status = session.dockerEngine().containerStatus(container);
+        } catch (FileNotFoundException e) {
+            report.admin(stage, container + ": container not found");
+            if (repair) {
+                stage.dockerContainerFile().deleteFile();
+                report.admin(stage, "repaired by deleting " + stage.dockerContainerFile());
+            }
+            return;
+        }
         if (status != Status.RUNNING) {
             report.admin(stage, container + ": container is not running: " + status);
             if (repair) {
