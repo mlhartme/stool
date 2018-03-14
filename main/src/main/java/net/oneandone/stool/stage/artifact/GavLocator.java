@@ -38,6 +38,11 @@ public class GavLocator extends Locator {
         return artifact.getArtifactId();
     }
 
+    public DefaultArtifact artifact() {
+        return artifact;
+    }
+
+
     public WarFile resolve() throws IOException {
         String version;
 

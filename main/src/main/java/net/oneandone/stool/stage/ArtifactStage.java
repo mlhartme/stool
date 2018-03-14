@@ -114,6 +114,23 @@ public class ArtifactStage extends Stage {
         return "echo nothing to build";
     }
 
+    @Override
+    public List<String> faultProjects() {
+        List<String> result;
+        DefaultArtifact artifact;
+
+        result = new ArrayList<>();
+        for (Application application : applications.applications()) {
+            if (application.location instanceof GavLocator) {
+                artifact = ((GavLocator) application.location).artifact();
+                result.add("gav:" + artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion());
+            } else {
+                session.console.error.println("don't know fault project for locator " + application.location);
+            }
+        }
+        return result;
+    }
+
     public void populateDirectory(Console console) throws IOException {
         FileNode directory;
 

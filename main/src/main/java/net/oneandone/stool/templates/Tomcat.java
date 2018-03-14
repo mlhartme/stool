@@ -67,13 +67,14 @@ public class Tomcat {
 
         dir = context.join("fault").deleteTreeOpt().mkdir();
         launcher = dir.launcher("fault", "resolve");
-        for (MavenProject project : ((SourceStage) stage).wars()) {
-            launcher.arg("file:" + project.getFile().getAbsolutePath());
+        for (String p : stage.faultProjects()) {
+            launcher.arg(p);
         }
         projects = Separator.on('\n').trim().skipEmpty().split(launcher.exec());
         if (!projects.isEmpty()) {
             token = dir.join(".fault-token");
             token.writeString("");
+            session.world.onShutdown().deleteAtExit(token);
             token.setPermissions("rw-------");
             token.appendString(session.world.getHome().join(token.getName()).readString());
             try (Writer dest = dir.join("projects").newWriter()) {

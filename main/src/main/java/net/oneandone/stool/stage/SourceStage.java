@@ -55,6 +55,17 @@ public class SourceStage extends Stage {
     }
 
     @Override
+    public List<String> faultProjects() throws IOException {
+        List<String> result;
+
+        result = new ArrayList<>();
+        for (MavenProject project : wars()) {
+            result.add("file:" + project.getFile().getAbsolutePath());
+        }
+        return result;
+    }
+
+    @Override
     public boolean updateAvailable() {
         return false;
     }

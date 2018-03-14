@@ -392,6 +392,8 @@ public abstract class Stage {
         return Strings.toMap("stool", id);
     }
 
+    public abstract List<String> faultProjects() throws IOException;
+
     private static class FlushWriter extends Writer {
         private final Writer dest;
 
