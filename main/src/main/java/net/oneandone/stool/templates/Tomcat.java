@@ -32,8 +32,6 @@ import net.oneandone.sushi.xml.XmlException;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.io.SerializablePermission;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -58,31 +56,30 @@ public class Tomcat {
 
     //-- public interface
 
+    /** null for disabled */
     public String fault() throws IOException {
-        FileNode dir;
         Launcher launcher;
         List<String> projects;
         FileNode token;
         FileNode list;
 
-        dir = context.join("fault").deleteTreeOpt().mkdir();
-        list = dir.join("projects");
-        launcher = dir.launcher("fault", "resolve", "-output", list.getAbsolute());
+        list = session.world.getTemp().createTempFile();
+        launcher = context.launcher("fault", "resolve", "-output", list.getAbsolute());
         for (String p : stage.faultProjects()) {
             launcher.arg(p);
         }
         launcher.getBuilder().inheritIO();
         launcher.exec();
         projects = list.readLines();
-        if (!projects.isEmpty()) {
-            token = dir.join(".fault-token");
-            token.writeString("");
-            session.world.onShutdown().deleteAtExit(token);
-            token.setPermissions("rw-------");
-            token.appendString(session.world.getHome().join(token.getName()).readString());
-            list.writeString(Separator.SPACE.join(projects));
+        if (projects.isEmpty()) {
+            return null;
         }
-        return "fault projects: " + projects;
+        token = context.join(".fault-token");
+        token.writeString("");
+        session.world.onShutdown().deleteAtExit(token);
+        token.setPermissions("rw-------");
+        token.appendString(session.world.getHome().join(token.getName()).readString());
+        return Separator.SPACE.join(projects);
     }
 
     public void download(String downloadUrl, String version) throws IOException {
