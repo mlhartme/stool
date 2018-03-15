@@ -19,7 +19,6 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.stage.SourceStage;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
@@ -30,10 +29,10 @@ import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
 import net.oneandone.sushi.util.SubstitutionException;
 import net.oneandone.sushi.xml.XmlException;
-import org.apache.maven.project.MavenProject;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.io.SerializablePermission;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,25 +63,24 @@ public class Tomcat {
         Launcher launcher;
         List<String> projects;
         FileNode token;
+        FileNode list;
 
         dir = context.join("fault").deleteTreeOpt().mkdir();
-        launcher = dir.launcher("fault", "resolve");
+        list = dir.join("projects");
+        launcher = dir.launcher("fault", "resolve", "-output", list.getAbsolute());
         for (String p : stage.faultProjects()) {
             launcher.arg(p);
         }
-        projects = Separator.on('\n').trim().skipEmpty().split(launcher.exec());
+        launcher.getBuilder().inheritIO();
+        launcher.exec();
+        projects = list.readLines();
         if (!projects.isEmpty()) {
             token = dir.join(".fault-token");
             token.writeString("");
             session.world.onShutdown().deleteAtExit(token);
             token.setPermissions("rw-------");
             token.appendString(session.world.getHome().join(token.getName()).readString());
-            try (Writer dest = dir.join("projects").newWriter()) {
-                for (String project : projects) {
-                    dest.write(' ');
-                    dest.write(project);
-                }
-            }
+            list.writeString(Separator.SPACE.join(projects));
         }
         return "fault projects: " + projects;
     }
