@@ -464,7 +464,7 @@ public abstract class Stage {
 
         if (systemBinds) {
             // needed for Dashboard
-            result.put("/var/run/docker.sock", "/var/run/docker.sock");
+            result.put(session.configuration.docker, session.configuration.docker);
             lst = new ArrayList<>();
             lst.add(session.home);
             lst.add(Main.stoolCp(session.world).getParent());

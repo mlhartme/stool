@@ -57,7 +57,7 @@ public class Engine {
         REMOVING
     }
 
-    public static Engine open(String wirelog) throws IOException {
+    public static Engine open(String socketPath, String wirelog) throws IOException {
         World world;
         HttpFilesystem fs;
         HttpNode root;
@@ -67,7 +67,36 @@ public class Engine {
             HttpFilesystem.wireLog(wirelog);
         }
         fs = (HttpFilesystem) world.getFilesystem("http");
-        fs.setSocketFactorySelector(Engine::unixSocketFactorySelector);
+        fs.setSocketFactorySelector((String protocol, String hostname) ->
+                new SocketFactory() {
+                    @Override
+                    public Socket createSocket(String s, int i) throws IOException {
+                        return socket();
+                    }
+
+                    @Override
+                    public Socket createSocket(String s, int i, InetAddress inetAddress, int i1) throws IOException {
+                        return socket();
+                    }
+
+                    @Override
+                    public Socket createSocket(InetAddress inetAddress, int i) throws IOException {
+                        return socket();
+                    }
+
+                    @Override
+                    public Socket createSocket(InetAddress inetAddress, int i, InetAddress inetAddress1, int i1) throws IOException {
+                        return socket();
+                    }
+
+                    private Socket socket() throws IOException {
+                        UnixSocketAddress address;
+
+                        address = new UnixSocketAddress(new File(socketPath));
+                        return UnixSocketChannel.open(address).socket();
+                    }
+                }
+        );
         root = (HttpNode) world.validNode("http://localhost/v1.35");
         root.getRoot().addExtraHeader("Content-Type", "application/json");
         return new Engine(root);
@@ -621,38 +650,5 @@ public class Engine {
             result.add(entry.getKey(), new JsonPrimitive(entry.getValue()));
         }
         return result;
-    }
-
-    //--
-
-    private static SocketFactory unixSocketFactorySelector(String protocol, String hostname) {
-        return new SocketFactory() {
-            @Override
-            public Socket createSocket(String s, int i) throws IOException {
-                return socket();
-            }
-
-            @Override
-            public Socket createSocket(String s, int i, InetAddress inetAddress, int i1) throws IOException {
-                return socket();
-            }
-
-            @Override
-            public Socket createSocket(InetAddress inetAddress, int i) throws IOException {
-                return socket();
-            }
-
-            @Override
-            public Socket createSocket(InetAddress inetAddress, int i, InetAddress inetAddress1, int i1) throws IOException {
-                return socket();
-            }
-
-            private Socket socket() throws IOException {
-                UnixSocketAddress address;
-
-                address = new UnixSocketAddress(new File("/var/run/docker.sock"));
-                return UnixSocketChannel.open(address).socket();
-            }
-        };
     }
 }

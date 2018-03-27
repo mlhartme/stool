@@ -113,6 +113,9 @@ public class StoolConfiguration {
 
     public int quota;
 
+    /** Path to docker unix domain socket */
+    public String docker;
+
     public StoolConfiguration() {
         portFirst = 9000;
         portLast = 9999;
@@ -135,6 +138,7 @@ public class StoolConfiguration {
         mailPassword = "";
         search = "";
         quota = 0;
+        docker = "/var/run/docker.sock";
     }
 
     public static FileNode configurationFile(FileNode home) {

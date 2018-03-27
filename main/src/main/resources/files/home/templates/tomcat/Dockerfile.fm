@@ -20,8 +20,7 @@ FROM debian:stretch-slim
 # make sure we get UTF-8 file.encoding
 ENV LANG C.UTF-8
 
-ENV JAVA_VERSION 8u151
-ENV JAVA_DEBIAN_VERSION 8u151-b12-1~deb9u1
+ENV JAVA_DEBIAN_VERSION 8u162-b12-1~deb9u1
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/jre
 
 RUN set -x; \
