@@ -72,7 +72,7 @@ public class Tomcat {
         launcher.exec();
         projects = list.readLines();
         if (projects.isEmpty()) {
-            return null;
+            return "";
         }
         token = context.join(".fault-token");
         token.writeString("");

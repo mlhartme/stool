@@ -60,7 +60,7 @@ public class Autoconf {
             //dflt.put("template", "vanilla-tomcat");
             //dflt.put("template.env", "version:9.0.5,opts:,mode:test,debug:false,suspend:false");
             dflt.put("template", "tomcat");
-            dflt.put("template.env", "version:9.0.5,opts:,mode:test,debug:false,suspend:false,certificate:puki");
+            dflt.put("template.env", "version:9.0.5,opts:,mode:test,debug:false,suspend:false,certificate:self-signed");
             dest.defaults.put("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/", cp());
             dest.defaults.put("svn:https://svn.1and1.org/svn/sales/workspaces/", workspace());
 
