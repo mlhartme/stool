@@ -1,6 +1,6 @@
 FROM debian:stretch-slim
 
-#CONFIG String version 9.0.5
+#CONFIG String version 9.0.6
 #CONFIG String opts
 #CONFIG Boolean debug false
 #CONFIG Boolean suspend false
