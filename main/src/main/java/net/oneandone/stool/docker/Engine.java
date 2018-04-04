@@ -97,7 +97,7 @@ public class Engine {
                     }
                 }
         );
-        root = (HttpNode) world.validNode("http://localhost/v1.35");
+        root = (HttpNode) world.validNode("http://localhost/v1.37");
         root.getRoot().addExtraHeader("Content-Type", "application/json");
         return new Engine(root);
     }
@@ -506,7 +506,7 @@ public class Engine {
             return null;
         }
         memory = stats.get("memory_stats").getAsJsonObject();
-        return new Stats(cpu(stats), memory.get("usage").getAsInt(), memory.get("limit").getAsInt());
+        return new Stats(cpu(stats), memory.get("usage").getAsLong(), memory.get("limit").getAsLong());
     }
 
     private static int cpu(JsonObject stats) {

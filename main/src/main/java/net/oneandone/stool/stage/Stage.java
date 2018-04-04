@@ -358,13 +358,6 @@ public abstract class Stage {
         dockerContainerFile().writeString(container);
     }
 
-    private String faultToken() throws IOException {
-        FileNode file;
-
-        file = directory.getWorld().getHome().file(".fault-token");
-        return file.exists() ? file.readString().trim() : "";
-    }
-
     public void wipeDocker(Engine engine) throws IOException {
         wipeContainer(engine);
         wipeImages(engine, null);
@@ -559,7 +552,6 @@ public abstract class Stage {
         result = new HashMap<>();
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
         result.put("tomcat", new Tomcat(this, context, session, ports));
-        result.put("faultToken", faultToken()); // TODO
         for (Variable env : environment) {
             value = config().templateEnv.get(env.name);
             if (value == null) {
