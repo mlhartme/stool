@@ -121,7 +121,7 @@ public class StageConfiguration {
         this.autoRefresh = false;
         this.template = template;
         // TODO: duplicates Dockerfile template defaults
-        this.templateEnv = Strings.toMap("version", "9.0.5", "opts", "", "debug", "false", "suspend", "false");
+        this.templateEnv = Strings.toMap("version", "9.0.6", "opts", "", "debug", "false", "suspend", "false");
     }
 
     public void save(Gson gson, Node file) throws IOException {
