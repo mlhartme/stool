@@ -326,7 +326,7 @@ public class Engine {
      * @param stopTimeout default timeout when stopping this container without explicit timeout value; null to use default (10 seconds)
      * @return container id
      */
-    public String containerCreate(String image, String hostname, boolean priviledged, Integer memory, String stopSignal, Integer stopTimeout,
+    public String containerCreate(String image, String hostname, boolean priviledged, Long memory, String stopSignal, Integer stopTimeout,
                                   Map<String, String> env, Map<String, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
         JsonObject body;
         JsonObject response;
@@ -350,7 +350,7 @@ public class Engine {
         }
         if (memory != null) {
             hostConfig.add("Memory", new JsonPrimitive(memory));
-            // unlimited; important, because debian stretch kernal does not support this
+            // unlimited; important, because debian stretch kernel does not support this
             hostConfig.add("MemorySwap", new JsonPrimitive(-1));
         }
         if (priviledged) {

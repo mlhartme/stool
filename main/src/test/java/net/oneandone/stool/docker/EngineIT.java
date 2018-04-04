@@ -69,7 +69,7 @@ public class EngineIT {
 
     @Test
     public void turnaround() throws IOException {
-        final int limit = 1024*1024*5;
+        final long limit = 1024*1024*5;
         String image;
         String message;
         Engine engine;

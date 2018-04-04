@@ -347,7 +347,7 @@ public abstract class Stage {
         console.verbose.println("image built: " + image);
         wipeImages(engine, image);
         console.info.println("starting container ...");
-        container = engine.containerCreate(tag, session.configuration.hostname, false, configuration.memory * 1024 * 1024, null, null,
+        container = engine.containerCreate(tag, session.configuration.hostname, false, 1024L * 1024 * configuration.memory, null, null,
                 Collections.emptyMap(), bindMounts(ports, isSystem()), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
