@@ -121,12 +121,7 @@ public class Tomcat {
 
         opts = new ArrayList<>();
 
-        // this is a marker to indicate they are launched by stool; and this is used by the dashboard to locate the stool binary
-        opts.add("-Dstool.cp=" + Main.stoolCp(session.world).getAbsolute());
-        opts.add("-Dstool.home=" + session.home.getAbsolute());
-        opts.add("-Dstool.idlink=" + session.backstageLink(stage.getId()).getAbsolute());
-
-        tomcatOpts = stage.macros().replace(extraOpts);
+        tomcatOpts = escape(stage.macros().replace(extraOpts));
         opts.addAll(Separator.SPACE.split(tomcatOpts));
 
         opts.add("-Xmx" + stage.config().memory * 3 / 4 + "m");
@@ -145,6 +140,11 @@ public class Tomcat {
             opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=" + ports.debug() + ",suspend=" + (suspend ? "y" : "n"));
         }
         return Separator.SPACE.join(opts);
+    }
+
+    /* for shell processing in dockerfile and eval call in catalina.sh: | -> \\| */
+    private static String escape(String str) {
+        return str.replace("|", "\\\\|");
     }
 
     public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
