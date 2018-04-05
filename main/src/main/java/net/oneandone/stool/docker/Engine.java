@@ -6,6 +6,8 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import jnr.posix.POSIX;
+import jnr.posix.POSIXFactory;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
 import net.oneandone.sushi.fs.Node;
@@ -336,7 +338,7 @@ public class Engine {
         JsonArray devices;
         JsonArray drops;
 
-        body = body("Image", image, "Hostname", hostname);
+        body = body("Image", image, "Hostname", hostname, "User", Long.toString(geteuid()), "Group", Long.toString(getegid()));
         if (stopSignal != null) {
             body.add("StopSignal", new JsonPrimitive(stopSignal));
         }
@@ -666,5 +668,17 @@ public class Engine {
             result.add(entry.getKey(), new JsonPrimitive(entry.getValue()));
         }
         return result;
+    }
+
+    //--
+
+    private static final jnr.posix.POSIX POSIX = POSIXFactory.getPOSIX();
+
+    public static int geteuid() {
+        return POSIX.geteuid();
+    }
+
+    public static int getegid() {
+        return POSIX.getegid();
     }
 }
