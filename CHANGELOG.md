@@ -2,6 +2,7 @@
 
 ### 4.0.0 (pending)
 
+* Tomcat host configuration: `deployXML` is set to false to ignore context.xml files embedded into the application
 * dump -D variables `-Dstool.cp`, `-Dstool.home` and `-Dstool.idlink`
 * install all of Tomcat in .backstage/tomcat, no longer distinguish CATALINA_HOME and CATALINA_BASE
 * run stages in a docker container

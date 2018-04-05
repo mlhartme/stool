@@ -97,6 +97,7 @@ public class ServerXml {
         }
         host = service.getOwnerDocument().createElement("Host");
         host.setAttribute("name", name);
+        host.setAttribute("deployXML", "false"); // ignore descriptors embedded in the application
         if (vhost.isArtifact()) {
             // this is where the artifact is unpacked
             host.setAttribute("appBase", "/vhosts/" + vhost.name);
