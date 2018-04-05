@@ -334,6 +334,7 @@ public class Engine {
         JsonArray binds;
         JsonObject portBindings;
         JsonArray devices;
+        JsonArray drops;
 
         body = body("Image", image, "Hostname", hostname);
         if (stopSignal != null) {
@@ -364,6 +365,21 @@ public class Engine {
         for (Map.Entry<String, String> entry : bindMounts.entrySet()) {
             binds.add(entry.getKey() + ":" + entry.getValue());
         }
+        drops = new JsonArray(); // added security - not sure if I really need this
+        drops.add(new JsonPrimitive("setuid"));
+        drops.add(new JsonPrimitive("setgid"));
+        drops.add(new JsonPrimitive("chown"));
+        drops.add(new JsonPrimitive("dac_override"));
+        drops.add(new JsonPrimitive("fowner"));
+        drops.add(new JsonPrimitive("fsetid"));
+        drops.add(new JsonPrimitive("kill"));
+        drops.add(new JsonPrimitive("setpcap"));
+        drops.add(new JsonPrimitive("net_bind_service"));
+        drops.add(new JsonPrimitive("net_raw"));
+        drops.add(new JsonPrimitive("sys_chroot"));
+        drops.add(new JsonPrimitive("mknod"));
+        drops.add(new JsonPrimitive("setfcap"));
+        hostConfig.add("CapDrop", drops);
 
         portBindings = new JsonObject();
         for (Map.Entry<Integer, Integer> entry: ports.entrySet()) {
