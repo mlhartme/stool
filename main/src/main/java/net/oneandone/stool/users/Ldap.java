@@ -33,7 +33,7 @@ import java.util.Map;
 /**
  * Ldap access and factory for users.
  *
- * Note: I could Spring Ldap stuff for this, but I didn't succeed to intitiate these objects without injection.
+ * Note: I could use Spring Ldap stuff for this, but I didn't succeed to instantiate these objects without injection.
  */
 public class Ldap {
     public static Ldap create(String url, String principal, String credentials, String context) {

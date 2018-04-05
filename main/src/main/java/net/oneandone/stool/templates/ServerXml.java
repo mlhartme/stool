@@ -147,9 +147,15 @@ public class ServerXml {
         element.setAttribute("address", ip);
         element.setAttribute("useBodyEncodingForURI", "true");
         element.setAttribute("redirectPort", Integer.toString(sslport));
-        if (!legacy) {
+        if (!legacy && alpnSupported()) {
             http2(element);
         }
+    }
+
+    // see https://tomcat.apache.org/tomcat-8.5-doc/config/http.html
+    // TODO: does this work with Java 9?
+    private boolean alpnSupported() {
+        return false;
     }
 
     private void http2(Element element) {
