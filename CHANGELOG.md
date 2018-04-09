@@ -2,65 +2,75 @@
 
 ### 4.0.0 (pending)
 
-* disable Tomcat Http 2 Support, it never worked with the connector we use
-* Tomcat host configuration: `deployXML` is set to false to ignore context.xml files embedded into the application
-* dump -D variables `-Dstool.cp`, `-Dstool.home` and `-Dstool.idlink`
-* install all of Tomcat in .backstage/tomcat, no longer distinguish CATALINA_HOME and CATALINA_BASE
-* run stages in a docker container
-  * dumped Java Service Wrapper
-    * dumped stage properties `tomcat.service` and Stool property `downloadServiceWrapper
-    * adjusted Status fields: `container` (with the container hash) replaces `tomcat` and `service`
-    * `.backage/service` is gone
-    * stages no longer allocate a service wrapper port and a tomcat stop port
-  * dumped `tomcat.env`: adjust the container template instead; note that `tomcat.opts` have *not* been because they
-    are useful for quick application configuration, and they are used for proxy configuration
-  * Docker template files ending with .fm will are handled as [FreeMarkerTemplate](http://freemarker.org/docs/ref_directives.html)        
-  * replace `-fitnesse` option by a plugin again; also removed fitnesse status field
-  * `start -tail` now tails container logs
+Stool 4 is a Docker frontend: if you start a stage, Stool create a Docker image based on a template and start a container for it.
+Resulting changes:
+
 * templates replace extensions
-  * there's always exactly one template selected, switch between them by setting the `template` property
-  * renamed $HOME/extensions directory to $HOME/templates
-  * renamed pustefix to tomcat; merged fault into it
-  * dumped logstash, it was never used, and we'll have filebeat instead
-  * added `template.env` property pass configuration into templates (declared via `#CONFIG <type> <name>`)
-* no longer distinguish CATALINA_HOME and CATALINA_BASE
-* config cleanup
-  * removed deprecated @owner and @maintainer contact shortcuts
-  * renamed `ldapSso` to `ldapUnit`
+  * a stage has exactly one template assigned; switch to a different template with `stool config template=othertemplate`
+  * a template is a directory with a `Dockerfile.fm` and other `*.fm` files. When starting the stage, Stool passes all fm
+    files through [FreeMarker](http://freemarker.org/docs/ref_directives.html), invokes `docker build` on the resulting context
+    directory, and and starts a container for this image
+  * in addition to FreeMarker functionality, Dockerfiles can:
+    * define configuration fields with `#CONFIG <type> <name>`; use `stool config <template>.<name>=<value>` to change values
+    * define status fields with `#STATUS`
+  * renamed `$HOME/extensions` directory to `$HOME/templates`, which contain one directory for every available template
+  * moved `pustefix` extension functionality into the `tomcat` template
+  * dumped `logstash` extension, it was never used, and we'll have filebeat instead
+* `stool status` changes
+  * `container` (with the container hash) replaces `tomcat` and `service`
+  * replaced `jmx` and `jmxHeap` by template-defined status `tomcat.jmx` and `tomcat.jmxHeap`
+  * replaced `debugger` and `suspend` by template-defined configuration `tomcat.debug` and `tomcat.suspend`
   * renamed `creator` field to `created-by` and `created` to `created-at`
-  * removed "downloadsCache" property, use symlinks for $home/downloads instead
-* .backstage cleanup
+  * dumped `fitnesse`
+  * dumped 'other' status field
+* stage property changes
+  * dumped `tomcat.env`: adjust the container template instead
+  * dumped `tomcat.service` - the service wrapper is gone
+  * replaced `tomcat.version` is a template configuration now; changed default value from 8.5.16 to 9.0.6
+  * replaced `tomcat.opts` is a template configuration now
+  * renamed `tomcat.heap` to `memory`, changed default from 350 to 400 or 200m for every webapp;
+    tomcat heap is set to 75% of that
+  * replaced `cookies` by tomcat template code; the mode argument can be `OFF`, `STRICT` or `LEGACY`
+  * renamed `baseHeap` to `baseMemory`, changed default form 350 to 400
+  * renamed `tomcat.select` to `select`
+  * dumped `downloadTomcat`, this value is hard-coded into the Tomcat template now
+  * dumped `system-import` command (and also the upgrade code)
+* Stool config cleanup
+  * removed deprecated `@owner` and `@maintainer` contact shortcuts
+  * renamed `ldapSso` to `ldapUnit`
+  * removed `downloadsCache` property, use symlinks for $home/downloads instead
+  * dumped `downloadServiceWrapper` - the service wrapper is gone
+  * dumped `certificates`, the respective code has moved into the template
+* dumped redundant 'stage' entry in ports file
+* cli changes
+  * dumped `-debug` and `-suspend` options from `start` and `restart` (and the corresponding defaults); use the `config`
+    command instead to set the respective template field
+  * dumped `start -fitnesse`; use the respective template instead
+  * `start -tail` now tails container logs
+* `.backstage` changes
+  * `service` is gone
   * renamed `maintainer` to `modified`
   * dumped 'run' subdirectory
-* dumped `-debug` and `-suspend` options from `start` and `restart` (and the corresponding defaults); use the `config`
-  command instead to set the respective template properties instead
-* dumped Stool config `certifiacates`, the respective code has moved into the template
-* replaced stage property `tomcat.version` by template variable `version`; changed default value from 8.5.16 to 9.0.6
-* replaced stage property `tomcat.opts` by template variable `opts`
-* renamed stage property `tomcat.heap` to `memory`, changed default from 350 to 400 or 200m for every webapp; 
-  tomcat heap is set to 75% of that
-* replaced stage property `cookies` by tomcat template code; the mode argument can be `OFF`, `STRICT` or `LEGACY`
-* renamed stool property `baseHeap` to `baseMemory`, changed default form 350 to 400
-* renamed stage property `tomcat.select` to `select`
-* dumped stool property `downloadTomcat`, this value is hard-coded into the respective template now
-* dumped `system-import` command (and also the upgrade code)
-* tomcat: define an environment variable for every context parameter 
-* tomcat logs now go into `.backstage/logs`
-* `.backstage/tomcat` has gone
-* removed status fields `jmx` and `heap`, provided predefined template status fields instead
-* stool no longer adds
+  * dumped `tomcat` directory; logs go into `logs` instead, all other sudirectories are now part of the container
+* application facing changes
+  * dumped Java Service Wrapper, Tomcat is started directly inside the container; as a consequence, stages no longer allocate
+    a service wrapper port and a Tomcat stop port
+  * dumped -D variables `-Dstool.cp`, `-Dstool.home` and `-Dstool.idlink`, the respective paths are not available in the container
+  * Tomcat
+    * host configuration: `deployXML` is set to false to ignore context.xml files embedded into the application
+    * disable Tomcat Http 2 Support, it never worked with the connector we use
+    * install all of Tomcat in /usr/local/tomcat, no longer distinguish CATALINA_HOME and CATALINA_BASE
+    * Stool no longer adds
 
-      org.apache.catalina.core.ContainerBase.[Catalina].level = INFO
-      org.apache.catalina.core.ContainerBase.[Catalina].handlers = 1catalina.org.apache.juli.FileHandler
+          org.apache.catalina.core.ContainerBase.[Catalina].level = INFO
+          org.apache.catalina.core.ContainerBase.[Catalina].handlers = 1catalina.org.apache.juli.FileHandler
 
-  to Tomcat logging.properties
-* dumped 'other' status field
-* dumped redundant 'stage' entry in ports file
+      to Tomcat logging.properties
 
 Some implementation notes:
-* I did *not* use a docker client library (docker-java) because I wanted to keep things small and I wanted to learn the
+* I did *not* use a Docker client library (e.g. docker-java) because I wanted to keep things small and I wanted to learn the
   rest api myself
-* I use jnr-unixsocket to talk to docker daemons; there are more specialized libaries for that (e.g. junixsocket), but
+* I use jnr-unixsocket to talk to docker daemons; there are more specialized libraries for that (e.g. junixsocket), but
   from what I found they need native code and/or are quiet old
 
 
