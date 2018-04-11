@@ -16,6 +16,7 @@ Resulting changes:
   * renamed `$HOME/extensions` directory to `$HOME/templates`, which contain one directory for every available template
   * moved `pustefix` extension functionality into the `tomcat` template
   * dumped `logstash` extension, it was never used, and we'll have filebeat instead
+  * dumped `fault` extension, applications using fault are auto-detected now
 * `stool status` changes
   * `container` (with the container hash) replaces `tomcat` and `service`
   * replaced `jmx` and `jmxHeap` by template-defined status `tomcat.jmx` and `tomcat.jmxHeap`
@@ -75,11 +76,10 @@ Some implementation notes:
 
 Other changes:
 * Stage status `url` renamed to Stage origin (to resolve name clash with stage config `url`)
-* Auto-configuration for fault projects
 * Dashboard
-  * fixed console output when running without svn credentials
   * removed `start -fitnesse` command
   * added `cleanup` command
+  * fixed console output when running without svn credentials
 
 
 ### 3.4.10 (2017-10-05)
