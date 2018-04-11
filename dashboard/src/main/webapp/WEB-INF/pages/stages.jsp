@@ -49,15 +49,13 @@
                     <li><a href="#dashboard" data-estimate="${stage.stats.avgStart}" data-action="start"
                            data-stage="${stage.name}">Start</a>
                     </li>
-                    <li><a href="#dashboard" data-estimate="${stage.stats.avgStart}" data-action="start" data-options="fitnesse"
-                           data-stage="${stage.name}">Start Fitnesse</a>
-                    </li>
                     <li><a href="#dashboard" data-estimate="${stage.stats.avgStop}" data-action="stop"
                            data-stage="${stage.name}">Stop</a></li>
                     <li><a href="#dashboard" data-estimate="${stage.stats.avgRestart}" data-action="restart" data-stage="${stage.name}">Restart</a>
                     </li>
                     <li><a href="#dashboard" data-estimate="${stage.stats.avgBuild}" data-action="build" data-stage="${stage.name}">Build</a></li>
                     <li><a href="#dashboard" data-action="refresh" data-options="restore" data-stage="${stage.name}">Rollback</a></li>
+                    <li><a href="#dashboard" data-action="cleanup" data-stage="${stage.name}">Cleanup</a></li>
                 </ul>
             </div>
         </td>

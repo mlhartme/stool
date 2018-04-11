@@ -74,7 +74,11 @@ Some implementation notes:
   from what I found they need native code and/or are quiet old
 
 Other changes:
-* fixed Dashboard console output when running without svn credentials
+* Auto-configuration for fault projects
+* Dashboard
+  * fixed console output when running without svn credentials
+  * removed `start -fitnesse` command
+  * added `cleanup` command
 
 
 ### 3.4.10 (2017-10-05)
