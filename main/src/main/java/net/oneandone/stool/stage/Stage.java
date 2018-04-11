@@ -323,6 +323,7 @@ public abstract class Stage {
     public abstract String getDefaultBuildCommand();
 
     public void start(Console console, Ports ports) throws Exception {
+        boolean isSystem;
         Engine engine;
         String image;
         String container;
@@ -330,6 +331,7 @@ public abstract class Stage {
         String tag;
         FileNode context;
 
+        isSystem = isSystem();
         checkMemory();
         engine = session.dockerEngine();
         tag = getId();
@@ -348,7 +350,7 @@ public abstract class Stage {
         wipeImages(engine, image);
         console.info.println("starting container ...");
         container = engine.containerCreate(tag, session.configuration.hostname, false, 1024L * 1024 * configuration.memory, null, null,
-                Collections.emptyMap(), bindMounts(ports, isSystem()), ports.dockerMap());
+                Collections.emptyMap(), bindMounts(ports, isSystem), ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
         status = engine.containerStatus(container);
@@ -550,6 +552,9 @@ public abstract class Stage {
         String value;
 
         result = new HashMap<>();
+        result.put("stool.cp", session.world.locateClasspathItem(getClass()).getAbsolute());
+        result.put("stool.home", session.home.getAbsolute());
+        result.put("stool.idlink", getBackstage().isDirectory());
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
         result.put("tomcat", new Tomcat(this, context, session, ports));
         for (Variable env : environment) {
