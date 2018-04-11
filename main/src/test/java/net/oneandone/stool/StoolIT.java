@@ -63,7 +63,7 @@ public class StoolIT {
         turnaround("gav", "gav:net.oneandone:hellowar:1.0.3");
     }
 
-    @Ignore
+    @Test
     public void turnaroundFileArtifact() throws IOException, ArtifactResolutionException {
         FileNode file;
 
@@ -71,12 +71,12 @@ public class StoolIT {
         turnaround("file", file.getUri().toString());
     }
 
-    @Ignore
+    @Test
     public void turnaroundSvnSource() throws IOException {
         turnaround("svn", "svn:https://github.com/mlhartme/hellowar/trunk");
     }
 
-    @Ignore
+    @Test
     public void turnaroundGitSource() throws IOException {
         turnaround("git", "git:git@github.com:mlhartme/hellowar.git");
     }
