@@ -73,6 +73,9 @@ Some implementation notes:
 * I use jnr-unixsocket to talk to docker daemons; there are more specialized libraries for that (e.g. junixsocket), but
   from what I found they need native code and/or are quiet old
 
+Other changes:
+* fixed Dashboard console output when running without svn credentials
+
 
 ### 3.4.10 (2017-10-05)
 

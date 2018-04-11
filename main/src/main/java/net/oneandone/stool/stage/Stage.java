@@ -556,6 +556,7 @@ public abstract class Stage {
         String value;
 
         result = new HashMap<>();
+        result.put("system", isSystem());
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
         result.put("tomcat", new Tomcat(this, context, session, ports));
         for (Variable env : environment) {

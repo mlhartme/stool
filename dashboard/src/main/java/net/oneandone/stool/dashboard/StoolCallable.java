@@ -76,6 +76,7 @@ public class StoolCallable implements Callable<Failure> {
         launcher = new Launcher(logDir);
         launcher.env(Environment.STOOL_USER, runAs);
         launcher.env(Environment.STOOL_HOME, home.getAbsolute());
+        launcher.env("STOOL_OPTS", "-Duser.home=" + stool.getWorld().getHome().getAbsolute());  // TODO
         launcher.arg(stool.getAbsolute());
         svnCredentials = stage.session.svnCredentials();
         if (svnCredentials.username != null) {
@@ -105,6 +106,6 @@ public class StoolCallable implements Callable<Failure> {
     }
 
     private static String hide(String str, String hide) {
-        return hide == null ? str : str.replace(hide, "********");
+        return hide == null || hide.isEmpty() ? str : str.replace(hide, "********");
     }
 }
