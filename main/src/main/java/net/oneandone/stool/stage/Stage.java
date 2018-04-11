@@ -43,6 +43,7 @@ import net.oneandone.stool.util.StandardProperty;
 import net.oneandone.stool.util.TemplateProperty;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiWriter;
@@ -323,15 +324,14 @@ public abstract class Stage {
     public abstract String getDefaultBuildCommand();
 
     public void start(Console console, Ports ports) throws Exception {
-        boolean isSystem;
         Engine engine;
         String image;
         String container;
         Engine.Status status;
         String tag;
         FileNode context;
+        Map<String, String> mounts;
 
-        isSystem = isSystem();
         checkMemory();
         engine = session.dockerEngine();
         tag = getId();
@@ -349,8 +349,12 @@ public abstract class Stage {
         console.verbose.println("image built: " + image);
         wipeImages(engine, image);
         console.info.println("starting container ...");
+        mounts = bindMounts(ports, isSystem());
+        for (Map.Entry<String, String> entry : mounts.entrySet()) {
+            console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
+        }
         container = engine.containerCreate(tag, session.configuration.hostname, false, 1024L * 1024 * configuration.memory, null, null,
-                Collections.emptyMap(), bindMounts(ports, isSystem), ports.dockerMap());
+                Collections.emptyMap(), mounts, ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
         status = engine.containerStatus(container);
@@ -552,9 +556,6 @@ public abstract class Stage {
         String value;
 
         result = new HashMap<>();
-        result.put("stool.cp", session.world.locateClasspathItem(getClass()).getAbsolute());
-        result.put("stool.home", session.home.getAbsolute());
-        result.put("stool.idlink", getBackstage().isDirectory());
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
         result.put("tomcat", new Tomcat(this, context, session, ports));
         for (Variable env : environment) {
