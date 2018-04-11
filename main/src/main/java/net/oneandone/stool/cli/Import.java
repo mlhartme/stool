@@ -118,7 +118,7 @@ public class Import extends SessionCommand {
             }
             for (int i = 0; i < candidates.size(); i++) {
                 candidate = candidates.get(i);
-                console.info.println("[" + (i + 1) + "] " + candidate.getDirectory() + "\t" + candidate.getUrl());
+                console.info.println("[" + (i + 1) + "] " + candidate.getDirectory() + "\t" + candidate.getOrigin());
             }
             console.info.println("[<number> <name>] to import with the specified name");
             console.info.println("[a] all of the above");

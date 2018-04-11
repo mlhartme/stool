@@ -107,13 +107,13 @@ public abstract class Stage {
 
     private static Stage load(Session session, StageConfiguration configuration, String id, FileNode directory) throws IOException {
         Stage result;
-        String url;
+        String origin;
 
-        url = probe(directory);
-        if (url == null) {
-            throw new IOException("cannot determine stage url: " + directory);
+        origin = probe(directory);
+        if (origin == null) {
+            throw new IOException("cannot determine stage origin: " + directory);
         }
-        result = createOpt(session, id, url, configuration, directory);
+        result = createOpt(session, id, origin, configuration, directory);
         if (result == null) {
             throw new IOException("unknown stage type: " + directory);
         }
@@ -132,13 +132,13 @@ public abstract class Stage {
         return Scm.checkoutUrlOpt(directory);
     }
 
-    public static Stage createOpt(Session session, String id, String url, StageConfiguration configuration, FileNode directory) throws IOException {
+    public static Stage createOpt(Session session, String id, String origin, StageConfiguration configuration, FileNode directory) throws IOException {
         if (configuration == null) {
             throw new IllegalArgumentException();
         }
         directory.checkDirectory();
-        if (url.startsWith("gav:") || url.startsWith("file:")) {
-            return new ArtifactStage(session, url, id, directory, configuration);
+        if (origin.startsWith("gav:") || origin.startsWith("file:")) {
+            return new ArtifactStage(session, origin, id, directory, configuration);
         }
         if (directory.join(configuration.pom).exists()) {
             return SourceStage.forLocal(session, id, directory, configuration);
@@ -151,7 +151,7 @@ public abstract class Stage {
     public final Session session;
 
     //-- main methods
-    protected final String url;
+    protected final String origin;
 
     private final String id;
 
@@ -164,9 +164,9 @@ public abstract class Stage {
 
     //--
 
-    public Stage(Session session, String url, String id, FileNode directory, StageConfiguration configuration) {
+    public Stage(Session session, String origin, String id, FileNode directory, StageConfiguration configuration) {
         this.session = session;
-        this.url = url;
+        this.origin = origin;
         this.id = id;
         this.backstage = backstageDirectory(directory);
         this.directory = directory;
@@ -187,8 +187,8 @@ public abstract class Stage {
     public FileNode getDirectory() {
         return directory;
     }
-    public String getUrl() {
-        return url;
+    public String getOrigin() {
+        return origin;
     }
     public StageConfiguration config() {
         return configuration;
@@ -613,7 +613,7 @@ public abstract class Stage {
 
     @Override
     public String toString() {
-        return getType() + " " + url;
+        return getType() + " " + origin;
     }
 
     //-- util
@@ -759,7 +759,7 @@ public abstract class Stage {
         if (this instanceof ArtifactStage) {
             return true;
         }
-        return session.scm(getUrl()).isCommitted(this);
+        return session.scm(getOrigin()).isCommitted(this);
     }
 
     private void addProfilesAndProperties(Properties userProperties, List<String> profiles, String args) {
@@ -1062,10 +1062,10 @@ public abstract class Stage {
                 return Stage.this.backstage.getAbsolute();
             }
         });
-        fields.add(new Field("url") {
+        fields.add(new Field("origin") {
             @Override
             public Object get() {
-                return Stage.this.getUrl();
+                return Stage.this.getOrigin();
             }
         });
         fields.add(new Field("type") {

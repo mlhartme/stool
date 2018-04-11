@@ -45,9 +45,9 @@ import java.util.Set;
 public class ArtifactStage extends Stage {
     private final Applications applications;
 
-    public ArtifactStage(Session session, String url, String id, FileNode directory, StageConfiguration configuration)
+    public ArtifactStage(Session session, String origin, String id, FileNode directory, StageConfiguration configuration)
       throws IOException {
-        super(session, url, id, directory, configuration);
+        super(session, origin, id, directory, configuration);
 
         String str;
         Locator locator;
@@ -56,7 +56,7 @@ public class ArtifactStage extends Stage {
 
         applications = new Applications();
         names = new HashSet<>();
-        for (String part : Separator.COMMA.split(url)) {
+        for (String part : Separator.COMMA.split(origin)) {
             idx = part.indexOf('=');
             if (idx == -1) {
                 locator = locator(part);
@@ -137,7 +137,7 @@ public class ArtifactStage extends Stage {
         directory = getDirectory();
         console.verbose.println(directory.getAbsolute());
         directory.checkDirectory();
-        getGavFile().writeString(url);
+        getGavFile().writeString(origin);
 
         for (Application application : applications.applications()) {
             application.populate();

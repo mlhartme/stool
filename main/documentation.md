@@ -93,7 +93,7 @@ Java web applications (https://en.wikipedia.org/wiki/Java_Servlet). A stage has 
   is shown in your shell prompt, you use it to switch between stages, and it's usually part of the application
   url(s). The name is determined when you create a stage (in most cases it's simply the name of the stage
   directory). You can change the name with `stool config name=`*newname*.
-* **url**
+* **origin**
   Specifies where the web applications come from: A Subversion URL, a git url, Maven coordinates, or
   a file url pointing to a war file. Examples:
   
@@ -104,7 +104,7 @@ Java web applications (https://en.wikipedia.org/wiki/Java_Servlet). A stage has 
 
 * **type**
   How the stage contains the application(s): source - checkout of project sources, or artifact - an artifact
-  from a Maven repository. The stage url implies the stage type.
+  from a Maven repository. The stage origin implies the stage type.
 * **state**
   one of
   * **down**
@@ -241,7 +241,7 @@ stop and remove. A stage contains web applications built from source or availabl
 `stool` *global-option*... `version`
 
 
-`stool` *global-option*... `create` [`-quiet`] (*url* | *directory*) *key*`=`*value*...
+`stool` *global-option*... `create` [`-quiet`] (*origin* | *directory*) *key*`=`*value*...
 
 
 
@@ -338,8 +338,8 @@ Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines 
 * **committed**
   `true` if users have to commit source changes before Stool allows them to start the stage. Type boolean.
 * **defaults**
-  Default values for stage properties. Keys are stage url prefixe, values are maps of property name/values to set for 
-  a new stage with a matching url. Type map.
+  Default values for stage properties. Keys are stage origin prefixe, values are maps of property name/values to set for
+  a new stage with a matching origin. Type map.
 * **diskMin**
   Minimum mb free space. If less space is available on the target partition, Stool refuses to create new stages. Type number. 
 * **downloadTomcat**
@@ -454,26 +454,26 @@ Create a new stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `create` [`-quiet`] (*url* | *directory*) *key*`=`*value*...
+`stool` *global-option*... `create` [`-quiet`] (*origin* | *directory*) *key*`=`*value*...
 
 
 #### DESCRIPTION
 
 Creates a new stage- and backstage directory and enters the stage directory. In most cases, you can get `stool create` 
-similar to `svn checkout`: with an url and a directory to checkout to.
+similar to `svn checkout`: with an svn url and a directory to checkout to.
 
-*url* specifies the application you want to run in your stage. In many cases, the url is a subversion url prefixed
+*origin* specifies the application you want to run in your stage. In many cases, the it's a subversion url prefixed
 with `svn:` or a git url prefixed with `git:`. Stool performs a checkout resp. a clone. Output of the 
 command is printed to the console unless the `-quiet` option is specified.
 
-To create an artifact stage, specify a war file, a file url or a GAV url. You may specify multiple comma-separated urls, 
+To create an artifact stage, specify a war file, a file url or a GAV url. You may specify multiple comma-separated origins,
 and you may specify `=`*name* if you want to assign a non-default vhost for an application.
 
-Instead of a *url* you can specify `%`*searchstring*. This will search the configured search tools for the specified 
+Instead of an *origin* you can specify `%`*searchstring*. This will search the configured search tools for the specified
 string, show all matching scm urls, and ask you to select one.
 
 *directory* specifies the stage directory to hold your application. If not specified, the current directory
-with the last usable segment of the `url` (i.e. the last segment that is not trunk, tags, or branches) is used. 
+with the last usable segment of the `origin` (i.e. the last segment that is not trunk, tags, or branches) is used.
 You can specify an arbitrary directory, as long as it does not exist yet and the parent directory exists.
 
 The new stage is configured with default stage properties. You can specify *key-value* pairs to override the 
@@ -1077,8 +1077,8 @@ Available fields:
   How long this stage is running.
 * **type**
   `source` or `artifact`. Type string.
-* **url**
-  Url of this stage. Type string.
+* **Origin**
+  Origin of this stage. Type string.
 
 [//]: # (include stageOptions.md)
 

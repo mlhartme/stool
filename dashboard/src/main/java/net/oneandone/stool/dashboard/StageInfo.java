@@ -52,7 +52,7 @@ public class StageInfo {
         stageInfo = new StageInfo();
         stageInfo.name = stage.getName();
         stageInfo.configuration = stage.config();
-        stageInfo.extractionUrl = stage.getUrl();
+        stageInfo.extractionUrl = stage.getOrigin();
         stageInfo.running = stage.isWorking() ? Stage.State.WORKING : stage.state();
         stageInfo.urls = stage.urlMap();
         try {

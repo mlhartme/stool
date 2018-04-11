@@ -32,12 +32,12 @@ import java.util.List;
 import java.util.Map;
 
 public class SourceStage extends Stage {
-    public static SourceStage forUrl(Session session, String id, FileNode directory, String url, StageConfiguration configuration) {
-        return new SourceStage(session, id, directory, url, configuration);
+    public static SourceStage forOrigin(Session session, String id, FileNode directory, String origin, StageConfiguration configuration) {
+        return new SourceStage(session, id, directory, origin, configuration);
     }
     public static SourceStage forLocal(Session session, String id, FileNode stage, StageConfiguration configuration)
             throws IOException {
-        return forUrl(session, id, stage, Scm.checkoutUrl(stage), configuration);
+        return forOrigin(session, id, stage, Scm.checkoutUrl(stage), configuration);
     }
 
     //--
@@ -45,8 +45,8 @@ public class SourceStage extends Stage {
     /** loaded on demand */
     private List<MavenProject> lazyWars;
 
-    public SourceStage(Session session, String id, FileNode directory, String url, StageConfiguration configuration) {
-        super(session, url, id, directory, configuration);
+    public SourceStage(Session session, String id, FileNode directory, String origin, StageConfiguration configuration) {
+        super(session, origin, id, directory, configuration);
     }
 
     @Override

@@ -78,7 +78,7 @@ public class Create extends SessionCommand {
         RmRfThread cleanup;
         Stage stage;
 
-        url = url();
+        url = origin();
         defaults(url);
         cleanup = new RmRfThread(console);
         cleanup.add(directory);
@@ -95,7 +95,7 @@ public class Create extends SessionCommand {
         session.cd(stage.getDirectory());
     }
 
-    private String url() throws IOException {
+    private String origin() throws IOException {
         FileNode file;
         String substring;
         List<String> urls;
@@ -161,13 +161,13 @@ public class Create extends SessionCommand {
         }
     }
 
-    private Stage create(String url) throws Exception {
+    private Stage create(String origin) throws Exception {
         Stage stage;
         String prepare;
         Property property;
 
         directory.mkdir();
-        stage = stage(url);
+        stage = stage(origin);
         stage.modify();
 
         // make sure to run in stage environment, e.g. to have proper repository settings
@@ -192,24 +192,24 @@ public class Create extends SessionCommand {
         return stage;
     }
 
-    private Stage stage(String url) throws Exception {
+    private Stage stage(String origin) throws Exception {
         String id;
         ArtifactStage artifactStage;
         Stage stage;
 
         id = session.nextStageId();
-        if (ArtifactStage.isArtifact(url)) {
-            artifactStage = new ArtifactStage(session, url, id, directory, stageConfiguration);
+        if (ArtifactStage.isArtifact(origin)) {
+            artifactStage = new ArtifactStage(session, origin, id, directory, stageConfiguration);
             // create backstage BEFORE possible artifactory resolving because it might
             // already populates the local repository of the stage
             artifactStage.backstage.mkdir();
             artifactStage.populateDirectory(console);
             stage = artifactStage;
         } else {
-            url = Strings.removeRightOpt(url, "/");
+            origin = Strings.removeRightOpt(origin, "/");
             console.info.println("checking out " + directory);
-            session.scm(url).checkout(url, directory, quiet ? console.verbose : console.info);
-            stage = SourceStage.forUrl(session, id, directory, url, stageConfiguration);
+            session.scm(origin).checkout(origin, directory, quiet ? console.verbose : console.info);
+            stage = SourceStage.forOrigin(session, id, directory, origin, stageConfiguration);
             // create backstage AFTER checkout -- git would reject none-empty target directories
             stage.backstage.mkdir();
         }

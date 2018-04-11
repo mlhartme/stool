@@ -74,6 +74,7 @@ Some implementation notes:
   from what I found they need native code and/or are quiet old
 
 Other changes:
+* Stage status `url` renamed to Stage origin (to resolve name clash with stage config `url`)
 * Auto-configuration for fault projects
 * Dashboard
   * fixed console output when running without svn credentials
