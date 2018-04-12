@@ -81,10 +81,10 @@ public class StoolIT {
         turnaround("git", "git:git@github.com:mlhartme/hellowar.git");
     }
 
-    private void turnaround(String context, String url) throws IOException {
-        System.out.println("\nurl: " + url);
+    private void turnaround(String context, String origin) throws IOException {
+        System.out.println("\norigin: " + origin);
         stoolSetup(context);
-        stool("create", "-quiet", url, "it");
+        stool("create", "-quiet", origin, "it");
         stool("status", "-stage", "it");
         stool("validate", "-stage", "it");
         stool("build", "-stage", "it");
