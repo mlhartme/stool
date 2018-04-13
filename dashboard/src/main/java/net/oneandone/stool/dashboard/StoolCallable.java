@@ -77,6 +77,7 @@ public class StoolCallable implements Callable<Failure> {
         launcher.env(Environment.STOOL_USER, runAs);
         launcher.env(Environment.STOOL_HOME, home.getAbsolute());
         launcher.arg(stool.getAbsolute());
+        launcher.arg("-e");
         svnCredentials = stage.session.svnCredentials();
         if (svnCredentials.username != null) {
             launcher.arg("-svnuser=" + svnCredentials.username);
@@ -91,7 +92,8 @@ public class StoolCallable implements Callable<Failure> {
                 launcher.exec(writer);
             } catch (Failure e) {
                 failure = e;
-                e.printStackTrace(writer);
+                writer.println("stool failed: " + e.getMessage());
+                // it doesn't help to print a stacktrace here, it would be always in Launcher.exec()
             } finally {
                 running.deleteFile();
             }
