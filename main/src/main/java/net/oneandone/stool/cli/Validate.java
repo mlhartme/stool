@@ -90,7 +90,12 @@ public class Validate extends StageCommand {
         String subDomain;
         ServerSocket socket;
 
-        ip = digIp(session.configuration.hostname);
+        try {
+            ip = digIp(session.configuration.hostname);
+        } catch (Failure e) {
+            report.admin("cannot validate dns entries: " + e.getMessage());
+            return;
+        }
         if (ip.isEmpty()) {
             report.admin("missing dns entry for " + session.configuration.hostname);
             return;
