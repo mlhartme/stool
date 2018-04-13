@@ -338,7 +338,11 @@ public class Engine {
         JsonArray devices;
         JsonArray drops;
 
-        body = body("Image", image, "Hostname", hostname, "User", Long.toString(geteuid()), "Group", Long.toString(getegid()));
+        if (priviledged) {
+            body = body("Image", image, "Hostname", hostname);
+        } else {
+            body = body("Image", image, "Hostname", hostname, "User", Long.toString(geteuid()), "Group", Long.toString(getegid()));
+        }
         if (stopSignal != null) {
             body.add("StopSignal", new JsonPrimitive(stopSignal));
         }

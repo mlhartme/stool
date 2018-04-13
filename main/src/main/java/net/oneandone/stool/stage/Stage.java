@@ -47,6 +47,7 @@ import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiWriter;
+import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -353,7 +354,7 @@ public abstract class Stage {
         for (Map.Entry<String, String> entry : mounts.entrySet()) {
             console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
         }
-        container = engine.containerCreate(tag, session.configuration.hostname, false, 1024L * 1024 * configuration.memory, null, null,
+        container = engine.containerCreate(tag, session.configuration.hostname, OS.CURRENT == OS.MAC, 1024L * 1024 * configuration.memory, null, null,
                 Collections.emptyMap(), mounts, ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
@@ -448,7 +449,6 @@ public abstract class Stage {
         Iterator<FileNode> iter;
         FileNode merged;
 
-
         result = new HashMap<>();
         result.put(backstage.join("logs").mkdirOpt().getAbsolute(), "/var/log/stool");
         for (Vhost vhost : ports.vhosts()) {
@@ -462,8 +462,8 @@ public abstract class Stage {
         }
 
         if (systemBinds) {
-            // needed for Dashboard
             result.put(session.configuration.docker, session.configuration.docker);
+
             lst = new ArrayList<>();
             lst.add(session.home);
             lst.add(Main.stoolCp(session.world).getParent());
@@ -556,9 +556,9 @@ public abstract class Stage {
         String value;
 
         result = new HashMap<>();
-        result.put("system", isSystem());
         result.put("UID", Long.toString(Engine.geteuid()));
         result.put("GID", Long.toString(Engine.getegid()));
+        result.put("system", isSystem());
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
         result.put("tomcat", new Tomcat(this, context, session, ports));
         for (Variable env : environment) {
