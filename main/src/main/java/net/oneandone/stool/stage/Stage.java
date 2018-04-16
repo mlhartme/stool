@@ -465,7 +465,9 @@ public abstract class Stage {
             result.put(session.configuration.docker, session.configuration.docker);
 
             lst = new ArrayList<>();
-            lst.add(session.home);
+            lst.add(session.home);  // for stool home
+            lst.add(session.world.getHome());  // for maven credentials
+            lst.add(session.world.file(System.getenv("CISOTOOLS_HOME"))); // TODO
             lst.add(Main.stoolCp(session.world).getParent());
             lst.addAll(session.stageDirectories());
 
@@ -556,9 +558,16 @@ public abstract class Stage {
         String value;
 
         result = new HashMap<>();
-        result.put("UID", Long.toString(Engine.geteuid()));
-        result.put("GID", Long.toString(Engine.getegid()));
+
+        if (OS.CURRENT == OS.MAC) {
+            result.put("UID", "0");
+            result.put("GID", "0");
+        } else {
+            result.put("UID", Long.toString(Engine.geteuid()));
+            result.put("GID", Long.toString(Engine.getegid()));
+        }
         result.put("system", isSystem());
+
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
         result.put("tomcat", new Tomcat(this, context, session, ports));
         for (Variable env : environment) {
