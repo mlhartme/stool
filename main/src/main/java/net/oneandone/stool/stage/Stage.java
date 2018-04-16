@@ -467,7 +467,9 @@ public abstract class Stage {
             lst = new ArrayList<>();
             lst.add(session.home);  // for stool home
             lst.add(session.world.getHome());  // for maven credentials
-            lst.add(session.world.file(System.getenv("CISOTOOLS_HOME"))); // TODO
+            if (!session.configuration.systemExtras.isEmpty()) {
+                lst.add(session.world.file(session.configuration.systemExtras));
+            }
             lst.add(Main.stoolCp(session.world).getParent());
             lst.addAll(session.stageDirectories());
 
@@ -567,7 +569,7 @@ public abstract class Stage {
             result.put("GID", Long.toString(Engine.getegid()));
         }
         result.put("system", isSystem());
-
+        result.put("systemExtras", session.configuration.systemExtras);
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
         result.put("tomcat", new Tomcat(this, context, session, ports));
         for (Variable env : environment) {

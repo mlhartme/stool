@@ -42,6 +42,7 @@ Resulting changes:
   * removed `downloadsCache` property, use symlinks for $home/downloads instead
   * dumped `downloadServiceWrapper` - the service wrapper is gone
   * dumped `certificates`, the respective code has moved into the template
+  * added systemExtras for directories available to system applications
 * dumped redundant 'stage' entry in ports file
 * cli changes
   * dumped `-debug` and `-suspend` options from `start` and `restart` (and the corresponding defaults); use the `config`
