@@ -335,7 +335,6 @@ public class Engine {
         JsonObject hostConfig;
         JsonArray binds;
         JsonObject portBindings;
-        JsonArray devices;
         JsonArray drops;
 
         if (priviledged) {
@@ -362,9 +361,6 @@ public class Engine {
         }
         if (priviledged) {
             hostConfig.add("Privileged", new JsonPrimitive(true));
-//        devices = new JsonArray();
-//        hostConfig.add("devices", devices);
-//        devices.add(fuseDevice());
         }
         binds = new JsonArray();
         hostConfig.add("Binds", binds);
