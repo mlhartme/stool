@@ -354,7 +354,7 @@ public abstract class Stage {
         for (Map.Entry<String, String> entry : mounts.entrySet()) {
             console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
         }
-        container = engine.containerCreate(tag, session.configuration.hostname, OS.CURRENT == OS.MAC, 1024L * 1024 * configuration.memory, null, null,
+        container = engine.containerCreate(tag,  getName() + "." + session.configuration.hostname, OS.CURRENT == OS.MAC, 1024L * 1024 * configuration.memory, null, null,
                 Collections.emptyMap(), mounts, ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
