@@ -60,7 +60,6 @@ Resulting changes:
     a service wrapper port and a Tomcat stop port
   * dumped -D variables `-Dstool.cp`, `-Dstool.home` and `-Dstool.idlink`, the respective paths are not available in the container
   * Tomcat
-    * host configuration: `deployXML` is set to false to ignore context.xml files embedded into the application
     * disable Tomcat Http 2 Support, it never worked with the connector we use
     * install all of Tomcat in /usr/local/tomcat, no longer distinguish CATALINA_HOME and CATALINA_BASE
     * Stool no longer adds
