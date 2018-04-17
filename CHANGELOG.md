@@ -34,15 +34,16 @@ Resulting changes:
   * replaced `cookies` by tomcat template code; the mode argument can be `OFF`, `STRICT` or `LEGACY`
   * renamed `baseHeap` to `baseMemory`, changed default form 350 to 400
   * renamed `tomcat.select` to `select`
-  * dumped `downloadTomcat`, this value is hard-coded into the Tomcat template now
-  * dumped `system-import` command (and also the upgrade code)
+  * dumped `java.home` because Containers bring their own settings; build use the globally installed Jdk on the machine
 * Stool config cleanup
+  * dumped `downloadTomcat`, this value is hard-coded into the Tomcat template now
   * removed deprecated `@owner` and `@maintainer` contact shortcuts
   * renamed `ldapSso` to `ldapUnit`
   * removed `downloadsCache` property, use symlinks for $home/downloads instead
   * dumped `downloadServiceWrapper` - the service wrapper is gone
   * dumped `certificates`, the respective code has moved into the template
   * added systemExtras for directories available to system applications
+* dumped `system-import` command (and also the upgrade code)
 * dumped redundant 'stage' entry in ports file
 * cli changes
   * dumped `-debug` and `-suspend` options from `start` and `restart` (and the corresponding defaults); use the `config`

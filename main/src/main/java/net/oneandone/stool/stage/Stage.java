@@ -466,11 +466,9 @@ public abstract class Stage {
 
             lst = new ArrayList<>();
             lst.add(session.home);  // for stool home
-            lst.add(session.world.getHome());  // for maven credentials
             if (!session.configuration.systemExtras.isEmpty()) {
                 lst.add(session.world.file(session.configuration.systemExtras));
             }
-            lst.add(Main.stoolCp(session.world).getParent());
             lst.addAll(session.stageDirectories());
 
             iter = lst.iterator();
@@ -478,18 +476,28 @@ public abstract class Stage {
             while (iter.hasNext()) {
                 merged = merge(merged, iter.next());
             }
-            result.put(merged.getAbsolute(), merged.getAbsolute());
+            add(result, merged);
+            add(result, Main.stoolCp(session.world).getParent()); // don't merge /usr/bin
+            add(result, session.world.getHome()); // for Maven credentials; don't merge /home with /opt stuff
         }
         return result;
     }
 
-    private static FileNode merge(FileNode left, FileNode right) {
+    private static void add(Map<String, String> result, FileNode path) {
+        String str;
+
+        str = path.getAbsolute();
+        result.put(str, str);
+    }
+
+    private FileNode merge(FileNode left, FileNode right) {
         FileNode current;
 
         current = right;
         while (!left.hasAnchestor(current)) {
             current = current.getParent();
         }
+        session.console.verbose.println("merge " + left + " + " + right + " -> " + current);
         return current;
     }
 

@@ -73,9 +73,6 @@ public class StageConfiguration {
     @Option(key = "notify")
     public List<String> notify;
 
-    @Option(key = "java.home")
-    public String javaHome;
-
     // never null
     @Option(key = "maven.home")
     private String mavenHome;
@@ -101,7 +98,7 @@ public class StageConfiguration {
     @Option(key = "template.env")
     public Map<String, String> templateEnv;
 
-    public StageConfiguration(String javaHome, String mavenHome, FileNode template, String refresh) {
+    public StageConfiguration(String mavenHome, FileNode template, String refresh) {
         this.name = "noname";
         this.prepare = "";
         this.build = "false";
@@ -112,7 +109,6 @@ public class StageConfiguration {
         this.quota = 10000;
         this.memory = 400;
         this.select = new ArrayList<>();
-        this.javaHome = javaHome;
         this.mavenHome = mavenHome;
         this.mavenOpts = "";
         this.expire = Expire.never();

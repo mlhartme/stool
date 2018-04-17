@@ -132,10 +132,6 @@ public class Environment {
         set(MAVEN_OPTS, mavenOpts);
     }
 
-    public void setJavaHome(String javaHome) {
-        set(JAVA_HOME, javaHome);
-    }
-
     public void save(Launcher launcher) {
         String value;
 

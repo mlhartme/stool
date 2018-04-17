@@ -401,8 +401,6 @@ public class Session {
             mavenOpts = stage.macros().replace(stage.config().mavenOpts);
         }
         env = new Environment();
-        // note that both MAVEN and ANT use JAVA_HOME to locate their JVM - it's not necessary to add java to the PATH variable
-        // TODO: env.setJavaHome(stage != null ? stage.config().javaHome : null);
         env.setMavenHome((stage != null && stage.config().mavenHome() != null) ? stage.config().mavenHome() : null);
         env.setMavenOpts(mavenOpts);
         return env;
@@ -503,7 +501,7 @@ public class Session {
         }
         scm = scmOpt(url);
         refresh = scm == null ? "" : scm.refresh();
-        result = new StageConfiguration(javaHome(), mavenHome, templates().join("tomcat"), refresh);
+        result = new StageConfiguration(mavenHome, templates().join("tomcat"), refresh);
         result.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
         configuration.setDefaults(accessors(), result, url);
         return result;
@@ -512,19 +510,6 @@ public class Session {
     public String nextStageId() {
         nextStageId++;
         return stageIdPrefix + nextStageId;
-    }
-
-    private static String javaHome() {
-        String result;
-
-        result = System.getProperty("java.home");
-        if (result == null) {
-            throw new IllegalStateException();
-        }
-        result = Strings.removeRightOpt(result, "/");
-        // prefer jdk, otherwise Java tools like jar while report an error on Mac OS ("unable to locate executable at $JAVA_HOME")
-        result = Strings.removeRightOpt(result, "/jre");
-        return result;
     }
 
     private DefaultPlexusContainer lazyPlexus;
