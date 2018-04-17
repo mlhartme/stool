@@ -578,6 +578,7 @@ public abstract class Stage {
         }
         result.put("system", isSystem());
         result.put("systemExtras", session.configuration.systemExtras);
+        result.put("hostHome", session.world.getHome().getAbsolute());
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
         result.put("tomcat", new Tomcat(this, context, session, ports));
         for (Variable env : environment) {
