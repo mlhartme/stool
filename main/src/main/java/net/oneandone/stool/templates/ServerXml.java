@@ -202,10 +202,9 @@ public class ServerXml {
 
         element.removeAttribute("SSLCertificateFile");
         element.removeAttribute("SSLCertificateKeyFile");
-        if (!legacy) {
+        if (!legacy && alpnSupported()) {
             http2(element);
         }
-
     }
 
     private void contexts(String path, Element service, CookieMode cookies) throws XmlException {
