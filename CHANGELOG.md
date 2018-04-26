@@ -48,7 +48,7 @@ Resulting changes:
 * cli changes
   * dumped `-debug` and `-suspend` options from `start` and `restart` (and the corresponding defaults); use the `config`
     command instead to set the respective template field
-  * dumped `start -fitnesse`; use the respective template instead
+  * dumped `start -fitnesse`; create stage with `template=fitnesse` instead
   * `start -tail` now tails container logs
 * `.backstage` changes
   * `service` is gone
