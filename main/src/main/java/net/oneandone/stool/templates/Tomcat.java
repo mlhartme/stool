@@ -22,6 +22,7 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -29,6 +30,7 @@ import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
 import net.oneandone.sushi.util.SubstitutionException;
 import net.oneandone.sushi.xml.XmlException;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -240,14 +242,79 @@ public class Tomcat {
     // TODO: placing this in a separate Fitnesse class didn't work
     public void fitnesse() throws IOException {
         Launcher launcher;
-        FileNode dest;
+        FileNode dir;
+        FileNode deps;
 
-        dest = stage.getDirectory().join("target/fitnessedeps");
-        launcher = stage.launcher("mvn", "dependency::copy-dependencies",
-                "-DoutputDirectory=" + dest.getAbsolute(), "-DexcludeScope=system", "-Dmdep.prependGroupId");
-        launcher.exec(stage.session.console.verbose);
-
+        dir = stage.getDirectory().join("target/fitnesse");
+        dir.mkdirsOpt();
+        dir.join("fitnesse.sh").writeString(fitnesseSh());
+        dir.join("fitnesse.sh").setPermissions("rwxrwxrwx");
         // mark as source stage
         context.join(".source").writeBytes();
+
+        for (Vhost vhost : ports.vhosts()) {
+            if (vhost.isWebapp()) {
+                deps = dir.join(vhost.name);
+                deps.deleteTreeOpt();
+                deps.mkdirsOpt();
+                launcher = stage.launcher("mvn", "dependency::copy-dependencies",
+                        "-DoutputDirectory=" + deps.getAbsolute(), "-DexcludeScope=system", "-Dmdep.prependGroupId");
+                launcher.dir(vhostProject(vhost));
+                launcher.exec(stage.session.console.verbose);
+            }
+        }
+    }
+
+    private FileNode vhostProject(Vhost vhost) {
+        String path;
+
+        path = vhost.docroot.getAbsolute();
+        return session.world.file(path.substring(0, path.lastIndexOf("/target/")));
+    }
+
+    private String fitnesseSh() {
+        StringBuilder result;
+
+        result = new StringBuilder();
+        result.append("#!/bin/bash\n");
+        result.append("cd /stage\n");
+        for (Vhost vhost : ports.vhosts()) {
+            if (vhost.isWebapp()) {
+                result.append("\n");
+                result.append("# vhost " + vhost.name + "\n");
+                result.append("deps=target/fitnesse/" + vhost.name + "\n");
+                result.append("cp=target/test-classes:target/classes\n");
+                result.append("for file in $(ls $deps/*.jar); do\n");
+                result.append("  cp=\"$cp:$file\"\n");
+                result.append("done\n");
+                result.append("export CLASSPATH=$cp\n");
+                result.append("java -jar $HOME/fitnesse-standalone.jar -v -r src/test/fitnesse -p " + vhost.httpPort() + " &\n");
+                result.append(pidvar(vhost) + "=$!\n");
+            }
+        }
+        result.append("trap 'kill -TERM " + allPids() + "' TERM\n");
+        for (Vhost vhost : ports.vhosts()) {
+            if (vhost.isWebapp()) {
+                result.append("wait $" + pidvar(vhost) + "\n");
+            }
+        }
+
+        return result.toString();
+    }
+
+    private String allPids() {
+        StringBuilder result;
+
+        result = new StringBuilder();
+        for (Vhost vhost : ports.vhosts()) {
+            if (vhost.isWebapp()) {
+                result.append('$').append(pidvar(vhost));
+            }
+        }
+        return result.toString();
+    }
+
+    private static String pidvar(Vhost vhost) {
+        return "pid_" + vhost.httpPort();
     }
 }
