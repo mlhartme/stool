@@ -43,7 +43,6 @@ import net.oneandone.stool.util.StandardProperty;
 import net.oneandone.stool.util.TemplateProperty;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.Node;
-import net.oneandone.sushi.fs.ReadLinkException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiWriter;
@@ -350,7 +349,7 @@ public abstract class Stage {
         console.verbose.println("image built: " + image);
         wipeImages(engine, image);
         console.info.println("starting container ...");
-        mounts = bindMounts(ports, isSystem());
+        mounts = bindMounts(ports, context.join(".source").exists(), isSystem());
         for (Map.Entry<String, String> entry : mounts.entrySet()) {
             console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
         }
@@ -443,7 +442,7 @@ public abstract class Stage {
         });
     }
 
-    private Map<String, String>bindMounts(Ports ports, boolean systemBinds) throws IOException {
+    private Map<String, String>bindMounts(Ports ports, boolean source, boolean systemBinds) throws IOException {
         Map<String, String> result;
         List<FileNode> lst;
         Iterator<FileNode> iter;
@@ -451,16 +450,19 @@ public abstract class Stage {
 
         result = new HashMap<>();
         result.put(backstage.join("logs").mkdirOpt().getAbsolute(), "/var/log/stool");
-        for (Vhost vhost : ports.vhosts()) {
-            if (vhost.isWebapp()) {
-                if (vhost.isArtifact()) {
-                    result.put(vhost.docroot.getParent().getAbsolute(), "/vhosts/" + vhost.name);
-                } else {
-                    result.put(vhost.docroot.getAbsolute(), "/vhosts/" + vhost.name);
+        if (source) {
+            result.put(getDirectory().getAbsolute(), "/stage");
+        } else {
+            for (Vhost vhost : ports.vhosts()) {
+                if (vhost.isWebapp()) {
+                    if (vhost.isArtifact()) {
+                        result.put(vhost.docroot.getParent().getAbsolute(), "/vhosts/" + vhost.name);
+                    } else {
+                        result.put(vhost.docroot.getAbsolute(), "/vhosts/" + vhost.name);
+                    }
                 }
             }
         }
-
         if (systemBinds) {
             result.put(session.configuration.docker, session.configuration.docker);
 

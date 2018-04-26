@@ -234,4 +234,21 @@ public class Tomcat {
             throw new IOException("unexpected output by tar command: " + output);
         }
     }
+
+    //--
+
+    // TODO: placing this in a separate Fitnesse class didn't work
+    public String fitnesse() throws IOException {
+        Launcher launcher;
+        FileNode dest;
+
+        dest = stage.getDirectory().join("target/fitnessedeps");
+        launcher = stage.launcher("mvn", "dependency::copy-dependencies",
+                "-DoutputDirectory=" + dest.getAbsolute(), "-DexcludeScope=system", "-Dmdep.prependGroupId");
+        launcher.exec(stage.session.console.verbose);
+
+        // mark as source stage
+        context.join(".source").writeBytes();
+        return "not empty"; // dumpy result
+    }
 }
