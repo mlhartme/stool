@@ -238,7 +238,7 @@ public class Tomcat {
     //--
 
     // TODO: placing this in a separate Fitnesse class didn't work
-    public String fitnesse() throws IOException {
+    public void fitnesse() throws IOException {
         Launcher launcher;
         FileNode dest;
 
@@ -249,6 +249,5 @@ public class Tomcat {
 
         // mark as source stage
         context.join(".source").writeBytes();
-        return "not empty"; // dumpy result
     }
 }
