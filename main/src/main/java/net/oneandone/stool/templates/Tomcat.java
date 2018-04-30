@@ -258,7 +258,7 @@ public class Tomcat {
                 deps.deleteTreeOpt();
                 deps.mkdirsOpt();
                 launcher = stage.launcher("mvn", "dependency::copy-dependencies",
-                        "-DoutputDirectory=" + deps.getAbsolute(), "-DexcludeScope=system", "-Dmdep.prependGroupId");
+                        "-DoutputDirectory=" + deps.getAbsolute(), "-DexcludeScope=system");
                 launcher.dir(vhostProject(vhost));
                 launcher.exec(stage.session.console.verbose);
             }
