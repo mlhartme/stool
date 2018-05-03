@@ -30,7 +30,6 @@ import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
 import net.oneandone.sushi.util.SubstitutionException;
 import net.oneandone.sushi.xml.XmlException;
-import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
@@ -254,7 +253,7 @@ public class Tomcat {
 
         for (Vhost vhost : ports.vhosts()) {
             if (vhost.isWebapp()) {
-                deps = dir.join(vhost.name);
+                deps = fitnesseProject(vhost).join("target/fitnesse/dependencies");
                 deps.deleteTreeOpt();
                 deps.mkdirsOpt();
                 launcher = stage.launcher("mvn", "dependency::copy-dependencies",
@@ -277,12 +276,12 @@ public class Tomcat {
 
         result = new StringBuilder();
         result.append("#!/bin/bash\n");
-        result.append("cd /stage\n");
         for (Vhost vhost : ports.vhosts()) {
             if (vhost.isWebapp()) {
                 result.append("\n");
                 result.append("# vhost " + vhost.name + "\n");
-                result.append("deps=target/fitnesse/" + vhost.name + "\n");
+                result.append("cd /stage/" + fitnesseProject(vhost).getRelative(stage.getDirectory()) + "\n");
+                result.append("deps=target/fitnesse/dependencies\n");
                 result.append("cp=target/test-classes:target/classes\n");
                 result.append("for file in $(ls $deps/*.jar); do\n");
                 result.append("  cp=\"$cp:$file\"\n");
@@ -298,8 +297,19 @@ public class Tomcat {
                 result.append("wait $" + pidvar(vhost) + "\n");
             }
         }
-
         return result.toString();
+    }
+
+    private FileNode fitnesseProject(Vhost fitnesseHost) {
+        FileNode dir;;
+
+
+        dir = ports.lookup(fitnesseHost.name).docroot;
+        dir = dir.getParent();
+        if (!dir.getName().equals("target")) {
+            throw new IllegalStateException(dir.getAbsolute());
+        }
+        return dir.getParent();
     }
 
     private String allPids() {
