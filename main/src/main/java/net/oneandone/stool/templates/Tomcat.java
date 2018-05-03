@@ -288,7 +288,7 @@ public class Tomcat {
                 result.append("  cp=\"$cp:$file\"\n");
                 result.append("done\n");
                 result.append("export CLASSPATH=$cp\n");
-                result.append("java -jar $HOME/fitnesse-standalone.jar -v -r src/test/fitnesse -p " + vhost.httpPort() + " &\n");
+                result.append("java -jar $HOME/fitnesse-standalone.jar -v -r src/test/fitnesse -p " + vhost.httpPort() + " >/var/log/stool/fitnesse-" + vhost.name + ".log 2>&1 &\n");
                 result.append(pidvar(vhost) + "=$!\n");
             }
         }
