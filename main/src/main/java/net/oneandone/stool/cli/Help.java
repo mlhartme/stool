@@ -61,7 +61,7 @@ public class Help {
         builder.redirectError(ProcessBuilder.Redirect.INHERIT);
         process = builder.start();
         name = command == null ? "stool" : "stool-" + command;
-        try (InputStream src = world.resource("files/home/templates/man/man1/" + name + ".1.gz").newInputStream()) {
+        try (InputStream src = world.resource("templates/man/man1/" + name + ".1.gz").newInputStream()) {
             try (GZIPInputStream unzip = new GZIPInputStream(src)) {
                 world.getBuffer().copy(unzip, process.getOutputStream());
             }
