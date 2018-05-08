@@ -27,7 +27,7 @@ Resulting changes:
 * stage property changes
   * dumped `tomcat.env` - adjust the template instead
   * dumped `tomcat.service` - the service wrapper is gone
-  * `tomcat.version` is a template configuration now; changed default value from 8.5.16 to 9.0.6
+  * `tomcat.version` is a template configuration now; changed default value from 8.5.16 to 9.0.8
   * `tomcat.opts` is a template configuration now
   * renamed `tomcat.heap` to `memory`, changed default from 350 to 400 or 200m for every webapp;
     tomcat heap defaults set to 75% of that
