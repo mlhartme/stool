@@ -2,53 +2,53 @@
 
 ### 4.0.0 (pending)
 
-Stool 4 is a Docker frontend: if you start a stage, Stool create a Docker image based on a template and start a container for it.
+Stool 4 runs stages as docker containers: if you start a stage, Stool create a Docker image based on a template and start a container for it.
 Resulting changes:
 
-* templates replace extensions
+* *templates* replace *extensions*
   * a stage has exactly one template assigned; switch to a different template with `stool config template=othertemplate`
-  * a template is a directory with a `Dockerfile.fm` and other `*.fm` files. When starting the stage, Stool passes all fm
+  * a template is a directory with a `Dockerfile.fm` and other files. When starting the stage, Stool passes all *.fm
     files through [FreeMarker](http://freemarker.org/docs/ref_directives.html), invokes `docker build` on the resulting context
-    directory, and and starts a container for this image
+    directory, and starts a container for this image
   * in addition to FreeMarker functionality, Dockerfiles can:
     * define configuration fields with `#CONFIG <type> <name>`; use `stool config <template>.<name>=<value>` to change values
     * define status fields with `#STATUS`
-  * renamed `$HOME/extensions` directory to `$HOME/templates`, which contain one directory for every available template
+  * renamed `$HOME/extensions` directory to `$HOME/templates`, which contains one directory for every available template
   * moved `pustefix` extension functionality into the `tomcat` template
   * dumped `logstash` extension, it was never used, and we'll have filebeat instead
-  * dumped `fault` extension, applications using fault are auto-detected now
+  * dumped `fault` extension, the tomcat template auto-detects applications that need fault
 * `stool status` changes
-  * `container` (with the container hash) replaces `tomcat` and `service`
+  * `container` (with the container hash) replaces `tomcat` and `service` (with pids)
   * replaced `jmx` and `jmxHeap` by template-defined status `tomcat.jmx` and `tomcat.jmxHeap`
   * replaced `debugger` and `suspend` by template-defined configuration `tomcat.debug` and `tomcat.suspend`
   * renamed `creator` field to `created-by` and `created` to `created-at`
-  * dumped `fitnesse`
-  * dumped 'other' status field
+  * dumped `fitnesse`; fitnesse stages are based on the new `fitnesse` template now
+  * dumped `other` status field
 * stage property changes
-  * dumped `tomcat.env`: adjust the container template instead
+  * dumped `tomcat.env` - adjust the template instead
   * dumped `tomcat.service` - the service wrapper is gone
-  * replaced `tomcat.version` is a template configuration now; changed default value from 8.5.16 to 9.0.6
-  * replaced `tomcat.opts` is a template configuration now
+  * `tomcat.version` is a template configuration now; changed default value from 8.5.16 to 9.0.6
+  * `tomcat.opts` is a template configuration now
   * renamed `tomcat.heap` to `memory`, changed default from 350 to 400 or 200m for every webapp;
-    tomcat heap is set to 75% of that
-  * replaced `cookies` by tomcat template code; the mode argument can be `OFF`, `STRICT` or `LEGACY`
+    tomcat heap defaults set to 75% of that
+  * replaced `cookies` by tomcat template code, valid values are `OFF`, `STRICT` or `LEGACY`
   * renamed `baseHeap` to `baseMemory`, changed default form 350 to 400
   * renamed `tomcat.select` to `select`
-  * dumped `java.home` because Containers bring their own settings; build use the globally installed Jdk on the machine
-* Stool config cleanup
+  * dumped `java.home` because Containers bring their own settings; builds use the globally installed Jdk on the machine
+* Stool property cleanup
   * dumped `downloadTomcat`, this value is hard-coded into the Tomcat template now
   * removed deprecated `@owner` and `@maintainer` contact shortcuts
   * renamed `ldapSso` to `ldapUnit`
-  * removed `downloadsCache` property, use symlinks for $home/downloads instead
+  * removed `downloadsCache` property, use symlinks for $STOOL_HOME/downloads instead
   * dumped `downloadServiceWrapper` - the service wrapper is gone
   * dumped `certificates`, the respective code has moved into the template
-  * added systemExtras for directories available to system applications
+  * added `systemExtras` for directories available to system applications
 * dumped `system-import` command (and also the upgrade code)
-* dumped redundant 'stage' entry in ports file
+* dumped redundant `stage` entries in $STOOL_HOME/ports
 * cli changes
   * dumped `-debug` and `-suspend` options from `start` and `restart` (and the corresponding defaults); use the `config`
     command instead to set the respective template field
-  * dumped `start -fitnesse`; create stage with `template=fitnesse` instead
+  * dumped `start -fitnesse`; create stage for Fitnesse tests with `template=fitnesse` instead
   * `start -tail` now tails container logs
 * `.backstage` changes
   * `service` is gone
@@ -59,9 +59,9 @@ Resulting changes:
   * dumped Java Service Wrapper, Tomcat is started directly inside the container; as a consequence, stages no longer allocate
     a service wrapper port and a Tomcat stop port
   * dumped -D variables `-Dstool.cp`, `-Dstool.home` and `-Dstool.idlink`, the respective paths are not available in the container
-  * Tomcat
+  * Tomcat template
     * disable Tomcat Http 2 Support, it never worked with the connector we use
-    * install all of Tomcat in /usr/local/tomcat, no longer distinguish CATALINA_HOME and CATALINA_BASE
+    * install all of Tomcat in `/usr/local/tomcat`, no longer distinguish CATALINA_HOME and CATALINA_BASE
     * Stool no longer adds
 
           org.apache.catalina.core.ContainerBase.[Catalina].level = INFO
@@ -76,7 +76,7 @@ Some implementation notes:
   from what I found they need native code and/or are quiet old
 
 Other changes:
-* Stage status `url` renamed to Stage origin (to resolve name clash with stage config `url`)
+* stage status `url` renamed to stage `origin` (to resolve naming clash with stage config `url`)
 * Dashboard
   * removed `start -fitnesse` command
   * added `cleanup` command

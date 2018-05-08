@@ -319,12 +319,13 @@ stop and remove. A stage contains web applications built from source or availabl
 * **-svnpassword** specifies the password to use for Subversion commands
 
 Note: Subversion commands (e.g. to checkout a new stage) run the `svn` command with credentials specified by `-svnuser` and `-svnpassword`. 
-If not specified, the svn defaults are used (usually stored in `~/.subversion/auth`).
+If not specified, Subversion defaults are used (usually stored in `~/.subversion/auth`).
 
 
 #### Stool Properties
 
-Stool's global configuration is stored in `$STOOL_HOME/config.json`. It defines following [properties](#properties).
+Stool's global configuration (i.e. all Stool properties) is stored in `$STOOL_HOME/config.json`. It defines the 
+following [properties](#properties).
 
 * **admin** 
   Email of the person to receive validation failures and exception mails. Empty to disable these emails.
