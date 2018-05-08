@@ -125,7 +125,8 @@ public class ArtifactStage extends Stage {
                 artifact = ((GavLocator) application.location).artifact();
                 result.add("gav:" + artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion());
             } else {
-                session.console.error.println("don't know fault project for locator " + application.location);
+                session.console.error.println("don't know fault project for locator " + application.location + " - working without secrets for this");
+                result.add("@-");
             }
         }
         return result;

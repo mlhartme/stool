@@ -32,10 +32,10 @@ Resulting changes:
   * renamed `tomcat.heap` to `memory`, changed default from 350 to 400 or 200m for every webapp;
     tomcat heap defaults set to 75% of that
   * replaced `cookies` by tomcat template code, valid values are `OFF`, `STRICT` or `LEGACY`
-  * renamed `baseHeap` to `baseMemory`, changed default form 350 to 400
   * renamed `tomcat.select` to `select`
   * dumped `java.home` because Containers bring their own settings; builds use the globally installed Jdk on the machine
 * Stool property cleanup
+  * renamed `baseHeap` to `baseMemory`, changed default form 350 to 400
   * dumped `downloadTomcat`, this value is hard-coded into the Tomcat template now
   * removed deprecated `@owner` and `@maintainer` contact shortcuts
   * renamed `ldapSso` to `ldapUnit`

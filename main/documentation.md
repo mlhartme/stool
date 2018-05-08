@@ -887,7 +887,7 @@ If you want to set a property to a value with spaces, you have to use quotes aro
 Otherwise, the Stool does not see what belongs to your value.
 
 If you change a property, you have to get the necessary re-builds or re-starts to make the changes
-effective. E.g. if you change `tomcat.heap`, you have to run `stool restart` to make the change effective.
+effective. E.g. if you change `memory`, you have to run `stool restart` to make the change effective.
 
 Properties have a type: boolean, number, date, string, list of strings, or map of strings to strings.
 
@@ -911,27 +911,26 @@ Note: This is a stage command, get `stool help stage-options` to see available [
 
 Note that the default values below might be overwritten by Stool defaults on your system.
 
+
 * **autoRefresh**
   True if you want the dashboard to automatically refresh the stage every minute. Type boolean.
 * **build**
   Shell command executed if the user invokes `stool build`. Type string.
 * **comment**
   Arbitrary comment for this stage. Stool only stores this value, it has no effect. Type string.
-* **cookies**
-  Enable or disable cookies. Type boolean. Default value: `true`
 * **expire**
   Defines when this stage [expires](#stage-expiring). Type date.
-* **java.home**
-  Install directory of the JDK used to build and run this stage. Type string.
 * **maven.home**
   Maven home directory used to build this stage or resolve artifacts. Type string.
 * **maven.opts**
   MAVEN_OPTS when building this stage. Type string. Default value: (empty)
+* **name**
+  name of the stage
 * **notify**
-  List of email address or `@last-modified-by` or `@created-by` to send notifications about
+  List of email addresses or `@last-modified-by` or `@created-by` to send notifications about
   this stage. Type list. Default value: `@created-by`.
 * **pom**
-  Path of the pom file in the stage directory. Type string. Default value: `pom.xml`.
+  Path of the pom file relative to the stage directory. Type string. Default value: `pom.xml`.
 * **prepare**
   Shell command executed after initial checkout of a source stage. Type string.
 * **refresh**
@@ -940,20 +939,14 @@ Note that the default values below might be overwritten by Stool defaults on you
 * **quota**
   Max disk space for this stage in mb. You cannot start stages if this space exceeded.
   The sum of all quotas cannot exceed the Stool quota. Type number.
-* **tomcat.env**
-  The environment to start Tomcat with. Type map. This is intentionally not the environment of the
-  current user because any user must be able to start the stage and get the same behavior.
-* **tomcat.opts**
-  CATALINA_OPTS without heap settings. Type string. Default value: (empty)
-* **tomcat.heap**
-  Java heap memory ("-Xmx") in mb when running Tomcat. Type number.
+* **memory**
+  Max ram for running container in mb. Type number.
+* **template**
+  Path to template directory for this stage. Relative paths are relative to $STOOL_HOME/templates. Type string.
 * **select**
   List of selected applications. When starting a stage, Stool configures the container only for the selected
   applications. If none is selected (which is the default), it configures all applications. Type list.
   Default value: (empty)
-* **tomcat.version**
-  Tomcat version to use. Type string. Default value: `9.0.8`. If you change this property,
-  you have to stop tomcat, delete the `.backstage/tomcat` directory, and start Tomcat again.
 * **url**
   A pattern that define how to build the application urls: a sequence of strings and alternatives, where
   alternatives are strings in brackets, separated by |. Example: `(http|https)://%a.%s.%h:@p/foo//bar`
@@ -962,11 +955,14 @@ Note that the default values below might be overwritten by Stool defaults on you
   suffix. Thus, the above application is started in context `foo`. If the path part contains no double slash, the application
   is started in the root context.
 
+Depending on the current template, there are more properties, prefixed with the template name.
+
+
 #### Examples
 
-`stool config tomcat.heap` prints the current value for Tomcat heap space.
+`stool config memory` prints the current value for memory.
 
-`stool config tomcat.heap=1000` sets the tomcat heap size to `1000` mb.
+`stool config memory=2000` sets the memory to 2 gb.
 
 `stool config "build=mvn clean package"` sets a value with spaces.
 
@@ -987,8 +983,8 @@ Moves the stage directory without touching the stage id or stage name. If *dest*
 Otherwise it is moved into the parent of dest with the specified name. This is the same behavior as the unix `mv` 
 command, but it also adjusts Stool's backstage links.
 
-You might have to re-build your application after moving the stage if you have development tools that store absolute paths
-(e.g. Lavender ...).
+You might have to re-build your application after moving the stage if you have development tools that store absolute 
+paths (e.g. Lavender ...).
 
 [//]: # (include stageOptions.md)
 
@@ -1006,11 +1002,11 @@ Allocates ports for the current stage
 
 #### DESCRIPTION
 
-Allocates the specified ports for this stage. *application* specifies the application to use this port.
+Allocates the specified ports for this stage. *application* specifies the application to use this port for.
 *port* is the http port, *port*+1 is automatically reserved for https. When starting a stage, unused allocated 
 ports are freed.
 
-This command is if you have to explicitly assign specific ports to a given stage. You'll normally not use it
+This command is useful if you have to explicitly assign specific ports to a given stage. You'll normally not use it
 and instead get random ports automatically allocated when you start the stage. 
 
 
