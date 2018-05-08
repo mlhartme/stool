@@ -398,9 +398,8 @@ following [properties](#properties).
 
 Stool allocates ports in pairs: an even and the following odd number. To choose a port for a given Stage, Stool computes a hash between
 portFirst and portLast. If this pair if already allocated, the next higher pair is checked (with roll-over to portFirst if necessary).
-Even ports are used for http, odd ports for https. In addition to one pair for each application of the stage, Stool allocates two pairs 
-for internal use for every stage (jmx ports, debugger port, tomcat stop port and service wrapper port). Thus, one stage needs at least 
-3 pairs (= 6 ports).
+Even ports are used for http, odd ports for https. In addition to one pair for each application of the stage, Stool allocates one pair 
+for internal use for every stage (jmx ports and debugger port). Thus, one stage needs at least 2 pairs (= 4 ports).
 
 You can see the currently allocated ports in `$STOOL_HOME/run/ports`
 
