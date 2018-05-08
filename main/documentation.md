@@ -25,7 +25,7 @@ Start it:
 
 To see the running application, point your browser to the url printed by the `start` command.
 
-You can get
+You can run
 
     stool status
 
@@ -35,7 +35,7 @@ To remove the stage, stop the application with
 
     stool stop
 
-and dump it from your disk with
+and wipe it from your disk with
 
     stool remove
 
@@ -43,7 +43,7 @@ You can create an arbitrary number of stages. Invoke
 
     stool list
 
-to see what you have created and not yet removed. To switch to another stage, get
+to see what you have created and not yet removed. To switch to another stage, run
 
     stool select otherstage
 
@@ -51,7 +51,7 @@ Use
 
     stool history
     
-to see the Stool commands executed for your stage.
+to see the Stool commands executed for the current stage.
 
 You can get help with
 
@@ -82,17 +82,17 @@ A stage defines a Docker, typically containing a Tomcat servlet container (http:
 Java web applications (https://en.wikipedia.org/wiki/Java_Servlet). A stage has a
 
 * **directory**
-  Where the stage is stored in your file system, it holds the source code or the war files of this stage.
-  This is where you usually work with your stage. The directory is determined when you create a
+  Where the stage is stored in your file system, it holds the source code or the artifacts of this stage.
+  This is where you usually work with your stage. The directory is specified explicitly or implicitly when you create a
   stage. You can change the stage directory with `stool move`.
 * **id**
   Unique identifier for a stage. The id is generated when creating a stage and it is never changed.
-  However, users normally work with the stage name instead. You can see it with `stool status id`.
+  However, users normally work with the stage name instead. You can see the id with `stool status id`.
 * **name**
   User readable identification for a stage. Usually, the name is unique. The name of the selected stage 
   is shown in your shell prompt, you use it to switch between stages, and it's usually part of the application
-  url(s). The name is determined when you create a stage (in most cases it's simply the name of the stage
-  directory). You can change the name with `stool config name=`*newname*.
+  url(s). The name is determined explicitly or implicitly when you create a stage, in most cases it's simply the name 
+  of the stage directory. You can change the name with `stool config name=`*newname*.
 * **origin**
   Specifies where the web applications come from: A Subversion URL, a git url, Maven coordinates, or
   a file url pointing to a war file. Examples:
@@ -108,7 +108,7 @@ Java web applications (https://en.wikipedia.org/wiki/Java_Servlet). A stage has 
 * **state**
   one of
   * **down**
-    stage is not running, applications cannot be accessed. This is the initial state after creation or after
+    stage is not running, applications cannot be used in a brower. This is the initial state after creation or after
     it was stopped.
   * **up**
     stage is running, applications can be accessed via application url(s). This is the state after successful
@@ -127,7 +127,7 @@ The selected stage is the stage the current working directory belongs to. In oth
 is the stage directory or a (direct or indirect) subdirectory of it. Unless otherwise specified, stage commands operate 
 on the selected stage.
 
-The stage indicator `{somestage}` is display in front of your shell prompt, it shows the name of the selected stage.
+The stage indicator `{somestage}` is displayed in front of your shell prompt, it shows the name of the selected stage.
 
 If you create a new stage, Stool changes the current working directory to the newly created stage directory. Thus, the new stage
 becomes the selected stage. `stool select` changes the current working directory to the respective stage directory,
@@ -142,21 +142,20 @@ boolean, list (of strings), or map (string to string)). Stool distinguishes Stoo
 properties. Stool properties are global settings that apply to all stages, they are usually adjusted by system
 administrators (see [stool properties](#stool-properties)). Stage properties configure the
 respective stage only, every stage has its own set of stage properties. You can adjust stage properties 
-with [stool config](#stool-config).
+with [stool config](#stool-config). You can adjust Stool properties by editing $STOOL_HOME/config.json.
 
-In contrast, every stage has status fields, you can view them with `stool status`. Status fields are similar to
+Besides properties, every stage has status fields, you can view them with `stool status`. Status fields are similar to
 properties, but they are read-only.
 
 
 ### Backstage
 
-Every stage directory contains a backstage directory `.backstage` that stores Stool-related
-data about, e.g. the stage properties or log files of the applications. The backstage directory is created
-when you create or import the stage. `$STOOL_HOME/backstages` contains a symlink *id*->*backstage* for every stage.
-Stool uses this to iterate all stages.
+Every stage directory contains a backstage directory `.backstage` that stores Stool-related data, e.g. the stage 
+properties or log files of the applications. The backstage directory is created when you create or import the stage. 
+`$STOOL_HOME/backstages` contains a symlink *id*->*backstage* for every stage. Stool uses this to iterate all stages.
 
 Stool removes backstage symlinks either explicitly when you run `stool remove`, or implicitly when it detects that
-the target directory has been removed. Stool checks for - and cleans - stale backstage links before every command.
+the symlink target directory has been removed. Stool checks for - and cleans - stale backstage links before every command.
 
 
 ### Stage Expiring
@@ -173,44 +172,50 @@ is still needed. If so, adjust the expire date. Otherwise, remove the stage.
 
 ### User defaults
 
-Users can define default values for various command line option by placing a properties file `.stool.defaults` in
-their home directory. If this file exists, Stool uses the contained properties as default values for various options.
+Every users can define default values for various command line option by placing a properties file `.stool.defaults` in
+her home directory. If this file exists, Stool uses the contained properties as default values for various options.
 For example, a property `refresh.build=true` causes `stool refresh` to build a stage without
 explicitly specifying the `-build` option. (Note: To override this default, use `stool refresh -build=false`).
 
 Supported user default properties:
 
 * **verbose**
-  controls the `-v` option for every Stool command
+  controls the `-v` option for every command
 * **exception**
-  controls the `-e` option for every Stool command
+  controls the `-e` option for every command
 * **auto.restart**
   controls the `-autorestart` option for every stage command
 * **auto.stop**
   controls the `-autostop` option for every stage command
 * **import.name**
-  controls the `-name` option for the import command
+  controls the `-name` option for the `import` command
 * **import.max**
-  controls the `-max` option for the import command
+  controls the `-max` option for the `import` command
 * **history.max**
-  controls the `-max` option for the history command
+  controls the `-max` option for the `history` command
 * **history.details**
-  controls the `-details` option for the history command
+  controls the `-details` option for the `history` command
 * **list.defaults**
-  controls the `-defaults` option for the list command
+  controls the `-defaults` option for the `list` command
 * **status.defaults**
-  controls the `-defaults` option for the status command
+  controls the `-defaults` option for the `status` command
 * **select.fuzzy**
-  controls the `-fuzzy` option for the select command
+  controls the `-fuzzy` option for the `select` command
 * **refresh.build**
-  controls the `-build` option for the refresh command
+  controls the `-build` option for the `refresh` command
 * **svn.user** and **svn.password** 
   credentials the `-svnuser` and `-svnpassword` options for every Stool command.
 
 
 ### Dashboard
 
-The dashboard is a special stage you can install to control stages via browser.
+The dashboard is a special stage you can setup with
+ 
+    stool create gav:net.oneandone.stool:dashboard:4.0.0-SNAPSHOT $STOOL_HOME/system/dashboard
+    stool start
+
+to control stages via browser. Technically, this is just a web frontend to run Stool commands.
+
 
 ## Commands
 
@@ -310,11 +315,11 @@ stop and remove. A stage contains web applications built from source or availabl
 
 * **-v** enables verbose output
 * **-e** prints stacktrace for all errors
-* **-svnuser** specifies the user name for Subversion operations
-* **-svnpassword** specifies the password for Subversion operations
+* **-svnuser** specifies the user name to use for Subversion commands
+* **-svnpassword** specifies the password to use for Subversion commands
 
-Note: Subversion operations (e.g. checkout a new stage) get the `svn` command with credentials specified by `-svnuser` and `-svnpassword`. 
-If not specified, the defaults of svn `svn` command are used (usually stored in `~/.subversion/auth`).
+Note: Subversion commands (e.g. to checkout a new stage) run the `svn` command with credentials specified by `-svnuser` and `-svnpassword`. 
+If not specified, the svn defaults are used (usually stored in `~/.subversion/auth`).
 
 
 #### Stool Properties
