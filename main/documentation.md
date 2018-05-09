@@ -686,7 +686,7 @@ Start a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `start` *stage-option*... [`-fitnesse`|`-debug`|`-suspend`] [`-tail`]
+`stool` *global-option*... `start` *stage-option*... [`-tail`]
 
 #### Description
 
@@ -748,16 +748,12 @@ Stop a stage
 
 #### DESCRIPTION
 
-Stops Tomcat of the respective stage. If `-sleep` is specified, the stage is also marked as sleeping.
+Stops the Docker container for this stage. If `-sleep` is specified, the stage is also marked as sleeping.
 
-This command signals Tomcat to shutdown all applications and waits for up to 4 minutes to complete this. After this timeout,
-Tomcat is killed (with -9). If Tomcat shutdown is slow, try to debug the applications running in this stage and find out how
-they handle the shutdown request. Or send `kill -3` to the Tomcat pid and check the stack trace in catalina.out.
+This command sends a "kill 15" to the root process of the container. If that's not successfully within 300 seconds, the 
+process is forcibly terminated with "kill 9". If shutdown is slow, try to debug the applications running in this stage 
+and find out what's slow in their kill 15 signal handling. 
 
-Technically, Stool removes the service wrapper anchor file to signal the shutdown request to the service wrapper. The service wrapper
-first sends a normal kill signal to Tomcat. If that times out, it sends a kill -9 as described above.  
-Using anchor files is unusual, you'd normally send a kill signal to the service wrapper. But that's only allowed for the user that 
-actually startet the stage (or for root). By using anchor files, any user with `rwx` permissions on `$STAGE/.backstage/run` can stop a stage.
 
 [//]: # (include stageOptions.md)
 
@@ -771,12 +767,12 @@ Restart a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `restart` *stage-option*... [`-fitnesse`|`-debug`|`-suspend`]
+`stool` *global-option*... `restart` *stage-option*...
 
 
 #### DESCRIPTION
 
-Shorthand for `stool stop && stool start` with the specified options.
+Shorthand for `stool stop && stool start`.
 
 [//]: # (include stageOptions.md)
 
@@ -795,7 +791,7 @@ Refresh a stage
 
 #### DESCRIPTION
 
-Reports an error if the stage is not owned or if the stage is up.
+Reports an error if the stage is up.
 
 For artifact stages: checks for new artifacts and installs them if any.
 
@@ -810,7 +806,7 @@ Note: This is a stage command, get `stool help stage-options` to see available [
 
 ### stool-history
 
-Display command history
+Display command invoked on this stage
 
 #### SYNOPSIS
 
@@ -818,7 +814,7 @@ Display command history
 
 #### DESCRIPTION
 
-Prints the Stool command that affected the stage. Specify `-details` to also print command output. Stops after the 
+Prints the Stool commands that affected the stage. Specify `-details` to also print command output. Stops after the 
 specified max number of commands (*n* defauls is 50).
 
 [//]: # (include stageOptions.md)
@@ -852,7 +848,7 @@ Note: This is a stage command, get `stool help stage-options` to see available [
 
 #### Example
 
-`stool cd logs` will jumps to `tomcat/logs` inside your backstage directory.
+`stool cd logs` will jumps to `.backstage/logs` directory.
 
 ### stool-config
 
@@ -872,13 +868,13 @@ When invoked with one or more *key*s, the respective properties are printed.
 
 When invoked with one or more assignments, the respective properties are changed.
 
-Property values may contain {} to refer to the previous value. You can use this, e.g., to append to a property:
-`stool config "tomcat.opts={} -Dfoo=bar"`.
+Property values may contain `{}` to refer to the previous value. You can use this, e.g., to append to a property:
+`stool config "comment={} append this"`.
 
 If you want to set a property to a value with spaces, you have to use quotes around the key-value pair.
 Otherwise, the Stool does not see what belongs to your value.
 
-If you change a property, you have to get the necessary re-builds or re-starts to make the changes
+If you change a property, you have to run the necessary re-builds or re-starts to make the changes
 effective. E.g. if you change `memory`, you have to run `stool restart` to make the change effective.
 
 Properties have a type: boolean, number, date, string, list of strings, or map of strings to strings.
@@ -994,7 +990,7 @@ Allocates ports for the current stage
 
 #### DESCRIPTION
 
-Allocates the specified ports for this stage. *application* specifies the application to use this port for.
+Allocates the specified port(s) for this stage. *application* specifies the application to use this port for.
 *port* is the http port, *port*+1 is automatically reserved for https. When starting a stage, unused allocated 
 ports are freed.
 
@@ -1024,55 +1020,49 @@ Prints the specified status *field*s or properties. Default: print all fields.
 Available fields:
 
 * **apps**
-  Application urls or this stage. Point your browser to these urls to access your application(s).
+  Application urls of this stage. Point your browser to one fo them access your application(s).
 * **backstage**
   Absolute path of the backstage directory. Type string.
 * **buildtime**
   Last modified date of the war files for this stage.
+* **container**
+  container id if the stage is up; otherwise empty
 * **cpu**
   Cpu usage reported by Docker: percentage of this container's cpu utilisation relative to total system utilisation.
 * **created-at**
   When the stage was created.
 * **created-by**
   User who created this stage. Type string.
-* **debugger**
-  Debugger port or empty if not running with debugger.
 * **directory**
   Absolute path of the stage directory. Type string.
 * **disk**
-  Disk space used for this stage in mb. Type number.
-* **fitnesse**
-  True if the fitnesse wiki is running, not the apps
+  Disk space used for by stage directory mb. Does not include disk space used for Docker image and container. Type number.
 * **id**
   Unique identifier for this stage. Type string.
-* **jmx**
-  Some jmx tool invocations for this stage.
 * **last-modified-at**
   When this stage was last changed.
 * **last-modified-by**
   The user that last maintained this stage, i.e. executed a Stool command like build, start, or stop.
 * **mem**
-  Memory usafe reported by Docker: percentage of memory limit actually used.
-* **heap** 
-  Heap usage for this stage as reported by Jmx. Percentage of used heap in relation to max heap.
-* **others**
-  Other urls this stage.
+  Memory usage reported by Docker: percentage of memory limit actually used. Note that this memory also includes 
+  disk caches, so a high value does not necessarily indicate a problem. Type number.
 * **selected**
   `true` if this is the selected stage. Type boolean.
-* **service**
-  Java Service Wrapper process id or empty if the state is not up. 
-* **suspend**
-  `true` if running with suspend.
 * **state**
   `down`, `sleeping` or `up`. Type string.
-* **tomcat**
-  Tomcat process id or empty if the stage is not up.
 * **uptime**
-  How long this stage is running.
+  How long this stage is in state `up`. Empty if stage is not up. Type string.
 * **type**
   `source` or `artifact`. Type string.
-* **Origin**
+* **origin**
   Origin of this stage. Type string.
+  
+  
+Typical template fields
+* **tomcat.jmx**
+  Some jmx tool invocations for this stage.
+* **tomcat.jmxHeap** 
+  Heap usage for this stage as reported by Jmx. Percentage of used heap in relation to max heap.
 
 [//]: # (include stageOptions.md)
 
@@ -1109,7 +1099,7 @@ Cleanup a stage
 
 #### DESCRIPTION
 
-Removes the Maven repository and rotates *.log into *.log.gz files.
+Removes the Maven repository (for shared stages only) and rotates *.log into *.log.gz files.
 
 [//]: # (include stageOptions.md)
 
@@ -1131,6 +1121,8 @@ Checks if the `expire` date of the stage has passes or the `quota` exceeded. If 
 `-repair` is specified, the stage is stopped (and also removed if expired for more than autoRemove days). And
 if `-email` is specified, a notification mail is sent as configured by the notify property.
 
+Also checks if the docker container for this stage is in stage running. 
+
 Also checks DNS settings.
 
 Also performs log rotation: logs are gzipped and removed after 90 days.
@@ -1149,6 +1141,7 @@ Prerequisites:
 * Linux or Mac
 * Java 8 or higher. This is prerequisite because Stool is implemented in Java 8, you need it to run Stool itself. 
   However, you can build and run your stages with any Java version you choose.
+* Docker with engine 1.37 or higher
 
 First of all: Stool is split into `stool` itself and the `dashboard`. The dashboard is optional, it
 makes some of Stool's functionality available in a browser.
