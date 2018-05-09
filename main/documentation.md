@@ -334,34 +334,23 @@ following [properties](#properties).
   Days to wait before removing an expired stage. -1 to disable this feature. Type number. 
 * **baseMemory**
   Defines how to compute the initial `memory` property for new stages: `baseMemory` mb for every application. Type number.
-* **certificates**
-  Empty or script or url to generate certificates to make stages available via https. Empty to generate self-signed
-  certificates. Otherwise, if it starts with `http://` or `https://` Stool generates a `csr` and posts it to
-  *certificates*, expecting back the certificate. Otherwise, Stool invokes the specified script with the desired domain as
-  an argument. The script is invoked in the *.backstage/ssh* directory, it is expected to generate a =tomcat.jks= keystore file
-  with Java's standard keystore password. (A note about re-generation: when starting a stage, Stool checks if =tomcat.jks= 
-  already exists; if not, certificate generation is triggered). Type string.
 * **committed**
   `true` if users have to commit source changes before Stool allows them to start the stage. Type boolean.
 * **defaults**
-  Default values for stage properties. Keys are stage origin prefixe, values are maps of property name/values to set for
+  Default values for stage properties. Keys are stage origin prefixes, values are maps of property name/values to set for
   a new stage with a matching origin. Type map.
 * **diskMin**
   Minimum mb free space. If less space is available on the target partition, Stool refuses to create new stages. Type number. 
-* **downloadTomcat**
-  Url pattern where to download Tomcat. Available variables: `${version}` and `${major}`. Type string.
-* **downloadServiceWrapper**
-  Url pattern where to download Java Service Wrapper. Available variables: `${version}` and `${major}`. Type string.
-* **downloadCache**
-  Directory where to store Tomcat or Java Service Wrapper downloads. Type string.
+* **docker**
+  Path to Docker Unix Domain socket. Type string.
 * **hostname**
   Fully qualified hostname used to refer to this machine in application urls and emails. Type string.
 * **ldapCredentials**
   Password for Ldap authentication. Ignored if ldap is disabled. Type string.
 * **ldapPrincipal**
   User for Ldap authentication. Ignored if ldap is disabled. Type string.
-* **ldapSso**
-  Will be renamed to ldapUnit in future version. Specifies the "organizational unit" to search for users. Type string.
+* **ldapUnit**
+  Specifies the "organizational unit" to search for users. Ignored if ldap is disabled. Type string.
 * **ldapUrl**
   Ldap url for user information. Empty string to disable ldap. Type string.
 * **macros**
@@ -379,15 +368,17 @@ following [properties](#properties).
 * **portLast**
   Last port available for stages. Has to be an odd number >1023. Type number.
 * **quota**
-  Megabytes of disk spaces available for stages. The sum of all stage quota properties cannot exceed this number. 0 disables this
+  Mb of disk spaces available for stages. The sum of all stage quota properties cannot exceed this number. 0 disables this
   feature. You'll usually set this to the size of the partition that will store your stages. Note that this quota cannot always
   prevent disk full problem because stages can be placed on arbitrary partitions. Type number. 
 * **shared**
-  `true` if multiple user may work on stages. When set to true, Stool uses `.backstage/.m2` (instead of the current user's 
+  `true` if multiple users may work on stages. When set to true, Stool uses `.backstage/.m2` (instead of the current user's 
   `~/.m2/repository`) as local Maven repository. Type boolean.
 * **search**
-  Command line to execute if `stool create` is called with an % url. When calling the command, the placeholder `()` is replaced by the url.
-  Default is empty which disables this feature.
+  Command line to execute if `stool create` is called with an `%`*url*. When calling the command, the placeholder `()` is replaced by the url.
+  Default is empty, which disables this feature.
+* **systemExtra**
+  Optional directory that will be bind-mounted into system stages.
 * **vhosts**
   `true` to create application urls with vhosts for application and stage name.
   `false` to create application urls without vhosts. (Note that urls always contain the port to
@@ -459,29 +450,29 @@ Create a new stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `create` [`-quiet`] (*origin* | *directory*) *key*`=`*value*...
+`stool` *global-option*... `create` [`-quiet`] *origin* [*directory*] *key*`=`*value*...
 
 
 #### DESCRIPTION
 
-Creates a new stage- and backstage directory and enters the stage directory. In most cases, you can get `stool create` 
+Creates a new stage- and backstage directory and enters the stage directory. In most cases, you can use `stool create` 
 similar to `svn checkout`: with an svn url and a directory to checkout to.
 
 *origin* specifies the application you want to run in your stage. In many cases, the it's a subversion url prefixed
 with `svn:` or a git url prefixed with `git:`. Stool performs a checkout resp. a clone. Output of the 
 command is printed to the console unless the `-quiet` option is specified.
 
-To create an artifact stage, specify a war file, a file url or a GAV url. You may specify multiple comma-separated origins,
+To create an artifact stage, specify a war file, a file url or a GAV origin. You may specify multiple comma-separated origins,
 and you may specify `=`*name* if you want to assign a non-default vhost for an application.
 
-Instead of an *origin* you can specify `%`*searchstring*. This will search the configured search tools for the specified
-string, show all matching scm urls, and ask you to select one.
+Instead of an *origin* you can specify `%`*searchstring*. This will invoke the configured search tools for the specified
+*searchstring*, show all matching origins, and ask you to select one.
 
 *directory* specifies the stage directory to hold your application. If not specified, the current directory
 with the last usable segment of the `origin` (i.e. the last segment that is not trunk, tags, or branches) is used.
 You can specify an arbitrary directory, as long as it does not exist yet and the parent directory exists.
 
-The new stage is configured with default stage properties. You can specify *key-value* pairs to override the 
+The new stage is configured with default stage properties. You can specify *key-value* pairs to override
 defaults, or you can change the configuration later with [stool config](#stool-config).
 
 For artifact stages, the `maven.home` property is used to locate Maven settings which configure the repositories (and 
@@ -516,7 +507,7 @@ Create stages for one or many existing directories
 
 #### DESCRIPTION
 
-Scans *directory* for stage candidates and offers to import them. The candidates you select will be imported, 
+Scans all *directory*s for stage candidates and offers to import them. The candidates you select will be imported, 
 i.e. a backstage directory for the stage directory is created. If the scan only yields a single candidate, 
 it will be imported and selected without additional interaction.
 
@@ -526,8 +517,7 @@ a svn checkout or a git clone and it contains a =pom.xml= file, this directory b
 *max* limits the number of candidates to collect.
 
 *template*
-is a string defining the stage name. And any occurrence of `%d`
-will be replaced by the current directory name. Default template is `%d`.
+is a string defining the stage name. Any occurrence of `%d` will be replaced by the current directory name. Default template is `%d`.
 
 
 ### stool-select
@@ -536,7 +526,7 @@ Jump between stage directories
 
 #### SYNOPSIS
 
-`stool` *global-option*... `select` *stage*|`none`
+`stool` *global-option*... `select` [*stage*|`none`]
 
 
 #### DESCRIPTION
@@ -549,6 +539,7 @@ When called with `none`: cds to the parent directory of the current stage.
 If the specified stage is not found, the command prints an error message and lists stages that
 you could have meant. If you also specified the `-fuzzy` option and there's only a
 single candidate, this stage will be selected.
+
 
 ## Stage Commands
 
@@ -569,7 +560,8 @@ Options available for all stage commands
 
 #### Selection options
 
-By default, stage commands operate on the selected stage (as shown in the stage indicator). You can change this by specifying a selection option.
+By default, stage commands operate on the selected stage (as shown in the stage indicator). You can change this by specifying one of the
+following selection option:
 
 `-all` operates on all stages
 
@@ -589,7 +581,7 @@ By default, stage commands operate on the selected stage (as shown in the stage 
 
 
 The most basic predicate is a simple `NAME`. It matches only on the specified stage. This is handy
-to get one command for a stage without selecting it.
+to run one command for a stage without selecting it.
 
 Next, a predicate *FIELD*`=`*VALUE* matches stages who's status field has the specified value.
 *PROPERTY*`=`*VALUE* is similar, it matches stage properties.
@@ -597,9 +589,9 @@ Next, a predicate *FIELD*`=`*VALUE* matches stages who's status field has the sp
 #### Failure mode
 
 Since stage commands operate on an arbitrary number of stages, you might want to specify what to do if the command
-fails on some stages. That's what `-fail` *mode* is for.
+fails for some of them. That's what `-fail` *mode* is for.
 
-Mode `normal` reports problems immediately and aborts execution, Stool does not try to get the command 
+Mode `normal` reports problems immediately and aborts execution, Stool does not try to run the command 
 on remaining matching stages. This is the default.
 
 `after` reports problems after the command was invoked on all matching stages.
@@ -618,9 +610,9 @@ again.
 
 `stool status -stage foo` prints the status of stage `foo`.
 
-`stool config -stage tomcat.version!=7.0.57 tomcat.version` prints all Tomcat versions other than 7.0.57.
+`stool config -stage memory!=2000 memory` prints all memory properties other than 2000.
 
-`stool start -all -fail after` starts all stages. Without `-all`, the command would abort
+`stool start -all -fail after` starts all stages. Without `-fail after`, the command would abort
 after the first stage that cannot be started (e.g. because it's already running).
 
 `stool stop -stage state=up` stops all stages currently up, but aborts immediately if one stage fails to stop.
@@ -631,25 +623,24 @@ Build a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `build` *stage-option*... [`-here`] *command*
+`stool` *global-option*... `build` *stage-option*... [`-here`] *command*...
 
 #### Description
 
 Executes the specified command or the command specified by the `build` property. Executes in the current directory
-when called with `-here`; otherwise, executes in the stage directory. Sets MAVEN_HOME, MAVEN_OPTS and JAVA_HOME 
+when called with `-here`; otherwise, executes in the stage directory. Sets MAVEN_HOME and MAVEN_OPTS 
 as configured for the stage. Reports an error if the stage is not owned or if the stage is up.
 
 You can see the configured build command with `stool config build`, and you can change it with
-`stool` *global-option*... `config "build="`*your command*`"`. Quotes are mandatory if your command contains spaces.
+`stool` *global-option*... `config "build="`*your command*`"`. Quotes are mandatory if *your command* contains spaces.
 
-The pre-defined build command for artifact stages does nothing. Thus, you can get
-`stool build` for artifact stages, it just has no effect.
+The pre-defined build command for artifact stages does nothing. Thus, you can run `stool build` for artifact stages, it just has no effect.
 
-If you get `build` from the dashboard application, the build command executes in the environment
+If you run `build` from the dashboard application, the build command executes in the environment
 defined for the dashboard stage with the additional environment variables mentioned above.
 
 The differences between using `stool build` and executing a build command directly is the execute directory
-and the environment. When working in shared mode, you usually you have to use `stool build` because shared machine 
+and the environment. When working in shared mode, you usually have to use `stool build` because shared machine 
 need a separate local Maven repository for every stage - and that's configured in the stage environment.
 
 
@@ -668,14 +659,16 @@ Remove a stage
 
 #### Description
 
-Removes the stage, i.e. deletes the stage directory and the backstage directory.
-Changes the current directory to the parent of the then deleted stage directory.
+Removes the stage, i.e. deletes the stage directory and the backstage directory and changes the current directory 
+to the parent of the stage directory.
 
-Reports an error is the stage is up or if the stage has uncommitted changes. In this case, stop the stage and inspect
-the uncommitted changes; either commit them or revert them. Alternatively, you can disable this check with the
-`-force` option.
+Reports an error if the stage is up. In this case, stop the stage first or invoke with `-autostop`. 
 
-Also, before removing anything, this command asks if you really want to remove the stage. You can suppress this interaction 
+Also reports an error if the stage has uncommitted changes. In this case, inspect them and either commit or revert them. 
+Alternatively, you can disable this check with the `-force` option.
+
+
+Before actually removing anything, this command asks if you really want to remove the stage. You can suppress this interaction 
 with the `-batch` option.
 
 If you specify the `-backstage` option, only the backstage directory will be deleted and the stage is removed from Stool's 
@@ -1250,8 +1243,8 @@ To upgrade from Stool versions before 3.4.0:
         |  |- locks       (holds all locking data)
         |  |- ports       (lists all allocated ports)
         |  '- sleep.json  (optional, holds sleeping stages)
-        |- downloads      (caches Tomcat- and Service Wrapper downloads)
-        |- templates      (Docker templates)
+        |- downloads      (caches Tomcat downloads; may be a symlink to a directory of your choice)
+        |- templates      (Docker templates; may be a symlink to a directory of your choice)
         |- logs           (Stool logs files)
         |  |- stool-YYmmDD.log(.gz)
         |  :

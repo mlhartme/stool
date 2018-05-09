@@ -37,7 +37,7 @@ Resulting changes:
 * Stool property cleanup
   * renamed `baseHeap` to `baseMemory`, changed default form 350 to 400
   * dumped `downloadTomcat`, this value is hard-coded into the Tomcat template now
-  * removed deprecated `@owner` and `@maintainer` contact shortcuts
+  * removed deprecated `@owner` and `@maintainer` in contact shortcuts
   * renamed `ldapSso` to `ldapUnit`
   * removed `downloadsCache` property, use symlinks for $STOOL_HOME/downloads instead
   * dumped `downloadServiceWrapper` - the service wrapper is gone
