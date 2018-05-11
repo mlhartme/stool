@@ -690,46 +690,29 @@ Start a stage
 
 #### Description
 
-Creates the necessary configuration and starts Tomcat with all applications for this stage. If the stage is an artifact stage, you can 
+Creates a Docker image based on the current template and starts it. If the stage is an artifact stage, you can 
 start it right away; otherwise, you have to build it first. Depending on your application(s), startup may take a while.
 
-Startup is refused if your stage is expired. In this case, use `stool config expire=`*newdate*
+Startup is refused if your stage has expired. In this case, use `stool config expire=`*newdate*
 to configure a new `expire` date.
 
 Startup is also refused if the disk quota exceeded. In this case, delete some unused files, try `stool cleanup`, or use 
 `stool config quota=`*n*.
 
-`-fitnesse` starts the FitNesse Wiki instead of the web application.
+Use the `-tail` option to start tomcat and get container output printed to the console. Press ctrl-c to stop watching output, 
+the container will continue to run.
 
-`-debug` and `-suspend` enable the debugger. The difference is that `-suspend` waits for the debugger to connect before running 
-any application code.
+`start` generates a Docker context directory in `$STAGE/.backstage/context`. Output from building the image is logged 
+to `$STAGE/.backstage/image.log`. The docker container is startet as the current user, not as root. The following bind
+mounts are created:
+* `/logs` -> `$stage/.backstage/logs`
+* for source stages: `/vhosts/source-app` -> exploded webapp, e.g. `$stage/target/source-app-SNAPSHOT`
+* for artifact stages: `/vhosts/artifact-app` -> directory containing the artifact, e.g. `$stage/artifact-app` 
 
-Use the `-tail` option to start tomcat and get `catalina.out` printed to the console. Press ctrl-c to stop watching `catalina.out`, 
-the application will continue to run. Alternatively, you can tail the current stage manually with `stool cd logs && tail -f catalina.out`
 
-`start` generates a Tomcat base directory `$STAGE/.backstage/tomcat` if it does not yet exist. If it exists, only the server.xml 
-is updated by taking server.xml.template and adding all apps to it. This allows for manual changes in the base directory. `start` 
-deletes all files in Tomcat's `temp` directory.
+The Docker template is configurable `stool config template=`*template*. If you change it, you have to restart the stage.
+You can also adjust files in the template directory; make sure to restart the stage to reflect your changes.
 
-The Tomcat version is configurable with `stool config tomcat.version=`*version*. If you change it, you have to stop the stage, 
-delete the `$STAGE/.backstage/tomcat` directory and start the stage. The respective Tomcat will be downloaded automatically 
-to the directory specified by the global `downloadCache` property (default is `$STOOL_HOME/downloads`). Alternatively,
-you can place customized Tomcats tar balls into this directory, provided they unpack to a directory that matches the base 
-file name of the `tar.gz` file.
-
-Technically, Tomcat is started by the Java Service wrapper (http://wrapper.tanukisoftware.com/). You can configure the
-version of the wrapper with the `tomcat.service` property. Run this command with `-v` enabled service wrapper debug output.
-
-If you want to re-generated all files created by this command, use `stool cd backstage && rm -rf service ssl tomcat`. 
-This is useful e.g. to get certificates regenerated.
-
-The current working directory of the started VM is the stage directory.
-
-The environment of the started application is the environment specified by the `tomcat.env` property. In addition, you get 
-the `HOME` and `USER` variables of the current OS user. In addition, Stool defines two Java System properties in the VM running this 
-stage:
-* `stool.cp` points to the stool executable that started this stages
-* `stool.home` point to Stool's home directory
 
 
 [//]: # (include stageOptions.md)
@@ -1143,8 +1126,7 @@ Prerequisites:
   However, you can build and run your stages with any Java version you choose.
 * Docker with engine 1.37 or higher
 
-First of all: Stool is split into `stool` itself and the `dashboard`. The dashboard is optional, it
-makes some of Stool's functionality available in a browser.
+Stool is split into `stool` itself and the `dashboard`. The dashboard is optional, it makes some of Stool's functionality available in a browser.
 
 ### Install Stool
 
@@ -1216,14 +1198,7 @@ every night. That will check for expired stages. And also rotate log files.
 
 ### Upgrading 
 
-To upgrade from Stool versions before 3.4.0:
-* uninstall the old version Stool; but do not remove any stages
-* install 3.4.x as described above
-* for every stage:
-  * cd into the stage directory
-  * run `stool import .`
-  * Unfortunately, your previous stage configuration cannot be upgraded automatically, 
-    you have to manually reconfigure your stage with `stool config`
+There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all stages.
 
 
 ## Directory Layout
@@ -1238,7 +1213,7 @@ To upgrade from Stool versions before 3.4.0:
         |  '- sleep.json  (optional, holds sleeping stages)
         |- downloads      (caches Tomcat downloads; may be a symlink to a directory of your choice)
         |- templates      (Docker templates; may be a symlink to a directory of your choice)
-        |- logs           (Stool logs files)
+        |- logs           (Stool log files)
         |  |- stool-YYmmDD.log(.gz)
         |  :
         |- system
@@ -1262,12 +1237,9 @@ To upgrade from Stool versions before 3.4.0:
           |- creator.touch    (created when stage is created, tracks created-by and created-at)
           |- modified.touch   (touched if Stool command modifies this stage)
           |- logs             (log file of running stage)
-          |- container.id     (id of running container; does not exist otherwise)
+          |- container.id     (id of running container; does not exist if stage is down or sleeping)
           |- image.log        (Docker's image build output) 
           '- context          (context to build docker image)
-              '- tomcat
-                   |- tomcat.tar.gz
-                   '- server.xml
 
 
 Normal project files for source stages are simply the respective SCM files, for artifact stages they are:
@@ -1280,11 +1252,3 @@ Normal project files for source stages are simply the respective SCM files, for 
      :   |- ROOT.war
          `- ROOT
              :
-
-Bind mounts
-
-    |- logs             (-> .backstage/logs)
-    |- vhosts
-    |    |- source-app   (-> exploded webapp, e.g. target/source-app-SNAPSHOT/)
-    |    |- artifact-app (-> directory containing the artifact, e.g. artifact-app/) 
-    :    :
