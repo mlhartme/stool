@@ -3,8 +3,7 @@ Version: [[version]]
 Section: misc
 Priority: optional
 Architecture: all
-# java8-jdk is a work-around for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=803152.
-Depends: java8-sdk|java8-jdk
+Depends: java8-sdk,docker-ce
 Maintainer: CISO Operating <ciso-ops@1und1.de>
 Description: [[description]]
 Homepage: [[url]]

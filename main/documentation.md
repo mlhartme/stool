@@ -246,7 +246,7 @@ stop and remove. A stage contains web applications built from source or availabl
 `stool` *global-option*... `version`
 
 
-`stool` *global-option*... `create` [`-quiet`] (*origin* | *directory*) *key*`=`*value*...
+`stool` *global-option*... `create` [`-quiet`] *origin* [*directory*] *key*`=`*value*...
 
 
 
@@ -254,26 +254,26 @@ stop and remove. A stage contains web applications built from source or availabl
 
 
 
-`stool` *global-option*... `select` *stage*|`none`
+`stool` *global-option*... `select` [*stage*|`none`]
 
 
 
 `stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] [`-autostop`|`-autorestart`] *command-options*...
 
 
-`stool` *global-option*... `build` *stage-option*... [`-here`] *command*
+`stool` *global-option*... `build` *stage-option*... [`-here`] *command*...
 
 
 `stool` *global-option*... `remove` *stage-option*... [`-force`] [`-batch`] [`-backstage`]
 
 
-`stool` *global-option*... `start` *stage-option*... [`-fitnesse`|`-debug`|`-suspend`] [`-tail`]
+`stool` *global-option*... `start` *stage-option*... [`-tail`]
 
 
 `stool` *global-option*... `stop` *stage-option*... [`-sleep`]
 
 
-`stool` *global-option*... `restart` *stage-option*... [`-fitnesse`|`-debug`|`-suspend`]
+`stool` *global-option*... `restart` *stage-option*...
 
 
 
@@ -699,10 +699,12 @@ to configure a new `expire` date.
 Startup is also refused if the disk quota exceeded. In this case, delete some unused files, try `stool cleanup`, or use 
 `stool config quota=`*n*.
 
-Use the `-tail` option to start tomcat and get container output printed to the console. Press ctrl-c to stop watching output, 
+Use the `-tail` option to get container output printed to the console. Press ctrl-c to stop watching output, 
 the container will continue to run.
 
-`start` generates a Docker context directory in `$STAGE/.backstage/context`. Output from building the image is logged 
+`start` generates a Docker context directory in `$STAGE/.backstage/context`. This directory is populated with all file
+from the template directory. Template files with the `.fm` extension are passed through the FreeMarker template engine
+and the result is writted to a file without this extension. Image build output written
 to `$STAGE/.backstage/image.log`. The docker container is startet as the current user, not as root. The following bind
 mounts are created:
 * `/logs` -> `$stage/.backstage/logs`
@@ -869,8 +871,8 @@ you can specify a number which is translated into the date that number of days f
 
 List properties (e.g. `select`) are separated by commas, whitespace before and after an item is ignored.
 
-Map properties (e.g. `tomcat.env`) separate entries by commas, whitespace before and after is ignored.
-Each entry separates key and value by a colon. Example `PATH:/bin, HOME:/home/me`
+Map properties (e.g. `macros`) separate entries by commas, whitespace before and after is ignored.
+Each entry separates key and value by a colon. Example `foo:bar, key:value`
 
 [//]: # (include stageOptions.md)
 
@@ -1246,7 +1248,7 @@ Normal project files for source stages are simply the respective SCM files, for 
 
      |- first-app
      |   |- ROOT.war    (artifact was downloaded)
-     |   '– ROOT        (unpacked war, created by Tomcat)
+     |   '– ROOT        (unpacked war, created by container)
      :       :
      |- second-app
      :   |- ROOT.war
