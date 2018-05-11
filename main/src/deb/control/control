@@ -3,7 +3,7 @@ Version: [[version]]
 Section: misc
 Priority: optional
 Architecture: all
-Depends: java8-sdk,docker-ce
+Depends: java8-sdk, docker-ce
 Maintainer: CISO Operating <ciso-ops@1und1.de>
 Description: [[description]]
 Homepage: [[url]]
