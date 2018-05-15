@@ -106,7 +106,7 @@ public class ServerXml {
             host.setAttribute("appBase", "/vhosts/" + vhost.name);
         } else {
             // not used, already unpacked
-            host.setAttribute("appBase", "/vhosts/");
+            host.setAttribute("appBase", "nosuchdirectory");
         }
         host.setAttribute("autoDeploy", "false");
         engine.appendChild(host);
