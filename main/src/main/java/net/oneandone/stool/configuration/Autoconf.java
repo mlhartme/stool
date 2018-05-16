@@ -20,8 +20,10 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.launcher.Failure;
+import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
@@ -31,21 +33,22 @@ import java.util.Map;
  * This is the place for 1&amp;1 specific stuff ...
  */
 public class Autoconf {
-    public static StoolConfiguration stool(Environment environment, FileNode home) throws IOException {
+    public static StoolConfiguration stool(Environment environment, FileNode home, Writer log) throws IOException {
         StoolConfiguration result;
 
         result = new StoolConfiguration();
         result.hostname = hostname();
         result.search = search(home.getWorld());
-        oneAndOne(environment, home, result);
+        oneAndOne(environment, home, result, log);
         return result;
     }
 
-    private static void oneAndOne(Environment environment, FileNode home, StoolConfiguration dest) throws IOException {
+    private static void oneAndOne(Environment environment, FileNode home, StoolConfiguration dest, Writer log) throws IOException {
         String tools;
         Map<String, String> dflt;
         FileNode templates;
         FileNode downloadsCache;
+        FileNode init;
 
         tools = oneAndOneTools(environment);
         if (tools != null) {
@@ -66,6 +69,14 @@ public class Autoconf {
             templates = home.getWorld().file(tools).join("stool/templates");
             if (templates.isDirectory()) {
                 templates.link(home.join("templates").deleteTree());
+            }
+            init = home.getWorld().file(tools).join("stool/images/init.sh");
+            if (init.isFile()) {
+                Launcher launcher;
+
+                log.write("initializing templates\n");
+                launcher = new Launcher(init.getParent(), init.getAbsolute());
+                launcher.exec(log);
             }
         }
         if (OS.CURRENT == OS.MAC) {

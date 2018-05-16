@@ -78,7 +78,7 @@ public class Home {
         profile(dir.join("shell.rc"),
                 file("files/sourceBashComplete"));
         bashComplete(dir.join("bash.complete"));
-        conf = Autoconf.stool(environment, dir);
+        conf = Autoconf.stool(environment, dir,console.info);
         if (explicitConfig != null) {
             conf = conf.createPatched(gson, explicitConfig);
         }
