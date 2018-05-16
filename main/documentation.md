@@ -1126,7 +1126,7 @@ Prerequisites:
 * Linux or Mac
 * Java 8 or higher. This is prerequisite because Stool is implemented in Java 8, you need it to run Stool itself. 
   However, you can build and run your stages with any Java version you choose.
-* Docker with engine 1.37 or higher
+* Docker 18.03 or newer
 
 Stool is split into `stool` itself and the `dashboard`. The dashboard is optional, it makes some of Stool's functionality available in a browser.
 
@@ -1156,6 +1156,7 @@ For every user that wants to use Stool:
 * Run `stool setup` to create Stool's home directory (default is `~/.stool`, override by defining `STOOL_HOME`).
 * Adjust `~/.stool/config.json` to your needs: see [stool properties](#stool-properties)
 * If you did not install the Debian package: source `~/.stool/shell.rc` in your shell initialization file (e.g. `~/.bash_profile`).
+* run `stool validate` to check you setup
 
 
 ### Shared configuration
