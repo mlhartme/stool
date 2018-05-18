@@ -605,6 +605,14 @@ public class Session {
     //--
 
     public Engine dockerEngine() throws IOException {
-        return Engine.open(configuration.docker, console.getVerbose() ? home.join("logs/" + user + "-docker.log").getAbsolute() : null);
+        FileNode log;
+
+        log = home.join("logs/docker/" + user + ".log");
+        log.deleteFileOpt();
+        log.getParent().mkdirOpt();
+        log.writeBytes();
+        log.setPermissions("rw-------"); // only current user, because it might include tar files of the context directory - which is sensitive
+        // TODO: does log-rotate preseve permissions?
+        return Engine.open(configuration.docker, console.getVerbose() ? log.getAbsolute() : null);
     }
 }
