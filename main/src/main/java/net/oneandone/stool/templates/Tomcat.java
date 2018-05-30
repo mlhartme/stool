@@ -58,6 +58,11 @@ public class Tomcat {
     //-- public interface
 
     /** null for disabled */
+    public String major(String version) {
+        return version.substring(0, version.indexOf('.'));
+    }
+
+        /** null for disabled */
     public String fault() throws IOException {
         Launcher launcher;
         List<String> projects;
@@ -92,7 +97,7 @@ public class Tomcat {
             downloadFile(subst(downloadUrl, version), download);
             download.checkFile();
         }
-        dest = tomcatTarGz();
+        dest = tomcatTarGz(version);
         dest.getParent().mkdirsOpt();
         download.copyFile(dest);
     }
@@ -105,7 +110,7 @@ public class Tomcat {
         FileNode serverXmlDest;
 
         cookies = CookieMode.valueOf(cookiesStr);
-        tomcatTarGz = tomcatTarGz();
+        tomcatTarGz = tomcatTarGz(version);
         tomcat = tomcatTarGz.getParent();
         serverXmlDest = serverXml();
         tar(tomcat, "zxf", tomcatTarGz.getName(), "--strip-components=2", tomcatName(version) + "/conf/server.xml");
@@ -164,8 +169,8 @@ public class Tomcat {
 
     //--
 
-    private FileNode tomcatTarGz() {
-        return stage.backstage.join("context/tomcat/tomcat.tar.gz");
+    private FileNode tomcatTarGz(String version) {
+        return stage.backstage.join("context/tomcat/apache-tomcat-" + version + ".tar.gz");
     }
 
     private FileNode serverXml() {
@@ -202,12 +207,12 @@ public class Tomcat {
         return "apache-tomcat-" + version;
     }
 
-    private static String subst(String pattern, String version) {
+    private String subst(String pattern, String version) {
         Map<String, String> variables;
 
         variables = new HashMap<>();
         variables.put("version", version);
-        variables.put("major", version.substring(0, version.indexOf('.')));
+        variables.put("major", major(version));
         try {
             return Substitution.ant().apply(pattern, variables);
         } catch (SubstitutionException e) {
