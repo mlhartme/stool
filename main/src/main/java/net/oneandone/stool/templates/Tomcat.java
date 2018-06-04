@@ -88,6 +88,7 @@ public class Tomcat {
         return Separator.SPACE.join(projects);
     }
 
+    /* also checks sha1 digest - https://run-jira.tool.1and1.com/browse/CISOOPS-2406 */
     public void download(String downloadUrl, String version) throws IOException {
         FileNode download;
         FileNode dest;
@@ -221,6 +222,9 @@ public class Tomcat {
     }
 
     private void downloadFile(String url, FileNode dest) throws IOException {
+        String sha1Expected;
+        String sha1Found;
+
         console.info.println("downloading " + url + " ...");
         try {
             dest.getWorld().validNode(url).copyFile(dest);
@@ -229,6 +233,18 @@ public class Tomcat {
             throw new IOException("download failed: " + url
                     + "\nAs a work-around, you can download it manually an place it at " + dest.getAbsolute()
                     + "\nDetails: " + e.getMessage(), e);
+        }
+        try {
+            sha1Expected = dest.getWorld().validNode(url + ".sha1").readString();
+        } catch (IOException e) {
+            dest.deleteFile();
+            throw new IOException("failed to download " + url + ".sha1", e);
+        }
+        sha1Expected = sha1Expected.substring(0, sha1Expected.indexOf(' '));
+        sha1Found = dest.sha();
+        if (!sha1Expected.equals(sha1Found)) {
+            dest.deleteFile();
+            throw new IOException("sha1 digest mismatch: " + sha1Expected + " vs" + sha1Found);
         }
     }
 

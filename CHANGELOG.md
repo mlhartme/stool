@@ -76,6 +76,7 @@ Some implementation notes:
   from what I found they need native code and/or are quiet old
 
 Other changes:
+* Tomcat downloads now check the sha1 hash of the download
 * stage status `url` renamed to stage `origin` (to resolve naming clash with stage config `url`)
 * Dashboard
   * removed `start -fitnesse` command
