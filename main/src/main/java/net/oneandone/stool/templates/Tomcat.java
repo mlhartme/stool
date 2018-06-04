@@ -109,7 +109,7 @@ public class Tomcat {
         FileNode tomcat;
         FileNode serverXmlDest;
 
-        cookies = CookieMode.valueOf(cookiesStr);
+        cookies = CookieMode.valueOf(cookiesStr.toUpperCase());
         tomcatTarGz = tomcatTarGz(version);
         tomcat = tomcatTarGz.getParent();
         serverXmlDest = serverXml();
