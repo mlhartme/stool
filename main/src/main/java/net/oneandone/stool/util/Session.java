@@ -604,15 +604,27 @@ public class Session {
 
     //--
 
-    public Engine dockerEngine() throws IOException {
-        FileNode log;
+    private Engine lazyEngine = null;
 
-        log = home.join("logs/docker/" + user + ".log");
-        log.deleteFileOpt();
-        log.getParent().mkdirOpt();
-        log.writeBytes();
-        log.setPermissions("rw-------"); // only current user, because it might include tar files of the context directory - which is sensitive
-        // TODO: does log-rotate preseve permissions?
-        return Engine.open(configuration.docker, console.getVerbose() ? log.getAbsolute() : null);
+    public Engine dockerEngine() throws IOException {
+        if (lazyEngine == null) {
+            FileNode log;
+
+            log = home.join("logs/docker/" + user + ".log");
+            log.deleteFileOpt();
+            log.getParent().mkdirOpt();
+            log.writeBytes();
+            log.setPermissions("rw-------"); // only current user, because it might include tar files of the context directory - which is sensitive
+            // TODO: does log-rotate preseve permissions?
+            lazyEngine = Engine.open(configuration.docker, console.getVerbose() ? log.getAbsolute() : null);
+        }
+        return lazyEngine;
+    }
+
+    public void closeDockerEngine() {
+        if (lazyEngine != null) {
+            console.info.println("close docker engine");
+            lazyEngine.close();
+        }
     }
 }

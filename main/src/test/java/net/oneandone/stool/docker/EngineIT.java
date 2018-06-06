@@ -118,6 +118,43 @@ public class EngineIT {
     }
 
     @Test
+    public void restart() throws IOException {
+        final long limit = 1024*1024*5;
+        String image;
+        String message;
+        Engine engine;
+        String container;
+
+        message = UUID.randomUUID().toString();
+
+        engine = open();
+        image = engine.imageBuild("sometag",  Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"),null);
+        container = engine.containerCreate(image, "foo", false,
+                limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        engine.containerStart(container);
+        System.out.println("started " + container);
+        engine = open();
+        engine.containerStop(container, 60);
+        System.out.println("stopped " + container);
+
+        engine.containerRemove(container);
+        engine.imageRemove(image);
+
+        engine = open();
+        image = engine.imageBuild("sometag",  Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"),null);
+        container = engine.containerCreate(image, "foo", false,
+                limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        engine.containerStart(container);
+        System.out.println("started " + container);
+        engine = open();
+        engine.containerStop(container, 60);
+        System.out.println("stopped " + container);
+
+        engine.containerRemove(container);
+        engine.imageRemove(image);
+    }
+
+    @Test
     public void stop() throws IOException {
         String image = "stooltest";
         Engine engine;

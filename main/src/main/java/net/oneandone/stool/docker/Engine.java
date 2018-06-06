@@ -51,7 +51,7 @@ import java.util.Map;
 import java.util.Set;
 
 /** Connect to local docker engine via unix socket. https://docs.docker.com/engine/api/v1.37/ */
-public class Engine {
+public class Engine implements AutoCloseable {
     public enum Status {
         CREATED,
         RUNNING,
@@ -60,6 +60,7 @@ public class Engine {
     }
 
     public static Engine open(String socketPath, String wirelog) throws IOException {
+        // local World because I need a special socket factory
         World world;
         HttpFilesystem fs;
         HttpNode root;
@@ -111,6 +112,11 @@ public class Engine {
         this.root = root;
         this.parser = new JsonParser();
     }
+
+    public void close() {
+        root.getWorld().close();
+    }
+
 
     //--
 

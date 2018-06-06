@@ -51,6 +51,8 @@ public abstract class SessionCommand {
     public void run() throws Exception {
         try (Lock lock = createLock("ports", portsLock)) {
             doRun();
+        } finally {
+            session.closeDockerEngine();
         }
     }
 

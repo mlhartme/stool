@@ -98,10 +98,10 @@ public class StoolIT {
         stool("start", "-stage", "it");
         stool("status", "-stage", "it");
         stool("validate", "-stage", "it");
-        stool("restart", "-stage", "it");
-        stool("refresh", "-stage", "it", "-build", "-autostop");
-        stool("start", "-stage", "it");
-        stool("stop", "-stage", "it");
+        stool("restart", "-v", "-stage", "it");
+        stool("refresh", "-v",  "-stage", "it", "-build", "-autostop");
+        stool("start", "-v",  "-stage", "it");
+        stool("stop", "-v",  "-stage", "it");
         stool("list", "-stage", "it");
         stool("validate", "-stage", "it");
         stool("history", "-stage", "it");
@@ -111,6 +111,44 @@ public class StoolIT {
         stool("move", "-stage", "renamed", "movedStage");
         stool("remove", "-stage", "renamed", "-batch");
     }
+
+
+    private void problem(String context, String origin) throws IOException {
+        System.out.println("\norigin: " + origin);
+        stoolSetup(context);
+        stool("create", "-quiet", origin, "it");
+//        stool("status", "-stage", "it");
+//        stool("validate", "-stage", "it");
+//        stool("build", "-stage", "it");
+//        stool("history", "-stage", "it");
+//        stool("config", "-stage", "it", "memory=300");
+//        stool("refresh", "-stage", "it");
+//        stool("validate", "-stage", "it");
+//        stool("start", "-stage", "it");
+//        stool("validate", "-stage", "it");
+//        stool("stop", "-stage", "it", "-sleep");
+        stool("start", "-stage", "it");
+//        stool("status", "-stage", "it");
+//        stool("validate", "-stage", "it");
+//        stool("restart", "-v", "-stage", "it");
+//        stool("refresh", "-v",  "-stage", "it", "-build", "-autostop");
+//        stool("start", "-v",  "-stage", "it");
+/*        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+  */      stool("stop", "-v",  "-stage", "it");
+/*        stool("list", "-stage", "it");
+        stool("validate", "-stage", "it");
+        stool("history", "-stage", "it");
+        stool("remove", "-stage", "it", "-backstage", "-batch", "-force"); // -force because hellowar via svn has no ignores on .stool
+        stool("import", "it");
+        stool("config", "-stage", "it", "name=renamed");
+        stool("move", "-stage", "renamed", "movedStage");
+*/        stool("remove", "-stage", "renamed", "-batch");
+    }
+
 
     public void stoolSetup(String context) throws IOException {
         FileNode home;
