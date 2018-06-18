@@ -623,7 +623,7 @@ public class Session {
 
     public void closeDockerEngine() {
         if (lazyEngine != null) {
-            console.info.println("close docker engine");
+            console.verbose.println("close docker engine");
             lazyEngine.close();
         }
     }
