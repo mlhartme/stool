@@ -30,7 +30,7 @@
         <td class="user">${stage.lastModifiedBy}</td>
         <td class="option refresh">
             <button type="button" data-action="refresh" data-estimate="${stage.stats.avgRefresh}" data-stage="${stage.name}"
-                    data-options="build,autorestart" class="btn ${stage.updateAvailable ? "btn-primary" : "btn-default"} btn-xs"
+                    data-arguments="-build,-autorestart" class="btn ${stage.updateAvailable ? "btn-primary" : "btn-default"} btn-xs"
                     <c:if test="${stage.updateAvailable}">data-container="body" data-toggle="popover" data-placement="right"
                     data-title="${stage.changes.exception ? "Warning" : "Update Available"}" data-trigger="hover" data-html="true"
                     data-content="${stage.changes}"</c:if>><span
@@ -54,8 +54,9 @@
                     <li><a href="#dashboard" data-estimate="${stage.stats.avgRestart}" data-action="restart" data-stage="${stage.name}">Restart</a>
                     </li>
                     <li><a href="#dashboard" data-estimate="${stage.stats.avgBuild}" data-action="build" data-stage="${stage.name}">Build</a></li>
-                    <li><a href="#dashboard" data-action="refresh" data-options="restore" data-stage="${stage.name}">Rollback</a></li>
+                    <li><a href="#dashboard" data-action="refresh" data-arguments="-restore" data-stage="${stage.name}">Rollback</a></li>
                     <li><a href="#dashboard" data-action="cleanup" data-stage="${stage.name}">Cleanup</a></li>
+                    <li><a href="#dashboard" data-action="config" data-arguments="expire=+7" data-stage="${stage.name}">Expire in 1 week</a></li>
                 </ul>
             </div>
         </td>

@@ -81,6 +81,7 @@ Other changes:
 * Dashboard
   * removed `start -fitnesse` command
   * added `cleanup` command
+  * added `expire in 1 week` command
   * fixed console output when running without svn credentials
 
 

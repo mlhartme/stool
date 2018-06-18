@@ -150,16 +150,10 @@ public class StageController {
         return execute(stageName, action);
     }
 
-    @RequestMapping(value = "{name}/{action}/{options}", method = RequestMethod.POST)
+    @RequestMapping(value = "{name}/{action}/{arguments}", method = RequestMethod.POST)
     public String action(@PathVariable(value = "name") String stageName, @PathVariable(value = "action") String action,
-        @PathVariable(value = "options") String options) {
-        List<String> lst;
-
-        lst = Separator.COMMA.split(options);
-        for (int i = 0; i < lst.size(); i++) {
-            lst.set(i, "-" + lst.get(i));
-        }
-        return execute(stageName, action, Strings.toArray(lst));
+        @PathVariable(value = "arguments") String arguments) {
+        return execute(stageName, action, Strings.toArray(Separator.COMMA.split(arguments)));
     }
 
     @ExceptionHandler(Exception.class)
@@ -185,11 +179,11 @@ public class StageController {
         return Console.create();
     }
 
-    public String execute(String stage, String command, String ... options) {
+    public String execute(String stage, String command, String ... arguments) {
         String id;
 
         id = UUID.randomUUID().toString();
-        executorService.submit(StoolCallable.create(jar, session.home, id, logs, resolveStage(stage), session.logging.getUser(), command, options));
+        executorService.submit(StoolCallable.create(jar, session.home, id, logs, resolveStage(stage), session.logging.getUser(), command, arguments));
         return id;
     }
 

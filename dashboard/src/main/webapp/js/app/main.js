@@ -249,14 +249,14 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
             },
 
             action: function () {
-                var stage, action, options, estimate, p, i, url;
+                var stage, action, arguments, estimate, p, i, url;
                 if ($(this).parent().hasClass('disabled') && $(this).attr('data-stage') === null) {
                     return false;
                 }
 
                 stage = $(this).attr('data-stage');
                 action = $(this).attr('data-action');
-                options = $(this).attr('data-options');
+                arguments = $(this).attr('data-arguments');
                 estimate = $(this).attr('data-estimate');
                 p = $(this).parent().parent();
                 i = $(p).find('.info');
@@ -270,8 +270,8 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                 //setInfo(i, $(this).attr('data-title'));
                 //showInfo('info', stage, $(this).attr('data-title'));
 
-                if (options != null) {
-                    url = url + "/" + options;
+                if (arguments != null) {
+                    url = url + "/" + arguments;
                 }
 
                 $('.modal-title').text("Console output");

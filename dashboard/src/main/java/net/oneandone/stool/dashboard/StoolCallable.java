@@ -29,7 +29,7 @@ import java.util.concurrent.Callable;
 
 public class StoolCallable implements Callable<Failure> {
     public static StoolCallable create(FileNode stool, FileNode home, String id, FileNode logs, Stage stage, String unauthenticatedUser,
-                                       String command, String ... options) {
+                                       String command, String ... arguments) {
         String runAs;
         Object username;
 
@@ -39,23 +39,23 @@ public class StoolCallable implements Callable<Failure> {
         } else {
             runAs = unauthenticatedUser;
         }
-        return new StoolCallable(stool, home, command, options, stage, id, logs, runAs);
+        return new StoolCallable(stool, home, command, arguments, stage, id, logs, runAs);
     }
 
     private final FileNode stool;
     private final FileNode home;
     private final String command;
-    private final String[] options;
+    private final String[] arguments;
     private final String id;
     private final Stage stage;
     private final FileNode logDir;
     private final String runAs;
 
-    public StoolCallable(FileNode stool, FileNode home, String command, String[] options, Stage stage, String id, FileNode logDir, String runAs) {
+    public StoolCallable(FileNode stool, FileNode home, String command, String[] arguments, Stage stage, String id, FileNode logDir, String runAs) {
         this.stool = stool;
         this.home = home;
         this.command = command;
-        this.options = options;
+        this.arguments = arguments;
         this.id = id;
         this.stage = stage;
         this.logDir = logDir;
@@ -84,7 +84,7 @@ public class StoolCallable implements Callable<Failure> {
             launcher.arg("-svnpassword=" + svnCredentials.password);
         }
         launcher.arg(command, "-stage", "id=" + stage.getId());
-        launcher.arg(options);
+        launcher.arg(arguments);
         try (PrintWriter writer = new PrintWriter(logDir.join(id + ".log").newWriter())) {
             writer.println(hide(hide(launcher.toString(), svnCredentials.password), svnCredentials.username));
             running = logDir.join(id + ".running").mkfile();
