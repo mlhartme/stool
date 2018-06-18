@@ -14,12 +14,12 @@ Resulting changes:
     * define configuration fields with `#CONFIG <type> <name>`; use `stool config <template>.<name>=<value>` to change values
     * define status fields with `#STATUS`
   * renamed `$HOME/extensions` directory to `$HOME/templates`, which contains one directory for every available template
-  * moved `pustefix` extension functionality into the `tomcat` template
+  * moved `pustefix` extension functionality into the `tomcat` template; thus `pustefix.mode` is now called `tomcat.mode` 
   * dumped `logstash` extension, it was never used, and we'll have filebeat instead
   * dumped `fault` extension, the tomcat template auto-detects applications that need fault
 * `stool status` changes
   * `container` (with the container hash) replaces `tomcat` and `service` (with pids)
-  * replaced `jmx` and `jmxHeap` by template-defined status `tomcat.jmx` and `tomcat.jmxHeap`
+  * replaced `jmx` and `jmxHeap` by template-defined status `tomcat.ports` (which also includes the debug port) and `tomcat.heap`
   * replaced `debugger` and `suspend` by template-defined configuration `tomcat.debug` and `tomcat.suspend`
   * renamed `creator` field to `created-by` and `created` to `created-at`
   * dumped `fitnesse`; fitnesse stages are based on the new `fitnesse` template now

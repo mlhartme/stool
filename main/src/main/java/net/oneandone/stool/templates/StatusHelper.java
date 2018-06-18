@@ -40,20 +40,22 @@ public class StatusHelper {
         this.ports = ports;
     }
 
-    public List<String> jmx() {
-        List<String> jmx;
+    public List<String> ports() {
+        List<String> map;
         String url;
 
-        jmx = new ArrayList<>();
+        map = new ArrayList<>();
         if (ports != null) {
+            map.add("debug port: " + ports.debug());
+            map.add("jmx port: " + ports.jmx());
             url = stage.session.configuration.hostname + ":" + ports.jmx();
-            jmx.add("jconsole " + url);
-            jmx.add("jvisualvm --openjmx " + url);
+            map.add("  jconsole " + url);
+            map.add("  jvisualvm --openjmx " + url);
         }
-        return jmx;
+        return map;
     }
 
-    public String jmxHeap() {
+    public String heap() {
         JMXServiceURL url;
         MBeanServerConnection connection;
         ObjectName name;
