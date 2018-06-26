@@ -20,8 +20,11 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
 public class Restart extends StageCommand {
-    public Restart(Session session) {
+    private final boolean noCache;
+
+    public Restart(Session session, boolean noCache) {
         super(false, session, /* locking done by subcommands */ Mode.NONE, Mode.NONE, Mode.NONE);
+        this.noCache = noCache;
     }
 
     @Override
@@ -32,7 +35,7 @@ public class Restart extends StageCommand {
             console.info.println("Container is not running - starting a new instance.");
         }
 
-        new Start(session, false).doRun(stage);
+        new Start(session, false, noCache).doRun(stage);
         if (session.bedroom.contains(stage.getId())) {
             console.info.println("stopped sleeping");
         }

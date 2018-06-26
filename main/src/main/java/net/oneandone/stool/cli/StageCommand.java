@@ -437,7 +437,7 @@ public abstract class StageCommand extends SessionCommand {
         private void runMain(Stage stage) throws Exception {
             console.verbose.println("*** stage main");
             if (autoStart(stage)) {
-                postStarts.put(stage, new Start(session, false));
+                postStarts.put(stage, new Start(session, false, false));
             }
             doMain(stage);
         }

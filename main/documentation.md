@@ -267,13 +267,13 @@ stop and remove. A stage contains web applications built from source or availabl
 `stool` *global-option*... `remove` *stage-option*... [`-force`] [`-batch`] [`-backstage`]
 
 
-`stool` *global-option*... `start` *stage-option*... [`-tail`]
+`stool` *global-option*... `start` *stage-option*... [`-tail`] [`-nocache`]
 
 
 `stool` *global-option*... `stop` *stage-option*... [`-sleep`]
 
 
-`stool` *global-option*... `restart` *stage-option*...
+`stool` *global-option*... `restart` *stage-option*... [`-nocache`]
 
 
 
@@ -686,7 +686,7 @@ Start a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `start` *stage-option*... [`-tail`]
+`stool` *global-option*... `start` *stage-option*... [`-tail`] [`-nocache`]
 
 #### Description
 
@@ -701,6 +701,9 @@ Startup is also refused if the disk quota exceeded. In this case, delete some un
 
 Use the `-tail` option to get container output printed to the console. Press ctrl-c to stop watching output, 
 the container will continue to run.
+
+Use the `-nocache` option to disable Dockers image cache. This will build the image from scratch, which is useful e.g.
+to re-generate certificates or to re-load secrets.
 
 `start` generates a Docker context directory in `$STAGE/.backstage/context`. This directory is populated with all file
 from the template directory. Template files with the `.fm` extension are passed through the FreeMarker template engine
@@ -752,7 +755,7 @@ Restart a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `restart` *stage-option*...
+`stool` *global-option*... `restart` *stage-option*... [`-nocache`]
 
 
 #### DESCRIPTION

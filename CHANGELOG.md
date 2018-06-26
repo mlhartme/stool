@@ -50,6 +50,7 @@ Resulting changes:
     command instead to set the respective template field
   * dumped `start -fitnesse`; create stage for Fitnesse tests with `template=fitnesse` instead
   * `start -tail` now tails container logs
+  * added `start -nocache` and `restart -nocache` option to force rebuild the docker image
 * `.backstage` changes
   * `service` is gone
   * renamed `maintainer` to `modified`

@@ -28,10 +28,12 @@ import java.util.List;
 
 public class Start extends StageCommand {
     private final boolean tail;
+    private final boolean noCache;
 
-    public Start(Session session, boolean tail) {
+    public Start(Session session, boolean tail, boolean noCache) {
         super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);
         this.tail = tail;
+        this.noCache = noCache;
     }
 
     @Override
@@ -89,7 +91,7 @@ public class Start extends StageCommand {
         Ports ports;
 
         ports = session.pool().allocate(stage, Collections.emptyMap());
-        stage.start(console, ports);
+        stage.start(console, ports, noCache);
     }
 
     private void doTail(Stage stage) throws IOException {

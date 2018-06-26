@@ -323,7 +323,7 @@ public abstract class Stage {
 
     public abstract String getDefaultBuildCommand();
 
-    public void start(Console console, Ports ports) throws Exception {
+    public void start(Console console, Ports ports, boolean noCache) throws Exception {
         Engine engine;
         String image;
         String container;
@@ -340,7 +340,7 @@ public abstract class Stage {
         console.verbose.println("building image ... ");
         try (Writer log = new FlushWriter(backstage.join("image.log").newWriter())) {
             // don't close the tee writer, it would close console output as well
-            image = engine.imageBuild(tag, dockerLabel(), context, MultiWriter.createTeeWriter(log, console.verbose));
+            image = engine.imageBuild(tag, dockerLabel(), context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {
             console.verbose.println("image build output");
             console.verbose.println(e.output);
