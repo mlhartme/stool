@@ -70,11 +70,16 @@ public class Tomcat {
         FileNode list;
 
         list = session.world.getTemp().createTempFile();
-        launcher = context.launcher("fault", "resolve", "-output", list.getAbsolute());
+        launcher = context.launcher("fault");
+        if (console.getVerbose()) {
+            launcher.arg("-v");
+        }
+        launcher.arg("resolve", "-output", list.getAbsolute());
         for (String p : stage.faultProjects()) {
             launcher.arg(p);
         }
         launcher.getBuilder().inheritIO();
+        console.verbose.println("exec " + launcher);
         launcher.exec();
         projects = list.readLines();
         if (projects.isEmpty()) {
