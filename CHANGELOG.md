@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 4.0.0 (pending)
+### 4.0.0 (2018-07-13)
 
 Stool 4 runs stages as docker containers: if you start a stage, Stool create a Docker image based on a template and start a container for it.
 Resulting changes:
