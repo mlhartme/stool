@@ -4,7 +4,7 @@
   <parent>
     <groupId>net.oneandone.stool</groupId>
     <artifactId>stool</artifactId>
-    <version>4.0.0</version>
+    <version>4.0.1-SNAPSHOT</version>
   </parent>
 
   <name>Stool Dashboard</name>
