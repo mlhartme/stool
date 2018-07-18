@@ -62,7 +62,7 @@ public class Tomcat {
         return version.substring(0, version.indexOf('.'));
     }
 
-        /** null for disabled */
+    /** empty string if app does not need any secrets */
     public String fault() throws IOException {
         Launcher launcher;
         List<String> projects;
