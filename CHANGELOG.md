@@ -4,6 +4,7 @@
 
 * fixed umask in fitnesse launcher script, which causes fitnesse containers to fail when started by a different user
   (thanks to Gökhan)
+* fixed 'fault resolve' calls to use the stage's local repository, not the user's local repository
 
 
 ### 4.0.0 (2018-07-13)
