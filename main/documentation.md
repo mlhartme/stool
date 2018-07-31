@@ -660,7 +660,7 @@ Remove a stage
 #### Description
 
 Removes the stage, i.e. deletes the stage directory and the backstage directory and changes the current directory 
-to the parent of the stage directory.
+to the parent of the stage directory. If that stage has ever been started, the corresponding docker images is removed.
 
 Reports an error if the stage is up. In this case, stop the stage first or invoke with `-autostop`. 
 
