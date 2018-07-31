@@ -1,5 +1,11 @@
 ## Changelog 
 
+### 4.0.1 (pending)
+
+* fixed umask in fitnesse launcher script, which causes fitnesse containers to fail when started by a different user
+  (thanks to Gökhan)
+
+
 ### 4.0.0 (2018-07-13)
 
 Stool 4 runs stages as docker containers: if you start a stage, Stool create a Docker image based on a template and start a container for it.

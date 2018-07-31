@@ -302,6 +302,7 @@ public class Tomcat {
 
         result = new StringBuilder();
         result.append("#!/bin/bash\n");
+        result.append("umask 0002");
         for (Vhost vhost : ports.vhosts()) {
             if (vhost.isWebapp()) {
                 result.append("\n");

@@ -916,9 +916,10 @@ Note that the default values below might be overwritten by Stool defaults on you
   Max disk space for this stage in mb. You cannot start stages if this space exceeded.
   The sum of all quotas cannot exceed the Stool quota. Type number.
 * **memory**
-  Max ram for running container in mb. Type number.
+  Max ram for running container in mb. Restart your stage after changing this property. Type number.
 * **template**
-  Path to template directory for this stage. Relative paths are relative to $STOOL_HOME/templates. Type string.
+  Path to template directory for this stage. Relative paths are relative to $STOOL_HOME/templates. 
+  Restart your stage after changing this property. Type string.
 * **select**
   List of selected applications. When starting a stage, Stool configures the container only for the selected
   applications. If none is selected (which is the default), it configures all applications. Type list.
