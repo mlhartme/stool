@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 4.0.1 (pending)
+### 4.0.1 (2018-08-01)
 
 * fixed umask in fitnesse launcher script, which causes fitnesse containers to fail when started by a different user
   (thanks to Gökhan)
