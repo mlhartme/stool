@@ -1,5 +1,10 @@
 ## Changelog 
 
+### 4.0.2 (pending)
+
+* Tomcat.fitnesse(): invoke with -e0 to suppress versioning
+
+
 ### 4.0.1 (2018-08-01)
 
 * fixed umask in fitnesse launcher script, which causes fitnesse containers to fail when started by a different user
