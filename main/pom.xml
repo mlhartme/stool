@@ -42,12 +42,6 @@
       <groupId>com.sun.mail</groupId>
       <artifactId>javax.mail</artifactId>
       <version>1.6.1</version>
-      <exclusions>
-        <exclusion><!-- because it's part of Java 7 -->
-          <groupId>javax.activation</groupId>
-          <artifactId>activation</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <dependency>

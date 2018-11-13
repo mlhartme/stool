@@ -3,6 +3,8 @@
 ### 4.0.2 (pending)
 
 * Tomcat.fitnesse(): invoke with -e0 to suppress versioning
+* Java 11 fixes
+  * add activation dependency
 
 
 ### 4.0.1 (2018-08-01)
