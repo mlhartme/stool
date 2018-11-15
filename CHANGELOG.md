@@ -1,5 +1,10 @@
 ## Changelog 
 
+### 3.4.11 (pending) 
+
+* fix race condition in `remove` command
+
+
 ### 3.4.10 (2017-10-05)
 
 * renamed `fault.project` property to `fault.projects`
