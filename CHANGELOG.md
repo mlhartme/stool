@@ -1,8 +1,8 @@
 ## Changelog 
 
-### 3.4.11 (pending) 
+### 3.4.11 (2018-11-23) 
 
-* fix race condition in `remove` command
+* fixed race condition in `remove` command
 
 
 ### 3.4.10 (2017-10-05)
