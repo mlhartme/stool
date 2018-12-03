@@ -46,13 +46,6 @@
       <!-- TODO: needed to override inherited test scope -->
       <scope>compile</scope>
     </dependency>
-    <!-- override scope because foss-parent set's this to "provided" (needed for http wagon) -->
-    <dependency>
-      <groupId>commons-logging</groupId>
-      <artifactId>commons-logging</artifactId>
-      <scope>compile</scope>
-    </dependency>
-
 
     <!-- Dashboard -->
 

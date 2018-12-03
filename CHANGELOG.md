@@ -5,6 +5,7 @@
 * Tomcat.fitnesse(): invoke with -e0 to suppress versioning
 * Java 11 fixes
   * add activation dependency
+  * update lazy-foss-parent 1.0.2 to 1.1.0 for build fixes
 
 
 ### 4.0.1 (2018-08-01)
