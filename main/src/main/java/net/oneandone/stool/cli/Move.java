@@ -41,7 +41,7 @@ public class Move extends StageCommand {
         } else {
             dest.getParent().checkDirectory();
         }
-        if (dest.hasAnchestor(stage.getDirectory())) {
+        if (dest.hasAncestor(stage.getDirectory())) {
             throw new ArgumentException("you cannot move a stage into a subdirectory of itself");
         }
 

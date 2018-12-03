@@ -496,7 +496,7 @@ public abstract class Stage {
         FileNode current;
 
         current = right;
-        while (!left.hasAnchestor(current)) {
+        while (!left.hasAncestor(current)) {
             current = current.getParent();
         }
         session.console.verbose.println("merge " + left + " + " + right + " -> " + current);

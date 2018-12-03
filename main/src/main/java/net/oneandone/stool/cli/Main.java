@@ -175,7 +175,7 @@ public class Main {
     }
 
     public static FileNode stoolCp(World world) {
-        return world.locateClasspathItem(world.getClass());
+        return world.locateClasspathEntry(world.getClass());
     }
 
     //--

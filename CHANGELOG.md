@@ -6,6 +6,7 @@
 * Java 11 fixes
   * add activation dependency
   * update lazy-foss-parent 1.0.2 to 1.1.0 for build fixes
+  * update sushi 3.1.7 to 3.2.0
 
 
 ### 4.0.1 (2018-08-01)

@@ -34,7 +34,7 @@ public class TemplateAccessor extends Accessor {
         FileNode template;
 
         template = ((StageConfiguration) configuration).template;
-        if (template.hasAnchestor(templates)) {
+        if (template.hasAncestor(templates)) {
             return template.getRelative(templates);
         } else {
             return template.getAbsolute();
