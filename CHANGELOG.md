@@ -99,6 +99,10 @@ Other changes:
   * added `expire in 1 week` command
   * fixed console output when running without svn credentials
 
+### 3.4.11 (2018-11-23) 
+
+* fixed race condition in `remove` command
+
 
 ### 3.4.10 (2017-10-05)
 

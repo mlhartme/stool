@@ -21,6 +21,7 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.nio.file.Files;
 
 public class Remove extends StageCommand {
     private final boolean batch;
@@ -57,8 +58,10 @@ public class Remove extends StageCommand {
             console.pressReturn();
         }
         stage.wipeDocker(session.dockerEngine());
+
+        // delete backstageLink first - to make sure no other stool invocation detects a stage backstage and wipes it
+        Files.delete(session.backstageLink(stage.getId()).toPath());
         dir.deleteTree();
-        session.backstageLink(stage.getId()).deleteTree();
         session.bedroom.remove(session.gson, stage.getId());
         if (selected) {
             session.cd(stage.getDirectory().getParent());
