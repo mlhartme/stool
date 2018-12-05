@@ -33,6 +33,7 @@ import net.oneandone.sushi.xml.XmlException;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -228,8 +229,8 @@ public class Tomcat {
     }
 
     private void downloadFile(String url, FileNode dest) throws IOException {
-        String sha1Expected;
-        String sha1Found;
+        String sha512Expected;
+        String sha512Found;
 
         console.info.println("downloading " + url + " ...");
         try {
@@ -241,16 +242,20 @@ public class Tomcat {
                     + "\nDetails: " + e.getMessage(), e);
         }
         try {
-            sha1Expected = dest.getWorld().validNode(url + ".sha1").readString();
+            sha512Expected = dest.getWorld().validNode(url + ".sha512").readString();
         } catch (IOException e) {
             dest.deleteFile();
-            throw new IOException("failed to download " + url + ".sha1", e);
+            throw new IOException("failed to download " + url + ".sha512", e);
         }
-        sha1Expected = sha1Expected.substring(0, sha1Expected.indexOf(' '));
-        sha1Found = dest.sha();
-        if (!sha1Expected.equals(sha1Found)) {
+        sha512Expected = sha512Expected.substring(0, sha512Expected.indexOf(' '));
+        try {
+            sha512Found = dest.digest("SHA-512");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+        if (!sha512Expected.equals(sha512Found)) {
             dest.deleteFile();
-            throw new IOException("sha1 digest mismatch: " + sha1Expected + " vs" + sha1Found);
+            throw new IOException("sha512 digest mismatch: " + sha512Expected + " vs" + sha512Found);
         }
     }
 
