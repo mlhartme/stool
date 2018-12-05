@@ -2,6 +2,7 @@
 
 ### 4.0.2 (pending)
 
+* fixed delete problem (merged from 3.4.11)
 * Tomcat.fitnesse(): invoke with -e0 to suppress versioning
 * Java 11 fixes
   * add activation dependency

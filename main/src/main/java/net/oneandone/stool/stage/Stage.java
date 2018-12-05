@@ -247,10 +247,6 @@ public abstract class Stage {
 
     }
 
-    public boolean ping(Vhost vhost) {
-        return ping(URI.create(httpUrl(vhost)));
-    }
-
     public static boolean ping(URI uri) {
         Socket socket;
 
