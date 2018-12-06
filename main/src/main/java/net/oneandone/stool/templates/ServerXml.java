@@ -247,7 +247,7 @@ public class ServerXml {
             app = name.substring(0, name.indexOf('.'));
             map = new HashMap<>();
             if (logroot) {
-                dir = stage.getBackstage().join("tomcat/logs/applogs", app);
+                dir = stage.getBackstage().join("logs/applogs", app);
                 dir.mkdirsOpt();
                 map.put("logroot", "/usr/local/tomcat/logs/applogs/" + app);
             }
