@@ -7,6 +7,7 @@
 * fixed delete problem (merged from 3.4.11)
 * Tomcat.fitnesse(): invoke with -e0 to suppress versioning
 * Java 11 fixes
+  * launch with --illegal-access=deny when running on Java 9+
   * add activation dependency
   * update lazy-foss-parent 1.0.2 to 1.1.0 for build fixes
   * update sushi 3.1.7 to 3.2.0
