@@ -3,6 +3,8 @@
 ### 4.0.2 (pending)
 
 * changed default tomcat version 9.0.8 to 9.0.13
+* update jdeb plugin 1.6 to 1.7
+* fixed empty .backstage/tomcat/logs directories
 * fixed download errors for recent tomcats: verify with sha512 instead of sha1
 * fixed delete problem (merged from 3.4.11)
 * Tomcat.fitnesse(): invoke with -e0 to suppress versioning
