@@ -1,13 +1,13 @@
 ## Changelog 
 
-### 4.0.2 (pending)
+### 4.0.2 (2018-12-07)
 
+* fixed empty .backstage/tomcat/logs directories (thanks to Bernd O.)
+* fixed download errors for recent tomcats: verify with sha512 instead of sha1
+* fixed delete problem (merged from 3.4.11, thanks to Stefan H)
+* Tomcat.fitnesse(): invoke with -e0 to suppress versioning (thanks to Gökhan A)
 * changed default tomcat version 9.0.8 to 9.0.13
 * update jdeb plugin 1.6 to 1.7
-* fixed empty .backstage/tomcat/logs directories
-* fixed download errors for recent tomcats: verify with sha512 instead of sha1
-* fixed delete problem (merged from 3.4.11)
-* Tomcat.fitnesse(): invoke with -e0 to suppress versioning
 * Java 11 fixes
   * launch with --illegal-access=deny when running on Java 9+
   * add activation dependency
