@@ -3,13 +3,13 @@
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <jsp:useBean id="stages" scope="request" type="java.util.List<net.oneandone.stool.dashboard.StageInfo>"/>
 <c:forEach var="stage" items="${stages}">
-    <tr id="${stage.name}" data-hash="${stage.hash}" data-extractionurl="${stage.extractionUrl}" data-user="${stage.lastModifiedBy}"
+    <tr id="${stage.name}" data-hash="${stage.hash}" data-origin="${stage.origin}" data-user="${stage.lastModifiedBy}"
         data-status="${stage.running}" data-updateAvailable="${stage.updateAvailable}" class="stage ${stage.category}">
 
         <td class="status">
             <div class="status label label-${stage.state}">${stage.running}</div>
         </td>
-        <td class="name"><span data-container="body" data-toggle="popover" data-placement="bottom" data-content="${stage.extractionUrl}"
+        <td class="name"><span data-container="body" data-toggle="popover" data-placement="bottom" data-content="${stage.origin}"
                                data-trigger="hover">
                 ${stage.name}
         </span></td>

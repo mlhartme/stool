@@ -32,7 +32,7 @@ import java.util.Map;
 public class StageInfo {
     private String name;
     private StageConfiguration configuration;
-    private String extractionUrl;
+    private String origin;
     /** Maps name to actual url */
     private Map<String, String> urls;
     private Stage.State running;
@@ -49,7 +49,7 @@ public class StageInfo {
         stageInfo = new StageInfo();
         stageInfo.name = stage.getName();
         stageInfo.configuration = stage.config();
-        stageInfo.extractionUrl = stage.getOrigin();
+        stageInfo.origin = stage.getOrigin();
         stageInfo.running = stage.isWorking() ? Stage.State.WORKING : stage.state();
         stageInfo.urls = stage.urlMap();
         try {
@@ -61,11 +61,11 @@ public class StageInfo {
         stageInfo.expire = stage.config().expire;
 
         stageInfo.stats = BuildStats.load(logDir, stage);
-        if (stageInfo.extractionUrl.contains("/trunk")) {
+        if (stageInfo.origin.contains("/trunk")) {
             stageInfo.category = "trunk";
-        } else if (stageInfo.extractionUrl.contains("/branches")) {
+        } else if (stageInfo.origin.contains("/branches")) {
             stageInfo.category = "branches";
-        } else if (stageInfo.extractionUrl.contains("/workspaces")) { // TODO
+        } else if (stageInfo.origin.contains("/workspaces")) {
             stageInfo.category = "workspaces";
         }
 
@@ -104,8 +104,8 @@ public class StageInfo {
         return configuration;
     }
 
-    public String getExtractionUrl() {
-        return extractionUrl;
+    public String getOrigin() {
+        return origin;
     }
 
     public Map<String, String> getUrls() {
@@ -154,7 +154,7 @@ public class StageInfo {
     public String toString() {
         return "StageInfo{"
           + "name='" + name + '\''
-          + ", extractionUrl='" + extractionUrl + '\''
+          + ", origin='" + origin + '\''
           + ", urls=" + urls
           + ", running=" + running
           + ", last-modified-by='" + lastModifiedBy + '\''

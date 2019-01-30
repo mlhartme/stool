@@ -48,7 +48,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
 
                     stages.each(function () {
 
-                        if ($(this).attr('data-extractionurl')) {
+                        if ($(this).attr('data-origin')) {
 
                             if (filter === "trunks") {
                                 check = '/trunk';
@@ -63,7 +63,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                             if (filter === 'all' || filter === '') {
                                 $(this).removeClass('hidden');
                             } else {
-                                if ($(this).attr('data-extractionurl').indexOf(check) > -1) {
+                                if ($(this).attr('data-origin').indexOf(check) > -1) {
                                     $(this).removeClass('hidden');
                                 }
                             }
@@ -365,7 +365,7 @@ define(['jquery', 'bootstrap', "logging"], function ($) {
                     found = 0;
 
                     $('#all-stages').find('tr.stage' + (activeFilter === 'all' ? '' : '.' + activeFilter)).each(function () {
-                        if ($(this).attr('data-extractionurl').indexOf(search) > -1 || $(this).attr('data-user').indexOf(search) > -1 || $(this).find('td.name span').html().indexOf(search) > -1) {
+                        if ($(this).attr('data-origin').indexOf(search) > -1 || $(this).attr('data-user').indexOf(search) > -1 || $(this).find('td.name span').html().indexOf(search) > -1) {
                             $(this).removeClass('hidden');
                             found++;
                         }
