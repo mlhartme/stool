@@ -102,7 +102,7 @@
           </remove>
           <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
           <attach>true</attach>
-          <shrink>true</shrink>
+          <shrink>false</shrink>
           <shrinkOptions>
               -dontoptimize # because of proguard bug
               -keepattributes *Annotation*
