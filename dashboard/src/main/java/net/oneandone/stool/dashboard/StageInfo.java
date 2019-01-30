@@ -31,6 +31,7 @@ import java.util.Map;
 
 public class StageInfo {
     private String name;
+    private String comment;
     private StageConfiguration configuration;
     private String origin;
     /** Maps name to actual url */
@@ -48,6 +49,10 @@ public class StageInfo {
 
         stageInfo = new StageInfo();
         stageInfo.name = stage.getName();
+        stageInfo.comment = stage.config().comment;
+        if (stageInfo.comment.isEmpty()) {
+            stageInfo.comment = "(no comment)";
+        }
         stageInfo.configuration = stage.config();
         stageInfo.origin = stage.getOrigin();
         stageInfo.running = stage.isWorking() ? Stage.State.WORKING : stage.state();
@@ -99,6 +104,7 @@ public class StageInfo {
     public String getName() {
         return name;
     }
+    public String getComment() { return comment; }
 
     public StageConfiguration getConfiguration() {
         return configuration;
@@ -154,6 +160,7 @@ public class StageInfo {
     public String toString() {
         return "StageInfo{"
           + "name='" + name + '\''
+          + ", comment='" + comment + '\''
           + ", origin='" + origin + '\''
           + ", urls=" + urls
           + ", running=" + running

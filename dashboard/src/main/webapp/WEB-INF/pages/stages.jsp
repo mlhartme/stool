@@ -7,12 +7,12 @@
         data-status="${stage.running}" data-updateAvailable="${stage.updateAvailable}" class="stage ${stage.category}">
 
         <td class="status">
-            <div class="status label label-${stage.state}">${stage.running}</div>
+            <div class="status label label-${stage.state}">
+              <span data-container="body" data-toggle="popover" data-placement="bottom" data-content="${stage.origin}"
+                    data-trigger="hover">${stage.running}</span></div>
         </td>
-        <td class="name"><span data-container="body" data-toggle="popover" data-placement="bottom" data-content="${stage.origin}"
-                               data-trigger="hover">
-                ${stage.name}
-        </span></td>
+        <td class="name"><span data-container="body" data-toggle="popover" data-placement="bottom" data-content="${stage.comment}"
+                               data-trigger="hover">${stage.name}</span></td>
         <td class="links">
             <c:choose>
                 <c:when test="${stage.urls != null}">

@@ -2,6 +2,9 @@
 
 ### 4.0.3 (pending)
 
+* dashboard
+  * show stage comment has hover on stage name (stage origin is now show as hover on stage status)
+  
 * removed "changes" code (it was unused)
 
 * build fixes for Java 11
