@@ -17,8 +17,8 @@
   browser:
   * slf4j-api 1.7.21 to 1.7.25
   * logback 1.1.7 to 1.2.3 
-  * spring 4.1.6 to 4.3.22
-  * spring security 4.0.0 to 4.2.9
+  * spring 4.1.6 to 5.1.4
+  * spring security 4.0.0 to 5.1.3
   
   
 ### 4.0.2 (2018-12-07)

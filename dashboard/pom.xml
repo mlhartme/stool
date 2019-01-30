@@ -14,11 +14,18 @@
   <description>A special stage to control Stool via browser.</description>
 
   <properties>
-    <spring.version>4.3.22.RELEASE</spring.version>
-    <spring.security.version>4.2.9.RELEASE</spring.security.version>
+    <spring.version>5.1.4.RELEASE</spring.version>
+    <spring.security.version>5.1.3.RELEASE</spring.security.version>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>javax.servlet-api</artifactId>
+      <version>4.0.1</version>
+      <scope>provided</scope>
+    </dependency>
+
     <dependency>
       <groupId>net.oneandone.stool</groupId>
       <artifactId>main</artifactId>
@@ -91,13 +98,6 @@
       <version>3.0.8.RELEASE</version>
     </dependency>
 
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <!-- that's the version we have on the live machines -->
-      <version>3.0.1</version>
-      <scope>provided</scope>
-    </dependency>
 
     <dependency>
       <groupId>javax.servlet</groupId>
