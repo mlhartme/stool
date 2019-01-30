@@ -7,13 +7,17 @@
   * update application plugin 1.6.2 to 1.6.3
   * update war-plugin 3.0.0 to 3.2.2
 
-* dependency updates
+* dependency updates: 
+  main
   * sushi 3.2.0 to 3.2.1
   * gson 2.8.2 to 2.8.5
   * freemarker 2.3.26-incubating to 2.3.28
   * jnr-unixsocket 0.18 to 0.21
   * javamail 1.6.1 to 1.6.2
-  
+  browser:
+  * slf4j-api 1.7.21 to 1.7.25
+  * logback 1.1.7 to 1.2.3
+  * 
   
 ### 4.0.2 (2018-12-07)
 
