@@ -24,8 +24,6 @@ import java.util.List;
 
 public class Applications {
     private final List<Application> apps;
-    private Changes lazyChanges;
-
 
     public Applications() {
         apps = new ArrayList<>();
@@ -37,17 +35,6 @@ public class Applications {
 
     public List<Application> applications() {
         return Collections.unmodifiableList(apps);
-    }
-
-    public Changes changes(FileNode backstage, Users users) {
-        if (lazyChanges == null) {
-            lazyChanges = new Changes();
-            /* TODO disabled for now ...
-            for (Application app : apps) {
-                lazyChanges.merge(app.changes(shared, users));
-            }*/
-        }
-        return lazyChanges;
     }
 
     public int size() {

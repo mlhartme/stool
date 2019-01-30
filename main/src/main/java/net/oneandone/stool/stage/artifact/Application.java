@@ -15,18 +15,14 @@
  */
 package net.oneandone.stool.stage.artifact;
 
-import com.google.gson.Gson;
 import net.oneandone.inline.Console;
-import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.io.Reader;
 
 public class Application {
-    private final Gson gson;
     private final String name;
     public final Locator location;
     private final FileNode stageDirectory;
@@ -36,8 +32,7 @@ public class Application {
     public final WarFile current;
     private final WarFile future;
 
-    public Application(Gson gson, String name, Locator location, FileNode stageDirectory, Console console) {
-        this.gson = gson;
+    public Application(String name, Locator location, FileNode stageDirectory, Console console) {
         this.name = name;
         this.location = location;
         this.stageDirectory = stageDirectory;
@@ -63,7 +58,6 @@ public class Application {
 
     public boolean refreshFuture(Session session, FileNode backstage) throws IOException {
         WarFile candidate;
-        Changes changes;
 
         candidate = location.resolve();
         if (candidate == null) {
@@ -77,19 +71,7 @@ public class Application {
         }
 
         candidate.copyTo(future);
-        try {
-            changes = changes(backstage, session.users);
-        } catch (IOException e) {
-            // TODO
-            session.reportException("application.changes", e);
-            changes = new Changes();
-        }
         session.console.verbose.println("Update for " + null + " prepared.");
-        for (Change change : changes) {
-            console.info.print(change.getUser());
-            console.info.print(" : ");
-            console.info.println(change.getMessage());
-        }
         return true;
     }
 
@@ -116,36 +98,6 @@ public class Application {
     }
 
     //--
-
-    private Changes changes(FileNode backstage, Users users) throws IOException {
-        String svnurl;
-        FileNode file;
-        Changes changes;
-
-        if (!future.exists() || !current.exists()) {
-            return new Changes();
-        }
-        file = backstage.join("changes").join(future.file().md5() + ".changes");
-        if (file.exists()) {
-            try (Reader src = file.newReader()) {
-                return gson.fromJson(src, Changes.class);
-            }
-        }
-        svnurl = location.svnurl();
-        if (svnurl == null) {
-            return new Changes();
-        }
-
-        if (svnurl.contains("tags")) {
-            changes = new XMLChangeCollector(current, future).collect();
-        } else {
-            changes = SCMChangeCollector.run(current, future, users, svnurl);
-        }
-        FileNode directory = file.getParent();
-        directory.mkdirOpt();
-        file.writeString(gson.toJson(changes));
-        return changes;
-    }
 
     private void backup() throws IOException {
         if (current.exists()) {

@@ -19,7 +19,6 @@ package net.oneandone.stool.dashboard;
 import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -40,14 +39,12 @@ public class StageInfo {
     private String lastModifiedBy;
     private boolean updateAvailable;
     private Expire expire;
-    private Changes changes;
     private BuildStats stats;
     private String category;
     private String state;
 
     public static StageInfo fromStage(FileNode logDir, Stage stage, Users users) throws IOException, NamingException {
         StageInfo stageInfo;
-        Changes changes;
 
         stageInfo = new StageInfo();
         stageInfo.name = stage.getName();
@@ -63,10 +60,6 @@ public class StageInfo {
         stageInfo.updateAvailable = stage.updateAvailable();
         stageInfo.expire = stage.config().expire;
 
-        changes = stage.changes();
-        if (changes.size() > 0) {
-            stageInfo.changes = changes;
-        }
         stageInfo.stats = BuildStats.load(logDir, stage);
         if (stageInfo.extractionUrl.contains("/trunk")) {
             stageInfo.category = "trunk";
@@ -93,9 +86,6 @@ public class StageInfo {
 
     public Expire getExpire() {
         return expire;
-    }
-    public Changes getChanges() {
-        return changes;
     }
     public BuildStats getStats() {
         return stats;
@@ -166,7 +156,6 @@ public class StageInfo {
           + "name='" + name + '\''
           + ", extractionUrl='" + extractionUrl + '\''
           + ", urls=" + urls
-          + ", changes=" + changes
           + ", running=" + running
           + ", last-modified-by='" + lastModifiedBy + '\''
           + ", updateAvailable=" + updateAvailable

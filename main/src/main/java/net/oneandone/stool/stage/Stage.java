@@ -28,7 +28,6 @@ import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.scm.Scm;
-import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.templates.TemplateField;
 import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.templates.Variable;
@@ -828,9 +827,6 @@ public abstract class Stage {
         return session.home.join("system").equals(directory.getParent());
     }
 
-    public Changes changes() {
-        return new Changes();
-    }
     public FileNode localRepository() {
         return session.configuration.shared ? backstage.join(".m2") : session.world.getHome().join(".m2/repository");
     }

@@ -20,7 +20,6 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.artifact.Application;
 import net.oneandone.stool.stage.artifact.Applications;
-import net.oneandone.stool.stage.artifact.Changes;
 import net.oneandone.stool.stage.artifact.FileLocator;
 import net.oneandone.stool.stage.artifact.GavLocator;
 import net.oneandone.stool.stage.artifact.Locator;
@@ -68,7 +67,7 @@ public class ArtifactStage extends Stage {
             if (!names.add(str)) {
                 throw new ArgumentException("duplicate name: " + str);
             }
-            applications.add(new Application(session.gson, str, locator, directory, session.console));
+            applications.add(new Application(str, locator, directory, session.console));
         }
     }
 
@@ -230,10 +229,5 @@ public class ArtifactStage extends Stage {
 
     private FileNode getGavFile() {
         return urlFile(directory);
-    }
-
-    @Override
-    public Changes changes() {
-        return applications.changes(getBackstage(), session.users);
     }
 }
