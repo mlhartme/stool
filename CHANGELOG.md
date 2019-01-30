@@ -10,6 +10,7 @@
 * dependency updates
   * sushi 3.2.0 to 3.2.1
   * gson 2.8.2 to 2.8.5
+  * freemarker 2.3.26-incubating to 2.3.28
 
   
 ### 4.0.2 (2018-12-07)
