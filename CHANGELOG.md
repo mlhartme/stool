@@ -4,8 +4,13 @@
 
 * build fixes for Java 11
   * update lazy-foss-parent 1.1.0 to 1.2.0
+  * update application plugin 1.6.2 to 1.6.3
   * update war-plugin 3.0.0 to 3.2.2
-  
+
+* dependency updates
+  * sushi 3.2.0 to 3.2.1
+  * gson 2.8.2 to 2.8.5
+
   
 ### 4.0.2 (2018-12-07)
 
