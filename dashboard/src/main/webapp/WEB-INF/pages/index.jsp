@@ -5,7 +5,6 @@
     <link href="css/bootstrap.yeti.min.css" rel="stylesheet" type="text/css"/>
     <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css" id="css">
     <link href="css/style.css" rel="stylesheet" type="text/css"/>
-    <link href="css/shepherd-theme-arrows.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
 <div id="info">
