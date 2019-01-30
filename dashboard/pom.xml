@@ -14,8 +14,8 @@
   <description>A special stage to control Stool via browser.</description>
 
   <properties>
-    <spring.version>4.1.6.RELEASE</spring.version>
-    <spring.security.version>4.0.0.RELEASE</spring.security.version>
+    <spring.version>4.3.22.RELEASE</spring.version>
+    <spring.security.version>4.2.9.RELEASE</spring.security.version>
   </properties>
 
   <dependencies>
