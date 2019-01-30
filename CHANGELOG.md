@@ -4,6 +4,7 @@
 
 * dashboard
   * show stage comment has hover on stage name (stage origin is now show as hover on stage status)
+  * sort stages beginning with reserved stages
   
 * removed "changes" code (it was unused)
 

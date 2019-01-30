@@ -24,6 +24,9 @@ import javax.naming.NamingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class StageInfoCache {
     private final Collection<StageInfo> stages = new ArrayList<>();
@@ -34,11 +37,29 @@ public class StageInfoCache {
     }
 
     public Collection<StageInfo> get(FileNode logs, Session session, Users users) throws IOException {
+        List<Stage> lst;
+
         if (System.currentTimeMillis() - lastCacheRenew > 4000) {
             stages.clear();
             session.wipeStaleBackstages();
             session.updatePool();
-            for (Stage stage : session.listWithoutSystem()) {
+            lst = session.listWithoutSystem();
+            Collections.sort(lst, new Comparator<Stage>() {
+                @Override
+                public int compare(Stage left, Stage right) {
+                    boolean lr;
+                    boolean rr;
+
+                    lr = left.config().expire.isReserved();
+                    rr = right.config().expire.isReserved();
+                    if (lr == rr) {
+                        return left.getName().compareTo(right.getName());
+                    } else {
+                        return lr ? -1 : 1;
+                    }
+                }
+            });
+            for (Stage stage : lst) {
                 try {
                     stages.add(StageInfo.fromStage(logs, stage, users));
                 } catch (NamingException e) {
