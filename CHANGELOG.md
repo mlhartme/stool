@@ -1,5 +1,12 @@
 ## Changelog 
 
+### 4.0.3 (pending)
+
+* build fixes for Java 11
+  * update lazy-foss-parent 1.1.0 to 1.2.0
+  * update war-plugin 3.0.0 to 3.2.2
+  
+  
 ### 4.0.2 (2018-12-07)
 
 * fixed empty .backstage/tomcat/logs directories (thanks to Bernd O.)
