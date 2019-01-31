@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Stool Dashboard</title>
-    <link href="css/bootstrap.yeti.min.css" rel="stylesheet" type="text/css"/>
-    <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css" id="css">
-    <link href="css/style.css" rel="stylesheet" type="text/css"/>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  <link rel="stylesheet" href="/webjars/bootstrap/4.2.1/css/bootstrap.min.css" >
+  <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css" id="css">
+  <link rel="stylesheet" href="css/style.css" type="text/css"/>
+
+  <title>Stool Dashboard</title>
 </head>
 <body>
 <div id="info">
@@ -99,7 +104,6 @@
             </form>
         </div>
 
-
         <!-- 404 -->
         <div class="error content hidden" data-title="error page">
             <ul class="breadcrumb">
@@ -136,8 +140,14 @@
         <!-- /.modal-dialog -->
     </div>
 </div>
-<script type="text/javascript" src="js/lib/jquery-1.11.0.min.js"></script>
-<script type="text/javascript" src="js/lib/bootstrap-3.2.0.min.js"></script>
-<script type="text/javascript" src="js/app/main.js"></script>
+  <script type="text/javascript" src="/webjars/jquery/3.3.1-1/jquery.min.js" ></script>
+  <script type="text/javascript" src="/webjars/popper.js/1.14.3/umd/popper.min.js"></script>
+  <script type="text/javascript" src="/webjars/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+  <script>
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+</script>
+<script type="text/javascript" src="js/main.js"></script>
 </body>
 </html>

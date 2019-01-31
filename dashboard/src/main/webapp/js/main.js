@@ -195,9 +195,9 @@ dashboard = {
         recountTabs: function (wrapper) {
             var trunks, branches, workspaces;
 
-            trunks = wrapper.find(".trunk").size();
-            branches = wrapper.find(".branch").size()
-            workspaces = wrapper.find(".workspace").size();
+            trunks = wrapper.find(".trunk").length;
+            branches = wrapper.find(".branch").length;
+            workspaces = wrapper.find(".workspace").length;
             $('#all-count').html(trunks + workspaces + branches);
 
             $('#trunks-count').html(trunks);
@@ -317,7 +317,7 @@ dashboard = {
             },
             update: function (parent, percent, text) {
                 parent = $(parent);
-                if (parent.find(".logprogress").size() > 0) {
+                if (parent.find(".logprogress").length > 0) {
                     var element;
                     element = parent.find('.progress-bar');
                     element.attr('aria-valuenow', percent);
