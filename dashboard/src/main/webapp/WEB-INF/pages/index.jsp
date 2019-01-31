@@ -137,8 +137,6 @@
     </div>
 </div>
 <script src="js/lib/require.js" type="text/javascript"></script>
-<script src="js/lib/driftwood.min.js" type="text/javascript"></script>
-<script src="js/app/logging.js" type="text/javascript"></script>
 <script src="js/dashboard.js" type="text/javascript" defer></script>
 </body>
 </html>

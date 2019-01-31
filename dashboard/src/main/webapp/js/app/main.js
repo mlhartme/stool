@@ -1,4 +1,4 @@
-define(['jquery', 'bootstrap', "logging"], function ($) {
+define(['jquery', 'bootstrap'], function ($) {
     var dashboard = dashboard || {};
 
     dashboard = {

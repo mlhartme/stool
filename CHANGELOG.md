@@ -6,6 +6,8 @@
   * show stage comment has hover on stage name (stage origin is now show as hover on stage status)
   * sort stages by name (but all reserved stages first)
   * removed "shepherd" - it's unused
+  * removed "driftwood" (https://github.com/mattkanwisher/driftwood.js) - it wasn't set up properly
+  
   
 * removed "changes" code (it was unused)
 
