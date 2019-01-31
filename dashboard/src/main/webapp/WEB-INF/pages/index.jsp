@@ -136,7 +136,8 @@
         <!-- /.modal-dialog -->
     </div>
 </div>
-<script src="js/lib/require.js" type="text/javascript"></script>
-<script src="js/dashboard.js" type="text/javascript" defer></script>
+<script type="text/javascript" src="js/lib/jquery-1.11.0.min.js"></script>
+<script type="text/javascript" src="js/lib/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/app/main.js" type="text/javascript"></script>
 </body>
 </html>
