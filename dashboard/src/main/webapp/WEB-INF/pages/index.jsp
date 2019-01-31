@@ -137,7 +137,7 @@
     </div>
 </div>
 <script type="text/javascript" src="js/lib/jquery-1.11.0.min.js"></script>
-<script type="text/javascript" src="js/lib/bootstrap.min.js"></script>
-<script type="text/javascript" src="js/app/main.js" type="text/javascript"></script>
+<script type="text/javascript" src="js/lib/bootstrap-3.2.0.min.js"></script>
+<script type="text/javascript" src="js/app/main.js"></script>
 </body>
 </html>
