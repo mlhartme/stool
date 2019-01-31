@@ -1,6 +1,4 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 <jsp:useBean id="stages" scope="request" type="java.util.List<net.oneandone.stool.dashboard.StageInfo>"/>
 <c:forEach var="stage" items="${stages}">
     <tr id="${stage.name}" data-hash="${stage.hash}" data-origin="${stage.origin}" data-user="${stage.lastModifiedBy}"

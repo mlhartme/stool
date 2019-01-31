@@ -119,11 +119,10 @@
         </div>
     </div>
 
-    <div class="modal fade">
-        <div class="modal-dialog-lg">
+    <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                     <h4 class="modal-title">Modal title</h4>
                 </div>
                 <div class="modal-body">
@@ -132,7 +131,7 @@
                     <p><i class="fa fa-spinner fa-spin"></i></p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary close" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" aria-label="Close">Close</button>
                 </div>
             </div>
             <!-- /.modal-content -->
