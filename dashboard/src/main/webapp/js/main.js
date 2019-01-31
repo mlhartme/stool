@@ -39,11 +39,7 @@ dashboard = {
                     stages.addClass('filter');
                 }
 
-                if (parseInt($(this).find('.badge').html()) === 0) {
-                    $('#empty').removeClass('hidden');
-                } else {
-                    $('#empty').addClass('hidden');
-                }
+                $('#empty').toggle(parseInt($(this).find('.badge').html()) === 0);
 
                 stages.each(function () {
 
@@ -57,16 +53,7 @@ dashboard = {
                             check = '/workspaces/';
                         }
 
-                        $(this).addClass('hidden');
-
-                        if (filter === 'all' || filter === '') {
-                            $(this).removeClass('hidden');
-                        } else {
-                            if ($(this).attr('data-origin').indexOf(check) > -1) {
-                                $(this).removeClass('hidden');
-                            }
-                        }
-
+                        $(this).toggle(filter === 'all' || filter === '' || $(this).attr('data-origin').indexOf(check) > -1);
                     }
 
                 });
@@ -112,16 +99,16 @@ dashboard = {
 
             if ($('div').find('.content.' + h).length === 0) {
 
-                $('.content').addClass('hidden');
+                $('.content').toggle(false);
                 $('.tab').removeClass('active');
-                $('.content.error').removeClass('hidden');
+                $('.content.error').toggle(true);
 
             } else {
 
                 $('.content').each(function () {
-                    $(this).addClass('hidden');
+                    $(this).toggle(false);
                     if ($(this).hasClass(h)) {
-                        $(this).removeClass('hidden');
+                        $(this).toggle(true);
                         if ($(this).attr('data-title') !== '') {
                             document.title = 'Stage  ' + $(this).attr('data-title');
                         }
@@ -170,7 +157,7 @@ dashboard = {
             $('#info').append($('<div />').attr('class', 'alert alert-dismissable alert-' + type).html('<button type="button" class="close" data-dismiss="alert">X</button><h5>' + title + '</h5>' + text).fadeIn().delay(2000).fadeOut());
         },
         text: function (element, text) {
-            $(element).html(text).removeClass('hidden');
+            $(element).html(text).toggle(true);
 
         }
     },
@@ -263,7 +250,7 @@ dashboard = {
             url = "/stages/" + stage + "/" + action;
             $('#' + stage + ' a.action').addClass('disabled');
 
-            $(p).find('.fa').removeClass('hidden');
+            $(p).find('.fa').toggle(true);
             $(p).find('.label').attr('class', 'label label-primary').html('n/a');
 
             //setInfo(i, $(this).attr('data-title'));
@@ -276,7 +263,7 @@ dashboard = {
             $('.modal-title').text("Console output");
             $('.modal').modal();
             $.post(url).fail(function (r) {
-                $(p).find('.fa').addClass('hidden');
+                $(p).find('.fa').toggle(false);
                 $(p).find('.label').attr('class', 'label label-warning').html('broken');
                 $(p).addClass('warning');
                 dashboard.info.show(i, 'dude something went wrong ... try again or send us a <a href="#feedback">feedback</a>');
@@ -358,26 +345,26 @@ dashboard = {
                 activeFilter = dashboard.bootstrap.activeFilter;
                 document.location.hash = '#dashboard:search=' + search;
 
-                $('#all-stages').find('tr.stage').addClass('hidden');
-                $('#empty').addClass('hidden');
+                $('#all-stages').find('tr.stage').toggle(false);
+                $('#empty').toggle(false);
 
                 found = 0;
 
                 $('#all-stages').find('tr.stage' + (activeFilter === 'all' ? '' : '.' + activeFilter)).each(function () {
                     if ($(this).attr('data-origin').indexOf(search) > -1 || $(this).attr('data-user').indexOf(search) > -1 || $(this).find('td.name span').html().indexOf(search) > -1) {
-                        $(this).removeClass('hidden');
+                        $(this).toggle(true);
                         found++;
                     }
                 });
 
                 if (found === 0) {
-                    $('#empty').removeClass('hidden');
+                    $('#empty').toggle(true);
                 }
 
             } else {
                 document.location.hash = '#dashboard';
-                $('#empty').addClass('hidden');
-                $('#all-stages').find('tr.stage' + (activeFilter === 'all' ? '' : '.' + activeFilter)).removeClass('hidden');
+                $('#empty').toggle(false);
+                $('#all-stages').find('tr.stage' + (activeFilter === 'all' ? '' : '.' + activeFilter)).toggle(true);
             }
 
         }

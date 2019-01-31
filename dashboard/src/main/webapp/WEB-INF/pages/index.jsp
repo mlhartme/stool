@@ -70,7 +70,7 @@
                         <td colspan="6" id="loading" align="center">
                             <i class="fa fa-spinner fa-spin"></i> Loading Stages ...
                         </td>
-                        <td colspan="6" id="empty" align="center" class="hidden">
+                        <td colspan="6" id="empty" align="center" style="display:none;">
                             <i class="fa fa-info"></i> No stages found.
                         </td>
                     </tr>
@@ -79,7 +79,7 @@
             </div>
         </div>
         <!-- FEEDBACK -->
-        <div class="feedback content hidden" data-title="feedback">
+        <div class="feedback content" style="display:none;" data-title="feedback">
             <ul class="breadcrumb">
                 <li><a href="#dashboard">Dashboard</a></li>
                 <li class="active">Feedback</li>
@@ -105,7 +105,7 @@
         </div>
 
         <!-- 404 -->
-        <div class="error content hidden" data-title="error page">
+        <div class="error content" style="display:none;" data-title="error page">
             <ul class="breadcrumb">
                 <li><a href="#dashboard">Dashboard</a></li>
                 <li>System</li>
