@@ -333,7 +333,7 @@ dashboard = {
                         dashboard.stages.fetchLog(element, id, index, spinner, lastSize, parent);
                     }, 1000);
                 } else {
-                    $(spinner).hide();
+                    $(spinner).toggle(false);
                 }
             });
 
