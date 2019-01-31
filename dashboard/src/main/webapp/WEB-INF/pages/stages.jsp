@@ -30,7 +30,7 @@
         <td class="user">${stage.lastModifiedBy}</td>
         <td class="option refresh">
             <button type="button" data-action="refresh" data-estimate="${stage.stats.avgRefresh}" data-stage="${stage.name}"
-                    data-arguments="-build,-autorestart" class="btn ${stage.updateAvailable ? "btn-primary" : "btn-default"} btn-xs"
+                    data-arguments="-build,-autorestart" class="btn ${stage.updateAvailable ? "btn-primary" : "btn-secondary"} btn-xs"
                     <c:if test="${stage.updateAvailable}">data-container="body" data-toggle="popover" data-placement="right"
                     data-title="${stage.changes.exception ? "Warning" : "Update Available"}" data-trigger="hover" data-html="true"
                     data-content="${stage.changes}"</c:if>><span
@@ -38,25 +38,20 @@
             </button>
         <td class="option share">
             <a role="button" href="mailto:?subject=Stage&body=${stage.shareText}" ${stage.urls == null ? "disabled=\"disabled\"" :""}
-               class="btn btn-default btn-xs share"><span
+               class="btn btn-secondary btn-xs share"><span
                     class="glyphicon glyphicon-bullhorn"></span> Share</a>
         </td>
         <td class="option">
-            <div class="btn-group">
-                <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">Actions <span
-                        class="caret"></span></button>
-                <ul class="dropdown-menu">
-                    <li><a href="#dashboard" data-estimate="${stage.stats.avgStart}" data-action="start"
-                           data-stage="${stage.name}">Start</a>
-                    </li>
-                    <li><a href="#dashboard" data-estimate="${stage.stats.avgStop}" data-action="stop"
-                           data-stage="${stage.name}">Stop</a></li>
-                    <li><a href="#dashboard" data-estimate="${stage.stats.avgRestart}" data-action="restart" data-stage="${stage.name}">Restart</a>
-                    </li>
-                    <li><a href="#dashboard" data-estimate="${stage.stats.avgBuild}" data-action="build" data-stage="${stage.name}">Build</a></li>
-                    <li><a href="#dashboard" data-action="refresh" data-arguments="-restore" data-stage="${stage.name}">Rollback</a></li>
-                    <li><a href="#dashboard" data-action="cleanup" data-stage="${stage.name}">Cleanup</a></li>
-                    <li><a href="#dashboard" data-action="config" data-arguments="expire=+7" data-stage="${stage.name}">Expire in 1 week</a></li>
+            <div class="dropdown">
+                <button type="button" class="btn btn-secondary btn-xs dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</button>
+                <div class="dropdown-menu">
+                    <a href="#dashboard" data-estimate="${stage.stats.avgStart}" data-action="start" data-stage="${stage.name}">Start</a>
+                    <a href="#dashboard" data-estimate="${stage.stats.avgStop}" data-action="stop" data-stage="${stage.name}">Stop</a>
+                    <a href="#dashboard" data-estimate="${stage.stats.avgRestart}" data-action="restart" data-stage="${stage.name}">Restart</a>
+                    <a href="#dashboard" data-estimate="${stage.stats.avgBuild}" data-action="build" data-stage="${stage.name}">Build</a>
+                    <a href="#dashboard" data-action="refresh" data-arguments="-restore" data-stage="${stage.name}">Rollback</a>
+                    <a href="#dashboard" data-action="cleanup" data-stage="${stage.name}">Cleanup</a>
+                    <a href="#dashboard" data-action="config" data-arguments="expire=+7" data-stage="${stage.name}">Expire in 1 week</a>
                 </ul>
             </div>
         </td>
