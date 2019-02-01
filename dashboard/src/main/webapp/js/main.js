@@ -234,7 +234,7 @@ dashboard = {
             $('#' + stage + ' a.action').addClass('disabled');
 
             $(p).find('.fa').toggle(true);
-            $(p).find('.label').attr('class', 'label label-primary').html('n/a');
+            $(p).find('.badge').attr('class', 'badge badge-primary').html('n/a');
 
             if (arguments != null) {
                 url = url + "/" + arguments;
@@ -244,7 +244,7 @@ dashboard = {
             $('.modal').modal();
             $.post(url).fail(function (r) {
                 $(p).find('.fa').toggle(false);
-                $(p).find('.label').attr('class', 'label label-warning').html('broken: ' + r);
+                $(p).find('.badge').attr('class', 'badge badge-warning').html('broken: ' + r);
                 $(p).addClass('warning');
                 log.error(r);
             }).done(function (r) {

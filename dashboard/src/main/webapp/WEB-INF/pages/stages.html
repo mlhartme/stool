@@ -3,7 +3,7 @@
         th:data-status="${stage.running}" th:data-updateAvailable="${stage.updateAvailable}" th:class="${'stage ' + stage.category}">
 
         <td class="status">
-            <div th:class="${'status label label-' + stage.state}">
+            <div th:class="${'status badge badge-' + stage.state}">
               <span data-container="body" data-toggle="popover" data-placement="bottom" th:data-content="${stage.origin}"
                     data-trigger="hover" th:text="${stage.running}"></span></div>
         </td>
