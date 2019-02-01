@@ -29,16 +29,14 @@
         <td class="option refresh">
             <button class="btn ${stage.updateAvailable ? 'btn-primary' : 'btn-secondary'} btn-sm"
                     type="button" data-action="refresh" data-estimate="${stage.stats.avgRefresh}" data-stage="${stage.name}"
-                    data-arguments="-build,-autorestart"  <c:if test="${stage.updateAvailable}">data-container="body" data-toggle="popover" data-placement="right"
-                    data-title="${stage.changes.exception ? "Warning" : "Update Available"}" data-trigger="hover" data-html="true"
-                    data-content="${stage.changes}"</c:if>><i class="fas fa-refresh"></i> Refresh</button>
+                    data-arguments="-build,-autorestart"><span style="white-space: nowrap"><i class="fas fa-sync"></i> Refresh</span></button>
         <td class="option share">
             <a role="button" href="mailto:?subject=Stage&body=${stage.shareText}" ${stage.urls == null ? "disabled=\"disabled\"" :""}
-               class="btn btn-secondary btn-sm share"><i class="fas fa-share"></i> Share</a>
+               class="btn btn-secondary btn-sm share"><span style="white-space: nowrap"><i class="fas fa-share"></i> Share</span></a>
         </td>
         <td class="option">
             <div class="dropdown">
-                <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Actions</button>
+                <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span style="white-space: nowrap">Actions</span></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="#dashboard" data-estimate="${stage.stats.avgStart}" data-action="start" data-stage="${stage.name}">Start</a>
                     <a class="dropdown-item" href="#dashboard" data-estimate="${stage.stats.avgStop}" data-action="stop" data-stage="${stage.name}">Stop</a>
