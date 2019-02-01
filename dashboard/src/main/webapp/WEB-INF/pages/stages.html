@@ -10,10 +10,9 @@
         <td class="name"><span data-container="body" data-toggle="popover" data-placement="bottom" th:data-content="${stage.comment}"
                                data-trigger="hover" th:text="${stage.name}"></span></td>
         <td class="links">
-            <th:block th:if="${stage.urls != null}">
-                <a th:each="url : ${stage.urls}" th:href="${url.value}" target="_blank" th:text="${url.key}"></a><br/>
+            <th:block th:each="url : ${stage.urls}">
+                <a th:href="${url.value}" target="_blank" th:text="${url.key}"></a><br/>
             </th:block>
-            <th:text th:if="${stage.urls == null}">-</th:text>
         </td>
         <td th:class="${'expire ' + (stage.expire.isExpired() ? 'expired' : '')}" th:text="${stage.expire}"></td>
         <td class="user" th:text="${stage.lastModifiedBy}"></td>
