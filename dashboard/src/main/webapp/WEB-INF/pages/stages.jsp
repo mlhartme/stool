@@ -31,10 +31,10 @@
                     type="button" data-action="refresh" data-estimate="${stage.stats.avgRefresh}" data-stage="${stage.name}"
                     data-arguments="-build,-autorestart"  <c:if test="${stage.updateAvailable}">data-container="body" data-toggle="popover" data-placement="right"
                     data-title="${stage.changes.exception ? "Warning" : "Update Available"}" data-trigger="hover" data-html="true"
-                    data-content="${stage.changes}"</c:if>><span class="glyphicon glyphicon-refresh"></span> Refresh</button>
+                    data-content="${stage.changes}"</c:if>><i class="fas fa-refresh"></i> Refresh</button>
         <td class="option share">
             <a role="button" href="mailto:?subject=Stage&body=${stage.shareText}" ${stage.urls == null ? "disabled=\"disabled\"" :""}
-               class="btn btn-secondary btn-sm share"><span class="glyphicon glyphicon-bullhorn"></span> Share</a>
+               class="btn btn-secondary btn-sm share"><i class="fas fa-share"></i> Share</a>
         </td>
         <td class="option">
             <div class="dropdown">

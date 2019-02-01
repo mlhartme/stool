@@ -12,7 +12,8 @@
     * removed "shepherd" - it's unused
     * removed "driftwood" (https://github.com/mattkanwisher/driftwood.js) - it wasn't set up properly
     * removed "requireJS" - it's overkill
-  
+    * removed "glyphicon" font
+    * updated to font awesome 5.7
 * removed "changes" code (it was unused)
 
 * build fixes for Java 11
