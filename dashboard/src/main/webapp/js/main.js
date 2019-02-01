@@ -138,18 +138,12 @@ dashboard = {
                         param = parameter.split('=');
                         if (param[0] === 'search') {
                             dashboard.stages.filter(param[1]);
-                        } else if (param[0] === 'stage') {
-                            dashboard.navigation.updateStageBreadcrump(param[1]);
                         }
                     }
                 }
             }
 
         }
-    },
-
-    updateStageBreadcrump: function (stagename) {
-        $('.breadcrumb .stagename').html(stagename);
     },
 
     stages: {

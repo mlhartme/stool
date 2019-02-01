@@ -29,9 +29,7 @@
     </div>
     <div class="main-content">
         <div class="dashboard content" data-title="dashboard">
-            <ul class="breadcrumb">
-                <li class="active">Dashboard</li>
-            </ul>
+            <h3>Dashboard</h3>
             <ul class="nav nav-tabs" style="margin-bottom: 15px;">
                 <li class="nav-item"><a class="nav-link active" href="#all" data-toggle="tab">All <span class="badge" id="all-count">0</span></a></li>
                 <li class="nav-item"><a class="nav-link" href="#trunks" data-toggle="tab">Trunks <span class="badge" id="trunks-count">0</span></a></li>
@@ -68,12 +66,7 @@
                 </table>
             </div>
         </div>
-        <!-- FEEDBACK -->
         <div class="feedback content" style="display:none;" data-title="feedback">
-            <ul class="breadcrumb">
-                <li><a href="#dashboard">Dashboard</a></li>
-                <li class="active">Feedback</li>
-            </ul>
             <h3>Feedback</h3>
 
             <form class="form-horizontal" action="#feedback">
@@ -96,11 +89,6 @@
 
         <!-- 404 -->
         <div class="error content" style="display:none;" data-title="error page">
-            <ul class="breadcrumb">
-                <li><a href="#dashboard">Dashboard</a></li>
-                <li>System</li>
-                <li class="active">404</li>
-            </ul>
             <h3>Upps! Something went wrong :-(</h3>
 
             <div class="alert alert-dismissable alert-danger">
