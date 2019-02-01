@@ -18,10 +18,10 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-          <div class="navbar-nav">
-            <a href="#dashboard"><i class="fa fa-bookmark"></i> Dashboard</a>
-            <a href="#feedback"><i class="fa fa-comments"></i> Feedback</a>
-          </div>
+          <ul class="navbar-nav">
+            <li class="nav-item active"><a class="nav-link" href="#dashboard"><i class="fa fa-bookmark"></i> Dashboard</a></li>
+            <li class="nav-item"><a class="nav-link" href="#feedback"><i class="fa fa-comments"></i> Feedback</a></li>
+          </ul>
           <div class="navbar-nav ml-auto">
             <span class="navbar-text">Hi, ${username}</span>
           </div>
