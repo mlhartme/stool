@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-  <link rel="stylesheet" href="/webjars/bootstrap/4.2.1/css/bootstrap.min.css" >
+  <link rel="stylesheet" th:href="@{/webjars/bootstrap/4.2.1/css/bootstrap.min.css}" >
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
   <link rel="stylesheet" href="css/style.css" type="text/css"/>
 
@@ -23,7 +23,7 @@
             <li class="nav-item"><a class="nav-link" href="#feedback"><i class="fa fa-comments"></i> Feedback</a></li>
           </ul>
           <div class="navbar-nav ml-auto">
-            <span class="navbar-text">Hi, ${username}</span>
+            <span class="navbar-text" th:text="${'Hi, ' + username}"></span>
           </div>
         </div>
     </div>
@@ -117,9 +117,9 @@
         <!-- /.modal-dialog -->
     </div>
 </div>
-  <script type="text/javascript" src="/webjars/jquery/3.3.1-1/jquery.min.js" ></script>
-  <script type="text/javascript" src="/webjars/popper.js/1.14.3/umd/popper.min.js"></script>
-  <script type="text/javascript" src="/webjars/bootstrap/4.2.1/js/bootstrap.min.js"></script>
+  <script type="text/javascript" th:src="@{/webjars/jquery/3.3.1-1/jquery.min.js}" ></script>
+  <script type="text/javascript" th:src="@{/webjars/popper.js/1.14.3/umd/popper.min.js}"></script>
+  <script type="text/javascript" th:src="@{/webjars/bootstrap/4.2.1/js/bootstrap.min.js}"></script>
   <script>
 $(function () {
   $('[data-toggle="tooltip"]').tooltip()

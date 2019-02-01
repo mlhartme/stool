@@ -1,0 +1,43 @@
+<th:block xmlns:th="http://www.thymeleaf.org" th:each="stage : ${stages}">
+    <tr th:id="${stage.name}" th:data-hash="${stage.hash}" th:data-origin="${stage.origin}" th:data-user="${stage.lastModifiedBy}"
+        th:data-status="${stage.running}" th:data-updateAvailable="${stage.updateAvailable}" th:class="${'stage ' + stage.category}">
+
+        <td class="status">
+            <div th:class="${'status label label-' + stage.state}">
+              <span data-container="body" data-toggle="popover" data-placement="bottom" th:data-content="${stage.origin}"
+                    data-trigger="hover" th:text="${stage.running}"></span></div>
+        </td>
+        <td class="name"><span data-container="body" data-toggle="popover" data-placement="bottom" th:data-content="${stage.comment}"
+                               data-trigger="hover" th:text="${stage.name}"></span></td>
+        <td class="links">
+            <th:block th:if="${stage.urls != null}">
+                <a th:each="url : ${stage.urls}" th:href="${url.value}" target="_blank" th:text="${url.key}"></a><br/>
+            </th:block>
+            <th:text th:if="${stage.urls == null}">-</th:text>
+        </td>
+        <td th:class="${'expire ' + (stage.expire.isExpired() ? 'expired' : '')}" th:text="${stage.expire}"></td>
+        <td class="user" th:text="${stage.lastModifiedBy}"></td>
+        <td class="option refresh">
+            <button th:class="${'btn ' + (stage.updateAvailable ? 'btn-primary' : 'btn-secondary') + ' btn-sm'}"
+                    type="button" data-action="refresh" th:data-estimate="${stage.stats.avgRefresh}" th:data-stage="${stage.name}"
+                    data-arguments="-build,-autorestart"><span style="white-space: nowrap"><i class="fas fa-sync"></i> Refresh</span></button>
+        <td class="option share">
+            <a role="button" th:href="${'mailto:?subject=Stage&body=' + stage.shareText}" th:disabled="${stage.urls == null}"
+               class="btn btn-secondary btn-sm share"><span style="white-space: nowrap"><i class="fas fa-share"></i> Share</span></a>
+        </td>
+        <td class="option">
+            <div class="dropdown">
+                <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span style="white-space: nowrap">Actions</span></button>
+                <div class="dropdown-menu">
+                    <a class="dropdown-item" href="#dashboard" th:data-estimate="${stage.stats.avgStart}" data-action="start" th:data-stage="${stage.name}">Start</a>
+                    <a class="dropdown-item" href="#dashboard" th:data-estimate="${stage.stats.avgStop}" data-action="stop" th:data-stage="${stage.name}">Stop</a>
+                    <a class="dropdown-item" href="#dashboard" th:data-estimate="${stage.stats.avgRestart}" data-action="restart" th:data-stage="${stage.name}">Restart</a>
+                    <a class="dropdown-item" href="#dashboard" th:data-estimate="${stage.stats.avgBuild}" data-action="build" th:data-stage="${stage.name}">Build</a>
+                    <a class="dropdown-item" href="#dashboard" data-action="refresh" data-arguments="-restore" th:data-stage="${stage.name}">Rollback</a>
+                    <a class="dropdown-item" href="#dashboard" data-action="cleanup" th:data-stage="${stage.name}">Cleanup</a>
+                    <a class="dropdown-item" href="#dashboard" data-action="config" data-arguments="expire=+7" th:data-stage="${stage.name}">Expire in 1 week</a>
+                </div>
+            </div>
+        </td>
+    </tr>
+</th:block>

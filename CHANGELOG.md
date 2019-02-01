@@ -8,6 +8,7 @@
   * removed progress bar - it was dead
   * removed breadcrumbs, they just cluttered the outout
   * implementation changes
+    * use thymeleaf instead of jsp
     * removed info area, it's wasn't properly used
     * updated bootstrap 3.2.0 to 4.2.1 and jquery 1.11.0 to 3.3.1
     * removed "shepherd" - it's unused
@@ -15,6 +16,7 @@
     * removed "requireJS" - it's overkill
     * removed "glyphicon" font
     * updated to font awesome 5.7
+
 * removed "changes" code (it was unused)
 
 * build fixes for Java 11
