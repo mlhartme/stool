@@ -30,12 +30,6 @@
         </div>
     </div>
     <div class="main-content">
-        <div class="progress">
-            <div class="progress-bar progress-bar-success" style="width: 35%"></div>
-            <div class="progress-bar progress-bar-warning" style="width: 20%"></div>
-            <div class="progress-bar progress-bar-danger" style="width: 10%"></div>
-        </div>
-        <!-- DASHBOARD -->
         <div class="dashboard content" data-title="dashboard">
             <ul class="breadcrumb">
                 <li class="active">Dashboard</li>

@@ -284,39 +284,8 @@ dashboard = {
         },
         showLog: function (element, id, index, spinner, parent, estimate) {
             dashboard.stages.fetchLog(element, id, index, spinner, 0, parent);
-
-            //dashboard.stages.progressbar.updater(".modal-footer", estimate, new Date())
         },
 
-        progressbar: {
-            updater: function (parent, estimate, start) {
-                var done, percent, text;
-                done = new Date() - start;
-                percent = Math.round(done / estimate * 100);
-                text = "ETA " + Math.round(estimate / 1000 - done / 1000) + "sec.";
-                dashboard.stages.progressbar.update(parent, percent, text)
-                if (percent <= 100) {
-                    setTimeout(function () {
-                        dashboard.stages.progressbar.updater(parent, estimate, start);
-                    }, 200);
-                }
-
-            },
-            update: function (parent, percent, text) {
-                parent = $(parent);
-                if (parent.find(".logprogress").length > 0) {
-                    var element;
-                    element = parent.find('.progress-bar');
-                    element.attr('aria-valuenow', percent);
-                    element.attr('style', "width:" + percent + "%");
-                    element.text(text)
-                } else {
-                    parent.append('<div class="progress logprogress">' +
-                        '<div class="progress-bar" role="progressbar" aria-valuenow="' + percent + '" aria-valuemin="0" aria-valuemax="100" style="width: ' + percent + '%;">' +
-                        text + '</div>' + text + '</div>');
-                }
-            },
-        },
         fetchLog: function (element, id, index, spinner, lastSize, parent) {
             $.get("/processes/" + id + "/log", {"index": index}).done(function (data, status, response) {
                 newSize = response.getResponseHeader("X-Size");

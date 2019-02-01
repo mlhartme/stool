@@ -5,6 +5,7 @@
 * dashboard
   * show stage comment has hover on stage name (stage origin is now show as hover on stage status)
   * sort stages by name (but all reserved stages first)
+  * removed progress bar - it was dead
   * updated bootstrap 3.2.0 to 4.2.1 and jquery 1.11.0 to 3.3.1
   * removed "shepherd" - it's unused
   * removed "driftwood" (https://github.com/mattkanwisher/driftwood.js) - it wasn't set up properly
