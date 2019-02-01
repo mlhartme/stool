@@ -15,19 +15,18 @@
 <div id="info">
 </div>
 <div class="container">
-    <div class="navbar navbar-default">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="#dashboard">Dashboard</a>
-        </div>
-        <div class="navbar-collapse collapse navbar-responsive-collapse">
-            <ul class="nav navbar-nav">
-                <li class="dashboard tab"><a href="#dashboard"><i class="fa fa-bookmark"></i> Dashboard</a></li>
-                <li class="feedback tab"><a href="#feedback"><i class="fa fa-comments"></i> Feedback</a></li>
-                <!--<li class="user-settings tab"><a href="#user-settings"><i class="fa fa-gears"></i> Settings</a></li>-->
-            </ul>
-            <ul class="nav navbar-nav navbar-right">
-                <p class="navbar-text">Hi, ${username}</p>
-            </ul>
+    <div class="navbar navbar-expand-lg navbar-light bg-light">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a href="#dashboard"><i class="fa fa-bookmark"></i> Dashboard</a>
+            <a href="#feedback"><i class="fa fa-comments"></i> Feedback</a>
+          </div>
+          <div class="navbar-nav ml-auto">
+            <span class="navbar-text">Hi, ${username}</span>
+          </div>
         </div>
     </div>
     <div class="main-content">
