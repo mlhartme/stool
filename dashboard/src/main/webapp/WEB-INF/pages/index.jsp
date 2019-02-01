@@ -12,8 +12,6 @@
   <title>Stool Dashboard</title>
 </head>
 <body>
-<div id="info">
-</div>
 <div class="container">
     <div class="navbar navbar-expand-lg navbar-light bg-light">
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">

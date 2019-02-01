@@ -8,16 +8,6 @@ td.disabled a:hover {
     text-decoration: none;
 }
 
-#info {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-}
-
-#info div {
-    width: 350px;
-}
-
 .nav-search {
     padding: 3px;
 }

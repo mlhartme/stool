@@ -152,16 +152,6 @@ dashboard = {
         $('.breadcrumb .stagename').html(stagename);
     },
 
-    info: {
-        show: function (type, title, text) {
-            $('#info').append($('<div />').attr('class', 'alert alert-dismissable alert-' + type).html('<button type="button" class="close" data-dismiss="alert">X</button><h5>' + title + '</h5>' + text).fadeIn().delay(2000).fadeOut());
-        },
-        text: function (element, text) {
-            $(element).html(text).toggle(true);
-
-        }
-    },
-
     stages: {
         init: function () {
             dashboard.stages.reload();
@@ -245,16 +235,12 @@ dashboard = {
             arguments = $(this).attr('data-arguments');
             estimate = $(this).attr('data-estimate');
             p = $(this).parent().parent();
-            i = $(p).find('.info');
 
             url = "/stages/" + stage + "/" + action;
             $('#' + stage + ' a.action').addClass('disabled');
 
             $(p).find('.fa').toggle(true);
             $(p).find('.label').attr('class', 'label label-primary').html('n/a');
-
-            //setInfo(i, $(this).attr('data-title'));
-            //showInfo('info', stage, $(this).attr('data-title'));
 
             if (arguments != null) {
                 url = url + "/" + arguments;
@@ -264,10 +250,8 @@ dashboard = {
             $('.modal').modal();
             $.post(url).fail(function (r) {
                 $(p).find('.fa').toggle(false);
-                $(p).find('.label').attr('class', 'label label-warning').html('broken');
+                $(p).find('.label').attr('class', 'label label-warning').html('broken: ' + r);
                 $(p).addClass('warning');
-                dashboard.info.show(i, 'dude something went wrong ... try again or send us a <a href="#feedback">feedback</a>');
-                dashboard.info.text('warning', stage, '%ERROR_MESSAGE%');
                 log.error(r);
             }).done(function (r) {
                 var spinner;
