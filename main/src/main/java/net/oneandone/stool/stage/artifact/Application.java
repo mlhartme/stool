@@ -56,7 +56,7 @@ public class Application {
         return stageDirectory.join(name);
     }
 
-    public boolean refreshFuture(Session session, FileNode backstage) throws IOException {
+    public boolean refreshFuture(Session session) throws IOException {
         WarFile candidate;
 
         candidate = location.resolve();
