@@ -32,15 +32,14 @@
             <ul class="breadcrumb">
                 <li class="active">Dashboard</li>
             </ul>
-            <h3>Dashboard</h3>
             <ul class="nav nav-tabs" style="margin-bottom: 15px;">
-                <li class="active"><a href="#all" data-toggle="tab">All <span class="badge" id="all-count">0</span></a></li>
-                <li><a href="#trunks" data-toggle="tab">Trunks <span class="badge" id="trunks-count">0</span></a></li>
-                <li><a href="#branches" data-toggle="tab">Branches <span class="badge" id="branches-count">0</span></a></li>
-                <li><a href="#workspaces" data-toggle="tab">Workspaces <span class="badge"
-                                                                             id="workspaces-count">0</span></a></li>
-                <li class="nav-search"><input tabindex="1" class="form-control col-lg-8" placeholder="Search Stage / Application / User" type="text"
-                                              size="35" id="search"/></li>
+                <li class="nav-item"><a class="nav-link active" href="#all" data-toggle="tab">All <span class="badge" id="all-count">0</span></a></li>
+                <li class="nav-item"><a class="nav-link" href="#trunks" data-toggle="tab">Trunks <span class="badge" id="trunks-count">0</span></a></li>
+                <li class="nav-item"><a class="nav-link" href="#branches" data-toggle="tab">Branches <span class="badge" id="branches-count">0</span></a></li>
+                <li class="nav-item"><a class="nav-link" href="#workspaces" data-toggle="tab">Workspaces <span class="badge" id="workspaces-count">0</span></a></li>
+                <li class="nav-item form-inline">
+                  <input tabindex="1" class="form-control form-control-sm" placeholder="Search Stage / Application / User" type="search" size="35" id="search"/>
+                </li>
             </ul>
 
             <div id="myTabContent" class="tab-content">
