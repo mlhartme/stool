@@ -9,13 +9,13 @@ dashboard = {
 
     bootstrap: {
         init: function () {
-            $('#usr-settings-theme').bind('change', function () {
+            $('#usr-settings-theme').on('change', function () {
                 $('#css').attr('href', $(this).val());
             });
 
-            $('#search').bind('onkeydown', dashboard.stages.filter);
-            $('#category').bind('onchange', dashboard.stages.filter);
-            $('#btn-refresh').bind('click', function () {
+            $('#search').on('keyup', dashboard.stages.filter);
+            $('#category').on('change', dashboard.stages.filter);
+            $('#btn-refresh').on('click', function () {
                 dashboard.stages.reload();
             });
             $('.modal').on('hide.bs.modal', function () {
@@ -170,7 +170,7 @@ dashboard = {
 
     feedback: {
         init: function () {
-            $('#feedback-submit').bind('click', function (e) {
+            $('#feedback-submit').on('click', function (e) {
                 e.preventDefault();
                 var text = $('#feedback-text');
                 if (text.val() !== "") {
