@@ -19,16 +19,16 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
           <ul class="navbar-nav">
-            <li class="nav-item active"><a class="nav-link" href="#dashboard"><i class="fa fa-bookmark"></i> Dashboard</a></li>
+            <li class="nav-item"><h5 class="nav-text">Dashboard</h5></li>
           </ul>
           <ul class="navbar-nav ml-auto">
               <li class="nav-item"><a class="nav-link" href="#feedback" data-toggle="modal" data-target="#feedback"><i class="fa fa-comments"></i> Feedback</a></li>
-              <li class="nav-text"><span th:text="${'Hi, ' + username}"></span></li>
+              <li class="nav-item"><span class="nav-text" th:text="${'User: ' + username}"></span></li>
           </ul>
         </div>
     </div>
     <div class="main-content">
-        <div class="dashboard content" data-title="dashboard">
+        <div class="dashboard content">
             <ul class="nav nav-tabs" style="margin-bottom: 15px;">
                 <li class="nav-item"><a class="nav-link active" href="#all" data-toggle="tab">All <span class="badge" id="all-count">0</span></a></li>
                 <li class="nav-item"><a class="nav-link" href="#trunks" data-toggle="tab">Trunks <span class="badge" id="trunks-count">0</span></a></li>
@@ -95,15 +95,6 @@
                         </div>
                     </fieldset>
                 </form>
-            </div>
-        </div>
-
-        <!-- 404 -->
-        <div class="error content" style="display:none;" data-title="error page">
-            <h3>Upps! Something went wrong :-(</h3>
-
-            <div class="alert alert-dismissable alert-danger">
-                <strong>Page not found!</strong>
             </div>
         </div>
     </div>

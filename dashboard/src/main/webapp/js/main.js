@@ -329,7 +329,7 @@ dashboard = {
                         })
                         .fail(function () {
                             text.parent().parent()
-                                .prepend("<div class=\"alert alert-danger\">Opps, something wen't wrong =(.</div>");
+                                .prepend("<div class=\"alert alert-danger\">Opps, something went wrong =(.</div>");
                         });
                 }
             });
