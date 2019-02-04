@@ -18,13 +18,11 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-          <ul class="navbar-nav">
-            <li class="nav-item"><h5 class="nav-text">Dashboard</h5></li>
-          </ul>
+          <h5 class="navbar-text">Dashboard</h5>
           <ul class="navbar-nav ml-auto">
               <li class="nav-item"><a class="nav-link" href="#feedback" data-toggle="modal" data-target="#feedback"><i class="fa fa-comments"></i> Feedback</a></li>
-              <li class="nav-item"><span class="nav-text" th:text="${'User: ' + username}"></span></li>
           </ul>
+          <span class="navbar-text" th:text="${'User: ' + username}"></span>
         </div>
     </div>
     <div class="main-content">
