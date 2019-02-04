@@ -18,7 +18,6 @@ package net.oneandone.stool.dashboard.config;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.dashboard.IndexController;
-import net.oneandone.stool.dashboard.StageInfoCache;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Environment;
@@ -97,11 +96,6 @@ public class DashboardConfiguration {
     @Bean
     public ExecutorService executorService() {
         return Executors.newCachedThreadPool();
-    }
-
-    @Bean
-    public StageInfoCache stages() {
-        return new StageInfoCache();
     }
 
     @Bean

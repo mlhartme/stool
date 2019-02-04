@@ -1,27 +1,29 @@
 <th:block xmlns:th="http://www.thymeleaf.org" th:each="stage : ${stages}">
-    <tr class="stage" th:id="${stage.id}" th:data-name="${stage.name}" th:data-origin="${stage.origin}" th:data-user="${stage.lastModifiedBy}"
-        th:data-status="${stage.running}" th:data-content-hash="${stage.toString().hashCode()}" th:data-updateAvailable="${stage.updateAvailable}">
+    <th:block th:with="running=${stage.isWorking() ? stage.state().WORKING : stage.state()}, user=${users.byLogin(stage.lastModifiedBy()).name}">
+    <tr class="stage" th:id="${stage.id}" th:data-name="${stage.name}" th:data-origin="${stage.origin}" th:data-user="${user}"
+        th:data-status="${running}" th:data-content-hash="${stage.contentHash()}" th:data-updateAvailable="${stage.updateAvailable()}">
 
         <td class="status">
-            <div th:class="${'status badge badge-' + stage.state}">
+            <div th:class="${'status badge badge-' + stage.displayState()}">
               <span data-container="body" data-toggle="popover" data-placement="bottom" th:data-content="${stage.origin}"
-                    data-trigger="hover" th:text="${stage.running}"></span></div>
+                    data-trigger="hover" th:text="${running}"></span></div>
         </td>
-        <td class="name"><span data-container="body" data-toggle="popover" data-placement="bottom" th:data-content="${stage.comment}"
+        <td class="name"><span data-container="body" data-toggle="popover" data-placement="bottom"
+                               th:data-content="${stage.config().comment.isEmpty() ? '(no comment)' : stage.config().comment}"
                                data-trigger="hover" th:text="${stage.name}"></span></td>
         <td class="links">
-            <th:block th:each="url : ${stage.urls}">
+            <th:block th:each="url : ${stage.urlMap()}">
                 <a th:href="${url.value}" target="_blank" th:text="${url.key}"></a><br/>
             </th:block>
         </td>
-        <td th:class="${'expire ' + (stage.expire.isExpired() ? 'expired' : '')}" th:text="${stage.expire}"></td>
-        <td class="user" th:text="${stage.lastModifiedBy}"></td>
+        <td th:class="${'expire ' + (stage.config().expire.isExpired() ? 'expired' : '')}" th:text="${stage.config().expire}"></td>
+        <td class="user" th:text="${user}"></td>
         <td class="action refresh">
-            <button th:class="${'btn ' + (stage.updateAvailable ? 'btn-primary' : 'btn-light') + ' btn-sm'}"
+            <button th:class="${'btn ' + (stage.updateAvailable() ? 'btn-primary' : 'btn-light') + ' btn-sm'}"
                     type="button" data-action="refresh" th:data-stage="${stage.name}"
                     data-arguments="-build,-autorestart"><span style="white-space: nowrap"><i class="fas fa-sync"></i> Refresh</span></button>
         <td class="action share">
-            <a role="button" th:href="${'mailto:?subject=Stage&body=' + stage.shareText}" th:disabled="${stage.urls == null}"
+            <a role="button" th:href="${'mailto:?subject=Stage&body=' + stage.sharedText()}" th:disabled="${stage.urlMap() == null}"
                class="btn btn-light btn-sm share"><span style="white-space: nowrap"><i class="fas fa-share"></i> Share</span></a>
         </td>
         <td class="action">

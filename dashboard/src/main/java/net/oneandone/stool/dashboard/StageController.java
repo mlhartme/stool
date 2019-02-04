@@ -42,6 +42,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -71,41 +73,55 @@ public class StageController {
     @Autowired
     private Maven maven;
 
-    @Autowired
-    private StageInfoCache stages;
+    private final Collection<Stage> stagesCache;
+    private long lastCacheRenew;
+
+    public StageController() {
+        stagesCache = new ArrayList<>();
+        lastCacheRenew = 0L;
+    }
+
+    private Collection<Stage> stages(Session session) throws IOException {
+        List<Stage> lst;
+
+        if (System.currentTimeMillis() - lastCacheRenew > 4000) {
+            stagesCache.clear();
+            session.wipeStaleBackstages();
+            session.updatePool();
+            lst = session.listWithoutSystem();
+            Collections.sort(lst, new Comparator<Stage>() {
+                @Override
+                public int compare(Stage left, Stage right) {
+                    boolean lr;
+                    boolean rr;
+
+                    lr = left.config().expire.isReserved();
+                    rr = right.config().expire.isReserved();
+                    if (lr == rr) {
+                        return left.getName().compareTo(right.getName());
+                    } else {
+                        return lr ? -1 : 1;
+                    }
+                }
+            });
+            for (Stage stage : lst) {
+                stagesCache.addAll(lst);
+            }
+            lastCacheRenew = System.currentTimeMillis();
+        }
+        return stagesCache;
+    }
 
     @RequestMapping(method = RequestMethod.GET)
-    public Collection<StageInfo> stages() throws IOException {
-        return stages.get(logs, session, users);
+    public Collection<Stage> stages() throws IOException {
+        return stages(session);
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
     public ModelAndView stagesAsHtml(ModelAndView modelAndView) throws IOException {
         modelAndView.setViewName("stages");
-        modelAndView.addObject("stages", stages.get(logs, session, users));
-
-        return modelAndView;
-    }
-
-
-    @RequestMapping(value = "{name}", method = RequestMethod.GET)
-    public ResponseEntity stage(@PathVariable(value = "name") String stageName) throws Exception {
-        Stage stage;
-
-        stage = resolveStage(stageName);
-        return new ResponseEntity<>(StageInfo.fromStage(stage, users), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "{name}", method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
-    public ModelAndView stageAsHtml(@PathVariable(value = "name") String stageName, ModelAndView modelAndView) throws Exception {
-        List<StageInfo> stageInfos = new ArrayList<>();
-        modelAndView.setViewName("stages");
-        for (StageInfo stageInfo : stages.get(logs, session, users)) {
-            if (stageName.equals(stageInfo.getName())) {
-                stageInfos.add(stageInfo);
-            }
-        }
-        modelAndView.addObject("stages", stageInfos);
+        modelAndView.addObject("users", users);
+        modelAndView.addObject("stages", stages(session));
 
         return modelAndView;
     }
@@ -173,10 +189,6 @@ public class StageController {
         }
         stage.setMaven(maven);
         return stage;
-    }
-
-    public Console console() {
-        return Console.create();
     }
 
     public String execute(String stage, String command, String ... arguments) {

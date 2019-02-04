@@ -62,6 +62,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.Socket;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -82,6 +83,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static net.oneandone.stool.stage.Stage.State.UP;
 
 /**
  * Concrete implementations are SourceStage or ArtifactStage.
@@ -239,7 +242,7 @@ public abstract class Stage {
         if (session.bedroom.contains(getId())) {
             return State.SLEEPING;
         } else if (dockerContainer() != null) {
-            return State.UP;
+            return UP;
         } else {
             return State.DOWN;
         }
@@ -638,7 +641,7 @@ public abstract class Stage {
     //-- util
 
     public void checkNotUp() throws IOException {
-        if (state() == State.UP) {
+        if (state() == UP) {
             throw new IOException("stage is not stopped.");
         }
     }
@@ -1272,4 +1275,57 @@ public abstract class Stage {
         }
         return null;
     }
+
+    public int contentHash() throws IOException {
+        return ("StageInfo{"
+                + "name='" + config().name + '\''
+                + ", id='" + id + '\''
+                + ", comment='" + config().comment + '\''
+                + ", origin='" + origin + '\''
+                + ", urls=" + urlMap()
+                + ", state=" + state()
+                + ", displayState=" + displayState()
+                + ", last-modified-by='" + lastModifiedBy() + '\''
+                + ", updateAvailable=" + updateAvailable()
+                + '}').hashCode();
+    }
+
+    //-- for dashboard
+
+    public String displayState() throws IOException {
+        switch (isWorking() ? Stage.State.WORKING : state()) {
+            case UP:
+                return "success";
+            case WORKING:
+                return "primary";
+            default:
+                return "danger";
+        }
+    }
+
+    public String sharedText() throws IOException {
+        Map<String, String> urls;
+
+        urls = urlMap();
+        if (urls == null) {
+            return "";
+        }
+        String content;
+        StringBuilder stringBuilder;
+        stringBuilder = new StringBuilder("Hi, \n");
+        for (String url : urls.values()) {
+            stringBuilder.append(url).append("\n");
+        }
+
+        content = URLEncoder.encode(stringBuilder.toString(), "UTF-8");
+        content = content.replace("+", "%20").replaceAll("\\+", "%20")
+                .replaceAll("\\%21", "!")
+                .replaceAll("\\%27", "'")
+                .replaceAll("\\%28", "(")
+                .replaceAll("\\%29", ")")
+                .replaceAll("\\%7E", "~");
+
+        return content;
+    }
+
 }
