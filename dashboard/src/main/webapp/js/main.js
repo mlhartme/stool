@@ -38,14 +38,19 @@ dashboard = {
             $.ajax('/stages', {
                 dataType: "html",
                 success: function (data) {
-                    // TODO: handle removed stages. They currently remain in the dashboard until the user presses refresh.
-
                     var allStages = $('#all-stages');
+                    var done = [];
                     $(data).each(function (i, newTr) {
+                        var id;
                         var oldTr;
                         var actions;
 
-                        oldTr = allStages.find('#' + newTr.id.replace(/\./g, "\\."));
+                        id = newTr.id;
+                        done.push(id);
+                        if (id !== undefined) {
+                            id = id.replace(/\./g, "\\.");
+                        }
+                        oldTr = allStages.find('#' + id);
                         if (oldTr.length === 0) {
                             // new stage
                             $(newTr).find('[data-action]').off('click', dashboard.stages.action);
@@ -58,6 +63,15 @@ dashboard = {
                             $(newTr).find('[data-action]').on('click', dashboard.stages.action);
                         } else {
                             // no changes
+                        }
+                    });
+                    $(allStages).children("tr").each(function (i, tr) {
+                        var id;
+
+                        id = tr.id;
+                        if (!done.includes(id)) {
+                            $(tr).find('[data-action]').off('click', dashboard.stages.action);
+                            tr.remove();
                         }
                     });
                     $('[data-toggle="popover"]').popover();

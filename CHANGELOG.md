@@ -6,6 +6,7 @@
   * show stage comment has hover on stage name (stage origin is now show as hover on stage status)
   * sort stages by name (but all reserved stages first)
   * feedback as a popup
+  * stage update fixes: properly handle renamed and removed stages 
   * removed progress bar - it was dead
   * removed breadcrumbs, they just cluttered the outout
   * implementation changes
@@ -14,7 +15,7 @@
     * removed info area, it's wasn't properly used
     * updated bootstrap 3.2.0 to 4.2.1 and jquery 1.11.0 to 3.3.1
     * removed "shepherd" - it's unused
-    * removed "driftwood" (https://github.com/mattkanwisher/driftwood.js) - it wasn't set up properly
+    * removed "driftwood" (https://github.com/mattkanwisher/driftwood.js) - it wasen't set up properly
     * removed "requireJS" - it's overkill
     * removed "glyphicon" font
     * updated to font awesome 5.7
