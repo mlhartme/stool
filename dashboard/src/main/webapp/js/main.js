@@ -2,7 +2,6 @@ var dashboard = dashboard || {};
 
 dashboard = {
     init: function () {
-        this.navigation.init();
         this.bootstrap.init();
         this.stages.init();
         this.feedback.init();
@@ -61,87 +60,6 @@ dashboard = {
                 dashboard.stages.filter($('#search').val());
 
             });
-
-        }
-    },
-
-    navigation: {
-        init: function () {
-            var hash;
-            hash = location.hash.slice(1);
-            if (hash.indexOf(':') > -1) {
-                params = hash.split(':');
-                hash = params[0];
-            }
-            this.hashChange()
-            this.loadContentByHash(hash !== '' ? hash : 'dashboard');
-
-
-        },
-
-        hashChange: function () {
-            $(window).bind('hashchange', function () {
-                var h, params;
-                h = location.hash.slice(1);
-                params = null;
-                if (h.indexOf(':') > -1) {
-                    params = h.split(':');
-                    h = params[0];
-                }
-                if (h !== '') {
-                    dashboard.navigation.loadContentByHash(h, params);
-                }
-                dashboard.navigation.checkLocationHash();
-            });
-        },
-
-        loadContentByHash: function (h) {
-
-            if ($('div').find('.content.' + h).length === 0) {
-
-                $('.content').toggle(false);
-                $('.tab').removeClass('active');
-                $('.content.error').toggle(true);
-
-            } else {
-
-                $('.content').each(function () {
-                    $(this).toggle(false);
-                    if ($(this).hasClass(h)) {
-                        $(this).toggle(true);
-                        if ($(this).attr('data-title') !== '') {
-                            document.title = 'Stage  ' + $(this).attr('data-title');
-                        }
-                    }
-                });
-
-                $('.tab').each(function () {
-                    $(this).removeClass('active');
-                    if ($(this).hasClass(h)) {
-                        $(this).addClass('active');
-                    }
-                });
-
-            }
-
-        },
-        checkLocationHash: function () {
-
-            var hash, i;
-            hash = window.location.hash.slice(1);
-
-            if (hash.indexOf(':') > -1) {
-                parameters = hash.split(':');
-                for (i = 1; i < parameters.length; i += 1) {
-                    parameter = parameters[i];
-                    if (parameter.indexOf('=') > -1) {
-                        param = parameter.split('=');
-                        if (param[0] === 'search') {
-                            dashboard.stages.filter(param[1]);
-                        }
-                    }
-                }
-            }
 
         }
     },
@@ -213,7 +131,6 @@ dashboard = {
                     });
                     $('[data-toggle="popover"]').popover();
                     dashboard.stages.recountTabs(wrapper);
-                    dashboard.navigation.checkLocationHash();
                 }
             });
         },
