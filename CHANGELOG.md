@@ -5,6 +5,7 @@
 * dashboard
   * show stage comment has hover on stage name (stage origin is now show as hover on stage status)
   * sort stages by name (but all reserved stages first)
+  * feedback as a popup
   * removed progress bar - it was dead
   * removed breadcrumbs, they just cluttered the outout
   * implementation changes
