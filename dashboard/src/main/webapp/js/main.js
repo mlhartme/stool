@@ -14,9 +14,8 @@ dashboard = {
                 $('#css').attr('href', $(this).val());
             });
 
-            $('#search').bind('keyup', function () {
-                dashboard.stages.filter($(this).val());
-            });
+            $('#search').bind('onchange', dashboard.stages.filter);
+            $('#category').bind('onchange', dashboard.stages.filter);
             $('#btn-refresh').bind('click', function () {
                 dashboard.stages.reload();
             });
@@ -24,43 +23,6 @@ dashboard = {
                 $(".shell").html("");
                 dashboard.stages.reload();
             });
-            $('[data-toggle="tab"]').on('click', function () {
-                var stages, filter, check;
-                stages = $("#all-stages").find("tr");
-                filter = $(this).attr("href").slice(1);
-                check = '';
-
-                dashboard.bootstrap.activeFilter = filter;
-
-                if (filter==='all') {
-                    stages.removeClass('filter');
-                } else {
-                    stages.addClass('filter');
-                }
-
-                $('#empty').toggle(parseInt($(this).find('.badge').html()) === 0);
-
-                stages.each(function () {
-
-                    if ($(this).attr('data-origin')) {
-
-                        if (filter === "trunks") {
-                            check = '/trunk';
-                        } else if (filter === "branches") {
-                            check = '/branches/';
-                        } else if (filter === "workspaces") {
-                            check = '/workspaces/';
-                        }
-
-                        $(this).toggle(filter === 'all' || filter === '' || $(this).attr('data-origin').indexOf(check) > -1);
-                    }
-
-                });
-
-                dashboard.stages.filter($('#search').val());
-
-            });
-
         }
     },
 
@@ -200,7 +162,8 @@ dashboard = {
 
         },
 
-        filter: function (search) {
+        filter: function () {
+        /* TODO
             if (search !== '') {
                 var activeFilter;
                 activeFilter = dashboard.bootstrap.activeFilter;
@@ -227,7 +190,7 @@ dashboard = {
                 $('#empty').toggle(false);
                 $('#all-stages').find('tr.stage' + (activeFilter === 'all' ? '' : '.' + activeFilter)).toggle(true);
             }
-
+*/
         }
     },
     feedback: {
