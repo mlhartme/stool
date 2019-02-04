@@ -40,31 +40,22 @@ dashboard = {
                 success: function (data) {
                     // TODO: handle removed stages. They currently remain in the dashboard until the user presses refresh.
 
-                    var wrapper;
-                    wrapper = $('#all-stages');
-
-                    $(data).each(function (i, tr) {
+                    var allStages = $('#all-stages');
+                    $(data).each(function (i, newTr) {
                         var oldTr;
                         var actions;
-                        var id;
 
-                        id = tr.id;
-
-                        if (id !== undefined) {
-                            id = id.replace(/\./g, "\\.");
-                        }
-                        oldTr = wrapper.find('#' + id);
-
+                        oldTr = allStages.find('#' + newTr.id.replace(/\./g, "\\."));
                         if (oldTr.length === 0) {
                             // new stage
-                            $(tr).find('[data-action]').off('click', dashboard.stages.action);
-                            wrapper.append(tr);
-                            $(tr).find('[data-action]').on('click', dashboard.stages.action);
-                        } else if (oldTr.attr("data-content-hash") !== $(tr).attr("data-content-hash")) {
+                            $(newTr).find('[data-action]').off('click', dashboard.stages.action);
+                            allStages.append(newTr);
+                            $(newTr).find('[data-action]').on('click', dashboard.stages.action);
+                        } else if (oldTr.attr("data-content-hash") !== $(newTr).attr("data-content-hash")) {
                             // updated stage
-                            $(tr).find('[data-action]').off('click', dashboard.stages.action);
-                            oldTr.replaceWith(tr);
-                            $(tr).find('[data-action]').on('click', dashboard.stages.action);
+                            $(newTr).find('[data-action]').off('click', dashboard.stages.action);
+                            oldTr.replaceWith(newTr);
+                            $(newTr).find('[data-action]').on('click', dashboard.stages.action);
                         } else {
                             // no changes
                         }
