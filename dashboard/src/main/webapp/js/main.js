@@ -219,7 +219,7 @@ dashboard = {
         },
 
         action: function () {
-            var stage, action, arguments, estimate, p, i, url;
+            var stage, action, arguments, p, i, url;
             if ($(this).parent().hasClass('disabled') && $(this).attr('data-stage') === null) {
                 return false;
             }
@@ -227,7 +227,6 @@ dashboard = {
             stage = $(this).attr('data-stage');
             action = $(this).attr('data-action');
             arguments = $(this).attr('data-arguments');
-            estimate = $(this).attr('data-estimate');
             p = $(this).parent().parent();
 
             url = "/stages/" + stage + "/" + action;
@@ -252,7 +251,7 @@ dashboard = {
                 $('.modal-body .shell').html("").show();
                 spinner = '.fa-spinner';
                 $(spinner).show();
-                dashboard.stages.showLog('.modal-body .shell', r, 0, spinner, '.modal', estimate);
+                dashboard.stages.showLog('.modal-body .shell', r, 0, spinner, '.modal');
 
             });
 
@@ -260,7 +259,7 @@ dashboard = {
             return false;
 
         },
-        showLog: function (element, id, index, spinner, parent, estimate) {
+        showLog: function (element, id, index, spinner, parent) {
             dashboard.stages.fetchLog(element, id, index, spinner, 0, parent);
         },
 

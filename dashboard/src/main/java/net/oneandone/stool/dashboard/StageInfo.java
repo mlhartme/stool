@@ -40,7 +40,6 @@ public class StageInfo {
     private String lastModifiedBy;
     private boolean updateAvailable;
     private Expire expire;
-    private BuildStats stats;
     private String category;
     private String state;
 
@@ -64,8 +63,6 @@ public class StageInfo {
         }
         stageInfo.updateAvailable = stage.updateAvailable();
         stageInfo.expire = stage.config().expire;
-
-        stageInfo.stats = BuildStats.load(logDir, stage);
         if (stageInfo.origin.contains("/trunk")) {
             stageInfo.category = "trunk";
         } else if (stageInfo.origin.contains("/branches")) {
@@ -91,9 +88,6 @@ public class StageInfo {
 
     public Expire getExpire() {
         return expire;
-    }
-    public BuildStats getStats() {
-        return stats;
     }
     public String getCategory() {
         return category;

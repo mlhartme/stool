@@ -9,6 +9,7 @@
   * removed progress bar - it was dead
   * removed breadcrumbs, they just cluttered the outout
   * implementation changes
+    * removed build stats - they were dead
     * use thymeleaf instead of jsp
     * removed info area, it's wasn't properly used
     * updated bootstrap 3.2.0 to 4.2.1 and jquery 1.11.0 to 3.3.1

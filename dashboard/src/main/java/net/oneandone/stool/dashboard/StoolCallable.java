@@ -67,7 +67,6 @@ public class StoolCallable implements Callable<Failure> {
         Launcher launcher;
         Failure failure;
         long time;
-        BuildStats buildStats;
         Credentials svnCredentials;
         FileNode running;
 
@@ -100,9 +99,6 @@ public class StoolCallable implements Callable<Failure> {
             time = System.currentTimeMillis() - time;
             writer.println((failure == null ? "OK" : "FAILED") + " (ms= " + time + ")");
         }
-        buildStats = BuildStats.load(logDir, stage);
-        buildStats.add(command, time);
-        buildStats.save();
         return failure;
     }
 
