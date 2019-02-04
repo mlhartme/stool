@@ -238,9 +238,7 @@ dashboard = {
             if (arguments != null) {
                 url = url + "/" + arguments;
             }
-
-            $('.modal-title').text("Console output");
-            $('.modal').modal();
+            $('#console').modal();
             $.post(url).fail(function (r) {
                 $(p).find('.fa').toggle(false);
                 $(p).find('.badge').attr('class', 'badge badge-warning').html('broken: ' + r);
