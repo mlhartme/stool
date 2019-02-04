@@ -9,15 +9,8 @@ dashboard = {
 
     bootstrap: {
         init: function () {
-            $('#usr-settings-theme').on('change', function () {
-                $('#css').attr('href', $(this).val());
-            });
-
             $('#search').on('keyup', dashboard.stages.filter);
             $('#category').on('change', dashboard.stages.filter);
-            $('#btn-refresh').on('click', function () {
-                dashboard.stages.reload();
-            });
             $('.modal').on('hide.bs.modal', function () {
                 $(".shell").html("");
                 dashboard.stages.reload();
@@ -116,10 +109,7 @@ dashboard = {
                 dashboard.stages.showLog('.modal-body .shell', r, 0, spinner, '.modal');
 
             });
-
-
             return false;
-
         },
 
         showLog: function (element, id, index, spinner, parent) {
