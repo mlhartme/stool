@@ -142,8 +142,6 @@ dashboard = {
             var search = $('#search').val();
             var category = $('#category').val();
 
-            console.log("filter '" + search + "' in category " + category);
-
             found = 0;
             $('#all-stages').find('tr.stage').each(function (idx, tr) {
                 if (($(tr).attr('data-origin').indexOf(category) > -1)

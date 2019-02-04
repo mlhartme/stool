@@ -16,17 +16,17 @@
         </td>
         <td th:class="${'expire ' + (stage.expire.isExpired() ? 'expired' : '')}" th:text="${stage.expire}"></td>
         <td class="user" th:text="${stage.lastModifiedBy}"></td>
-        <td class="option refresh">
-            <button th:class="${'btn ' + (stage.updateAvailable ? 'btn-primary' : 'btn-secondary') + ' btn-sm'}"
+        <td class="action refresh">
+            <button th:class="${'btn ' + (stage.updateAvailable ? 'btn-primary' : 'btn-light') + ' btn-sm'}"
                     type="button" data-action="refresh" th:data-stage="${stage.name}"
                     data-arguments="-build,-autorestart"><span style="white-space: nowrap"><i class="fas fa-sync"></i> Refresh</span></button>
-        <td class="option share">
+        <td class="action share">
             <a role="button" th:href="${'mailto:?subject=Stage&body=' + stage.shareText}" th:disabled="${stage.urls == null}"
-               class="btn btn-secondary btn-sm share"><span style="white-space: nowrap"><i class="fas fa-share"></i> Share</span></a>
+               class="btn btn-light btn-sm share"><span style="white-space: nowrap"><i class="fas fa-share"></i> Share</span></a>
         </td>
-        <td class="option">
+        <td class="action">
             <div class="dropdown">
-                <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span style="white-space: nowrap">Actions</span></button>
+                <button type="button" class="btn btn-light btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span style="white-space: nowrap">More</span></button>
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="#dashboard" data-action="start" th:data-stage="${stage.name}">Start</a>
                     <a class="dropdown-item" href="#dashboard" data-action="stop" th:data-stage="${stage.name}">Stop</a>
