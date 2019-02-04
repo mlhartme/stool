@@ -1,6 +1,6 @@
 <th:block xmlns:th="http://www.thymeleaf.org" th:each="stage : ${stages}">
-    <tr th:id="${stage.name}" th:data-hash="${stage.hash}" th:data-origin="${stage.origin}" th:data-user="${stage.lastModifiedBy}"
-        th:data-status="${stage.running}" th:data-updateAvailable="${stage.updateAvailable}" th:class="${'stage ' + stage.category}">
+    <tr class="stage" th:id="${stage.name}" th:data-hash="${stage.hash}" th:data-origin="${stage.origin}" th:data-user="${stage.lastModifiedBy}"
+        th:data-status="${stage.running}" th:data-updateAvailable="${stage.updateAvailable}">
 
         <td class="status">
             <div th:class="${'status badge badge-' + stage.state}">

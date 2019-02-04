@@ -21,14 +21,16 @@
           <h5 class="navbar-text">Dashboard</h5>
           <ul class="navbar-nav ml-auto">
               <li class="nav-item form-inline">
+                  <input tabindex="1" class="form-control form-control-sm" placeholder="stage or user" type="search" size="20" id="search"/>
                   <select id="category" name="category">
-                      <option value="all" selected>all</option>
-                      <option value="trunks">trunks</option>
-                      <option value="branches">branches</option>
-                      <option value="workspaces">workspaces</option>
+                      <option value="" selected>all</option>
+                      <option value="/trunk/">trunks</option>
+                      <option value="/branches/">branches</option>
+                      <option value="/workspaces/">workspaces</option>
                   </select>
-                  <input tabindex="1" class="form-control form-control-sm" placeholder="Search Stage / Application / User" type="search" size="20" id="search"/>
               </li>
+          </ul>
+          <ul class="navbar-nav ml-auto">
               <li class="nav-item"><a class="nav-link" href="#feedback" data-toggle="modal" data-target="#feedback"><i class="fa fa-comments"></i> Feedback</a></li>
           </ul>
           <span class="navbar-text" th:text="${'User: ' + username}"></span>

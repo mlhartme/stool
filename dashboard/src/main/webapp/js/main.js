@@ -8,13 +8,12 @@ dashboard = {
     },
 
     bootstrap: {
-        activeFilter: "all",
         init: function () {
             $('#usr-settings-theme').bind('change', function () {
                 $('#css').attr('href', $(this).val());
             });
 
-            $('#search').bind('onchange', dashboard.stages.filter);
+            $('#search').bind('onkeydown', dashboard.stages.filter);
             $('#category').bind('onchange', dashboard.stages.filter);
             $('#btn-refresh').bind('click', function () {
                 dashboard.stages.reload();
@@ -36,24 +35,10 @@ dashboard = {
 
 
         silentReload: function () {
-
             dashboard.stages.reload();
             setTimeout(function () {
                 dashboard.stages.silentReload();
-            }, dashboard.interval.withCounter(0));
-        },
-
-        recountTabs: function (wrapper) {
-            var trunks, branches, workspaces;
-
-            trunks = wrapper.find(".trunk").length;
-            branches = wrapper.find(".branch").length;
-            workspaces = wrapper.find(".workspace").length;
-            $('#all-count').html(trunks + workspaces + branches);
-
-            $('#trunks-count').html(trunks);
-            $('#branches-count').html(branches);
-            $('#workspaces-count').html(workspaces);
+            }, 5000);
         },
 
         reload: function () {
@@ -92,7 +77,7 @@ dashboard = {
                         }
                     });
                     $('[data-toggle="popover"]').popover();
-                    dashboard.stages.recountTabs(wrapper);
+                    dashboard.stages.filter();
                 }
             });
         },
@@ -136,6 +121,7 @@ dashboard = {
             return false;
 
         },
+
         showLog: function (element, id, index, spinner, parent) {
             dashboard.stages.fetchLog(element, id, index, spinner, 0, parent);
         },
@@ -163,36 +149,25 @@ dashboard = {
         },
 
         filter: function () {
-        /* TODO
-            if (search !== '') {
-                var activeFilter;
-                activeFilter = dashboard.bootstrap.activeFilter;
-                document.location.hash = '#dashboard:search=' + search;
+            var search = $('#search').val();
+            var category = $('#category').val();
 
-                $('#all-stages').find('tr.stage').toggle(false);
-                $('#empty').toggle(false);
+            console.log("filter '" + search + "' in category " + category);
 
-                found = 0;
-
-                $('#all-stages').find('tr.stage' + (activeFilter === 'all' ? '' : '.' + activeFilter)).each(function () {
-                    if ($(this).attr('data-origin').indexOf(search) > -1 || $(this).attr('data-user').indexOf(search) > -1 || $(this).find('td.name span').html().indexOf(search) > -1) {
-                        $(this).toggle(true);
-                        found++;
-                    }
-                });
-
-                if (found === 0) {
-                    $('#empty').toggle(true);
+            found = 0;
+            $('#all-stages').find('tr.stage').each(function (idx, tr) {
+                if (($(tr).attr('data-origin').indexOf(category) > -1) && ($(tr).attr('id').indexOf(search) > -1 || $(tr).attr('data-user').indexOf(search) > -1)) {
+                    $(this).toggle(true);
+                    found++;
+                } else {
+                    $(this).toggle(false);
                 }
+            });
 
-            } else {
-                document.location.hash = '#dashboard';
-                $('#empty').toggle(false);
-                $('#all-stages').find('tr.stage' + (activeFilter === 'all' ? '' : '.' + activeFilter)).toggle(true);
-            }
-*/
+            $('#empty').toggle(found == 0);
         }
     },
+
     feedback: {
         init: function () {
             $('#feedback-submit').bind('click', function (e) {
@@ -211,14 +186,6 @@ dashboard = {
                 }
             });
         }
-    },
-
-
-    interval: {
-        withCounter: function (count) {
-            return 5000;
-        }
     }
-
 };
 dashboard.init();

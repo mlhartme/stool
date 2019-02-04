@@ -40,10 +40,9 @@ public class StageInfo {
     private String lastModifiedBy;
     private boolean updateAvailable;
     private Expire expire;
-    private String category;
     private String state;
 
-    public static StageInfo fromStage(FileNode logDir, Stage stage, Users users) throws IOException, NamingException {
+    public static StageInfo fromStage(Stage stage, Users users) throws IOException, NamingException {
         StageInfo stageInfo;
 
         stageInfo = new StageInfo();
@@ -63,13 +62,6 @@ public class StageInfo {
         }
         stageInfo.updateAvailable = stage.updateAvailable();
         stageInfo.expire = stage.config().expire;
-        if (stageInfo.origin.contains("/trunk")) {
-            stageInfo.category = "trunk";
-        } else if (stageInfo.origin.contains("/branches")) {
-            stageInfo.category = "branches";
-        } else if (stageInfo.origin.contains("/workspaces")) {
-            stageInfo.category = "workspaces";
-        }
 
         switch (stageInfo.running) {
             case UP:
@@ -88,9 +80,6 @@ public class StageInfo {
 
     public Expire getExpire() {
         return expire;
-    }
-    public String getCategory() {
-        return category;
     }
     public String getState() {
         return state;
@@ -160,7 +149,6 @@ public class StageInfo {
           + ", running=" + running
           + ", last-modified-by='" + lastModifiedBy + '\''
           + ", updateAvailable=" + updateAvailable
-          + ", category='" + category + '\''
           + ", state='" + state + '\''
           + '}';
     }

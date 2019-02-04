@@ -93,7 +93,7 @@ public class StageController {
         Stage stage;
 
         stage = resolveStage(stageName);
-        return new ResponseEntity<>(StageInfo.fromStage(logs, stage, users), HttpStatus.OK);
+        return new ResponseEntity<>(StageInfo.fromStage(stage, users), HttpStatus.OK);
     }
 
     @RequestMapping(value = "{name}", method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)

@@ -61,7 +61,7 @@ public class StageInfoCache {
             });
             for (Stage stage : lst) {
                 try {
-                    stages.add(StageInfo.fromStage(logs, stage, users));
+                    stages.add(StageInfo.fromStage(stage, users));
                 } catch (NamingException e) {
                     session.reportException("StageInfo.fromStage", e);
                     // fall-through
