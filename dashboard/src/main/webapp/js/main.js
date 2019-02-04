@@ -60,7 +60,7 @@ dashboard = {
                             $(tr).find('[data-action]').off('click', dashboard.stages.action);
                             wrapper.append(tr);
                             $(tr).find('[data-action]').on('click', dashboard.stages.action);
-                        } else if (oldTr.attr("data-hash") !== $(tr).attr("data-hash")) {
+                        } else if (oldTr.attr("data-content-hash") !== $(tr).attr("data-content-hash")) {
                             // updated stage
                             $(tr).find('[data-action]').off('click', dashboard.stages.action);
                             oldTr.replaceWith(tr);
@@ -146,7 +146,8 @@ dashboard = {
 
             found = 0;
             $('#all-stages').find('tr.stage').each(function (idx, tr) {
-                if (($(tr).attr('data-origin').indexOf(category) > -1) && ($(tr).attr('id').indexOf(search) > -1 || $(tr).attr('data-user').indexOf(search) > -1)) {
+                if (($(tr).attr('data-origin').indexOf(category) > -1)
+                           && ($(tr).attr('data-name').indexOf(search) > -1 || $(tr).attr('data-user').indexOf(search) > -1)) {
                     $(this).toggle(true);
                     found++;
                 } else {

@@ -21,7 +21,6 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.users.Users;
-import net.oneandone.sushi.fs.file.FileNode;
 
 import javax.naming.NamingException;
 import java.io.IOException;
@@ -31,6 +30,7 @@ import java.util.Map;
 
 public class StageInfo {
     private String name;
+    private String id;
     private String comment;
     private StageConfiguration configuration;
     private String origin;
@@ -47,6 +47,7 @@ public class StageInfo {
 
         stageInfo = new StageInfo();
         stageInfo.name = stage.getName();
+        stageInfo.id = stage.getId();
         stageInfo.comment = stage.config().comment;
         if (stageInfo.comment.isEmpty()) {
             stageInfo.comment = "(no comment)";
@@ -78,14 +79,17 @@ public class StageInfo {
     }
 
 
+    public String getName() {
+        return name;
+    }
+    public String getId() {
+        return id;
+    }
     public Expire getExpire() {
         return expire;
     }
     public String getState() {
         return state;
-    }
-    public String getName() {
-        return name;
     }
     public String getComment() { return comment; }
 
@@ -135,14 +139,11 @@ public class StageInfo {
         return updateAvailable;
     }
 
-    public String getHash() {
-        return "" + this.toString().hashCode();
-    }
-
     @Override
     public String toString() {
         return "StageInfo{"
           + "name='" + name + '\''
+          + ", id='" + id + '\''
           + ", comment='" + comment + '\''
           + ", origin='" + origin + '\''
           + ", urls=" + urls
