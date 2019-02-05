@@ -131,5 +131,42 @@
         </plugin>
       </plugins>
     </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.codehaus.cargo</groupId>
+        <artifactId>cargo-maven2-plugin</artifactId>
+        <version>1.7.1</version>
+        <configuration>
+          <container>
+            <containerId>tomcat9x</containerId>
+            <artifactInstaller>
+              <groupId>org.apache.tomcat</groupId>
+              <artifactId>tomcat</artifactId>
+              <version>9.0.14</version>
+            </artifactInstaller>
+          </container>
+          <configuration>
+            <type>standalone</type>
+            <home>${project.build.directory}/tomcat</home>
+            <properties>
+              <cargo.servlet.port>8080</cargo.servlet.port>
+              <cargo.logging>medium</cargo.logging>
+              <!-- TODO: doesn't work yet - backstage link needed ... -->
+              <cargo.start.jvmargs>-Dstool.home=/Users/mhm/.stool</cargo.start.jvmargs>
+            </properties>
+          </configuration>
+          <deployables>
+            <deployable>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>${project.artifactId}</artifactId>
+              <type>war</type>
+              <properties>
+                <context>/</context>
+              </properties>
+            </deployable>
+          </deployables>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
 </project>
