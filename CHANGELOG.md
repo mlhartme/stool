@@ -20,6 +20,9 @@
     * removed "glyphicon" font
     * updated to font awesome 5.7
 
+* fixed "stage ping" to check tomcat engine status 
+  (the previous application url ping was unreliable and cause integration test issues)
+
 * removed "changes" code (it was unused)
 
 * build fixes for Java 11

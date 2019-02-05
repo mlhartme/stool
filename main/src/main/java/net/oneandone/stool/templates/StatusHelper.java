@@ -95,5 +95,4 @@ public class StatusHelper {
         max = (Long) result.get("max");
         return Float.toString(((float) (used * 1000 / max)) / 10);
     }
-
 }

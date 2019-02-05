@@ -76,7 +76,7 @@ public class Start extends StageCommand {
     @Override
     public void doFinish(Stage stage) throws Exception {
         // TODO - to avoid quick start/stop problems; just a ping doesn't solve this, and I don't understand why ...
-        stage.ping(console);
+        stage.awaitStartup(console);
         Thread.sleep(2000);
         console.info.println("Applications available:");
         for (String app : stage.namedUrls()) {

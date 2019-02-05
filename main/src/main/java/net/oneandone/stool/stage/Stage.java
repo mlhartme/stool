@@ -54,12 +54,23 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
 import org.eclipse.aether.repository.RepositoryPolicy;
 
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MBeanServerConnection;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.management.openmbean.CompositeData;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -343,7 +354,6 @@ public abstract class Stage {
                 Collections.emptyMap(), mounts, ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
-        ping(console);
         status = engine.containerStatus(container);
         if (status != Engine.Status.RUNNING) {
             throw new IOException("unexpected status: " + status);
@@ -351,39 +361,57 @@ public abstract class Stage {
         dockerContainerFile().writeString(container);
     }
 
+    /* TODO: work for tomcat only */
+    public void awaitStartup(Console console) throws IOException, InterruptedException {
+        Ports ports;
+        String state;
 
-    public void ping(Console console) throws IOException, URISyntaxException, InterruptedException {
-        URI uri;
-        int count;
-
-        console.verbose.println("Ping'n Applications.");
-        for (String url : urlMap().values()) {
-            if (url.startsWith("http://")) {
-                uri = new URI(url);
-                console.verbose.println("Ping'n " + url);
-                count = 0;
-                while (true) {
-                    try {
-                        doPing(uri);
-                        break;
-                    } catch (IOException e) {
-                        console.verbose.println(uri + " not ready yet: " + e.getMessage());
-                        Thread.sleep(100);
-                        count++;
-                        if (count > 10 * 60 * 5) {
-                            throw new IOException(url + ": ping timed out", e);
-                        }
-                    }
+        ports = loadPortsOpt();
+        for (int count = 0; true; count++) {
+            try {
+                state = jmxEngineState(ports);
+                break;
+            } catch (Exception e) {
+                console.verbose.println(e.getClass() + ": " + e.getMessage());
+                if (count > 20) {
+                    throw new IOException("initial state timed out: " + e.getMessage(), e);
                 }
+                Thread.sleep(50);
             }
+        }
+        for (int count = 1; !"STARTED".equals(state); count++) {
+            if (count % 100 == 0) {
+                console.info.println("waiting for tomcat startup ... " + state);
+            }
+            if (count > 10 * 60 *5) {
+                throw new IOException("tomcat startup timed out, state" + state);
+            }
+            Thread.sleep(100);
+            state = jmxEngineState(ports);
         }
     }
 
-    private static void doPing(URI uri) throws IOException {
-        Socket socket;
+    private String jmxEngineState(Ports ports) throws IOException {
+        JMXServiceURL url;
+        MBeanServerConnection connection;
+        ObjectName name;
 
-        socket = new Socket(uri.getHost(), uri.getPort());
-        try (InputStream notused = socket.getInputStream()) {
+        // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
+        try {
+            url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + session.configuration.hostname + ":" + ports.jmx() + "/jmxrmi");
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
+        connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
+        try {
+            name = new ObjectName("Catalina:type=Engine");
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalStateException(e);
+        }
+        try {
+            return (String) connection.getAttribute(name, "stateName");
+        } catch (ReflectionException | InstanceNotFoundException | AttributeNotFoundException | MBeanException e) {
+            throw new IllegalStateException();
         }
     }
 
