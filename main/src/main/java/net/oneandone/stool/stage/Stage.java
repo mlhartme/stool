@@ -391,18 +391,28 @@ public abstract class Stage {
         }
     }
 
+    private MBeanServerConnection lazyJmxConnection;
+
+    private MBeanServerConnection jmxConnection(Ports ports) throws IOException {
+        if (lazyJmxConnection == null) {
+            JMXServiceURL url;
+
+            // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
+            try {
+                url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + session.configuration.hostname + ":" + ports.jmx() + "/jmxrmi");
+            } catch (MalformedURLException e) {
+                throw new IllegalStateException(e);
+            }
+            lazyJmxConnection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
+        }
+        return lazyJmxConnection;
+    }
+
     private String jmxEngineState(Ports ports) throws IOException {
-        JMXServiceURL url;
         MBeanServerConnection connection;
         ObjectName name;
 
-        // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-        try {
-            url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + session.configuration.hostname + ":" + ports.jmx() + "/jmxrmi");
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
-        }
-        connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
+        connection = jmxConnection(ports);
         try {
             name = new ObjectName("Catalina:type=Engine");
         } catch (MalformedObjectNameException e) {
