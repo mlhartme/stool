@@ -380,6 +380,7 @@ public class Engine implements AutoCloseable {
             // unlimited; important, because debian stretch kernel does not support this
             hostConfig.add("MemorySwap", new JsonPrimitive(-1));
         }
+        // TODO hostConfig.add("DiskQuota", new JsonPrimitive(1024));
         if (priviledged) {
             hostConfig.add("Privileged", new JsonPrimitive(true));
         }

@@ -75,7 +75,9 @@ public class Start extends StageCommand {
 
     @Override
     public void doFinish(Stage stage) throws Exception {
-        ping(stage);
+        // TODO - to avoid quick start/stop problems; just a ping doesn't solve this, and I don't understand why ...
+        stage.ping(console);
+        Thread.sleep(2000);
         console.info.println("Applications available:");
         for (String app : stage.namedUrls()) {
             console.info.println("  " + app);
@@ -106,27 +108,5 @@ public class Start extends StageCommand {
             throw new IOException("Stage is already running.");
         }
 
-    }
-
-    private void ping(Stage stage) throws IOException, URISyntaxException, InterruptedException {
-        URI uri;
-        int count;
-
-        console.info.println("Ping'n Applications.");
-        for (String url : stage.urlMap().values()) {
-            if (url.startsWith("http://")) {
-                uri = new URI(url);
-                console.verbose.println("Ping'n " + url);
-                count = 0;
-                while (!Stage.ping(uri)) {
-                    console.verbose.println("port not ready yet");
-                    Thread.sleep(100);
-                    count++;
-                    if (count > 10 * 60 * 5) {
-                        throw new IOException(url + ": ping timed out");
-                    }
-                }
-            }
-        }
     }
 }

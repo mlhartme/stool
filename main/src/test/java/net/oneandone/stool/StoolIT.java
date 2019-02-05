@@ -23,7 +23,6 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.eclipse.aether.resolution.ArtifactResolutionException;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -60,14 +59,14 @@ public class StoolIT {
 
     @Test
     public void turnaroundGavArtifact() throws IOException {
-        turnaround("gav", "gav:net.oneandone:hellowar:1.0.3");
+        turnaround("gav", "gav:net.oneandone:hellowar:1.0.4");
     }
 
     @Test
     public void turnaroundFileArtifact() throws IOException, ArtifactResolutionException {
         FileNode file;
 
-        file = Maven.withSettings(WORLD).resolve("net.oneandone", "hellowar", "war", "1.0.3");
+        file = Maven.withSettings(WORLD).resolve("net.oneandone", "hellowar", "war", "1.0.4");
         turnaround("file", file.getUri().toString());
     }
 
@@ -111,44 +110,6 @@ public class StoolIT {
         stool("move", "-stage", "renamed", "movedStage");
         stool("remove", "-stage", "renamed", "-batch");
     }
-
-
-    private void problem(String context, String origin) throws IOException {
-        System.out.println("\norigin: " + origin);
-        stoolSetup(context);
-        stool("create", "-quiet", origin, "it");
-//        stool("status", "-stage", "it");
-//        stool("validate", "-stage", "it");
-//        stool("build", "-stage", "it");
-//        stool("history", "-stage", "it");
-//        stool("config", "-stage", "it", "memory=300");
-//        stool("refresh", "-stage", "it");
-//        stool("validate", "-stage", "it");
-//        stool("start", "-stage", "it");
-//        stool("validate", "-stage", "it");
-//        stool("stop", "-stage", "it", "-sleep");
-        stool("start", "-stage", "it");
-//        stool("status", "-stage", "it");
-//        stool("validate", "-stage", "it");
-//        stool("restart", "-v", "-stage", "it");
-//        stool("refresh", "-v",  "-stage", "it", "-build", "-autostop");
-//        stool("start", "-v",  "-stage", "it");
-/*        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-  */      stool("stop", "-v",  "-stage", "it");
-/*        stool("list", "-stage", "it");
-        stool("validate", "-stage", "it");
-        stool("history", "-stage", "it");
-        stool("remove", "-stage", "it", "-backstage", "-batch", "-force"); // -force because hellowar via svn has no ignores on .stool
-        stool("import", "it");
-        stool("config", "-stage", "it", "name=renamed");
-        stool("move", "-stage", "renamed", "movedStage");
-*/        stool("remove", "-stage", "renamed", "-batch");
-    }
-
 
     public void stoolSetup(String context) throws IOException {
         FileNode home;

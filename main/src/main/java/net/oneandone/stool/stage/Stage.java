@@ -62,6 +62,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.Socket;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -249,19 +250,6 @@ public abstract class Stage {
 
     }
 
-    public static boolean ping(URI uri) {
-        Socket socket;
-
-        try {
-            socket = new Socket(uri.getHost(), uri.getPort());
-            try (InputStream notused = socket.getInputStream()) {
-                return true;
-            }
-        } catch (IOException e) {
-            return false;
-        }
-    }
-
     public String httpUrl(Vhost host) {
         return host.httpUrl(session.configuration.vhosts, getName(), session.configuration.hostname);
     }
@@ -355,12 +343,50 @@ public abstract class Stage {
                 Collections.emptyMap(), mounts, ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
+        ping(console);
         status = engine.containerStatus(container);
         if (status != Engine.Status.RUNNING) {
             throw new IOException("unexpected status: " + status);
         }
         dockerContainerFile().writeString(container);
     }
+
+
+    public void ping(Console console) throws IOException, URISyntaxException, InterruptedException {
+        URI uri;
+        int count;
+
+        console.verbose.println("Ping'n Applications.");
+        for (String url : urlMap().values()) {
+            if (url.startsWith("http://")) {
+                uri = new URI(url);
+                console.verbose.println("Ping'n " + url);
+                count = 0;
+                while (true) {
+                    try {
+                        doPing(uri);
+                        break;
+                    } catch (IOException e) {
+                        console.verbose.println(uri + " not ready yet: " + e.getMessage());
+                        Thread.sleep(100);
+                        count++;
+                        if (count > 10 * 60 * 5) {
+                            throw new IOException(url + ": ping timed out", e);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private static void doPing(URI uri) throws IOException {
+        Socket socket;
+
+        socket = new Socket(uri.getHost(), uri.getPort());
+        try (InputStream notused = socket.getInputStream()) {
+        }
+    }
+
 
     public void wipeDocker(Engine engine) throws IOException {
         wipeContainer(engine);
