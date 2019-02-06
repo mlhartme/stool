@@ -368,7 +368,7 @@ public abstract class Stage {
                 state = jmxEngineState(ports);
                 break;
             } catch (Exception e) {
-                if (count > 20) {
+                if (count > 40) {
                     throw new IOException("initial state timed out: " + e.getMessage(), e);
                 }
                 Thread.sleep(50);
@@ -777,7 +777,7 @@ public abstract class Stage {
         this.lazyMaven = maven;
     }
 
-    /** CAUTION: this is not a session method, because it respected the stage repository */
+    /** CAUTION: this is not a session method, because it respects the stage repository */
     public Maven maven() throws IOException {
         World world;
         String mavenHome;
