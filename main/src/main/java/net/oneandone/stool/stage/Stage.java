@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.stage;
 
+import com.google.gson.JsonObject;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -367,7 +368,6 @@ public abstract class Stage {
                 state = jmxEngineState(ports);
                 break;
             } catch (Exception e) {
-                console.verbose.println(e.getClass() + ": " + e.getMessage());
                 if (count > 20) {
                     throw new IOException("initial state timed out: " + e.getMessage(), e);
                 }
@@ -375,11 +375,11 @@ public abstract class Stage {
             }
         }
         for (int count = 1; !"STARTED".equals(state); count++) {
-            if (count % 100 == 0) {
-                console.info.println("waiting for tomcat startup ... " + state);
-            }
             if (count > 10 * 60 *5) {
                 throw new IOException("tomcat startup timed out, state" + state);
+            }
+            if (count % 100 == 99) {
+                console.info.println("waiting for tomcat startup ... " + state);
             }
             Thread.sleep(100);
             state = jmxEngineState(ports);
@@ -918,6 +918,19 @@ public abstract class Stage {
         return used(directory);
     }
 
+    public int containerDiskUsed() throws IOException {
+        String container;
+        JsonObject obj;
+
+        container = Stage.this.dockerContainer();
+        if (container == null) {
+            return 0;
+        }
+        obj = Stage.this.session.dockerEngine().containerInspect(container, true);
+        // not SizeRootFs, that's the image size plus the rw layer
+        return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
+    }
+
     /** @return megabytes */
     private static int used(FileNode dir) throws IOException {
         Path path;
@@ -1103,7 +1116,7 @@ public abstract class Stage {
             throw new ArgumentException("Stage expired " + config().expire + ". To start it, you have to adjust the 'expire' date.");
         }
         quota = config().quota;
-        used = diskUsed();
+        used = diskUsed() + containerDiskUsed();
         if (used > quota) {
             throw new ArgumentException("Stage quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n" +
                     "Consider running 'stool cleanup'.");
@@ -1188,6 +1201,12 @@ public abstract class Stage {
             @Override
             public Object get() throws IOException {
                 return Stage.this.diskUsed();
+            }
+        });
+        fields.add(new Field("container-disk") {
+            @Override
+            public Object get() throws IOException {
+                return Stage.this.containerDiskUsed();
             }
         });
         fields.add(new Field("state") {

@@ -586,13 +586,23 @@ public class Engine implements AutoCloseable {
         JsonObject state;
         String error;
 
-        response = parser.parse(root.join("containers", id, "json").readString()).getAsJsonObject();
+        response = containerInspect(id, false);
         state = response.get("State").getAsJsonObject();
         error = state.get("Error").getAsString();
         if (!error.isEmpty()) {
             throw new IOException("error state: " + error);
         }
         return state;
+    }
+
+    public JsonObject containerInspect(String id, boolean size) throws IOException {
+        HttpNode node;
+
+        node = root.join("containers", id, "json");
+        if (size) {
+            node = node.withParameter("size", "true");
+        }
+        return parser.parse(node.readString()).getAsJsonObject();
     }
 
     //--

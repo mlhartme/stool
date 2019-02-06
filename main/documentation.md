@@ -1026,6 +1026,8 @@ Available fields:
   Absolute path of the stage directory. Type string.
 * **disk**
   Disk space used for by stage directory mb. Does not include disk space used for Docker image and container. Type number.
+* **container-disk**
+  Disk space used for by running container in mb. This does not include the size of the underlying image, it's just the size of the RW layer. Type number.
 * **id**
   Unique identifier for this stage. Type string.
 * **last-modified-at**
