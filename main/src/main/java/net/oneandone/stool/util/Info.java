@@ -64,14 +64,4 @@ public abstract class Info {
             return value.toString();
         }
     }
-
-    //--
-
-    public static String userName(Session session, String login) {
-        try {
-            return session.users.byLogin(login).toStatus();
-        } catch (NamingException | UserNotFound e) {
-            return "[error: " + e.getMessage() + "]";
-        }
-    }
 }

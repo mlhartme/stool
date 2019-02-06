@@ -61,19 +61,14 @@ import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
-import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
-import java.net.Socket;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -1160,7 +1155,7 @@ public abstract class Stage {
         fields.add(new Field("created-by") {
             @Override
             public Object get() throws IOException {
-                return Info.userName(session, Stage.this.createdBy());
+                return session.users.checkedStatusByLogin(Stage.this.createdBy());
             }
 
         });
@@ -1174,7 +1169,7 @@ public abstract class Stage {
         fields.add(new Field("last-modified-by") {
             @Override
             public Object get() throws IOException {
-                return Info.userName(session, Stage.this.lastModifiedBy());
+                return session.users.checkedStatusByLogin(Stage.this.lastModifiedBy());
             }
         });
         fields.add(new Field("last-modified-at") {

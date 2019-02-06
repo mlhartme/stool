@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.users;
 
+import net.oneandone.stool.util.Session;
+
 import javax.naming.NamingException;
 import java.util.HashMap;
 import java.util.Map;
@@ -53,5 +55,21 @@ public class Users {
             users.put(login, user);
         }
         return user;
+    }
+
+    public String checkedStatusByLogin(String login) {
+        try {
+            return byLogin(login).toStatus();
+        } catch (NamingException | UserNotFound e) {
+            return "[error: " + e.getMessage() + "]";
+        }
+    }
+
+    public String checkedNameByLogin(String login) {
+        try {
+            return byLogin(login).name;
+        } catch (NamingException | UserNotFound e) {
+            return "[error: " + e.getMessage() + "]";
+        }
     }
 }
