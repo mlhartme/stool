@@ -44,6 +44,10 @@ public class Stop extends StageCommand {
         }
     }
 
+    public void doNormal(Project project) throws Exception {
+        project.stage.stop(console);
+    }
+
     @Override
     public void doFinish(Project project) throws Exception {
         String id;
@@ -60,11 +64,5 @@ public class Stop extends StageCommand {
             session.bedroom.remove(session.gson, id);
             console.info.println("state: down");
         }
-    }
-
-    //--
-
-    public void doNormal(Project project) throws Exception {
-        project.stop(console);
     }
 }

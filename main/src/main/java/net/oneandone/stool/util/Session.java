@@ -34,6 +34,7 @@ import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.LinkException;
 import net.oneandone.sushi.fs.World;
@@ -391,17 +392,17 @@ public class Session {
     }
 
     /** returns the build environment */
-    public Environment environment(Project project) {
+    public Environment environment(Stage stage) {
         Environment env;
         String mavenOpts;
 
-        if (project == null) {
+        if (stage == null) {
             mavenOpts = "";
         } else {
-            mavenOpts = project.stage.macros().replace(project.stage.config().mavenOpts);
+            mavenOpts = stage.macros().replace(stage.config().mavenOpts);
         }
         env = new Environment();
-        env.setMavenHome((project != null && project.stage.config().mavenHome() != null) ? project.stage.config().mavenHome() : null);
+        env.setMavenHome((stage != null && stage.config().mavenHome() != null) ? stage.config().mavenHome() : null);
         env.setMavenOpts(mavenOpts);
         return env;
     }

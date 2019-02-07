@@ -37,34 +37,20 @@ import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
 
-import javax.management.AttributeNotFoundException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanException;
-import javax.management.MBeanServerConnection;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URLEncoder;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Formatter;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -197,69 +183,6 @@ public abstract class Project {
 
     public abstract String getDefaultBuildCommand();
 
-    /* TODO: work for tomcat only */
-    public void awaitStartup(Console console) throws IOException, InterruptedException {
-        Ports ports;
-        String state;
-
-        ports = stage.loadPortsOpt();
-        for (int count = 0; true; count++) {
-            try {
-                state = jmxEngineState(ports);
-                break;
-            } catch (Exception e) {
-                if (count > 40) {
-                    throw new IOException("initial state timed out: " + e.getMessage(), e);
-                }
-                Thread.sleep(50);
-            }
-        }
-        for (int count = 1; !"STARTED".equals(state); count++) {
-            if (count > 10 * 60 *5) {
-                throw new IOException("tomcat startup timed out, state" + state);
-            }
-            if (count % 100 == 99) {
-                console.info.println("waiting for tomcat startup ... " + state);
-            }
-            Thread.sleep(100);
-            state = jmxEngineState(ports);
-        }
-    }
-
-    private MBeanServerConnection lazyJmxConnection;
-
-    private MBeanServerConnection jmxConnection(Ports ports) throws IOException {
-        if (lazyJmxConnection == null) {
-            JMXServiceURL url;
-
-            // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-            try {
-                url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + stage.session.configuration.hostname + ":" + ports.jmx() + "/jmxrmi");
-            } catch (MalformedURLException e) {
-                throw new IllegalStateException(e);
-            }
-            lazyJmxConnection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
-        }
-        return lazyJmxConnection;
-    }
-
-    private String jmxEngineState(Ports ports) throws IOException {
-        MBeanServerConnection connection;
-        ObjectName name;
-
-        connection = jmxConnection(ports);
-        try {
-            name = new ObjectName("Catalina:type=Engine");
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalStateException(e);
-        }
-        try {
-            return (String) connection.getAttribute(name, "stateName");
-        } catch (ReflectionException | InstanceNotFoundException | AttributeNotFoundException | MBeanException e) {
-            throw new IllegalStateException();
-        }
-    }
-
 
     public abstract List<String> faultProjects() throws IOException;
 
@@ -278,22 +201,6 @@ public abstract class Project {
                 }
             }
         });
-    }
-
-
-    /** Fails if container is not running */
-    public void stop(Console console) throws IOException {
-        String container;
-        Engine engine;
-
-        container = stage.dockerContainer();
-        if (container == null) {
-            throw new IOException("container is not running.");
-        }
-        console.info.println("stopping container ...");
-        engine = stage.session.dockerEngine();
-        engine.containerStop(container, 300);
-        stage.dockerContainerFile().deleteFile();
     }
 
     //--
@@ -319,15 +226,7 @@ public abstract class Project {
 
     /** @return launcher with build environment */
     public Launcher launcher(String... command) {
-        return launcher(directory, command);
-    }
-
-    public Launcher launcher(FileNode working, String... command) {
-        Launcher launcher;
-
-        launcher = new Launcher(working, command);
-        stage.session.environment(this).save(launcher);
-        return launcher;
+        return stage.launcher(directory, command);
     }
 
     public abstract boolean refreshPending(Console console) throws IOException;
@@ -406,8 +305,7 @@ public abstract class Project {
             }
         }
     }
-    private void warProjects(FileNode pomXml, Properties userProperties, List<String> profiles,
-      List<MavenProject> result) throws IOException {
+    private void warProjects(FileNode pomXml, Properties userProperties, List<String> profiles, List<MavenProject> result) throws IOException {
         MavenProject root;
         FileNode modulePom;
 
@@ -430,38 +328,8 @@ public abstract class Project {
         }
     }
 
-    public static String timespan(long since) {
-        long diff;
-        StringBuilder result;
-        long hours;
-
-        diff = System.currentTimeMillis() - since;
-        diff /= 1000;
-        hours = diff / 3600;
-        if (hours >= 48) {
-            return (hours / 24) + " days";
-        } else {
-            result = new StringBuilder();
-            new Formatter(result).format("%d:%02d:%02d", hours, diff % 3600 / 60, diff % 60);
-            return result.toString();
-        }
-    }
-
     public int diskUsed() throws IOException {
         return used(directory);
-    }
-
-    public int containerDiskUsed() throws IOException {
-        String container;
-        JsonObject obj;
-
-        container = stage.dockerContainer();
-        if (container == null) {
-            return 0;
-        }
-        obj = stage.session.dockerEngine().containerInspect(container, true);
-        // not SizeRootFs, that's the image size plus the rw layer
-        return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
 
     /** @return megabytes */
@@ -649,7 +517,7 @@ public abstract class Project {
             throw new ArgumentException("Stage expired " + stage.config().expire + ". To start it, you have to adjust the 'expire' date.");
         }
         quota = stage.config().quota;
-        used = diskUsed() + containerDiskUsed();
+        used = diskUsed() + stage.containerDiskUsed();
         if (used > quota) {
             throw new ArgumentException("Stage quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n" +
                     "Consider running 'stool cleanup'.");
@@ -738,21 +606,6 @@ public abstract class Project {
             @Override
             public Object get() throws IOException {
                 return Project.this.diskUsed();
-            }
-        });
-        fields.add(new Field("container-disk") {
-            @Override
-            public Object get() throws IOException {
-                return Project.this.containerDiskUsed();
-            }
-        });
-        fields.add(new Field("uptime") {
-            @Override
-            public Object get() throws IOException {
-                String container;
-
-                container = Project.this.stage.dockerContainer();
-                return container == null ? null : timespan(Project.this.stage.session.dockerEngine().containerStartedAt(container));
             }
         });
         fields.addAll(TemplateField.scanTemplate(this, stage.config().template));

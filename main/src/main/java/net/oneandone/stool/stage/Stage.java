@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.stage;
 
+import com.google.gson.JsonObject;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -46,13 +47,24 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiWriter;
 import net.oneandone.sushi.io.OS;
+import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.eclipse.aether.repository.RepositoryPolicy;
 
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MBeanServerConnection;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
@@ -63,6 +75,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -188,7 +201,7 @@ public class Stage {
         fields.add(new Field("last-modified-at") {
             @Override
             public Object get() throws IOException {
-                return Project.timespan(lastModifiedAt());
+                return timespan(lastModifiedAt());
             }
         });
         fields.add(new Field("cpu") {
@@ -245,7 +258,39 @@ public class Stage {
                 return namedUrls();
             }
         });
+        fields.add(new Field("container-disk") {
+            @Override
+            public Object get() throws IOException {
+                return containerDiskUsed();
+            }
+        });
+        fields.add(new Field("uptime") {
+            @Override
+            public Object get() throws IOException {
+                String container;
+
+                container = dockerContainer();
+                return container == null ? null : timespan(session.dockerEngine().containerStartedAt(container));
+            }
+        });
         return fields;
+    }
+
+    public static String timespan(long since) {
+        long diff;
+        StringBuilder result;
+        long hours;
+
+        diff = System.currentTimeMillis() - since;
+        diff /= 1000;
+        hours = diff / 3600;
+        if (hours >= 48) {
+            return (hours / 24) + " days";
+        } else {
+            result = new StringBuilder();
+            new Formatter(result).format("%d:%02d:%02d", hours, diff % 3600 / 60, diff % 60);
+            return result.toString();
+        }
     }
 
     public List<Property> properties() {
@@ -422,6 +467,29 @@ public class Stage {
             throw new IOException("unexpected status: " + status);
         }
         dockerContainerFile().writeString(container);
+    }
+
+    /** Fails if container is not running */
+    public void stop(Console console) throws IOException {
+        String container;
+        Engine engine;
+
+        container = dockerContainer();
+        if (container == null) {
+            throw new IOException("container is not running.");
+        }
+        console.info.println("stopping container ...");
+        engine = session.dockerEngine();
+        engine.containerStop(container, 300);
+        dockerContainerFile().deleteFile();
+    }
+
+    public Launcher launcher(FileNode working, String... command) {
+        Launcher launcher;
+
+        launcher = new Launcher(working, command);
+        session.environment(this).save(launcher);
+        return launcher;
     }
 
     private static class FlushWriter extends Writer {
@@ -743,4 +811,80 @@ public class Stage {
         return content;
     }
 
+    //--
+    /* TODO: work for tomcat only */
+    public void awaitStartup(Console console) throws IOException, InterruptedException {
+        Ports ports;
+        String state;
+
+        ports = loadPortsOpt();
+        for (int count = 0; true; count++) {
+            try {
+                state = jmxEngineState(ports);
+                break;
+            } catch (Exception e) {
+                if (count > 40) {
+                    throw new IOException("initial state timed out: " + e.getMessage(), e);
+                }
+                Thread.sleep(50);
+            }
+        }
+        for (int count = 1; !"STARTED".equals(state); count++) {
+            if (count > 10 * 60 *5) {
+                throw new IOException("tomcat startup timed out, state" + state);
+            }
+            if (count % 100 == 99) {
+                console.info.println("waiting for tomcat startup ... " + state);
+            }
+            Thread.sleep(100);
+            state = jmxEngineState(ports);
+        }
+    }
+
+    private MBeanServerConnection lazyJmxConnection;
+
+    private MBeanServerConnection jmxConnection(Ports ports) throws IOException {
+        if (lazyJmxConnection == null) {
+            JMXServiceURL url;
+
+            // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
+            try {
+                url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + session.configuration.hostname + ":" + ports.jmx() + "/jmxrmi");
+            } catch (MalformedURLException e) {
+                throw new IllegalStateException(e);
+            }
+            lazyJmxConnection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
+        }
+        return lazyJmxConnection;
+    }
+
+    private String jmxEngineState(Ports ports) throws IOException {
+        MBeanServerConnection connection;
+        ObjectName name;
+
+        connection = jmxConnection(ports);
+        try {
+            name = new ObjectName("Catalina:type=Engine");
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalStateException(e);
+        }
+        try {
+            return (String) connection.getAttribute(name, "stateName");
+        } catch (ReflectionException | InstanceNotFoundException | AttributeNotFoundException | MBeanException e) {
+            throw new IllegalStateException();
+        }
+    }
+
+    public int containerDiskUsed() throws IOException {
+        String container;
+        JsonObject obj;
+
+        container = dockerContainer();
+        if (container == null) {
+            return 0;
+        }
+        obj = session.dockerEngine().containerInspect(container, true);
+        // not SizeRootFs, that's the image size plus the rw layer
+        return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
+    }
 }
