@@ -171,18 +171,18 @@ public class Tomcat {
         ServerXml serverXml;
 
         serverXml = ServerXml.load(serverXml(), project.getName(), session.configuration.hostname);
-        serverXml.addContextParameters(project, logroot, Strings.toMap(additionals));
+        serverXml.addContextParameters(project.getStage(), logroot, Strings.toMap(additionals));
         serverXml.save(serverXml());
     }
 
     //--
 
     private FileNode tomcatTarGz(String version) {
-        return project.backstage.join("context/tomcat/apache-tomcat-" + version + ".tar.gz");
+        return project.getStage().directory.join("context/tomcat/apache-tomcat-" + version + ".tar.gz");
     }
 
     private FileNode serverXml() {
-        return project.backstage.join("context/tomcat/server.xml");
+        return project.getStage().directory.join("context/tomcat/server.xml");
     }
 
     /** @return true for 8.0.x and older */

@@ -47,13 +47,13 @@ public class Cd extends StageCommand {
         if (target == null) {
             node = project.getDirectory();
         } else if ("backstage".equals(target)) {
-            node = project.getBackstage();
+            node = project.getStage().directory;
         } else {
             filter = world.filter();
             filter.includeAll();
             filter.maxDepth(2);
             filter.predicate(Predicate.DIRECTORY);
-            lst = project.getBackstage().find(filter);
+            lst = project.getStage().directory.find(filter);
             node = null;
             message = new StringBuilder();
             for (FileNode candidate : lst) {

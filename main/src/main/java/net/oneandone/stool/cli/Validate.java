@@ -154,7 +154,7 @@ public class Validate extends StageCommand {
         }
         report.user(project, message);
         if (repair) {
-            if (project.dockerContainer() != null) {
+            if (project.stage.dockerContainer() != null) {
                 try {
                     new Stop(session, false).doRun(project);
                     report.user(project, "stage has been stopped");
@@ -184,7 +184,7 @@ public class Validate extends StageCommand {
         String container;
         Status status;
 
-        container = project.dockerContainer();
+        container = project.stage.dockerContainer();
         if (container == null) {
             // not running, nothing to check
             return;
@@ -194,16 +194,16 @@ public class Validate extends StageCommand {
         } catch (FileNotFoundException e) {
             report.admin(project, container + ": container not found");
             if (repair) {
-                project.dockerContainerFile().deleteFile();
-                report.admin(project, "repaired by deleting " + project.dockerContainerFile());
+                project.stage.dockerContainerFile().deleteFile();
+                report.admin(project, "repaired by deleting " + project.stage.dockerContainerFile());
             }
             return;
         }
         if (status != Status.RUNNING) {
             report.admin(project, container + ": container is not running: " + status);
             if (repair) {
-                project.dockerContainerFile().deleteFile();
-                report.admin(project, "repaired by deleting " + project.dockerContainerFile());
+                project.stage.dockerContainerFile().deleteFile();
+                report.admin(project, "repaired by deleting " + project.stage.dockerContainerFile());
             }
         }
     }

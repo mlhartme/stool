@@ -89,7 +89,7 @@ public class Create extends SessionCommand {
 
         Runtime.getRuntime().removeShutdownHook(cleanup);
 
-        session.add(project.backstage, project.getId());
+        session.add(project.getStage().directory, project.getId());
         session.logging.setStage(project.getId(), project.getName());
         console.info.println("stage created: " + project.getName());
         session.cd(project.getDirectory());
@@ -202,7 +202,7 @@ public class Create extends SessionCommand {
             artifactStage = new ArtifactProject(session, origin, id, directory, stageConfiguration);
             // create backstage BEFORE possible artifactory resolving because it might
             // already populates the local repository of the stage
-            artifactStage.backstage.mkdir();
+            artifactStage.getStage().directory.mkdir();
             artifactStage.populateDirectory(console);
             project = artifactStage;
         } else {
@@ -211,7 +211,7 @@ public class Create extends SessionCommand {
             session.scm(origin).checkout(origin, directory, quiet ? console.verbose : console.info);
             project = SourceProject.forOrigin(session, id, directory, origin, stageConfiguration);
             // create backstage AFTER checkout -- git would reject none-empty target directories
-            project.backstage.mkdir();
+            project.getStage().directory.mkdir();
         }
         return project;
     }

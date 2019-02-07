@@ -98,8 +98,8 @@ import static net.oneandone.stool.stage.Project.State.UP;
  * Concrete implementations are SourceProject or ArtifactProject.
  */
 public abstract class Project {
-    public static FileNode backstageDirectory(FileNode dir) {
-        return dir.join(".backstage");
+    public static FileNode backstageDirectory(FileNode projectDirectory) {
+        return projectDirectory.join(".backstage");
     }
 
     //--
@@ -165,7 +165,7 @@ public abstract class Project {
 
     private final String id;
 
-    public final FileNode backstage;
+    public final Stage stage;
 
     /** user visible directory */
     protected FileNode directory;
@@ -178,7 +178,7 @@ public abstract class Project {
         this.session = session;
         this.origin = origin;
         this.id = id;
-        this.backstage = backstageDirectory(directory);
+        this.stage = new Stage(backstageDirectory(directory));
         this.directory = directory;
         this.configuration = configuration;
     }
@@ -191,8 +191,8 @@ public abstract class Project {
         return config().name;
     }
 
-    public FileNode getBackstage() {
-        return backstage;
+    public Stage getStage() {
+        return stage;
     }
     public FileNode getDirectory() {
         return directory;
@@ -226,7 +226,7 @@ public abstract class Project {
         FileNode file;
         FileNode link;
 
-        file = getBackstage().join("creator.touch");
+        file = stage.directory.join("creator.touch");
         if (!file.exists()) {
             link = session.backstageLink(id);
             file.getParent().mkdirOpt();
@@ -249,7 +249,7 @@ public abstract class Project {
     public State state() throws IOException {
         if (session.bedroom.contains(getId())) {
             return State.SLEEPING;
-        } else if (dockerContainer() != null) {
+        } else if (stage.dockerContainer() != null) {
             return UP;
         } else {
             return State.DOWN;
@@ -331,7 +331,7 @@ public abstract class Project {
         context = dockerContext(ports);
         wipeContainer(engine);
         console.verbose.println("building image ... ");
-        try (Writer log = new FlushWriter(backstage.join("image.log").newWriter())) {
+        try (Writer log = new FlushWriter(stage.directory.join("image.log").newWriter())) {
             // don't close the tee writer, it would close console output as well
             image = engine.imageBuild(tag, dockerLabel(), context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {
@@ -354,7 +354,7 @@ public abstract class Project {
         if (status != Engine.Status.RUNNING) {
             throw new IOException("unexpected status: " + status);
         }
-        dockerContainerFile().writeString(container);
+        stage.dockerContainerFile().writeString(container);
     }
 
     /* TODO: work for tomcat only */
@@ -488,7 +488,7 @@ public abstract class Project {
         Engine engine;
 
         engine = session.dockerEngine();
-        engine.containerLogsFollow(dockerContainer(), new OutputStream() {
+        engine.containerLogsFollow(stage.dockerContainer(), new OutputStream() {
             @Override
             public void write(int b) {
                 dest.write(b);
@@ -506,7 +506,7 @@ public abstract class Project {
         FileNode merged;
 
         result = new HashMap<>();
-        result.put(backstage.join("logs").mkdirOpt().getAbsolute(), "/var/log/stool");
+        result.put(stage.directory.join("logs").mkdirOpt().getAbsolute(), "/var/log/stool");
         if (source) {
             result.put(getDirectory().getAbsolute(), "/stage");
         } else {
@@ -560,17 +560,6 @@ public abstract class Project {
         return current;
     }
 
-    public FileNode dockerContainerFile() {
-        return backstage.join("container.id");
-    }
-
-    public String dockerContainer() throws IOException {
-        FileNode file;
-
-        file = dockerContainerFile();
-        return file.exists() ? file.readString().trim() : null;
-    }
-
     private static final String FREEMARKER_EXT = ".fm";
 
     private FileNode dockerContext(Ports ports) throws IOException, TemplateException {
@@ -587,7 +576,7 @@ public abstract class Project {
         configuration.setDefaultEncoding("UTF-8");
 
         src = config().template;
-        dest = backstage.join("context");
+        dest = stage.directory.join("context");
         dest.deleteTreeOpt();
         dest.mkdir();
         environment = Variable.scanTemplate(src).values();
@@ -655,14 +644,14 @@ public abstract class Project {
         String container;
         Engine engine;
 
-        container = dockerContainer();
+        container = stage.dockerContainer();
         if (container == null) {
             throw new IOException("container is not running.");
         }
         console.info.println("stopping container ...");
         engine = session.dockerEngine();
         engine.containerStop(container, 300);
-        dockerContainerFile().deleteFile();
+        stage.dockerContainerFile().deleteFile();
     }
 
     private void checkMemory() throws IOException {
@@ -708,7 +697,7 @@ public abstract class Project {
     public FileNode modifiedFile() throws IOException {
         FileNode file;
 
-        file = getBackstage().join("modified.touch");
+        file = stage.directory.join("modified.touch");
         if (!file.exists()) {
             file.getParent().mkdirOpt();
             file.writeString(session.user);
@@ -768,7 +757,7 @@ public abstract class Project {
 
     public void initialize() throws IOException {
         // important: this is the last step in stage creation; creating this file indicates that the stage is ready
-        session.saveStageProperties(configuration, backstage);
+        session.saveStageProperties(configuration, stage.directory);
     }
 
     //--
@@ -890,11 +879,7 @@ public abstract class Project {
     }
 
     public FileNode localRepository() {
-        return session.configuration.shared ? backstage.join(".m2") : session.world.getHome().join(".m2/repository");
-    }
-
-    public Logs logs() {
-        return new Logs(getBackstage().join("logs"));
+        return session.configuration.shared ? stage.directory.join(".m2") : session.world.getHome().join(".m2/repository");
     }
 
     public static String timespan(long since) {
@@ -922,7 +907,7 @@ public abstract class Project {
         String container;
         JsonObject obj;
 
-        container = Project.this.dockerContainer();
+        container = stage.dockerContainer();
         if (container == null) {
             return 0;
         }
@@ -1150,7 +1135,7 @@ public abstract class Project {
         fields.add(new Field("backstage") {
             @Override
             public Object get() {
-                return Project.this.backstage.getAbsolute();
+                return Project.this.stage.directory.getAbsolute();
             }
         });
         fields.add(new Field("origin") {
@@ -1220,7 +1205,7 @@ public abstract class Project {
             public Object get() throws IOException {
                 String container;
 
-                container = Project.this.dockerContainer();
+                container = Project.this.stage.dockerContainer();
                 return container == null ? null : timespan(Project.this.session.dockerEngine().containerStartedAt(container));
             }
         });
@@ -1231,7 +1216,7 @@ public abstract class Project {
                 Engine engine;
                 Stats stats;
 
-                container = Project.this.dockerContainer();
+                container = Project.this.stage.dockerContainer();
                 if (container == null) {
                     return null;
                 }
@@ -1252,7 +1237,7 @@ public abstract class Project {
                 Engine engine;
                 Stats stats;
 
-                container = Project.this.dockerContainer();
+                container = Project.this.stage.dockerContainer();
                 if (container == null) {
                     return null;
                 }
@@ -1269,7 +1254,7 @@ public abstract class Project {
         fields.add(new Field("container") {
             @Override
             public Object get() throws IOException {
-                return Project.this.dockerContainer();
+                return Project.this.stage.dockerContainer();
             }
         });
         fields.add(new Field("apps") {

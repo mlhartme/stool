@@ -94,7 +94,7 @@ public class Config extends StageCommand {
                 }
             }
             if (!error) {
-                session.saveStageProperties(project.config(), project.backstage);
+                session.saveStageProperties(project.config(), project.getStage().directory);
             }
         } else {
             props = get ? argumentProperties(project) : project.properties();

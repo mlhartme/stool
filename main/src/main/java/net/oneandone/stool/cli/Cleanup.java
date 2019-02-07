@@ -36,37 +36,7 @@ public class Cleanup extends StageCommand {
     @Override
     public void doMain(Project project) throws Exception {
         project.modify();
-        cleanupMavenRepository(project);
-        rotateLogs(project);
-    }
-
-    private void cleanupMavenRepository(Project project) throws NodeNotFoundException, DeleteException {
-        FileNode repository;
-
-        repository = project.getBackstage().join(".m2");
-        if (repository.exists()) {
-            console.info.println("Removing Maven Repository at " + repository.getAbsolute());
-            repository.deleteTree();
-        } else {
-            console.verbose.println("No Maven Repository found at " + repository.getAbsolute());
-        }
-    }
-
-    private void rotateLogs(Project project) throws IOException {
-        Node archived;
-
-        for (Node logfile : project.getBackstage().find("**/*.log")) {
-            archived = archiveDirectory(logfile).join(logfile.getName() + ".gz");
-            console.verbose.println(String.format("rotating %s to %s", logfile.getRelative(project.getBackstage()),
-                    archived.getRelative(project.getBackstage())));
-            logfile.gzip(archived);
-            logfile.deleteFile();
-        }
-    }
-
-    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-
-    private Node archiveDirectory(Node node) throws MkdirException {
-        return node.getParent().join("archive", FMT.format(LocalDateTime.now())).mkdirsOpt();
+        project.getStage().cleanupMavenRepository(console);
+        project.getStage().rotateLogs(console);
     }
 }
