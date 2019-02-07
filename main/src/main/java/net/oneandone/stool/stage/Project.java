@@ -160,10 +160,7 @@ public abstract class Project {
 
     public final Session session;
 
-    //-- main methods
     protected final String origin;
-
-    private final String id;
 
     public final Stage stage;
 
@@ -177,14 +174,9 @@ public abstract class Project {
     public Project(Session session, String origin, String id, FileNode directory, StageConfiguration configuration) {
         this.session = session;
         this.origin = origin;
-        this.id = id;
-        this.stage = new Stage(backstageDirectory(directory));
+        this.stage = new Stage(id, backstageDirectory(directory));
         this.directory = directory;
         this.configuration = configuration;
-    }
-
-    public String getId() {
-        return id;
     }
 
     public String getName() {
@@ -208,11 +200,11 @@ public abstract class Project {
     }
 
     public String backstageLock() {
-        return "backstage-" + id;
+        return "backstage-" + stage.getId();
     }
 
     public String directoryLock() {
-        return "directory-" + id;
+        return "directory-" + stage.getId();
     }
 
     public abstract boolean updateAvailable();
@@ -228,7 +220,7 @@ public abstract class Project {
 
         file = stage.directory.join("creator.touch");
         if (!file.exists()) {
-            link = session.backstageLink(id);
+            link = session.backstageLink(stage.getId());
             file.getParent().mkdirOpt();
             file.writeString(link.getOwner().getName());
             file.setLastModified(Files.getLastModifiedTime(link.toPath(), LinkOption.NOFOLLOW_LINKS).toMillis());
@@ -247,7 +239,7 @@ public abstract class Project {
     }
 
     public State state() throws IOException {
-        if (session.bedroom.contains(getId())) {
+        if (session.bedroom.contains(stage.getId())) {
             return State.SLEEPING;
         } else if (stage.dockerContainer() != null) {
             return UP;
@@ -289,7 +281,7 @@ public abstract class Project {
     }
 
     public Ports loadPortsOpt() throws IOException {
-        return session.pool().stageOpt(getId());
+        return session.pool().stageOpt(stage.getId());
     }
 
     /** @return empty list of no ports are allocated */
@@ -327,7 +319,7 @@ public abstract class Project {
 
         checkMemory();
         engine = session.dockerEngine();
-        tag = getId();
+        tag = stage.getId();
         context = dockerContext(ports);
         wipeContainer(engine);
         console.verbose.println("building image ... ");
@@ -445,7 +437,7 @@ public abstract class Project {
     }
 
     private Map<String, String> dockerLabel() {
-        return Strings.toMap("stool", id);
+        return Strings.toMap("stool", stage.getId());
     }
 
     public abstract List<String> faultProjects() throws IOException;
@@ -672,7 +664,7 @@ public abstract class Project {
     public void move(FileNode newDirectory) throws IOException {
         FileNode link;
 
-        link = session.backstageLink(getId());
+        link = session.backstageLink(stage.getId());
         link.deleteTree();
         directory.move(newDirectory);
         directory = newDirectory;
@@ -1117,7 +1109,7 @@ public abstract class Project {
         fields.add(new Field("id") {
             @Override
             public Object get() {
-                return getId();
+                return stage.getId();
             }
         });
         fields.add(new Field("selected") {
@@ -1342,7 +1334,7 @@ public abstract class Project {
     public int contentHash() throws IOException {
         return ("StageInfo{"
                 + "name='" + config().name + '\''
-                + ", id='" + id + '\''
+                + ", id='" + stage.getId() + '\''
                 + ", comment='" + config().comment + '\''
                 + ", origin='" + origin + '\''
                 + ", urls=" + urlMap()

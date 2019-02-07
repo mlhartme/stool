@@ -223,8 +223,8 @@ public class Import extends SessionCommand {
             project.initialize();
         }
         project.modify();
-        session.add(project.getStage().directory, project.getId());
-        session.logging.setStage(project.getId(), project.getName());
+        session.add(project.getStage().directory, project.getStage().getId());
+        session.logging.setStage(project.getStage().getId(), project.getName());
         console.info.println("stage imported: " + project.getName());
     }
 

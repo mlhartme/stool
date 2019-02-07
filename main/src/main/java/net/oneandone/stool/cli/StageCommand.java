@@ -411,7 +411,7 @@ public abstract class StageCommand extends SessionCommand {
                 if (withPrefix) {
                     ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + project.getName() + "} ", width));
                 }
-                session.logging.setStage(project.getId(), project.getName());
+                session.logging.setStage(project.getStage().getId(), project.getName());
 
                 if (main) {
                     runMain(project);

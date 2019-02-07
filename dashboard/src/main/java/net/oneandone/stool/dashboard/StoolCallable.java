@@ -82,7 +82,7 @@ public class StoolCallable implements Callable<Failure> {
             launcher.arg("-svnuser=" + svnCredentials.username);
             launcher.arg("-svnpassword=" + svnCredentials.password);
         }
-        launcher.arg(command, "-stage", "id=" + project.getId());
+        launcher.arg(command, "-stage", "id=" + project.getStage().getId());
         launcher.arg(arguments);
         try (PrintWriter writer = new PrintWriter(logDir.join(id + ".log").newWriter())) {
             writer.println(hide(hide(launcher.toString(), svnCredentials.password), svnCredentials.username));

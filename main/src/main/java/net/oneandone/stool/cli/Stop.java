@@ -32,7 +32,7 @@ public class Stop extends StageCommand {
         boolean alreadySleeping;
 
         project.modify();
-        alreadySleeping = session.bedroom.contains(project.getId());
+        alreadySleeping = session.bedroom.contains(project.getStage().getId());
         if (alreadySleeping) {
             if (sleep) {
                 console.info.println("warning: stage already marked as sleeping");
@@ -46,15 +46,18 @@ public class Stop extends StageCommand {
 
     @Override
     public void doFinish(Project project) throws Exception {
+        String id;
+
+        id = project.getStage().getId();
         if (sleep) {
-            if (session.bedroom.contains(project.getId())) {
+            if (session.bedroom.contains(id)) {
                 console.info.println("already sleeping");
             } else {
-                session.bedroom.add(session.gson, project.getId());
+                session.bedroom.add(session.gson, id);
             }
             console.info.println("state: sleeping");
         } else {
-            session.bedroom.remove(session.gson, project.getId());
+            session.bedroom.remove(session.gson, id);
             console.info.println("state: down");
         }
     }

@@ -451,7 +451,7 @@ public class Session {
     }
 
     public boolean isSelected(Project project) throws IOException {
-        return project.getId().equals(getSelectedStageId());
+        return project.getStage().getId().equals(getSelectedStageId());
     }
 
     //-- stage properties

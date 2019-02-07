@@ -46,7 +46,7 @@ public class History extends StageCommand {
         List<LogEntry> lst;
         int counter;
 
-        stageId = project.getId();
+        stageId = project.getStage().getId();
         counter = 0;
         detailsMap = new HashMap<>();
         reader = LogReader.create(session.logging.directory());

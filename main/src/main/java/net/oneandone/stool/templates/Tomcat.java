@@ -150,7 +150,7 @@ public class Tomcat {
         if (project.isSystem()) {
             opts.add("-Dstool.cp=" + Main.stoolCp(session.world).getAbsolute());
             opts.add("-Dstool.home=" + session.home.getAbsolute());
-            opts.add("-Dstool.idlink=" + session.backstageLink(project.getId()).getAbsolute());
+            opts.add("-Dstool.idlink=" + session.backstageLink(project.getStage().getId()).getAbsolute());
         }
 
         if (debug || suspend) {

@@ -105,7 +105,7 @@ public class Pool {
         names.addAll(nameDocroots.keySet());
 
         stageName = project.getName();
-        stageId = project.getId();
+        stageId = project.getStage().getId();
         result = new ArrayList<>();
         for (String name : names) {
             docroot = nameDocroots.get(name);

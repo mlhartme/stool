@@ -52,7 +52,7 @@ public class Remove extends StageCommand {
                 throw new IOException("checkout has modifications - aborted.\nYou may run with -force");
             }
         }
-        dir = backstageOnly ? session.backstageLink(project.getId()).resolveLink() : project.getDirectory();
+        dir = backstageOnly ? session.backstageLink(project.getStage().getId()).resolveLink() : project.getDirectory();
         if (!batch) {
             console.info.println("Ready to delete " + dir.getAbsolute() + "?");
             console.pressReturn();
@@ -60,9 +60,9 @@ public class Remove extends StageCommand {
         project.wipeDocker(session.dockerEngine());
 
         // delete backstageLink first - to make sure no other stool invocation detects a stage backstage and wipes it
-        Files.delete(session.backstageLink(project.getId()).toPath());
+        Files.delete(session.backstageLink(project.getStage().getId()).toPath());
         dir.deleteTree();
-        session.bedroom.remove(session.gson, project.getId());
+        session.bedroom.remove(session.gson, project.getStage().getId());
         if (selected) {
             session.cd(project.getDirectory().getParent());
         }

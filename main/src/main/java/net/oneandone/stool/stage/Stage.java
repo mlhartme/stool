@@ -28,10 +28,16 @@ import java.time.format.DateTimeFormatter;
 
 /** represents the former backstage directory */
 public class Stage {
+    private final String id;
     public final FileNode directory;
 
-    public Stage(FileNode directory) {
+    public Stage(String id, FileNode directory) {
+        this.id = id;
         this.directory = directory;
+    }
+
+    public String getId() {
+        return id;
     }
 
     //--
