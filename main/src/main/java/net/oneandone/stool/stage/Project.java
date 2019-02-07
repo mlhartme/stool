@@ -165,29 +165,6 @@ public abstract class Project {
 
     public abstract boolean updateAvailable();
 
-    /** @return login name */
-    public String createdBy() throws IOException {
-        return creatorFile().readString().trim();
-    }
-
-    private FileNode creatorFile() throws IOException {
-        FileNode file;
-        FileNode link;
-
-        file = stage.directory.join("creator.touch");
-        if (!file.exists()) {
-            link = stage.session.backstageLink(stage.getId());
-            file.getParent().mkdirOpt();
-            file.writeString(link.getOwner().getName());
-            file.setLastModified(Files.getLastModifiedTime(link.toPath(), LinkOption.NOFOLLOW_LINKS).toMillis());
-        }
-        return file;
-    }
-
-    public LocalDateTime created() throws IOException {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(creatorFile().getLastModified()), ZoneId.systemDefault());
-    }
-
     //--
 
     public abstract List<String> vhostNames() throws IOException;
@@ -362,33 +339,6 @@ public abstract class Project {
     }
 
     //-- util
-
-    public FileNode modifiedFile() throws IOException {
-        FileNode file;
-
-        file = stage.directory.join("modified.touch");
-        if (!file.exists()) {
-            file.getParent().mkdirOpt();
-            file.writeString(stage.session.user);
-        }
-        return file;
-    }
-
-    public void modify() throws IOException {
-        FileNode file;
-
-        file = modifiedFile();
-        file.getParent().mkdirOpt();
-        file.writeString(stage.session.user);
-    }
-
-    public String lastModifiedBy() throws IOException {
-        return modifiedFile().readString().trim();
-    }
-
-    public long lastModifiedAt() throws IOException {
-        return modifiedFile().getLastModified();
-    }
 
     /** @return launcher with build environment */
     public Launcher launcher(String... command) {
@@ -801,32 +751,6 @@ public abstract class Project {
                 return Project.this.getType();
             }
         });
-        fields.add(new Field("created-by") {
-            @Override
-            public Object get() throws IOException {
-                return stage.session.users.checkedStatusByLogin(Project.this.createdBy());
-            }
-
-        });
-        fields.add(new Field("created-at") {
-            @Override
-            public Object get() throws IOException {
-                return LogEntry.FULL_FMT.format(Project.this.created());
-            }
-
-        });
-        fields.add(new Field("last-modified-by") {
-            @Override
-            public Object get() throws IOException {
-                return stage.session.users.checkedStatusByLogin(Project.this.lastModifiedBy());
-            }
-        });
-        fields.add(new Field("last-modified-at") {
-            @Override
-            public Object get() throws IOException {
-                return Project.timespan(Project.this.lastModifiedAt());
-            }
-        });
         fields.add(new Field("buildtime") {
             @Override
             public Object get() throws IOException {
@@ -875,7 +799,7 @@ public abstract class Project {
                 + ", urls=" + urlMap()
                 + ", state=" + stage.state()
                 + ", displayState=" + stage.displayState()
-                + ", last-modified-by='" + lastModifiedBy() + '\''
+                + ", last-modified-by='" + stage.lastModifiedBy() + '\''
                 + ", updateAvailable=" + updateAvailable()
                 + '}').hashCode();
     }

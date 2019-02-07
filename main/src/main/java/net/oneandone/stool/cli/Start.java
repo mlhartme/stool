@@ -52,7 +52,7 @@ public class Start extends StageCommand {
 
     @Override
     public void doMain(Project project) throws Exception {
-        project.modify();
+        project.stage.modify();
         // to avoid running into a ping timeout below:
         project.stage.session.configuration.verfiyHostname();
         project.checkConstraints();

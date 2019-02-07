@@ -74,7 +74,7 @@ public class Config extends StageCommand {
         int width;
 
         if (set) {
-            project.modify();
+            project.stage.modify();
             error = false;
             for (Map.Entry<String, String> entry : arguments.entrySet()) {
                 prop = project.getStage().propertyOpt(entry.getKey());

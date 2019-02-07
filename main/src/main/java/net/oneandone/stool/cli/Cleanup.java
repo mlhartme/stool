@@ -26,7 +26,7 @@ public class Cleanup extends StageCommand {
 
     @Override
     public void doMain(Project project) throws Exception {
-        project.modify();
+        project.stage.modify();
         project.getStage().cleanupMavenRepository(console);
         project.getStage().rotateLogs(console);
     }

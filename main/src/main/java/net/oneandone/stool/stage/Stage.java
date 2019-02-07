@@ -30,6 +30,7 @@ import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.util.Field;
+import net.oneandone.stool.util.LogEntry;
 import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Property;
@@ -52,7 +53,11 @@ import org.eclipse.aether.repository.RepositoryPolicy;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -157,6 +162,32 @@ public class Stage {
             @Override
             public Object get() throws IOException {
                 return state().toString();
+            }
+        });
+        fields.add(new Field("created-by") {
+            @Override
+            public Object get() throws IOException {
+                return session.users.checkedStatusByLogin(createdBy());
+            }
+
+        });
+        fields.add(new Field("created-at") {
+            @Override
+            public Object get() throws IOException {
+                return LogEntry.FULL_FMT.format(created());
+            }
+
+        });
+        fields.add(new Field("last-modified-by") {
+            @Override
+            public Object get() throws IOException {
+                return session.users.checkedStatusByLogin(lastModifiedBy());
+            }
+        });
+        fields.add(new Field("last-modified-at") {
+            @Override
+            public Object get() throws IOException {
+                return Project.timespan(lastModifiedAt());
             }
         });
         fields.add(new Field("cpu") {
@@ -584,4 +615,57 @@ public class Stage {
                     + "Consider stopping stages.");
         }
     }
+
+    //--
+
+    /** @return login name */
+    public String createdBy() throws IOException {
+        return creatorFile().readString().trim();
+    }
+
+    private FileNode creatorFile() throws IOException {
+        FileNode file;
+        FileNode link;
+
+        file = directory.join("creator.touch");
+        if (!file.exists()) {
+            link = session.backstageLink(id);
+            file.getParent().mkdirOpt();
+            file.writeString(link.getOwner().getName());
+            file.setLastModified(Files.getLastModifiedTime(link.toPath(), LinkOption.NOFOLLOW_LINKS).toMillis());
+        }
+        return file;
+    }
+
+    public LocalDateTime created() throws IOException {
+        return LocalDateTime.ofInstant(Instant.ofEpochMilli(creatorFile().getLastModified()), ZoneId.systemDefault());
+    }
+
+    public FileNode modifiedFile() throws IOException {
+        FileNode file;
+
+        file = directory.join("modified.touch");
+        if (!file.exists()) {
+            file.getParent().mkdirOpt();
+            file.writeString(session.user);
+        }
+        return file;
+    }
+
+    public void modify() throws IOException {
+        FileNode file;
+
+        file = modifiedFile();
+        file.getParent().mkdirOpt();
+        file.writeString(session.user);
+    }
+
+    public String lastModifiedBy() throws IOException {
+        return modifiedFile().readString().trim();
+    }
+
+    public long lastModifiedAt() throws IOException {
+        return modifiedFile().getLastModified();
+    }
+
 }

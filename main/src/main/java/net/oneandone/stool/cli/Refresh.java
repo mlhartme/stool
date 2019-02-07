@@ -33,7 +33,7 @@ public class Refresh extends StageCommand {
 
     @Override
     public void doMain(Project project) throws Exception {
-        project.modify();
+        project.stage.modify();
         if (restore) {
             project.restoreFromBackup(console);
         } else {

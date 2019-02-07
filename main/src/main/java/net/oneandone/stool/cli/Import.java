@@ -222,7 +222,7 @@ public class Import extends SessionCommand {
             project.tuneConfiguration();
             project.initialize();
         }
-        project.modify();
+        project.stage.modify();
         session.add(project.getStage().directory, project.getStage().getId());
         session.logging.setStage(project.getStage().getId(), project.getStage().getName());
         console.info.println("stage imported: " + project.getStage().getName());

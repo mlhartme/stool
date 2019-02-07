@@ -234,10 +234,10 @@ public class Validate extends StageCommand {
             for (String user : project.getStage().config().notify) {
                 switch (user) {
                     case StageConfiguration.NOTIFY_LAST_MODIFIED_BY:
-                        login = project.lastModifiedBy();
+                        login = project.stage.lastModifiedBy();
                         break;
                     case StageConfiguration.NOTIFY_CREATED_BY:
-                        login = project.createdBy();
+                        login = project.stage.createdBy();
                         break;
                     default:
                         login = user;

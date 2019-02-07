@@ -31,7 +31,7 @@ public class Move extends StageCommand {
 
     @Override
     public void doMain(Project project) throws Exception {
-        project.modify();
+        project.stage.modify();
         project.getStage().checkNotUp();
 
         if (dest.exists()) {

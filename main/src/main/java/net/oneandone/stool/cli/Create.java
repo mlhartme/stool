@@ -168,7 +168,7 @@ public class Create extends SessionCommand {
 
         directory.mkdir();
         project = stage(origin);
-        project.modify();
+        project.stage.modify();
 
         // make sure to run in stage environment, e.g. to have proper repository settings
         prepare = project.getStage().config().prepare;

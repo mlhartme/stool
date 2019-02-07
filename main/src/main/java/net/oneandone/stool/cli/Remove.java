@@ -46,7 +46,7 @@ public class Remove extends StageCommand {
 
         selected = session.isSelected(project);
         project.getStage().checkNotUp();
-        project.modify();
+        project.getStage().modify();
         if (!force) {
             if (!project.isCommitted()) {
                 throw new IOException("checkout has modifications - aborted.\nYou may run with -force");
