@@ -17,6 +17,7 @@ package net.oneandone.stool.dashboard.config;
 
 import net.oneandone.stool.dashboard.StoolCallable;
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -36,10 +37,13 @@ public class RefreshTask extends TimerTask {
 
     @Override
     public void run() {
+        Stage stage;
+
         try {
             for (Project project : session.listWithoutSystem()) {
-                if (project.getStage().config().autoRefresh) {
-                    StoolCallable.create(jar, session.home, UUID.randomUUID().toString(), logs, project,
+                stage = project.getStage();
+                if (stage.config().autoRefresh) {
+                    StoolCallable.create(jar, session.home, UUID.randomUUID().toString(), logs, stage,
                             session.logging.getUser(), "refresh", "-autorestart").call();
                 }
             }

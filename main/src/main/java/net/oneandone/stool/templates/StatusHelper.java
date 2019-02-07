@@ -48,7 +48,7 @@ public class StatusHelper {
         if (ports != null) {
             map.add("debug port: " + ports.debug());
             map.add("jmx port: " + ports.jmx());
-            url = project.session.configuration.hostname + ":" + ports.jmx();
+            url = project.stage.session.configuration.hostname + ":" + ports.jmx();
             map.add("  jconsole " + url);
             map.add("  jvisualvm --openjmx " + url);
         }
@@ -71,14 +71,14 @@ public class StatusHelper {
         }
         // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
         try {
-            url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + project.session.configuration.hostname + ":" + ports.jmx() + "/jmxrmi");
+            url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + project.stage.session.configuration.hostname + ":" + ports.jmx() + "/jmxrmi");
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
         }
         try {
             connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
         } catch (IOException e) {
-            e.printStackTrace(project.session.console.verbose);
+            e.printStackTrace(project.stage.session.console.verbose);
             return "[cannot connect jmx server: " + e.getMessage() + "]";
         }
         try {

@@ -113,7 +113,7 @@ public class SourceProject extends Project {
 
         applications = new LinkedHashMap<>();
         for (MavenProject project : wars()) {
-            applications.put(project.getArtifactId(), docroot(session.world, project));
+            applications.put(project.getArtifactId(), docroot(stage.session.world, project));
         }
         return applications;
     }

@@ -86,7 +86,7 @@ public class ArtifactProject extends Project {
             return new GavLocator(maven(), new DefaultArtifact(coords[0], artifactId, "war", version));
         } else if (locator.startsWith("file:")) {
             try {
-                return new FileLocator((FileNode) session.world.node(locator));
+                return new FileLocator((FileNode) stage.session.world.node(locator));
             } catch (URISyntaxException e) {
                 throw new ArgumentException(locator + ": invalid file locator: " + e.getMessage(), e);
             }
@@ -124,7 +124,7 @@ public class ArtifactProject extends Project {
                 artifact = ((GavLocator) application.location).artifact();
                 result.add("gav:" + artifact.getGroupId() + ":" + artifact.getArtifactId() + ":" + artifact.getVersion());
             } else {
-                session.console.error.println("don't know fault project for locator " + application.location + " - working without secrets for this");
+                stage.session.console.error.println("don't know fault project for locator " + application.location + " - working without secrets for this");
                 result.add("@-");
             }
         }
@@ -141,7 +141,7 @@ public class ArtifactProject extends Project {
 
         for (Application application : applications.applications()) {
             application.populate();
-            if (!application.refreshFuture(session)) {
+            if (!application.refreshFuture(stage.session)) {
                 throw new IOException("application not found: " + application.location);
             }
         }
@@ -154,7 +154,7 @@ public class ArtifactProject extends Project {
 
         result = false;
         for (Application application : applications.applications()) {
-            if (application.refreshFuture(session)) {
+            if (application.refreshFuture(stage.session)) {
                 result = true;
             }
         }

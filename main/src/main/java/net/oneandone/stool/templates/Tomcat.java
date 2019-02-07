@@ -153,7 +153,7 @@ public class Tomcat {
         if (project.isSystem()) {
             opts.add("-Dstool.cp=" + Main.stoolCp(session.world).getAbsolute());
             opts.add("-Dstool.home=" + session.home.getAbsolute());
-            opts.add("-Dstool.idlink=" + session.backstageLink(project.getStage().getId()).getAbsolute());
+            opts.add("-Dstool.idlink=" + session.backstageLink(stage.getId()).getAbsolute());
         }
 
         if (debug || suspend) {
@@ -174,18 +174,18 @@ public class Tomcat {
         ServerXml serverXml;
 
         serverXml = ServerXml.load(serverXml(), stage.getName(), session.configuration.hostname);
-        serverXml.addContextParameters(project.getStage(), logroot, Strings.toMap(additionals));
+        serverXml.addContextParameters(stage, logroot, Strings.toMap(additionals));
         serverXml.save(serverXml());
     }
 
     //--
 
     private FileNode tomcatTarGz(String version) {
-        return project.getStage().directory.join("context/tomcat/apache-tomcat-" + version + ".tar.gz");
+        return stage.directory.join("context/tomcat/apache-tomcat-" + version + ".tar.gz");
     }
 
     private FileNode serverXml() {
-        return project.getStage().directory.join("context/tomcat/server.xml");
+        return stage.directory.join("context/tomcat/server.xml");
     }
 
     /** @return true for 8.0.x and older */
@@ -294,7 +294,7 @@ public class Tomcat {
                 launcher = project.launcher("mvn", "dependency::copy-dependencies",
                         "-DoutputDirectory=" + deps.getAbsolute(), "-DexcludeScope=system");
                 launcher.dir(vhostProject(vhost));
-                launcher.exec(project.session.console.verbose);
+                launcher.exec(session.console.verbose);
             }
         }
     }

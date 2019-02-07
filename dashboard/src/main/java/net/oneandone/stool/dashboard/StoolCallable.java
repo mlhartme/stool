@@ -16,6 +16,7 @@
 package net.oneandone.stool.dashboard;
 
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Credentials;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -28,7 +29,7 @@ import java.io.PrintWriter;
 import java.util.concurrent.Callable;
 
 public class StoolCallable implements Callable<Failure> {
-    public static StoolCallable create(FileNode stool, FileNode home, String id, FileNode logs, Project project, String unauthenticatedUser,
+    public static StoolCallable create(FileNode stool, FileNode home, String id, FileNode logs, Stage stage, String unauthenticatedUser,
                                        String command, String ... arguments) {
         String runAs;
         Object username;
@@ -39,7 +40,7 @@ public class StoolCallable implements Callable<Failure> {
         } else {
             runAs = unauthenticatedUser;
         }
-        return new StoolCallable(stool, home, command, arguments, project, id, logs, runAs);
+        return new StoolCallable(stool, home, command, arguments, stage, id, logs, runAs);
     }
 
     private final FileNode stool;
@@ -47,17 +48,17 @@ public class StoolCallable implements Callable<Failure> {
     private final String command;
     private final String[] arguments;
     private final String id;
-    private final Project project;
+    private final Stage stage;
     private final FileNode logDir;
     private final String runAs;
 
-    public StoolCallable(FileNode stool, FileNode home, String command, String[] arguments, Project project, String id, FileNode logDir, String runAs) {
+    public StoolCallable(FileNode stool, FileNode home, String command, String[] arguments, Stage stage, String id, FileNode logDir, String runAs) {
         this.stool = stool;
         this.home = home;
         this.command = command;
         this.arguments = arguments;
         this.id = id;
-        this.project = project;
+        this.stage = stage;
         this.logDir = logDir;
         this.runAs = runAs;
     }
@@ -77,12 +78,12 @@ public class StoolCallable implements Callable<Failure> {
         launcher.env(Environment.STOOL_HOME, home.getAbsolute());
         launcher.arg(stool.getAbsolute());
         launcher.arg("-e");
-        svnCredentials = project.session.svnCredentials();
+        svnCredentials = stage.session.svnCredentials();
         if (svnCredentials.username != null) {
             launcher.arg("-svnuser=" + svnCredentials.username);
             launcher.arg("-svnpassword=" + svnCredentials.password);
         }
-        launcher.arg(command, "-stage", "id=" + project.getStage().getId());
+        launcher.arg(command, "-stage", "id=" + stage.getId());
         launcher.arg(arguments);
         try (PrintWriter writer = new PrintWriter(logDir.join(id + ".log").newWriter())) {
             writer.println(hide(hide(launcher.toString(), svnCredentials.password), svnCredentials.username));

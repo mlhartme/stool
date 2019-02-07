@@ -54,7 +54,7 @@ public class Start extends StageCommand {
     public void doMain(Project project) throws Exception {
         project.modify();
         // to avoid running into a ping timeout below:
-        project.session.configuration.verfiyHostname();
+        project.stage.session.configuration.verfiyHostname();
         project.checkConstraints();
         if (session.configuration.committed) {
             if (!project.isCommitted()) {

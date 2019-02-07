@@ -158,8 +158,6 @@ public abstract class Project {
 
     //--
 
-    public final Session session;
-
     protected final String origin;
 
     public final Stage stage;
@@ -171,9 +169,8 @@ public abstract class Project {
     //--
 
     public Project(Session session, String origin, String id, FileNode directory, StageConfiguration configuration) {
-        this.session = session;
         this.origin = origin;
-        this.stage = new Stage(id, backstageDirectory(directory), configuration);
+        this.stage = new Stage(session, id, backstageDirectory(directory), configuration);
         this.directory = directory;
     }
 
@@ -211,7 +208,7 @@ public abstract class Project {
 
         file = stage.directory.join("creator.touch");
         if (!file.exists()) {
-            link = session.backstageLink(stage.getId());
+            link = stage.session.backstageLink(stage.getId());
             file.getParent().mkdirOpt();
             file.writeString(link.getOwner().getName());
             file.setLastModified(Files.getLastModifiedTime(link.toPath(), LinkOption.NOFOLLOW_LINKS).toMillis());
@@ -226,11 +223,11 @@ public abstract class Project {
     //-- pid file handling
 
     public boolean isWorking() throws IOException {
-        return session.lockManager.hasExclusiveLocks(directoryLock(), backstageLock());
+        return stage.session.lockManager.hasExclusiveLocks(directoryLock(), backstageLock());
     }
 
     public State state() throws IOException {
-        if (session.bedroom.contains(stage.getId())) {
+        if (stage.session.bedroom.contains(stage.getId())) {
             return State.SLEEPING;
         } else if (stage.dockerContainer() != null) {
             return UP;
@@ -238,10 +235,6 @@ public abstract class Project {
             return State.DOWN;
         }
 
-    }
-
-    public String httpUrl(Vhost host) {
-        return host.httpUrl(session.configuration.vhosts, stage.getName(), session.configuration.hostname);
     }
 
     //--
@@ -272,7 +265,7 @@ public abstract class Project {
     }
 
     public Ports loadPortsOpt() throws IOException {
-        return session.pool().stageOpt(stage.getId());
+        return stage.session.pool().stageOpt(stage.getId());
     }
 
     /** @return empty list of no ports are allocated */
@@ -291,7 +284,7 @@ public abstract class Project {
         Ports ports;
 
         ports = loadPortsOpt();
-        return ports == null ? new HashMap<>() : ports.urlMap(stage.getName(), session.configuration.hostname, stage.config().url);
+        return ports == null ? new HashMap<>() : ports.urlMap(stage.getName(), stage.session.configuration.hostname, stage.config().url);
     }
 
     /** @return nummer of applications */
@@ -309,7 +302,7 @@ public abstract class Project {
         Map<String, String> mounts;
 
         checkMemory();
-        engine = session.dockerEngine();
+        engine = stage.session.dockerEngine();
         tag = stage.getId();
         context = dockerContext(ports);
         wipeContainer(engine);
@@ -329,7 +322,7 @@ public abstract class Project {
         for (Map.Entry<String, String> entry : mounts.entrySet()) {
             console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
         }
-        container = engine.containerCreate(tag,  stage.getName() + "." + session.configuration.hostname,
+        container = engine.containerCreate(tag,  stage.getName() + "." + stage.session.configuration.hostname,
                 OS.CURRENT == OS.MAC, 1024L * 1024 * stage.config().memory, null, null,
                 Collections.emptyMap(), mounts, ports.dockerMap());
         console.verbose.println("created container " + container);
@@ -378,7 +371,7 @@ public abstract class Project {
 
             // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
             try {
-                url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + session.configuration.hostname + ":" + ports.jmx() + "/jmxrmi");
+                url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + stage.session.configuration.hostname + ":" + ports.jmx() + "/jmxrmi");
             } catch (MalformedURLException e) {
                 throw new IllegalStateException(e);
             }
@@ -413,7 +406,7 @@ public abstract class Project {
     public void wipeImages(Engine engine, String keep) throws IOException {
         for (String image : engine.imageList(dockerLabel())) {
             if (!image.equals(keep)) {
-                session.console.verbose.println("remove image: " + image);
+                stage.session.console.verbose.println("remove image: " + image);
                 engine.imageRemove(image);
             }
         }
@@ -422,7 +415,7 @@ public abstract class Project {
     public void wipeContainer(Engine engine) throws IOException {
         for (String image : engine.imageList(dockerLabel())) {
             for (String container : engine.containerList(image)) {
-                session.console.verbose.println("remove container: " + container);
+                stage.session.console.verbose.println("remove container: " + container);
                 engine.containerRemove(container);
             }
         }
@@ -471,7 +464,7 @@ public abstract class Project {
     public void tailF(PrintWriter dest) throws IOException {
         Engine engine;
 
-        engine = session.dockerEngine();
+        engine = stage.session.dockerEngine();
         engine.containerLogsFollow(stage.dockerContainer(), new OutputStream() {
             @Override
             public void write(int b) {
@@ -505,14 +498,14 @@ public abstract class Project {
             }
         }
         if (systemBinds) {
-            result.put(session.configuration.docker, session.configuration.docker);
+            result.put(stage.session.configuration.docker, stage.session.configuration.docker);
 
             lst = new ArrayList<>();
-            lst.add(session.home);  // for stool home
-            if (!session.configuration.systemExtras.isEmpty()) {
-                lst.add(session.world.file(session.configuration.systemExtras));
+            lst.add(stage.session.home);  // for stool home
+            if (!stage.session.configuration.systemExtras.isEmpty()) {
+                lst.add(stage.session.world.file(stage.session.configuration.systemExtras));
             }
-            lst.addAll(session.stageDirectories());
+            lst.addAll(stage.session.stageDirectories());
 
             iter = lst.iterator();
             merged = iter.next();
@@ -520,8 +513,8 @@ public abstract class Project {
                 merged = merge(merged, iter.next());
             }
             add(result, merged);
-            add(result, Main.stoolCp(session.world).getParent()); // don't merge /usr/bin
-            add(result, session.world.getHome()); // for Maven credentials; don't merge /home with /opt stuff
+            add(result, Main.stoolCp(stage.session.world).getParent()); // don't merge /usr/bin
+            add(result, stage.session.world.getHome()); // for Maven credentials; don't merge /home with /opt stuff
         }
         return result;
     }
@@ -540,7 +533,7 @@ public abstract class Project {
         while (!left.hasAncestor(current)) {
             current = current.getParent();
         }
-        session.console.verbose.println("merge " + left + " + " + right + " -> " + current);
+        stage.session.console.verbose.println("merge " + left + " + " + right + " -> " + current);
         return current;
     }
 
@@ -609,10 +602,10 @@ public abstract class Project {
             result.put("GID", Long.toString(Engine.getegid()));
         }
         result.put("system", isSystem());
-        result.put("systemExtras", session.configuration.systemExtras);
-        result.put("hostHome", session.world.getHome().getAbsolute());
-        result.put("certname", session.configuration.vhosts ? "*." + stage.getName() + "." + session.configuration.hostname : session.configuration.hostname);
-        result.put("tomcat", new Tomcat(this, context, session, ports));
+        result.put("systemExtras", stage.session.configuration.systemExtras);
+        result.put("hostHome", stage.session.world.getHome().getAbsolute());
+        result.put("certname", stage.session.configuration.vhosts ? "*." + stage.getName() + "." + stage.session.configuration.hostname : stage.session.configuration.hostname);
+        result.put("tomcat", new Tomcat(this, context, stage.session, ports));
         for (Variable env : environment) {
             value = stage.config().templateEnv.get(env.name);
             if (value == null) {
@@ -633,7 +626,7 @@ public abstract class Project {
             throw new IOException("container is not running.");
         }
         console.info.println("stopping container ...");
-        engine = session.dockerEngine();
+        engine = stage.session.dockerEngine();
         engine.containerStop(container, 300);
         stage.dockerContainerFile().deleteFile();
     }
@@ -642,7 +635,7 @@ public abstract class Project {
         int requested;
 
         requested = stage.config().memory;
-        int unreserved = session.memUnreserved();
+        int unreserved = stage.session.memUnreserved();
         if (requested > unreserved) {
             throw new ArgumentException("Cannot reserve memory:\n"
               + "  unreserved: " + unreserved + "\n"
@@ -656,7 +649,7 @@ public abstract class Project {
     public void move(FileNode newDirectory) throws IOException {
         FileNode link;
 
-        link = session.backstageLink(stage.getId());
+        link = stage.session.backstageLink(stage.getId());
         link.deleteTree();
         directory.move(newDirectory);
         directory = newDirectory;
@@ -684,7 +677,7 @@ public abstract class Project {
         file = stage.directory.join("modified.touch");
         if (!file.exists()) {
             file.getParent().mkdirOpt();
-            file.writeString(session.user);
+            file.writeString(stage.session.user);
         }
         return file;
     }
@@ -694,7 +687,7 @@ public abstract class Project {
 
         file = modifiedFile();
         file.getParent().mkdirOpt();
-        file.writeString(session.user);
+        file.writeString(stage.session.user);
     }
 
     public String lastModifiedBy() throws IOException {
@@ -714,7 +707,7 @@ public abstract class Project {
         Launcher launcher;
 
         launcher = new Launcher(working, command);
-        session.environment(this).save(launcher);
+        stage.session.environment(this).save(launcher);
         return launcher;
     }
 
@@ -732,7 +725,7 @@ public abstract class Project {
 
     public void tuneConfiguration() throws IOException {
         if (stage.config().memory == 0 || stage.config().memory == 400) {
-            stage.config().memory = Math.min(4096, 200 + size() * session.configuration.baseMemory);
+            stage.config().memory = Math.min(4096, 200 + size() * stage.session.configuration.baseMemory);
         }
         if (stage.config().build.isEmpty() || stage.config().build.equals("false")) {
             stage.config().build = getDefaultBuildCommand();
@@ -741,7 +734,7 @@ public abstract class Project {
 
     public void initialize() throws IOException {
         // important: this is the last step in stage creation; creating this file indicates that the stage is ready
-        session.saveStageProperties(stage.config(), stage.directory);
+        stage.session.saveStageProperties(stage.config(), stage.directory);
     }
 
     //--
@@ -757,15 +750,15 @@ public abstract class Project {
         FileNode settings;
 
         if (lazyMaven == null) {
-            world = session.world;
+            world = stage.session.world;
             mavenHome = stage.config().mavenHome();
             if (mavenHome == null) {
-                settings = session.home.join("maven-settings.xml");
+                settings = stage.session.home.join("maven-settings.xml");
             } else {
                 settings = world.file(mavenHome).join("conf/settings.xml");
             }
             // CAUTION: shared plexus - otherwise, Maven components are created over and over again
-            lazyMaven = Maven.withSettings(world, localRepository(), settings, null, session.plexus(), null, null);
+            lazyMaven = Maven.withSettings(world, localRepository(), settings, null, stage.session.plexus(), null, null);
             // always get the latest snapshots
             lazyMaven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
         }
@@ -782,8 +775,8 @@ public abstract class Project {
         userProperties = new Properties();
         addProfilesAndProperties(userProperties, profiles, stage.config().mavenOpts);
         addProfilesAndProperties(userProperties, profiles, getBuild());
-        session.console.verbose.println("profiles: " + profiles);
-        session.console.verbose.println("userProperties: " + userProperties);
+        stage.session.console.verbose.println("profiles: " + profiles);
+        stage.session.console.verbose.println("userProperties: " + userProperties);
         warProjects(rootPom, userProperties, profiles, wars);
         if (wars.size() == 0) {
             throw new IOException("no war projects");
@@ -800,11 +793,11 @@ public abstract class Project {
     public Macros macros() {
         if (lazyMacros == null) {
             lazyMacros = new Macros();
-            lazyMacros.addAll(session.configuration.macros);
+            lazyMacros.addAll(stage.session.configuration.macros);
             lazyMacros.add("directory", getDirectory().getAbsolute());
             lazyMacros.add("localRepository", localRepository().getAbsolute());
-            lazyMacros.add("svnCredentials", Separator.SPACE.join(session.svnCredentials().svnArguments()));
-            lazyMacros.add("stoolSvnCredentials", session.svnCredentials().stoolSvnArguments());
+            lazyMacros.add("svnCredentials", Separator.SPACE.join(stage.session.svnCredentials().svnArguments()));
+            lazyMacros.add("stoolSvnCredentials", stage.session.svnCredentials().stoolSvnArguments());
         }
         return lazyMacros;
     }
@@ -813,7 +806,7 @@ public abstract class Project {
         if (this instanceof ArtifactProject) {
             return true;
         }
-        return session.scm(getOrigin()).isCommitted(this);
+        return stage.session.scm(getOrigin()).isCommitted(this);
     }
 
     private void addProfilesAndProperties(Properties userProperties, List<String> profiles, String args) {
@@ -844,12 +837,12 @@ public abstract class Project {
         } catch (ProjectBuildingException | RepositoryException e) {
             throw new IOException("cannot parse " + pomXml + ": " + e.getMessage(), e);
         }
-        session.console.verbose.println("loading " + pomXml);
+        stage.session.console.verbose.println("loading " + pomXml);
         if ("war".equals(root.getPackaging())) {
             result.add(root);
         } else {
             for (String module : root.getModules()) {
-                modulePom = session.world.file(root.getBasedir()).join(module);
+                modulePom = stage.session.world.file(root.getBasedir()).join(module);
                 if (modulePom.isDirectory()) {
                     modulePom = modulePom.join("pom.xml");
                 }
@@ -859,11 +852,11 @@ public abstract class Project {
     }
 
     public boolean isSystem() {
-        return session.home.join("system").equals(directory.getParent());
+        return stage.session.home.join("system").equals(directory.getParent());
     }
 
     public FileNode localRepository() {
-        return session.configuration.shared ? stage.directory.join(".m2") : session.world.getHome().join(".m2/repository");
+        return stage.session.configuration.shared ? stage.directory.join(".m2") : stage.session.world.getHome().join(".m2/repository");
     }
 
     public static String timespan(long since) {
@@ -895,7 +888,7 @@ public abstract class Project {
         if (container == null) {
             return 0;
         }
-        obj = Project.this.session.dockerEngine().containerInspect(container, true);
+        obj = stage.session.dockerEngine().containerInspect(container, true);
         // not SizeRootFs, that's the image size plus the rw layer
         return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
@@ -1107,7 +1100,7 @@ public abstract class Project {
         fields.add(new Field("selected") {
             @Override
             public Object get() throws IOException {
-                return session.isSelected(Project.this);
+                return stage.session.isSelected(Project.this);
             }
         });
         fields.add(new Field("directory") {
@@ -1137,7 +1130,7 @@ public abstract class Project {
         fields.add(new Field("created-by") {
             @Override
             public Object get() throws IOException {
-                return session.users.checkedStatusByLogin(Project.this.createdBy());
+                return stage.session.users.checkedStatusByLogin(Project.this.createdBy());
             }
 
         });
@@ -1151,7 +1144,7 @@ public abstract class Project {
         fields.add(new Field("last-modified-by") {
             @Override
             public Object get() throws IOException {
-                return session.users.checkedStatusByLogin(Project.this.lastModifiedBy());
+                return stage.session.users.checkedStatusByLogin(Project.this.lastModifiedBy());
             }
         });
         fields.add(new Field("last-modified-at") {
@@ -1190,7 +1183,7 @@ public abstract class Project {
                 String container;
 
                 container = Project.this.stage.dockerContainer();
-                return container == null ? null : timespan(Project.this.session.dockerEngine().containerStartedAt(container));
+                return container == null ? null : timespan(Project.this.stage.session.dockerEngine().containerStartedAt(container));
             }
         });
         fields.add(new Field("cpu") {
@@ -1204,7 +1197,7 @@ public abstract class Project {
                 if (container == null) {
                     return null;
                 }
-                engine = Project.this.session.dockerEngine();
+                engine = Project.this.stage.session.dockerEngine();
                 stats = engine.containerStats(container);
                 if (stats != null) {
                     return stats.cpu;
@@ -1225,7 +1218,7 @@ public abstract class Project {
                 if (container == null) {
                     return null;
                 }
-                engine = Project.this.session.dockerEngine();
+                engine = Project.this.stage.session.dockerEngine();
                 stats = engine.containerStats(container);
                 if (stats != null) {
                     return stats.memoryUsage * 100 / stats.memoryLimit;
@@ -1301,7 +1294,7 @@ public abstract class Project {
         String prefix;
 
         result = new ArrayList<>();
-        for (Accessor type : session.accessors().values()) {
+        for (Accessor type : stage.session.accessors().values()) {
             if (!type.name.equals("template.env")) {
                 result.add(new StandardProperty(type, stage.config()));
             }
