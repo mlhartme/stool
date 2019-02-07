@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.templates;
 
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.MkdirException;
@@ -234,7 +234,7 @@ public class ServerXml {
         }
     }
 
-    public void addContextParameters(Stage stage, boolean logroot, Map<String, String> additionals) throws XmlException, MkdirException {
+    public void addContextParameters(Project project, boolean logroot, Map<String, String> additionals) throws XmlException, MkdirException {
         Element context;
         Map<String, String> map;
         String name;
@@ -247,7 +247,7 @@ public class ServerXml {
             app = name.substring(0, name.indexOf('.'));
             map = new HashMap<>();
             if (logroot) {
-                dir = stage.getBackstage().join("logs/applogs", app);
+                dir = project.getBackstage().join("logs/applogs", app);
                 dir.mkdirsOpt();
                 map.put("logroot", "/usr/local/tomcat/logs/applogs/" + app);
             }

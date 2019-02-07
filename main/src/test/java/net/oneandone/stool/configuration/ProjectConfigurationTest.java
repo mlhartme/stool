@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-public class StageConfigurationTest {
+public class ProjectConfigurationTest {
     @Test
     public void io() throws IOException {
         World world;

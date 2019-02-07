@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.dashboard.config;
 
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private Session session;
 
     @Autowired
-    private Stage self;
+    private Project self;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

@@ -16,7 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 
 import java.io.IOException;
@@ -32,27 +32,27 @@ public class Refresh extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
-        stage.modify();
+    public void doMain(Project project) throws Exception {
+        project.modify();
         if (restore) {
-            stage.restoreFromBackup(console);
+            project.restoreFromBackup(console);
         } else {
-            invokeNormal(stage);
+            invokeNormal(project);
         }
     }
 
     @Override
-    public boolean isNoop(Stage stage) throws IOException {
-        return !build && !stage.refreshPending(console);
+    public boolean isNoop(Project project) throws IOException {
+        return !build && !project.refreshPending(console);
     }
 
-    public void invokeNormal(Stage stage) throws Exception {
-        console.info.println("refreshing " + stage.getDirectory());
-        if (stage.refreshPending(console)) {
-            stage.executeRefresh(console);
+    public void invokeNormal(Project project) throws Exception {
+        console.info.println("refreshing " + project.getDirectory());
+        if (project.refreshPending(console)) {
+            project.executeRefresh(console);
         }
         if (build) {
-            new Build(session).doRun(stage);
+            new Build(session).doRun(project);
         }
     }
 }

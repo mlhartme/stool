@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.templates;
 
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Ports;
 
 import javax.management.MBeanServerConnection;
@@ -30,12 +30,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StatusHelper {
-    private final Stage stage;
-    private final Stage.State state;
+    private final Project project;
+    private final Project.State state;
     private final Ports ports;
 
-    public StatusHelper(Stage stage, Stage.State state, Ports ports) {
-        this.stage = stage;
+    public StatusHelper(Project project, Project.State state, Ports ports) {
+        this.project = project;
         this.state = state;
         this.ports = ports;
     }
@@ -48,7 +48,7 @@ public class StatusHelper {
         if (ports != null) {
             map.add("debug port: " + ports.debug());
             map.add("jmx port: " + ports.jmx());
-            url = stage.session.configuration.hostname + ":" + ports.jmx();
+            url = project.session.configuration.hostname + ":" + ports.jmx();
             map.add("  jconsole " + url);
             map.add("  jvisualvm --openjmx " + url);
         }
@@ -63,7 +63,7 @@ public class StatusHelper {
         long used;
         long max;
 
-        if (state != Stage.State.UP) {
+        if (state != Project.State.UP) {
             return "";
         }
         if (ports == null) {
@@ -71,14 +71,14 @@ public class StatusHelper {
         }
         // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
         try {
-            url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + stage.session.configuration.hostname + ":" + ports.jmx() + "/jmxrmi");
+            url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + project.session.configuration.hostname + ":" + ports.jmx() + "/jmxrmi");
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
         }
         try {
             connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
         } catch (IOException e) {
-            e.printStackTrace(stage.session.console.verbose);
+            e.printStackTrace(project.session.console.verbose);
             return "[cannot connect jmx server: " + e.getMessage() + "]";
         }
         try {

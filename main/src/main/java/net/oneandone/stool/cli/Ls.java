@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Strings;
@@ -34,7 +34,7 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public boolean doBefore(List<Stage> stages, int indent) {
+    public boolean doBefore(List<Project> projects, int indent) {
         List<String> line;
 
         if (selected.isEmpty()) {
@@ -54,14 +54,14 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Project project) throws Exception {
         List<String> line;
         Info info;
 
         line = new ArrayList<>();
         lines.add(line);
         for (String infoName : selected) {
-            info = stage.info(infoName);
+            info = project.info(infoName);
             line.add(info.getAsString().replace("\t", " "));
         }
     }
@@ -119,7 +119,7 @@ public class Ls extends InfoCommand {
         return result;
     }
 
-    protected List<Stage> defaultSelected(EnumerationFailed problems) throws IOException {
+    protected List<Project> defaultSelected(EnumerationFailed problems) throws IOException {
         return all(problems);
     }
 }

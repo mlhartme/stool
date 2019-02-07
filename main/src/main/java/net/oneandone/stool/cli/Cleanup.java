@@ -16,7 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.DeleteException;
 import net.oneandone.sushi.fs.MkdirException;
@@ -34,16 +34,16 @@ public class Cleanup extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
-        stage.modify();
-        cleanupMavenRepository(stage);
-        rotateLogs(stage);
+    public void doMain(Project project) throws Exception {
+        project.modify();
+        cleanupMavenRepository(project);
+        rotateLogs(project);
     }
 
-    private void cleanupMavenRepository(Stage stage) throws NodeNotFoundException, DeleteException {
+    private void cleanupMavenRepository(Project project) throws NodeNotFoundException, DeleteException {
         FileNode repository;
 
-        repository = stage.getBackstage().join(".m2");
+        repository = project.getBackstage().join(".m2");
         if (repository.exists()) {
             console.info.println("Removing Maven Repository at " + repository.getAbsolute());
             repository.deleteTree();
@@ -52,13 +52,13 @@ public class Cleanup extends StageCommand {
         }
     }
 
-    private void rotateLogs(Stage stage) throws IOException {
+    private void rotateLogs(Project project) throws IOException {
         Node archived;
 
-        for (Node logfile : stage.getBackstage().find("**/*.log")) {
+        for (Node logfile : project.getBackstage().find("**/*.log")) {
             archived = archiveDirectory(logfile).join(logfile.getName() + ".gz");
-            console.verbose.println(String.format("rotating %s to %s", logfile.getRelative(stage.getBackstage()),
-                    archived.getRelative(stage.getBackstage())));
+            console.verbose.println(String.format("rotating %s to %s", logfile.getRelative(project.getBackstage()),
+                    archived.getRelative(project.getBackstage())));
             logfile.gzip(archived);
             logfile.deleteFile();
         }

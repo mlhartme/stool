@@ -41,10 +41,10 @@ import java.util.Set;
 /**
  * Run WAR-Artifacts without sources (instead of projects which are packaged as WARs).
  */
-public class ArtifactStage extends Stage {
+public class ArtifactProject extends Project {
     private final Applications applications;
 
-    public ArtifactStage(Session session, String origin, String id, FileNode directory, StageConfiguration configuration)
+    public ArtifactProject(Session session, String origin, String id, FileNode directory, StageConfiguration configuration)
       throws IOException {
         super(session, origin, id, directory, configuration);
 

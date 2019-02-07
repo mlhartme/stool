@@ -16,7 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.LogEntry;
 import net.oneandone.stool.util.LogReader;
 import net.oneandone.stool.util.Session;
@@ -38,7 +38,7 @@ public class History extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Project project) throws Exception {
         String stageId;
         LogEntry entry;
         Map<String, List<LogEntry>> detailsMap; /* id to it's details */
@@ -46,7 +46,7 @@ public class History extends StageCommand {
         List<LogEntry> lst;
         int counter;
 
-        stageId = stage.getId();
+        stageId = project.getId();
         counter = 0;
         detailsMap = new HashMap<>();
         reader = LogReader.create(session.logging.directory());
@@ -55,7 +55,7 @@ public class History extends StageCommand {
             if (entry == null) {
                 break;
             }
-            if (entry.dateTime.plusHours(1).isBefore(stage.created())) {
+            if (entry.dateTime.plusHours(1).isBefore(project.created())) {
                 // this assumes that creating a stage does not take longer than 1 hour
                 break;
             }

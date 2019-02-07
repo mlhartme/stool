@@ -18,7 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Processes;
@@ -82,14 +82,14 @@ public abstract class StageCommand extends SessionCommand {
 
     //--
 
-    public boolean isNoop(Stage stage) throws IOException {
+    public boolean isNoop(Project project) throws IOException {
         return false;
     }
 
     @Override
     public void doRun() throws Exception {
         int width;
-        List<Stage> lst;
+        List<Project> lst;
         EnumerationFailed failures;
         String failureMessage;
         boolean withPrefix;
@@ -106,17 +106,17 @@ public abstract class StageCommand extends SessionCommand {
             throw failures;
         }
         width = 0;
-        for (Stage stage : lst) {
-            width = Math.max(width, stage.getName().length());
+        for (Project project : lst) {
+            width = Math.max(width, project.getName().length());
         }
         width += 5;
         withPrefix = doBefore(lst, width);
         worker = new Worker(width, failures, withPrefix);
-        for (Stage stage : lst) {
-            worker.main(stage);
+        for (Project project : lst) {
+            worker.main(project);
         }
-        for (Stage stage : lst) {
-            worker.finish(stage);
+        for (Project project : lst) {
+            worker.finish(project);
         }
         doAfter();
         failureMessage = failures.getMessage();
@@ -134,25 +134,25 @@ public abstract class StageCommand extends SessionCommand {
     }
 
     /** @param lst might be not modifyable */
-    private List<Stage> filterNops(List<Stage> lst) throws IOException {
-        List<Stage> result;
-        Iterator<Stage> iter;
-        Stage stage;
+    private List<Project> filterNops(List<Project> lst) throws IOException {
+        List<Project> result;
+        Iterator<Project> iter;
+        Project project;
 
         iter = lst.iterator();
         result = new ArrayList<>();
         while (iter.hasNext()) {
-            stage = iter.next();
-            if (isNoop(stage)) {
-                console.verbose.println("nothing to do: " + stage.getName());
+            project = iter.next();
+            if (isNoop(project)) {
+                console.verbose.println("nothing to do: " + project.getName());
             } else {
-                result.add(stage);
+                result.add(project);
             }
         }
         return result;
     }
 
-    private List<Stage> selected(EnumerationFailed problems) throws IOException {
+    private List<Project> selected(EnumerationFailed problems) throws IOException {
         int count;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
@@ -173,16 +173,16 @@ public abstract class StageCommand extends SessionCommand {
     }
 
 
-    protected List<Stage> all(EnumerationFailed problems) throws IOException {
+    protected List<Project> all(EnumerationFailed problems) throws IOException {
         return session.list(problems, new Predicate() {
             @Override
-            public boolean matches(Stage stage) {
+            public boolean matches(Project project) {
                 return true;
             }
         });
     }
 
-    protected Stage selected() throws IOException {
+    protected Project selected() throws IOException {
         String id;
 
         id = session.getSelectedStageId();
@@ -193,23 +193,23 @@ public abstract class StageCommand extends SessionCommand {
     }
 
     /** override this to change the default */
-    protected List<Stage> defaultSelected(EnumerationFailed notUsed) throws IOException {
+    protected List<Project> defaultSelected(EnumerationFailed notUsed) throws IOException {
         return Collections.singletonList(selected());
     }
 
     /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
-    public boolean doBefore(List<Stage> stages, int indent) throws IOException {
-        return stages.size() != 1;
+    public boolean doBefore(List<Project> projects, int indent) throws IOException {
+        return projects.size() != 1;
     }
 
-    private boolean autoStart(Stage stage) throws Exception {
-        Stage.State state;
+    private boolean autoStart(Project project) throws Exception {
+        Project.State state;
         boolean postStart;
 
-        state = stage.state();
-        if (state == Stage.State.UP && (withAutoRunning()) && (autoRestart || autoStop)) {
+        state = project.state();
+        if (state == Project.State.UP && (withAutoRunning()) && (autoRestart || autoStop)) {
             postStart = autoRestart;
-            new Stop(session, false).doRun(stage);
+            new Stop(session, false).doRun(project);
         } else {
             postStart = false;
         }
@@ -217,16 +217,16 @@ public abstract class StageCommand extends SessionCommand {
     }
 
 
-    public final void doRun(Stage stage) throws Exception {
-        doMain(stage);
-        doFinish(stage);
+    public final void doRun(Project project) throws Exception {
+        doMain(project);
+        doFinish(project);
     }
 
     /** main method to perform this command */
-    public abstract void doMain(Stage stage) throws Exception;
+    public abstract void doMain(Project project) throws Exception;
 
     /** override this if your doMain method needs some finishing */
-    public void doFinish(Stage stage) throws Exception {
+    public void doFinish(Project project) throws Exception {
     }
 
     //--
@@ -248,12 +248,12 @@ public abstract class StageCommand extends SessionCommand {
         args = Separator.COMMA.split(string);
         return new Predicate() {
             @Override
-            public boolean matches(Stage stage) throws IOException {
+            public boolean matches(Project project) throws IOException {
             Predicate op;
 
             for (String arg : args) {
                 op = and(arg);
-                if (op.matches(stage)) {
+                if (op.matches(project)) {
                     return true;
                 }
             }
@@ -270,12 +270,12 @@ public abstract class StageCommand extends SessionCommand {
         args = AND.split(string);
         return new Predicate() {
             @Override
-            public boolean matches(Stage stage) throws IOException {
+            public boolean matches(Project project) throws IOException {
             Predicate op;
 
             for (String arg : args) {
-                op = compare(stage, arg);
-                if (!op.matches(stage)) {
+                op = compare(project, arg);
+                if (!op.matches(project)) {
                     return false;
                 }
             }
@@ -285,7 +285,7 @@ public abstract class StageCommand extends SessionCommand {
     }
 
 
-    private Predicate compare(Stage stage, final String string) throws IOException {
+    private Predicate compare(Project project, final String string) throws IOException {
         int idx;
         String name;
         final boolean eq;
@@ -302,8 +302,8 @@ public abstract class StageCommand extends SessionCommand {
         if (idx == -1) {
             return new Predicate() {
                 @Override
-                public boolean matches(Stage stage) {
-                    return stage.getName().equals(string);
+                public boolean matches(Project project) {
+                    return project.getName().equals(string);
                 }
             };
         }
@@ -314,7 +314,7 @@ public abstract class StageCommand extends SessionCommand {
             eq = true;
             name = string.substring(0, idx);
         }
-        field = stage.fieldOpt(name);
+        field = project.fieldOpt(name);
         if (field != null) {
             property = null;
         } else {
@@ -338,7 +338,7 @@ public abstract class StageCommand extends SessionCommand {
         constValue = value;
         return new Predicate() {
             @Override
-            public boolean matches(Stage stage) throws IOException {
+            public boolean matches(Project project) throws IOException {
                 boolean result;
                 Object obj;
                 String str;
@@ -347,7 +347,7 @@ public abstract class StageCommand extends SessionCommand {
                 if (constField != null) {
                     obj = field.get();
                 } else {
-                    p = stage.propertyOpt(constProperty);
+                    p = project.propertyOpt(constProperty);
                     if (p == null) {
                         throw new PredicateException("property or status field not found: " + constProperty);
                     }
@@ -389,7 +389,7 @@ public abstract class StageCommand extends SessionCommand {
         private final int width;
         private final EnumerationFailed failures;
         private final boolean withPrefix;
-        private final Map<Stage, Start> postStarts;
+        private final Map<Project, Start> postStarts;
 
         public Worker(int width, EnumerationFailed failures, boolean withPrefix) {
             this.width = width;
@@ -398,34 +398,34 @@ public abstract class StageCommand extends SessionCommand {
             this.postStarts = new LinkedHashMap<>();
         }
 
-        public void main(Stage stage) throws Exception {
-            run(stage, true);
+        public void main(Project project) throws Exception {
+            run(project, true);
         }
-        public void finish(Stage stage) throws Exception {
-            run(stage, false);
+        public void finish(Project project) throws Exception {
+            run(project, false);
         }
 
-        private void run(Stage stage, boolean main) throws Exception {
-            try (Lock lock1 = createLock(stage.backstageLock(), backstageLock);
-                 Lock lock2 = createLock(stage.directoryLock(), directoryLock)) {
+        private void run(Project project, boolean main) throws Exception {
+            try (Lock lock1 = createLock(project.backstageLock(), backstageLock);
+                 Lock lock2 = createLock(project.directoryLock(), directoryLock)) {
                 if (withPrefix) {
-                    ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
+                    ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + project.getName() + "} ", width));
                 }
-                session.logging.setStage(stage.getId(), stage.getName());
+                session.logging.setStage(project.getId(), project.getName());
 
                 if (main) {
-                    runMain(stage);
+                    runMain(project);
                 } else {
-                    runFinish(stage);
+                    runFinish(project);
                 }
             } catch (Error | RuntimeException e) {
-                console.error.println(stage.getName() + ": " + e.getMessage());
+                console.error.println(project.getName() + ": " + e.getMessage());
                 throw e;
             } catch (Exception e /* esp. ArgumentException */) {
                 if (fail == Fail.NORMAL) {
                     throw e;
                 }
-                failures.add(stage, e);
+                failures.add(project, e);
             } finally {
                 session.logging.setStage("", "");
                 if (console.info instanceof PrefixWriter) {
@@ -434,26 +434,26 @@ public abstract class StageCommand extends SessionCommand {
             }
         }
 
-        private void runMain(Stage stage) throws Exception {
+        private void runMain(Project project) throws Exception {
             console.verbose.println("*** stage main");
-            if (autoStart(stage)) {
-                postStarts.put(stage, new Start(session, false, false));
+            if (autoStart(project)) {
+                postStarts.put(project, new Start(session, false, false));
             }
-            doMain(stage);
+            doMain(project);
         }
 
-        private void runFinish(Stage stage) throws Exception {
+        private void runFinish(Project project) throws Exception {
             Start postStart;
 
             console.verbose.println("*** stage finish");
-            doFinish(stage);
-            postStart = postStarts.get(stage);
+            doFinish(project);
+            postStart = postStarts.get(project);
             if (postStart != null) {
-                if (!stage.getDirectory().exists()) {
+                if (!project.getDirectory().exists()) {
                     // stage removed -- no need to start again
                     return;
                 }
-                postStart.doRun(stage);
+                postStart.doRun(project);
             }
         }
     }

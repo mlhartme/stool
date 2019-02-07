@@ -17,7 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
@@ -38,22 +38,22 @@ public class Cd extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Project project) throws Exception {
         FileNode node;
         List<FileNode> lst;
         Filter filter;
         StringBuilder message;
 
         if (target == null) {
-            node = stage.getDirectory();
+            node = project.getDirectory();
         } else if ("backstage".equals(target)) {
-            node = stage.getBackstage();
+            node = project.getBackstage();
         } else {
             filter = world.filter();
             filter.includeAll();
             filter.maxDepth(2);
             filter.predicate(Predicate.DIRECTORY);
-            lst = stage.getBackstage().find(filter);
+            lst = project.getBackstage().find(filter);
             node = null;
             message = new StringBuilder();
             for (FileNode candidate : lst) {

@@ -16,7 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
@@ -40,21 +40,21 @@ public class Build extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Project project) throws Exception {
         FileNode directory;
         Launcher launcher;
 
-        stage.modify();
-        stage.checkNotUp();
+        project.modify();
+        project.checkNotUp();
         if (command.isEmpty()) {
-            command.addAll(Separator.SPACE.split(stage.getBuild()));
+            command.addAll(Separator.SPACE.split(project.getBuild()));
         }
         if (here) {
             directory = world.getWorking();
         } else {
-            directory = stage.getDirectory();
+            directory = project.getDirectory();
         }
-        launcher = stage.launcher();
+        launcher = project.launcher();
         launcher.dir(directory);
         console.info.println("[" + directory + "] " + command);
         launcher.args(command);

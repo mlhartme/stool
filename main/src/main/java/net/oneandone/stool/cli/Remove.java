@@ -16,7 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -40,31 +40,31 @@ public class Remove extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Project project) throws Exception {
         boolean selected;
         FileNode dir;
 
-        selected = session.isSelected(stage);
-        stage.checkNotUp();
-        stage.modify();
+        selected = session.isSelected(project);
+        project.checkNotUp();
+        project.modify();
         if (!force) {
-            if (!stage.isCommitted()) {
+            if (!project.isCommitted()) {
                 throw new IOException("checkout has modifications - aborted.\nYou may run with -force");
             }
         }
-        dir = backstageOnly ? session.backstageLink(stage.getId()).resolveLink() : stage.getDirectory();
+        dir = backstageOnly ? session.backstageLink(project.getId()).resolveLink() : project.getDirectory();
         if (!batch) {
             console.info.println("Ready to delete " + dir.getAbsolute() + "?");
             console.pressReturn();
         }
-        stage.wipeDocker(session.dockerEngine());
+        project.wipeDocker(session.dockerEngine());
 
         // delete backstageLink first - to make sure no other stool invocation detects a stage backstage and wipes it
-        Files.delete(session.backstageLink(stage.getId()).toPath());
+        Files.delete(session.backstageLink(project.getId()).toPath());
         dir.deleteTree();
-        session.bedroom.remove(session.gson, stage.getId());
+        session.bedroom.remove(session.gson, project.getId());
         if (selected) {
-            session.cd(stage.getDirectory().getParent());
+            session.cd(project.getDirectory().getParent());
         }
     }
 }

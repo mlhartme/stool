@@ -31,11 +31,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SourceStage extends Stage {
-    public static SourceStage forOrigin(Session session, String id, FileNode directory, String origin, StageConfiguration configuration) {
-        return new SourceStage(session, id, directory, origin, configuration);
+public class SourceProject extends Project {
+    public static SourceProject forOrigin(Session session, String id, FileNode directory, String origin, StageConfiguration configuration) {
+        return new SourceProject(session, id, directory, origin, configuration);
     }
-    public static SourceStage forLocal(Session session, String id, FileNode stage, StageConfiguration configuration)
+    public static SourceProject forLocal(Session session, String id, FileNode stage, StageConfiguration configuration)
             throws IOException {
         return forOrigin(session, id, stage, Scm.checkoutUrl(stage), configuration);
     }
@@ -45,7 +45,7 @@ public class SourceStage extends Stage {
     /** loaded on demand */
     private List<MavenProject> lazyWars;
 
-    public SourceStage(Session session, String id, FileNode directory, String origin, StageConfiguration configuration) {
+    public SourceProject(Session session, String id, FileNode directory, String origin, StageConfiguration configuration) {
         super(session, origin, id, directory, configuration);
     }
 

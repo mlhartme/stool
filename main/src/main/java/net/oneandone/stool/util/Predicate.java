@@ -15,10 +15,10 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 
 import java.io.IOException;
 
 public abstract class Predicate {
-    public abstract boolean matches(Stage stage) throws IOException;
+    public abstract boolean matches(Project project) throws IOException;
 }

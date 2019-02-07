@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.dashboard;
 
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class GoController {
         String stageId;
         String appName;
         String baseurl;
-        Stage stage;
+        Project project;
         int idx;
         Map<String, String> urlMap;
         String url;
@@ -58,10 +58,10 @@ public class GoController {
         if (!session.stageNames().contains(stageId)) {
             return new ModelAndView("redirect:" + baseurl + "/#!404:" + stageId);
         }
-        stage = session.loadByName(stageId);
-        switch (stage.state()) {
+        project = session.loadByName(stageId);
+        switch (project.state()) {
             case UP:
-                urlMap = stage.urlMap();
+                urlMap = project.urlMap();
                 if (appName == null) {
                     url = urlMap.values().iterator().next();
                 } else {
@@ -73,7 +73,7 @@ public class GoController {
                     return new ModelAndView("redirect:" + url);
                 }
             default:
-                return new ModelAndView("redirect:" + baseurl + "/#!500!" + stageId + "!" + stage.state());
+                return new ModelAndView("redirect:" + baseurl + "/#!500!" + stageId + "!" + project.state());
         }
     }
 }

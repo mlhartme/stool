@@ -18,9 +18,9 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.ArtifactStage;
-import net.oneandone.stool.stage.SourceStage;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.ArtifactProject;
+import net.oneandone.stool.stage.SourceProject;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
@@ -76,7 +76,7 @@ public class Create extends SessionCommand {
     public void doRun() throws Exception {
         String url;
         RmRfThread cleanup;
-        Stage stage;
+        Project project;
 
         url = origin();
         defaults(url);
@@ -85,14 +85,14 @@ public class Create extends SessionCommand {
         Runtime.getRuntime().addShutdownHook(cleanup);
 
         // if this method fails with an exception or it is aborted with ctrl-c, the shutdown hook is used to wipe things
-        stage = create(url);
+        project = create(url);
 
         Runtime.getRuntime().removeShutdownHook(cleanup);
 
-        session.add(stage.backstage, stage.getId());
-        session.logging.setStage(stage.getId(), stage.getName());
-        console.info.println("stage created: " + stage.getName());
-        session.cd(stage.getDirectory());
+        session.add(project.backstage, project.getId());
+        session.logging.setStage(project.getId(), project.getName());
+        console.info.println("stage created: " + project.getName());
+        session.cd(project.getDirectory());
     }
 
     private String origin() throws IOException {
@@ -134,7 +134,7 @@ public class Create extends SessionCommand {
         FileNode surrounding;
 
         if (directory == null) {
-            directory = world.getWorking().join(Stage.nameForUrl(url));
+            directory = world.getWorking().join(Project.nameForUrl(url));
         }
         if (directory.isDirectory()) {
             throw new ArgumentException("stage directory already exists: " + directory);
@@ -152,7 +152,7 @@ public class Create extends SessionCommand {
             name = directory.getName();
             config.put("name", name);
         }
-        Stage.checkName(name);
+        Project.checkName(name);
         if (session.stageNames().contains(name)) {
             throw new ArgumentException("stage name already exists: " + name);
         }
@@ -161,58 +161,58 @@ public class Create extends SessionCommand {
         }
     }
 
-    private Stage create(String origin) throws Exception {
-        Stage stage;
+    private Project create(String origin) throws Exception {
+        Project project;
         String prepare;
         Property property;
 
         directory.mkdir();
-        stage = stage(origin);
-        stage.modify();
+        project = stage(origin);
+        project.modify();
 
         // make sure to run in stage environment, e.g. to have proper repository settings
-        prepare = stage.config().prepare;
+        prepare = project.config().prepare;
         if (!prepare.isEmpty()) {
-            Launcher l = stage.launcher(Strings.toArray(Separator.SPACE.split(prepare)));
+            Launcher l = project.launcher(Strings.toArray(Separator.SPACE.split(prepare)));
             if (quiet) {
                 l.exec();
             } else {
                 l.exec(console.info);
             }
         }
-        stage.tuneConfiguration();
+        project.tuneConfiguration();
         for (Map.Entry<String, String> entry : config.entrySet()) {
-            property = stage.propertyOpt(entry.getKey());
+            property = project.propertyOpt(entry.getKey());
             if (property == null) {
                 throw new ArgumentException("unknown property to configure: " + entry.getKey());
             }
             property.set(entry.getValue());
         }
-        stage.initialize();
-        return stage;
+        project.initialize();
+        return project;
     }
 
-    private Stage stage(String origin) throws Exception {
+    private Project stage(String origin) throws Exception {
         String id;
-        ArtifactStage artifactStage;
-        Stage stage;
+        ArtifactProject artifactStage;
+        Project project;
 
         id = session.nextStageId();
-        if (ArtifactStage.isArtifact(origin)) {
-            artifactStage = new ArtifactStage(session, origin, id, directory, stageConfiguration);
+        if (ArtifactProject.isArtifact(origin)) {
+            artifactStage = new ArtifactProject(session, origin, id, directory, stageConfiguration);
             // create backstage BEFORE possible artifactory resolving because it might
             // already populates the local repository of the stage
             artifactStage.backstage.mkdir();
             artifactStage.populateDirectory(console);
-            stage = artifactStage;
+            project = artifactStage;
         } else {
             origin = Strings.removeRightOpt(origin, "/");
             console.info.println("checking out " + directory);
             session.scm(origin).checkout(origin, directory, quiet ? console.verbose : console.info);
-            stage = SourceStage.forOrigin(session, id, directory, origin, stageConfiguration);
+            project = SourceProject.forOrigin(session, id, directory, origin, stageConfiguration);
             // create backstage AFTER checkout -- git would reject none-empty target directories
-            stage.backstage.mkdir();
+            project.backstage.mkdir();
         }
-        return stage;
+        return project;
     }
 }

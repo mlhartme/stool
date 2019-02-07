@@ -17,7 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -30,22 +30,22 @@ public class Move extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
-        stage.modify();
-        stage.checkNotUp();
+    public void doMain(Project project) throws Exception {
+        project.modify();
+        project.checkNotUp();
 
         if (dest.exists()) {
             dest.checkDirectory();
-            dest = dest.join(stage.getDirectory().getName());
+            dest = dest.join(project.getDirectory().getName());
             dest.checkNotExists();
         } else {
             dest.getParent().checkDirectory();
         }
-        if (dest.hasAncestor(stage.getDirectory())) {
+        if (dest.hasAncestor(project.getDirectory())) {
             throw new ArgumentException("you cannot move a stage into a subdirectory of itself");
         }
 
-        stage.move(dest);
+        project.move(dest);
         console.info.println("done");
     }
 }

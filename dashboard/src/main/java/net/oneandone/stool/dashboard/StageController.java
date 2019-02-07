@@ -15,9 +15,8 @@
  */
 package net.oneandone.stool.dashboard;
 
-import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.NodeNotFoundException;
@@ -73,7 +72,7 @@ public class StageController {
     @Autowired
     private Maven maven;
 
-    private final Collection<Stage> stagesCache;
+    private final Collection<Project> stagesCache;
     private long lastCacheRenew;
 
     public StageController() {
@@ -81,17 +80,17 @@ public class StageController {
         lastCacheRenew = 0L;
     }
 
-    private Collection<Stage> stages(Session session) throws IOException {
-        List<Stage> lst;
+    private Collection<Project> stages(Session session) throws IOException {
+        List<Project> lst;
 
         if (System.currentTimeMillis() - lastCacheRenew > 4000) {
             stagesCache.clear();
             session.wipeStaleBackstages();
             session.updatePool();
             lst = session.listWithoutSystem();
-            Collections.sort(lst, new Comparator<Stage>() {
+            Collections.sort(lst, new Comparator<Project>() {
                 @Override
-                public int compare(Stage left, Stage right) {
+                public int compare(Project left, Project right) {
                     boolean lr;
                     boolean rr;
 
@@ -104,7 +103,7 @@ public class StageController {
                     }
                 }
             });
-            for (Stage stage : lst) {
+            for (Project project : lst) {
                 stagesCache.addAll(lst);
             }
             lastCacheRenew = System.currentTimeMillis();
@@ -113,7 +112,7 @@ public class StageController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public Collection<Stage> stages() throws IOException {
+    public Collection<Project> stages() throws IOException {
         return stages(session);
     }
 
@@ -128,22 +127,22 @@ public class StageController {
 
     @RequestMapping(value = "/{name}/logs", method = RequestMethod.GET)
     public Map<String, String> logs(HttpServletRequest httpServletRequest, @PathVariable(value = "name") String stageName) throws Exception {
-        Stage stage;
+        Project project;
         String baseUrl;
 
-        stage = resolveStage(stageName);
+        project = resolveStage(stageName);
         baseUrl = httpServletRequest.getRequestURL().toString();
         baseUrl = baseUrl.substring(0, baseUrl.indexOf('/', 8) + 1);
-        return stage.logs().list(baseUrl + "stages/" + stageName + "/logs/");
+        return project.logs().list(baseUrl + "stages/" + stageName + "/logs/");
     }
 
     @RequestMapping(value = "/{name}/logs/{log}", method = RequestMethod.GET)
     public ResponseEntity<Resource> log(@PathVariable(value = "name") String stageName,
       @PathVariable(value = "log") String log) throws Exception {
-        Stage stage;
+        Project project;
         String logfile;
 
-        stage = resolveStage(stageName);
+        project = resolveStage(stageName);
         if (log.endsWith(".log")) {
             logfile = log;
         } else {
@@ -152,7 +151,7 @@ public class StageController {
 
         try {
             Resource resource;
-            resource = new FileSystemResource(stage.logs().file(logfile));
+            resource = new FileSystemResource(project.logs().file(logfile));
 
             return new ResponseEntity<>(resource, HttpStatus.OK);
 
@@ -179,16 +178,16 @@ public class StageController {
         return new ResponseEntity<>(new ExceptionExport(e), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private Stage resolveStage(String stageName) throws ResourceNotFoundException {
-        Stage stage;
+    private Project resolveStage(String stageName) throws ResourceNotFoundException {
+        Project project;
 
         try {
-            stage = session.loadByName(stageName);
+            project = session.loadByName(stageName);
         } catch (IOException e) {
             throw (ResourceNotFoundException) new ResourceNotFoundException().initCause(e);
         }
-        stage.setMaven(maven);
-        return stage;
+        project.setMaven(maven);
+        return project;
     }
 
     public String execute(String stage, String command, String ... arguments) {

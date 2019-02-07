@@ -17,7 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -70,9 +70,9 @@ public class Import extends SessionCommand {
 
     @Override
     public void doRun() throws IOException {
-        List<Stage> found;
+        List<Project> found;
         List<FileNode> existing;
-        Stage stage;
+        Project project;
 
         found = new ArrayList<>();
         if (includes.size() == 0) {
@@ -93,10 +93,10 @@ public class Import extends SessionCommand {
                 console.info.println("No stage candidates found.");
                 break;
             case 1:
-                stage = found.get(0);
-                console.info.println("Importing " + stage.getDirectory());
-                doImport(stage, null);
-                session.cd(stage.getDirectory());
+                project = found.get(0);
+                console.info.println("Importing " + project.getDirectory());
+                doImport(project, null);
+                session.cd(project.getDirectory());
                 break;
             default:
                 interactiveImport(found);
@@ -104,8 +104,8 @@ public class Import extends SessionCommand {
         }
     }
 
-    private void interactiveImport(List<Stage> candidates) {
-        Stage candidate;
+    private void interactiveImport(List<Project> candidates) {
+        Project candidate;
         String str;
         int n;
         int idx;
@@ -128,7 +128,7 @@ public class Import extends SessionCommand {
                 case "q":
                     return;
                 case "a":
-                    for (Stage f : new ArrayList<>(candidates)) {
+                    for (Project f : new ArrayList<>(candidates)) {
                         importEntry(candidates, f, null);
                     }
                     break;
@@ -152,7 +152,7 @@ public class Import extends SessionCommand {
         }
     }
 
-    private void importEntry(List<Stage> candidates, Stage candidate, String forceName) {
+    private void importEntry(List<Project> candidates, Project candidate, String forceName) {
         try {
             doImport(candidate, forceName);
             candidates.remove(candidate);
@@ -163,9 +163,9 @@ public class Import extends SessionCommand {
         }
     }
 
-    private void scan(FileNode parent, List<Stage> result, List<FileNode> existingStages) throws IOException {
+    private void scan(FileNode parent, List<Project> result, List<FileNode> existingStages) throws IOException {
         String url;
-        Stage stage;
+        Project project;
 
         console.info.print("[" + result.size() + " candidates] scanning " + parent + " ...\u001b[K\r");
         console.info.flush();
@@ -183,7 +183,7 @@ public class Import extends SessionCommand {
             return;
         }
 
-        url = Stage.probe(parent);
+        url = Project.probe(parent);
         if (url == null) {
             if (!parent.join("pom.xml").isFile()) {
                 for (FileNode child : parent.list()) {
@@ -194,38 +194,38 @@ public class Import extends SessionCommand {
                 }
             }
         } else {
-            stage = Stage.createOpt(session, upgradeId == null ? session.nextStageId() : upgradeId,
+            project = Project.createOpt(session, upgradeId == null ? session.nextStageId() : upgradeId,
                     url, session.createStageConfiguration(url), parent);
-            if (stage == null) {
+            if (project == null) {
                 throw new IllegalStateException(parent + " " + url);
             }
-            result.add(stage);
+            result.add(project);
             if (result.size() >= max) {
                 console.info.println("\n\nScan stopped - max number of import projects reached: " + max);
             }
         }
     }
 
-    private void doImport(Stage stage, String forceName) throws IOException {
+    private void doImport(Project project, String forceName) throws IOException {
         FileNode directory;
         FileNode backstage;
         String name;
 
-        directory = stage.getDirectory();
+        directory = project.getDirectory();
         name = forceName != null ? forceName : name(directory);
-        backstage = Stage.backstageDirectory(directory);
+        backstage = Project.backstageDirectory(directory);
         if (backstage.exists()) {
             console.info.println("re-using " + backstage);
         } else {
             backstage.mkdir();
-            stage.config().name = name;
-            stage.tuneConfiguration();
-            stage.initialize();
+            project.config().name = name;
+            project.tuneConfiguration();
+            project.initialize();
         }
-        stage.modify();
-        session.add(stage.backstage, stage.getId());
-        session.logging.setStage(stage.getId(), stage.getName());
-        console.info.println("stage imported: " + stage.getName());
+        project.modify();
+        session.add(project.backstage, project.getId());
+        session.logging.setStage(project.getId(), project.getName());
+        console.info.println("stage imported: " + project.getName());
     }
 
     private String name(FileNode directory) {

@@ -16,7 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 
 public class Stop extends StageCommand {
@@ -28,11 +28,11 @@ public class Stop extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Project project) throws Exception {
         boolean alreadySleeping;
 
-        stage.modify();
-        alreadySleeping = session.bedroom.contains(stage.getId());
+        project.modify();
+        alreadySleeping = session.bedroom.contains(project.getId());
         if (alreadySleeping) {
             if (sleep) {
                 console.info.println("warning: stage already marked as sleeping");
@@ -40,28 +40,28 @@ public class Stop extends StageCommand {
                 console.info.println("going from sleeping to stopped.");
             }
         } else {
-            doNormal(stage);
+            doNormal(project);
         }
     }
 
     @Override
-    public void doFinish(Stage stage) throws Exception {
+    public void doFinish(Project project) throws Exception {
         if (sleep) {
-            if (session.bedroom.contains(stage.getId())) {
+            if (session.bedroom.contains(project.getId())) {
                 console.info.println("already sleeping");
             } else {
-                session.bedroom.add(session.gson, stage.getId());
+                session.bedroom.add(session.gson, project.getId());
             }
             console.info.println("state: sleeping");
         } else {
-            session.bedroom.remove(session.gson, stage.getId());
+            session.bedroom.remove(session.gson, project.getId());
             console.info.println("state: down");
         }
     }
 
     //--
 
-    public void doNormal(Stage stage) throws Exception {
-        stage.stop(console);
+    public void doNormal(Project project) throws Exception {
+        project.stop(console);
     }
 }

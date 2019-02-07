@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.scm;
 
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Credentials;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
@@ -56,7 +56,7 @@ public abstract class Scm {
     }
 
     public abstract void checkout(String url, FileNode dir, Writer dest) throws Failure;
-    public abstract boolean isCommitted(Stage stage) throws IOException;
+    public abstract boolean isCommitted(Project project) throws IOException;
 
     public static Scm forUrl(String url, Credentials svnCredentials) throws IOException {
         Scm scm;

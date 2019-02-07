@@ -16,13 +16,11 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 
@@ -37,7 +35,7 @@ public class Start extends StageCommand {
     }
 
     @Override
-    public boolean doBefore(List<Stage> stages, int indent) throws IOException {
+    public boolean doBefore(List<Project> projects, int indent) throws IOException {
         int global;
         int reserved;
 
@@ -49,62 +47,62 @@ public class Start extends StageCommand {
                   + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
             }
         }
-        return super.doBefore(stages, indent);
+        return super.doBefore(projects, indent);
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
-        stage.modify();
+    public void doMain(Project project) throws Exception {
+        project.modify();
         // to avoid running into a ping timeout below:
-        stage.session.configuration.verfiyHostname();
-        stage.checkConstraints();
+        project.session.configuration.verfiyHostname();
+        project.checkConstraints();
         if (session.configuration.committed) {
-            if (!stage.isCommitted()) {
+            if (!project.isCommitted()) {
                 throw new IOException("It's not allowed to start stages with local modifications.\n"
                         + "Please commit your modified files in order to start the stage.");
             }
         }
-        checkNotStarted(stage);
+        checkNotStarted(project);
 
-        doNormal(stage);
-        if (session.bedroom.contains(stage.getId())) {
+        doNormal(project);
+        if (session.bedroom.contains(project.getId())) {
             console.info.println("leaving sleeping state");
-            session.bedroom.remove(session.gson, stage.getId());
+            session.bedroom.remove(session.gson, project.getId());
         }
     }
 
     @Override
-    public void doFinish(Stage stage) throws Exception {
+    public void doFinish(Project project) throws Exception {
         // TODO - to avoid quick start/stop problems; just a ping doesn't solve this, and I don't understand why ...
-        stage.awaitStartup(console);
+        project.awaitStartup(console);
         Thread.sleep(2000);
         console.info.println("Applications available:");
-        for (String app : stage.namedUrls()) {
+        for (String app : project.namedUrls()) {
             console.info.println("  " + app);
         }
         if (tail) {
-            doTail(stage);
+            doTail(project);
         }
     }
 
     //--
 
-    public void doNormal(Stage stage) throws Exception {
+    public void doNormal(Project project) throws Exception {
         Ports ports;
 
-        ports = session.pool().allocate(stage, Collections.emptyMap());
-        stage.start(console, ports, noCache);
+        ports = session.pool().allocate(project, Collections.emptyMap());
+        project.start(console, ports, noCache);
     }
 
-    private void doTail(Stage stage) throws IOException {
+    private void doTail(Project project) throws IOException {
         console.info.println("Tailing container output.");
         console.info.println("Press Ctrl-C to abort.");
         console.info.println();
-        stage.tailF(console.info);
+        project.tailF(console.info);
     }
 
-    private void checkNotStarted(Stage stage) throws IOException {
-        if (stage.state().equals(Stage.State.UP)) {
+    private void checkNotStarted(Project project) throws IOException {
+        if (project.state().equals(Project.State.UP)) {
             throw new IOException("Stage is already running.");
         }
 

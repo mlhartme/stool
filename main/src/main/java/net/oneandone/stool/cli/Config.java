@@ -17,7 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Strings;
@@ -66,7 +66,7 @@ public class Config extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Project project) throws Exception {
         boolean error;
         Property prop;
         String value;
@@ -74,10 +74,10 @@ public class Config extends StageCommand {
         int width;
 
         if (set) {
-            stage.modify();
+            project.modify();
             error = false;
             for (Map.Entry<String, String> entry : arguments.entrySet()) {
-                prop = stage.propertyOpt(entry.getKey());
+                prop = project.propertyOpt(entry.getKey());
                 if (prop == null) {
                     throw new ArgumentException("unknown property: " + entry.getKey());
                 }
@@ -94,10 +94,10 @@ public class Config extends StageCommand {
                 }
             }
             if (!error) {
-                session.saveStageProperties(stage.config(), stage.backstage);
+                session.saveStageProperties(project.config(), project.backstage);
             }
         } else {
-            props = get ? argumentProperties(stage) : stage.properties();
+            props = get ? argumentProperties(project) : project.properties();
             width = 0 ;
             if (props.size() > 1) {
                 for (Property property : props) {
@@ -111,13 +111,13 @@ public class Config extends StageCommand {
         }
     }
 
-    private List<Property> argumentProperties(Stage stage) {
+    private List<Property> argumentProperties(Project project) {
         List<Property> result;
         Property property;
 
         result = new ArrayList<>();
         for (String name : arguments.keySet()) {
-            property = stage.propertyOpt(name);
+            property = project.propertyOpt(name);
             if (property == null) {
                 throw new ArgumentException("unknown property: " + name);
             }

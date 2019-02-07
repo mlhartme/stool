@@ -20,7 +20,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.Engine.Status;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Mailer;
@@ -136,55 +136,55 @@ public class Validate extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
-        container(stage);
-        constraints(stage);
+    public void doMain(Project project) throws Exception {
+        container(project);
+        constraints(project);
     }
 
     //--
 
-    public void constraints(Stage stage) throws IOException {
+    public void constraints(Project project) throws IOException {
         String message;
 
         try {
-            stage.checkConstraints();
+            project.checkConstraints();
             return;
         } catch (ArgumentException e) {
             message = e.getMessage();
         }
-        report.user(stage, message);
+        report.user(project, message);
         if (repair) {
-            if (stage.dockerContainer() != null) {
+            if (project.dockerContainer() != null) {
                 try {
-                    new Stop(session, false).doRun(stage);
-                    report.user(stage, "stage has been stopped");
+                    new Stop(session, false).doRun(project);
+                    report.user(project, "stage has been stopped");
                 } catch (Exception e) {
-                    report.user(stage, "stage failed to stop: " + e.getMessage());
+                    report.user(project, "stage failed to stop: " + e.getMessage());
                     e.printStackTrace(console.verbose);
                 }
             }
-            if (session.configuration.autoRemove >= 0 && stage.config().expire.expiredDays() >= 0) {
-                if (stage.config().expire.expiredDays() >= session.configuration.autoRemove) {
+            if (session.configuration.autoRemove >= 0 && project.config().expire.expiredDays() >= 0) {
+                if (project.config().expire.expiredDays() >= session.configuration.autoRemove) {
                     try {
-                        report.user(stage, "removing expired stage");
-                        new Remove(session, true, true).doRun(stage);
+                        report.user(project, "removing expired stage");
+                        new Remove(session, true, true).doRun(project);
                     } catch (Exception e) {
-                        report.user(stage, "failed to remove expired stage: " + e.getMessage());
+                        report.user(project, "failed to remove expired stage: " + e.getMessage());
                         e.printStackTrace(console.verbose);
                     }
                 } else {
-                    report.user(stage, "CAUTION: This stage will be removed automatically in "
-                            + (session.configuration.autoRemove - stage.config().expire.expiredDays()) + " day(s)");
+                    report.user(project, "CAUTION: This stage will be removed automatically in "
+                            + (session.configuration.autoRemove - project.config().expire.expiredDays()) + " day(s)");
                 }
             }
         }
     }
 
-    private void container(Stage stage) throws IOException {
+    private void container(Project project) throws IOException {
         String container;
         Status status;
 
-        container = stage.dockerContainer();
+        container = project.dockerContainer();
         if (container == null) {
             // not running, nothing to check
             return;
@@ -192,18 +192,18 @@ public class Validate extends StageCommand {
         try {
             status = session.dockerEngine().containerStatus(container);
         } catch (FileNotFoundException e) {
-            report.admin(stage, container + ": container not found");
+            report.admin(project, container + ": container not found");
             if (repair) {
-                stage.dockerContainerFile().deleteFile();
-                report.admin(stage, "repaired by deleting " + stage.dockerContainerFile());
+                project.dockerContainerFile().deleteFile();
+                report.admin(project, "repaired by deleting " + project.dockerContainerFile());
             }
             return;
         }
         if (status != Status.RUNNING) {
-            report.admin(stage, container + ": container is not running: " + status);
+            report.admin(project, container + ": container is not running: " + status);
             if (repair) {
-                stage.dockerContainerFile().deleteFile();
-                report.admin(stage, "repaired by deleting " + stage.dockerContainerFile());
+                project.dockerContainerFile().deleteFile();
+                report.admin(project, "repaired by deleting " + project.dockerContainerFile());
             }
         }
     }
@@ -222,28 +222,28 @@ public class Validate extends StageCommand {
             admin(null, problem);
         }
 
-        public void admin(Stage stage, String problem) {
-            add(null, prefix(stage) + problem);
+        public void admin(Project project, String problem) {
+            add(null, prefix(project) + problem);
         }
 
-        public void user(Stage stage, String problem) throws IOException {
+        public void user(Project project, String problem) throws IOException {
             Set<String> done;
             String login;
 
             done = new HashSet<>();
-            for (String user : stage.config().notify) {
+            for (String user : project.config().notify) {
                 switch (user) {
                     case StageConfiguration.NOTIFY_LAST_MODIFIED_BY:
-                        login = stage.lastModifiedBy();
+                        login = project.lastModifiedBy();
                         break;
                     case StageConfiguration.NOTIFY_CREATED_BY:
-                        login = stage.createdBy();
+                        login = project.createdBy();
                         break;
                     default:
                         login = user;
                 }
                 if (done.add(login)) {
-                    add(login, prefix(stage) + problem);
+                    add(login, prefix(project) + problem);
                 }
             }
         }
@@ -316,8 +316,8 @@ public class Validate extends StageCommand {
 
         //--
 
-        private static String prefix(Stage stage) {
-            return stage == null ? "" : stage.getName() + ": ";
+        private static String prefix(Project project) {
+            return project == null ? "" : project.getName() + ": ";
         }
 
         private void add(String user, String problem) {

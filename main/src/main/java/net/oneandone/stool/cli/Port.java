@@ -17,7 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 
 import java.util.HashMap;
@@ -50,7 +50,7 @@ public class Port extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
-        session.pool().allocate(stage, ports);
+    public void doMain(Project project) throws Exception {
+        session.pool().allocate(project, ports);
     }
 }

@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.scm;
 
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
@@ -56,10 +56,10 @@ public class Git extends Scm {
     }
 
     @Override
-    public boolean isCommitted(Stage stage) {
+    public boolean isCommitted(Project project) {
         FileNode checkout;
 
-        checkout = stage.getDirectory();
+        checkout = project.getDirectory();
         try {
             git(checkout, "diff", "--quiet").execNoOutput();
         } catch (Failure e) {

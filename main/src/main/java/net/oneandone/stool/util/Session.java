@@ -33,7 +33,7 @@ import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.LinkException;
 import net.oneandone.sushi.fs.World;
@@ -200,7 +200,7 @@ public class Session {
 
     public FileNode findStageDirectory(FileNode dir) {
         do {
-            if (Stage.backstageDirectory(dir).exists()) {
+            if (Project.backstageDirectory(dir).exists()) {
                 return dir;
             }
             dir = dir.getParent();
@@ -254,9 +254,9 @@ public class Session {
 
     //--
 
-    public List<Stage> list(EnumerationFailed problems, Predicate predicate) throws IOException {
-        List<Stage> result;
-        Stage stage;
+    public List<Project> list(EnumerationFailed problems, Predicate predicate) throws IOException {
+        List<Project> result;
+        Project project;
         FileNode backstage;
 
         result = new ArrayList<>();
@@ -264,13 +264,13 @@ public class Session {
             backstage = link.resolveLink();
             if (StageConfiguration.file(backstage).exists()) {
                 try {
-                    stage = Stage.load(this, link);
+                    project = Project.load(this, link);
                 } catch (IOException e) {
                     problems.add(link.getName(), e);
                     continue;
                 }
-                if (predicate.matches(stage)) {
-                    result.add(stage);
+                if (predicate.matches(project)) {
+                    result.add(project);
                 }
             } else {
                 // stage is being created, we're usually waiting the the checkout to complete
@@ -279,15 +279,15 @@ public class Session {
         return result;
     }
 
-    public List<Stage> listWithoutSystem() throws IOException {
-        List<Stage> result;
+    public List<Project> listWithoutSystem() throws IOException {
+        List<Project> result;
         EnumerationFailed problems;
 
         problems = new EnumerationFailed();
         result = list(problems, new Predicate() {
             @Override
-            public boolean matches(Stage stage) {
-                return !stage.isSystem();
+            public boolean matches(Project project) {
+                return !project.isSystem();
             }
         });
         for (Map.Entry<String, Exception> entry : problems.problems.entrySet()) {
@@ -308,11 +308,11 @@ public class Session {
         return svnCredentials;
     }
 
-    public Stage load(String id) throws IOException {
-        return Stage.load(this, backstages.join(id));
+    public Project load(String id) throws IOException {
+        return Project.load(this, backstages.join(id));
     }
 
-    public Stage loadByName(String stageName) throws IOException {
+    public Project loadByName(String stageName) throws IOException {
         List<FileNode> links;
         FileNode bs;
         StageConfiguration config;
@@ -373,7 +373,7 @@ public class Session {
             if (directory == null) {
                 lazySelectedId = null;
             } else {
-                bs = Stage.backstageDirectory(directory);
+                bs = Project.backstageDirectory(directory);
                 for (FileNode link : backstages.list()) {
                     if (link.resolveLink().equals(bs)) {
                         lazySelectedId = link.getName();
@@ -391,17 +391,17 @@ public class Session {
     }
 
     /** returns the build environment */
-    public Environment environment(Stage stage) {
+    public Environment environment(Project project) {
         Environment env;
         String mavenOpts;
 
-        if (stage == null) {
+        if (project == null) {
             mavenOpts = "";
         } else {
-            mavenOpts = stage.macros().replace(stage.config().mavenOpts);
+            mavenOpts = project.macros().replace(project.config().mavenOpts);
         }
         env = new Environment();
-        env.setMavenHome((stage != null && stage.config().mavenHome() != null) ? stage.config().mavenHome() : null);
+        env.setMavenHome((project != null && project.config().mavenHome() != null) ? project.config().mavenHome() : null);
         env.setMavenOpts(mavenOpts);
         return env;
     }
@@ -450,8 +450,8 @@ public class Session {
         return home.join("run/ports");
     }
 
-    public boolean isSelected(Stage stage) throws IOException {
-        return stage.getId().equals(getSelectedStageId());
+    public boolean isSelected(Project project) throws IOException {
+        return project.getId().equals(getSelectedStageId());
     }
 
     //-- stage properties
@@ -596,7 +596,7 @@ public class Session {
 
         reserved = 0;
         for (FileNode stage : stageDirectories()) {
-            config = loadStageConfiguration(Stage.backstageDirectory(stage));
+            config = loadStageConfiguration(Project.backstageDirectory(stage));
             reserved += Math.max(0, config.quota);
         }
         return reserved;

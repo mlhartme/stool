@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.scm;
 
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Credentials;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
@@ -64,11 +64,11 @@ public class Subversion extends Scm {
     }
 
     @Override
-    public boolean isCommitted(Stage stage) throws IOException {
+    public boolean isCommitted(Project project) throws IOException {
         FileNode directory;
         String str;
 
-        directory = stage.getDirectory();
+        directory = project.getDirectory();
         if (!directory.join(".svn").isDirectory()) {
             return true; // artifact stage
         }

@@ -92,19 +92,19 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static net.oneandone.stool.stage.Stage.State.UP;
+import static net.oneandone.stool.stage.Project.State.UP;
 
 /**
- * Concrete implementations are SourceStage or ArtifactStage.
+ * Concrete implementations are SourceProject or ArtifactProject.
  */
-public abstract class Stage {
+public abstract class Project {
     public static FileNode backstageDirectory(FileNode dir) {
         return dir.join(".backstage");
     }
 
     //--
 
-    public static Stage load(Session session, FileNode backstageLink) throws IOException {
+    public static Project load(Session session, FileNode backstageLink) throws IOException {
         FileNode backstageResolved;
 
         try {
@@ -115,8 +115,8 @@ public abstract class Stage {
         return load(session, session.loadStageConfiguration(backstageResolved), backstageLink.getName(), backstageResolved.getParent());
     }
 
-    private static Stage load(Session session, StageConfiguration configuration, String id, FileNode directory) throws IOException {
-        Stage result;
+    private static Project load(Session session, StageConfiguration configuration, String id, FileNode directory) throws IOException {
+        Project result;
         String origin;
 
         origin = probe(directory);
@@ -135,23 +135,23 @@ public abstract class Stage {
         Node artifactGav;
 
         directory.checkDirectory();
-        artifactGav = ArtifactStage.urlFile(directory);
+        artifactGav = ArtifactProject.urlFile(directory);
         if (artifactGav.exists()) {
             return artifactGav.readString().trim();
         }
         return Scm.checkoutUrlOpt(directory);
     }
 
-    public static Stage createOpt(Session session, String id, String origin, StageConfiguration configuration, FileNode directory) throws IOException {
+    public static Project createOpt(Session session, String id, String origin, StageConfiguration configuration, FileNode directory) throws IOException {
         if (configuration == null) {
             throw new IllegalArgumentException();
         }
         directory.checkDirectory();
         if (origin.startsWith("gav:") || origin.startsWith("file:")) {
-            return new ArtifactStage(session, origin, id, directory, configuration);
+            return new ArtifactProject(session, origin, id, directory, configuration);
         }
         if (directory.join(configuration.pom).exists()) {
-            return SourceStage.forLocal(session, id, directory, configuration);
+            return SourceProject.forLocal(session, id, directory, configuration);
         }
         return null;
     }
@@ -174,7 +174,7 @@ public abstract class Stage {
 
     //--
 
-    public Stage(Session session, String origin, String id, FileNode directory, StageConfiguration configuration) {
+    public Project(Session session, String origin, String id, FileNode directory, StageConfiguration configuration) {
         this.session = session;
         this.origin = origin;
         this.id = id;
@@ -837,7 +837,7 @@ public abstract class Stage {
     }
 
     public boolean isCommitted() throws IOException {
-        if (this instanceof ArtifactStage) {
+        if (this instanceof ArtifactProject) {
             return true;
         }
         return session.scm(getOrigin()).isCommitted(this);
@@ -922,11 +922,11 @@ public abstract class Stage {
         String container;
         JsonObject obj;
 
-        container = Stage.this.dockerContainer();
+        container = Project.this.dockerContainer();
         if (container == null) {
             return 0;
         }
-        obj = Stage.this.session.dockerEngine().containerInspect(container, true);
+        obj = Project.this.session.dockerEngine().containerInspect(container, true);
         // not SizeRootFs, that's the image size plus the rw layer
         return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
@@ -1138,81 +1138,81 @@ public abstract class Stage {
         fields.add(new Field("selected") {
             @Override
             public Object get() throws IOException {
-                return session.isSelected(Stage.this);
+                return session.isSelected(Project.this);
             }
         });
         fields.add(new Field("directory") {
             @Override
             public Object get() {
-                return Stage.this.directory.getAbsolute();
+                return Project.this.directory.getAbsolute();
             }
         });
         fields.add(new Field("backstage") {
             @Override
             public Object get() {
-                return Stage.this.backstage.getAbsolute();
+                return Project.this.backstage.getAbsolute();
             }
         });
         fields.add(new Field("origin") {
             @Override
             public Object get() {
-                return Stage.this.getOrigin();
+                return Project.this.getOrigin();
             }
         });
         fields.add(new Field("type") {
             @Override
             public Object get() {
-                return Stage.this.getType();
+                return Project.this.getType();
             }
         });
         fields.add(new Field("created-by") {
             @Override
             public Object get() throws IOException {
-                return session.users.checkedStatusByLogin(Stage.this.createdBy());
+                return session.users.checkedStatusByLogin(Project.this.createdBy());
             }
 
         });
         fields.add(new Field("created-at") {
             @Override
             public Object get() throws IOException {
-                return LogEntry.FULL_FMT.format(Stage.this.created());
+                return LogEntry.FULL_FMT.format(Project.this.created());
             }
 
         });
         fields.add(new Field("last-modified-by") {
             @Override
             public Object get() throws IOException {
-                return session.users.checkedStatusByLogin(Stage.this.lastModifiedBy());
+                return session.users.checkedStatusByLogin(Project.this.lastModifiedBy());
             }
         });
         fields.add(new Field("last-modified-at") {
             @Override
             public Object get() throws IOException {
-                return Stage.timespan(Stage.this.lastModifiedAt());
+                return Project.timespan(Project.this.lastModifiedAt());
             }
         });
         fields.add(new Field("buildtime") {
             @Override
             public Object get() throws IOException {
-                return Stage.this.buildtime();
+                return Project.this.buildtime();
             }
         });
         fields.add(new Field("disk") {
             @Override
             public Object get() throws IOException {
-                return Stage.this.diskUsed();
+                return Project.this.diskUsed();
             }
         });
         fields.add(new Field("container-disk") {
             @Override
             public Object get() throws IOException {
-                return Stage.this.containerDiskUsed();
+                return Project.this.containerDiskUsed();
             }
         });
         fields.add(new Field("state") {
             @Override
             public Object get() throws IOException {
-                return Stage.this.state().toString();
+                return Project.this.state().toString();
             }
         });
         fields.add(new Field("uptime") {
@@ -1220,8 +1220,8 @@ public abstract class Stage {
             public Object get() throws IOException {
                 String container;
 
-                container = Stage.this.dockerContainer();
-                return container == null ? null : timespan(Stage.this.session.dockerEngine().containerStartedAt(container));
+                container = Project.this.dockerContainer();
+                return container == null ? null : timespan(Project.this.session.dockerEngine().containerStartedAt(container));
             }
         });
         fields.add(new Field("cpu") {
@@ -1231,11 +1231,11 @@ public abstract class Stage {
                 Engine engine;
                 Stats stats;
 
-                container = Stage.this.dockerContainer();
+                container = Project.this.dockerContainer();
                 if (container == null) {
                     return null;
                 }
-                engine = Stage.this.session.dockerEngine();
+                engine = Project.this.session.dockerEngine();
                 stats = engine.containerStats(container);
                 if (stats != null) {
                     return stats.cpu;
@@ -1252,11 +1252,11 @@ public abstract class Stage {
                 Engine engine;
                 Stats stats;
 
-                container = Stage.this.dockerContainer();
+                container = Project.this.dockerContainer();
                 if (container == null) {
                     return null;
                 }
-                engine = Stage.this.session.dockerEngine();
+                engine = Project.this.session.dockerEngine();
                 stats = engine.containerStats(container);
                 if (stats != null) {
                     return stats.memoryUsage * 100 / stats.memoryLimit;
@@ -1269,13 +1269,13 @@ public abstract class Stage {
         fields.add(new Field("container") {
             @Override
             public Object get() throws IOException {
-                return Stage.this.dockerContainer();
+                return Project.this.dockerContainer();
             }
         });
         fields.add(new Field("apps") {
             @Override
             public Object get() throws IOException {
-                return Stage.this.namedUrls();
+                return Project.this.namedUrls();
             }
         });
         fields.addAll(TemplateField.scanTemplate(this, config().template));
@@ -1371,7 +1371,7 @@ public abstract class Stage {
     //-- for dashboard
 
     public String displayState() throws IOException {
-        switch (isWorking() ? Stage.State.WORKING : state()) {
+        switch (isWorking() ? Project.State.WORKING : state()) {
             case UP:
                 return "success";
             case WORKING:

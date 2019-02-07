@@ -16,7 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 
 public class Restart extends StageCommand {
@@ -28,15 +28,15 @@ public class Restart extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
-        if (stage.state() == Stage.State.UP || stage.state() == Stage.State.WORKING) {
-            new Stop(session, false).doRun(stage);
+    public void doMain(Project project) throws Exception {
+        if (project.state() == Project.State.UP || project.state() == Project.State.WORKING) {
+            new Stop(session, false).doRun(project);
         } else {
             console.info.println("Container is not running - starting a new instance.");
         }
 
-        new Start(session, false, noCache).doRun(stage);
-        if (session.bedroom.contains(stage.getId())) {
+        new Start(session, false, noCache).doRun(project);
+        if (session.bedroom.contains(project.getId())) {
             console.info.println("stopped sleeping");
         }
     }

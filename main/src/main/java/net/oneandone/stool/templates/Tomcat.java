@@ -19,7 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
@@ -40,17 +40,17 @@ import java.util.List;
 import java.util.Map;
 
 public class Tomcat {
-    private final Stage stage;
+    private final Project project;
     private final FileNode context;
     private final StageConfiguration configuration;
     private final Session session;
     private final Console console;
     private final Ports ports;
 
-    public Tomcat(Stage stage, FileNode context, Session session, Ports ports) {
-        this.stage = stage;
+    public Tomcat(Project project, FileNode context, Session session, Ports ports) {
+        this.project = project;
         this.context = context;
-        this.configuration = stage.config();
+        this.configuration = project.config();
         this.session = session;
         this.console = session.console;
         this.ports = ports;
@@ -75,9 +75,9 @@ public class Tomcat {
         if (console.getVerbose()) {
             launcher.arg("-v");
         }
-        launcher.arg("-maven-repository=" + stage.localRepository().getAbsolute());
+        launcher.arg("-maven-repository=" + project.localRepository().getAbsolute());
         launcher.arg("resolve", "-output", list.getAbsolute());
-        for (String p : stage.faultProjects()) {
+        for (String p : project.faultProjects()) {
             launcher.arg(p);
         }
         launcher.getBuilder().inheritIO();
@@ -123,7 +123,7 @@ public class Tomcat {
         serverXmlDest = serverXml();
         tar(tomcat, "zxf", tomcatTarGz.getName(), "--strip-components=2", tomcatName(version) + "/conf/server.xml");
 
-        serverXml = ServerXml.load(serverXmlDest, stage.getName(), session.configuration.hostname);
+        serverXml = ServerXml.load(serverXmlDest, project.getName(), session.configuration.hostname);
         serverXml.stripComments();
         serverXml.configure(ports, configuration.url, keystorePassword, cookies, legacyVersion(version));
         serverXml.save(serverXmlDest);
@@ -135,10 +135,10 @@ public class Tomcat {
 
         opts = new ArrayList<>();
 
-        tomcatOpts = escape(stage.macros().replace(extraOpts));
+        tomcatOpts = escape(project.macros().replace(extraOpts));
         opts.addAll(Separator.SPACE.split(tomcatOpts));
 
-        opts.add("-Xmx" + stage.config().memory * 3 / 4 + "m");
+        opts.add("-Xmx" + project.config().memory * 3 / 4 + "m");
 
         // see http://docs.oracle.com/javase/7/docs/technotes/guides/management/agent.html
         opts.add("-Dcom.sun.management.jmxremote.authenticate=false");
@@ -147,10 +147,10 @@ public class Tomcat {
         opts.add("-Djava.rmi.server.hostname=" + session.configuration.hostname); // needed for jmx access - see https://forums.docker.com/t/enable-jmx-rmi-access-to-a-docker-container/625/2
         opts.add("-Dcom.sun.management.jmxremote.ssl=false");
 
-        if (stage.isSystem()) {
+        if (project.isSystem()) {
             opts.add("-Dstool.cp=" + Main.stoolCp(session.world).getAbsolute());
             opts.add("-Dstool.home=" + session.home.getAbsolute());
-            opts.add("-Dstool.idlink=" + session.backstageLink(stage.getId()).getAbsolute());
+            opts.add("-Dstool.idlink=" + session.backstageLink(project.getId()).getAbsolute());
         }
 
         if (debug || suspend) {
@@ -170,19 +170,19 @@ public class Tomcat {
     public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
 
-        serverXml = ServerXml.load(serverXml(), stage.getName(), session.configuration.hostname);
-        serverXml.addContextParameters(stage, logroot, Strings.toMap(additionals));
+        serverXml = ServerXml.load(serverXml(), project.getName(), session.configuration.hostname);
+        serverXml.addContextParameters(project, logroot, Strings.toMap(additionals));
         serverXml.save(serverXml());
     }
 
     //--
 
     private FileNode tomcatTarGz(String version) {
-        return stage.backstage.join("context/tomcat/apache-tomcat-" + version + ".tar.gz");
+        return project.backstage.join("context/tomcat/apache-tomcat-" + version + ".tar.gz");
     }
 
     private FileNode serverXml() {
-        return stage.backstage.join("context/tomcat/server.xml");
+        return project.backstage.join("context/tomcat/server.xml");
     }
 
     /** @return true for 8.0.x and older */
@@ -203,7 +203,7 @@ public class Tomcat {
 
     private String certhost() {
         if (session.configuration.vhosts) {
-            return "*." + stage.getName() + "." + session.configuration.hostname;
+            return "*." + project.getName() + "." + session.configuration.hostname;
         } else {
             return session.configuration.hostname;
         }
@@ -276,7 +276,7 @@ public class Tomcat {
         FileNode dir;
         FileNode deps;
 
-        dir = stage.getDirectory().join("target/fitnesse");
+        dir = project.getDirectory().join("target/fitnesse");
         dir.mkdirsOpt();
         dir.join("fitnesse.sh").writeString(fitnesseSh());
         dir.join("fitnesse.sh").setPermissions("rwxrwxrwx");
@@ -288,10 +288,10 @@ public class Tomcat {
                 deps = fitnesseProject(vhost).join("target/fitnesse/dependencies");
                 deps.deleteTreeOpt();
                 deps.mkdirsOpt();
-                launcher = stage.launcher("mvn", "dependency::copy-dependencies",
+                launcher = project.launcher("mvn", "dependency::copy-dependencies",
                         "-DoutputDirectory=" + deps.getAbsolute(), "-DexcludeScope=system");
                 launcher.dir(vhostProject(vhost));
-                launcher.exec(stage.session.console.verbose);
+                launcher.exec(project.session.console.verbose);
             }
         }
     }
@@ -313,7 +313,7 @@ public class Tomcat {
             if (vhost.isWebapp()) {
                 result.append("\n");
                 result.append("# vhost " + vhost.name + "\n");
-                result.append("cd /stage/" + fitnesseProject(vhost).getRelative(stage.getDirectory()) + "\n");
+                result.append("cd /stage/" + fitnesseProject(vhost).getRelative(project.getDirectory()) + "\n");
                 result.append("deps=target/fitnesse/dependencies\n");
                 result.append("cp=target/test-classes:target/classes\n");
                 result.append("for file in $(ls $deps/*.jar); do\n");
