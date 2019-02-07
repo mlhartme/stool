@@ -104,7 +104,7 @@ public class Pool {
         nameDocroots = new LinkedHashMap<>(project.selectedVhosts());
         names.addAll(nameDocroots.keySet());
 
-        stageName = project.getName();
+        stageName = project.getStage().getName();
         stageId = project.getStage().getId();
         result = new ArrayList<>();
         for (String name : names) {

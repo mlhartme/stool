@@ -107,7 +107,7 @@ public abstract class StageCommand extends SessionCommand {
         }
         width = 0;
         for (Project project : lst) {
-            width = Math.max(width, project.getName().length());
+            width = Math.max(width, project.getStage().getName().length());
         }
         width += 5;
         withPrefix = doBefore(lst, width);
@@ -144,7 +144,7 @@ public abstract class StageCommand extends SessionCommand {
         while (iter.hasNext()) {
             project = iter.next();
             if (isNoop(project)) {
-                console.verbose.println("nothing to do: " + project.getName());
+                console.verbose.println("nothing to do: " + project.getStage().getName());
             } else {
                 result.add(project);
             }
@@ -303,7 +303,7 @@ public abstract class StageCommand extends SessionCommand {
             return new Predicate() {
                 @Override
                 public boolean matches(Project project) {
-                    return project.getName().equals(string);
+                    return project.getStage().getName().equals(string);
                 }
             };
         }
@@ -409,9 +409,9 @@ public abstract class StageCommand extends SessionCommand {
             try (Lock lock1 = createLock(project.backstageLock(), backstageLock);
                  Lock lock2 = createLock(project.directoryLock(), directoryLock)) {
                 if (withPrefix) {
-                    ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + project.getName() + "} ", width));
+                    ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + project.getStage().getName() + "} ", width));
                 }
-                session.logging.setStage(project.getStage().getId(), project.getName());
+                session.logging.setStage(project.getStage().getId(), project.getStage().getName());
 
                 if (main) {
                     runMain(project);
@@ -419,7 +419,7 @@ public abstract class StageCommand extends SessionCommand {
                     runFinish(project);
                 }
             } catch (Error | RuntimeException e) {
-                console.error.println(project.getName() + ": " + e.getMessage());
+                console.error.println(project.getStage().getName() + ": " + e.getMessage());
                 throw e;
             } catch (Exception e /* esp. ArgumentException */) {
                 if (fail == Fail.NORMAL) {

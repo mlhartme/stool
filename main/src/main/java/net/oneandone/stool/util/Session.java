@@ -398,10 +398,10 @@ public class Session {
         if (project == null) {
             mavenOpts = "";
         } else {
-            mavenOpts = project.macros().replace(project.config().mavenOpts);
+            mavenOpts = project.macros().replace(project.stage.config().mavenOpts);
         }
         env = new Environment();
-        env.setMavenHome((project != null && project.config().mavenHome() != null) ? project.config().mavenHome() : null);
+        env.setMavenHome((project != null && project.stage.config().mavenHome() != null) ? project.stage.config().mavenHome() : null);
         env.setMavenOpts(mavenOpts);
         return env;
     }

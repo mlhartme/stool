@@ -94,10 +94,10 @@ public class StageController {
                     boolean lr;
                     boolean rr;
 
-                    lr = left.config().expire.isReserved();
-                    rr = right.config().expire.isReserved();
+                    lr = left.getStage().config().expire.isReserved();
+                    rr = right.getStage().config().expire.isReserved();
                     if (lr == rr) {
-                        return left.getName().compareToIgnoreCase(right.getName());
+                        return left.getStage().getName().compareToIgnoreCase(right.getStage().getName());
                     } else {
                         return lr ? -1 : 1;
                     }

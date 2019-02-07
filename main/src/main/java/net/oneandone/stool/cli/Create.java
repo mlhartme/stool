@@ -90,8 +90,8 @@ public class Create extends SessionCommand {
         Runtime.getRuntime().removeShutdownHook(cleanup);
 
         session.add(project.getStage().directory, project.getStage().getId());
-        session.logging.setStage(project.getStage().getId(), project.getName());
-        console.info.println("stage created: " + project.getName());
+        session.logging.setStage(project.getStage().getId(), project.getStage().getName());
+        console.info.println("stage created: " + project.getStage().getName());
         session.cd(project.getDirectory());
     }
 
@@ -171,7 +171,7 @@ public class Create extends SessionCommand {
         project.modify();
 
         // make sure to run in stage environment, e.g. to have proper repository settings
-        prepare = project.config().prepare;
+        prepare = project.getStage().config().prepare;
         if (!prepare.isEmpty()) {
             Launcher l = project.launcher(Strings.toArray(Separator.SPACE.split(prepare)));
             if (quiet) {

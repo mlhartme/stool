@@ -100,7 +100,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         serviceProperties = new ServiceProperties();
         serviceProperties.setService(self.loadPortsOpt().firstWebapp().httpsUrl(
-                session.configuration.vhosts, self.getName(), session.configuration.hostname) + "/j_spring_cas_security_check");
+                session.configuration.vhosts, self.getStage().getName(), session.configuration.hostname) + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
     }

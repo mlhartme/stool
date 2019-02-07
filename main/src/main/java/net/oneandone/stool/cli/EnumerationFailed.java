@@ -32,7 +32,7 @@ public class EnumerationFailed extends Exception {
     }
 
     public void add(Project project, Exception cause) {
-        add(project.getName() + " (" + project.getStage().getId() + ")", cause);
+        add(project.getStage().getName() + " (" + project.getStage().getId() + ")", cause);
     }
 
     public void add(String stage, Exception cause) {

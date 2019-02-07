@@ -120,7 +120,7 @@ public class SourceProject extends Project {
 
     public List<MavenProject> wars() throws IOException {
         if (lazyWars == null) {
-            lazyWars = loadWars(directory.join(config().pom));
+            lazyWars = loadWars(directory.join(stage.config().pom));
         }
         return lazyWars;
     }

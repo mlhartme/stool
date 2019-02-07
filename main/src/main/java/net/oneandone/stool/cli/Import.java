@@ -156,7 +156,7 @@ public class Import extends SessionCommand {
         try {
             doImport(candidate, forceName);
             candidates.remove(candidate);
-            console.info.println("imported: " + candidate.getName());
+            console.info.println("imported: " + candidate.getStage().getName());
         } catch (IOException e) {
             console.info.println(candidate.getDirectory() + ": import failed: " + e.getMessage());
             e.printStackTrace(console.verbose);
@@ -218,14 +218,14 @@ public class Import extends SessionCommand {
             console.info.println("re-using " + backstage);
         } else {
             backstage.mkdir();
-            project.config().name = name;
+            project.getStage().config().name = name;
             project.tuneConfiguration();
             project.initialize();
         }
         project.modify();
         session.add(project.getStage().directory, project.getStage().getId());
-        session.logging.setStage(project.getStage().getId(), project.getName());
-        console.info.println("stage imported: " + project.getName());
+        session.logging.setStage(project.getStage().getId(), project.getStage().getName());
+        console.info.println("stage imported: " + project.getStage().getName());
     }
 
     private String name(FileNode directory) {

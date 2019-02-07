@@ -20,6 +20,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
@@ -41,6 +42,7 @@ import java.util.Map;
 
 public class Tomcat {
     private final Project project;
+    private final Stage stage;
     private final FileNode context;
     private final StageConfiguration configuration;
     private final Session session;
@@ -49,8 +51,9 @@ public class Tomcat {
 
     public Tomcat(Project project, FileNode context, Session session, Ports ports) {
         this.project = project;
+        this.stage = project.getStage();
         this.context = context;
-        this.configuration = project.config();
+        this.configuration = stage.config();
         this.session = session;
         this.console = session.console;
         this.ports = ports;
@@ -123,7 +126,7 @@ public class Tomcat {
         serverXmlDest = serverXml();
         tar(tomcat, "zxf", tomcatTarGz.getName(), "--strip-components=2", tomcatName(version) + "/conf/server.xml");
 
-        serverXml = ServerXml.load(serverXmlDest, project.getName(), session.configuration.hostname);
+        serverXml = ServerXml.load(serverXmlDest, stage.getName(), session.configuration.hostname);
         serverXml.stripComments();
         serverXml.configure(ports, configuration.url, keystorePassword, cookies, legacyVersion(version));
         serverXml.save(serverXmlDest);
@@ -138,7 +141,7 @@ public class Tomcat {
         tomcatOpts = escape(project.macros().replace(extraOpts));
         opts.addAll(Separator.SPACE.split(tomcatOpts));
 
-        opts.add("-Xmx" + project.config().memory * 3 / 4 + "m");
+        opts.add("-Xmx" + stage.config().memory * 3 / 4 + "m");
 
         // see http://docs.oracle.com/javase/7/docs/technotes/guides/management/agent.html
         opts.add("-Dcom.sun.management.jmxremote.authenticate=false");
@@ -170,7 +173,7 @@ public class Tomcat {
     public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
 
-        serverXml = ServerXml.load(serverXml(), project.getName(), session.configuration.hostname);
+        serverXml = ServerXml.load(serverXml(), stage.getName(), session.configuration.hostname);
         serverXml.addContextParameters(project.getStage(), logroot, Strings.toMap(additionals));
         serverXml.save(serverXml());
     }
@@ -203,7 +206,7 @@ public class Tomcat {
 
     private String certhost() {
         if (session.configuration.vhosts) {
-            return "*." + project.getName() + "." + session.configuration.hostname;
+            return "*." + stage.getName() + "." + session.configuration.hostname;
         } else {
             return session.configuration.hostname;
         }

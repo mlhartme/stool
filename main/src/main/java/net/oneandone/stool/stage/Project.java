@@ -166,7 +166,6 @@ public abstract class Project {
 
     /** user visible directory */
     protected FileNode directory;
-    private final StageConfiguration configuration;
     private Maven lazyMaven;
 
     //--
@@ -174,13 +173,8 @@ public abstract class Project {
     public Project(Session session, String origin, String id, FileNode directory, StageConfiguration configuration) {
         this.session = session;
         this.origin = origin;
-        this.stage = new Stage(id, backstageDirectory(directory));
+        this.stage = new Stage(id, backstageDirectory(directory), configuration);
         this.directory = directory;
-        this.configuration = configuration;
-    }
-
-    public String getName() {
-        return config().name;
     }
 
     public Stage getStage() {
@@ -191,9 +185,6 @@ public abstract class Project {
     }
     public String getOrigin() {
         return origin;
-    }
-    public StageConfiguration config() {
-        return configuration;
     }
     public String getType() {
         return getClass().getSimpleName().toLowerCase();
@@ -250,7 +241,7 @@ public abstract class Project {
     }
 
     public String httpUrl(Vhost host) {
-        return host.httpUrl(session.configuration.vhosts, getName(), session.configuration.hostname);
+        return host.httpUrl(session.configuration.vhosts, stage.getName(), session.configuration.hostname);
     }
 
     //--
@@ -267,7 +258,7 @@ public abstract class Project {
         String vhostname;
 
         vhosts = vhosts();
-        selected = configuration.select;
+        selected = stage.config().select;
         if (!selected.isEmpty()) {
             iter = vhosts.entrySet().iterator();
             while (iter.hasNext()) {
@@ -300,7 +291,7 @@ public abstract class Project {
         Ports ports;
 
         ports = loadPortsOpt();
-        return ports == null ? new HashMap<>() : ports.urlMap(getName(), session.configuration.hostname, config().url);
+        return ports == null ? new HashMap<>() : ports.urlMap(stage.getName(), session.configuration.hostname, stage.config().url);
     }
 
     /** @return nummer of applications */
@@ -338,7 +329,8 @@ public abstract class Project {
         for (Map.Entry<String, String> entry : mounts.entrySet()) {
             console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
         }
-        container = engine.containerCreate(tag,  getName() + "." + session.configuration.hostname, OS.CURRENT == OS.MAC, 1024L * 1024 * configuration.memory, null, null,
+        container = engine.containerCreate(tag,  stage.getName() + "." + session.configuration.hostname,
+                OS.CURRENT == OS.MAC, 1024L * 1024 * stage.config().memory, null, null,
                 Collections.emptyMap(), mounts, ports.dockerMap());
         console.verbose.println("created container " + container);
         engine.containerStart(container);
@@ -567,7 +559,7 @@ public abstract class Project {
         configuration = new Configuration(Configuration.VERSION_2_3_26);
         configuration.setDefaultEncoding("UTF-8");
 
-        src = config().template;
+        src = stage.config().template;
         dest = stage.directory.join("context");
         dest.deleteTreeOpt();
         dest.mkdir();
@@ -619,10 +611,10 @@ public abstract class Project {
         result.put("system", isSystem());
         result.put("systemExtras", session.configuration.systemExtras);
         result.put("hostHome", session.world.getHome().getAbsolute());
-        result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
+        result.put("certname", session.configuration.vhosts ? "*." + stage.getName() + "." + session.configuration.hostname : session.configuration.hostname);
         result.put("tomcat", new Tomcat(this, context, session, ports));
         for (Variable env : environment) {
-            value = config().templateEnv.get(env.name);
+            value = stage.config().templateEnv.get(env.name);
             if (value == null) {
                 throw new IOException("missing variable in template.env: " + env.name);
             }
@@ -649,7 +641,7 @@ public abstract class Project {
     private void checkMemory() throws IOException {
         int requested;
 
-        requested = configuration.memory;
+        requested = stage.config().memory;
         int unreserved = session.memUnreserved();
         if (requested > unreserved) {
             throw new ArgumentException("Cannot reserve memory:\n"
@@ -733,23 +725,23 @@ public abstract class Project {
     }
 
     public void executeRefresh(Console console) throws IOException {
-        launcher(Strings.toArray(Separator.SPACE.split(macros().replace(config().refresh)))).exec(console.info);
+        launcher(Strings.toArray(Separator.SPACE.split(macros().replace(stage.config().refresh)))).exec(console.info);
     }
 
     //--
 
     public void tuneConfiguration() throws IOException {
-        if (configuration.memory == 0 || configuration.memory == 400) {
-            configuration.memory = Math.min(4096, 200 + size() * session.configuration.baseMemory);
+        if (stage.config().memory == 0 || stage.config().memory == 400) {
+            stage.config().memory = Math.min(4096, 200 + size() * session.configuration.baseMemory);
         }
-        if (configuration.build.isEmpty() || configuration.build.equals("false")) {
-            configuration.build = getDefaultBuildCommand();
+        if (stage.config().build.isEmpty() || stage.config().build.equals("false")) {
+            stage.config().build = getDefaultBuildCommand();
         }
     }
 
     public void initialize() throws IOException {
         // important: this is the last step in stage creation; creating this file indicates that the stage is ready
-        session.saveStageProperties(configuration, stage.directory);
+        session.saveStageProperties(stage.config(), stage.directory);
     }
 
     //--
@@ -766,7 +758,7 @@ public abstract class Project {
 
         if (lazyMaven == null) {
             world = session.world;
-            mavenHome = config().mavenHome();
+            mavenHome = stage.config().mavenHome();
             if (mavenHome == null) {
                 settings = session.home.join("maven-settings.xml");
             } else {
@@ -788,7 +780,7 @@ public abstract class Project {
         wars = new ArrayList<>();
         profiles = new ArrayList<>();
         userProperties = new Properties();
-        addProfilesAndProperties(userProperties, profiles, configuration.mavenOpts);
+        addProfilesAndProperties(userProperties, profiles, stage.config().mavenOpts);
         addProfilesAndProperties(userProperties, profiles, getBuild());
         session.console.verbose.println("profiles: " + profiles);
         session.console.verbose.println("userProperties: " + userProperties);
@@ -800,7 +792,7 @@ public abstract class Project {
     }
 
     public String getBuild() {
-        return macros().replace(configuration.build);
+        return macros().replace(stage.config().build);
     }
 
     private Macros lazyMacros = null;
@@ -1089,10 +1081,10 @@ public abstract class Project {
         int used;
         int quota;
 
-        if (config().expire.isExpired()) {
-            throw new ArgumentException("Stage expired " + config().expire + ". To start it, you have to adjust the 'expire' date.");
+        if (stage.config().expire.isExpired()) {
+            throw new ArgumentException("Stage expired " + stage.config().expire + ". To start it, you have to adjust the 'expire' date.");
         }
-        quota = config().quota;
+        quota = stage.config().quota;
         used = diskUsed() + containerDiskUsed();
         if (used > quota) {
             throw new ArgumentException("Stage quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n" +
@@ -1255,7 +1247,7 @@ public abstract class Project {
                 return Project.this.namedUrls();
             }
         });
-        fields.addAll(TemplateField.scanTemplate(this, config().template));
+        fields.addAll(TemplateField.scanTemplate(this, stage.config().template));
         return fields;
     }
 
@@ -1311,12 +1303,12 @@ public abstract class Project {
         result = new ArrayList<>();
         for (Accessor type : session.accessors().values()) {
             if (!type.name.equals("template.env")) {
-                result.add(new StandardProperty(type, configuration));
+                result.add(new StandardProperty(type, stage.config()));
             }
         }
-        env = configuration.templateEnv;
-        prefix = configuration.template.getName() + ".";
-        for (String name : configuration.templateEnv.keySet()) {
+        env = stage.config().templateEnv;
+        prefix = stage.config().template.getName() + ".";
+        for (String name : stage.config().templateEnv.keySet()) {
             result.add(new TemplateProperty(prefix + name, env, name));
         }
         return result;
@@ -1333,9 +1325,9 @@ public abstract class Project {
 
     public int contentHash() throws IOException {
         return ("StageInfo{"
-                + "name='" + config().name + '\''
+                + "name='" + stage.config().name + '\''
                 + ", id='" + stage.getId() + '\''
-                + ", comment='" + config().comment + '\''
+                + ", comment='" + stage.config().comment + '\''
                 + ", origin='" + origin + '\''
                 + ", urls=" + urlMap()
                 + ", state=" + state()

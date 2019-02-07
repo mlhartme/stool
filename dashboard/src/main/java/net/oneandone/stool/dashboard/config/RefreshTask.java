@@ -38,7 +38,7 @@ public class RefreshTask extends TimerTask {
     public void run() {
         try {
             for (Project project : session.listWithoutSystem()) {
-                if (project.config().autoRefresh) {
+                if (project.getStage().config().autoRefresh) {
                     StoolCallable.create(jar, session.home, UUID.randomUUID().toString(), logs, project,
                             session.logging.getUser(), "refresh", "-autorestart").call();
                 }

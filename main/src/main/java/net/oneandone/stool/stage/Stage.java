@@ -16,6 +16,7 @@
 package net.oneandone.stool.stage;
 
 import net.oneandone.inline.Console;
+import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.sushi.fs.DeleteException;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
@@ -30,14 +31,24 @@ import java.time.format.DateTimeFormatter;
 public class Stage {
     private final String id;
     public final FileNode directory;
+    private final StageConfiguration configuration;
 
-    public Stage(String id, FileNode directory) {
+    public Stage(String id, FileNode directory, StageConfiguration configuration) {
         this.id = id;
         this.directory = directory;
+        this.configuration = configuration;
     }
 
     public String getId() {
         return id;
+    }
+
+    public StageConfiguration config() {
+        return configuration;
+    }
+
+    public String getName() {
+        return config().name;
     }
 
     //--
