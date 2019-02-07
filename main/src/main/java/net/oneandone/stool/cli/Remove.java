@@ -45,7 +45,7 @@ public class Remove extends StageCommand {
         FileNode dir;
 
         selected = session.isSelected(project);
-        project.checkNotUp();
+        project.getStage().checkNotUp();
         project.modify();
         if (!force) {
             if (!project.isCommitted()) {

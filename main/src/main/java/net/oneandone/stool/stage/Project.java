@@ -21,7 +21,6 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
-import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Accessor;
 import net.oneandone.stool.configuration.StageConfiguration;
@@ -43,7 +42,6 @@ import net.oneandone.stool.util.StandardProperty;
 import net.oneandone.stool.util.TemplateProperty;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.Node;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiWriter;
 import net.oneandone.sushi.io.OS;
@@ -53,7 +51,6 @@ import net.oneandone.sushi.util.Strings;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
-import org.eclipse.aether.repository.RepositoryPolicy;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -164,7 +161,6 @@ public abstract class Project {
 
     /** user visible directory */
     protected FileNode directory;
-    private Maven lazyMaven;
 
     //--
 
@@ -185,14 +181,6 @@ public abstract class Project {
     }
     public String getType() {
         return getClass().getSimpleName().toLowerCase();
-    }
-
-    public String backstageLock() {
-        return "backstage-" + stage.getId();
-    }
-
-    public String directoryLock() {
-        return "directory-" + stage.getId();
     }
 
     public abstract boolean updateAvailable();
@@ -218,23 +206,6 @@ public abstract class Project {
 
     public LocalDateTime created() throws IOException {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(creatorFile().getLastModified()), ZoneId.systemDefault());
-    }
-
-    //-- pid file handling
-
-    public boolean isWorking() throws IOException {
-        return stage.session.lockManager.hasExclusiveLocks(directoryLock(), backstageLock());
-    }
-
-    public State state() throws IOException {
-        if (stage.session.bedroom.contains(stage.getId())) {
-            return State.SLEEPING;
-        } else if (stage.dockerContainer() != null) {
-            return UP;
-        } else {
-            return State.DOWN;
-        }
-
     }
 
     //--
@@ -665,12 +636,6 @@ public abstract class Project {
 
     //-- util
 
-    public void checkNotUp() throws IOException {
-        if (state() == UP) {
-            throw new IOException("stage is not stopped.");
-        }
-    }
-
     public FileNode modifiedFile() throws IOException {
         FileNode file;
 
@@ -739,32 +704,6 @@ public abstract class Project {
 
     //--
 
-    public void setMaven(Maven maven) {
-        this.lazyMaven = maven;
-    }
-
-    /** CAUTION: this is not a session method, because it respects the stage repository */
-    public Maven maven() throws IOException {
-        World world;
-        String mavenHome;
-        FileNode settings;
-
-        if (lazyMaven == null) {
-            world = stage.session.world;
-            mavenHome = stage.config().mavenHome();
-            if (mavenHome == null) {
-                settings = stage.session.home.join("maven-settings.xml");
-            } else {
-                settings = world.file(mavenHome).join("conf/settings.xml");
-            }
-            // CAUTION: shared plexus - otherwise, Maven components are created over and over again
-            lazyMaven = Maven.withSettings(world, localRepository(), settings, null, stage.session.plexus(), null, null);
-            // always get the latest snapshots
-            lazyMaven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
-        }
-        return lazyMaven;
-    }
-
     protected List<MavenProject> loadWars(FileNode rootPom) throws IOException {
         List<MavenProject> wars;
         List<String> profiles;
@@ -795,7 +734,7 @@ public abstract class Project {
             lazyMacros = new Macros();
             lazyMacros.addAll(stage.session.configuration.macros);
             lazyMacros.add("directory", getDirectory().getAbsolute());
-            lazyMacros.add("localRepository", localRepository().getAbsolute());
+            lazyMacros.add("localRepository", stage.localRepository().getAbsolute());
             lazyMacros.add("svnCredentials", Separator.SPACE.join(stage.session.svnCredentials().svnArguments()));
             lazyMacros.add("stoolSvnCredentials", stage.session.svnCredentials().stoolSvnArguments());
         }
@@ -833,7 +772,7 @@ public abstract class Project {
         FileNode modulePom;
 
         try {
-            root = maven().loadPom(pomXml, false, userProperties, profiles, null);
+            root = stage.maven().loadPom(pomXml, false, userProperties, profiles, null);
         } catch (ProjectBuildingException | RepositoryException e) {
             throw new IOException("cannot parse " + pomXml + ": " + e.getMessage(), e);
         }
@@ -853,10 +792,6 @@ public abstract class Project {
 
     public boolean isSystem() {
         return stage.session.home.join("system").equals(directory.getParent());
-    }
-
-    public FileNode localRepository() {
-        return stage.session.configuration.shared ? stage.directory.join(".m2") : stage.session.world.getHome().join(".m2/repository");
     }
 
     public static String timespan(long since) {
@@ -1174,7 +1109,7 @@ public abstract class Project {
         fields.add(new Field("state") {
             @Override
             public Object get() throws IOException {
-                return Project.this.state().toString();
+                return Project.this.stage.state().toString();
             }
         });
         fields.add(new Field("uptime") {
@@ -1323,25 +1258,14 @@ public abstract class Project {
                 + ", comment='" + stage.config().comment + '\''
                 + ", origin='" + origin + '\''
                 + ", urls=" + urlMap()
-                + ", state=" + state()
-                + ", displayState=" + displayState()
+                + ", state=" + stage.state()
+                + ", displayState=" + stage.displayState()
                 + ", last-modified-by='" + lastModifiedBy() + '\''
                 + ", updateAvailable=" + updateAvailable()
                 + '}').hashCode();
     }
 
     //-- for dashboard
-
-    public String displayState() throws IOException {
-        switch (isWorking() ? Project.State.WORKING : state()) {
-            case UP:
-                return "success";
-            case WORKING:
-                return "primary";
-            default:
-                return "danger";
-        }
-    }
 
     public String sharedText() throws IOException {
         Map<String, String> urls;

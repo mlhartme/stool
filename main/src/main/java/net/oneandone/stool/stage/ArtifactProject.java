@@ -83,7 +83,7 @@ public class ArtifactProject extends Project {
             }
             artifactId = coords[1];
             version = coords[2];
-            return new GavLocator(maven(), new DefaultArtifact(coords[0], artifactId, "war", version));
+            return new GavLocator(stage.maven(), new DefaultArtifact(coords[0], artifactId, "war", version));
         } else if (locator.startsWith("file:")) {
             try {
                 return new FileLocator((FileNode) stage.session.world.node(locator));

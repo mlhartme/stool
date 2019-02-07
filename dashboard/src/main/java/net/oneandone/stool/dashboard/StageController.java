@@ -186,7 +186,7 @@ public class StageController {
         } catch (IOException e) {
             throw (ResourceNotFoundException) new ResourceNotFoundException().initCause(e);
         }
-        project.setMaven(maven);
+        project.getStage().setMaven(maven);
         return project;
     }
 

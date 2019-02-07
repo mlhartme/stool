@@ -90,7 +90,7 @@ public class DashboardConfiguration {
 
     @Bean
     public Maven maven() throws IOException {
-        return self().maven();
+        return self().getStage().maven();
     }
 
     @Bean

@@ -45,7 +45,7 @@ public class Build extends StageCommand {
         Launcher launcher;
 
         project.modify();
-        project.checkNotUp();
+        project.getStage().checkNotUp();
         if (command.isEmpty()) {
             command.addAll(Separator.SPACE.split(project.getBuild()));
         }

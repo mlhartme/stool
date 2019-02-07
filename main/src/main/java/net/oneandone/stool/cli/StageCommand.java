@@ -206,7 +206,7 @@ public abstract class StageCommand extends SessionCommand {
         Project.State state;
         boolean postStart;
 
-        state = project.state();
+        state = project.stage.state();
         if (state == Project.State.UP && (withAutoRunning()) && (autoRestart || autoStop)) {
             postStart = autoRestart;
             new Stop(session, false).doRun(project);
@@ -406,8 +406,8 @@ public abstract class StageCommand extends SessionCommand {
         }
 
         private void run(Project project, boolean main) throws Exception {
-            try (Lock lock1 = createLock(project.backstageLock(), backstageLock);
-                 Lock lock2 = createLock(project.directoryLock(), directoryLock)) {
+            try (Lock lock1 = createLock(project.getStage().backstageLock(), backstageLock);
+                 Lock lock2 = createLock(project.getStage().directoryLock(), directoryLock)) {
                 if (withPrefix) {
                     ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + project.getStage().getName() + "} ", width));
                 }

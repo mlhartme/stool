@@ -16,17 +16,22 @@
 package net.oneandone.stool.stage;
 
 import net.oneandone.inline.Console;
+import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.DeleteException;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.NodeNotFoundException;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import org.eclipse.aether.repository.RepositoryPolicy;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+
+import static net.oneandone.stool.stage.Project.State.UP;
 
 /** represents the former backstage directory */
 public class Stage {
@@ -34,12 +39,14 @@ public class Stage {
     private final String id;
     public final FileNode directory;
     private final StageConfiguration configuration;
+    private Maven lazyMaven;
 
     public Stage(Session session, String id, FileNode directory, StageConfiguration configuration) {
         this.session = session;
         this.id = id;
         this.directory = directory;
         this.configuration = configuration;
+        this.lazyMaven = null;
     }
 
     public String getId() {
@@ -54,7 +61,81 @@ public class Stage {
         return config().name;
     }
 
-    //--
+    //-- pid file handling
+
+
+    public String backstageLock() {
+        return "backstage-" + id;
+    }
+
+    public String directoryLock() {
+        return "directory-" + id;
+    }
+
+    public boolean isWorking() throws IOException {
+        return session.lockManager.hasExclusiveLocks(directoryLock(), backstageLock());
+    }
+
+    public Project.State state() throws IOException {
+        if (session.bedroom.contains(id)) {
+            return Project.State.SLEEPING;
+        } else if (dockerContainer() != null) {
+            return UP;
+        } else {
+            return Project.State.DOWN;
+        }
+
+    }
+
+    public void checkNotUp() throws IOException {
+        if (state() == UP) {
+            throw new IOException("stage is not stopped.");
+        }
+    }
+
+    public String displayState() throws IOException {
+        switch (isWorking() ? Project.State.WORKING : state()) {
+            case UP:
+                return "success";
+            case WORKING:
+                return "primary";
+            default:
+                return "danger";
+        }
+    }
+
+    //-- Maven stuff
+
+    public void setMaven(Maven maven) {
+        this.lazyMaven = maven;
+    }
+
+    /** CAUTION: this is not a session method, because it respects the stage repository */
+    public Maven maven() throws IOException {
+        World world;
+        String mavenHome;
+        FileNode settings;
+
+        if (lazyMaven == null) {
+            world = session.world;
+            mavenHome = configuration.mavenHome();
+            if (mavenHome == null) {
+                settings = session.home.join("maven-settings.xml");
+            } else {
+                settings = world.file(mavenHome).join("conf/settings.xml");
+            }
+            // CAUTION: shared plexus - otherwise, Maven components are created over and over again
+            lazyMaven = Maven.withSettings(world, localRepository(), settings, null, session.plexus(), null, null);
+            // always get the latest snapshots
+            lazyMaven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
+        }
+        return lazyMaven;
+    }
+
+
+    public FileNode localRepository() {
+        return session.configuration.shared ? directory.join(".m2") : session.world.getHome().join(".m2/repository");
+    }
 
     public void cleanupMavenRepository(Console console) throws NodeNotFoundException, DeleteException {
         FileNode repository;

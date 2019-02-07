@@ -59,7 +59,7 @@ public class GoController {
             return new ModelAndView("redirect:" + baseurl + "/#!404:" + stageId);
         }
         project = session.loadByName(stageId);
-        switch (project.state()) {
+        switch (project.getStage().state()) {
             case UP:
                 urlMap = project.urlMap();
                 if (appName == null) {
@@ -73,7 +73,7 @@ public class GoController {
                     return new ModelAndView("redirect:" + url);
                 }
             default:
-                return new ModelAndView("redirect:" + baseurl + "/#!500!" + stageId + "!" + project.state());
+                return new ModelAndView("redirect:" + baseurl + "/#!500!" + stageId + "!" + project.getStage().state());
         }
     }
 }

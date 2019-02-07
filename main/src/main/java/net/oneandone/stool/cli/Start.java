@@ -102,7 +102,7 @@ public class Start extends StageCommand {
     }
 
     private void checkNotStarted(Project project) throws IOException {
-        if (project.state().equals(Project.State.UP)) {
+        if (project.getStage().state().equals(Project.State.UP)) {
             throw new IOException("Stage is already running.");
         }
 

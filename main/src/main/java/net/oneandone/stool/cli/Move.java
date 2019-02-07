@@ -32,7 +32,7 @@ public class Move extends StageCommand {
     @Override
     public void doMain(Project project) throws Exception {
         project.modify();
-        project.checkNotUp();
+        project.getStage().checkNotUp();
 
         if (dest.exists()) {
             dest.checkDirectory();

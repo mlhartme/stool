@@ -76,7 +76,7 @@ public class TemplateField extends Field {
         StatusHelper target;
         Method m;
 
-        target = new StatusHelper(project, project.state(), project.loadPortsOpt());
+        target = new StatusHelper(project, project.getStage().state(), project.loadPortsOpt());
         try {
             m = target.getClass().getDeclaredMethod(method, new Class[]{});
         } catch (NoSuchMethodException e) {
