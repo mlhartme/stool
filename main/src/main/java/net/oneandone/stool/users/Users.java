@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.users;
 
-import net.oneandone.stool.util.Session;
-
 import javax.naming.NamingException;
 import java.util.HashMap;
 import java.util.Map;

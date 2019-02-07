@@ -18,15 +18,6 @@ package net.oneandone.stool.cli;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.DeleteException;
-import net.oneandone.sushi.fs.MkdirException;
-import net.oneandone.sushi.fs.Node;
-import net.oneandone.sushi.fs.NodeNotFoundException;
-import net.oneandone.sushi.fs.file.FileNode;
-
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class Cleanup extends StageCommand {
     public Cleanup(Session session) {
