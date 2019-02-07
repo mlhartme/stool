@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Tomcat {
-    private final Project project;
     private final Stage stage;
     private final FileNode context;
     private final StageConfiguration configuration;
@@ -49,9 +48,8 @@ public class Tomcat {
     private final Console console;
     private final Ports ports;
 
-    public Tomcat(Project project, FileNode context, Session session, Ports ports) {
-        this.project = project;
-        this.stage = project.getStage();
+    public Tomcat(Stage stage, FileNode context, Session session, Ports ports) {
+        this.stage = stage;
         this.context = context;
         this.configuration = stage.config();
         this.session = session;
@@ -80,9 +78,12 @@ public class Tomcat {
         }
         launcher.arg("-maven-repository=" + stage.localRepository().getAbsolute());
         launcher.arg("resolve", "-output", list.getAbsolute());
-        for (String p : project.faultProjects()) {
+        /* TODO: for (String p : project.faultProjects()) {
             launcher.arg(p);
-        }
+        }*/
+        // TODO
+        launcher.arg("@-");
+
         launcher.getBuilder().inheritIO();
         console.verbose.println("exec " + launcher);
         launcher.exec();
@@ -138,7 +139,7 @@ public class Tomcat {
 
         opts = new ArrayList<>();
 
-        tomcatOpts = escape(project.macros().replace(extraOpts));
+        tomcatOpts = escape(stage.macros().replace(extraOpts));
         opts.addAll(Separator.SPACE.split(tomcatOpts));
 
         opts.add("-Xmx" + stage.config().memory * 3 / 4 + "m");
@@ -150,7 +151,7 @@ public class Tomcat {
         opts.add("-Djava.rmi.server.hostname=" + session.configuration.hostname); // needed for jmx access - see https://forums.docker.com/t/enable-jmx-rmi-access-to-a-docker-container/625/2
         opts.add("-Dcom.sun.management.jmxremote.ssl=false");
 
-        if (project.isSystem()) {
+        if (stage.isSystem()) {
             opts.add("-Dstool.cp=" + Main.stoolCp(session.world).getAbsolute());
             opts.add("-Dstool.home=" + session.home.getAbsolute());
             opts.add("-Dstool.idlink=" + session.backstageLink(stage.getId()).getAbsolute());
@@ -274,14 +275,14 @@ public class Tomcat {
     //--
 
     // TODO: placing this in a separate Fitnesse class didn't work
-    public void fitnesse() throws IOException {
+    public void fitnesse(FileNode projectDirectory) throws IOException {
         Launcher launcher;
         FileNode dir;
         FileNode deps;
 
-        dir = project.getDirectory().join("target/fitnesse");
+        dir = projectDirectory.join("target/fitnesse");
         dir.mkdirsOpt();
-        dir.join("fitnesse.sh").writeString(fitnesseSh());
+        dir.join("fitnesse.sh").writeString(fitnesseSh(projectDirectory));
         dir.join("fitnesse.sh").setPermissions("rwxrwxrwx");
         // mark as source stage
         context.join(".source").writeBytes();
@@ -291,10 +292,11 @@ public class Tomcat {
                 deps = fitnesseProject(vhost).join("target/fitnesse/dependencies");
                 deps.deleteTreeOpt();
                 deps.mkdirsOpt();
+                /* TODO
                 launcher = project.launcher("mvn", "dependency::copy-dependencies",
                         "-DoutputDirectory=" + deps.getAbsolute(), "-DexcludeScope=system");
                 launcher.dir(vhostProject(vhost));
-                launcher.exec(session.console.verbose);
+                launcher.exec(session.console.verbose); */
             }
         }
     }
@@ -306,7 +308,7 @@ public class Tomcat {
         return session.world.file(path.substring(0, path.lastIndexOf("/target/")));
     }
 
-    private String fitnesseSh() {
+    private String fitnesseSh(FileNode projectDirectory) {
         StringBuilder result;
 
         result = new StringBuilder();
@@ -316,7 +318,7 @@ public class Tomcat {
             if (vhost.isWebapp()) {
                 result.append("\n");
                 result.append("# vhost " + vhost.name + "\n");
-                result.append("cd /stage/" + fitnesseProject(vhost).getRelative(project.getDirectory()) + "\n");
+                result.append("cd /stage/" + fitnesseProject(vhost).getRelative(projectDirectory) + "\n");
                 result.append("deps=target/fitnesse/dependencies\n");
                 result.append("cp=target/test-classes:target/classes\n");
                 result.append("for file in $(ls $deps/*.jar); do\n");

@@ -287,7 +287,7 @@ public class Session {
         result = list(problems, new Predicate() {
             @Override
             public boolean matches(Project project) {
-                return !project.isSystem();
+                return !project.stage.isSystem();
             }
         });
         for (Map.Entry<String, Exception> entry : problems.problems.entrySet()) {
@@ -398,7 +398,7 @@ public class Session {
         if (project == null) {
             mavenOpts = "";
         } else {
-            mavenOpts = project.macros().replace(project.stage.config().mavenOpts);
+            mavenOpts = project.stage.macros().replace(project.stage.config().mavenOpts);
         }
         env = new Environment();
         env.setMavenHome((project != null && project.stage.config().mavenHome() != null) ? project.stage.config().mavenHome() : null);

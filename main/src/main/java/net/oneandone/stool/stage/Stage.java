@@ -15,31 +15,52 @@
  */
 package net.oneandone.stool.stage;
 
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
+import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Accessor;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.templates.TemplateField;
+import net.oneandone.stool.templates.Tomcat;
+import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.LogEntry;
+import net.oneandone.stool.util.Macros;
+import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.StandardProperty;
 import net.oneandone.stool.util.TemplateProperty;
+import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.DeleteException;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.NodeNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.io.MultiWriter;
+import net.oneandone.sushi.io.OS;
+import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.util.Strings;
 import org.eclipse.aether.repository.RepositoryPolicy;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -298,4 +319,271 @@ public class Stage {
         return file.exists() ? file.readString().trim() : null;
     }
 
+    public void wipeDocker(Engine engine) throws IOException {
+        wipeContainer(engine);
+        wipeImages(engine, null);
+    }
+
+    public void wipeImages(Engine engine, String keep) throws IOException {
+        for (String image : engine.imageList(dockerLabel())) {
+            if (!image.equals(keep)) {
+                session.console.verbose.println("remove image: " + image);
+                engine.imageRemove(image);
+            }
+        }
+    }
+
+    public void wipeContainer(Engine engine) throws IOException {
+        for (String image : engine.imageList(dockerLabel())) {
+            for (String container : engine.containerList(image)) {
+                session.console.verbose.println("remove container: " + container);
+                engine.containerRemove(container);
+            }
+        }
+    }
+
+    private Map<String, String> dockerLabel() {
+        return Strings.toMap("stool", id);
+    }
+
+    public void start(Console console, Ports ports, boolean noCache) throws Exception {
+        Engine engine;
+        String image;
+        String container;
+        Engine.Status status;
+        String tag;
+        FileNode context;
+        Map<String, String> mounts;
+
+        checkMemory();
+        engine = session.dockerEngine();
+        tag = id;
+        context = dockerContext(ports);
+        wipeContainer(engine);
+        console.verbose.println("building image ... ");
+        try (Writer log = new FlushWriter(directory.join("image.log").newWriter())) {
+            // don't close the tee writer, it would close console output as well
+            image = engine.imageBuild(tag, dockerLabel(), context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
+        } catch (BuildError e) {
+            console.verbose.println("image build output");
+            console.verbose.println(e.output);
+            throw e;
+        }
+        console.verbose.println("image built: " + image);
+        wipeImages(engine, image);
+        console.info.println("starting container ...");
+        mounts = bindMounts(ports, isSystem());
+        for (Map.Entry<String, String> entry : mounts.entrySet()) {
+            console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
+        }
+        container = engine.containerCreate(tag,  getName() + "." + session.configuration.hostname,
+                OS.CURRENT == OS.MAC, 1024L * 1024 * config().memory, null, null,
+                Collections.emptyMap(), mounts, ports.dockerMap());
+        console.verbose.println("created container " + container);
+        engine.containerStart(container);
+        status = engine.containerStatus(container);
+        if (status != Engine.Status.RUNNING) {
+            throw new IOException("unexpected status: " + status);
+        }
+        dockerContainerFile().writeString(container);
+    }
+
+    private static class FlushWriter extends Writer {
+        private final Writer dest;
+
+        private FlushWriter(Writer dest) {
+            this.dest = dest;
+        }
+
+
+        @Override
+        public void write(char[] chars, int ofs, int len) throws IOException {
+            int c;
+
+            for (int i = 0; i < len; i++) {
+                c = chars[ofs + i];
+                dest.write(c);
+                if (c == '\n') {
+                    flush();
+                }
+            }
+        }
+
+        @Override
+        public void flush() throws IOException {
+            dest.flush();
+        }
+
+        @Override
+        public void close() throws IOException {
+            dest.close();
+        }
+    }
+
+    private Map<String, String> bindMounts(Ports ports, boolean systemBinds) throws IOException {
+        Map<String, String> result;
+        List<FileNode> lst;
+        Iterator<FileNode> iter;
+        FileNode merged;
+
+        result = new HashMap<>();
+        result.put(directory.join("logs").mkdirOpt().getAbsolute(), "/var/log/stool");
+        for (Vhost vhost : ports.vhosts()) {
+            if (vhost.isWebapp()) {
+                if (vhost.isArtifact()) {
+                    result.put(vhost.docroot.getParent().getAbsolute(), "/vhosts/" + vhost.name);
+                } else {
+                    result.put(vhost.docroot.getAbsolute(), "/vhosts/" + vhost.name);
+                }
+            }
+        }
+        if (systemBinds) {
+            result.put(session.configuration.docker, session.configuration.docker);
+
+            lst = new ArrayList<>();
+            lst.add(session.home);  // for stool home
+            if (!session.configuration.systemExtras.isEmpty()) {
+                lst.add(session.world.file(session.configuration.systemExtras));
+            }
+            lst.addAll(session.stageDirectories());
+
+            iter = lst.iterator();
+            merged = iter.next();
+            while (iter.hasNext()) {
+                merged = merge(merged, iter.next());
+            }
+            add(result, merged);
+            add(result, Main.stoolCp(session.world).getParent()); // don't merge /usr/bin
+            add(result, session.world.getHome()); // for Maven credentials; don't merge /home with /opt stuff
+        }
+        return result;
+    }
+
+    private static void add(Map<String, String> result, FileNode path) {
+        String str;
+
+        str = path.getAbsolute();
+        result.put(str, str);
+    }
+
+    private FileNode merge(FileNode left, FileNode right) {
+        FileNode current;
+
+        current = right;
+        while (!left.hasAncestor(current)) {
+            current = current.getParent();
+        }
+        session.console.verbose.println("merge " + left + " + " + right + " -> " + current);
+        return current;
+    }
+
+    private static final String FREEMARKER_EXT = ".fm";
+
+    private FileNode dockerContext(Ports ports) throws IOException, TemplateException {
+        Configuration configuration;
+        FileNode src;
+        FileNode dest;
+        FileNode destparent;
+        FileNode destfile;
+        Template template;
+        StringWriter tmp;
+        Collection<Variable> environment;
+
+        configuration = new Configuration(Configuration.VERSION_2_3_26);
+        configuration.setDefaultEncoding("UTF-8");
+
+        src = config().template;
+        dest = directory.join("context");
+        dest.deleteTreeOpt();
+        dest.mkdir();
+        environment = Variable.scanTemplate(src).values();
+        try {
+            for (FileNode srcfile : src.find("**/*")) {
+                if (srcfile.isDirectory()) {
+                    continue;
+                }
+                destfile = dest.join(srcfile.getRelative(src));
+                destparent = destfile.getParent();
+                destparent.mkdirsOpt();
+                if (destfile.getName().endsWith(FREEMARKER_EXT)) {
+                    configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
+                    template = configuration.getTemplate(srcfile.getName());
+                    tmp = new StringWriter();
+                    template.process(templateEnv(dest, ports, environment), tmp);
+                    destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
+                    destfile.writeString(tmp.getBuffer().toString());
+                } else {
+                    srcfile.copy(destfile);
+                }
+            }
+        } catch (IOException | TemplateException | RuntimeException | Error e) {
+            // generate all or nothing
+            try {
+                dest.deleteTreeOpt();
+            } catch (IOException nested) {
+                e.addSuppressed(nested);
+            }
+            throw e;
+        }
+        return dest;
+    }
+
+    private Map<String, Object> templateEnv(FileNode context, Ports ports, Collection<Variable> environment) throws IOException {
+        Map<String, Object> result;
+        String value;
+
+        result = new HashMap<>();
+
+        if (OS.CURRENT == OS.MAC) {
+            result.put("UID", "0");
+            result.put("GID", "0");
+        } else {
+            result.put("UID", Long.toString(Engine.geteuid()));
+            result.put("GID", Long.toString(Engine.getegid()));
+        }
+        result.put("system", isSystem());
+        result.put("systemExtras", session.configuration.systemExtras);
+        result.put("hostHome", session.world.getHome().getAbsolute());
+        result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
+        result.put("tomcat", new Tomcat(this, context, session, ports));
+        for (Variable env : environment) {
+            value = config().templateEnv.get(env.name);
+            if (value == null) {
+                throw new IOException("missing variable in template.env: " + env.name);
+            }
+            result.put(env.name, env.parse(value));
+        }
+        return result;
+    }
+
+    private Macros lazyMacros;
+
+    public Macros macros() {
+        if (lazyMacros == null) {
+            lazyMacros = new Macros();
+            lazyMacros.addAll(session.configuration.macros);
+            // TODO lazyMacros.add("directory", getDirectory().getAbsolute());
+            lazyMacros.add("localRepository", localRepository().getAbsolute());
+            lazyMacros.add("svnCredentials", Separator.SPACE.join(session.svnCredentials().svnArguments()));
+            lazyMacros.add("stoolSvnCredentials", session.svnCredentials().stoolSvnArguments());
+        }
+        return lazyMacros;
+    }
+
+    public boolean isSystem() {
+        return session.home.join("system").equals(directory.getParent());
+    }
+
+    private void checkMemory() throws IOException {
+        int requested;
+
+        requested = config().memory;
+        int unreserved = session.memUnreserved();
+        if (requested > unreserved) {
+            throw new ArgumentException("Cannot reserve memory:\n"
+                    + "  unreserved: " + unreserved + "\n"
+                    + "  requested: " + requested + "\n"
+                    + "Consider stopping stages.");
+        }
+    }
 }

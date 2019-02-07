@@ -16,19 +16,12 @@
 package net.oneandone.stool.stage;
 
 import com.google.gson.JsonObject;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
-import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.templates.TemplateField;
-import net.oneandone.stool.templates.Tomcat;
-import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.LogEntry;
@@ -36,11 +29,8 @@ import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.io.MultiWriter;
-import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -60,8 +50,6 @@ import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.nio.file.FileVisitResult;
@@ -76,7 +64,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -257,48 +244,6 @@ public abstract class Project {
 
     public abstract String getDefaultBuildCommand();
 
-    public void start(Console console, Ports ports, boolean noCache) throws Exception {
-        Engine engine;
-        String image;
-        String container;
-        Engine.Status status;
-        String tag;
-        FileNode context;
-        Map<String, String> mounts;
-
-        checkMemory();
-        engine = stage.session.dockerEngine();
-        tag = stage.getId();
-        context = dockerContext(ports);
-        wipeContainer(engine);
-        console.verbose.println("building image ... ");
-        try (Writer log = new FlushWriter(stage.directory.join("image.log").newWriter())) {
-            // don't close the tee writer, it would close console output as well
-            image = engine.imageBuild(tag, dockerLabel(), context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
-        } catch (BuildError e) {
-            console.verbose.println("image build output");
-            console.verbose.println(e.output);
-            throw e;
-        }
-        console.verbose.println("image built: " + image);
-        wipeImages(engine, image);
-        console.info.println("starting container ...");
-        mounts = bindMounts(ports, context.join(".source").exists(), isSystem());
-        for (Map.Entry<String, String> entry : mounts.entrySet()) {
-            console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
-        }
-        container = engine.containerCreate(tag,  stage.getName() + "." + stage.session.configuration.hostname,
-                OS.CURRENT == OS.MAC, 1024L * 1024 * stage.config().memory, null, null,
-                Collections.emptyMap(), mounts, ports.dockerMap());
-        console.verbose.println("created container " + container);
-        engine.containerStart(container);
-        status = engine.containerStatus(container);
-        if (status != Engine.Status.RUNNING) {
-            throw new IOException("unexpected status: " + status);
-        }
-        stage.dockerContainerFile().writeString(container);
-    }
-
     /* TODO: work for tomcat only */
     public void awaitStartup(Console console) throws IOException, InterruptedException {
         Ports ports;
@@ -363,66 +308,7 @@ public abstract class Project {
     }
 
 
-    public void wipeDocker(Engine engine) throws IOException {
-        wipeContainer(engine);
-        wipeImages(engine, null);
-    }
-
-    public void wipeImages(Engine engine, String keep) throws IOException {
-        for (String image : engine.imageList(dockerLabel())) {
-            if (!image.equals(keep)) {
-                stage.session.console.verbose.println("remove image: " + image);
-                engine.imageRemove(image);
-            }
-        }
-    }
-
-    public void wipeContainer(Engine engine) throws IOException {
-        for (String image : engine.imageList(dockerLabel())) {
-            for (String container : engine.containerList(image)) {
-                stage.session.console.verbose.println("remove container: " + container);
-                engine.containerRemove(container);
-            }
-        }
-    }
-
-    private Map<String, String> dockerLabel() {
-        return Strings.toMap("stool", stage.getId());
-    }
-
     public abstract List<String> faultProjects() throws IOException;
-
-    private static class FlushWriter extends Writer {
-        private final Writer dest;
-
-        private FlushWriter(Writer dest) {
-            this.dest = dest;
-        }
-
-
-        @Override
-        public void write(char[] chars, int ofs, int len) throws IOException {
-            int c;
-
-            for (int i = 0; i < len; i++) {
-                c = chars[ofs + i];
-                dest.write(c);
-                if (c == '\n') {
-                    flush();
-                }
-            }
-        }
-
-        @Override
-        public void flush() throws IOException {
-            dest.flush();
-        }
-
-        @Override
-        public void close() throws IOException {
-            dest.close();
-        }
-    }
 
     // CAUTION: blocks until ctrl-c.
     // Format: https://docs.docker.com/engine/api/v1.33/#operation/ContainerAttach
@@ -441,145 +327,6 @@ public abstract class Project {
         });
     }
 
-    private Map<String, String> bindMounts(Ports ports, boolean source, boolean systemBinds) throws IOException {
-        Map<String, String> result;
-        List<FileNode> lst;
-        Iterator<FileNode> iter;
-        FileNode merged;
-
-        result = new HashMap<>();
-        result.put(stage.directory.join("logs").mkdirOpt().getAbsolute(), "/var/log/stool");
-        if (source) {
-            result.put(getDirectory().getAbsolute(), "/stage");
-        } else {
-            for (Vhost vhost : ports.vhosts()) {
-                if (vhost.isWebapp()) {
-                    if (vhost.isArtifact()) {
-                        result.put(vhost.docroot.getParent().getAbsolute(), "/vhosts/" + vhost.name);
-                    } else {
-                        result.put(vhost.docroot.getAbsolute(), "/vhosts/" + vhost.name);
-                    }
-                }
-            }
-        }
-        if (systemBinds) {
-            result.put(stage.session.configuration.docker, stage.session.configuration.docker);
-
-            lst = new ArrayList<>();
-            lst.add(stage.session.home);  // for stool home
-            if (!stage.session.configuration.systemExtras.isEmpty()) {
-                lst.add(stage.session.world.file(stage.session.configuration.systemExtras));
-            }
-            lst.addAll(stage.session.stageDirectories());
-
-            iter = lst.iterator();
-            merged = iter.next();
-            while (iter.hasNext()) {
-                merged = merge(merged, iter.next());
-            }
-            add(result, merged);
-            add(result, Main.stoolCp(stage.session.world).getParent()); // don't merge /usr/bin
-            add(result, stage.session.world.getHome()); // for Maven credentials; don't merge /home with /opt stuff
-        }
-        return result;
-    }
-
-    private static void add(Map<String, String> result, FileNode path) {
-        String str;
-
-        str = path.getAbsolute();
-        result.put(str, str);
-    }
-
-    private FileNode merge(FileNode left, FileNode right) {
-        FileNode current;
-
-        current = right;
-        while (!left.hasAncestor(current)) {
-            current = current.getParent();
-        }
-        stage.session.console.verbose.println("merge " + left + " + " + right + " -> " + current);
-        return current;
-    }
-
-    private static final String FREEMARKER_EXT = ".fm";
-
-    private FileNode dockerContext(Ports ports) throws IOException, TemplateException {
-        Configuration configuration;
-        FileNode src;
-        FileNode dest;
-        FileNode destparent;
-        FileNode destfile;
-        Template template;
-        StringWriter tmp;
-        Collection<Variable> environment;
-
-        configuration = new Configuration(Configuration.VERSION_2_3_26);
-        configuration.setDefaultEncoding("UTF-8");
-
-        src = stage.config().template;
-        dest = stage.directory.join("context");
-        dest.deleteTreeOpt();
-        dest.mkdir();
-        environment = Variable.scanTemplate(src).values();
-        try {
-            for (FileNode srcfile : src.find("**/*")) {
-                if (srcfile.isDirectory()) {
-                    continue;
-                }
-                destfile = dest.join(srcfile.getRelative(src));
-                destparent = destfile.getParent();
-                destparent.mkdirsOpt();
-                if (destfile.getName().endsWith(FREEMARKER_EXT)) {
-                    configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
-                    template = configuration.getTemplate(srcfile.getName());
-                    tmp = new StringWriter();
-                    template.process(templateEnv(dest, ports, environment), tmp);
-                    destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
-                    destfile.writeString(tmp.getBuffer().toString());
-                } else {
-                    srcfile.copy(destfile);
-                }
-            }
-        } catch (IOException | TemplateException | RuntimeException | Error e) {
-            // generate all or nothing
-            try {
-                dest.deleteTreeOpt();
-            } catch (IOException nested) {
-                e.addSuppressed(nested);
-            }
-            throw e;
-        }
-        return dest;
-    }
-
-    private Map<String, Object> templateEnv(FileNode context, Ports ports, Collection<Variable> environment) throws IOException {
-        Map<String, Object> result;
-        String value;
-
-        result = new HashMap<>();
-
-        if (OS.CURRENT == OS.MAC) {
-            result.put("UID", "0");
-            result.put("GID", "0");
-        } else {
-            result.put("UID", Long.toString(Engine.geteuid()));
-            result.put("GID", Long.toString(Engine.getegid()));
-        }
-        result.put("system", isSystem());
-        result.put("systemExtras", stage.session.configuration.systemExtras);
-        result.put("hostHome", stage.session.world.getHome().getAbsolute());
-        result.put("certname", stage.session.configuration.vhosts ? "*." + stage.getName() + "." + stage.session.configuration.hostname : stage.session.configuration.hostname);
-        result.put("tomcat", new Tomcat(this, context, stage.session, ports));
-        for (Variable env : environment) {
-            value = stage.config().templateEnv.get(env.name);
-            if (value == null) {
-                throw new IOException("missing variable in template.env: " + env.name);
-            }
-            result.put(env.name, env.parse(value));
-        }
-        return result;
-    }
 
     /** Fails if container is not running */
     public void stop(Console console) throws IOException {
@@ -594,19 +341,6 @@ public abstract class Project {
         engine = stage.session.dockerEngine();
         engine.containerStop(container, 300);
         stage.dockerContainerFile().deleteFile();
-    }
-
-    private void checkMemory() throws IOException {
-        int requested;
-
-        requested = stage.config().memory;
-        int unreserved = stage.session.memUnreserved();
-        if (requested > unreserved) {
-            throw new ArgumentException("Cannot reserve memory:\n"
-              + "  unreserved: " + unreserved + "\n"
-              + "  requested: " + requested + "\n"
-              + "Consider stopping stages.");
-        }
     }
 
     //--
@@ -677,7 +411,7 @@ public abstract class Project {
     }
 
     public void executeRefresh(Console console) throws IOException {
-        launcher(Strings.toArray(Separator.SPACE.split(macros().replace(stage.config().refresh)))).exec(console.info);
+        launcher(Strings.toArray(Separator.SPACE.split(stage.macros().replace(stage.config().refresh)))).exec(console.info);
     }
 
     //--
@@ -718,21 +452,7 @@ public abstract class Project {
     }
 
     public String getBuild() {
-        return macros().replace(stage.config().build);
-    }
-
-    private Macros lazyMacros = null;
-
-    public Macros macros() {
-        if (lazyMacros == null) {
-            lazyMacros = new Macros();
-            lazyMacros.addAll(stage.session.configuration.macros);
-            lazyMacros.add("directory", getDirectory().getAbsolute());
-            lazyMacros.add("localRepository", stage.localRepository().getAbsolute());
-            lazyMacros.add("svnCredentials", Separator.SPACE.join(stage.session.svnCredentials().svnArguments()));
-            lazyMacros.add("stoolSvnCredentials", stage.session.svnCredentials().stoolSvnArguments());
-        }
-        return lazyMacros;
+        return stage.macros().replace(stage.config().build);
     }
 
     public boolean isCommitted() throws IOException {
@@ -782,10 +502,6 @@ public abstract class Project {
                 warProjects(modulePom, userProperties, profiles, result);
             }
         }
-    }
-
-    public boolean isSystem() {
-        return stage.session.home.join("system").equals(directory.getParent());
     }
 
     public static String timespan(long since) {

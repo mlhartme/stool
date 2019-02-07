@@ -57,7 +57,7 @@ public class Remove extends StageCommand {
             console.info.println("Ready to delete " + dir.getAbsolute() + "?");
             console.pressReturn();
         }
-        project.wipeDocker(session.dockerEngine());
+        project.stage.wipeDocker(session.dockerEngine());
 
         // delete backstageLink first - to make sure no other stool invocation detects a stage backstage and wipes it
         Files.delete(session.backstageLink(project.getStage().getId()).toPath());
