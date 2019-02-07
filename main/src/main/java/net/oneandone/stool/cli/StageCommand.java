@@ -347,7 +347,7 @@ public abstract class StageCommand extends SessionCommand {
                 if (constField != null) {
                     obj = field.get();
                 } else {
-                    p = project.propertyOpt(constProperty);
+                    p = project.getStage().propertyOpt(constProperty);
                     if (p == null) {
                         throw new PredicateException("property or status field not found: " + constProperty);
                     }

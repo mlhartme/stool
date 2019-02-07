@@ -22,11 +22,9 @@ import freemarker.template.TemplateException;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.Main;
-import net.oneandone.stool.configuration.Accessor;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
-import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.templates.TemplateField;
 import net.oneandone.stool.templates.Tomcat;
@@ -38,8 +36,6 @@ import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.StandardProperty;
-import net.oneandone.stool.util.TemplateProperty;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -88,8 +84,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
-
-import static net.oneandone.stool.stage.Project.State.UP;
 
 /**
  * Concrete implementations are SourceProject or ArtifactProject.
@@ -447,7 +441,7 @@ public abstract class Project {
         });
     }
 
-    private Map<String, String>bindMounts(Ports ports, boolean source, boolean systemBinds) throws IOException {
+    private Map<String, String> bindMounts(Ports ports, boolean source, boolean systemBinds) throws IOException {
         Map<String, String> result;
         List<FileNode> lst;
         Iterator<FileNode> iter;
@@ -1022,16 +1016,52 @@ public abstract class Project {
 
     //--
 
+    public Field fieldOpt(String str) throws IOException {
+        for (Field f : fields()) {
+            if (str.equals(f.name())) {
+                return f;
+            }
+        }
+        return null;
+    }
+
+    public List<Info> fieldsAndName() throws IOException {
+        List<Info> result;
+
+        result = new ArrayList<>();
+        result.add(stage.propertyOpt("name"));
+        result.addAll(fields());
+        return result;
+    }
+
+    //--
+
+    public Info info(String str) throws IOException {
+        Info result;
+        List<String> lst;
+
+        result = stage.propertyOpt(str);
+        if (result != null) {
+            return result;
+        }
+        result = fieldOpt(str);
+        if (result != null) {
+            return result;
+        }
+        lst = new ArrayList<>();
+        for (Field f : fields()) {
+            lst.add(f.name());
+        }
+        for (Property p : stage.properties()) {
+            lst.add(p.name());
+        }
+        throw new ArgumentException(str + ": no such status field or property, choose one of " + lst);
+    }
+
     public List<Field> fields() throws IOException {
         List<Field> fields;
 
-        fields = new ArrayList<>();
-        fields.add(new Field("id") {
-            @Override
-            public Object get() {
-                return stage.getId();
-            }
-        });
+        fields = stage.fields();
         fields.add(new Field("selected") {
             @Override
             public Object get() throws IOException {
@@ -1042,12 +1072,6 @@ public abstract class Project {
             @Override
             public Object get() {
                 return Project.this.directory.getAbsolute();
-            }
-        });
-        fields.add(new Field("backstage") {
-            @Override
-            public Object get() {
-                return Project.this.stage.directory.getAbsolute();
             }
         });
         fields.add(new Field("origin") {
@@ -1106,12 +1130,6 @@ public abstract class Project {
                 return Project.this.containerDiskUsed();
             }
         });
-        fields.add(new Field("state") {
-            @Override
-            public Object get() throws IOException {
-                return Project.this.stage.state().toString();
-            }
-        });
         fields.add(new Field("uptime") {
             @Override
             public Object get() throws IOException {
@@ -1119,54 +1137,6 @@ public abstract class Project {
 
                 container = Project.this.stage.dockerContainer();
                 return container == null ? null : timespan(Project.this.stage.session.dockerEngine().containerStartedAt(container));
-            }
-        });
-        fields.add(new Field("cpu") {
-            @Override
-            public Object get() throws IOException {
-                String container;
-                Engine engine;
-                Stats stats;
-
-                container = Project.this.stage.dockerContainer();
-                if (container == null) {
-                    return null;
-                }
-                engine = Project.this.stage.session.dockerEngine();
-                stats = engine.containerStats(container);
-                if (stats != null) {
-                    return stats.cpu;
-                } else {
-                    // not started
-                    return 0;
-                }
-            }
-        });
-        fields.add(new Field("mem") {
-            @Override
-            public Object get() throws IOException {
-                String container;
-                Engine engine;
-                Stats stats;
-
-                container = Project.this.stage.dockerContainer();
-                if (container == null) {
-                    return null;
-                }
-                engine = Project.this.stage.session.dockerEngine();
-                stats = engine.containerStats(container);
-                if (stats != null) {
-                    return stats.memoryUsage * 100 / stats.memoryLimit;
-                } else {
-                    // not started
-                    return 0;
-                }
-            }
-        });
-        fields.add(new Field("container") {
-            @Override
-            public Object get() throws IOException {
-                return Project.this.stage.dockerContainer();
             }
         });
         fields.add(new Field("apps") {
@@ -1179,77 +1149,7 @@ public abstract class Project {
         return fields;
     }
 
-    public Field fieldOpt(String str) throws IOException {
-        for (Field f : fields()) {
-            if (str.equals(f.name())) {
-                return f;
-            }
-        }
-        return null;
-    }
-
-    public List<Info> fieldsAndName() throws IOException {
-        List<Info> result;
-
-        result = new ArrayList<>();
-        result.add(propertyOpt("name"));
-        result.addAll(fields());
-        return result;
-    }
-
     //--
-
-    public Info info(String str) throws IOException {
-        Info result;
-        List<String> lst;
-
-        result = propertyOpt(str);
-        if (result != null) {
-            return result;
-        }
-        result = fieldOpt(str);
-        if (result != null) {
-            return result;
-        }
-        lst = new ArrayList<>();
-        for (Field f : fields()) {
-            lst.add(f.name());
-        }
-        for (Property p : properties()) {
-            lst.add(p.name());
-        }
-        throw new ArgumentException(str + ": no such status field or property, choose one of " + lst);
-    }
-
-    //--
-
-    public List<Property> properties() {
-        List<Property> result;
-        Map<String, String> env;
-        String prefix;
-
-        result = new ArrayList<>();
-        for (Accessor type : stage.session.accessors().values()) {
-            if (!type.name.equals("template.env")) {
-                result.add(new StandardProperty(type, stage.config()));
-            }
-        }
-        env = stage.config().templateEnv;
-        prefix = stage.config().template.getName() + ".";
-        for (String name : stage.config().templateEnv.keySet()) {
-            result.add(new TemplateProperty(prefix + name, env, name));
-        }
-        return result;
-    }
-
-    public Property propertyOpt(String name) {
-        for (Property property : properties()) {
-            if (name.equals(property.name())) {
-                return property;
-            }
-        }
-        return null;
-    }
 
     public int contentHash() throws IOException {
         return ("StageInfo{"

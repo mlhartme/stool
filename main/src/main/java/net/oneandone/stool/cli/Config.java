@@ -77,7 +77,7 @@ public class Config extends StageCommand {
             project.modify();
             error = false;
             for (Map.Entry<String, String> entry : arguments.entrySet()) {
-                prop = project.propertyOpt(entry.getKey());
+                prop = project.getStage().propertyOpt(entry.getKey());
                 if (prop == null) {
                     throw new ArgumentException("unknown property: " + entry.getKey());
                 }
@@ -97,7 +97,7 @@ public class Config extends StageCommand {
                 session.saveStageProperties(project.getStage().config(), project.getStage().directory);
             }
         } else {
-            props = get ? argumentProperties(project) : project.properties();
+            props = get ? argumentProperties(project) : project.getStage().properties();
             width = 0 ;
             if (props.size() > 1) {
                 for (Property property : props) {
@@ -117,7 +117,7 @@ public class Config extends StageCommand {
 
         result = new ArrayList<>();
         for (String name : arguments.keySet()) {
-            property = project.propertyOpt(name);
+            property = project.getStage().propertyOpt(name);
             if (property == null) {
                 throw new ArgumentException("unknown property: " + name);
             }

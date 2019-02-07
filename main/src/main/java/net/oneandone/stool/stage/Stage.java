@@ -17,8 +17,17 @@ package net.oneandone.stool.stage;
 
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
+import net.oneandone.stool.configuration.Accessor;
 import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.docker.Engine;
+import net.oneandone.stool.docker.Stats;
+import net.oneandone.stool.templates.TemplateField;
+import net.oneandone.stool.util.Field;
+import net.oneandone.stool.util.LogEntry;
+import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.StandardProperty;
+import net.oneandone.stool.util.TemplateProperty;
 import net.oneandone.sushi.fs.DeleteException;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
@@ -30,6 +39,9 @@ import org.eclipse.aether.repository.RepositoryPolicy;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import static net.oneandone.stool.stage.Project.State.UP;
 
@@ -102,6 +114,109 @@ public class Stage {
             default:
                 return "danger";
         }
+    }
+
+    //--
+
+    public List<Field> fields() throws IOException {
+        List<Field> fields;
+
+        fields = new ArrayList<>();
+        fields.add(new Field("id") {
+            @Override
+            public Object get() {
+                return id;
+            }
+        });
+        fields.add(new Field("backstage") {
+            @Override
+            public Object get() {
+                return directory.getAbsolute();
+            }
+        });
+        fields.add(new Field("state") {
+            @Override
+            public Object get() throws IOException {
+                return state().toString();
+            }
+        });
+        fields.add(new Field("cpu") {
+            @Override
+            public Object get() throws IOException {
+                String container;
+                Engine engine;
+                Stats stats;
+
+                container = dockerContainer();
+                if (container == null) {
+                    return null;
+                }
+                engine = session.dockerEngine();
+                stats = engine.containerStats(container);
+                if (stats != null) {
+                    return stats.cpu;
+                } else {
+                    // not started
+                    return 0;
+                }
+            }
+        });
+        fields.add(new Field("mem") {
+            @Override
+            public Object get() throws IOException {
+                String container;
+                Engine engine;
+                Stats stats;
+
+                container = dockerContainer();
+                if (container == null) {
+                    return null;
+                }
+                engine = session.dockerEngine();
+                stats = engine.containerStats(container);
+                if (stats != null) {
+                    return stats.memoryUsage * 100 / stats.memoryLimit;
+                } else {
+                    // not started
+                    return 0;
+                }
+            }
+        });
+        fields.add(new Field("container") {
+            @Override
+            public Object get() throws IOException {
+                return dockerContainer();
+            }
+        });
+        return fields;
+    }
+
+    public List<Property> properties() {
+        List<Property> result;
+        Map<String, String> env;
+        String prefix;
+
+        result = new ArrayList<>();
+        for (Accessor type : session.accessors().values()) {
+            if (!type.name.equals("template.env")) {
+                result.add(new StandardProperty(type, configuration));
+            }
+        }
+        env = configuration.templateEnv;
+        prefix = configuration.template.getName() + ".";
+        for (String name : configuration.templateEnv.keySet()) {
+            result.add(new TemplateProperty(prefix + name, env, name));
+        }
+        return result;
+    }
+
+    public Property propertyOpt(String name) {
+        for (Property property : properties()) {
+            if (name.equals(property.name())) {
+                return property;
+            }
+        }
+        return null;
     }
 
     //-- Maven stuff
