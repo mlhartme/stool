@@ -53,6 +53,7 @@ import org.eclipse.aether.repository.RepositoryPolicy;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.time.Instant;
@@ -236,6 +237,12 @@ public class Stage {
             @Override
             public Object get() throws IOException {
                 return dockerContainer();
+            }
+        });
+        fields.add(new Field("apps") {
+            @Override
+            public Object get() throws IOException {
+                return namedUrls();
             }
         });
         return fields;
@@ -666,6 +673,74 @@ public class Stage {
 
     public long lastModifiedAt() throws IOException {
         return modifiedFile().getLastModified();
+    }
+
+    //--
+
+    public Ports loadPortsOpt() throws IOException {
+        return session.pool().stageOpt(id);
+    }
+
+    /** @return empty map of no ports are allocated */
+    public Map<String, String> urlMap() throws IOException {
+        Ports ports;
+
+        ports = loadPortsOpt();
+        return ports == null ? new HashMap<>() : ports.urlMap(getName(), session.configuration.hostname, config().url);
+    }
+
+    /** @return empty list of no ports are allocated */
+    public List<String> namedUrls() throws IOException {
+        List<String> result;
+
+        result = new ArrayList<>();
+        for (Map.Entry<String, String> entry : urlMap().entrySet()) {
+            result.add(entry.getKey() + " " + entry.getValue());
+        }
+        return result;
+    }
+
+    //--
+
+    public int contentHash() throws IOException {
+        return ("StageInfo{"
+                + "name='" + config().name + '\''
+                + ", id='" + id + '\''
+                + ", comment='" + config().comment + '\''
+                // TODO + ", origin='" + origin + '\''
+                + ", urls=" + urlMap()
+                + ", state=" + state()
+                + ", displayState=" + displayState()
+                + ", last-modified-by='" + lastModifiedBy() + '\''
+                // TODO + ", updateAvailable=" + updateAvailable()
+                + '}').hashCode();
+    }
+
+    //-- for dashboard
+
+    public String sharedText() throws IOException {
+        Map<String, String> urls;
+
+        urls = urlMap();
+        if (urls == null) {
+            return "";
+        }
+        String content;
+        StringBuilder stringBuilder;
+        stringBuilder = new StringBuilder("Hi, \n");
+        for (String url : urls.values()) {
+            stringBuilder.append(url).append("\n");
+        }
+
+        content = URLEncoder.encode(stringBuilder.toString(), "UTF-8");
+        content = content.replace("+", "%20").replaceAll("\\+", "%20")
+                .replaceAll("\\%21", "!")
+                .replaceAll("\\%27", "'")
+                .replaceAll("\\%28", "(")
+                .replaceAll("\\%29", ")")
+                .replaceAll("\\%7E", "~");
+
+        return content;
     }
 
 }

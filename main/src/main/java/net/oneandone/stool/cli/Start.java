@@ -77,7 +77,7 @@ public class Start extends StageCommand {
         project.awaitStartup(console);
         Thread.sleep(2000);
         console.info.println("Applications available:");
-        for (String app : project.namedUrls()) {
+        for (String app : project.stage.namedUrls()) {
             console.info.println("  " + app);
         }
         if (tail) {

@@ -192,29 +192,6 @@ public abstract class Project {
         return vhosts;
     }
 
-    public Ports loadPortsOpt() throws IOException {
-        return stage.session.pool().stageOpt(stage.getId());
-    }
-
-    /** @return empty list of no ports are allocated */
-    public List<String> namedUrls() throws IOException {
-        List<String> result;
-
-        result = new ArrayList<>();
-        for (Map.Entry<String, String> entry : urlMap().entrySet()) {
-            result.add(entry.getKey() + " " + entry.getValue());
-        }
-        return result;
-    }
-
-    /** @return empty map of no ports are allocated */
-    public Map<String, String> urlMap() throws IOException {
-        Ports ports;
-
-        ports = loadPortsOpt();
-        return ports == null ? new HashMap<>() : ports.urlMap(stage.getName(), stage.session.configuration.hostname, stage.config().url);
-    }
-
     /** @return nummer of applications */
     public abstract int size() throws IOException;
 
@@ -225,7 +202,7 @@ public abstract class Project {
         Ports ports;
         String state;
 
-        ports = loadPortsOpt();
+        ports = stage.loadPortsOpt();
         for (int count = 0; true; count++) {
             try {
                 state = jmxEngineState(ports);
@@ -778,57 +755,7 @@ public abstract class Project {
                 return container == null ? null : timespan(Project.this.stage.session.dockerEngine().containerStartedAt(container));
             }
         });
-        fields.add(new Field("apps") {
-            @Override
-            public Object get() throws IOException {
-                return Project.this.namedUrls();
-            }
-        });
         fields.addAll(TemplateField.scanTemplate(this, stage.config().template));
         return fields;
     }
-
-    //--
-
-    public int contentHash() throws IOException {
-        return ("StageInfo{"
-                + "name='" + stage.config().name + '\''
-                + ", id='" + stage.getId() + '\''
-                + ", comment='" + stage.config().comment + '\''
-                + ", origin='" + origin + '\''
-                + ", urls=" + urlMap()
-                + ", state=" + stage.state()
-                + ", displayState=" + stage.displayState()
-                + ", last-modified-by='" + stage.lastModifiedBy() + '\''
-                + ", updateAvailable=" + updateAvailable()
-                + '}').hashCode();
-    }
-
-    //-- for dashboard
-
-    public String sharedText() throws IOException {
-        Map<String, String> urls;
-
-        urls = urlMap();
-        if (urls == null) {
-            return "";
-        }
-        String content;
-        StringBuilder stringBuilder;
-        stringBuilder = new StringBuilder("Hi, \n");
-        for (String url : urls.values()) {
-            stringBuilder.append(url).append("\n");
-        }
-
-        content = URLEncoder.encode(stringBuilder.toString(), "UTF-8");
-        content = content.replace("+", "%20").replaceAll("\\+", "%20")
-                .replaceAll("\\%21", "!")
-                .replaceAll("\\%27", "'")
-                .replaceAll("\\%28", "(")
-                .replaceAll("\\%29", ")")
-                .replaceAll("\\%7E", "~");
-
-        return content;
-    }
-
 }
