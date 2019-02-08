@@ -85,7 +85,7 @@ import java.util.Map;
 
 import static net.oneandone.stool.stage.Project.State.UP;
 
-/** represents the former backstage directory */
+/** Represents the former backstage directory. From a Docker perspective, a stage roughly represents a Repository */
 public class Stage {
     public final Session session;
     private final String id;
