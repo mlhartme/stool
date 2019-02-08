@@ -17,9 +17,10 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
-public class Stop extends ProjectCommand {
+public class Stop extends StageCommand {
     private final boolean sleep;
 
     public Stop(Session session, boolean sleep) {
@@ -28,11 +29,11 @@ public class Stop extends ProjectCommand {
     }
 
     @Override
-    public void doMain(Project project) throws Exception {
+    public void doMain(Stage stage) throws Exception {
         boolean alreadySleeping;
 
-        project.stage.modify();
-        alreadySleeping = session.bedroom.contains(project.getStage().getId());
+        stage.modify();
+        alreadySleeping = session.bedroom.contains(stage.getId());
         if (alreadySleeping) {
             if (sleep) {
                 console.info.println("warning: stage already marked as sleeping");
@@ -40,19 +41,19 @@ public class Stop extends ProjectCommand {
                 console.info.println("going from sleeping to stopped.");
             }
         } else {
-            doNormal(project);
+            doNormal(stage);
         }
     }
 
-    public void doNormal(Project project) throws Exception {
-        project.stage.stop(console);
+    public void doNormal(Stage stage) throws Exception {
+        stage.stop(console);
     }
 
     @Override
-    public void doFinish(Project project) throws Exception {
+    public void doFinish(Stage stage) throws Exception {
         String id;
 
-        id = project.getStage().getId();
+        id = stage.getId();
         if (sleep) {
             if (session.bedroom.contains(id)) {
                 console.info.println("already sleeping");
