@@ -62,6 +62,8 @@ import javax.management.ReflectionException;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
@@ -890,4 +892,22 @@ public class Stage {
         // not SizeRootFs, that's the image size plus the rw layer
         return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
+
+    // CAUTION: blocks until ctrl-c.
+    // Format: https://docs.docker.com/engine/api/v1.33/#operation/ContainerAttach
+    public void tailF(PrintWriter dest) throws IOException {
+        Engine engine;
+
+        engine = session.dockerEngine();
+        engine.containerLogsFollow(dockerContainer(), new OutputStream() {
+            @Override
+            public void write(int b) {
+                dest.write(b);
+                if (b == 10) {
+                    dest.flush(); // newline
+                }
+            }
+        });
+    }
+
 }

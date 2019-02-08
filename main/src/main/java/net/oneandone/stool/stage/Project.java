@@ -15,17 +15,13 @@
  */
 package net.oneandone.stool.stage;
 
-import com.google.gson.JsonObject;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.templates.TemplateField;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
-import net.oneandone.stool.util.LogEntry;
-import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.Node;
@@ -38,8 +34,6 @@ import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -50,7 +44,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Formatter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -185,23 +178,6 @@ public abstract class Project {
 
 
     public abstract List<String> faultProjects() throws IOException;
-
-    // CAUTION: blocks until ctrl-c.
-    // Format: https://docs.docker.com/engine/api/v1.33/#operation/ContainerAttach
-    public void tailF(PrintWriter dest) throws IOException {
-        Engine engine;
-
-        engine = stage.session.dockerEngine();
-        engine.containerLogsFollow(stage.dockerContainer(), new OutputStream() {
-            @Override
-            public void write(int b) {
-                dest.write(b);
-                if (b == 10) {
-                    dest.flush(); // newline
-                }
-            }
-        });
-    }
 
     //--
 

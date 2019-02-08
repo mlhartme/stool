@@ -98,7 +98,7 @@ public class Start extends StageCommand {
         console.info.println("Tailing container output.");
         console.info.println("Press Ctrl-C to abort.");
         console.info.println();
-        project.tailF(console.info);
+        project.stage.tailF(console.info);
     }
 
     private void checkNotStarted(Project project) throws IOException {
