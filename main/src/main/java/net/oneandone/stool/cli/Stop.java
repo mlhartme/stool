@@ -19,7 +19,7 @@ import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 
-public class Stop extends StageCommand {
+public class Stop extends ProjectCommand {
     private final boolean sleep;
 
     public Stop(Session session, boolean sleep) {

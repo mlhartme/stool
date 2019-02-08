@@ -25,7 +25,7 @@ import net.oneandone.sushi.fs.filter.Predicate;
 
 import java.util.List;
 
-public class Cd extends StageCommand {
+public class Cd extends ProjectCommand {
     private String target;
 
     public Cd(Session session) {

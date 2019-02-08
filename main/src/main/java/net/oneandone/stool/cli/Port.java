@@ -23,7 +23,7 @@ import net.oneandone.stool.util.Session;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Port extends StageCommand {
+public class Port extends ProjectCommand {
     private final Map<String, Integer> ports = new HashMap<>();
 
     public Port(Session session) {

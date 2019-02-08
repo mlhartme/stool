@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-public class Start extends StageCommand {
+public class Start extends ProjectCommand {
     private final boolean tail;
     private final boolean noCache;
 

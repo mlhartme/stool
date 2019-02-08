@@ -25,7 +25,7 @@ import net.oneandone.sushi.util.Separator;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Build extends StageCommand {
+public class Build extends ProjectCommand {
     private final boolean here;
     private final List<String> command;
 

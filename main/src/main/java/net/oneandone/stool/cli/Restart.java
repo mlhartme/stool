@@ -19,7 +19,7 @@ import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 
-public class Restart extends StageCommand {
+public class Restart extends ProjectCommand {
     private final boolean noCache;
 
     public Restart(Session session, boolean noCache) {

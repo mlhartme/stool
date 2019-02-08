@@ -28,7 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Config extends StageCommand {
+public class Config extends ProjectCommand {
     private final Map<String, String> arguments;
 
     private boolean get;

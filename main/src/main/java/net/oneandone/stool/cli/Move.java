@@ -21,7 +21,7 @@ import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
-public class Move extends StageCommand {
+public class Move extends ProjectCommand {
     private FileNode dest;
 
     public Move(Session session, FileNode dest) {

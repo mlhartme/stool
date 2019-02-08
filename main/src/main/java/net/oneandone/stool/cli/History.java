@@ -27,7 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class History extends StageCommand {
+public class History extends ProjectCommand {
     private final boolean details;
     private final int max;
 

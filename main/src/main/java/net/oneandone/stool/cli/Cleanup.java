@@ -19,7 +19,7 @@ import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 
-public class Cleanup extends StageCommand {
+public class Cleanup extends ProjectCommand {
     public Cleanup(Session session) {
         super(false, session, Mode.NONE, Mode.EXCLUSIVE, Mode.NONE);
     }

@@ -37,7 +37,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class StageCommand extends SessionCommand {
+public abstract class ProjectCommand extends SessionCommand {
     private final Mode backstageLock;
     private final Mode directoryLock;
     private final boolean withAutoRunning;
@@ -48,7 +48,7 @@ public abstract class StageCommand extends SessionCommand {
     private boolean all;
     private Fail fail = Fail.NORMAL;
 
-    public StageCommand(boolean withAutoRunning, Session session, Mode portsLock, Mode backstageLock, Mode directoryLock) {
+    public ProjectCommand(boolean withAutoRunning, Session session, Mode portsLock, Mode backstageLock, Mode directoryLock) {
         super(session, portsLock);
         this.withAutoRunning = withAutoRunning;
         this.backstageLock = backstageLock;

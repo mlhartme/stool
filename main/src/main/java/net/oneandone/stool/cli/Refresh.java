@@ -21,7 +21,7 @@ import net.oneandone.stool.util.Session;
 
 import java.io.IOException;
 
-public class Refresh extends StageCommand {
+public class Refresh extends ProjectCommand {
     private final boolean build;
     private final boolean restore;
 

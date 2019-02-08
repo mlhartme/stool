@@ -43,7 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class Validate extends StageCommand {
+public class Validate extends ProjectCommand {
     private final boolean email;
     private final boolean repair;
 
