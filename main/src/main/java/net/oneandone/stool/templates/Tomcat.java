@@ -138,7 +138,7 @@ public class Tomcat {
 
         opts = new ArrayList<>();
 
-        tomcatOpts = escape(stage.macros().replace(extraOpts));
+        tomcatOpts = escape(extraOpts);
         opts.addAll(Separator.SPACE.split(tomcatOpts));
 
         opts.add("-Xmx" + stage.config().memory * 3 / 4 + "m");

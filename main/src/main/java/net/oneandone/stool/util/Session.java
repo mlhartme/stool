@@ -392,17 +392,17 @@ public class Session {
     }
 
     /** returns the build environment */
-    public Environment environment(Stage stage) {
+    public Environment environment(Project project) {
         Environment env;
         String mavenOpts;
 
-        if (stage == null) {
+        if (project == null) {
             mavenOpts = "";
         } else {
-            mavenOpts = stage.macros().replace(stage.config().mavenOpts);
+            mavenOpts = project.macros().replace(project.stage.config().mavenOpts);
         }
         env = new Environment();
-        env.setMavenHome((stage != null && stage.config().mavenHome() != null) ? stage.config().mavenHome() : null);
+        env.setMavenHome((project != null && project.stage.config().mavenHome() != null) ? project.stage.config().mavenHome() : null);
         env.setMavenOpts(mavenOpts);
         return env;
     }

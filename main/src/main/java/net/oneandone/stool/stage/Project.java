@@ -22,6 +22,7 @@ import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.templates.TemplateField;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
+import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.Node;
@@ -202,7 +203,29 @@ public abstract class Project {
 
     /** @return launcher with build environment */
     public Launcher launcher(String... command) {
-        return stage.launcher(directory, command);
+        return launcher(directory, command);
+    }
+
+    public Launcher launcher(FileNode working, String... command) {
+        Launcher launcher;
+
+        launcher = new Launcher(working, command);
+        stage.session.environment(this).save(launcher);
+        return launcher;
+    }
+
+    private Macros lazyMacros;
+
+    public Macros macros() {
+        if (lazyMacros == null) {
+            lazyMacros = new Macros();
+            lazyMacros.addAll(stage.session.configuration.macros);
+            lazyMacros.add("directory", getDirectory().getAbsolute());
+            lazyMacros.add("localRepository", stage.localRepository().getAbsolute());
+            lazyMacros.add("svnCredentials", Separator.SPACE.join(stage.session.svnCredentials().svnArguments()));
+            lazyMacros.add("stoolSvnCredentials", stage.session.svnCredentials().stoolSvnArguments());
+        }
+        return lazyMacros;
     }
 
     public abstract boolean refreshPending(Console console) throws IOException;
@@ -212,7 +235,7 @@ public abstract class Project {
     }
 
     public void executeRefresh(Console console) throws IOException {
-        launcher(Strings.toArray(Separator.SPACE.split(stage.macros().replace(stage.config().refresh)))).exec(console.info);
+        launcher(Strings.toArray(Separator.SPACE.split(macros().replace(stage.config().refresh)))).exec(console.info);
     }
 
     //--
@@ -253,7 +276,7 @@ public abstract class Project {
     }
 
     public String getBuild() {
-        return stage.macros().replace(stage.config().build);
+        return macros().replace(stage.config().build);
     }
 
     public boolean isCommitted() throws IOException {

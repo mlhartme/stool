@@ -486,14 +486,6 @@ public class Stage {
         dockerContainerFile().deleteFile();
     }
 
-    public Launcher launcher(FileNode working, String... command) {
-        Launcher launcher;
-
-        launcher = new Launcher(working, command);
-        session.environment(this).save(launcher);
-        return launcher;
-    }
-
     private static class FlushWriter extends Writer {
         private final Writer dest;
 
@@ -660,20 +652,6 @@ public class Stage {
             result.put(env.name, env.parse(value));
         }
         return result;
-    }
-
-    private Macros lazyMacros;
-
-    public Macros macros() {
-        if (lazyMacros == null) {
-            lazyMacros = new Macros();
-            lazyMacros.addAll(session.configuration.macros);
-            // TODO lazyMacros.add("directory", getDirectory().getAbsolute());
-            lazyMacros.add("localRepository", localRepository().getAbsolute());
-            lazyMacros.add("svnCredentials", Separator.SPACE.join(session.svnCredentials().svnArguments()));
-            lazyMacros.add("stoolSvnCredentials", session.svnCredentials().stoolSvnArguments());
-        }
-        return lazyMacros;
     }
 
     public boolean isSystem() {
