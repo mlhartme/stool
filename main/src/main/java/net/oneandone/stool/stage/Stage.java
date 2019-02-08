@@ -823,10 +823,13 @@ public class Stage {
                 state = jmxEngineState(ports);
                 break;
             } catch (Exception e) {
-                if (count > 40) {
+                if (count > 600) {
                     throw new IOException("initial state timed out: " + e.getMessage(), e);
                 }
-                Thread.sleep(50);
+                if (count % 100 == 99) {
+                    console.info.println("waiting for tomcat startup ... ");
+                }
+                Thread.sleep(100);
             }
         }
         for (int count = 1; !"STARTED".equals(state); count++) {
