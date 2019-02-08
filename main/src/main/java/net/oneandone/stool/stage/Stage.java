@@ -368,10 +368,13 @@ public abstract class Stage {
                 state = jmxEngineState(ports);
                 break;
             } catch (Exception e) {
-                if (count > 40) {
+                if (count > 600) { // 1 minute
                     throw new IOException("initial state timed out: " + e.getMessage(), e);
                 }
-                Thread.sleep(50);
+                if (count % 100 == 99) {
+                    console.info.println("waiting for tomcat engine startup ... ");
+                }
+                Thread.sleep(100);
             }
         }
         for (int count = 1; !"STARTED".equals(state); count++) {
