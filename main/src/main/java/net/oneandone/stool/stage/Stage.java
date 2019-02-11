@@ -91,14 +91,12 @@ public class Stage {
     private final String id;
     public final FileNode directory;
     private final StageConfiguration configuration;
-    private Maven lazyMaven;
 
     public Stage(Session session, String id, FileNode directory, StageConfiguration configuration) {
         this.session = session;
         this.id = id;
         this.directory = directory;
         this.configuration = configuration;
-        this.lazyMaven = null;
     }
 
     public String getId() {
@@ -317,34 +315,7 @@ public class Stage {
         return null;
     }
 
-    //-- Maven stuff
-
-    public void setMaven(Maven maven) {
-        this.lazyMaven = maven;
-    }
-
-    /** CAUTION: this is not a session method, because it respects the stage repository */
-    public Maven maven() throws IOException {
-        World world;
-        String mavenHome;
-        FileNode settings;
-
-        if (lazyMaven == null) {
-            world = session.world;
-            mavenHome = configuration.mavenHome();
-            if (mavenHome == null) {
-                settings = session.home.join("maven-settings.xml");
-            } else {
-                settings = world.file(mavenHome).join("conf/settings.xml");
-            }
-            // CAUTION: shared plexus - otherwise, Maven components are created over and over again
-            lazyMaven = Maven.withSettings(world, session.localRepository(), settings, null, session.plexus(), null, null);
-            // always get the latest snapshots
-            lazyMaven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
-        }
-        return lazyMaven;
-    }
-
+    //--
 
     public Logs logs() {
         return new Logs(directory.join("logs"));

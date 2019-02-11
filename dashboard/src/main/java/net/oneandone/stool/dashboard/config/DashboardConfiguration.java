@@ -89,11 +89,6 @@ public class DashboardConfiguration {
     }
 
     @Bean
-    public Maven maven() throws IOException {
-        return self().getStage().maven();
-    }
-
-    @Bean
     public ExecutorService executorService() {
         return Executors.newCachedThreadPool();
     }

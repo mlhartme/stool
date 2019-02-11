@@ -40,6 +40,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.codehaus.plexus.DefaultPlexusContainer;
+import org.eclipse.aether.repository.RepositoryPolicy;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
@@ -397,13 +398,32 @@ public class Session {
             mavenOpts = project.macros().replace(project.stage.config().mavenOpts);
         }
         env = new Environment();
-        env.setMavenHome((project != null && project.stage.config().mavenHome() != null) ? project.stage.config().mavenHome() : null);
         env.setMavenOpts(mavenOpts);
         return env;
     }
 
     public FileNode localRepository() {
         return world.getHome().join(".m2/repository");
+    }
+
+    private Maven lazyMaven;
+
+    public Maven maven() throws IOException {
+        FileNode mavenHome;
+        FileNode settings;
+
+        if (lazyMaven == null) {
+            try {
+                mavenHome = Maven.locateMaven(world);
+                settings = mavenHome.join("conf/settings.xml");
+            } catch (IOException e) {
+                settings = home.join("maven-settings.xml");
+            }
+            lazyMaven = Maven.withSettings(world, localRepository(), settings, null, plexus(), null, null);
+            // always get the latest snapshots
+            lazyMaven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
+        }
+        return lazyMaven;
     }
 
     //--
@@ -489,19 +509,13 @@ public class Session {
     }
 
     public StageConfiguration createStageConfiguration(String url) {
-        String mavenHome;
         StageConfiguration result;
         Scm scm;
         String refresh;
 
-        try {
-            mavenHome = Maven.locateMaven(world).getAbsolute();
-        } catch (IOException e) {
-            mavenHome = "";
-        }
         scm = scmOpt(url);
         refresh = scm == null ? "" : scm.refresh();
-        result = new StageConfiguration(mavenHome, templates().join("tomcat"), refresh);
+        result = new StageConfiguration(templates().join("tomcat"), refresh);
         result.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
         configuration.setDefaults(accessors(), result, url);
         return result;

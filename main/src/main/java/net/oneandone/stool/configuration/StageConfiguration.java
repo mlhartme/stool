@@ -67,10 +67,6 @@ public class StageConfiguration {
     @Option(key = "notify")
     public List<String> notify;
 
-    // never null
-    @Option(key = "maven.home")
-    private String mavenHome;
-
     @Option(key = "maven.opts")
     public String mavenOpts;
 
@@ -92,7 +88,7 @@ public class StageConfiguration {
     @Option(key = "template.env")
     public Map<String, String> templateEnv;
 
-    public StageConfiguration(String mavenHome, FileNode template, String refresh) {
+    public StageConfiguration(FileNode template, String refresh) {
         this.name = "noname";
         this.refresh = refresh;
         this.notify = new ArrayList<>();
@@ -101,7 +97,6 @@ public class StageConfiguration {
         this.quota = 10000;
         this.memory = 400;
         this.select = new ArrayList<>();
-        this.mavenHome = mavenHome;
         this.mavenOpts = "";
         this.expire = Expire.never();
         this.url = "(http:https)://%h/";
@@ -116,11 +111,6 @@ public class StageConfiguration {
         try (Writer writer = file.newWriter()) {
             gson.toJson(this, writer);
         }
-    }
-
-
-    public String mavenHome() {
-        return mavenHome.isEmpty() ? null : mavenHome;
     }
 
     //--

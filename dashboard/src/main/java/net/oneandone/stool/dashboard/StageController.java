@@ -69,9 +69,6 @@ public class StageController {
     @Autowired
     private ExecutorService executorService;
 
-    @Autowired
-    private Maven maven;
-
     private final Collection<Project> stagesCache;
     private long lastCacheRenew;
 
@@ -186,7 +183,6 @@ public class StageController {
         } catch (IOException e) {
             throw (ResourceNotFoundException) new ResourceNotFoundException().initCause(e);
         }
-        project.getStage().setMaven(maven);
         return project;
     }
 

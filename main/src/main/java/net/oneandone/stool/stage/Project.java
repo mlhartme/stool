@@ -296,7 +296,7 @@ public abstract class Project {
         FileNode modulePom;
 
         try {
-            root = stage.maven().loadPom(pomXml, false, userProperties, profiles, null);
+            root = stage.session.maven().loadPom(pomXml, false, userProperties, profiles, null);
         } catch (ProjectBuildingException | RepositoryException e) {
             throw new IOException("cannot parse " + pomXml + ": " + e.getMessage(), e);
         }
