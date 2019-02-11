@@ -219,7 +219,7 @@ public abstract class Project {
             lazyMacros = new Macros();
             lazyMacros.addAll(stage.session.configuration.macros);
             lazyMacros.add("directory", getDirectory().getAbsolute());
-            lazyMacros.add("localRepository", stage.localRepository().getAbsolute());
+            lazyMacros.add("localRepository", stage.session.localRepository().getAbsolute());
             lazyMacros.add("svnCredentials", Separator.SPACE.join(stage.session.svnCredentials().svnArguments()));
             lazyMacros.add("stoolSvnCredentials", stage.session.svnCredentials().stoolSvnArguments());
         }

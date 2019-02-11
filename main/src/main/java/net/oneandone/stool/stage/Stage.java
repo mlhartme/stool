@@ -342,29 +342,13 @@ public class Stage {
                 settings = world.file(mavenHome).join("conf/settings.xml");
             }
             // CAUTION: shared plexus - otherwise, Maven components are created over and over again
-            lazyMaven = Maven.withSettings(world, localRepository(), settings, null, session.plexus(), null, null);
+            lazyMaven = Maven.withSettings(world, session.localRepository(), settings, null, session.plexus(), null, null);
             // always get the latest snapshots
             lazyMaven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
         }
         return lazyMaven;
     }
 
-
-    public FileNode localRepository() {
-        return session.configuration.shared ? directory.join(".m2") : session.world.getHome().join(".m2/repository");
-    }
-
-    public void cleanupMavenRepository(Console console) throws NodeNotFoundException, DeleteException {
-        FileNode repository;
-
-        repository = directory.join(".m2");
-        if (repository.exists()) {
-            console.info.println("Removing Maven Repository at " + repository.getAbsolute());
-            repository.deleteTree();
-        } else {
-            console.verbose.println("No Maven Repository found at " + repository.getAbsolute());
-        }
-    }
 
     public Logs logs() {
         return new Logs(directory.join("logs"));

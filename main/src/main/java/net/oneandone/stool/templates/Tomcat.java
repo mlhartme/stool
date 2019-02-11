@@ -75,7 +75,7 @@ public class Tomcat {
         if (console.getVerbose()) {
             launcher.arg("-v");
         }
-        launcher.arg("-maven-repository=" + stage.localRepository().getAbsolute());
+        launcher.arg("-maven-repository=" + session.localRepository().getAbsolute());
         launcher.arg("resolve", "-output", list.getAbsolute());
         /* TODO: for (String p : project.faultProjects()) {
             launcher.arg(p);

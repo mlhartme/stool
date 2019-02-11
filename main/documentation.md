@@ -163,7 +163,7 @@ unless you specify a new date with `stool config expire=`*yyyy-mm-dd*.
 
 Depending on the `autoRemove` Stool property, an expired stage will automatically be removed after
 the configured number of days. Stage expiring helps to detect and remove unused stages, which is crucial for
-shared machines. If you receive an email notification that your stage has expired, please check if your stage
+shared stages. If you receive an email notification that your stage has expired, please check if your stage
 is still needed. If so, adjust the expire date. Otherwise, remove the stage.
 
 ### User defaults
@@ -367,9 +367,6 @@ following [properties](#properties).
   Mb of disk spaces available for stages. The sum of all stage quota properties cannot exceed this number. 0 disables this
   feature. You'll usually set this to the size of the partition that will store your stages. Note that this quota cannot always
   prevent disk full problem because stages can be placed on arbitrary partitions. Type number. 
-* **shared**
-  `true` if multiple users may work on stages. When set to true, Stool uses `.backstage/.m2` (instead of the current user's 
-  `~/.m2/repository`) as local Maven repository. Type boolean.
 * **search**
   Command line to execute if `stool create` is called with an `%`*url*. When calling the command, the placeholder `()` is replaced by the url.
   Default is empty, which disables this feature.
@@ -634,10 +631,6 @@ The pre-defined build command for artifact stages does nothing. Thus, you can ru
 
 If you run `build` from the dashboard application, the build command executes in the environment
 defined for the dashboard stage with the additional environment variables mentioned above.
-
-The differences between using `stool build` and executing a build command directly is the execute directory
-and the environment. When working in shared mode, you usually have to use `stool build` because shared machine 
-need a separate local Maven repository for every stage - and that's configured in the stage environment.
 
 
 [//]: # (include stageOptions.md)
@@ -1086,7 +1079,7 @@ Cleanup a stage
 
 #### DESCRIPTION
 
-Removes the Maven repository (for shared stages only) and rotates *.log into *.log.gz files.
+Rotates *.log into *.log.gz files.
 
 [//]: # (include stageOptions.md)
 
@@ -1148,10 +1141,9 @@ Application download:
 Now check your installation: get `stool` - you should get a usage message.
 
 
-### Isolated configuration
+### User configuration
 
-You'll normally configure Stool to maintain separate stages for separate users, everything lives in the respective user's home directory. 
-This is called isolated configuration.
+Every user has it's own set of Stages.
 
 For every user that wants to use Stool:
 * Optional: define an environment variable `STOOL_HOME` in your shell initialization (e.g. `~/.bash_profile`)
@@ -1159,25 +1151,6 @@ For every user that wants to use Stool:
 * Adjust `~/.stool/config.json` to your needs: see [stool properties](#stool-properties)
 * If you did not install the Debian package: source `~/.stool/shell.rc` in your shell initialization file (e.g. `~/.bash_profile`).
 * run `stool validate` to check you setup
-
-
-### Shared configuration
-
-Shared setup is for you if you want to install Stool on a server, where multiple users work on a shared set of stages. 
-Any user can create, modify and removed any stage on the system. Technically, this is done by configuring file system 
-permissions to allow everybody in a group to access Stool. 
-
-Instructions
-* become `root`
-* create a group `stool` and add all users you want to give access to the stages
-* create a folder `sharedstages` somewhere on your disk; get on this folder:
-  * `chgrp stool`
-  * `chmod 2775` 
-* for all `stool` users, define the environment variable `STOOL_HOME` and point it to `sharedstages/.stool`
-* with the root user, follow the instructions for shared configuration
-* optional: `chmod 422 $STOOL_HOME/config`
-
-Note that by placing Stool home under the shared directory, all Stool configuration is shared as well.
 
 
 ### Cron job

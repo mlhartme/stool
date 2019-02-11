@@ -402,6 +402,10 @@ public class Session {
         return env;
     }
 
+    public FileNode localRepository() {
+        return world.getHome().join(".m2/repository");
+    }
+
     //--
 
     /** @return memory not yet reserved */
