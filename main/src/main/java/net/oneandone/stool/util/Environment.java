@@ -30,8 +30,6 @@ public class Environment {
     public static final String STOOL_USER = "STOOL_USER";
     public static final String STOOL_HOME = "STOOL_HOME";
 
-    private static final String MAVEN_OPTS = "MAVEN_OPTS";
-
     public static Environment loadSystem() {
         Environment result;
         Map<String, String> system;
@@ -120,10 +118,6 @@ public class Environment {
 
     public void setHome(FileNode home) {
         set(STOOL_HOME, home.getAbsolute());
-    }
-
-    public void setMavenOpts(String mavenOpts) {
-        set(MAVEN_OPTS, mavenOpts);
     }
 
     public void save(Launcher launcher) {

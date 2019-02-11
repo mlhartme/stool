@@ -67,9 +67,6 @@ public class StageConfiguration {
     @Option(key = "notify")
     public List<String> notify;
 
-    @Option(key = "maven.opts")
-    public String mavenOpts;
-
     @Option(key = "expire")
     public Expire expire;
 
@@ -97,7 +94,6 @@ public class StageConfiguration {
         this.quota = 10000;
         this.memory = 400;
         this.select = new ArrayList<>();
-        this.mavenOpts = "";
         this.expire = Expire.never();
         this.url = "(http:https)://%h/";
         this.comment = "";

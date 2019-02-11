@@ -63,7 +63,7 @@ _stool_complete() {
             ;;
         config)
             compopt +o nospace &>/dev/null
-            local option="suffix expire maven.opts java.home select port.prefix build autoRefresh comment"
+            local option="suffix expire select port.prefix build autoRefresh comment"
             COMPREPLY=( $(compgen -o nospace -W "${option}" -- ${cur}) )
             return 0
             ;;

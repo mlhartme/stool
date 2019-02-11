@@ -60,7 +60,6 @@ public class Autoconf {
             // note: doesn't work on local machines, only for stages ...
             // dest.certificates = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
             dflt = dest.defaults.get("");
-            dflt.put("maven.opts", "-Xmx1024m -Dmaven.repo.local=@localRepository@ @trustStore@");
             dflt.put("template", "tomcat");
             dflt.put("template.env", "version:9.0.13,cookies:strict,opts:,mode:test,debug:false,suspend:false,certificate:self-signed");
             dest.defaults.put("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/", cp());
@@ -104,7 +103,6 @@ public class Autoconf {
         result.put("build", "mvn clean install -Ppublish -U -B -T2C");
         result.put("memory", "3000");
         result.put("url", "https://%a.%s.%h:%p/(|internal-login)");
-        result.put("maven.opts", "-Xmx2500m -Dmaven.repo.local=@localRepository@ @trustStore@");
         return result;
     }
 

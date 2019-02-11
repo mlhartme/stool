@@ -16,7 +16,6 @@
 package net.oneandone.stool.dashboard.config;
 
 import net.oneandone.inline.Console;
-import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.dashboard.IndexController;
 import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.users.Users;

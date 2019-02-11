@@ -20,6 +20,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.templates.TemplateField;
+import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Macros;
@@ -202,11 +203,7 @@ public abstract class Project {
     }
 
     public Launcher launcher(FileNode working, String... command) {
-        Launcher launcher;
-
-        launcher = new Launcher(working, command);
-        stage.session.environment(this).save(launcher);
-        return launcher;
+        return new Launcher(working, command);
     }
 
     private Macros lazyMacros;
@@ -256,7 +253,7 @@ public abstract class Project {
         wars = new ArrayList<>();
         profiles = new ArrayList<>();
         userProperties = new Properties();
-        addProfilesAndProperties(userProperties, profiles, stage.config().mavenOpts);
+        addProfilesAndProperties(userProperties, profiles, stage.session.mavenOpts());
         stage.session.console.verbose.println("profiles: " + profiles);
         stage.session.console.verbose.println("userProperties: " + userProperties);
         warProjects(rootPom, userProperties, profiles, wars);

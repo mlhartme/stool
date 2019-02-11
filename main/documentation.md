@@ -844,10 +844,6 @@ Note that the default values below might be overwritten by Stool defaults on you
   Arbitrary comment for this stage. Stool only stores this value, it has no effect. Type string.
 * **expire**
   Defines when this stage [expires](#stage-expiring). Type date.
-* **maven.home**
-  Maven home directory used to build this stage or resolve artifacts. Type string.
-* **maven.opts**
-  MAVEN_OPTS when building this stage. Type string. Default value: (empty)
 * **name**
   name of the stage
 * **notify**

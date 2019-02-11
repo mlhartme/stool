@@ -387,23 +387,15 @@ public class Session {
         return lazySelectedId;
     }
 
-    /** returns the build environment */
-    public Environment environment(Project project) {
-        Environment env;
-        String mavenOpts;
-
-        if (project == null) {
-            mavenOpts = "";
-        } else {
-            mavenOpts = project.macros().replace(project.stage.config().mavenOpts);
-        }
-        env = new Environment();
-        env.setMavenOpts(mavenOpts);
-        return env;
-    }
-
     public FileNode localRepository() {
         return world.getHome().join(".m2/repository");
+    }
+
+    public String mavenOpts() {
+        String result;
+
+        result = System.getenv("MAVEN_OPTS");
+        return result == null ? "" : result;
     }
 
     private Maven lazyMaven;
