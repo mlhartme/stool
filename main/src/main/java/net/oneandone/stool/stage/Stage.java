@@ -120,12 +120,8 @@ public class Stage {
         return "backstage-" + id;
     }
 
-    public String directoryLock() {
-        return "directory-" + id;
-    }
-
     public boolean isWorking() throws IOException {
-        return session.lockManager.hasExclusiveLocks(directoryLock(), backstageLock());
+        return session.lockManager.hasExclusiveLocks(backstageLock());
     }
 
     public Project.State state() throws IOException {

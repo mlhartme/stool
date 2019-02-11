@@ -406,8 +406,7 @@ public abstract class ProjectCommand extends SessionCommand {
         }
 
         private void run(Project project, boolean main) throws Exception {
-            try (Lock lock1 = createLock(project.getStage().backstageLock(), backstageLock);
-                 Lock lock2 = createLock(project.getStage().directoryLock(), directoryLock)) {
+            try (Lock lock1 = createLock(project.getStage().backstageLock(), backstageLock)) {
                 if (withPrefix) {
                     ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + project.getStage().getName() + "} ", width));
                 }
