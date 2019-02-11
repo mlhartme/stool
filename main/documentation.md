@@ -1167,7 +1167,6 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
         :
         '- .backstage
           |- config.json      (stage configuration)
-          |- .m2              (Maven repository for this stage)
           |- creator.touch    (created when stage is created, tracks created-by and created-at)
           |- modified.touch   (touched if Stool command modifies this stage)
           |- logs             (log file of running stage)
