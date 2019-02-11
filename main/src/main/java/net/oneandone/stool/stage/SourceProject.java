@@ -50,11 +50,6 @@ public class SourceProject extends Project {
     }
 
     @Override
-    public String getDefaultBuildCommand() {
-        return "mvn -B -U clean package";
-    }
-
-    @Override
     public List<String> faultProjects() throws IOException {
         List<String> result;
 

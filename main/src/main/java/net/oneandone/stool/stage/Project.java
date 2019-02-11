@@ -173,9 +173,6 @@ public abstract class Project {
     /** @return nummer of applications */
     public abstract int size() throws IOException;
 
-    public abstract String getDefaultBuildCommand();
-
-
     public abstract List<String> faultProjects() throws IOException;
 
     //--
@@ -242,9 +239,6 @@ public abstract class Project {
         if (stage.config().memory == 0 || stage.config().memory == 400) {
             stage.config().memory = Math.min(4096, 200 + size() * stage.session.configuration.baseMemory);
         }
-        if (stage.config().build.isEmpty() || stage.config().build.equals("false")) {
-            stage.config().build = getDefaultBuildCommand();
-        }
     }
 
     public void initialize() throws IOException {
@@ -263,7 +257,6 @@ public abstract class Project {
         profiles = new ArrayList<>();
         userProperties = new Properties();
         addProfilesAndProperties(userProperties, profiles, stage.config().mavenOpts);
-        addProfilesAndProperties(userProperties, profiles, getBuild());
         stage.session.console.verbose.println("profiles: " + profiles);
         stage.session.console.verbose.println("userProperties: " + userProperties);
         warProjects(rootPom, userProperties, profiles, wars);
@@ -271,10 +264,6 @@ public abstract class Project {
             throw new IOException("no war projects");
         }
         return wars;
-    }
-
-    public String getBuild() {
-        return macros().replace(stage.config().build);
     }
 
     public boolean isCommitted() throws IOException {

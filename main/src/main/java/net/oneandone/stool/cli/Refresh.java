@@ -22,12 +22,10 @@ import net.oneandone.stool.util.Session;
 import java.io.IOException;
 
 public class Refresh extends ProjectCommand {
-    private final boolean build;
     private final boolean restore;
 
-    public Refresh(Session session, boolean build, boolean restore) {
+    public Refresh(Session session, boolean restore) {
         super(true, session, Mode.NONE, Mode.SHARED, Mode.SHARED);
-        this.build = build;
         this.restore = restore;
     }
 
@@ -43,16 +41,13 @@ public class Refresh extends ProjectCommand {
 
     @Override
     public boolean isNoop(Project project) throws IOException {
-        return !build && !project.refreshPending(console);
+        return !project.refreshPending(console);
     }
 
     public void invokeNormal(Project project) throws Exception {
         console.info.println("refreshing " + project.getDirectory());
         if (project.refreshPending(console)) {
             project.executeRefresh(console);
-        }
-        if (build) {
-            new Build(session).doRun(project);
         }
     }
 }

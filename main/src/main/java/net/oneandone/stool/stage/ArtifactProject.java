@@ -109,11 +109,6 @@ public class ArtifactProject extends Project {
     }
 
     @Override
-    public String getDefaultBuildCommand() {
-        return "echo nothing to build";
-    }
-
-    @Override
     public List<String> faultProjects() {
         List<String> result;
         DefaultArtifact artifact;

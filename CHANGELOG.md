@@ -2,6 +2,10 @@
 
 ### 5.0.0 (pending)
 
+* stool is no longer responsible for building
+  * dumped `build` command
+  * dumped `refresh -build` option
+  * dumped `build` configuration
 * removed `sleep` state and the corresponding `stop -sleep` flag, it was never used
 * removed `shared` switch - local maven repository is now always the user's Maven repository
 * removed `system` marker for stages
