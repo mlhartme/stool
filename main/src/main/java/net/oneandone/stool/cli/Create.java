@@ -25,8 +25,6 @@ import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.RmRfThread;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.launcher.Launcher;
-import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -163,23 +161,12 @@ public class Create extends SessionCommand {
 
     private Project create(String origin) throws Exception {
         Project project;
-        String prepare;
         Property property;
 
         directory.mkdir();
         project = stage(origin);
         project.stage.modify();
 
-        // make sure to run in stage environment, e.g. to have proper repository settings
-        prepare = project.getStage().config().prepare;
-        if (!prepare.isEmpty()) {
-            Launcher l = project.launcher(Strings.toArray(Separator.SPACE.split(prepare)));
-            if (quiet) {
-                l.exec();
-            } else {
-                l.exec(console.info);
-            }
-        }
         project.tuneConfiguration();
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = project.getStage().propertyOpt(entry.getKey());

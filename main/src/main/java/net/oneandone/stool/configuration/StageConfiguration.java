@@ -47,9 +47,6 @@ public class StageConfiguration {
     @Option(key = "name")
     public String name;
 
-    @Option(key = "prepare")
-    public String prepare;
-
     @Option(key = "refresh")
     public String refresh;
 
@@ -97,7 +94,6 @@ public class StageConfiguration {
 
     public StageConfiguration(String mavenHome, FileNode template, String refresh) {
         this.name = "noname";
-        this.prepare = "";
         this.refresh = refresh;
         this.notify = new ArrayList<>();
         this.notify.add(NOTIFY_CREATED_BY);
