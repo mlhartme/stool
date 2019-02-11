@@ -71,17 +71,6 @@ public class SourceProject extends Project {
         return wars().size();
     }
 
-    @Override
-    public List<String> vhostNames() throws IOException {
-        List<String> names;
-
-        names = new ArrayList<>();
-        for (MavenProject project : wars()) {
-            names.add(project.getArtifactId());
-        }
-        return names;
-    }
-
     public List<FileNode> artifacts() throws IOException {
         List<FileNode> result;
         FileNode basedir;

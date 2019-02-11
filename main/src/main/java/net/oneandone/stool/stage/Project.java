@@ -146,8 +146,6 @@ public abstract class Project {
 
     //--
 
-    public abstract List<String> vhostNames() throws IOException;
-
     /** @return vhost to docroot mapping, where vhost does *not* include the stage name */
     public abstract Map<String, FileNode> vhosts() throws IOException;
 
@@ -288,6 +286,7 @@ public abstract class Project {
             }
         }
     }
+
     private void warProjects(FileNode pomXml, Properties userProperties, List<String> profiles, List<MavenProject> result) throws IOException {
         MavenProject root;
         FileNode modulePom;

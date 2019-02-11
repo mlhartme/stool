@@ -177,17 +177,6 @@ public class ArtifactProject extends Project {
     }
 
     @Override
-    public List<String> vhostNames() {
-        List<String> result;
-
-        result = new ArrayList<>();
-        for (Application application : applications.applications()) {
-            result.add(application.base().getName());
-        }
-        return result;
-    }
-
-    @Override
     public Map<String, FileNode> vhosts() {
         Map<String, FileNode> result;
         FileNode base;

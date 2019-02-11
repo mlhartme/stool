@@ -87,20 +87,13 @@ public class Autoconf {
     }
 
     private static String oneAndOneTools(Environment environment) {
-        String tools;
-
-        tools = environment.getOpt("CISOTOOLS_HOME");
-        if (tools == null) {
-            tools = environment.getOpt("WSDTOOLS_HOME");
-        }
-        return tools;
+        return environment.getOpt("CISOTOOLS_HOME");
     }
 
     private static Map<String, String> cp() {
         Map<String, String> result;
 
         result = new LinkedHashMap<>();
-        result.put("build", "mvn clean install -Ppublish -U -B -T2C");
         result.put("memory", "3000");
         result.put("url", "https://%a.%s.%h:%p/(|internal-login)");
         return result;
@@ -110,9 +103,7 @@ public class Autoconf {
         Map<String, String> result;
 
         result = new LinkedHashMap<>();
-        result.put("prepare", "pws open -init http://pws.ignores.this.url");
         result.put("pom", "workspace.xml");
-        result.put("build", "pws -U build");
         result.put("refresh", "pws @stoolSvnCredentials@ up");
         return result;
     }
