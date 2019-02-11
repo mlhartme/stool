@@ -2,7 +2,7 @@
 
 ### 5.0.0 (pending)
 
-* stool is no longer responsible for building
+* stool is no longer responsible for building - use your standard build tools and configuration instead
   * dumped `build` command
   * dumped `refresh -build` option
   * dumped `build` configuration
