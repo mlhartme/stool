@@ -8,6 +8,7 @@
     typically the checkout); the new Stage roughly represents the backstage directory
   * tomcatOpts no longer support macros
   * source bind mounts (used for fitnesse) are gone
+  * remove Project.updatesAvailable
   
 
 ### 4.0.3 (pending)

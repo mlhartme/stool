@@ -162,16 +162,6 @@ public class ArtifactProject extends Project {
     }
 
     @Override
-    public boolean updateAvailable() {
-        for (Application application : applications.applications()) {
-            if (application.updateAvailable()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
     public void executeRefresh(Console console) throws IOException {
         for (Application application : applications.applications()) {
             if (application.updateAvailable()) {

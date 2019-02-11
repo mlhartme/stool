@@ -143,8 +143,6 @@ public abstract class Project {
         return getClass().getSimpleName().toLowerCase();
     }
 
-    public abstract boolean updateAvailable();
-
     //--
 
     public abstract List<String> vhostNames() throws IOException;

@@ -65,11 +65,6 @@ public class SourceProject extends Project {
         return result;
     }
 
-    @Override
-    public boolean updateAvailable() {
-        return false;
-    }
-
     public boolean refreshPending(Console console) {
         // we can always try svn up
         // Not that I cannot check for the latest revision because this might be interactive, and I'd need user interaction ...
