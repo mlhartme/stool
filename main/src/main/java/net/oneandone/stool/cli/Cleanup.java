@@ -17,16 +17,17 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
-public class Cleanup extends ProjectCommand {
+public class Cleanup extends StageCommand {
     public Cleanup(Session session) {
         super(false, session, Mode.NONE, Mode.EXCLUSIVE, Mode.NONE);
     }
 
     @Override
-    public void doMain(Project project) throws Exception {
-        project.stage.modify();
-        project.stage.rotateLogs(console);
+    public void doMain(Stage stage) throws Exception {
+        stage.modify();
+        stage.rotateLogs(console);
     }
 }

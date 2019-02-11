@@ -42,5 +42,6 @@ public abstract class StageCommand extends ProjectCommand {
         doFinish(project.stage);
     }
 
-    public abstract void doFinish(Stage stage) throws Exception;
+    public void doFinish(Stage stage) throws Exception {
+    }
 }
