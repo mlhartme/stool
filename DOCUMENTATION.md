@@ -15,10 +15,6 @@ Create a new stage by checking out application sources:
 
     stool create git:ssh://git@github.com/mlhartme/hellowar.git
 
-Build the application:
-
-    stool build
-
 Start it:
 
     stool start
@@ -197,8 +193,6 @@ Supported user default properties:
   controls the `-defaults` option for the `status` command
 * **select.fuzzy**
   controls the `-fuzzy` option for the `select` command
-* **refresh.build**
-  controls the `-build` option for the `refresh` command
 * **svn.user** and **svn.password** 
   credentials the `-svnuser` and `-svnpassword` options for every Stool command.
 
@@ -225,7 +219,7 @@ Stage tool
 
 #### DESCRIPTION
 
-Stool is a command line tool that provides a lifecycle for stages: create, configure, build, start,
+Stool is a command line tool that provides a lifecycle for stages: create, configure, start,
 stop and remove. A stage contains web applications built from source or available as artifacts.
 *command* defaults to `help`.
 
@@ -257,9 +251,6 @@ stop and remove. A stage contains web applications built from source or availabl
 `stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] [`-autostop`|`-autorestart`] *command-options*...
 
 
-`stool` *global-option*... `build` *stage-option*... [`-here`] *command*...
-
-
 `stool` *global-option*... `remove` *stage-option*... [`-force`] [`-batch`] [`-backstage`]
 
 
@@ -273,7 +264,7 @@ stop and remove. A stage contains web applications built from source or availabl
 
 
 
-`stool` *global-option*... `refresh` *stage-option*... [`-build`] [`-restore`]
+`stool` *global-option*... `refresh` *stage-option*... [`-restore`]
 
 
 
@@ -537,7 +528,7 @@ single candidate, this stage will be selected.
 ## Stage Commands
 
 Most Stool commands are stage commands, i.e. they operate on one or multiple stages. Typical
-stage commands are `status`, `build`, `start`, and `stop`. Note that `create` is not a stage command 
+stage commands are `status`, `start`, and `stop`. Note that `create` is not a stage command 
 because it does not initially have a stage to operate on (although it results in a new (and selected) 
 stage).
 
@@ -610,34 +601,6 @@ after the first stage that cannot be started (e.g. because it's already running)
 
 `stool stop -stage state=up` stops all stages currently up, but aborts immediately if one stage fails to stop.
 
-### stool-build
-
-Build a stage
-
-#### SYNOPSIS
-
-`stool` *global-option*... `build` *stage-option*... [`-here`] *command*...
-
-#### Description
-
-Executes the specified command or the command specified by the `build` property. Executes in the current directory
-when called with `-here`; otherwise, executes in the stage directory. Sets MAVEN_HOME and MAVEN_OPTS 
-as configured for the stage. Reports an error if the stage is not owned or if the stage is up.
-
-You can see the configured build command with `stool config build`, and you can change it with
-`stool` *global-option*... `config "build="`*your command*`"`. Quotes are mandatory if *your command* contains spaces.
-
-The pre-defined build command for artifact stages does nothing. Thus, you can run `stool build` for artifact stages, it just has no effect.
-
-If you run `build` from the dashboard application, the build command executes in the environment
-defined for the dashboard stage with the additional environment variables mentioned above.
-
-
-[//]: # (include stageOptions.md)
-
-Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
-[//]: # (-)
-
 ### stool-remove
 
 Remove a stage
@@ -679,8 +642,7 @@ Start a stage
 
 #### Description
 
-Creates a Docker image based on the current template and starts it. If the stage is an artifact stage, you can 
-start it right away; otherwise, you have to build it first. Depending on your application(s), startup may take a while.
+Creates a Docker image based on the current template and starts it. Depending on your application(s), startup may take a while.
 
 Startup is refused if your stage has expired. In this case, use `stool config expire=`*newdate*
 to configure a new `expire` date.
@@ -763,7 +725,7 @@ Refresh a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `refresh` *stage-option*... [`-build`] [`-restore`]
+`stool` *global-option*... `refresh` *stage-option*... [`-restore`]
 
 
 #### DESCRIPTION
@@ -772,8 +734,7 @@ Reports an error if the stage is up.
 
 For artifact stages: checks for new artifacts and installs them if any.
 
-For source stages: invokes the command specified by the `refresh` property. If `-build`
-is specified, also runs the command specified by the `build` property.
+For source stages: invokes the command specified by the `refresh` property. 
 
 [//]: # (include stageOptions.md)
 
@@ -879,8 +840,6 @@ Note that the default values below might be overwritten by Stool defaults on you
 
 * **autoRefresh**
   True if you want the dashboard to automatically refresh the stage every minute. Type boolean.
-* **build**
-  Shell command executed if the user invokes `stool build`. Type string.
 * **comment**
   Arbitrary comment for this stage. Stool only stores this value, it has no effect. Type string.
 * **expire**
@@ -929,8 +888,6 @@ Depending on the current template, there are more properties, prefixed with the 
 `stool config memory` prints the current value for memory.
 
 `stool config memory=2000` sets the memory to 2 gb.
-
-`stool config "build=mvn clean package"` sets a value with spaces.
 
 `stool config select=foo,bar` configures a list property. Do not use spaces around
 the comma because the shell would consider this as a new key-value argument -- or quote the whole argument.
@@ -1022,7 +979,7 @@ Available fields:
 * **last-modified-at**
   When this stage was last changed.
 * **last-modified-by**
-  The user that last maintained this stage, i.e. executed a Stool command like build, start, or stop.
+  The user that last maintained this stage, i.e. executed a Stool command like start, or stop.
 * **mem**
   Memory usage reported by Docker: percentage of memory limit actually used. Note that this memory also includes 
   disk caches, so a high value does not necessarily indicate a problem. Type number.
