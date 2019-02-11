@@ -21,28 +21,14 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
 public class Stop extends StageCommand {
-    private final boolean sleep;
-
-    public Stop(Session session, boolean sleep) {
+    public Stop(Session session) {
         super(false, session, Mode.SHARED, Mode.SHARED, Mode.NONE);
-        this.sleep = sleep;
     }
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        boolean alreadySleeping;
-
         stage.modify();
-        alreadySleeping = session.bedroom.contains(stage.getId());
-        if (alreadySleeping) {
-            if (sleep) {
-                console.info.println("warning: stage already marked as sleeping");
-            } else {
-                console.info.println("going from sleeping to stopped.");
-            }
-        } else {
-            doNormal(stage);
-        }
+        doNormal(stage);
     }
 
     public void doNormal(Stage stage) throws Exception {
@@ -50,20 +36,7 @@ public class Stop extends StageCommand {
     }
 
     @Override
-    public void doFinish(Stage stage) throws Exception {
-        String id;
-
-        id = stage.getId();
-        if (sleep) {
-            if (session.bedroom.contains(id)) {
-                console.info.println("already sleeping");
-            } else {
-                session.bedroom.add(session.gson, id);
-            }
-            console.info.println("state: sleeping");
-        } else {
-            session.bedroom.remove(session.gson, id);
-            console.info.println("state: down");
-        }
+    public void doFinish(Stage stage) {
+        console.info.println("state: down");
     }
 }

@@ -156,7 +156,7 @@ public class Validate extends ProjectCommand {
         if (repair) {
             if (project.stage.dockerContainer() != null) {
                 try {
-                    new Stop(session, false).doRun(project);
+                    new Stop(session).doRun(project);
                     report.user(project, "stage has been stopped");
                 } catch (Exception e) {
                     report.user(project, "stage failed to stop: " + e.getMessage());

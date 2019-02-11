@@ -113,10 +113,6 @@ Java web applications (https://en.wikipedia.org/wiki/Java_Servlet). A stage has 
   * **up**
     stage is running, applications can be accessed via application url(s). This is the state after successful
     start or restart.
-  * **sleeping**
-    stage is temporarily not running; state after stage was stopped with `-sleep`.
-    This state is used e.g. when a machine is rebooted, it flags the stages that should be started once the
-    machine is up again.
   You can check the state with `stool status` or `stool list`.
 * **last-modified-by**
   The user that last changed this stage.
@@ -270,7 +266,7 @@ stop and remove. A stage contains web applications built from source or availabl
 `stool` *global-option*... `start` *stage-option*... [`-tail`] [`-nocache`]
 
 
-`stool` *global-option*... `stop` *stage-option*... [`-sleep`]
+`stool` *global-option*... `stop` *stage-option*...
 
 
 `stool` *global-option*... `restart` *stage-option*... [`-nocache`]
@@ -732,11 +728,11 @@ Stop a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `stop` *stage-option*... [`-sleep`]
+`stool` *global-option*... `stop` *stage-option*...
 
 #### DESCRIPTION
 
-Stops the Docker container for this stage. If `-sleep` is specified, the stage is also marked as sleeping.
+Stops the Docker container for this stage. 
 
 This command sends a "kill 15" to the root process of the container. If that's not successfully within 300 seconds, the 
 process is forcibly terminated with "kill 9". If shutdown is slow, try to debug the applications running in this stage 
@@ -1040,7 +1036,7 @@ Available fields:
 * **selected**
   `true` if this is the selected stage. Type boolean.
 * **state**
-  `down`, `sleeping` or `up`. Type string.
+  `down` or `up`. Type string.
 * **uptime**
   How long this stage is in state `up`. Empty if stage is not up. Type string.
 * **type**
@@ -1218,8 +1214,7 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
         |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
         |- run
         |  |- locks       (holds all locking data)
-        |  |- ports       (lists all allocated ports)
-        |  '- sleep.json  (optional, holds sleeping stages)
+        |  '- ports       (lists all allocated ports)
         |- downloads      (caches Tomcat downloads; may be a symlink to a directory of your choice)
         |- templates      (Docker templates; may be a symlink to a directory of your choice)
         |- logs           (Stool log files)
@@ -1246,7 +1241,7 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
           |- creator.touch    (created when stage is created, tracks created-by and created-at)
           |- modified.touch   (touched if Stool command modifies this stage)
           |- logs             (log file of running stage)
-          |- container.id     (id of running container; does not exist if stage is down or sleeping)
+          |- container.id     (id of running container; does not exist if stage is down)
           |- image.log        (Docker's image build output) 
           '- context          (context to build docker image)
 

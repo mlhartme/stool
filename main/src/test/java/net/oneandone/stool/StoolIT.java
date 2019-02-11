@@ -93,7 +93,7 @@ public class StoolIT {
         stool("validate", "-stage", "it");
         stool("start", "-stage", "it");
         stool("validate", "-stage", "it");
-        stool("stop", "-stage", "it", "-sleep");
+        stool("stop", "-stage", "it");
         stool("start", "-stage", "it");
         stool("status", "-stage", "it");
         stool("validate", "-stage", "it");

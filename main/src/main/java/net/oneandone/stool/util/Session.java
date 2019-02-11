@@ -24,7 +24,6 @@ import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.cli.EnumerationFailed;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Accessor;
-import net.oneandone.stool.configuration.Bedroom;
 import net.oneandone.stool.configuration.Expire;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.configuration.StoolConfiguration;
@@ -34,7 +33,6 @@ import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.Project;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.LinkException;
 import net.oneandone.sushi.fs.World;
@@ -119,7 +117,7 @@ public class Session {
 
         gson = gson(world);
         result = new Session(setenv, gson, logging, command, home, console, world,
-                StoolConfiguration.load(gson, home), Bedroom.loadOrCreate(gson, home), svnuser, svnpassword);
+                StoolConfiguration.load(gson, home), svnuser, svnpassword);
         return result;
     }
 
@@ -138,7 +136,6 @@ public class Session {
     public final Console console;
     public final World world;
     public final StoolConfiguration configuration;
-    public final Bedroom bedroom;
 
     private final FileNode backstages;
 
@@ -153,8 +150,7 @@ public class Session {
     private Pool lazyPool;
 
     public Session(boolean setenv, Gson gson, Logging logging, String command,
-                   FileNode home, Console console, World world, StoolConfiguration configuration,
-                   Bedroom bedroom, String svnuser, String svnpassword) {
+                   FileNode home, Console console, World world, StoolConfiguration configuration, String svnuser, String svnpassword) {
         this.setenv = setenv;
         this.gson = gson;
         this.logging = logging;
@@ -164,7 +160,6 @@ public class Session {
         this.console = console;
         this.world = world;
         this.configuration = configuration;
-        this.bedroom = bedroom;
         this.backstages = home.join("backstages");
         this.svnCredentials = new Credentials(svnuser, svnpassword);
         this.stageIdPrefix = logging.id + ".";

@@ -62,7 +62,6 @@ public class Remove extends ProjectCommand {
         // delete backstageLink first - to make sure no other stool invocation detects a stage backstage and wipes it
         Files.delete(session.backstageLink(project.getStage().getId()).toPath());
         dir.deleteTree();
-        session.bedroom.remove(session.gson, project.getStage().getId());
         if (selected) {
             session.cd(project.getDirectory().getParent());
         }

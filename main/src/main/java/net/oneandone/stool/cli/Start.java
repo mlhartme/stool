@@ -65,10 +65,6 @@ public class Start extends ProjectCommand {
         checkNotStarted(project);
 
         doNormal(project);
-        if (session.bedroom.contains(project.getStage().getId())) {
-            console.info.println("leaving sleeping state");
-            session.bedroom.remove(session.gson, project.getStage().getId());
-        }
     }
 
     @Override

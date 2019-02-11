@@ -30,14 +30,11 @@ public class Restart extends ProjectCommand {
     @Override
     public void doMain(Project project) throws Exception {
         if (project.getStage().state() == Project.State.UP || project.getStage().state() == Project.State.WORKING) {
-            new Stop(session, false).doRun(project);
+            new Stop(session).doRun(project);
         } else {
             console.info.println("Container is not running - starting a new instance.");
         }
 
         new Start(session, false, noCache).doRun(project);
-        if (session.bedroom.contains(project.getStage().getId())) {
-            console.info.println("stopped sleeping");
-        }
     }
 }

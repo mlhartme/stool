@@ -1,5 +1,15 @@
 ## Changelog 
 
+### 5.0.0 (pending)
+
+* removed `sleep` state and the corresponding `stop -sleep` flag, it was never used
+* implementation changes
+  * split Stage Class into a Project- and a new Stage class: project is everything around the former stage directory (which is 
+    typically the checkout); the new Stage roughly represents the backstage directory
+  * tomcatOpts no longer support macros
+  * source bind mounts (used for fitnesse) are gone
+  
+
 ### 4.0.3 (pending)
 
 * dashboard

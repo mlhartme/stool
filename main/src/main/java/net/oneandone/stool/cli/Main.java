@@ -104,7 +104,7 @@ public class Main {
                       cli.add(Restart.class, "restart -nocache");
                       cli.add(Start.class, "start -tail -nocache");
                       cli.add(Status.class, "status -defaults=@status.defaults info* { select*(info) }");
-                      cli.add(Stop.class, "stop -sleep");
+                      cli.add(Stop.class, "stop");
                       cli.add(Validate.class, "validate -email -repair");
 
         return cli.run(args);

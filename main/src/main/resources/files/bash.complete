@@ -57,7 +57,7 @@ _stool_complete() {
             ;;
         stop)
             if [[ ${cur} == -* ]] ; then
-                local option="-sleep -stail"
+                local option="-stail"
                 COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
             fi
             ;;

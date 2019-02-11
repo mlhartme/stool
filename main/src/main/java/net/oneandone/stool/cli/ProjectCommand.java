@@ -209,7 +209,7 @@ public abstract class ProjectCommand extends SessionCommand {
         state = project.stage.state();
         if (state == Project.State.UP && (withAutoRunning()) && (autoRestart || autoStop)) {
             postStart = autoRestart;
-            new Stop(session, false).doRun(project);
+            new Stop(session).doRun(project);
         } else {
             postStart = false;
         }

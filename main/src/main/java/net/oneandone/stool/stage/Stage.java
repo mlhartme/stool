@@ -129,9 +129,7 @@ public class Stage {
     }
 
     public Project.State state() throws IOException {
-        if (session.bedroom.contains(id)) {
-            return Project.State.SLEEPING;
-        } else if (dockerContainer() != null) {
+        if (dockerContainer() != null) {
             return UP;
         } else {
             return Project.State.DOWN;

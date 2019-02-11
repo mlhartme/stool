@@ -386,7 +386,7 @@ public abstract class Project {
     }
 
     public enum State {
-        DOWN, SLEEPING, UP, WORKING;
+        DOWN, UP, WORKING;
 
         public String toString() {
             return name().toLowerCase();
