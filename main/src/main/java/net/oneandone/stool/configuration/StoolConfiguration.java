@@ -68,11 +68,6 @@ public class StoolConfiguration {
     public String admin;
 
     /**
-     * true if users have to commit all source changes before stool allows them to start the stage.
-     */
-    public boolean committed;
-
-    /**
      * For additional "system-wide" shortcuts.
      */
     public Map<String, String> macros;
@@ -122,7 +117,6 @@ public class StoolConfiguration {
         diskMin = 1000;
         admin = "";
         autoRemove = -1;
-        committed = false;
         defaults = new LinkedHashMap<>();
         defaults.put("", new HashMap<>());
         macros = new LinkedHashMap<>();

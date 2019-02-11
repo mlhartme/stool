@@ -7,6 +7,7 @@
   * dumped `refresh -build` option
   * dumped `build` configuration
   * dumped `prepare` configuration; `create` for workspaces is no longer supported
+* dumped `committed` configuration - start no longer checks for local modifications
 * removed `sleep` state and the corresponding `stop -sleep` flag, it was never used
 * removed `shared` switch - local maven repository is now always the user's Maven repository
 * removed `system` marker for stages

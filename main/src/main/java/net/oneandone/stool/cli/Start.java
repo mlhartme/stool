@@ -56,12 +56,6 @@ public class Start extends ProjectCommand {
         // to avoid running into a ping timeout below:
         project.stage.session.configuration.verfiyHostname();
         project.checkConstraints();
-        if (session.configuration.committed) {
-            if (!project.isCommitted()) {
-                throw new IOException("It's not allowed to start stages with local modifications.\n"
-                        + "Please commit your modified files in order to start the stage.");
-            }
-        }
         checkNotStarted(project);
 
         doNormal(project);
