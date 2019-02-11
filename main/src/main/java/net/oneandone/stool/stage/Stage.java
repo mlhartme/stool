@@ -437,7 +437,7 @@ public class Stage {
         console.verbose.println("image built: " + image);
         wipeImages(engine, image);
         console.info.println("starting container ...");
-        mounts = bindMounts(ports, isSystem());
+        mounts = bindMounts(ports);
         for (Map.Entry<String, String> entry : mounts.entrySet()) {
             console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
         }
@@ -500,11 +500,8 @@ public class Stage {
         }
     }
 
-    private Map<String, String> bindMounts(Ports ports, boolean systemBinds) throws IOException {
+    private Map<String, String> bindMounts(Ports ports) throws IOException {
         Map<String, String> result;
-        List<FileNode> lst;
-        Iterator<FileNode> iter;
-        FileNode merged;
 
         result = new HashMap<>();
         result.put(directory.join("logs").mkdirOpt().getAbsolute(), "/var/log/stool");
@@ -517,44 +514,7 @@ public class Stage {
                 }
             }
         }
-        if (systemBinds) {
-            result.put(session.configuration.docker, session.configuration.docker);
-
-            lst = new ArrayList<>();
-            lst.add(session.home);  // for stool home
-            if (!session.configuration.systemExtras.isEmpty()) {
-                lst.add(session.world.file(session.configuration.systemExtras));
-            }
-            lst.addAll(session.stageDirectories());
-
-            iter = lst.iterator();
-            merged = iter.next();
-            while (iter.hasNext()) {
-                merged = merge(merged, iter.next());
-            }
-            add(result, merged);
-            add(result, Main.stoolCp(session.world).getParent()); // don't merge /usr/bin
-            add(result, session.world.getHome()); // for Maven credentials; don't merge /home with /opt stuff
-        }
         return result;
-    }
-
-    private static void add(Map<String, String> result, FileNode path) {
-        String str;
-
-        str = path.getAbsolute();
-        result.put(str, str);
-    }
-
-    private FileNode merge(FileNode left, FileNode right) {
-        FileNode current;
-
-        current = right;
-        while (!left.hasAncestor(current)) {
-            current = current.getParent();
-        }
-        session.console.verbose.println("merge " + left + " + " + right + " -> " + current);
-        return current;
     }
 
     private static final String FREEMARKER_EXT = ".fm";
@@ -621,7 +581,6 @@ public class Stage {
             result.put("UID", Long.toString(Engine.geteuid()));
             result.put("GID", Long.toString(Engine.getegid()));
         }
-        result.put("system", isSystem());
         result.put("systemExtras", session.configuration.systemExtras);
         result.put("hostHome", session.world.getHome().getAbsolute());
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
@@ -634,10 +593,6 @@ public class Stage {
             result.put(env.name, env.parse(value));
         }
         return result;
-    }
-
-    public boolean isSystem() {
-        return session.home.join("system").equals(directory.getParent());
     }
 
     private void checkMemory() throws IOException {

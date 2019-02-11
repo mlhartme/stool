@@ -87,7 +87,7 @@ public class StageController {
             stagesCache.clear();
             session.wipeStaleBackstages();
             session.updatePool();
-            lst = session.listWithoutSystem();
+            lst = session.listAll();
             Collections.sort(lst, new Comparator<Project>() {
                 @Override
                 public int compare(Project left, Project right) {

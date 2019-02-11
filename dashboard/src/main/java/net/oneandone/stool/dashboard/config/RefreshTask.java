@@ -40,7 +40,7 @@ public class RefreshTask extends TimerTask {
         Stage stage;
 
         try {
-            for (Project project : session.listWithoutSystem()) {
+            for (Project project : session.listAll()) {
                 stage = project.getStage();
                 if (stage.config().autoRefresh) {
                     StoolCallable.create(jar, session.home, UUID.randomUUID().toString(), logs, stage,

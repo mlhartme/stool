@@ -275,7 +275,7 @@ public class Session {
         return result;
     }
 
-    public List<Project> listWithoutSystem() throws IOException {
+    public List<Project> listAll() throws IOException {
         List<Project> result;
         EnumerationFailed problems;
 
@@ -283,7 +283,7 @@ public class Session {
         result = list(problems, new Predicate() {
             @Override
             public boolean matches(Project project) {
-                return !project.stage.isSystem();
+                return true;
             }
         });
         for (Map.Entry<String, Exception> entry : problems.problems.entrySet()) {

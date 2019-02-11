@@ -150,12 +150,6 @@ public class Tomcat {
         opts.add("-Djava.rmi.server.hostname=" + session.configuration.hostname); // needed for jmx access - see https://forums.docker.com/t/enable-jmx-rmi-access-to-a-docker-container/625/2
         opts.add("-Dcom.sun.management.jmxremote.ssl=false");
 
-        if (stage.isSystem()) {
-            opts.add("-Dstool.cp=" + Main.stoolCp(session.world).getAbsolute());
-            opts.add("-Dstool.home=" + session.home.getAbsolute());
-            opts.add("-Dstool.idlink=" + session.backstageLink(stage.getId()).getAbsolute());
-        }
-
         if (debug || suspend) {
             opts.add("-Xdebug");
             opts.add("-Xnoagent");
