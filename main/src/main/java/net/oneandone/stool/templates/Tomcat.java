@@ -292,13 +292,6 @@ public class Tomcat {
         }
     }
 
-    private FileNode vhostProject(Vhost vhost) {
-        String path;
-
-        path = vhost.docroot.getAbsolute();
-        return session.world.file(path.substring(0, path.lastIndexOf("/target/")));
-    }
-
     private String fitnesseSh(FileNode projectDirectory) {
         StringBuilder result;
 
