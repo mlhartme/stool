@@ -75,10 +75,9 @@ public class StoolIT {
     public void turnaroundSvnSource() throws IOException {
         FileNode project;
 
-        project = WORLD.getTemp().createTempDirectory();
-        project.exec("svn", "co", "https://github.com/mlhartme/hellowar/trunk", ".");
-        System.out.println(project.launcher());
-        project.exec("mvn", "clean", "package");
+        project = WORLD.getWorking().join("it");
+        System.out.println(project.getParent().exec("svn", "co", "https://github.com/mlhartme/hellowar/trunk", project.getAbsolute()));
+        System.out.println(project.exec("mvn", "clean", "package"));
         turnaround("svn", project);
         project.deleteTree();
     }
@@ -91,14 +90,12 @@ public class StoolIT {
     private void turnaround(String context, FileNode project) throws IOException {
         System.out.println(context);
         stoolSetup(context);
-        stool("import", project.getAbsolute(), "it");
+        stool("import", "-name=it", project.getAbsolute());
         stool("status", "-stage", "it");
         stool("validate", "-stage", "it");
         stool("history", "-stage", "it");
         stool("config", "-stage", "it", "memory=300");
-        stool("refresh", "-stage", "it");
-        stool("validate", "-stage", "it");
-        stool("start", "-stage", "it");
+        stool("start", "-v", "-stage", "it");
         stool("validate", "-stage", "it");
         stool("stop", "-stage", "it");
         stool("start", "-stage", "it");
@@ -109,11 +106,7 @@ public class StoolIT {
         stool("list", "-stage", "it");
         stool("validate", "-stage", "it");
         stool("history", "-stage", "it");
-        stool("remove", "-stage", "it", "-backstage", "-batch", "-force"); // -force because hellowar via svn has no ignores on .stool
-        stool("import", "it");
-        stool("config", "-stage", "it", "name=renamed");
-        stool("move", "-stage", "renamed", "movedStage");
-        stool("remove", "-stage", "renamed", "-batch");
+        stool("remove", "-stage", "it", "-batch");
     }
 
     public void stoolSetup(String context) throws IOException {
