@@ -11,7 +11,9 @@ it no longer supports shared environments
   * changed `remove` command to leave the project as-is; the current directory is also left as-is
   * dumped svn credentials handling
   * dumped macros
-  
+
+* dumped vhosts bind mounts, copy war instead
+
 * stool no longer adjust the current working directory
   * dumped cd (TODO: add this functionality to pommes)
   * dumped select (use `pg`)

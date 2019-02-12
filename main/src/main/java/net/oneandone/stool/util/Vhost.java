@@ -72,9 +72,9 @@ public class Vhost {
     public final String id;
 
     /** null for ports that have no domain */
-    public final FileNode docroot;
+    public final FileNode war;
 
-    public Vhost(int even, String name, String id, FileNode docroot) {
+    public Vhost(int even, String name, String id, FileNode war) {
         if (name.indexOf(SEP) != -1) {
             throw new IllegalArgumentException(name);
         }
@@ -84,15 +84,11 @@ public class Vhost {
         this.even = even;
         this.name = name;
         this.id = id;
-        this.docroot = docroot;
+        this.war = war;
     }
 
     public boolean isWebapp() {
-        return docroot != null;
-    }
-
-    public boolean isArtifact() {
-        return docroot != null && docroot.getName().equals("ROOT");
+        return war != null;
     }
 
     public int httpPort() {
@@ -101,10 +97,6 @@ public class Vhost {
 
     public int httpsPort() {
         return even + 1;
-    }
-
-    public String httpUrl(boolean vhosts, String stageName, String hostname) {
-        return "http://" + fqdnHttpPort(vhosts, stageName, hostname);
     }
 
     public String fqdnHttpPort(boolean vhosts, String stageName, String hostname) {
@@ -131,7 +123,7 @@ public class Vhost {
         // CAUTION: just
         //    even + SEP
         // is an integer addition!
-        return Integer.toString(even) + SEP + name + SEP + id + (docroot == null ? "" : Character.toString(SEP) + docroot.getAbsolute());
+        return Integer.toString(even) + SEP + name + SEP + id + (war == null ? "" : SEP + war.getAbsolute());
     }
 
     public String toString() {
@@ -139,11 +131,11 @@ public class Vhost {
     }
 
     /** null if not modified */
-    public Vhost set(Integer newEven, FileNode newDocroot) {
-        if (Objects.equals(this.docroot, newDocroot) && (newEven == null || newEven == even)) {
+    public Vhost set(Integer newEven, FileNode newWar) {
+        if (Objects.equals(this.war, newWar) && (newEven == null || newEven == even)) {
             return null;
         }
-        return new Vhost(newEven == null ? even : newEven, name, id, newDocroot);
+        return new Vhost(newEven == null ? even : newEven, name, id, newWar);
     }
 
     public String context(String stageName, String hostname, String url) {

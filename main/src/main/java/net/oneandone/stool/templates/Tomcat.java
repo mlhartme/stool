@@ -22,6 +22,8 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
+import net.oneandone.sushi.fs.CopyException;
+import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -60,6 +62,14 @@ public class Tomcat {
     /** null for disabled */
     public String major(String version) {
         return version.substring(0, version.indexOf('.'));
+    }
+
+    public void webapps() throws IOException {
+        for (Vhost vhost : ports.vhosts()) {
+            if (vhost.isWebapp()) {
+                vhost.war.copyFile(context.join("webapps").mkdirOpt().join(vhost.name + ".war"));
+            }
+        }
     }
 
     /** empty string if app does not need any secrets */
@@ -326,8 +336,7 @@ public class Tomcat {
         FileNode dir;;
 
 
-        dir = ports.lookup(fitnesseHost.name).docroot;
-        dir = dir.getParent();
+        dir = ports.lookup(fitnesseHost.name).war.getParent();
         if (!dir.getName().equals("target")) {
             throw new IllegalStateException(dir.getAbsolute());
         }

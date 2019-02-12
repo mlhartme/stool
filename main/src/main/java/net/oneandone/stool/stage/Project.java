@@ -171,17 +171,6 @@ public class Project {
 
     //--
 
-    /** @return vhost to docroot mapping, where vhost does *not* include the stage name */
-    public Map<String, FileNode> vhosts() throws IOException {
-        Map<String, FileNode> applications;
-
-        applications = new LinkedHashMap<>();
-        for (Map.Entry<String, FileNode> entry : wars().entrySet()) {
-            applications.put(entry.getKey(), docroot(entry.getValue()));
-        }
-        return applications;
-    }
-
     private FileNode docroot(FileNode war) throws IOException {
         FileNode basedir;
         List<FileNode> result;
@@ -203,24 +192,24 @@ public class Project {
         }
     }
 
-    public Map<String, FileNode> selectedVhosts() throws IOException {
-        Map<String, FileNode> vhosts;
+    public Map<String, FileNode> selectedWars() throws IOException {
+        Map<String, FileNode> wars;
         Iterator<Map.Entry<String, FileNode>> iter;
         List<String> selected;
-        String vhostname;
+        String name;
 
-        vhosts = vhosts();
+        wars = new LinkedHashMap<>(wars());
         selected = stage.config().select;
         if (!selected.isEmpty()) {
-            iter = vhosts.entrySet().iterator();
+            iter = wars.entrySet().iterator();
             while (iter.hasNext()) {
-                vhostname = iter.next().getKey();
-                if (!selected.contains(vhostname)) {
+                name = iter.next().getKey();
+                if (!selected.contains(name)) {
                     iter.remove();
                 }
             }
         }
-        return vhosts;
+        return wars;
     }
 
     /** @return nummer of applications */

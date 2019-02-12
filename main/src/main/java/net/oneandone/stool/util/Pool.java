@@ -84,7 +84,7 @@ public class Pool {
     public Ports allocate(Project project, Map<String, Integer> fixed) throws IOException {
         // maps vhosts to docroots
         LinkedHashSet<String> names;
-        Map<String, FileNode> nameDocroots;
+        Map<String, FileNode> nameWars;
         Vhost previous;
         Vhost found;
         String stageName;
@@ -92,7 +92,7 @@ public class Pool {
         List<Vhost> result;
         Integer port; // null for not fixed
         Vhost modified;
-        FileNode docroot;
+        FileNode war;
 
         gc();
 
@@ -101,18 +101,18 @@ public class Pool {
 
         names.addAll(fixed.keySet());
 
-        nameDocroots = new LinkedHashMap<>(project.selectedVhosts());
-        names.addAll(nameDocroots.keySet());
+        nameWars = new LinkedHashMap<>(project.selectedWars());
+        names.addAll(nameWars.keySet());
 
         stageName = project.getStage().getName();
         stageId = project.getStage().getId();
         result = new ArrayList<>();
         for (String name : names) {
-            docroot = nameDocroots.get(name);
+            war = nameWars.get(name);
             port = fixed.get(name);
             previous = lookupId(name, stageId);
             if (previous != null) {
-                modified = previous.set(port, docroot);
+                modified = previous.set(port, war);
                 if (modified == null) {
                     // no changes
                     result.add(previous);
@@ -129,9 +129,9 @@ public class Pool {
                 }
             } else {
                 if (port == null) {
-                    found = allocate(name, stageName, stageId, docroot);
+                    found = allocate(name, stageName, stageId, war);
                 } else {
-                    found = allocate(port, name, stageId, docroot);
+                    found = allocate(port, name, stageId, war);
                     if (found.even != port) {
                         throw new ArgumentException("port already in use: " + port);
                     }
@@ -194,11 +194,11 @@ public class Pool {
         file.writeLines(lines);
     }
 
-    private Vhost allocate(String name, String stage, String id, FileNode docroot) throws IOException {
-        return allocate(forName(name, stage), name, id, docroot);
+    private Vhost allocate(String name, String stage, String id, FileNode war) throws IOException {
+        return allocate(forName(name, stage), name, id, war);
     }
 
-    private Vhost allocate(int start, String name, String id, FileNode docroot) throws IOException {
+    private Vhost allocate(int start, String name, String id, FileNode war) throws IOException {
         int current;
         Vhost result;
 
@@ -213,7 +213,7 @@ public class Pool {
             if (!used(current)) {
                 checkFree(current);
                 checkFree(current + 1);
-                result = new Vhost(current, name, id, docroot);
+                result = new Vhost(current, name, id, war);
                 vhosts.add(result);
                 return result;
             }

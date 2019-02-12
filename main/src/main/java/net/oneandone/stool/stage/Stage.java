@@ -462,15 +462,6 @@ public class Stage {
 
         result = new HashMap<>();
         result.put(directory.join("logs").mkdirOpt().getAbsolute(), "/var/log/stool");
-        for (Vhost vhost : ports.vhosts()) {
-            if (vhost.isWebapp()) {
-                if (vhost.isArtifact()) {
-                    result.put(vhost.docroot.getParent().getAbsolute(), "/vhosts/" + vhost.name);
-                } else {
-                    result.put(vhost.docroot.getAbsolute(), "/vhosts/" + vhost.name);
-                }
-            }
-        }
         return result;
     }
 

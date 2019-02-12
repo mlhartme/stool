@@ -101,22 +101,11 @@ public class ServerXml {
         // TODO: i'd like to ignore context.xml files, but controlpanel brings them to enable "crosscontext" - I don't know if that's required
         // host.setAttribute("deployXML", "false"); // ignore descriptors embedded in the application
 
-        if (vhost.isArtifact()) {
-            // this is where the artifact is unpacked
-            host.setAttribute("appBase", "/vhosts/" + vhost.name);
-        } else {
-            // not used, already unpacked
-            host.setAttribute("appBase", "nosuchdirectory");
-        }
         host.setAttribute("autoDeploy", "false");
         engine.appendChild(host);
         context = service.getOwnerDocument().createElement("Context");
         context.setAttribute("path", "");
-        if (vhost.isArtifact()) {
-            context.setAttribute("docBase", "/vhosts/" + vhost.name + "/ROOT");
-        } else {
-            context.setAttribute("docBase", "/vhosts/" + vhost.name);
-        }
+        context.setAttribute("docBase", "/usr/local/tomcat/webapps/" + vhost.name);
 
         host.appendChild(context);
 
