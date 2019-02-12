@@ -72,19 +72,14 @@ public class StoolIT {
     }
 
     @Test
-    public void turnaroundSvnSource() throws IOException {
+    public void turnaroundGitSource() throws IOException {
         FileNode project;
 
         project = WORLD.getWorking().join("it");
-        System.out.println(project.getParent().exec("svn", "co", "https://github.com/mlhartme/hellowar/trunk", project.getAbsolute()));
+        System.out.println(project.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", project.getAbsolute()));
         System.out.println(project.exec("mvn", "clean", "package"));
-        turnaround("svn", project);
+        turnaround("git", project);
         project.deleteTree();
-    }
-
-    @Ignore // TODO
-    public void turnaroundGitSource() throws IOException {
-        turnaround("git", null /*"git:git@github.com:mlhartme/hellowar.git"*/);
     }
 
     private void turnaround(String context, FileNode project) throws IOException {
@@ -93,14 +88,10 @@ public class StoolIT {
         stool("import", "-name=it", project.getAbsolute());
         stool("status", "-stage", "it");
         stool("validate", "-stage", "it");
-        stool("history", "-stage", "it");
         stool("config", "-stage", "it", "memory=300");
         stool("start", "-v", "-stage", "it");
         stool("validate", "-stage", "it");
-        stool("stop", "-stage", "it");
-        stool("start", "-stage", "it");
         stool("status", "-stage", "it");
-        stool("validate", "-stage", "it");
         stool("restart", "-v", "-stage", "it");
         stool("stop", "-v",  "-stage", "it");
         stool("list", "-stage", "it");
