@@ -190,17 +190,6 @@ public abstract class Project {
         return getType() + " " + origin;
     }
 
-    //-- util
-
-    /** @return launcher with build environment */
-    public Launcher launcher(String... command) {
-        return launcher(directory, command);
-    }
-
-    public Launcher launcher(FileNode working, String... command) {
-        return new Launcher(working, command);
-    }
-
     //--
 
     public void tuneConfiguration() throws IOException {
