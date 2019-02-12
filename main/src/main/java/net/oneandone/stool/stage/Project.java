@@ -23,14 +23,15 @@ import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.fs.filter.Filter;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.apache.maven.project.MavenProject;
 import org.apache.maven.project.ProjectBuildingException;
 import org.eclipse.aether.RepositoryException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -44,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -52,7 +54,14 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Concrete implementations are SourceProject or ArtifactProject.
  */
-public abstract class Project {
+public class Project {
+    public static Project forDirectory(Session session, String id, FileNode directory, StageConfiguration configuration)
+            throws IOException {
+        return new Project(session, Scm.checkoutUrl(directory), id, directory, configuration);
+    }
+
+    //--
+
     public static FileNode backstageDirectory(FileNode projectDirectory) {
         return projectDirectory.join(".backstage");
     }
@@ -97,26 +106,26 @@ public abstract class Project {
         }
         directory.checkDirectory();
         if (directory.join("pom.xml").exists()) {
-            return SourceProject.forLocal(session, id, directory, configuration);
+            return Project.forDirectory(session, id, directory, configuration);
         }
         return null;
     }
 
     //--
 
-    protected final String origin;
-
-    public final Stage stage;
+    private final String origin;
 
     /** user visible directory */
-    protected FileNode directory;
+    private FileNode directory;
+
+    public final Stage stage;
 
     //--
 
     public Project(Session session, String origin, String id, FileNode directory, StageConfiguration configuration) {
         this.origin = origin;
-        this.stage = new Stage(session, id, backstageDirectory(directory), configuration);
         this.directory = directory;
+        this.stage = new Stage(session, id, backstageDirectory(directory), configuration);
     }
 
     public Stage getStage() {
@@ -135,7 +144,36 @@ public abstract class Project {
     //--
 
     /** @return vhost to docroot mapping, where vhost does *not* include the stage name */
-    public abstract Map<String, FileNode> vhosts() throws IOException;
+    public Map<String, FileNode> vhosts() throws IOException {
+        Map<String, FileNode> applications;
+
+        applications = new LinkedHashMap<>();
+        for (Map.Entry<String, FileNode> entry : wars().entrySet()) {
+            applications.put(entry.getKey(), docroot(entry.getValue()));
+        }
+        return applications;
+    }
+
+    private FileNode docroot(FileNode war) throws IOException {
+        FileNode basedir;
+        List<FileNode> result;
+        Filter filter;
+
+        basedir = war.getParent().getParent();
+        filter = basedir.getWorld().filter();
+        filter.include("target/*/WEB-INF");
+        filter.predicate((node, b) -> node.isDirectory() && (node.join("lib").isDirectory() || node.join("classes").isDirectory()));
+        filter.exclude("target/test-classes/**/*");
+        result = basedir.find(filter);
+        switch (result.size()) {
+            case 0:
+                throw new IOException("No web application found. Did you build the project?");
+            case 1:
+                return result.get(0).getParent();
+            default:
+                throw new FileNotFoundException("web.xml ambiguous: " + result);
+        }
+    }
 
     public Map<String, FileNode> selectedVhosts() throws IOException {
         Map<String, FileNode> vhosts;
@@ -158,9 +196,21 @@ public abstract class Project {
     }
 
     /** @return nummer of applications */
-    public abstract int size() throws IOException;
+    public int size() throws IOException {
+        return wars().size();
+    }
 
-    public abstract List<String> faultProjects() throws IOException;
+
+    public List<String> faultProjects() throws IOException {
+        List<String> result;
+
+        result = new ArrayList<>();
+        for (FileNode war : wars().values()) {
+            result.add("file:" + war.getAbsolute());
+        }
+        return result;
+    }
+
 
     //--
 
