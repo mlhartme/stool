@@ -25,7 +25,6 @@ import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.apache.maven.project.MavenProject;
@@ -43,6 +42,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -105,7 +105,7 @@ public abstract class Project {
         if (origin.startsWith("gav:") || origin.startsWith("file:")) {
             return new ArtifactProject(session, origin, id, directory, configuration);
         }
-        if (directory.join(configuration.pom).exists()) {
+        if (directory.join("pom.xml").exists()) {
             return SourceProject.forLocal(session, id, directory, configuration);
         }
         return null;
@@ -205,24 +205,44 @@ public abstract class Project {
 
     //--
 
-    protected List<MavenProject> loadWars(FileNode rootPom) throws IOException {
-        List<MavenProject> wars;
-        List<String> profiles;
-        Properties userProperties;
+    protected void addWars(FileNode directory, Map<String, FileNode> result) throws IOException {
+        List<FileNode> files;
+        List<FileNode> wars;
 
-        wars = new ArrayList<>();
-        profiles = new ArrayList<>();
-        userProperties = new Properties();
-        addProfilesAndProperties(userProperties, profiles, stage.session.mavenOpts());
-        stage.session.console.verbose.println("profiles: " + profiles);
-        stage.session.console.verbose.println("userProperties: " + userProperties);
-        warProjects(rootPom, userProperties, profiles, wars);
-        if (wars.size() == 0) {
-            throw new IOException("no war projects");
+        files = directory.list();
+        if (!hasPom(files)) {
+            return;
         }
-        return wars;
+
+        wars = directory.find("target/*.war");
+        switch (wars.size()) {
+            case 0:
+                // do nothing
+                break;
+            case 1:
+                result.put(directory.getName(), wars.get(0));
+                break;
+            default:
+                throw new IOException(directory + ": wars ambiguous: " + wars);
+        }
+        for (FileNode file : files) {
+            if (file.isDirectory()) {
+                addWars(file, result);
+            }
+        }
     }
 
+    private static boolean hasPom(List<FileNode> list) {
+        String name;
+
+        for (FileNode file : list) {
+            name = file.getName();
+            if (name.equals("pom.xml") || name.equals("workspace.xml")) {
+                return true;
+            }
+        }
+        return false;
+    }
     private void addProfilesAndProperties(Properties userProperties, List<String> profiles, String args) {
         int idx;
 
@@ -306,13 +326,11 @@ public abstract class Project {
 
     public static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
-    public abstract List<FileNode> artifacts() throws IOException;
-
     public String buildtime() throws IOException {
         Collection<FileNode> artifacts;
         long time;
 
-        artifacts = artifacts();
+        artifacts = wars().values();
         if (artifacts.isEmpty()) {
             return null;
         }
@@ -321,6 +339,16 @@ public abstract class Project {
             time = Math.max(time, a.getLastModified());
         }
         return FMT.format(Instant.ofEpochMilli(time));
+    }
+
+    private Map<String, FileNode> lazyWars;
+
+    public Map<String, FileNode> wars() throws IOException {
+        if (lazyWars == null) {
+            lazyWars = new HashMap<>();
+            addWars(directory, lazyWars);
+        }
+        return lazyWars;
     }
 
     public enum State {

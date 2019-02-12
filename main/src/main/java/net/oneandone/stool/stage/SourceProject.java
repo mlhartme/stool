@@ -15,14 +15,11 @@
  */
 package net.oneandone.stool.stage;
 
-import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
-import org.apache.maven.project.MavenProject;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -42,9 +39,6 @@ public class SourceProject extends Project {
 
     //--
 
-    /** loaded on demand */
-    private List<MavenProject> lazyWars;
-
     public SourceProject(Session session, String id, FileNode directory, String origin, StageConfiguration configuration) {
         super(session, origin, id, directory, configuration);
     }
@@ -54,8 +48,8 @@ public class SourceProject extends Project {
         List<String> result;
 
         result = new ArrayList<>();
-        for (MavenProject project : wars()) {
-            result.add("file:" + project.getFile().getAbsolutePath());
+        for (FileNode war : wars().values()) {
+            result.add("file:" + war.getAbsolute());
         }
         return result;
     }
@@ -65,50 +59,28 @@ public class SourceProject extends Project {
         return wars().size();
     }
 
-    public List<FileNode> artifacts() throws IOException {
-        List<FileNode> result;
-        FileNode basedir;
-        Filter filter;
-
-        filter = directory.getWorld().filter();
-        filter.include("target/*.war");
-        result = new ArrayList<>();
-        for (MavenProject project : wars()) {
-            basedir = directory.getWorld().file(project.getBasedir());
-            result.addAll(basedir.find(filter));
-        }
-        return result;
-    }
-
     @Override
     public Map<String, FileNode> vhosts() throws IOException {
         Map<String, FileNode> applications;
 
         applications = new LinkedHashMap<>();
-        for (MavenProject project : wars()) {
-            applications.put(project.getArtifactId(), docroot(stage.session.world, project));
+        for (Map.Entry<String, FileNode> entry : wars().entrySet()) {
+            applications.put(entry.getKey(), docroot(entry.getValue()));
         }
         return applications;
     }
 
-    public List<MavenProject> wars() throws IOException {
-        if (lazyWars == null) {
-            lazyWars = loadWars(directory.join(stage.config().pom));
-        }
-        return lazyWars;
-    }
-
-    private FileNode docroot(World world, MavenProject project) throws IOException {
-        FileNode directory;
+    private FileNode docroot(FileNode war) throws IOException {
+        FileNode basedir;
         List<FileNode> result;
         Filter filter;
 
-        directory = world.file(project.getBasedir());
-        filter = directory.getWorld().filter();
+        basedir = war.getParent().getParent();
+        filter = basedir.getWorld().filter();
         filter.include("target/*/WEB-INF");
         filter.predicate((node, b) -> node.isDirectory() && (node.join("lib").isDirectory() || node.join("classes").isDirectory()));
         filter.exclude("target/test-classes/**/*");
-        result = directory.find(filter);
+        result = basedir.find(filter);
         switch (result.size()) {
             case 0:
                 throw new IOException("No web application found. Did you build the project?");

@@ -13,6 +13,7 @@
   * dumped `build` command
   * dumped `refresh -build` option
   * dumped `build` configuration
+  * dumped `pom` configuration
   * dumped `maven.home` and `maven.opts` configration - it's picked from the environment when used for War/Pom loading now
   * dumped `prepare` configuration; `create` for workspaces is no longer supported
   * dumped stage directory lock - stool now assumes that the project is used exclusively by the current user

@@ -24,7 +24,6 @@ import net.oneandone.stool.stage.artifact.FileLocator;
 import net.oneandone.stool.stage.artifact.GavLocator;
 import net.oneandone.stool.stage.artifact.Locator;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.MoveException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import org.eclipse.aether.artifact.DefaultArtifact;
@@ -155,17 +154,6 @@ public class ArtifactProject extends Project {
             result.put(base.getName(), base.join("ROOT"));
         }
 
-        return result;
-    }
-
-    @Override
-    public List<FileNode> artifacts() {
-        List<FileNode> result;
-
-        result = new ArrayList<>();
-        for (Application application : applications.applications()) {
-            result.add(application.current.file());
-        }
         return result;
     }
 

@@ -47,9 +47,6 @@ public class StageConfiguration {
     @Option(key = "name")
     public String name;
 
-    @Option(key = "pom")
-    public String pom;
-
     @Option(key = "quota")
     public int quota;
 
@@ -86,7 +83,6 @@ public class StageConfiguration {
         this.name = "noname";
         this.notify = new ArrayList<>();
         this.notify.add(NOTIFY_CREATED_BY);
-        this.pom = "pom.xml";
         this.quota = 10000;
         this.memory = 400;
         this.select = new ArrayList<>();
