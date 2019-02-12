@@ -28,11 +28,6 @@ import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -43,7 +38,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Concrete implementations are SourceProject or ArtifactProject.
@@ -264,45 +258,6 @@ public class Project {
         return false;
     }
 
-    public int diskUsed() throws IOException {
-        return used(directory);
-    }
-
-    /** @return megabytes */
-    private static int used(FileNode dir) throws IOException {
-        Path path;
-
-        path = dir.toPath();
-        final AtomicLong size = new AtomicLong(0);
-        Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-                size.addAndGet(attrs.size());
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFileFailed(Path file, IOException e) throws IOException {
-                // TODO: hard-wired fault dependency
-                if (file.endsWith(".backstage/fault") && e instanceof java.nio.file.AccessDeniedException) {
-                    return FileVisitResult.CONTINUE;
-                } else {
-                    throw e;
-                }
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException e) throws IOException {
-                if (e != null) {
-                    throw e;
-                }
-                return FileVisitResult.CONTINUE;
-            }
-        });
-
-        return (int) (size.get() / (1024 * 1024));
-    }
-
     public static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
 
     public String buildtime() throws IOException {
@@ -453,23 +408,6 @@ public class Project {
 
     //--
 
-    public void checkConstraints() throws IOException {
-        int used;
-        int quota;
-
-        if (stage.config().expire.isExpired()) {
-            throw new ArgumentException("Stage expired " + stage.config().expire + ". To start it, you have to adjust the 'expire' date.");
-        }
-        quota = stage.config().quota;
-        used = diskUsed() + stage.containerDiskUsed();
-        if (used > quota) {
-            throw new ArgumentException("Stage quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n" +
-                    "Consider running 'stool cleanup'.");
-        }
-    }
-
-    //--
-
     public Field fieldOpt(String str) throws IOException {
         for (Field f : fields()) {
             if (str.equals(f.name())) {
@@ -544,12 +482,6 @@ public class Project {
             @Override
             public Object get() throws IOException {
                 return Project.this.buildtime();
-            }
-        });
-        fields.add(new Field("disk") {
-            @Override
-            public Object get() throws IOException {
-                return Project.this.diskUsed();
             }
         });
         fields.addAll(TemplateField.scanTemplate(this, stage.config().template));

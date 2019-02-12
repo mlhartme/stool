@@ -147,7 +147,7 @@ public class Validate extends ProjectCommand {
         String message;
 
         try {
-            project.checkConstraints();
+            project.stage.checkConstraints();
             return;
         } catch (ArgumentException e) {
             message = e.getMessage();

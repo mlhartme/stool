@@ -364,6 +364,21 @@ public class Stage {
         }
     }
 
+    public void checkConstraints() throws IOException {
+        int used;
+        int quota;
+
+        if (config().expire.isExpired()) {
+            throw new ArgumentException("Stage expired " + config().expire + ". To start it, you have to adjust the 'expire' date.");
+        }
+        quota = config().quota;
+        used = containerDiskUsed();
+        if (used > quota) {
+            throw new ArgumentException("Stage quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n" +
+                    "Consider running 'stool cleanup'.");
+        }
+    }
+
     private Map<String, String> dockerLabel() {
         return Strings.toMap("stool", id);
     }

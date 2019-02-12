@@ -55,7 +55,7 @@ public class Start extends ProjectCommand {
         project.stage.modify();
         // to avoid running into a ping timeout below:
         project.stage.session.configuration.verfiyHostname();
-        project.checkConstraints();
+        project.stage.checkConstraints();
         checkNotStarted(project);
 
         doNormal(project);
