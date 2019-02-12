@@ -47,9 +47,6 @@ public class StageConfiguration {
     @Option(key = "name")
     public String name;
 
-    @Option(key = "refresh")
-    public String refresh;
-
     @Option(key = "pom")
     public String pom;
 
@@ -85,9 +82,8 @@ public class StageConfiguration {
     @Option(key = "template.env")
     public Map<String, String> templateEnv;
 
-    public StageConfiguration(FileNode template, String refresh) {
+    public StageConfiguration(FileNode template) {
         this.name = "noname";
-        this.refresh = refresh;
         this.notify = new ArrayList<>();
         this.notify.add(NOTIFY_CREATED_BY);
         this.pom = "pom.xml";

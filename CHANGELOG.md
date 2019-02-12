@@ -4,6 +4,7 @@
 
 * stool is no long responsible to manage checkouts - use your standard tools instead
   * dumped `create` and `refresh` command
+  * dumped `refresh` stage config
   * changed `remove` command to leave the project as-is
   
 * stool is no longer responsible for building - use your standard build tools and configuration instead

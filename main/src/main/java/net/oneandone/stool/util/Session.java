@@ -293,14 +293,6 @@ public class Session {
         return result;
     }
 
-    public Scm scm(String url) throws IOException {
-        return Scm.forUrl(url, svnCredentials);
-    }
-
-    private Scm scmOpt(String url) {
-        return Scm.forUrlOpt(url, svnCredentials);
-    }
-
     public Credentials svnCredentials() {
         return svnCredentials;
     }
@@ -502,12 +494,8 @@ public class Session {
 
     public StageConfiguration createStageConfiguration(String url) {
         StageConfiguration result;
-        Scm scm;
-        String refresh;
 
-        scm = scmOpt(url);
-        refresh = scm == null ? "" : scm.refresh();
-        result = new StageConfiguration(templates().join("tomcat"), refresh);
+        result = new StageConfiguration(templates().join("tomcat"));
         result.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
         configuration.setDefaults(accessors(), result, url);
         return result;

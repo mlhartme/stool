@@ -251,13 +251,6 @@ public abstract class Project {
         return wars;
     }
 
-    public boolean isCommitted() throws IOException {
-        if (this instanceof ArtifactProject) {
-            return true;
-        }
-        return stage.session.scm(getOrigin()).isCommitted(this);
-    }
-
     private void addProfilesAndProperties(Properties userProperties, List<String> profiles, String args) {
         int idx;
 
