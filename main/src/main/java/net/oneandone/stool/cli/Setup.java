@@ -75,7 +75,7 @@ public class Setup {
         console.info.println("  stool create gav:net.oneandone.stool:dashboard:" + version + " " + home.getAbsolute() + "/system/dashboard");
     }
 
-    private static final List<String> CONFIG = Strings.toList("config.json", "maven-settings.xml");
+    private static final List<String> CONFIG = Strings.toList("config.json");
 
     private void update() throws IOException {
         Home h;
