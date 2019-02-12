@@ -15,16 +15,10 @@
  */
 package net.oneandone.stool.scm;
 
-import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Credentials;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
-import net.oneandone.sushi.util.Separator;
-import net.oneandone.sushi.util.Strings;
-
-import java.io.IOException;
-import java.io.Writer;
 
 public class Subversion extends Scm {
     /** Caution, does not work for nested directories */
@@ -54,56 +48,8 @@ public class Subversion extends Scm {
     public final Credentials credentials;
 
     public Subversion(Credentials credentials) {
-        super("svn @svnCredentials@ up");
+        super();
         this.credentials = credentials;
-    }
-
-    @Override
-    public void checkout(String url, FileNode dir, Writer dest) throws Failure {
-        launcher(dir.getParent(), "co", Strings.removeLeft(url, "svn:"), dir.getName()).exec(dest);
-    }
-
-    @Override
-    public boolean isCommitted(Project project) throws IOException {
-        FileNode directory;
-        String str;
-
-        directory = project.getDirectory();
-        if (!directory.join(".svn").isDirectory()) {
-            return true; // artifact stage
-        }
-        str = status(directory);
-        return !isModified(str);
-    }
-
-    private String status(FileNode cwd) throws Failure {
-        Launcher launcher;
-
-        launcher = launcher(cwd, "status");
-        launcher.env("LC_ALL", "C");
-        return launcher.exec();
-    }
-
-    private static boolean isModified(String lines) {
-        for (String line : Separator.on("\n").split(lines)) {
-            if (line.trim().length() > 0) {
-                if (line.startsWith("X") || line.startsWith("Performing status on external item")) {
-                    // needed for external references
-                } else {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private Launcher launcher(FileNode cwd, String... args) {
-        Launcher launcher;
-
-        launcher = new Launcher(cwd, "svn");
-        launcher.arg(credentials.svnArguments());
-        launcher.arg(args);
-        return launcher;
     }
 }
 

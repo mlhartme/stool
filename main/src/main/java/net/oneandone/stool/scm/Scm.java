@@ -15,13 +15,10 @@
  */
 package net.oneandone.stool.scm;
 
-import net.oneandone.stool.stage.Project;
-import net.oneandone.stool.util.Credentials;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 
 import java.io.IOException;
-import java.io.Writer;
 
 public abstract class Scm {
     public static String checkoutUrl(FileNode dir) throws IOException {
@@ -49,37 +46,6 @@ public abstract class Scm {
         return null;
     }
 
-    private final String refresh;
-
-    public Scm(String refresh) {
-        this.refresh = refresh;
-    }
-
-    public abstract void checkout(String url, FileNode dir, Writer dest) throws Failure;
-    public abstract boolean isCommitted(Project project) throws IOException;
-
-    public static Scm forUrl(String url, Credentials svnCredentials) throws IOException {
-        Scm scm;
-
-        scm = forUrlOpt(url, svnCredentials);
-        if (scm == null) {
-            throw new IOException("unknown scm in url '" + url + "'. Start your url with 'svn:', 'git:', 'gav:' or 'file:");
-        }
-        return scm;
-    }
-
-    public static Scm forUrlOpt(String url, Credentials svnCredentials) {
-        if (url.startsWith("svn:")) {
-            return new Subversion(svnCredentials);
-        } else if (url.startsWith("git:")) {
-            return new Git();
-        } else {
-            return null;
-        }
-    }
-
-    public String refresh() {
-        return refresh;
+    public Scm() {
     }
 }
-

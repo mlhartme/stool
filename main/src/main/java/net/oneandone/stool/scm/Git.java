@@ -15,13 +15,9 @@
  */
 package net.oneandone.stool.scm;
 
-import net.oneandone.stool.stage.Project;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
-import net.oneandone.sushi.util.Strings;
-
-import java.io.Writer;
 
 public class Git extends Scm {
     public static String gitCheckoutUrlOpt(FileNode dir) throws Failure {
@@ -47,37 +43,6 @@ public class Git extends Scm {
     //--
 
     public Git() {
-        super("git pull");
-    }
-
-    @Override
-    public void checkout(String url, FileNode dir, Writer dest) throws Failure {
-        git(dir.getParent(), "clone", Strings.removeLeft(url, "git:"), dir.getName()).exec(dest);
-    }
-
-    @Override
-    public boolean isCommitted(Project project) {
-        FileNode checkout;
-
-        checkout = project.getDirectory();
-        try {
-            git(checkout, "diff", "--quiet").execNoOutput();
-        } catch (Failure e) {
-            return false;
-        }
-        try {
-            git(checkout, "diff", "--cached", "--quiet").execNoOutput();
-        } catch (Failure e) {
-            return false;
-        }
-
-        //  TODO: other branches
-        try {
-            git(checkout, "diff", "@{u}..HEAD", "--quiet").execNoOutput();
-        } catch (Failure e) {
-            return false;
-        }
-        return true;
     }
 }
 
