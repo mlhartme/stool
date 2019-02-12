@@ -242,10 +242,10 @@ public class Stage {
                 return namedUrls();
             }
         });
-        fields.add(new Field("container-disk") {
+        fields.add(new Field("disk") {
             @Override
             public Object get() throws IOException {
-                return containerDiskUsed();
+                return diskUsed();
             }
         });
         fields.add(new Field("uptime") {
@@ -372,7 +372,7 @@ public class Stage {
             throw new ArgumentException("Stage expired " + config().expire + ". To start it, you have to adjust the 'expire' date.");
         }
         quota = config().quota;
-        used = containerDiskUsed();
+        used = diskUsed();
         if (used > quota) {
             throw new ArgumentException("Stage quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n" +
                     "Consider running 'stool cleanup'.");
@@ -757,7 +757,7 @@ public class Stage {
         }
     }
 
-    public int containerDiskUsed() throws IOException {
+    public int diskUsed() throws IOException {
         String container;
         JsonObject obj;
 

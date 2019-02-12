@@ -25,10 +25,6 @@ public abstract class StageCommand extends ProjectCommand {
         super(withAutoRunning, session, portsLock, backstageLock, directoryLock);
     }
 
-    public boolean updateAvailable() {
-        return false;
-    }
-
     /** main method to perform this command */
     public final void doMain(Project project) throws Exception {
         doMain(project.stage);

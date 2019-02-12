@@ -31,6 +31,7 @@ it no longer supports shared environments
 * removed `sleep` state and the corresponding `stop -sleep` flag, it was never used
 * removed `shared` switch - local maven repository is now always the user's Maven repository
 * removed `system` marker for stages
+* quota now checks the container disk size; dumped the original disk size field and replaced it by the former container-disk field
 * implementation changes
   * split Stage Class into a Project- and a new Stage class: project is everything around the former stage directory (which is 
     typically the checkout); the new Stage roughly represents the backstage directory
