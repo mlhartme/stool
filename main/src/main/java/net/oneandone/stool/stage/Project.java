@@ -17,7 +17,6 @@ package net.oneandone.stool.stage;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.templates.TemplateField;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
@@ -25,6 +24,8 @@ import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
+import net.oneandone.sushi.launcher.Failure;
+import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
@@ -54,7 +55,37 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Project {
     public static Project forDirectory(Session session, String id, FileNode directory, StageConfiguration configuration)
             throws IOException {
-        return new Project(session, Scm.checkoutUrl(directory), id, directory, configuration);
+        return new Project(session, origin(directory), id, directory, configuration);
+    }
+
+    public static String origin(FileNode dir) throws IOException {
+        if (dir.join(".svn").isDirectory()) {
+            return "svn:" + svnCheckoutUrl(dir);
+        }
+        if (dir.join(".git").isDirectory()) {
+            return "git:" + git(dir, "config", "--get", "remote.origin.url").exec().trim();
+        }
+        throw new IOException("not a checkout: " + dir);
+    }
+
+    private static String svnCheckoutUrl(FileNode dir) throws Failure {
+        Launcher launcher;
+        String str;
+        int idx;
+
+        launcher = new Launcher(dir, "svn", "info");
+        launcher.env("LC_ALL", "C");
+        str = launcher.exec();
+        idx = str.indexOf("URL:") + 4;
+        return str.substring(idx, str.indexOf("\n", idx)).trim();
+    }
+
+    private static Launcher git(FileNode cwd, String... args) {
+        Launcher launcher;
+
+        launcher = new Launcher(cwd, "git");
+        launcher.arg(args);
+        return launcher;
     }
 
     //--
@@ -94,7 +125,7 @@ public class Project {
     /** @return stage url or null if not a stage */
     public static String probe(FileNode directory) throws IOException {
         directory.checkDirectory();
-        return Scm.checkoutUrlOpt(directory);
+        return origin(directory);
     }
 
     public static Project createOpt(Session session, String id, StageConfiguration configuration, FileNode directory) throws IOException {
