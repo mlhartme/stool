@@ -35,7 +35,7 @@ public class Config extends ProjectCommand {
     private boolean set;
 
     public Config(Session session) {
-        super(false, session, Mode.NONE, Mode.EXCLUSIVE, Mode.NONE);
+        super(false, session, Mode.NONE, Mode.EXCLUSIVE);
         arguments = new LinkedHashMap<>();
     }
 

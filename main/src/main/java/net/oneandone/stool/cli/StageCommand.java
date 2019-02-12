@@ -21,8 +21,8 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
 public abstract class StageCommand extends ProjectCommand {
-    public StageCommand(boolean withAutoRunning, Session session, Mode portsLock, Mode backstageLock, Mode directoryLock) {
-        super(withAutoRunning, session, portsLock, backstageLock, directoryLock);
+    public StageCommand(boolean withAutoRunning, Session session, Mode portsLock, Mode backstageLock) {
+        super(withAutoRunning, session, portsLock, backstageLock);
     }
 
     /** main method to perform this command */

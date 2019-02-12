@@ -21,7 +21,7 @@ import net.oneandone.stool.util.Session;
 
 public class Stop extends StageCommand {
     public Stop(Session session) {
-        super(false, session, Mode.SHARED, Mode.SHARED, Mode.NONE);
+        super(false, session, Mode.SHARED, Mode.SHARED);
     }
 
     @Override

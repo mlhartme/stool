@@ -27,7 +27,7 @@ public class Port extends ProjectCommand {
     private final Map<String, Integer> ports = new HashMap<>();
 
     public Port(Session session) {
-        super(true, session, Mode.EXCLUSIVE, Mode.SHARED, Mode.NONE);
+        super(true, session, Mode.EXCLUSIVE, Mode.SHARED);
     }
 
     public void port(String str) {

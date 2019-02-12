@@ -26,7 +26,7 @@ public class Remove extends ProjectCommand {
     private final boolean batch;
 
     public Remove(Session session, boolean batch) {
-        super(true, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
+        super(true, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.batch = batch;
     }
 

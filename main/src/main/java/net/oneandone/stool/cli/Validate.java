@@ -50,7 +50,7 @@ public class Validate extends ProjectCommand {
     private Report report;
 
     public Validate(Session session, boolean email, boolean repair) {
-        super(false, session, Mode.SHARED, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
+        super(false, session, Mode.SHARED, Mode.EXCLUSIVE);
         this.email = email;
         this.repair = repair;
     }

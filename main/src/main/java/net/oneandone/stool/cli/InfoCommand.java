@@ -29,11 +29,7 @@ public abstract class InfoCommand extends ProjectCommand {
     private final String defaults;
 
     public InfoCommand(Session session, String defaults) {
-        super(false, session, Mode.SHARED, Mode.SHARED,
-                Mode.NONE
-                /* this is not 100% accurate, but it help to avoid annoying lock-waits:
-                1) diskused might be work in progress
-                2) buildtime might be inaccurate */);
+        super(false, session, Mode.SHARED, Mode.SHARED);
         this.defaults = defaults;
     }
 

@@ -29,7 +29,7 @@ public class Start extends ProjectCommand {
     private final boolean noCache;
 
     public Start(Session session, boolean tail, boolean noCache) {
-        super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.SHARED);
+        super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.tail = tail;
         this.noCache = noCache;
     }

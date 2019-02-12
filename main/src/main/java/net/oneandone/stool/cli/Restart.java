@@ -23,7 +23,7 @@ public class Restart extends ProjectCommand {
     private final boolean noCache;
 
     public Restart(Session session, boolean noCache) {
-        super(false, session, /* locking done by subcommands */ Mode.NONE, Mode.NONE, Mode.NONE);
+        super(false, session, /* locking done by subcommands */ Mode.NONE, Mode.NONE);
         this.noCache = noCache;
     }
 

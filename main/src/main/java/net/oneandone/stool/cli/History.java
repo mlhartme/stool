@@ -32,7 +32,7 @@ public class History extends ProjectCommand {
     private final int max;
 
     public History(Session session, boolean details, int max) {
-        super(false, session, Mode.NONE, Mode.SHARED, Mode.NONE);
+        super(false, session, Mode.NONE, Mode.SHARED);
         this.details = details;
         this.max = max;
     }

@@ -39,7 +39,6 @@ import java.util.Map;
 
 public abstract class ProjectCommand extends SessionCommand {
     private final Mode backstageLock;
-    private final Mode directoryLock;
     private final boolean withAutoRunning;
 
     private boolean autoRestart;
@@ -48,11 +47,10 @@ public abstract class ProjectCommand extends SessionCommand {
     private boolean all;
     private Fail fail = Fail.NORMAL;
 
-    public ProjectCommand(boolean withAutoRunning, Session session, Mode portsLock, Mode backstageLock, Mode directoryLock) {
+    public ProjectCommand(boolean withAutoRunning, Session session, Mode portsLock, Mode backstageLock) {
         super(session, portsLock);
         this.withAutoRunning = withAutoRunning;
         this.backstageLock = backstageLock;
-        this.directoryLock = directoryLock;
     }
 
     /** derived classes override this if the answer is not static */

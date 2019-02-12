@@ -21,7 +21,7 @@ import net.oneandone.stool.util.Session;
 
 public class Cleanup extends StageCommand {
     public Cleanup(Session session) {
-        super(false, session, Mode.NONE, Mode.EXCLUSIVE, Mode.NONE);
+        super(false, session, Mode.NONE, Mode.EXCLUSIVE);
     }
 
     @Override
