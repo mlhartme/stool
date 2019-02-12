@@ -16,7 +16,6 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.file.FileNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,7 +37,7 @@ public class Vhost {
         int even;
         String name;
         String id;
-        FileNode docroot;
+        boolean webapp;
 
         afterEven = line.indexOf(SEP);
         if (afterEven == -1) {
@@ -55,12 +54,12 @@ public class Vhost {
         afterId = line.indexOf(SEP, afterName + 1);
         if (afterId == -1) {
             id = line.substring(afterName + 1);
-            docroot = null;
+            webapp = false;
         } else {
             id = line.substring(afterName + 1, afterId);
-            docroot = world.file(line.substring(afterId + 1));
+            webapp = true;
         }
-        return new Vhost(even, name, id, docroot);
+        return new Vhost(even, name, id, webapp);
     }
 
     public final int even;
@@ -71,10 +70,9 @@ public class Vhost {
     /** stage id */
     public final String id;
 
-    /** null for ports that have no domain */
-    public final FileNode war;
+    public final boolean webapp;
 
-    public Vhost(int even, String name, String id, FileNode war) {
+    public Vhost(int even, String name, String id, boolean webapp) {
         if (name.indexOf(SEP) != -1) {
             throw new IllegalArgumentException(name);
         }
@@ -84,11 +82,11 @@ public class Vhost {
         this.even = even;
         this.name = name;
         this.id = id;
-        this.war = war;
+        this.webapp = webapp;
     }
 
     public boolean isWebapp() {
-        return war != null;
+        return webapp;
     }
 
     public int httpPort() {
@@ -123,7 +121,7 @@ public class Vhost {
         // CAUTION: just
         //    even + SEP
         // is an integer addition!
-        return Integer.toString(even) + SEP + name + SEP + id + (war == null ? "" : SEP + war.getAbsolute());
+        return Integer.toString(even) + SEP + name + SEP + id + (webapp ? SEP + "webapp" : "");
     }
 
     public String toString() {
@@ -131,11 +129,11 @@ public class Vhost {
     }
 
     /** null if not modified */
-    public Vhost set(Integer newEven, FileNode newWar) {
-        if (Objects.equals(this.war, newWar) && (newEven == null || newEven == even)) {
+    public Vhost set(Integer newEven, boolean newWebapp) {
+        if (Objects.equals(this.webapp, newWebapp) && (newEven == null || newEven == even)) {
             return null;
         }
-        return new Vhost(newEven == null ? even : newEven, name, id, newWar);
+        return new Vhost(newEven == null ? even : newEven, name, id, newWebapp);
     }
 
     public String context(String stageName, String hostname, String url) {

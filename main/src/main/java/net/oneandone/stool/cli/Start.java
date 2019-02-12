@@ -81,7 +81,7 @@ public class Start extends ProjectCommand {
         Ports ports;
 
         ports = session.pool().allocate(project, Collections.emptyMap());
-        project.stage.start(console, ports, noCache);
+        project.stage.start(project.wars(), console, ports, noCache);
     }
 
     private void doTail(Project project) throws IOException {

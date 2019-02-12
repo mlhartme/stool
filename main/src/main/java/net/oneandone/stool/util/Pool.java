@@ -92,7 +92,7 @@ public class Pool {
         List<Vhost> result;
         Integer port; // null for not fixed
         Vhost modified;
-        FileNode war;
+        boolean webapp;
 
         gc();
 
@@ -108,11 +108,11 @@ public class Pool {
         stageId = project.getStage().getId();
         result = new ArrayList<>();
         for (String name : names) {
-            war = nameWars.get(name);
+            webapp = nameWars.get(name) != null;
             port = fixed.get(name);
             previous = lookupId(name, stageId);
             if (previous != null) {
-                modified = previous.set(port, war);
+                modified = previous.set(port, webapp);
                 if (modified == null) {
                     // no changes
                     result.add(previous);
@@ -129,9 +129,9 @@ public class Pool {
                 }
             } else {
                 if (port == null) {
-                    found = allocate(name, stageName, stageId, war);
+                    found = allocate(name, stageName, stageId, webapp);
                 } else {
-                    found = allocate(port, name, stageId, war);
+                    found = allocate(port, name, stageId, webapp);
                     if (found.even != port) {
                         throw new ArgumentException("port already in use: " + port);
                     }
@@ -194,11 +194,11 @@ public class Pool {
         file.writeLines(lines);
     }
 
-    private Vhost allocate(String name, String stage, String id, FileNode war) throws IOException {
-        return allocate(forName(name, stage), name, id, war);
+    private Vhost allocate(String name, String stage, String id, boolean webapp) throws IOException {
+        return allocate(forName(name, stage), name, id, webapp);
     }
 
-    private Vhost allocate(int start, String name, String id, FileNode war) throws IOException {
+    private Vhost allocate(int start, String name, String id, boolean webapp) throws IOException {
         int current;
         Vhost result;
 
@@ -213,7 +213,7 @@ public class Pool {
             if (!used(current)) {
                 checkFree(current);
                 checkFree(current + 1);
-                result = new Vhost(current, name, id, war);
+                result = new Vhost(current, name, id, webapp);
                 vhosts.add(result);
                 return result;
             }

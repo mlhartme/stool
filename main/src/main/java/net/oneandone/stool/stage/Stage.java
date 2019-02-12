@@ -368,7 +368,7 @@ public class Stage {
         return Strings.toMap("stool", id);
     }
 
-    public void start(Console console, Ports ports, boolean noCache) throws Exception {
+    public void start(Map<String, FileNode> wars, Console console, Ports ports, boolean noCache) throws Exception {
         Engine engine;
         String image;
         String container;
@@ -380,7 +380,7 @@ public class Stage {
         checkMemory();
         engine = session.dockerEngine();
         tag = id;
-        context = dockerContext(ports);
+        context = dockerContext(wars, ports);
         wipeContainer(engine);
         console.verbose.println("building image ... ");
         try (Writer log = new FlushWriter(directory.join("image.log").newWriter())) {
@@ -394,7 +394,7 @@ public class Stage {
         console.verbose.println("image built: " + image);
         wipeImages(engine, image);
         console.info.println("starting container ...");
-        mounts = bindMounts(ports);
+        mounts = bindMounts();
         for (Map.Entry<String, String> entry : mounts.entrySet()) {
             console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
         }
@@ -457,7 +457,7 @@ public class Stage {
         }
     }
 
-    private Map<String, String> bindMounts(Ports ports) throws IOException {
+    private Map<String, String> bindMounts() throws IOException {
         Map<String, String> result;
 
         result = new HashMap<>();
@@ -467,7 +467,7 @@ public class Stage {
 
     private static final String FREEMARKER_EXT = ".fm";
 
-    private FileNode dockerContext(Ports ports) throws IOException, TemplateException {
+    private FileNode dockerContext(Map<String, FileNode> wars, Ports ports) throws IOException, TemplateException {
         Configuration configuration;
         FileNode src;
         FileNode dest;
@@ -497,7 +497,7 @@ public class Stage {
                     configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
                     template = configuration.getTemplate(srcfile.getName());
                     tmp = new StringWriter();
-                    template.process(templateEnv(dest, ports, environment), tmp);
+                    template.process(templateEnv(wars, dest, ports, environment), tmp);
                     destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
                     destfile.writeString(tmp.getBuffer().toString());
                 } else {
@@ -516,7 +516,7 @@ public class Stage {
         return dest;
     }
 
-    private Map<String, Object> templateEnv(FileNode context, Ports ports, Collection<Variable> environment) throws IOException {
+    private Map<String, Object> templateEnv(Map<String, FileNode> wars, FileNode context, Ports ports, Collection<Variable> environment) throws IOException {
         Map<String, Object> result;
         String value;
 
@@ -531,7 +531,7 @@ public class Stage {
         }
         result.put("hostHome", session.world.getHome().getAbsolute());
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
-        result.put("tomcat", new Tomcat(this, context, session, ports));
+        result.put("tomcat", new Tomcat(wars,this, context, session, ports));
         for (Variable env : environment) {
             value = config().templateEnv.get(env.name);
             if (value == null) {

@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Tomcat {
+    private final Map<String, FileNode> wars;
     private final Stage stage;
     private final FileNode context;
     private final StageConfiguration configuration;
@@ -48,7 +49,8 @@ public class Tomcat {
     private final Console console;
     private final Ports ports;
 
-    public Tomcat(Stage stage, FileNode context, Session session, Ports ports) {
+    public Tomcat(Map<String, FileNode> wars, Stage stage, FileNode context, Session session, Ports ports) {
+        this.wars = wars;
         this.stage = stage;
         this.context = context;
         this.configuration = stage.config();
@@ -65,10 +67,8 @@ public class Tomcat {
     }
 
     public void webapps() throws IOException {
-        for (Vhost vhost : ports.vhosts()) {
-            if (vhost.isWebapp()) {
-                vhost.war.copyFile(context.join("webapps").mkdirOpt().join(vhost.name + ".war"));
-            }
+        for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
+            entry.getValue().copyFile(context.join("webapps").mkdirOpt().join(entry.getKey() + ".war"));
         }
     }
 
@@ -336,7 +336,7 @@ public class Tomcat {
         FileNode dir;;
 
 
-        dir = ports.lookup(fitnesseHost.name).war.getParent();
+        dir = null; // TODO: ports.lookup(fitnesseHost.name).war.getParent();
         if (!dir.getName().equals("target")) {
             throw new IllegalStateException(dir.getAbsolute());
         }
