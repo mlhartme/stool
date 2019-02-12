@@ -16,14 +16,11 @@
 package net.oneandone.stool.stage;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.templates.TemplateField;
-import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
-import net.oneandone.stool.util.Macros;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.Node;
@@ -202,18 +199,6 @@ public abstract class Project {
 
     public Launcher launcher(FileNode working, String... command) {
         return new Launcher(working, command);
-    }
-
-    private Macros lazyMacros;
-
-    public Macros macros() {
-        if (lazyMacros == null) {
-            lazyMacros = new Macros();
-            lazyMacros.addAll(stage.session.configuration.macros);
-            lazyMacros.add("directory", getDirectory().getAbsolute());
-            lazyMacros.add("localRepository", stage.session.localRepository().getAbsolute());
-        }
-        return lazyMacros;
     }
 
     //--
