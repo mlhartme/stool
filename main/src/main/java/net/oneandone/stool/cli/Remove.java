@@ -33,10 +33,8 @@ public class Remove extends ProjectCommand {
 
     @Override
     public void doMain(Project project) throws Exception {
-        boolean selected;
         FileNode dir;
 
-        selected = session.isSelected(project);
         project.getStage().checkNotUp();
         project.getStage().modify();
         dir = session.backstageLink(project.getStage().getId()).resolveLink();
@@ -49,8 +47,5 @@ public class Remove extends ProjectCommand {
         // delete backstageLink first - to make sure no other stool invocation detects a stage backstage and wipes it
         Files.delete(session.backstageLink(project.getStage().getId()).toPath());
         dir.deleteTree();
-        if (selected) {
-            session.cd(project.getDirectory().getParent());
-        }
     }
 }
