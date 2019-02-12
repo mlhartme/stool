@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.dashboard;
 
-import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Session;

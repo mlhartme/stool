@@ -27,9 +27,6 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.filter.Filter;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
-import org.apache.maven.project.MavenProject;
-import org.apache.maven.project.ProjectBuildingException;
-import org.eclipse.aether.RepositoryException;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -299,29 +296,6 @@ public class Project {
                 } else {
                     userProperties.put(part.substring(0, idx), part.substring(idx + 1));
                 }
-            }
-        }
-    }
-
-    private void warProjects(FileNode pomXml, Properties userProperties, List<String> profiles, List<MavenProject> result) throws IOException {
-        MavenProject root;
-        FileNode modulePom;
-
-        try {
-            root = stage.session.maven().loadPom(pomXml, false, userProperties, profiles, null);
-        } catch (ProjectBuildingException | RepositoryException e) {
-            throw new IOException("cannot parse " + pomXml + ": " + e.getMessage(), e);
-        }
-        stage.session.console.verbose.println("loading " + pomXml);
-        if ("war".equals(root.getPackaging())) {
-            result.add(root);
-        } else {
-            for (String module : root.getModules()) {
-                modulePom = stage.session.world.file(root.getBasedir()).join(module);
-                if (modulePom.isDirectory()) {
-                    modulePom = modulePom.join("pom.xml");
-                }
-                warProjects(modulePom, userProperties, profiles, result);
             }
         }
     }

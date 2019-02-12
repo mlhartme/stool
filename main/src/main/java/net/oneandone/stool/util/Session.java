@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
-import net.oneandone.maven.embedded.Maven;
 import net.oneandone.stool.cli.EnumerationFailed;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Accessor;
@@ -37,8 +36,6 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
-import org.codehaus.plexus.DefaultPlexusContainer;
-import org.eclipse.aether.repository.RepositoryPolicy;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
@@ -362,37 +359,6 @@ public class Session {
         return lazySelectedId;
     }
 
-    public FileNode localRepository() {
-        return world.getHome().join(".m2/repository");
-    }
-
-    public String mavenOpts() {
-        String result;
-
-        result = System.getenv("MAVEN_OPTS");
-        return result == null ? "" : result;
-    }
-
-    private Maven lazyMaven;
-
-    public Maven maven() throws IOException {
-        FileNode mavenHome;
-        FileNode settings;
-
-        if (lazyMaven == null) {
-            try {
-                mavenHome = Maven.locateMaven(world);
-                settings = mavenHome.join("conf/settings.xml");
-            } catch (IOException e) {
-                settings = home.join("maven-settings.xml");
-            }
-            lazyMaven = Maven.withSettings(world, localRepository(), settings, null, plexus(), null, null);
-            // always get the latest snapshots
-            lazyMaven.getRepositorySession().setUpdatePolicy(RepositoryPolicy.UPDATE_POLICY_ALWAYS);
-        }
-        return lazyMaven;
-    }
-
     //--
 
     /** @return memory not yet reserved */
@@ -487,15 +453,6 @@ public class Session {
     public String nextStageId() {
         nextStageId++;
         return stageIdPrefix + nextStageId;
-    }
-
-    private DefaultPlexusContainer lazyPlexus;
-
-    public DefaultPlexusContainer plexus() {
-        if (lazyPlexus == null) {
-            lazyPlexus = Maven.container();
-        }
-        return lazyPlexus;
     }
 
     public static Gson gson(World world) {
