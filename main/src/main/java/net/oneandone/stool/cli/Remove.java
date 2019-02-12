@@ -25,18 +25,10 @@ import java.nio.file.Files;
 
 public class Remove extends ProjectCommand {
     private final boolean batch;
-    private final boolean force;
-    private boolean backstageOnly;
 
-    public Remove(Session session, boolean batch, boolean force) {
+    public Remove(Session session, boolean batch) {
         super(true, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.batch = batch;
-        this.force = force;
-        this.backstageOnly = false;
-    }
-
-    public void setBackstage(boolean backstageOnly) {
-        this.backstageOnly = backstageOnly;
     }
 
     @Override
@@ -47,12 +39,7 @@ public class Remove extends ProjectCommand {
         selected = session.isSelected(project);
         project.getStage().checkNotUp();
         project.getStage().modify();
-        if (!force) {
-            if (!project.isCommitted()) {
-                throw new IOException("checkout has modifications - aborted.\nYou may run with -force");
-            }
-        }
-        dir = backstageOnly ? session.backstageLink(project.getStage().getId()).resolveLink() : project.getDirectory();
+        dir = session.backstageLink(project.getStage().getId()).resolveLink();
         if (!batch) {
             console.info.println("Ready to delete " + dir.getAbsolute() + "?");
             console.pressReturn();

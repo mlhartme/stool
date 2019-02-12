@@ -86,7 +86,6 @@ public class Main {
               cli.add(Setup.class, "setup -batch config? { config(config) }");
               cli.begin("globals.session", "");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
-                    cli.add(Create.class, "create -quiet url dirOrProperty* { dirOrProperty*(dirOrProperty) }");
                     cli.add(Import.class, "import -name=@import.name:%d -max=@import.max:40 dir* { dirs*(dir) setMax(max) setName(name) }");
                     cli.add(Select.class, "select -fuzzy=@select.fuzzy name?=null");
                     cli.base(ProjectCommand.class, "-autorestart=@auto.restart -autostop=@auto.stop -stage=null -all -fail "
@@ -99,7 +98,7 @@ public class Main {
                       cli.add(Move.class, "move dest");
                       cli.add(Port.class, "port port { port*(port) }");
                       cli.add(Refresh.class, "refresh -restore");
-                      cli.add(Remove.class, "remove -batch -force -backstage { setBackstage(backstage) }");
+                      cli.add(Remove.class, "remove -batch");
                       cli.add(Restart.class, "restart -nocache");
                       cli.add(Start.class, "start -tail -nocache");
                       cli.add(Status.class, "status -defaults=@status.defaults info* { select*(info) }");

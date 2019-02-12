@@ -58,33 +58,40 @@ public class StoolIT {
         stool("stop", "-stage" , "state=up", "-fail", "after");
     }
 
-    @Test
+    @Ignore
     public void turnaroundGavArtifact() throws IOException {
-        turnaround("gav", "gav:net.oneandone:hellowar:1.0.4");
+        turnaround("gav", null /*"gav:net.oneandone:hellowar:1.0.4" */);
     }
 
-    @Test
+    @Ignore
     public void turnaroundFileArtifact() throws IOException, ArtifactResolutionException {
         FileNode file;
 
         file = Maven.withSettings(WORLD).resolve("net.oneandone", "hellowar", "war", "1.0.4");
-        turnaround("file", file.getUri().toString());
+        turnaround("file", null /* file.getUri().toString() */);
     }
 
-    @Ignore // TODO
+    @Test
     public void turnaroundSvnSource() throws IOException {
-        turnaround("svn", "svn:https://github.com/mlhartme/hellowar/trunk");
+        FileNode project;
+
+        project = WORLD.getTemp().createTempDirectory();
+        project.exec("svn", "co", "https://github.com/mlhartme/hellowar/trunk", ".");
+        System.out.println(project.launcher());
+        project.exec("mvn", "clean", "package");
+        turnaround("svn", project);
+        project.deleteTree();
     }
 
     @Ignore // TODO
     public void turnaroundGitSource() throws IOException {
-        turnaround("git", "git:git@github.com:mlhartme/hellowar.git");
+        turnaround("git", null /*"git:git@github.com:mlhartme/hellowar.git"*/);
     }
 
-    private void turnaround(String context, String origin) throws IOException {
-        System.out.println("\norigin: " + origin);
+    private void turnaround(String context, FileNode project) throws IOException {
+        System.out.println(context);
         stoolSetup(context);
-        stool("create", "-quiet", origin, "it");
+        stool("import", project.getAbsolute(), "it");
         stool("status", "-stage", "it");
         stool("validate", "-stage", "it");
         stool("history", "-stage", "it");
