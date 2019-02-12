@@ -6,7 +6,7 @@ Stool is a tool to create containers on develop workstations and manage them on 
 it no longer supports shared environments
 
 * stool is no long responsible to manage checkouts - use your standard tools instead; 
-  * dumped `create` and `refresh` command
+  * dumped `create`, `refresh` and `move` command
   * dumped `refresh` stage config
   * changed `remove` command to leave the project as-is; the current directory is also left as-is
   * dumped svn credentials handling

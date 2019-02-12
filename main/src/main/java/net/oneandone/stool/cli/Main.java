@@ -93,7 +93,6 @@ public class Main {
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -details=@history.details:false -max=@history.max:50");
                       cli.add(Ls.class, "list -defaults=@list.defaults info* { select*(info) }");
-                      cli.add(Move.class, "move dest");
                       cli.add(Port.class, "port port { port*(port) }");
                       cli.add(Remove.class, "remove -batch");
                       cli.add(Restart.class, "restart -nocache");
