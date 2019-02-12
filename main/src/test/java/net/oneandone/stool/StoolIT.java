@@ -66,7 +66,7 @@ public class StoolIT {
     public void turnaroundGitSource() throws IOException {
         FileNode project;
 
-        project = WORLD.getWorking().join("it");
+        project = IT.join("stages").mkdirsOpt().join("it");
         System.out.println(project.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", project.getAbsolute()));
         System.out.println(project.exec("mvn", "clean", "package"));
         turnaround("git", project);
