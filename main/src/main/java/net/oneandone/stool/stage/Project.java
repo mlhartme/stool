@@ -23,13 +23,10 @@ import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.fs.filter.Filter;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
-import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -46,7 +43,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -171,27 +167,6 @@ public class Project {
 
     //--
 
-    private FileNode docroot(FileNode war) throws IOException {
-        FileNode basedir;
-        List<FileNode> result;
-        Filter filter;
-
-        basedir = war.getParent().getParent();
-        filter = basedir.getWorld().filter();
-        filter.include("target/*/WEB-INF");
-        filter.predicate((node, b) -> node.isDirectory() && (node.join("lib").isDirectory() || node.join("classes").isDirectory()));
-        filter.exclude("target/test-classes/**/*");
-        result = basedir.find(filter);
-        switch (result.size()) {
-            case 0:
-                throw new IOException("No web application found. Did you build the project?");
-            case 1:
-                return result.get(0).getParent();
-            default:
-                throw new FileNotFoundException("web.xml ambiguous: " + result);
-        }
-    }
-
     public Map<String, FileNode> selectedWars() throws IOException {
         Map<String, FileNode> wars;
         Iterator<Map.Entry<String, FileNode>> iter;
@@ -226,19 +201,6 @@ public class Project {
             result.add("file:" + war.getAbsolute());
         }
         return result;
-    }
-
-
-    //--
-
-    public void move(FileNode newDirectory) throws IOException {
-        FileNode link;
-
-        link = stage.session.backstageLink(stage.getId());
-        link.deleteTree();
-        directory.move(newDirectory);
-        directory = newDirectory;
-        backstageDirectory(directory).link(link);
     }
 
     //--
@@ -300,24 +262,6 @@ public class Project {
             }
         }
         return false;
-    }
-    private void addProfilesAndProperties(Properties userProperties, List<String> profiles, String args) {
-        int idx;
-
-        for (String part : Separator.SPACE.split(args)) {
-            if (part.startsWith("-P")) {
-                profiles.add(part.substring(2));
-            }
-            if (part.startsWith("-D")) {
-                part = part.substring(2);
-                idx = part.indexOf('=');
-                if (idx == -1) {
-                    userProperties.put(part, "");
-                } else {
-                    userProperties.put(part.substring(0, idx), part.substring(idx + 1));
-                }
-            }
-        }
     }
 
     public int diskUsed() throws IOException {
