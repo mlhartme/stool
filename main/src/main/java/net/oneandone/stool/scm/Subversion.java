@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.scm;
 
-import net.oneandone.stool.util.Credentials;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
@@ -45,11 +44,7 @@ public class Subversion extends Scm {
 
     //--
 
-    public final Credentials credentials;
-
-    public Subversion(Credentials credentials) {
-        super();
-        this.credentials = credentials;
+    public Subversion() {
     }
 }
 

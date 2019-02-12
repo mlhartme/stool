@@ -6,6 +6,7 @@
   * dumped `create` and `refresh` command
   * dumped `refresh` stage config
   * changed `remove` command to leave the project as-is
+  * dumped svn credentials handling
   
 * stool is no longer responsible for building - use your standard build tools and configuration instead
   * dumped `build` command

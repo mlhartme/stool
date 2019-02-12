@@ -16,7 +16,6 @@
 package net.oneandone.stool.dashboard;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Credentials;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
@@ -67,7 +66,6 @@ public class StoolCallable implements Callable<Failure> {
         Launcher launcher;
         Failure failure;
         long time;
-        Credentials svnCredentials;
         FileNode running;
 
         failure = null;
@@ -77,15 +75,10 @@ public class StoolCallable implements Callable<Failure> {
         launcher.env(Environment.STOOL_HOME, home.getAbsolute());
         launcher.arg(stool.getAbsolute());
         launcher.arg("-e");
-        svnCredentials = stage.session.svnCredentials();
-        if (svnCredentials.username != null) {
-            launcher.arg("-svnuser=" + svnCredentials.username);
-            launcher.arg("-svnpassword=" + svnCredentials.password);
-        }
         launcher.arg(command, "-stage", "id=" + stage.getId());
         launcher.arg(arguments);
         try (PrintWriter writer = new PrintWriter(logDir.join(id + ".log").newWriter())) {
-            writer.println(hide(hide(launcher.toString(), svnCredentials.password), svnCredentials.username));
+            writer.println(launcher.toString());
             running = logDir.join(id + ".running").mkfile();
             try {
                 launcher.exec(writer);
@@ -100,9 +93,5 @@ public class StoolCallable implements Callable<Failure> {
             writer.println((failure == null ? "OK" : "FAILED") + " (ms= " + time + ")");
         }
         return failure;
-    }
-
-    private static String hide(String str, String hide) {
-        return hide == null || hide.isEmpty() ? str : str.replace(hide, "********");
     }
 }

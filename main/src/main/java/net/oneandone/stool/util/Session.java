@@ -31,7 +31,6 @@ import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.locking.LockManager;
-import net.oneandone.stool.scm.Scm;
 import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.LinkException;
@@ -54,11 +53,10 @@ import java.util.List;
 import java.util.Map;
 
 public class Session {
-    public static Session load(boolean setenv, FileNode home, Logging logging, String command, Console console, World world,
-                               String svnuser, String svnpassword) throws IOException {
+    public static Session load(boolean setenv, FileNode home, Logging logging, String command, Console console, World world) throws IOException {
         Session session;
 
-        session = loadWithoutBackstageWipe(setenv, home, logging, command, console, world, svnuser, svnpassword);
+        session = loadWithoutBackstageWipe(setenv, home, logging, command, console, world);
 
         // Stale backstage wiping: how to detect backstage directories who's stage directory was removed.
         //
@@ -112,14 +110,11 @@ public class Session {
     }
 
     private static Session loadWithoutBackstageWipe(boolean setenv, FileNode home, Logging logging, String command, Console console,
-                                                  World world, String svnuser, String svnpassword) throws IOException {
+                                                  World world) throws IOException {
         Gson gson;
-        Session result;
 
         gson = gson(world);
-        result = new Session(setenv, gson, logging, command, home, console, world,
-                StoolConfiguration.load(gson, home), svnuser, svnpassword);
-        return result;
+        return new Session(setenv, gson, logging, command, home, console, world, StoolConfiguration.load(gson, home));
     }
 
     private static final int MEM_RESERVED_OS = 500;
@@ -140,8 +135,6 @@ public class Session {
 
     private final FileNode backstages;
 
-    private final Credentials svnCredentials;
-
     private final String stageIdPrefix;
     private int nextStageId;
     public final Users users;
@@ -151,7 +144,7 @@ public class Session {
     private Pool lazyPool;
 
     public Session(boolean setenv, Gson gson, Logging logging, String command,
-                   FileNode home, Console console, World world, StoolConfiguration configuration, String svnuser, String svnpassword) {
+                   FileNode home, Console console, World world, StoolConfiguration configuration) {
         this.setenv = setenv;
         this.gson = gson;
         this.logging = logging;
@@ -162,7 +155,6 @@ public class Session {
         this.world = world;
         this.configuration = configuration;
         this.backstages = home.join("backstages");
-        this.svnCredentials = new Credentials(svnuser, svnpassword);
         this.stageIdPrefix = logging.id + ".";
         this.nextStageId = 0;
         if (configuration.ldapUrl.isEmpty()) {
@@ -291,10 +283,6 @@ public class Session {
             reportException(entry.getKey() + ": Session.listWithoutDashboard", entry.getValue());
         }
         return result;
-    }
-
-    public Credentials svnCredentials() {
-        return svnCredentials;
     }
 
     public Project load(String id) throws IOException {

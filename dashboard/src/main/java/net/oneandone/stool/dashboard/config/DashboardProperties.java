@@ -27,18 +27,12 @@ public class DashboardProperties {
 
         props = home.join("system/dashboard.properties");
         p = props.exists() ? props.readProperties() : new Properties();
-        return new DashboardProperties(p.getProperty("sso", ""),
-                p.getProperty("svnuser", ""), p.getProperty("svnpassword", ""));
+        return new DashboardProperties(p.getProperty("sso", ""));
     }
 
     public final String sso;
 
-    public final String svnuser;
-    public final String svnpassword;
-
-    public DashboardProperties(String sso, String svnuser, String svnpassword) {
+    public DashboardProperties(String sso) {
         this.sso = sso;
-        this.svnuser = svnuser;
-        this.svnpassword = svnpassword;
     }
 }

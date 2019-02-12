@@ -36,9 +36,6 @@ public class Globals {
     public final Console console;
     public final World world;
 
-    public String svnuser;
-    public String svnpassword;
-
     public Globals(boolean setenv, Environment environment, FileNode home, Logging logging, String command, Console console, World world) {
         this.setenv = setenv;
         this.environment = environment;
@@ -49,12 +46,6 @@ public class Globals {
         this.world = world;
     }
 
-    public void setSvnuser(String svnuser) {
-        this.svnuser = svnuser;
-    }
-    public void setSvnpassword(String svnpassword) {
-        this.svnpassword = svnpassword;
-    }
     public void setException(boolean exception) {
         if (exception) {
             throw new RuntimeException("intentional exception");
@@ -68,7 +59,7 @@ public class Globals {
             throw new IOException("Stool home directory not found: " + home.getAbsolute()
                      + "\nRun 'stool setup' to create it.");
         }
-        session = Session.load(setenv, home, logging, command, console, world, svnuser, svnpassword);
+        session = Session.load(setenv, home, logging, command, console, world);
         session.checkVersion();
         return session;
     }
