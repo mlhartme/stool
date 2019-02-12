@@ -2,7 +2,8 @@
 
 ### 5.0.0 (pending)
 
-Stool is a tool to create container on develop workstations; it no longer supports shared environments
+Stool is a tool to create containers on develop workstations and manage them on a (shared) docker host; 
+it no longer supports shared environments
 
 * stool is no long responsible to manage checkouts - use your standard tools instead; 
   * dumped `create` and `refresh` command

@@ -20,7 +20,6 @@ import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.io.IOException;
 import java.nio.file.Files;
 
 public class Remove extends ProjectCommand {
