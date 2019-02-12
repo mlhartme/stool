@@ -50,10 +50,9 @@ public class Autoconf {
         FileNode downloadsCache;
         FileNode init;
 
-        tools = oneAndOneTools(environment);
+        tools = cisoTools(environment);
         if (tools != null) {
             dest.ldapUnit = "cisostages";
-            dest.systemExtras = tools;
             dest.admin = "michael.hartmeier@1und1.de";
             dest.mailHost = "mri.server.lan";
             dest.macros.put("trustStore", "-Djavax.net.ssl.trustStore=" + tools + "/cacerts");
@@ -86,7 +85,7 @@ public class Autoconf {
         }
     }
 
-    private static String oneAndOneTools(Environment environment) {
+    private static String cisoTools(Environment environment) {
         return environment.getOpt("CISOTOOLS_HOME");
     }
 

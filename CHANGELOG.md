@@ -2,7 +2,9 @@
 
 ### 5.0.0 (pending)
 
-* stool is no long responsible to manage checkouts - use your standard tools instead
+Stool is a tool to create container on develop workstations; it no longer supports shared environments
+
+* stool is no long responsible to manage checkouts - use your standard tools instead; 
   * dumped `create` and `refresh` command
   * dumped `refresh` stage config
   * changed `remove` command to leave the project as-is; the current directory is also left as-is

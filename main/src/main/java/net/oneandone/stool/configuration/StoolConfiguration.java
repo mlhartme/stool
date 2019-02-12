@@ -106,9 +106,6 @@ public class StoolConfiguration {
     /** Path to docker unix domain socket */
     public String docker;
 
-    /** Path available to system application containers */
-    public String systemExtras;
-
     public StoolConfiguration() {
         portFirst = 9000;
         portLast = 9999;
@@ -130,7 +127,6 @@ public class StoolConfiguration {
         search = "";
         quota = 0;
         docker = "/var/run/docker.sock";
-        systemExtras = "";
     }
 
     public static FileNode configurationFile(FileNode home) {
