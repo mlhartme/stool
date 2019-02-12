@@ -78,7 +78,7 @@ public abstract class Project {
         if (origin == null) {
             throw new IOException("cannot determine stage origin: " + directory);
         }
-        result = createOpt(session, id, origin, configuration, directory);
+        result = createOpt(session, id, configuration, directory);
         if (result == null) {
             throw new IOException("unknown stage type: " + directory);
         }
@@ -87,24 +87,15 @@ public abstract class Project {
 
     /** @return stage url or null if not a stage */
     public static String probe(FileNode directory) throws IOException {
-        Node artifactGav;
-
         directory.checkDirectory();
-        artifactGav = ArtifactProject.urlFile(directory);
-        if (artifactGav.exists()) {
-            return artifactGav.readString().trim();
-        }
         return Scm.checkoutUrlOpt(directory);
     }
 
-    public static Project createOpt(Session session, String id, String origin, StageConfiguration configuration, FileNode directory) throws IOException {
+    public static Project createOpt(Session session, String id, StageConfiguration configuration, FileNode directory) throws IOException {
         if (configuration == null) {
             throw new IllegalArgumentException();
         }
         directory.checkDirectory();
-        if (origin.startsWith("gav:") || origin.startsWith("file:")) {
-            return new ArtifactProject(session, origin, id, directory, configuration);
-        }
         if (directory.join("pom.xml").exists()) {
             return SourceProject.forLocal(session, id, directory, configuration);
         }

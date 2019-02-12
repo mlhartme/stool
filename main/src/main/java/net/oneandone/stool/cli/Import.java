@@ -194,8 +194,7 @@ public class Import extends SessionCommand {
                 }
             }
         } else {
-            project = Project.createOpt(session, upgradeId == null ? session.nextStageId() : upgradeId,
-                    url, session.createStageConfiguration(url), parent);
+            project = Project.createOpt(session, upgradeId == null ? session.nextStageId() : upgradeId, session.createStageConfiguration(url), parent);
             if (project == null) {
                 throw new IllegalStateException(parent + " " + url);
             }
