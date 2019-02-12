@@ -96,7 +96,6 @@ public class Import extends SessionCommand {
                 project = found.get(0);
                 console.info.println("Importing " + project.getDirectory());
                 doImport(project, null);
-                session.cd(project.getDirectory());
                 break;
             default:
                 interactiveImport(found);

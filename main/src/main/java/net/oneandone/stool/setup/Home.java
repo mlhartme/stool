@@ -17,7 +17,6 @@ package net.oneandone.stool.setup;
 
 import com.google.gson.Gson;
 import net.oneandone.inline.Console;
-import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Autoconf;
 import net.oneandone.stool.configuration.StoolConfiguration;
@@ -88,7 +87,7 @@ public class Home {
     }
 
     public void profile(FileNode dest, String extra) throws IOException {
-        dest.writeString(Setenv.get().setenvBash() + file("files/profile") + extra);
+        dest.writeString(file("files/profile") + extra);
     }
 
     public void bashComplete(FileNode dest) throws IOException {

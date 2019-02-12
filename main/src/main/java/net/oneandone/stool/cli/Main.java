@@ -75,7 +75,7 @@ public class Main {
         }
         command = "stool " + hideCredentials(args);
         logging.log("COMMAND", command);
-        globals = new Globals(!it, environment, home, logging, command, console, world);
+        globals = new Globals(environment, home, logging, command, console, world);
         cli = new Cli(globals::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
@@ -87,10 +87,8 @@ public class Main {
               cli.begin("globals.session", "");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Import.class, "import -name=@import.name:%d -max=@import.max:40 dir* { dirs*(dir) setMax(max) setName(name) }");
-                    cli.add(Select.class, "select -fuzzy=@select.fuzzy name?=null");
                     cli.base(ProjectCommand.class, "-autorestart=@auto.restart -autostop=@auto.stop -stage=null -all -fail "
                             + "{ setAutoRestart(autorestart) setAutoStop(autostop) setStage(stage) setAll(all) setFail(fail) }");
-                      cli.add(Cd.class, "cd target?=null { setTarget(target) }");
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -details=@history.details:false -max=@history.max:50");

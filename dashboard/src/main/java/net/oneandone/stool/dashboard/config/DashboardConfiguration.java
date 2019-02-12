@@ -69,7 +69,7 @@ public class DashboardConfiguration {
         p = properties();
         logging = Logging.create(logs(), "dashboard", Environment.loadSystem().detectUser());
         logging.log("dashboard", "startup");
-        return Session.load(false, home(), logging, "dashboard", console(), world());
+        return Session.load(home(), logging, "dashboard", console(), world());
     }
 
     @Bean

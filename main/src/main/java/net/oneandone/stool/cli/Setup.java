@@ -16,7 +16,6 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.setup.Home;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Session;
@@ -56,18 +55,11 @@ public class Setup {
     }
 
     public void run() throws IOException {
-        Setenv setenv;
-
         console.info.println("Stool " + version);
         if (home.isDirectory()) {
             update();
         } else {
             create();
-        }
-        // For proper installation in cisotools   TODO: is this a hack?
-        setenv = Setenv.get();
-        if (setenv.isConfigured()) {
-            setenv.line(". " + home.join("shell.rc").getAbsolute());
         }
     }
 

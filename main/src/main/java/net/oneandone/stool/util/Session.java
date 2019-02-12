@@ -20,7 +20,6 @@ import com.google.gson.GsonBuilder;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.maven.embedded.Maven;
-import net.oneandone.setenv.Setenv;
 import net.oneandone.stool.cli.EnumerationFailed;
 import net.oneandone.stool.cli.Main;
 import net.oneandone.stool.configuration.Accessor;
@@ -53,10 +52,10 @@ import java.util.List;
 import java.util.Map;
 
 public class Session {
-    public static Session load(boolean setenv, FileNode home, Logging logging, String command, Console console, World world) throws IOException {
+    public static Session load(FileNode home, Logging logging, String command, Console console, World world) throws IOException {
         Session session;
 
-        session = loadWithoutBackstageWipe(setenv, home, logging, command, console, world);
+        session = loadWithoutBackstageWipe(home, logging, command, console, world);
 
         // Stale backstage wiping: how to detect backstage directories who's stage directory was removed.
         //
@@ -109,19 +108,17 @@ public class Session {
         return false;
     }
 
-    private static Session loadWithoutBackstageWipe(boolean setenv, FileNode home, Logging logging, String command, Console console,
-                                                  World world) throws IOException {
+    private static Session loadWithoutBackstageWipe(FileNode home, Logging logging, String command, Console console, World world) throws IOException {
         Gson gson;
 
         gson = gson(world);
-        return new Session(setenv, gson, logging, command, home, console, world, StoolConfiguration.load(gson, home));
+        return new Session(gson, logging, command, home, console, world, StoolConfiguration.load(gson, home));
     }
 
     private static final int MEM_RESERVED_OS = 500;
 
     //--
 
-    private final boolean setenv;
     public final Gson gson;
     public final Logging logging;
     public final String user;
@@ -143,9 +140,7 @@ public class Session {
     private Map<String, Accessor> lazyAccessors;
     private Pool lazyPool;
 
-    public Session(boolean setenv, Gson gson, Logging logging, String command,
-                   FileNode home, Console console, World world, StoolConfiguration configuration) {
-        this.setenv = setenv;
+    public Session(Gson gson, Logging logging, String command, FileNode home, Console console, World world, StoolConfiguration configuration) {
         this.gson = gson;
         this.logging = logging;
         this.user = logging.getUser();
@@ -540,12 +535,6 @@ public class Session {
             result.add(line);
         }
         return result;
-    }
-
-    public void cd(FileNode dir) {
-        if (setenv) {
-            Setenv.get().cd(dir.getAbsolute());
-        }
     }
 
     public void checkVersion() throws IOException {

@@ -9,6 +9,10 @@
   * dumped svn credentials handling
   * dumped macros
   
+* stool no longer adjust the current working directory
+  * dumped cd (TODO: add this functionality to pommes)
+  * dumped select (use `pg`)
+  
 * stool is no longer responsible for building - use your standard build tools and configuration instead
   * dumped `build` command
   * dumped `refresh -build` option

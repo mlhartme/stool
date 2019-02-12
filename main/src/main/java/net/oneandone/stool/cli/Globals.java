@@ -28,7 +28,6 @@ import java.lang.reflect.InvocationTargetException;
 
 /** Basically a session factory */
 public class Globals {
-    private final boolean setenv;
     public final Environment environment;
     public final FileNode home;
     public final Logging logging;
@@ -36,8 +35,7 @@ public class Globals {
     public final Console console;
     public final World world;
 
-    public Globals(boolean setenv, Environment environment, FileNode home, Logging logging, String command, Console console, World world) {
-        this.setenv = setenv;
+    public Globals(Environment environment, FileNode home, Logging logging, String command, Console console, World world) {
         this.environment = environment;
         this.home = home;
         this.logging = logging;
@@ -59,7 +57,7 @@ public class Globals {
             throw new IOException("Stool home directory not found: " + home.getAbsolute()
                      + "\nRun 'stool setup' to create it.");
         }
-        session = Session.load(setenv, home, logging, command, console, world);
+        session = Session.load(home, logging, command, console, world);
         session.checkVersion();
         return session;
     }
