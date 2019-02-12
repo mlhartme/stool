@@ -3,7 +3,7 @@
 ### 5.0.0 (pending)
 
 * stool is no long responsible to manage checkouts - use your standard tools instead
-  * dumped `create` command
+  * dumped `create` and `refresh` command
   * changed `remove` command to leave the project as-is
   
 * stool is no longer responsible for building - use your standard build tools and configuration instead

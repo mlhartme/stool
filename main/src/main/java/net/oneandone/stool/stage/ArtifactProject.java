@@ -140,41 +140,9 @@ public class ArtifactProject extends Project {
                 throw new IOException("application not found: " + application.location);
             }
         }
-        executeRefresh(console);
+        // TODO: executeRefresh(console);
     }
 
-    @Override
-    public boolean refreshPending(Console console) throws IOException {
-        boolean result;
-
-        result = false;
-        for (Application application : applications.applications()) {
-            if (application.refreshFuture(stage.session)) {
-                result = true;
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public void executeRefresh(Console console) throws IOException {
-        for (Application application : applications.applications()) {
-            if (application.updateAvailable()) {
-                application.update();
-            }
-        }
-    }
-
-    @Override
-    public void restoreFromBackup(Console console) throws IOException {
-        try {
-            for (Application application : applications.applications()) {
-                application.restore();
-            }
-        } catch (MoveException e) {
-            throw new IOException("TODO", e);
-        }
-    }
 
     @Override
     public Map<String, FileNode> vhosts() {

@@ -218,16 +218,6 @@ public abstract class Project {
         return lazyMacros;
     }
 
-    public abstract boolean refreshPending(Console console) throws IOException;
-
-    public void restoreFromBackup(Console console) throws IOException {
-        console.info.println("Nothing to restore.");
-    }
-
-    public void executeRefresh(Console console) throws IOException {
-        launcher(Strings.toArray(Separator.SPACE.split(macros().replace(stage.config().refresh)))).exec(console.info);
-    }
-
     //--
 
     public void tuneConfiguration() throws IOException {
