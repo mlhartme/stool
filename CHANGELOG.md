@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 4.0.3 (pending)
+### 4.0.3 (2019-02-13)
 
 * dashboard
   * show stage comment has hover on stage name (stage origin is now show as hover on stage status)
