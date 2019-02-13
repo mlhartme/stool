@@ -144,13 +144,13 @@ dashboard = {
         },
 
         filter: function () {
-            var search = $('#search').val();
-            var category = $('#category').val();
+            var search = $('#search').val().toLowerCase();
+            var category = $('#category').val().toLowerCase();
 
             found = 0;
             $('#all-stages').find('tr.stage').each(function (idx, tr) {
-                if (($(tr).attr('data-origin').indexOf(category) > -1)
-                           && ($(tr).attr('data-name').indexOf(search) > -1 || $(tr).attr('data-user').indexOf(search) > -1)) {
+                if (($(tr).attr('data-origin').toLowerCase().indexOf(category) > -1)
+                           && ($(tr).attr('data-name').toLowerCase().indexOf(search) > -1 || $(tr).attr('data-user').toLowerCase().indexOf(search) > -1)) {
                     $(this).toggle(true);
                     found++;
                 } else {
