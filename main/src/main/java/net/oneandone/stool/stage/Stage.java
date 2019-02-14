@@ -187,12 +187,6 @@ public class Stage {
         }
     }
 
-    public void tuneConfiguration(int size) {
-        if (config().memory == 0 || config().memory == 400) {
-            config().memory = Math.min(4096, 200 + size * session.configuration.baseMemory);
-        }
-    }
-
     public void initialize() throws IOException {
         // important: this is the last step in stage creation; creating this file indicates that the stage is ready
         session.saveStageProperties(config(), directory);

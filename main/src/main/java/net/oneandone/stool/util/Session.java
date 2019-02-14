@@ -179,7 +179,7 @@ public class Session {
         return backstages.join(id);
     }
 
-    public FileNode findStageDirectory(FileNode dir) {
+    public FileNode findProjectDirectory(FileNode dir) {
         do {
             if (Project.backstageDirectory(dir).exists()) {
                 return dir;
@@ -345,15 +345,15 @@ public class Session {
     private String lazySelectedId = UNKNOWN;
 
     public String getSelectedStageId() throws IOException {
-        FileNode directory;
+        FileNode project;
         FileNode bs;
 
         if (lazySelectedId == UNKNOWN) {
-            directory = findStageDirectory(world.getWorking());
-            if (directory == null) {
+            project = findProjectDirectory(world.getWorking());
+            if (project == null) {
                 lazySelectedId = null;
             } else {
-                bs = Project.backstageDirectory(directory);
+                bs = Project.backstageDirectory(project);
                 for (FileNode link : backstages.list()) {
                     if (link.resolveLink().equals(bs)) {
                         lazySelectedId = link.getName();

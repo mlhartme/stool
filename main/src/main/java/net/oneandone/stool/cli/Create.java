@@ -16,7 +16,6 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
@@ -38,7 +37,6 @@ public class Create extends SessionCommand {
     @Override
     public void doRun() throws IOException {
         String origin;
-        Project result;
         Stage stage;
         FileNode backstage;
 
@@ -50,13 +48,10 @@ public class Create extends SessionCommand {
         if (origin == null) {
             throw new ArgumentException("unknown scm: " + project);
         }
-
-        result = new Project(origin, project);
         stage = new Stage(session, session.nextStageId(), Project.backstageDirectory(project), session.createStageConfiguration(origin));
-
         backstage.mkdir();
         stage.config().name = name(project);
-        stage.tuneConfiguration(result.size());
+        stage.config().tuneMemory(stage.session.configuration.baseMemory, new Project(origin, project).size());
         stage.initialize();
         stage.modify();
 

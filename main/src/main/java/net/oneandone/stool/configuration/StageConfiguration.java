@@ -95,6 +95,12 @@ public class StageConfiguration {
         this.templateEnv = Strings.toMap("version", "9.0.13", "opts", "", "debug", "false", "suspend", "false");
     }
 
+    public void tuneMemory(int baseMemory, int size) {
+        if (memory == 0 || memory == 400) {
+            memory = Math.min(4096, 200 + size * baseMemory);
+        }
+    }
+
     public void save(Gson gson, Node file) throws IOException {
         try (Writer writer = file.newWriter()) {
             gson.toJson(this, writer);
