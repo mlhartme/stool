@@ -383,22 +383,6 @@ public class Session {
         return reserved;
     }
 
-    public void checkDiskFree(FileNode directory) {
-        int free;
-        int min;
-
-        free = diskFree(directory);
-        min = configuration.diskMin;
-        if (free < min) {
-            throw new ArgumentException("Disk almost full. Currently available " + free + " mb, required " + min + " mb.");
-        }
-    }
-
-    /** @return Free disk space in partition used for stool lib. TODO: not necessarily the partition used for stages. */
-    private int diskFree(FileNode directory) {
-        return (int) (directory.toPath().toFile().getUsableSpace() / 1024 / 1024);
-    }
-
     public FileNode ports() {
         return home.join("run/ports");
     }
@@ -437,7 +421,7 @@ public class Session {
         return lazyPool;
     }
 
-    public void updatePool() { // TODO: hack to see updates application urls
+    public void updatePool() { // TODO: hack to see updated application urls
         lazyPool = null;
     }
 
