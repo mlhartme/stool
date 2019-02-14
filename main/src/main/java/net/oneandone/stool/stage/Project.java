@@ -16,9 +16,7 @@
 package net.oneandone.stool.stage;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.util.Field;
-import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
@@ -40,8 +38,18 @@ import java.util.Map;
  * Concrete implementations are SourceProject or ArtifactProject.
  */
 public class Project {
-    public static Project forDirectory(Session session, String id, FileNode directory, StageConfiguration configuration) throws IOException {
-        return new Project(origin(directory), directory);
+    public static Project load(FileNode backstageLink) throws IOException {
+        FileNode backstageResolved;
+        FileNode project;
+
+        try {
+            backstageResolved = backstageLink.resolveLink();
+        } catch (IOException e) {
+            throw new IOException("unknown stage id: " + backstageLink.getName(), e);
+        }
+        project = backstageResolved.getParent();
+        project.checkDirectory();
+        return new Project(origin(project), project);
     }
 
     public static String origin(FileNode dir) throws IOException {
@@ -74,41 +82,14 @@ public class Project {
         return launcher;
     }
 
-    //--
-
     public static FileNode backstageDirectory(FileNode projectDirectory) {
         return projectDirectory.join(".backstage");
     }
 
     //--
 
-    public static Project load(Session session, FileNode backstageLink) throws IOException {
-        FileNode backstageResolved;
-
-        try {
-            backstageResolved = backstageLink.resolveLink();
-        } catch (IOException e) {
-            throw new IOException("unknown stage id: " + backstageLink.getName(), e);
-        }
-        return load(session, backstageLink.getName(), session.loadStageConfiguration(backstageResolved), backstageResolved.getParent());
-    }
-
-    public static Project load(Session session, String id, StageConfiguration configuration, FileNode directory) throws IOException {
-        if (configuration == null) {
-            throw new IllegalArgumentException();
-        }
-        directory.checkDirectory();
-        return Project.forDirectory(session, id, directory, configuration);
-    }
-
-    //--
-
     private final String origin;
-
-    /** user visible directory */
-    private FileNode directory;
-
-    //--
+    private final FileNode directory;
 
     public Project(String origin, FileNode directory) {
         this.origin = origin;
@@ -118,9 +99,11 @@ public class Project {
     public FileNode getDirectory() {
         return directory;
     }
+
     public String getOrigin() {
         return origin;
     }
+
     public String getType() {
         return getClass().getSimpleName().toLowerCase();
     }
@@ -165,7 +148,7 @@ public class Project {
 
     @Override
     public String toString() {
-        return getType() + " " + origin;
+        return origin;
     }
 
     //--
@@ -365,12 +348,6 @@ public class Project {
             @Override
             public Object get() {
                 return Project.this.getOrigin();
-            }
-        });
-        fields.add(new Field("type") {
-            @Override
-            public Object get() {
-                return Project.this.getType();
             }
         });
         fields.add(new Field("buildtime") {

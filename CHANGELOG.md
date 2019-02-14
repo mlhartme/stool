@@ -40,6 +40,7 @@ it no longer supports shared environments
   * remove Project.updatesAvailable
   
   
+* dumped `type` field
 * updated inline 1.1.1 to 1.2.0
 
 

@@ -54,7 +54,7 @@ public class Port extends StageCommand {
     public void doMain(Stage stage) throws Exception {
         Project project;
 
-        project = Project.load(session, session.backstageLink(stage.getId()));
+        project = Project.load(session.backstageLink(stage.getId()));
         session.pool().allocate(stage, project.selectedWars(stage.config().select), ports);
     }
 }
