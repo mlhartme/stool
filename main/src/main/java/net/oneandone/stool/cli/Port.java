@@ -18,12 +18,13 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class Port extends ProjectCommand {
+public class Port extends StageCommand {
     private final Map<String, Integer> ports = new HashMap<>();
 
     public Port(Session session) {
@@ -50,7 +51,10 @@ public class Port extends ProjectCommand {
     }
 
     @Override
-    public void doMain(Project project) throws Exception {
+    public void doMain(Stage stage) throws Exception {
+        Project project;
+
+        project = Project.load(session, session.backstageLink(stage.getId()));
         session.pool().allocate(project, ports);
     }
 }

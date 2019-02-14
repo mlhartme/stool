@@ -17,9 +17,10 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
-public class Restart extends ProjectCommand {
+public class Restart extends StageCommand {
     private final boolean noCache;
 
     public Restart(Session session, boolean noCache) {
@@ -28,13 +29,13 @@ public class Restart extends ProjectCommand {
     }
 
     @Override
-    public void doMain(Project project) throws Exception {
-        if (project.getStage().state() == Project.State.UP || project.getStage().state() == Project.State.WORKING) {
-            new Stop(session).doRun(project);
+    public void doMain(Stage stage) throws Exception {
+        if (stage.state() == Project.State.UP || stage.state() == Project.State.WORKING) {
+            new Stop(session).doRun(stage);
         } else {
             console.info.println("Container is not running - starting a new instance.");
         }
 
-        new Start(session, false, noCache).doRun(project);
+        new Start(session, false, noCache).doRun(stage);
     }
 }
