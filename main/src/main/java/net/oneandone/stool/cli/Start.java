@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-public class Start extends ProjectCommand {
+public class Start extends StageCommand {
     private final boolean tail;
     private final boolean noCache;
 
@@ -52,48 +52,50 @@ public class Start extends ProjectCommand {
     }
 
     @Override
-    public void doMain(Project project) throws Exception {
-        project.stage.modify();
+    public void doMain(Stage stage) throws Exception {
+        stage.modify();
         // to avoid running into a ping timeout below:
-        project.stage.session.configuration.verfiyHostname();
-        project.stage.checkConstraints();
-        checkNotStarted(project);
+        stage.session.configuration.verfiyHostname();
+        stage.checkConstraints();
+        checkNotStarted(stage);
 
-        doNormal(project);
+        doNormal(stage);
     }
 
     @Override
-    public void doFinish(Project project) throws Exception {
+    public void doFinish(Stage stage) throws Exception {
         // TODO - to avoid quick start/stop problems; just a ping doesn't solve this, and I don't understand why ...
-        project.stage.awaitStartup(console);
+        stage.awaitStartup(console);
         Thread.sleep(2000);
         console.info.println("Applications available:");
-        for (String app : project.stage.namedUrls()) {
+        for (String app : stage.namedUrls()) {
             console.info.println("  " + app);
         }
         if (tail) {
-            doTail(project);
+            doTail(stage);
         }
     }
 
     //--
 
-    public void doNormal(Project project) throws Exception {
+    public void doNormal(Stage stage) throws Exception {
         Ports ports;
+        Project project;
 
+        project = Project.load(session, session.backstageLink(stage.getId()));
         ports = session.pool().allocate(project, Collections.emptyMap());
-        project.stage.start(project.wars(), console, ports, noCache);
+        stage.start(project.wars(), console, ports, noCache);
     }
 
-    private void doTail(Project project) throws IOException {
+    private void doTail(Stage stage) throws IOException {
         console.info.println("Tailing container output.");
         console.info.println("Press Ctrl-C to abort.");
         console.info.println();
-        project.stage.tailF(console.info);
+        stage.tailF(console.info);
     }
 
-    private void checkNotStarted(Project project) throws IOException {
-        if (project.getStage().state().equals(Project.State.UP)) {
+    private void checkNotStarted(Stage stage) throws IOException {
+        if (stage.state().equals(Project.State.UP)) {
             throw new IOException("Stage is already running.");
         }
 
