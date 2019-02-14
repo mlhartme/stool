@@ -73,10 +73,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.oneandone.stool.stage.Project.State.UP;
-
 /** Represents the former backstage directory. From a Docker perspective, a stage roughly represents a Repository */
 public class Stage {
+    public enum State {
+        DOWN, UP, WORKING;
+
+        public String toString() {
+            return name().toLowerCase();
+        }
+    }
+
     public final Session session;
     private final String id;
     public final FileNode directory;
@@ -154,23 +160,23 @@ public class Stage {
         return session.lockManager.hasExclusiveLocks(backstageLock());
     }
 
-    public Project.State state() throws IOException {
+    public State state() throws IOException {
         if (dockerContainer() != null) {
-            return UP;
+            return State.UP;
         } else {
-            return Project.State.DOWN;
+            return State.DOWN;
         }
 
     }
 
     public void checkNotUp() throws IOException {
-        if (state() == UP) {
+        if (state() == State.UP) {
             throw new IOException("stage is not stopped.");
         }
     }
 
     public String displayState() throws IOException {
-        switch (isWorking() ? Project.State.WORKING : state()) {
+        switch (isWorking() ? State.WORKING : state()) {
             case UP:
                 return "success";
             case WORKING:

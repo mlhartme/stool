@@ -16,6 +16,7 @@
 package net.oneandone.stool.templates;
 
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Field;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -62,12 +63,12 @@ public class TemplateField extends Field {
         return new TemplateField(prefix + lst.get(1), project, lst.get(2));
     }
 
-    private final Project project;
+    private final Stage stage;
     private final String method;
 
     private TemplateField(String name, Project project, String method) {
         super(name);
-        this.project = project;
+        this.stage = project.getStage();
         this.method = method;
     }
 
@@ -76,7 +77,7 @@ public class TemplateField extends Field {
         StatusHelper target;
         Method m;
 
-        target = new StatusHelper(project, project.getStage().state(), project.stage.loadPortsOpt());
+        target = new StatusHelper(stage, stage.state(), stage.loadPortsOpt());
         try {
             m = target.getClass().getDeclaredMethod(method, new Class[]{});
         } catch (NoSuchMethodException e) {

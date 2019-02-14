@@ -259,14 +259,6 @@ public class Project {
         return lazyWars;
     }
 
-    public enum State {
-        DOWN, UP, WORKING;
-
-        public String toString() {
-            return name().toLowerCase();
-        }
-    }
-
     //-- stage name
 
     /**

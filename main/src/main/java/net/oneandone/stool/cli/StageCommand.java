@@ -176,11 +176,11 @@ public abstract class StageCommand extends SessionCommand {
     }
 
     private boolean autoStart(Stage stage) throws Exception {
-        Project.State state;
+        Stage.State state;
         boolean postStart;
 
         state = stage.state();
-        if (state == Project.State.UP && (withAutoRunning()) && (autoRestart || autoStop)) {
+        if (state == Stage.State.UP && (withAutoRunning()) && (autoRestart || autoStop)) {
             postStart = autoRestart;
             new Stop(session).doRun(stage);
         } else {

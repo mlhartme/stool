@@ -30,7 +30,7 @@ public class Restart extends StageCommand {
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        if (stage.state() == Project.State.UP || stage.state() == Project.State.WORKING) {
+        if (stage.state() == Stage.State.UP || stage.state() == Stage.State.WORKING) {
             new Stop(session).doRun(stage);
         } else {
             console.info.println("Container is not running - starting a new instance.");
