@@ -250,7 +250,7 @@ public class Session {
                     problems.add(link.getName(), e);
                     continue;
                 }
-                if (predicate.matches(project)) {
+                if (predicate.matches(project.getStage())) {
                     result.add(project.getStage());
                 }
             } else {
@@ -267,7 +267,7 @@ public class Session {
         problems = new EnumerationFailed();
         result = list(problems, new Predicate() {
             @Override
-            public boolean matches(Project project) {
+            public boolean matches(Stage stage) {
                 return true;
             }
         });

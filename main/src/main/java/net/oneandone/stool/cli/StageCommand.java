@@ -31,7 +31,6 @@ import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -150,7 +149,7 @@ public abstract class StageCommand extends SessionCommand {
     protected List<Stage> all(EnumerationFailed problems) throws IOException {
         return session.list(problems, new Predicate() {
             @Override
-            public boolean matches(Project project) {
+            public boolean matches(Stage stage) {
                 return true;
             }
         });
@@ -221,12 +220,12 @@ public abstract class StageCommand extends SessionCommand {
         args = Separator.COMMA.split(string);
         return new Predicate() {
             @Override
-            public boolean matches(Project project) throws IOException {
+            public boolean matches(Stage stage) throws IOException {
                 Predicate op;
 
                 for (String arg : args) {
                     op = and(arg);
-                    if (op.matches(project)) {
+                    if (op.matches(stage)) {
                         return true;
                     }
                 }
@@ -243,12 +242,12 @@ public abstract class StageCommand extends SessionCommand {
         args = AND.split(string);
         return new Predicate() {
             @Override
-            public boolean matches(Project project) throws IOException {
+            public boolean matches(Stage stage) throws IOException {
                 Predicate op;
 
                 for (String arg : args) {
-                    op = compare(project, arg);
-                    if (!op.matches(project)) {
+                    op = compare(stage, arg);
+                    if (!op.matches(stage)) {
                         return false;
                     }
                 }
@@ -258,7 +257,7 @@ public abstract class StageCommand extends SessionCommand {
     }
 
 
-    private Predicate compare(Project project, final String string) throws IOException {
+    private Predicate compare(Stage stage, final String string) throws IOException {
         int idx;
         String name;
         final boolean eq;
@@ -275,8 +274,8 @@ public abstract class StageCommand extends SessionCommand {
         if (idx == -1) {
             return new Predicate() {
                 @Override
-                public boolean matches(Project project) {
-                    return project.getStage().getName().equals(string);
+                public boolean matches(Stage stage) {
+                    return stage.getName().equals(string);
                 }
             };
         }
@@ -287,7 +286,7 @@ public abstract class StageCommand extends SessionCommand {
             eq = true;
             name = string.substring(0, idx);
         }
-        field = project.stage.fieldOpt(name);
+        field = stage.fieldOpt(name);
         if (field != null) {
             property = null;
         } else {
@@ -311,7 +310,7 @@ public abstract class StageCommand extends SessionCommand {
         constValue = value;
         return new Predicate() {
             @Override
-            public boolean matches(Project project) throws IOException {
+            public boolean matches(Stage stage) throws IOException {
                 boolean result;
                 Object obj;
                 String str;
@@ -320,7 +319,7 @@ public abstract class StageCommand extends SessionCommand {
                 if (constField != null) {
                     obj = field.get();
                 } else {
-                    p = project.getStage().propertyOpt(constProperty);
+                    p = stage.propertyOpt(constProperty);
                     if (p == null) {
                         throw new PredicateException("property or status field not found: " + constProperty);
                     }
