@@ -408,49 +408,7 @@ public class Project {
 
     //--
 
-    public Field fieldOpt(String str) throws IOException {
-        for (Field f : fields()) {
-            if (str.equals(f.name())) {
-                return f;
-            }
-        }
-        return null;
-    }
-
-    public List<Info> fieldsAndName() throws IOException {
-        List<Info> result;
-
-        result = new ArrayList<>();
-        result.add(stage.propertyOpt("name"));
-        result.addAll(fields());
-        return result;
-    }
-
-    //--
-
-    public Info info(String str) throws IOException {
-        Info result;
-        List<String> lst;
-
-        result = stage.propertyOpt(str);
-        if (result != null) {
-            return result;
-        }
-        result = fieldOpt(str);
-        if (result != null) {
-            return result;
-        }
-        lst = new ArrayList<>();
-        for (Field f : fields()) {
-            lst.add(f.name());
-        }
-        for (Property p : stage.properties()) {
-            lst.add(p.name());
-        }
-        throw new ArgumentException(str + ": no such status field or property, choose one of " + lst);
-    }
-
-    public List<Field> fields() throws IOException {
+    public List<Field> todoFields() throws IOException {
         List<Field> fields;
 
         fields = stage.fields();

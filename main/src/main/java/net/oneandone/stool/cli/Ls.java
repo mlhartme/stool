@@ -41,7 +41,7 @@ public class Ls extends InfoCommand {
         if (selected.isEmpty()) {
             selected.addAll(defaults());
             if (selected.isEmpty()) {
-                selected.addAll(Arrays.asList("name", "state", "last-modified-by", "origin", "directory"));
+                selected.addAll(Arrays.asList("name", "state", "last-modified-by" /* TODO , "origin", "directory" */));
             }
         }
         header("stages");
@@ -62,7 +62,7 @@ public class Ls extends InfoCommand {
         line = new ArrayList<>();
         lines.add(line);
         for (String infoName : selected) {
-            info = project.info(infoName);
+            info = project.stage.info(infoName);
             line.add(info.getAsString().replace("\t", " "));
         }
     }

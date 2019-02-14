@@ -299,7 +299,7 @@ public abstract class ProjectCommand extends SessionCommand {
             eq = true;
             name = string.substring(0, idx);
         }
-        field = project.fieldOpt(name);
+        field = project.stage.fieldOpt(name);
         if (field != null) {
             property = null;
         } else {

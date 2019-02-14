@@ -41,14 +41,14 @@ public class Status extends InfoCommand {
         if (selected.isEmpty()) {
             selected.addAll(defaults());
             if (selected.isEmpty()) {
-                for (Info info : project.fieldsAndName()) {
+                for (Info info : project.stage.fieldsAndName()) {
                     selected.add(info.name());
                 }
             }
         }
         infos = new ArrayList<>();
         for (String name : selected) {
-            infos.add(project.info(name));
+            infos.add(project.stage.info(name));
         }
         width = 0;
         for (Info info : infos) {
