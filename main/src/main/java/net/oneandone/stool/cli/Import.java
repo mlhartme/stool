@@ -26,182 +26,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Import extends SessionCommand {
-    private int max;
-    private String nameTemplate;
+    private final String nameTemplate;
+    private final FileNode project;
 
-    private final List<FileNode> includes;
-    private final List<FileNode> excludes;
-    private String upgradeId;
-
-    public Import(Session session) {
+    public Import(Session session, String nameTemplate, FileNode project) {
         super(session, Mode.EXCLUSIVE);
-        includes = new ArrayList<>();
-        excludes = new ArrayList<>();
-        max = 40;
-        nameTemplate = "%d";
-    }
-
-    public void setUpgradeId(String id) {
-        upgradeId = id;
-    }
-
-    public void setMax(int max) {
-        this.max = max;
-    }
-
-    public void setName(String name) {
-        this.nameTemplate = name;
-    }
-
-    public void dirs(String directory) {
-        boolean exclude;
-        FileNode node;
-
-        exclude = directory.startsWith("^");
-        if (exclude) {
-            directory = directory.substring(1);
-        }
-        node = world.file(directory);
-        if (!node.isDirectory()) {
-            throw new ArgumentException("no such directory: " + node.getAbsolute());
-        }
-        (exclude ? excludes : includes).add(node);
+        this.nameTemplate = nameTemplate;
+        this.project = project;
     }
 
     @Override
     public void doRun() throws IOException {
-        List<Project> found;
-        List<FileNode> existing;
-        Project project;
-
-        found = new ArrayList<>();
-        if (includes.size() == 0) {
-            includes.add(world.getWorking());
-        }
-        existing = session.stageDirectories();
-
-        for (FileNode directory : includes) {
-            scan(directory, found, existing);
-        }
-        console.info.print("[" + found.size() + " candidates]\u001b[K\r");
-        console.info.println();
-        if (upgradeId != null && found.size() != 1) {
-            throw new IOException("upgrade import failed: " + found.size());
-        }
-        switch (found.size()) {
-            case 0:
-                console.info.println("No stage candidates found.");
-                break;
-            case 1:
-                project = found.get(0);
-                console.info.println("Importing " + project.getDirectory());
-                doImport(project, null);
-                break;
-            default:
-                interactiveImport(found);
-                break;
-        }
-    }
-
-    private void interactiveImport(List<Project> candidates) {
-        Project candidate;
-        String str;
-        int n;
-        int idx;
-        String name;
-
-        while (true) {
-            if (candidates.size() == 0) {
-                console.info.println("Done - no more stage candidates");
-                return;
-            }
-            for (int i = 0; i < candidates.size(); i++) {
-                candidate = candidates.get(i);
-                console.info.println("[" + (i + 1) + "] " + candidate.getDirectory() + "\t" + candidate.getOrigin());
-            }
-            console.info.println("[<number> <name>] to import with the specified name");
-            console.info.println("[a] all of the above");
-            console.info.println("[q] quit - none of the above");
-            str = console.readline("Please select: ").toLowerCase().trim();
-            switch (str) {
-                case "q":
-                    return;
-                case "a":
-                    for (Project f : new ArrayList<>(candidates)) {
-                        importEntry(candidates, f, null);
-                    }
-                    break;
-                default:
-                    idx = str.indexOf(' ');
-                    if (idx != -1) {
-                        name = str.substring(idx + 1).trim();
-                        str = str.substring(0, idx);
-                    } else {
-                        name = null;
-                    }
-                    try {
-                        n = Integer.parseInt(str) - 1;
-                    } catch (NumberFormatException e) {
-                        console.info.println("invalid input: " + str);
-                        continue;
-                    }
-                    importEntry(candidates, candidates.get(n), name);
-                    break;
-            }
-        }
-    }
-
-    private void importEntry(List<Project> candidates, Project candidate, String forceName) {
-        try {
-            doImport(candidate, forceName);
-            candidates.remove(candidate);
-            console.info.println("imported: " + candidate.getStage().getName());
-        } catch (IOException e) {
-            console.info.println(candidate.getDirectory() + ": import failed: " + e.getMessage());
-            e.printStackTrace(console.verbose);
-        }
-    }
-
-    private void scan(FileNode parent, List<Project> result, List<FileNode> existingStages) throws IOException {
         String url;
-        Project project;
+        Project result;
 
-        console.info.print("[" + result.size() + " candidates] scanning " + parent + " ...\u001b[K\r");
-        console.info.flush();
-        if (!parent.isDirectory()) {
-            return;
-        }
-        if (excludes.contains(parent)) {
-            return;
-        }
-        if (parent.getName().startsWith(".")) {
-            return;
-        }
-        if (existingStages.contains(parent)) {
-            // already imported
-            return;
-        }
-
-        url = Project.probe(parent);
+        url = Project.probe(project);
         if (url == null) {
-            if (!parent.join("pom.xml").isFile()) {
-                for (FileNode child : parent.list()) {
-                    scan(child, result, existingStages);
-                    if (result.size() >= max) {
-                        break;
-                    }
-                }
-            }
-        } else {
-            project = Project.createOpt(session, upgradeId == null ? session.nextStageId() : upgradeId, session.createStageConfiguration(url), parent);
-            if (project == null) {
-                throw new IllegalStateException(parent + " " + url);
-            }
-            result.add(project);
-            if (result.size() >= max) {
-                console.info.println("\n\nScan stopped - max number of import projects reached: " + max);
-            }
+            throw new ArgumentException("unknown scm: " + project);
         }
+        result = Project.createOpt(session, session.nextStageId(), session.createStageConfiguration(url), project);
+        if (result == null) {
+            throw new IllegalStateException(result + " " + url);
+        }
+        console.info.println("Importing " + result.getDirectory());
+        doImport(result, null);
     }
 
     private void doImport(Project project, String forceName) throws IOException {
