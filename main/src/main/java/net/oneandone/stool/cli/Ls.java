@@ -55,14 +55,14 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public void doMain(Project project) throws Exception {
+    public void doMain(Stage stage) throws Exception {
         List<String> line;
         Info info;
 
         line = new ArrayList<>();
         lines.add(line);
         for (String infoName : selected) {
-            info = project.stage.info(infoName);
+            info = stage.info(infoName);
             line.add(info.getAsString().replace("\t", " "));
         }
     }

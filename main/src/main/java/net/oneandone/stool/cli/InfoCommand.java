@@ -22,7 +22,7 @@ import net.oneandone.sushi.util.Separator;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class InfoCommand extends ProjectCommand {
+public abstract class InfoCommand extends StageCommand {
 
     protected final List<String> selected = new ArrayList<>();
 

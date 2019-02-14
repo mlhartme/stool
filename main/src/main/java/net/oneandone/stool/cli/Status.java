@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Separator;
@@ -32,7 +32,7 @@ public class Status extends InfoCommand {
     private static final Separator TAB = Separator.on('\t');
 
     @Override
-    public void doMain(Project project) throws Exception {
+    public void doMain(Stage stage) throws Exception {
         List<Info> infos;
         int width;
         boolean first;
@@ -41,14 +41,14 @@ public class Status extends InfoCommand {
         if (selected.isEmpty()) {
             selected.addAll(defaults());
             if (selected.isEmpty()) {
-                for (Info info : project.stage.fieldsAndName()) {
+                for (Info info : stage.fieldsAndName()) {
                     selected.add(info.name());
                 }
             }
         }
         infos = new ArrayList<>();
         for (String name : selected) {
-            infos.add(project.stage.info(name));
+            infos.add(stage.info(name));
         }
         width = 0;
         for (Info info : infos) {
