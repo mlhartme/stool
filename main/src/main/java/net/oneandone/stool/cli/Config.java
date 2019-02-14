@@ -17,7 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Strings;
@@ -28,7 +28,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Config extends ProjectCommand {
+public class Config extends StageCommand {
     private final Map<String, String> arguments;
 
     private boolean get;
@@ -66,7 +66,7 @@ public class Config extends ProjectCommand {
     }
 
     @Override
-    public void doMain(Project project) throws Exception {
+    public void doMain(Stage stage) throws Exception {
         boolean error;
         Property prop;
         String value;
@@ -74,10 +74,10 @@ public class Config extends ProjectCommand {
         int width;
 
         if (set) {
-            project.stage.modify();
+            stage.modify();
             error = false;
             for (Map.Entry<String, String> entry : arguments.entrySet()) {
-                prop = project.getStage().propertyOpt(entry.getKey());
+                prop = stage.propertyOpt(entry.getKey());
                 if (prop == null) {
                     throw new ArgumentException("unknown property: " + entry.getKey());
                 }
@@ -94,10 +94,10 @@ public class Config extends ProjectCommand {
                 }
             }
             if (!error) {
-                session.saveStageProperties(project.getStage().config(), project.getStage().directory);
+                session.saveStageProperties(stage.config(), stage.directory);
             }
         } else {
-            props = get ? argumentProperties(project) : project.getStage().properties();
+            props = get ? argumentProperties(stage) : stage.properties();
             width = 0 ;
             if (props.size() > 1) {
                 for (Property property : props) {
@@ -111,13 +111,13 @@ public class Config extends ProjectCommand {
         }
     }
 
-    private List<Property> argumentProperties(Project project) {
+    private List<Property> argumentProperties(Stage stage) {
         List<Property> result;
         Property property;
 
         result = new ArrayList<>();
         for (String name : arguments.keySet()) {
-            property = project.getStage().propertyOpt(name);
+            property = stage.propertyOpt(name);
             if (property == null) {
                 throw new ArgumentException("unknown property: " + name);
             }
