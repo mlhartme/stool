@@ -17,7 +17,6 @@ package net.oneandone.stool.dashboard.config;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.dashboard.IndexController;
-import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Environment;
@@ -75,7 +74,7 @@ public class DashboardConfiguration {
 
     @Bean
     public Stage self() throws IOException {
-        return Project.load(session(), world().file(System.getProperty("stool.idlink"))).getStage();
+        return session().loadStage(world().file(System.getProperty("stool.idlink")));
     }
 
     @Bean

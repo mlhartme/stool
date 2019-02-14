@@ -189,6 +189,17 @@ public class Session {
         return null;
     }
 
+    public Stage loadStage(FileNode backstageLink) throws IOException {
+        FileNode backstageResolved;
+
+        try {
+            backstageResolved = backstageLink.resolveLink();
+        } catch (IOException e) {
+            throw new IOException("unknown stage id: " + backstageLink.getName(), e);
+        }
+        return new Stage(this, backstageLink.getName(),
+                Project.backstageDirectory(backstageResolved.getParent()), loadStageConfiguration(backstageResolved));
+    }
 
     //--
 
