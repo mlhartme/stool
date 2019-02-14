@@ -37,7 +37,7 @@ public class Import extends SessionCommand {
 
     @Override
     public void doRun() throws IOException {
-        String url;
+        String origin;
         Project result;
         Stage stage;
         FileNode backstage;
@@ -46,12 +46,13 @@ public class Import extends SessionCommand {
         backstage = Project.backstageDirectory(project);
         backstage.checkNotExists();
 
-        url = Project.origin(project);
-        if (url == null) {
+        origin = Project.origin(project);
+        if (origin == null) {
             throw new ArgumentException("unknown scm: " + project);
         }
-        result = new Project(session, Project.origin(project), session.nextStageId(), project, session.createStageConfiguration(url));
-        stage = result.stage;
+
+        result = new Project(origin, project);
+        stage = new Stage(session, session.nextStageId(), Project.backstageDirectory(project), session.createStageConfiguration(origin));
 
         backstage.mkdir();
         stage.config().name = name(project);

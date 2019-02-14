@@ -55,6 +55,6 @@ public class Port extends StageCommand {
         Project project;
 
         project = Project.load(session, session.backstageLink(stage.getId()));
-        session.pool().allocate(stage, project.selectedWars(), ports);
+        session.pool().allocate(stage, project.selectedWars(stage.config().select), ports);
     }
 }

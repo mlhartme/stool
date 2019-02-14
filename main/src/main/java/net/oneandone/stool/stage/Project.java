@@ -40,9 +40,8 @@ import java.util.Map;
  * Concrete implementations are SourceProject or ArtifactProject.
  */
 public class Project {
-    public static Project forDirectory(Session session, String id, FileNode directory, StageConfiguration configuration)
-            throws IOException {
-        return new Project(session, origin(directory), id, directory, configuration);
+    public static Project forDirectory(Session session, String id, FileNode directory, StageConfiguration configuration) throws IOException {
+        return new Project(origin(directory), directory);
     }
 
     public static String origin(FileNode dir) throws IOException {
@@ -109,14 +108,11 @@ public class Project {
     /** user visible directory */
     private FileNode directory;
 
-    public final Stage stage;
-
     //--
 
-    public Project(Session session, String origin, String id, FileNode directory, StageConfiguration configuration) {
+    public Project(String origin, FileNode directory) {
         this.origin = origin;
         this.directory = directory;
-        this.stage = new Stage(session, id, backstageDirectory(directory), configuration);
     }
 
     public FileNode getDirectory() {
@@ -131,14 +127,12 @@ public class Project {
 
     //--
 
-    public Map<String, FileNode> selectedWars() throws IOException {
+    public Map<String, FileNode> selectedWars(List<String> selected) throws IOException {
         Map<String, FileNode> wars;
         Iterator<Map.Entry<String, FileNode>> iter;
-        List<String> selected;
         String name;
 
         wars = new LinkedHashMap<>(wars());
-        selected = stage.config().select;
         if (!selected.isEmpty()) {
             iter = wars.entrySet().iterator();
             while (iter.hasNext()) {
@@ -357,10 +351,10 @@ public class Project {
 
     //--
 
-    public List<Field> todoFields() throws IOException {
+    public List<Field> todoFields() {
         List<Field> fields;
 
-        fields = stage.fields();
+        fields = new ArrayList<>();
         fields.add(new Field("directory") {
             @Override
             public Object get() {
