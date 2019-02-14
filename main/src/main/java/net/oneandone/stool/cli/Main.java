@@ -87,7 +87,7 @@ public class Main {
               cli.begin("globals.session", "");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Import.class, "import -name=@import.name:%d -max=@import.max:40 dir* { dirs*(dir) setMax(max) setName(name) }");
-                    cli.base(ProjectCommand.class, "-autorestart=@auto.restart -autostop=@auto.stop -stage -all -fail "
+                    cli.base(StageCommand.class, "-autorestart=@auto.restart -autostop=@auto.stop -stage -all -fail "
                             + "{ setAutoRestart(autorestart) setAutoStop(autostop) setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
