@@ -17,12 +17,13 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.nio.file.Files;
 
-public class Remove extends ProjectCommand {
+public class Remove extends StageCommand {
     private final boolean batch;
 
     public Remove(Session session, boolean batch) {
@@ -31,20 +32,20 @@ public class Remove extends ProjectCommand {
     }
 
     @Override
-    public void doMain(Project project) throws Exception {
+    public void doMain(Stage stage) throws Exception {
         FileNode dir;
 
-        project.getStage().checkNotUp();
-        project.getStage().modify();
-        dir = session.backstageLink(project.getStage().getId()).resolveLink();
+        stage.checkNotUp();
+        stage.modify();
+        dir = session.backstageLink(stage.getId()).resolveLink();
         if (!batch) {
             console.info.println("Ready to delete " + dir.getAbsolute() + "?");
             console.pressReturn();
         }
-        project.stage.wipeDocker(session.dockerEngine());
+        stage.wipeDocker(session.dockerEngine());
 
         // delete backstageLink first - to make sure no other stool invocation detects a stage backstage and wipes it
-        Files.delete(session.backstageLink(project.getStage().getId()).toPath());
+        Files.delete(session.backstageLink(stage.getId()).toPath());
         dir.deleteTree();
     }
 }

@@ -17,7 +17,6 @@ package net.oneandone.stool.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.EnumerationFailed;
 import net.oneandone.stool.cli.Main;

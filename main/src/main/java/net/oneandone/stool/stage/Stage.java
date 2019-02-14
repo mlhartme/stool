@@ -36,7 +36,6 @@ import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.StandardProperty;
 import net.oneandone.stool.util.TemplateProperty;
-import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;

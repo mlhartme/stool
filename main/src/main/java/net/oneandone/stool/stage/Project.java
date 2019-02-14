@@ -19,8 +19,6 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.templates.TemplateField;
 import net.oneandone.stool.util.Field;
-import net.oneandone.stool.util.Info;
-import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
