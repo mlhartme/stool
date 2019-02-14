@@ -16,6 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Strings;
@@ -34,7 +35,7 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public boolean doBefore(List<Project> projects, int indent) {
+    public boolean doBefore(List<Stage> stages, int indent) {
         List<String> line;
 
         if (selected.isEmpty()) {

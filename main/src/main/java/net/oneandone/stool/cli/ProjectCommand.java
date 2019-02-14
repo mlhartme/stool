@@ -104,7 +104,7 @@ public abstract class ProjectCommand extends SessionCommand {
             width = Math.max(width, project.getStage().getName().length());
         }
         width += 5;
-        withPrefix = doBefore(lst, width);
+        withPrefix = doBefore(stages(lst), width);
         worker = new Worker(width, failures, withPrefix);
         for (Project project : lst) {
             worker.main(project);
@@ -125,6 +125,16 @@ public abstract class ProjectCommand extends SessionCommand {
                     throw new IllegalStateException(fail.toString());
             }
         }
+    }
+
+    private static List<Stage> stages(List<Project> projects) {
+        List<Stage> result;
+
+        result = new ArrayList<>();
+        for (Project project : projects) {
+            result.add(project.getStage());
+        }
+        return result;
     }
 
     private List<Project> selected(EnumerationFailed problems) throws IOException {
@@ -173,8 +183,8 @@ public abstract class ProjectCommand extends SessionCommand {
     }
 
     /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
-    public boolean doBefore(List<Project> projects, int indent) throws IOException {
-        return projects.size() != 1;
+    public boolean doBefore(List<Stage> stages, int indent) throws IOException {
+        return stages.size() != 1;
     }
 
     private boolean autoStart(Project project) throws Exception {

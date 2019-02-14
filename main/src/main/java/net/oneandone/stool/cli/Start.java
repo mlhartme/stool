@@ -17,6 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 
@@ -35,7 +36,7 @@ public class Start extends ProjectCommand {
     }
 
     @Override
-    public boolean doBefore(List<Project> projects, int indent) throws IOException {
+    public boolean doBefore(List<Stage> stages, int indent) throws IOException {
         int global;
         int reserved;
 
@@ -47,7 +48,7 @@ public class Start extends ProjectCommand {
                   + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
             }
         }
-        return super.doBefore(projects, indent);
+        return super.doBefore(stages, indent);
     }
 
     @Override
