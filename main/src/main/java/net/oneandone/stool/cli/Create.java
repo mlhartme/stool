@@ -25,11 +25,11 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
-public class Import extends SessionCommand {
+public class Create extends SessionCommand {
     private final String nameTemplate;
     private final FileNode project;
 
-    public Import(Session session, String nameTemplate, FileNode project) {
+    public Create(Session session, String nameTemplate, FileNode project) {
         super(session, Mode.EXCLUSIVE);
         this.nameTemplate = nameTemplate;
         this.project = project;
@@ -62,7 +62,7 @@ public class Import extends SessionCommand {
 
         session.add(stage.directory, stage.getId());
         session.logging.setStage(stage.getId(), stage.getName());
-        console.info.println("stage imported: " + stage.getName());
+        console.info.println("stage create: " + stage.getName());
     }
 
     private String name(FileNode directory) {

@@ -86,7 +86,7 @@ public class Main {
               cli.add(Setup.class, "setup -batch config? { config(config) }");
               cli.begin("globals.session", "");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
-                    cli.add(Import.class, "import -name=@import.name:%d project");
+                    cli.add(Create.class, "create -name=@import.name:%d project");
                     cli.base(StageCommand.class, "-autorestart=@auto.restart -autostop=@auto.stop -stage -all -fail "
                             + "{ setAutoRestart(autorestart) setAutoStop(autostop) setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Cleanup.class, "cleanup");

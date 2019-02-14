@@ -34,9 +34,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Concrete implementations are SourceProject or ArtifactProject.
- */
 public class Project {
     public static Project load(FileNode backstageLink) throws IOException {
         FileNode backstageResolved;

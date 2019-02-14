@@ -76,7 +76,7 @@ public class StoolIT {
     private void turnaround(String context, FileNode project) throws IOException {
         System.out.println(context);
         stoolSetup(context);
-        stool("import", "-name=it", project.getAbsolute());
+        stool("create", "-name=it", project.getAbsolute());
         stool("status", "-stage", "it");
         stool("validate", "-stage", "it");
         stool("config", "-stage", "it", "memory=300");
