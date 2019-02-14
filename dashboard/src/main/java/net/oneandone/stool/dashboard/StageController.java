@@ -122,22 +122,22 @@ public class StageController {
 
     @RequestMapping(value = "/{name}/logs", method = RequestMethod.GET)
     public Map<String, String> logs(HttpServletRequest httpServletRequest, @PathVariable(value = "name") String stageName) throws Exception {
-        Project project;
+        Stage stage;
         String baseUrl;
 
-        project = resolveStage(stageName);
+        stage = resolveStage(stageName);
         baseUrl = httpServletRequest.getRequestURL().toString();
         baseUrl = baseUrl.substring(0, baseUrl.indexOf('/', 8) + 1);
-        return project.getStage().logs().list(baseUrl + "stages/" + stageName + "/logs/");
+        return stage.logs().list(baseUrl + "stages/" + stageName + "/logs/");
     }
 
     @RequestMapping(value = "/{name}/logs/{log}", method = RequestMethod.GET)
     public ResponseEntity<Resource> log(@PathVariable(value = "name") String stageName,
       @PathVariable(value = "log") String log) throws Exception {
-        Project project;
+        Stage stage;
         String logfile;
 
-        project = resolveStage(stageName);
+        stage = resolveStage(stageName);
         if (log.endsWith(".log")) {
             logfile = log;
         } else {
@@ -146,7 +146,7 @@ public class StageController {
 
         try {
             Resource resource;
-            resource = new FileSystemResource(project.getStage().logs().file(logfile));
+            resource = new FileSystemResource(stage.logs().file(logfile));
 
             return new ResponseEntity<>(resource, HttpStatus.OK);
 
@@ -173,7 +173,7 @@ public class StageController {
         return new ResponseEntity<>(new ExceptionExport(e), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    private Project resolveStage(String stageName) throws ResourceNotFoundException {
+    private Stage resolveStage(String stageName) throws ResourceNotFoundException {
         Project project;
 
         try {
@@ -181,14 +181,14 @@ public class StageController {
         } catch (IOException e) {
             throw (ResourceNotFoundException) new ResourceNotFoundException().initCause(e);
         }
-        return project;
+        return project.getStage();
     }
 
     public String execute(String stage, String command, String ... arguments) {
         String id;
 
         id = UUID.randomUUID().toString();
-        executorService.submit(StoolCallable.create(jar, session.home, id, logs, resolveStage(stage).getStage(),
+        executorService.submit(StoolCallable.create(jar, session.home, id, logs, resolveStage(stage),
                 session.logging.getUser(), command, arguments));
         return id;
     }

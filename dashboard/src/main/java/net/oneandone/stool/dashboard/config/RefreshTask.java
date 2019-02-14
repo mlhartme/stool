@@ -16,7 +16,6 @@
 package net.oneandone.stool.dashboard.config;
 
 import net.oneandone.stool.dashboard.StoolCallable;
-import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
