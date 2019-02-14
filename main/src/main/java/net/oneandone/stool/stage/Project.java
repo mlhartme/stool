@@ -92,39 +92,15 @@ public class Project {
         } catch (IOException e) {
             throw new IOException("unknown stage id: " + backstageLink.getName(), e);
         }
-        return load(session, session.loadStageConfiguration(backstageResolved), backstageLink.getName(), backstageResolved.getParent());
+        return load(session, backstageLink.getName(), session.loadStageConfiguration(backstageResolved), backstageResolved.getParent());
     }
 
-    private static Project load(Session session, StageConfiguration configuration, String id, FileNode directory) throws IOException {
-        Project result;
-        String origin;
-
-        origin = probe(directory);
-        if (origin == null) {
-            throw new IOException("cannot determine stage origin: " + directory);
-        }
-        result = createOpt(session, id, configuration, directory);
-        if (result == null) {
-            throw new IOException("unknown stage type: " + directory);
-        }
-        return result;
-    }
-
-    /** @return stage url or null if not a stage */
-    public static String probe(FileNode directory) throws IOException {
-        directory.checkDirectory();
-        return origin(directory);
-    }
-
-    public static Project createOpt(Session session, String id, StageConfiguration configuration, FileNode directory) throws IOException {
+    public static Project load(Session session, String id, StageConfiguration configuration, FileNode directory) throws IOException {
         if (configuration == null) {
             throw new IllegalArgumentException();
         }
         directory.checkDirectory();
-        if (directory.join("pom.xml").exists()) {
-            return Project.forDirectory(session, id, directory, configuration);
-        }
-        return null;
+        return Project.forDirectory(session, id, directory, configuration);
     }
 
     //--

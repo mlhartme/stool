@@ -40,14 +40,12 @@ public class Import extends SessionCommand {
         String url;
         Project result;
 
-        url = Project.probe(project);
+        project.checkDirectory();
+        url = Project.origin(project);
         if (url == null) {
             throw new ArgumentException("unknown scm: " + project);
         }
-        result = Project.createOpt(session, session.nextStageId(), session.createStageConfiguration(url), project);
-        if (result == null) {
-            throw new IllegalStateException(result + " " + url);
-        }
+        result = Project.load(session, session.nextStageId(), session.createStageConfiguration(url), project);
         console.info.println("Importing " + result.getDirectory());
         doImport(result, null);
     }
