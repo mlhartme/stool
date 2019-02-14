@@ -17,6 +17,7 @@ package net.oneandone.stool.util;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.LineFormat;
 import net.oneandone.sushi.io.LineReader;
@@ -81,10 +82,8 @@ public class Pool {
     }
 
     // TODO: ugly reference to stage ...
-    public Ports allocate(Project project, Map<String, Integer> fixed) throws IOException {
-        // maps vhosts to docroots
+    public Ports allocate(Stage stage, Map<String, FileNode> nameWars, Map<String, Integer> fixed) throws IOException {
         LinkedHashSet<String> names;
-        Map<String, FileNode> nameWars;
         Vhost previous;
         Vhost found;
         String stageName;
@@ -101,11 +100,10 @@ public class Pool {
 
         names.addAll(fixed.keySet());
 
-        nameWars = new LinkedHashMap<>(project.selectedWars());
         names.addAll(nameWars.keySet());
 
-        stageName = project.getStage().getName();
-        stageId = project.getStage().getId();
+        stageName = stage.getName();
+        stageId = stage.getId();
         result = new ArrayList<>();
         for (String name : names) {
             webapp = nameWars.get(name) != null;

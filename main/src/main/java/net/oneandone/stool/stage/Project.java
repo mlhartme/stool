@@ -119,9 +119,6 @@ public class Project {
         this.stage = new Stage(session, id, backstageDirectory(directory), configuration);
     }
 
-    public Stage getStage() {
-        return stage;
-    }
     public FileNode getDirectory() {
         return directory;
     }

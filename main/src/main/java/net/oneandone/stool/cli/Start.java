@@ -83,7 +83,7 @@ public class Start extends StageCommand {
         Project project;
 
         project = Project.load(session, session.backstageLink(stage.getId()));
-        ports = session.pool().allocate(project, Collections.emptyMap());
+        ports = session.pool().allocate(stage, project.selectedWars(), Collections.emptyMap());
         stage.start(project.wars(), console, ports, noCache);
     }
 
