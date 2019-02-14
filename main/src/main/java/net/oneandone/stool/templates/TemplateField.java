@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.templates;
 
-import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Field;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -29,7 +28,7 @@ import java.util.List;
 
 public class TemplateField extends Field {
     /** @return name- to method name map */
-    public static List<TemplateField> scanTemplate(Project project, FileNode directory) throws IOException {
+    public static List<TemplateField> scanTemplate(Stage stage, FileNode directory) throws IOException {
         FileNode file;
         List<TemplateField> result;
         TemplateField f;
@@ -40,7 +39,7 @@ public class TemplateField extends Field {
         file = directory.join("Dockerfile.fm");
         if (file.isFile()) {
             for (String line : file.readLines()) {
-                f = TemplateField.parseOpt(project, prefix, line);
+                f = TemplateField.parseOpt(stage, prefix, line);
                 if (f != null) {
                     result.add(f);
                 }
@@ -49,7 +48,7 @@ public class TemplateField extends Field {
         return result;
     }
 
-    public static TemplateField parseOpt(Project project, String prefix, String line) throws IOException {
+    public static TemplateField parseOpt(Stage stage, String prefix, String line) throws IOException {
         List<String> lst;
 
         line = line.trim();
@@ -60,15 +59,15 @@ public class TemplateField extends Field {
         if (lst.size() != 3) {
             throw new IOException("invalid status directive, expected '#STATUS <name> <method>', got '" + line + "'");
         }
-        return new TemplateField(prefix + lst.get(1), project, lst.get(2));
+        return new TemplateField(prefix + lst.get(1), stage, lst.get(2));
     }
 
     private final Stage stage;
     private final String method;
 
-    private TemplateField(String name, Project project, String method) {
+    private TemplateField(String name, Stage stage, String method) {
         super(name);
-        this.stage = project.getStage();
+        this.stage = stage;
         this.method = method;
     }
 

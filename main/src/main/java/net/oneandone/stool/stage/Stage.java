@@ -26,6 +26,7 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.docker.Stats;
+import net.oneandone.stool.templates.TemplateField;
 import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.util.Field;
@@ -198,6 +199,12 @@ public class Stage {
                 return id;
             }
         });
+        fields.add(new Field("selected") {
+            @Override
+            public Object get() throws IOException {
+                return session.isSelected(Stage.this);
+            }
+        });
         fields.add(new Field("backstage") {
             @Override
             public Object get() {
@@ -305,6 +312,7 @@ public class Stage {
                 return container == null ? null : timespan(session.dockerEngine().containerStartedAt(container));
             }
         });
+        fields.addAll(TemplateField.scanTemplate(this, config().template));
         return fields;
     }
 

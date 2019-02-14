@@ -398,8 +398,8 @@ public class Session {
         return home.join("run/ports");
     }
 
-    public boolean isSelected(Project project) throws IOException {
-        return project.getStage().getId().equals(getSelectedStageId());
+    public boolean isSelected(Stage stage) throws IOException {
+        return stage.getId().equals(getSelectedStageId());
     }
 
     //-- stage properties

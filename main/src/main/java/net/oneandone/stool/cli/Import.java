@@ -39,6 +39,8 @@ public class Import extends SessionCommand {
     public void doRun() throws IOException {
         String url;
         Project result;
+        FileNode backstage;
+        String name;
 
         project.checkDirectory();
         url = Project.origin(project);
@@ -46,30 +48,20 @@ public class Import extends SessionCommand {
             throw new ArgumentException("unknown scm: " + project);
         }
         result = Project.load(session, session.nextStageId(), session.createStageConfiguration(url), project);
-        console.info.println("Importing " + result.getDirectory());
-        doImport(result, null);
-    }
-
-    private void doImport(Project project, String forceName) throws IOException {
-        FileNode directory;
-        FileNode backstage;
-        String name;
-
-        directory = project.getDirectory();
-        name = forceName != null ? forceName : name(directory);
-        backstage = Project.backstageDirectory(directory);
+        name = name(project);
+        backstage = Project.backstageDirectory(project);
         if (backstage.exists()) {
             console.info.println("re-using " + backstage);
         } else {
             backstage.mkdir();
-            project.getStage().config().name = name;
-            project.tuneConfiguration();
-            project.initialize();
+            result.getStage().config().name = name;
+            result.tuneConfiguration();
+            result.initialize();
         }
-        project.stage.modify();
-        session.add(project.getStage().directory, project.getStage().getId());
-        session.logging.setStage(project.getStage().getId(), project.getStage().getName());
-        console.info.println("stage imported: " + project.getStage().getName());
+        result.stage.modify();
+        session.add(result.getStage().directory, result.getStage().getId());
+        session.logging.setStage(result.getStage().getId(), result.getStage().getName());
+        console.info.println("stage imported: " + result.getStage().getName());
     }
 
     private String name(FileNode directory) {

@@ -17,7 +17,6 @@ package net.oneandone.stool.stage;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.templates.TemplateField;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -378,12 +377,6 @@ public class Project {
         List<Field> fields;
 
         fields = stage.fields();
-        fields.add(new Field("selected") {
-            @Override
-            public Object get() throws IOException {
-                return stage.session.isSelected(Project.this);
-            }
-        });
         fields.add(new Field("directory") {
             @Override
             public Object get() {
@@ -408,7 +401,6 @@ public class Project {
                 return Project.this.buildtime();
             }
         });
-        fields.addAll(TemplateField.scanTemplate(this, stage.config().template));
         return fields;
     }
 }
