@@ -19,6 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Processes;
@@ -80,10 +81,6 @@ public abstract class ProjectCommand extends SessionCommand {
 
     //--
 
-    public boolean isNoop(Project project) throws IOException {
-        return false;
-    }
-
     @Override
     public void doRun() throws Exception {
         int width;
@@ -98,7 +95,6 @@ public abstract class ProjectCommand extends SessionCommand {
         }
         failures = new EnumerationFailed();
         lst = selected(failures);
-        lst = filterNops(lst);
         failureMessage = failures.getMessage();
         if (failureMessage != null && fail == Fail.NORMAL) {
             throw failures;
@@ -129,25 +125,6 @@ public abstract class ProjectCommand extends SessionCommand {
                     throw new IllegalStateException(fail.toString());
             }
         }
-    }
-
-    /** @param lst might be not modifyable */
-    private List<Project> filterNops(List<Project> lst) throws IOException {
-        List<Project> result;
-        Iterator<Project> iter;
-        Project project;
-
-        iter = lst.iterator();
-        result = new ArrayList<>();
-        while (iter.hasNext()) {
-            project = iter.next();
-            if (isNoop(project)) {
-                console.verbose.println("nothing to do: " + project.getStage().getName());
-            } else {
-                result.add(project);
-            }
-        }
-        return result;
     }
 
     private List<Project> selected(EnumerationFailed problems) throws IOException {
