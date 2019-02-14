@@ -33,6 +33,11 @@ public abstract class StageCommand extends ProjectCommand {
     /** main method to perform this command */
     public abstract void doMain(Stage stage) throws Exception;
 
+    public void doRun(Stage stage) throws Exception {
+        doMain(stage);
+        doFinish(stage);
+    }
+
     /** override this if your doMain method needs some finishing */
     public final void doFinish(Project project) throws Exception {
         doFinish(project.stage);
