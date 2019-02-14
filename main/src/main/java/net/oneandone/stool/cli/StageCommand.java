@@ -162,7 +162,7 @@ public abstract class StageCommand extends SessionCommand {
         if (id == null) {
             throw new IOException("no stage selected");
         }
-        return session.load(id).getStage();
+        return session.load(id);
     }
 
     /** override this to change the default */

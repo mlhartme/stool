@@ -189,7 +189,7 @@ public class Session {
         return null;
     }
 
-    public Stage loadStage(FileNode backstageLink) throws IOException {
+    public Stage load(FileNode backstageLink) throws IOException {
         FileNode backstageResolved;
 
         try {
@@ -199,6 +199,26 @@ public class Session {
         }
         return new Stage(this, backstageLink.getName(),
                 Project.backstageDirectory(backstageResolved.getParent()), loadStageConfiguration(backstageResolved));
+    }
+
+    public Stage load(String id) throws IOException {
+        return load(backstages.join(id));
+    }
+
+    public Stage loadByName(String stageName) throws IOException {
+        List<FileNode> links;
+        FileNode bs;
+        StageConfiguration config;
+
+        links = backstages.list();
+        for (FileNode link : links) {
+            bs = link.resolveLink();
+            config = StageConfiguration.load(gson, StageConfiguration.file(bs));
+            if (stageName.equals(config.name)) {
+                return load(link.getName());
+            }
+        }
+        throw new IllegalArgumentException("stage not found: " + stageName);
     }
 
     //--
@@ -248,7 +268,7 @@ public class Session {
 
     public List<Stage> list(EnumerationFailed problems, Predicate predicate) throws IOException {
         List<Stage> result;
-        Project project;
+        Stage stage;
         FileNode backstage;
 
         result = new ArrayList<>();
@@ -256,13 +276,13 @@ public class Session {
             backstage = link.resolveLink();
             if (StageConfiguration.file(backstage).exists()) {
                 try {
-                    project = Project.load(this, link);
+                    stage = load(link);
                 } catch (IOException e) {
                     problems.add(link.getName(), e);
                     continue;
                 }
-                if (predicate.matches(project.getStage())) {
-                    result.add(project.getStage());
+                if (predicate.matches(stage)) {
+                    result.add(stage);
                 }
             } else {
                 // stage is being created, we're usually waiting the the checkout to complete
@@ -286,26 +306,6 @@ public class Session {
             reportException(entry.getKey() + ": Session.listWithoutDashboard", entry.getValue());
         }
         return result;
-    }
-
-    public Project load(String id) throws IOException {
-        return Project.load(this, backstages.join(id));
-    }
-
-    public Project loadByName(String stageName) throws IOException {
-        List<FileNode> links;
-        FileNode bs;
-        StageConfiguration config;
-
-        links = backstages.list();
-        for (FileNode link : links) {
-            bs = link.resolveLink();
-            config = StageConfiguration.load(gson, StageConfiguration.file(bs));
-            if (stageName.equals(config.name)) {
-                return load(link.getName());
-            }
-        }
-        throw new IllegalArgumentException("stage not found: " + stageName);
     }
 
     public List<String> stageNames() throws IOException {

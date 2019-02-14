@@ -74,7 +74,7 @@ public class DashboardConfiguration {
 
     @Bean
     public Stage self() throws IOException {
-        return session().loadStage(world().file(System.getProperty("stool.idlink")));
+        return session().load(world().file(System.getProperty("stool.idlink")));
     }
 
     @Bean
