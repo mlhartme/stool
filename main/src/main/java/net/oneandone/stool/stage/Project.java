@@ -179,19 +179,6 @@ public class Project {
 
     //--
 
-    public void tuneConfiguration() throws IOException {
-        if (stage.config().memory == 0 || stage.config().memory == 400) {
-            stage.config().memory = Math.min(4096, 200 + size() * stage.session.configuration.baseMemory);
-        }
-    }
-
-    public void initialize() throws IOException {
-        // important: this is the last step in stage creation; creating this file indicates that the stage is ready
-        stage.session.saveStageProperties(stage.config(), stage.directory);
-    }
-
-    //--
-
     protected void addWars(FileNode directory, Map<String, FileNode> result) throws IOException {
         List<FileNode> files;
         List<FileNode> wars;

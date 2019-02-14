@@ -16,14 +16,14 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Import extends SessionCommand {
     private final String nameTemplate;
@@ -39,29 +39,29 @@ public class Import extends SessionCommand {
     public void doRun() throws IOException {
         String url;
         Project result;
+        Stage stage;
         FileNode backstage;
-        String name;
 
         project.checkDirectory();
+        backstage = Project.backstageDirectory(project);
+        backstage.checkNotExists();
+
         url = Project.origin(project);
         if (url == null) {
             throw new ArgumentException("unknown scm: " + project);
         }
-        result = Project.load(session, session.nextStageId(), session.createStageConfiguration(url), project);
-        name = name(project);
-        backstage = Project.backstageDirectory(project);
-        if (backstage.exists()) {
-            console.info.println("re-using " + backstage);
-        } else {
-            backstage.mkdir();
-            result.getStage().config().name = name;
-            result.tuneConfiguration();
-            result.initialize();
-        }
-        result.stage.modify();
-        session.add(result.getStage().directory, result.getStage().getId());
-        session.logging.setStage(result.getStage().getId(), result.getStage().getName());
-        console.info.println("stage imported: " + result.getStage().getName());
+        result = new Project(session, Project.origin(project), session.nextStageId(), project, session.createStageConfiguration(url));
+        stage = result.stage;
+
+        backstage.mkdir();
+        stage.config().name = name(project);
+        stage.tuneConfiguration(result.size());
+        stage.initialize();
+        stage.modify();
+
+        session.add(stage.directory, stage.getId());
+        session.logging.setStage(stage.getId(), stage.getName());
+        console.info.println("stage imported: " + stage.getName());
     }
 
     private String name(FileNode directory) {
