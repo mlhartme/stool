@@ -1146,29 +1146,24 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
         |- logs           (Stool log files)
         |  |- stool-YYmmDD.log(.gz)
         |  :
-        |- system
-        |  |- dashboard.properties (Dashboard configuration)
-        |  |- dashboard (stage directory of the dashboard stage)
-        |  :
         |- shell.rc (to initialized the users interactive shell)
         |- bash.complete
-        '- backstages
-           |- id (symlink to a backstage directory
-           :
-
-... of stage directories
+        '- stages
+           |- id (directory for the respective stage; former 'backstage')
+           :  |- config.json      (stage configuration)
+              |- creator.touch    (created when stage is created, tracks created-by and created-at)
+              |- modified.touch   (touched if Stool command modifies this stage)
+              |- logs             (log file of running stage)
+              |- container.id     (id of running container; does not exist if stage is down)
+              |- image.log        (Docker's image build output) 
+              '- context          (context to build docker image)
+           
+... of project directories
 
         :
         :  (normal project files)
         :
-        '- .backstage
-          |- config.json      (stage configuration)
-          |- creator.touch    (created when stage is created, tracks created-by and created-at)
-          |- modified.touch   (touched if Stool command modifies this stage)
-          |- logs             (log file of running stage)
-          |- container.id     (id of running container; does not exist if stage is down)
-          |- image.log        (Docker's image build output) 
-          '- context          (context to build docker image)
+        '- .stage                 (symlink to stage directory)
 
 
 Normal project files for source stages are simply the respective SCM files, for artifact stages they are:
