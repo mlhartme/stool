@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.dashboard;
 
-import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Session;
@@ -174,14 +173,11 @@ public class StageController {
     }
 
     private Stage resolveStage(String stageName) throws ResourceNotFoundException {
-        Project project;
-
         try {
-            project = session.loadByName(stageName);
+            return session.loadByName(stageName).getStage();
         } catch (IOException e) {
             throw (ResourceNotFoundException) new ResourceNotFoundException().initCause(e);
         }
-        return project.getStage();
     }
 
     public String execute(String stage, String command, String ... arguments) {
