@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Session;
@@ -120,7 +119,7 @@ public class Ls extends InfoCommand {
         return result;
     }
 
-    protected List<Project> defaultSelected(EnumerationFailed problems) throws IOException {
+    protected List<Stage> defaultSelected(EnumerationFailed problems) throws IOException {
         return all(problems);
     }
 }

@@ -38,25 +38,6 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class StageCommand extends SessionCommand {
-    public StageCommand(boolean withAutoRunning, Session session, Mode portsLock, Mode backstageLock) {
-        super(session, portsLock);
-        this.withAutoRunning = withAutoRunning;
-        this.backstageLock = backstageLock;
-    }
-
-    /** main method to perform this command */
-    public abstract void doMain(Stage stage) throws Exception;
-
-    public void doRun(Stage stage) throws Exception {
-        doMain(stage);
-        doFinish(stage);
-    }
-
-    /** override this if your doMain method needs some finishing */
-    public void doFinish(Stage stage) throws Exception {
-    }
-
-    //--
     private final Mode backstageLock;
     private final boolean withAutoRunning;
 
@@ -65,6 +46,12 @@ public abstract class StageCommand extends SessionCommand {
     private String stageClause;
     private boolean all;
     private Fail fail = Fail.NORMAL;
+
+    public StageCommand(boolean withAutoRunning, Session session, Mode portsLock, Mode backstageLock) {
+        super(session, portsLock);
+        this.withAutoRunning = withAutoRunning;
+        this.backstageLock = backstageLock;
+    }
 
     /** derived classes override this if the answer is not static */
     public boolean withAutoRunning() {
@@ -96,7 +83,7 @@ public abstract class StageCommand extends SessionCommand {
     @Override
     public void doRun() throws Exception {
         int width;
-        List<Project> lst;
+        List<Stage> lst;
         EnumerationFailed failures;
         String failureMessage;
         boolean withPrefix;
@@ -112,17 +99,17 @@ public abstract class StageCommand extends SessionCommand {
             throw failures;
         }
         width = 0;
-        for (Project project : lst) {
-            width = Math.max(width, project.getStage().getName().length());
+        for (Stage stage : lst) {
+            width = Math.max(width, stage.getName().length());
         }
         width += 5;
-        withPrefix = doBefore(stages(lst), width);
+        withPrefix = doBefore(lst, width);
         worker = new Worker(width, failures, withPrefix);
-        for (Project project : lst) {
-            worker.main(project.getStage());
+        for (Stage stage : lst) {
+            worker.main(stage);
         }
-        for (Project project : lst) {
-            worker.finish(project.getStage());
+        for (Stage stage : lst) {
+            worker.finish(stage);
         }
         doAfter();
         failureMessage = failures.getMessage();
@@ -139,17 +126,7 @@ public abstract class StageCommand extends SessionCommand {
         }
     }
 
-    private static List<Stage> stages(List<Project> projects) {
-        List<Stage> result;
-
-        result = new ArrayList<>();
-        for (Project project : projects) {
-            result.add(project.getStage());
-        }
-        return result;
-    }
-
-    private List<Project> selected(EnumerationFailed problems) throws IOException {
+    private List<Stage> selected(EnumerationFailed problems) throws IOException {
         int count;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
@@ -170,7 +147,7 @@ public abstract class StageCommand extends SessionCommand {
     }
 
 
-    protected List<Project> all(EnumerationFailed problems) throws IOException {
+    protected List<Stage> all(EnumerationFailed problems) throws IOException {
         return session.list(problems, new Predicate() {
             @Override
             public boolean matches(Project project) {
@@ -179,18 +156,18 @@ public abstract class StageCommand extends SessionCommand {
         });
     }
 
-    protected Project selected() throws IOException {
+    protected Stage selected() throws IOException {
         String id;
 
         id = session.getSelectedStageId();
         if (id == null) {
             throw new IOException("no stage selected");
         }
-        return session.load(id);
+        return session.load(id).getStage();
     }
 
     /** override this to change the default */
-    protected List<Project> defaultSelected(EnumerationFailed notUsed) throws IOException {
+    protected List<Stage> defaultSelected(EnumerationFailed notUsed) throws IOException {
         return Collections.singletonList(selected());
     }
 
@@ -214,6 +191,18 @@ public abstract class StageCommand extends SessionCommand {
     }
 
     //--
+
+    /** main method to perform this command */
+    public abstract void doMain(Stage stage) throws Exception;
+
+    public void doRun(Stage stage) throws Exception {
+        doMain(stage);
+        doFinish(stage);
+    }
+
+    /** override this if your doMain method needs some finishing */
+    public void doFinish(Stage stage) throws Exception {
+    }
 
     /* Note that the stage is not locked when this method is called. */
     public void doAfter() throws IOException {

@@ -29,6 +29,7 @@ import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.LinkException;
 import net.oneandone.sushi.fs.World;
@@ -234,8 +235,8 @@ public class Session {
 
     //--
 
-    public List<Project> list(EnumerationFailed problems, Predicate predicate) throws IOException {
-        List<Project> result;
+    public List<Stage> list(EnumerationFailed problems, Predicate predicate) throws IOException {
+        List<Stage> result;
         Project project;
         FileNode backstage;
 
@@ -250,7 +251,7 @@ public class Session {
                     continue;
                 }
                 if (predicate.matches(project)) {
-                    result.add(project);
+                    result.add(project.getStage());
                 }
             } else {
                 // stage is being created, we're usually waiting the the checkout to complete
@@ -259,8 +260,8 @@ public class Session {
         return result;
     }
 
-    public List<Project> listAll() throws IOException {
-        List<Project> result;
+    public List<Stage> listAll() throws IOException {
+        List<Stage> result;
         EnumerationFailed problems;
 
         problems = new EnumerationFailed();

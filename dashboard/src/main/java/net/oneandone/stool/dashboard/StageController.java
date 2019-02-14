@@ -16,6 +16,7 @@
 package net.oneandone.stool.dashboard;
 
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.NodeNotFoundException;
@@ -68,7 +69,7 @@ public class StageController {
     @Autowired
     private ExecutorService executorService;
 
-    private final Collection<Project> stagesCache;
+    private final Collection<Stage> stagesCache;
     private long lastCacheRenew;
 
     public StageController() {
@@ -76,39 +77,37 @@ public class StageController {
         lastCacheRenew = 0L;
     }
 
-    private Collection<Project> stages(Session session) throws IOException {
-        List<Project> lst;
+    private Collection<Stage> stages(Session session) throws IOException {
+        List<Stage> lst;
 
         if (System.currentTimeMillis() - lastCacheRenew > 4000) {
             stagesCache.clear();
             session.wipeStaleBackstages();
             session.updatePool();
             lst = session.listAll();
-            Collections.sort(lst, new Comparator<Project>() {
+            Collections.sort(lst, new Comparator<Stage>() {
                 @Override
-                public int compare(Project left, Project right) {
+                public int compare(Stage left, Stage right) {
                     boolean lr;
                     boolean rr;
 
-                    lr = left.getStage().config().expire.isReserved();
-                    rr = right.getStage().config().expire.isReserved();
+                    lr = left.config().expire.isReserved();
+                    rr = right.config().expire.isReserved();
                     if (lr == rr) {
-                        return left.getStage().getName().compareToIgnoreCase(right.getStage().getName());
+                        return left.getName().compareToIgnoreCase(right.getName());
                     } else {
                         return lr ? -1 : 1;
                     }
                 }
             });
-            for (Project project : lst) {
-                stagesCache.addAll(lst);
-            }
+            stagesCache.addAll(lst);
             lastCacheRenew = System.currentTimeMillis();
         }
         return stagesCache;
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public Collection<Project> stages() throws IOException {
+    public Collection<Stage> stages() throws IOException {
         return stages(session);
     }
 
