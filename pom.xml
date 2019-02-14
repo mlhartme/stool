@@ -41,14 +41,6 @@
       <id>mabraun</id>
       <name>Maximilian Braun</name>
     </developer>
-    <developer>
-      <id>rsternagel</id>
-      <name>Richard Sternagel</name>
-    </developer>
-    <developer>
-      <id>garican</id>
-      <name>Goekhan Arican</name>
-    </developer>
   </developers>
 
   <scm>

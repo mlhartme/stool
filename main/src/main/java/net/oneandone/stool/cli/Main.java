@@ -82,12 +82,12 @@ public class Main {
         cli.begin(console, "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
            cli.begin("globals", globals,  "-exception { setException(exception) }");
-              cli.addDefault(Help.class, "help command?=null");
+              cli.addDefault(Help.class, "help command?");
               cli.add(Setup.class, "setup -batch config? { config(config) }");
               cli.begin("globals.session", "");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Import.class, "import -name=@import.name:%d -max=@import.max:40 dir* { dirs*(dir) setMax(max) setName(name) }");
-                    cli.base(ProjectCommand.class, "-autorestart=@auto.restart -autostop=@auto.stop -stage=null -all -fail "
+                    cli.base(ProjectCommand.class, "-autorestart=@auto.restart -autostop=@auto.stop -stage -all -fail "
                             + "{ setAutoRestart(autorestart) setAutoStop(autostop) setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
@@ -166,10 +166,6 @@ public class Main {
         } catch (IOException e) {
             throw new IllegalStateException("cannot determine version", e);
         }
-    }
-
-    public static FileNode stoolCp(World world) {
-        return world.locateClasspathEntry(world.getClass());
     }
 
     //--

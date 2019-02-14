@@ -30,7 +30,7 @@ public abstract class InfoCommand extends ProjectCommand {
 
     public InfoCommand(Session session, String defaults) {
         super(false, session, Mode.SHARED, Mode.SHARED);
-        this.defaults = defaults;
+        this.defaults = defaults == null ? "" : defaults;
     }
 
     public void select(String str) {

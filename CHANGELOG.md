@@ -39,6 +39,9 @@ it no longer supports shared environments
   * source bind mounts (used for fitnesse) are gone
   * remove Project.updatesAvailable
   
+  
+* updated inline 1.1.1 to 1.2.0
+
 
 ### 4.0.3 (2019-02-13)
 
