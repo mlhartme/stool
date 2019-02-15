@@ -20,7 +20,6 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.Engine.Status;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;

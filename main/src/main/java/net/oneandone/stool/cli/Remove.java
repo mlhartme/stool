@@ -16,7 +16,6 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;

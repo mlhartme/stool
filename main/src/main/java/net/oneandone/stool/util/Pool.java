@@ -16,7 +16,6 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.LineFormat;
@@ -27,7 +26,6 @@ import java.io.Reader;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
