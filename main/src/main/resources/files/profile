@@ -34,7 +34,7 @@ __stageLinked() {
   else
     home=$HOME/.stool
   fi
-  local found=$(find -L $home/backstages -maxdepth 1 -samefile $1/.backstage -print 2>/dev/null)
+  local found=$(find -L $home/stages -maxdepth 1 -samefile $1/.backstage -print 2>/dev/null)
   if [ "x$found" != "x" ] ; then
     echo "0"
   else

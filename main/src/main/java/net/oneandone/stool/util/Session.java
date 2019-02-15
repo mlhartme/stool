@@ -31,7 +31,7 @@ import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
-import net.oneandone.sushi.fs.LinkException;
+import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -43,69 +43,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Modifier;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class Session {
     public static Session load(FileNode home, Logging logging, String command, Console console, World world) throws IOException {
-        Session session;
-
-        session = loadWithoutBackstageWipe(home, logging, command, console, world);
-
-        // Stale backstage wiping: how to detect backstage directories who's stage directory was removed.
-        //
-        // My first thought was to watch for filesystem events to trigger backstage wiping.
-        // But there's quite a big delay and rmdir+mkdir is reported as modification.
-        // Plus the code is quite complex and I don't know how to handle overflow events.
-        //
-        // So I simply wipe them whenever I load stool a session. That's a well-defined timing and that's before
-        // Stool might use a stale stage.
-        session.wipeStaleBackstages();
-        return session;
-    }
-
-    public void wipeStaleBackstages() throws IOException {
-        long s;
-        Path path;
-
-        s = System.currentTimeMillis();
-        for (FileNode link : backstages.list()) {
-            path = link.toPath();
-            if (!java.nio.file.Files.isSymbolicLink(path)) {
-                console.error.println("error: symbolic link expected: " + path);
-            } else {
-                path = java.nio.file.Files.readSymbolicLink(path);
-                if (!java.nio.file.Files.exists(path)) {
-                    if (accessDenied(path)) {
-                        console.error.println("stage is not accessible: " + path);
-                    } else {
-                        console.info.println("removing stale backstage link: " + link);
-                        link.deleteTree();
-                    }
-                }
-            }
-        }
-        console.verbose.println("wipeStaleBackstages done, ms=" + ((System.currentTimeMillis() - s)));
-    }
-
-    private static boolean accessDenied(Path dir) {
-        while (dir != null) {
-            if (java.nio.file.Files.isDirectory(dir)) {
-                if (!java.nio.file.Files.isReadable(dir)) {
-                    return true;
-                }
-                if (!java.nio.file.Files.isExecutable(dir)) {
-                    return true;
-                }
-            }
-            dir = dir.getParent();
-        }
-        return false;
-    }
-
-    private static Session loadWithoutBackstageWipe(FileNode home, Logging logging, String command, Console console, World world) throws IOException {
         Gson gson;
 
         gson = gson(world);
@@ -127,7 +70,7 @@ public class Session {
     public final World world;
     public final StoolConfiguration configuration;
 
-    private final FileNode backstages;
+    private final FileNode stages;
 
     private final String stageIdPrefix;
     private int nextStageId;
@@ -146,7 +89,7 @@ public class Session {
         this.console = console;
         this.world = world;
         this.configuration = configuration;
-        this.backstages = home.join("backstages");
+        this.stages = home.join("stages");
         this.stageIdPrefix = logging.id + ".";
         this.nextStageId = 0;
         if (configuration.ldapUrl.isEmpty()) {
@@ -171,51 +114,23 @@ public class Session {
         return home.join("templates");
     }
 
-    public void add(FileNode backstage, String id) throws LinkException {
-        backstage.link(backstages.join(id));
-    }
-
-    public FileNode backstageLink(String id) {
-        return backstages.join(id);
-    }
-
-    public FileNode findProjectDirectory(FileNode dir) {
-        do {
-            if (Project.backstageDirectory(dir).exists()) {
-                return dir;
-            }
-            dir = dir.getParent();
-        } while (dir != null);
-        return null;
-    }
-
-    public Stage load(FileNode backstageLink) throws IOException {
-        FileNode backstageResolved;
-
-        try {
-            backstageResolved = backstageLink.resolveLink();
-        } catch (IOException e) {
-            throw new IOException("unknown stage id: " + backstageLink.getName(), e);
-        }
-        return new Stage(this, backstageLink.getName(),
-                Project.backstageDirectory(backstageResolved.getParent()), loadStageConfiguration(backstageResolved));
+    public Stage load(FileNode stageResolved) throws IOException {
+        return new Stage(this, stageResolved, loadStageConfiguration(stageResolved));
     }
 
     public Stage load(String id) throws IOException {
-        return load(backstages.join(id));
+        return load(stages.join(id).checkDirectory());
     }
 
     public Stage loadByName(String stageName) throws IOException {
-        List<FileNode> links;
-        FileNode bs;
+        List<FileNode> directories;
         StageConfiguration config;
 
-        links = backstages.list();
-        for (FileNode link : links) {
-            bs = link.resolveLink();
-            config = StageConfiguration.load(gson, StageConfiguration.file(bs));
+        directories = stages.list();
+        for (FileNode directory : directories) {
+            config = StageConfiguration.load(gson, StageConfiguration.file(directory));
             if (stageName.equals(config.name)) {
-                return load(link.getName());
+                return load(directory);
             }
         }
         throw new IllegalArgumentException("stage not found: " + stageName);
@@ -269,16 +184,14 @@ public class Session {
     public List<Stage> list(EnumerationFailed problems, Predicate predicate) throws IOException {
         List<Stage> result;
         Stage stage;
-        FileNode backstage;
 
         result = new ArrayList<>();
-        for (FileNode link : backstages.list()) {
-            backstage = link.resolveLink();
-            if (StageConfiguration.file(backstage).exists()) {
+        for (FileNode directory : stages.list()) {
+            if (StageConfiguration.file(directory).exists()) {
                 try {
-                    stage = load(link);
+                    stage = load(directory);
                 } catch (IOException e) {
-                    problems.add(link.getName(), e);
+                    problems.add(directory.getName(), e);
                     continue;
                 }
                 if (predicate.matches(stage)) {
@@ -309,16 +222,14 @@ public class Session {
     }
 
     public List<String> stageNames() throws IOException {
-        List<FileNode> links;
-        FileNode bs;
+        List<FileNode> directories;
         StageConfiguration config;
         List<String> result;
 
-        links = backstages.list();
-        result = new ArrayList<>(links.size());
-        for (FileNode link : links) {
-            bs = link.resolveLink();
-            config = StageConfiguration.load(gson, StageConfiguration.file(bs));
+        directories = stages.list();
+        result = new ArrayList<>(directories.size());
+        for (FileNode directory : directories) {
+            config = StageConfiguration.load(gson, StageConfiguration.file(directory));
             result.add(config.name);
         }
         return result;
@@ -326,16 +237,14 @@ public class Session {
 
     /** return directory or null */
     public FileNode lookup(String stageName) throws IOException {
-        List<FileNode> links;
-        FileNode bs;
+        List<FileNode> directories;
         StageConfiguration config;
 
-        links = backstages.list();
-        for (FileNode link : links) {
-            bs = link.resolveLink();
-            config = StageConfiguration.load(gson, StageConfiguration.file(bs));
+        directories = stages.list();
+        for (FileNode directory : directories) {
+            config = StageConfiguration.load(gson, StageConfiguration.file(directory));
             if (stageName.equals(config.name)) {
-                return bs.getParent();
+                return directory;
             }
         }
         return null;
@@ -346,28 +255,28 @@ public class Session {
 
     public String getSelectedStageId() throws IOException {
         FileNode project;
-        FileNode bs;
+        FileNode stage;
 
         if (lazySelectedId == UNKNOWN) {
             project = findProjectDirectory(world.getWorking());
             if (project == null) {
                 lazySelectedId = null;
             } else {
-                bs = Project.backstageDirectory(project);
-                for (FileNode link : backstages.list()) {
-                    if (link.resolveLink().equals(bs)) {
-                        lazySelectedId = link.getName();
-                        break;
-                    }
-                }
-                if (lazySelectedId == UNKNOWN) {
-                    // directory has a backstage directory, but there's no link to it in stool/backstages
-                    // -> directory is not a stage
-                    lazySelectedId = null;
-                }
+                stage = Project.stageLink(project).resolveLink().checkDirectory();
+                lazySelectedId = stage.getName();
             }
         }
         return lazySelectedId;
+    }
+
+    private FileNode findProjectDirectory(FileNode dir) {
+        while (dir != null) {
+            if (Project.stageLink(dir).exists()) {
+                return dir;
+            }
+            dir = dir.getParent();
+        }
+        return null;
     }
 
     //--
@@ -381,13 +290,11 @@ public class Session {
     private int memReservedContainers() throws IOException {
         int reserved;
         StageConfiguration stage;
-        FileNode backstage;
 
         reserved = 0;
-        for (FileNode link : backstages.list()) {
-            backstage = link.resolveLink();
-            if (backstage.join("container.id").exists()) {
-                stage = loadStageConfiguration(backstage);
+        for (FileNode directory : stages.list()) {
+            if (directory.join("container.id").exists()) {
+                stage = loadStageConfiguration(directory);
                 reserved += stage.memory;
             }
         }
@@ -416,18 +323,12 @@ public class Session {
     //-- stool properties
 
     public List<FileNode> stageDirectories() throws IOException {
-        List<FileNode> result;
-
-        result = new ArrayList<>();
-        for (FileNode link : backstages.list()) {
-            result.add(link.resolveLink().getParent());
-        }
-        return result;
+        return stages.list();
     }
 
     public Pool pool() throws IOException {
         if (lazyPool == null) {
-            lazyPool = Pool.loadOpt(ports(), configuration.portFirst, configuration.portLast, backstages);
+            lazyPool = Pool.loadOpt(ports(), configuration.portFirst, configuration.portLast, stages);
         }
         return lazyPool;
     }
@@ -445,7 +346,11 @@ public class Session {
         return result;
     }
 
-    public String nextStageId() {
+    public FileNode createStageDirectory() throws MkdirException {
+        return stages.join(nextStageId()).mkdir();
+    }
+
+    private String nextStageId() {
         nextStageId++;
         return stageIdPrefix + nextStageId;
     }
@@ -519,7 +424,7 @@ public class Session {
 
         reserved = 0;
         for (FileNode stage : stageDirectories()) {
-            config = loadStageConfiguration(Project.backstageDirectory(stage));
+            config = loadStageConfiguration(stage);
             reserved += Math.max(0, config.quota);
         }
         return reserved;

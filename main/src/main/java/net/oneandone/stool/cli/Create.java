@@ -57,19 +57,21 @@ public class Create extends SessionCommand {
     public void doRun() throws IOException {
         String origin;
         Stage stage;
-        FileNode backstage;
+        FileNode stageLink;
+        FileNode stageDirectory;
         Property property;
 
         project.checkDirectory();
-        backstage = Project.backstageDirectory(project);
-        backstage.checkNotExists();
+        stageLink = Project.stageLink(project);
+        stageLink.checkNotExists();
 
         origin = Project.origin(project);
         if (origin == null) {
             throw new ArgumentException("unknown scm: " + project);
         }
-        stage = new Stage(session, session.nextStageId(), Project.backstageDirectory(project), session.createStageConfiguration(origin));
-        backstage.mkdir();
+        stageDirectory = session.createStageDirectory();
+        stage = new Stage(session, stageDirectory, session.createStageConfiguration(origin));
+        stageDirectory.link(stageLink);
         stage.config().name = project.getName();
         stage.config().tuneMemory(stage.session.configuration.baseMemory, new Project(origin, project).size());
         for (Map.Entry<String, String> entry : config.entrySet()) {
@@ -80,10 +82,10 @@ public class Create extends SessionCommand {
             property.set(entry.getValue());
         }
         Project.checkName(stage.config().name);
+        stage.creatorFile().writeString(project.getOwner().getName());
         stage.saveConfig();
         stage.modify();
 
-        session.add(stage.directory, stage.getId());
         session.logging.setStage(stage.getId(), stage.getName());
         console.info.println("stage create: " + stage.getName());
     }

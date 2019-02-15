@@ -89,9 +89,9 @@ public class Stage {
     public final FileNode directory;
     private final StageConfiguration configuration;
 
-    public Stage(Session session, String id, FileNode directory, StageConfiguration configuration) {
+    public Stage(Session session, FileNode directory, StageConfiguration configuration) {
         this.session = session;
-        this.id = id;
+        this.id = directory.getName(); // TODO
         this.directory = directory;
         this.configuration = configuration;
     }
@@ -637,18 +637,8 @@ public class Stage {
         return creatorFile().readString().trim();
     }
 
-    private FileNode creatorFile() throws IOException {
-        FileNode file;
-        FileNode link;
-
-        file = directory.join("creator.touch");
-        if (!file.exists()) {
-            link = session.backstageLink(id);
-            file.getParent().mkdirOpt();
-            file.writeString(link.getOwner().getName());
-            file.setLastModified(Files.getLastModifiedTime(link.toPath(), LinkOption.NOFOLLOW_LINKS).toMillis());
-        }
-        return file;
+    public FileNode creatorFile() {
+        return directory.join("creator.touch");
     }
 
     public LocalDateTime created() throws IOException {

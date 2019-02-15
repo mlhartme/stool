@@ -82,7 +82,10 @@ public class Start extends StageCommand {
         Ports ports;
         Project project;
 
-        project = Project.load(session.backstageLink(stage.getId()));
+        project = Project.load(session.world.getWorking());
+        if (!stage.directory.equals(Project.stageLink(project.directory).resolveLink())) {
+            throw new IllegalStateException("TODO");
+        }
         ports = session.pool().allocate(stage, project.selectedWars(stage.config().select), Collections.emptyMap());
         stage.start(project.wars(), console, ports, noCache);
     }

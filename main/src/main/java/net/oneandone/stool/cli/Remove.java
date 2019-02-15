@@ -32,19 +32,17 @@ public class Remove extends StageCommand {
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        FileNode dir;
-
         stage.checkNotUp();
         stage.modify();
-        dir = session.backstageLink(stage.getId()).resolveLink();
+        // TODO: remove stage link ...
         if (!batch) {
-            console.info.println("Ready to delete " + dir.getAbsolute() + "?");
+            console.info.println("Ready to delete " + stage.directory.getAbsolute() + "?");
             console.pressReturn();
         }
         stage.wipeDocker(session.dockerEngine());
 
         // delete backstageLink first - to make sure no other stool invocation detects a stage backstage and wipes it
-        Files.delete(session.backstageLink(stage.getId()).toPath());
-        dir.deleteTree();
+        // TODO Files.delete(session.backstageLink(stage.getId()).toPath());
+        stage.directory.deleteTree();
     }
 }

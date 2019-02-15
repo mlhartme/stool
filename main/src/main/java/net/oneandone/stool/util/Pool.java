@@ -34,11 +34,11 @@ import java.util.Set;
 public class Pool {
     private static final LineFormat FMT = new LineFormat(LineFormat.LF_SEPARATOR, LineFormat.Trim.ALL, LineFormat.excludes(true));
 
-    public static Pool loadOpt(FileNode file, int first, int last, FileNode backstages) throws IOException {
+    public static Pool loadOpt(FileNode file, int first, int last, FileNode stages) throws IOException {
         Pool result;
         String line;
 
-        result = new Pool(file, first, last, backstages);
+        result = new Pool(file, first, last, stages);
         if (file.exists()) {
             try (Reader in = file.newReader(); LineReader src = new LineReader(in, FMT)) {
                 while (true) {
@@ -59,9 +59,9 @@ public class Pool {
     private final int first;
     private final int last;
     private final List<Vhost> vhosts;
-    private final FileNode backstages;
+    private final FileNode stages;
 
-    public Pool(FileNode file, int first, int last, FileNode backstages) {
+    public Pool(FileNode file, int first, int last, FileNode stages) {
         if (first % 2 != 0) {
             throw new IllegalArgumentException("even port expected: " + first);
         }
@@ -71,7 +71,7 @@ public class Pool {
         this.file = file;
         this.first = first;
         this.last = last;
-        this.backstages = backstages;
+        this.stages = stages;
         this.vhosts = new ArrayList<>();
     }
 
@@ -154,7 +154,7 @@ public class Pool {
             ids.add(vhost.id);
         }
         for (String id : ids) {
-            if (!backstages.join(id).isDirectory()) {
+            if (!stages.join(id).isDirectory()) {
                 gcId(id);
             }
         }

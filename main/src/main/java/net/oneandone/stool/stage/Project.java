@@ -79,14 +79,14 @@ public class Project {
         return launcher;
     }
 
-    public static FileNode backstageDirectory(FileNode projectDirectory) {
-        return projectDirectory.join(".backstage");
+    public static FileNode stageLink(FileNode projectDirectory) {
+        return projectDirectory.join(".stage");
     }
 
     //--
 
     private final String origin;
-    private final FileNode directory;
+    public final FileNode directory;
 
     public Project(String origin, FileNode directory) {
         this.origin = origin;
