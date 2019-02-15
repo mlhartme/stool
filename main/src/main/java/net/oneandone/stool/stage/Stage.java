@@ -151,12 +151,12 @@ public class Stage {
     //-- pid file handling
 
 
-    public String backstageLock() {
-        return "backstage-" + getId();
+    public String lock() {
+        return "stage-" + getId();
     }
 
     public boolean isWorking() throws IOException {
-        return session.lockManager.hasExclusiveLocks(backstageLock());
+        return session.lockManager.hasExclusiveLocks(lock());
     }
 
     public State state() throws IOException {
@@ -207,7 +207,7 @@ public class Stage {
                 return session.isSelected(Stage.this);
             }
         });
-        fields.add(new Field("backstage") {
+        fields.add(new Field("stage") {
             @Override
             public Object get() {
                 return directory.getAbsolute();

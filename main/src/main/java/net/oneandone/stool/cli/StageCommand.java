@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class StageCommand extends SessionCommand {
-    private final Mode backstageLock;
+    private final Mode lock;
     private final boolean withAutoRunning;
 
     private boolean autoRestart;
@@ -45,10 +45,10 @@ public abstract class StageCommand extends SessionCommand {
     private boolean all;
     private Fail fail = Fail.NORMAL;
 
-    public StageCommand(boolean withAutoRunning, Session session, Mode portsLock, Mode backstageLock) {
+    public StageCommand(boolean withAutoRunning, Session session, Mode portsLock, Mode lock) {
         super(session, portsLock);
         this.withAutoRunning = withAutoRunning;
-        this.backstageLock = backstageLock;
+        this.lock = lock;
     }
 
     /** derived classes override this if the answer is not static */
@@ -377,7 +377,7 @@ public abstract class StageCommand extends SessionCommand {
         }
 
         private void run(Stage stage, boolean main) throws Exception {
-            try (Lock lock1 = createLock(stage.backstageLock(), backstageLock)) {
+            try (Lock lock1 = createLock(stage.lock(), lock)) {
                 if (withPrefix) {
                     ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
                 }

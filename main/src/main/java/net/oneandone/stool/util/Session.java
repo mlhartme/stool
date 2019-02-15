@@ -394,12 +394,12 @@ public class Session {
     //-- stage properties
 
 
-    public void saveStageProperties(StageConfiguration stageConfiguration, FileNode backstage) throws IOException {
-        stageConfiguration.save(gson, StageConfiguration.file(backstage));
+    public void saveStageProperties(StageConfiguration stageConfiguration, FileNode stage) throws IOException {
+        stageConfiguration.save(gson, StageConfiguration.file(stage));
     }
 
-    public StageConfiguration loadStageConfiguration(FileNode backstage) throws IOException {
-        return StageConfiguration.load(gson, StageConfiguration.file(backstage));
+    public StageConfiguration loadStageConfiguration(FileNode stage) throws IOException {
+        return StageConfiguration.load(gson, StageConfiguration.file(stage));
     }
 
     //-- stool properties

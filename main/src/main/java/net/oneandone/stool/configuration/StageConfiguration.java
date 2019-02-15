@@ -32,8 +32,8 @@ public class StageConfiguration {
     public static final String NOTIFY_CREATED_BY = "@created-by";
     public static final String NOTIFY_LAST_MODIFIED_BY = "@last-modified-by";
 
-    public static FileNode file(FileNode backstage) {
-        return backstage.join("config.json");
+    public static FileNode file(FileNode stage) {
+        return stage.join("config.json");
     }
 
     public static StageConfiguration load(Gson gson, Node file) throws IOException {
