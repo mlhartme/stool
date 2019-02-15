@@ -394,7 +394,7 @@ public class Session {
     //-- stage properties
 
 
-    public void saveStageProperties(StageConfiguration stageConfiguration, FileNode stage) throws IOException {
+    public void saveStageConfiguration(StageConfiguration stageConfiguration, FileNode stage) throws IOException {
         stageConfiguration.save(gson, StageConfiguration.file(stage));
     }
 
@@ -505,8 +505,8 @@ public class Session {
         StageConfiguration config;
 
         reserved = 0;
-        for (FileNode stage : stageDirectories()) {
-            config = loadStageConfiguration(stage);
+        for (FileNode directory : stageDirectories()) {
+            config = loadStageConfiguration(directory);
             reserved += Math.max(0, config.quota);
         }
         return reserved;
