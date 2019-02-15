@@ -61,7 +61,7 @@ public class Create extends SessionCommand {
         Property property;
 
         project.checkDirectory();
-        if (session.projects().containsKey(project)) {
+        if (session.projects().hasProject(project)) {
             throw new ArgumentException("project already has a stage");
         }
 
@@ -71,7 +71,7 @@ public class Create extends SessionCommand {
         }
         stageDirectory = session.createStageDirectory();
         stage = new Stage(session, stageDirectory, session.createStageConfiguration(origin));
-        session.addProject(project, stageDirectory);
+        session.projects().add(project, stageDirectory);
         stage.config().name = project.getName();
         stage.config().tuneMemory(stage.session.configuration.baseMemory, new Project(origin, project).size());
         for (Map.Entry<String, String> entry : config.entrySet()) {

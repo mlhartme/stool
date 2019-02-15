@@ -28,6 +28,7 @@ import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.locking.LockManager;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.MkdirException;
@@ -103,81 +104,6 @@ public class Session {
         this.lockManager = LockManager.create(home.join("run/locks"), user + ":" + command.replace("\n", "\\n"), 30);
         this.lazyAccessors = null;
         this.lazyPool= null;
-    }
-
-    private FileNode projectsFile() {
-        return home.join("projects");
-    }
-
-    public Map<FileNode, FileNode> projects() throws IOException {
-        int idx;
-        Map<FileNode, FileNode> result;
-        FileNode file;
-        List<String> lines;
-
-        result = new HashMap<>();
-        file = projectsFile();
-        lines = file.exists() ? file.readLines() : Collections.emptyList();
-        for (String line : lines) {
-            idx = line.indexOf("=");
-            if (idx == -1) {
-                throw new IOException("projects file broken: " + idx);
-            }
-            result.put(world.file(line.substring(0, idx)), world.file(line.substring(idx + 1)));
-        }
-        return result;
-    }
-
-    public void removeProjectStage(Stage stage) throws IOException {
-        Map<FileNode, FileNode> projects;
-        Iterator<Map.Entry<FileNode, FileNode>> iter;
-        FileNode dir;
-
-        projects = projects();
-        iter = projects.entrySet().iterator();
-        dir = stage.directory;
-        while (iter.hasNext()) {
-            if (iter.next().getValue().equals(dir)) {
-                iter.remove();
-            }
-        }
-        projectSave(projects);
-    }
-
-    public FileNode projectForStage(Stage stage) throws IOException {
-        FileNode result;
-
-        result = null;
-        for (Map.Entry<FileNode, FileNode> entry : projects().entrySet()) {
-            if (entry.getValue().equals(stage.directory)) {
-                if (result != null) {
-                    throw new IllegalStateException("TODO");
-                }
-                result = entry.getKey();
-            }
-        }
-        if (result == null) {
-            throw new IllegalStateException("TODO");
-        }
-        return result;
-    }
-
-    public void addProject(FileNode project, FileNode stage) throws IOException {
-        Map<FileNode, FileNode> projects;
-
-        projects = projects();
-        projects.put(project, stage);
-        projectSave(projects);
-    }
-
-    private void projectSave(Map<FileNode, FileNode> projects) throws IOException {
-        List<String> lines;
-
-        lines = new ArrayList<>(projects.size());
-        for (Map.Entry<FileNode, FileNode> entry : projects.entrySet()) {
-            lines.add(entry.getKey().getAbsolute() + "=" + entry.getValue().getAbsolute());
-        }
-        projectsFile().writeLines(lines);
     }
 
     public Map<String, Accessor> accessors() {
@@ -327,6 +253,16 @@ public class Session {
         return null;
     }
 
+    private Projects lazyProjects = null;
+
+    public Projects projects() throws IOException {
+        if (lazyProjects == null) {
+            lazyProjects = new Projects(home.join("projects"));
+            lazyProjects.load();
+        }
+        return lazyProjects;
+    }
+
     private static final String UNKNOWN = "../unknown/..";
     private String lazySelectedId = UNKNOWN;
 
@@ -339,7 +275,7 @@ public class Session {
             if (project == null) {
                 lazySelectedId = null;
             } else {
-                stage = projects().get(project);
+                stage = projects().stage(project);
                 if (stage != null) {
                     lazySelectedId = stage.getName();
                 }
@@ -349,11 +285,8 @@ public class Session {
     }
 
     private FileNode findProjectDirectory(FileNode dir) throws IOException {
-        Map<FileNode, FileNode> projects;
-
-        projects = projects();
         while (dir != null) {
-            if (projects.containsKey(dir)) {
+            if (projects().hasProject(dir)) {
                 return dir;
             }
             dir = dir.getParent();

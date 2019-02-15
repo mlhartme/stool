@@ -41,7 +41,7 @@ public class Remove extends StageCommand {
         }
         stage.wipeDocker(session.dockerEngine());
 
-        session.removeProjectStage(stage);
+        session.projects().remove(stage);
         stage.directory.deleteTree();
     }
 }
