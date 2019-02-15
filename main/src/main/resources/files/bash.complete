@@ -35,21 +35,6 @@ _stool_complete() {
             # url
             return 0
             ;;
-        import)
-            if [[ ${cur} == -* ]] ; then
-                local option="-max"
-                COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
-                return 0
-            else
-                COMPREPLY=( $(compgen -f "$2" ) )
-                return 0
-            fi
-            ;;
-        select)
-            local stages=$(_stool_stageList)
-            COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
-            return 0
-            ;;
         status)
             local stages=$(_stool_stageList)
             COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
@@ -79,11 +64,6 @@ _stool_complete() {
                 COMPREPLY=( $(compgen -W "${option}" -- ${cur}) )
                 return 0
             fi
-            ;;
-           cd)
-            local lst="backstage conf java jmx run container conf logs temp work  "
-            COMPREPLY=( $(compgen -W "${lst}" -- ${cur}) )
-            return 0
             ;;
         *)
             ;;

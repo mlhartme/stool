@@ -45,6 +45,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -127,6 +128,22 @@ public class Session {
         return result;
     }
 
+    public void removeProjectStage(Stage stage) throws IOException {
+        Map<FileNode, FileNode> projects;
+        Iterator<Map.Entry<FileNode, FileNode>> iter;
+        FileNode dir;
+
+        projects = projects();
+        iter = projects.entrySet().iterator();
+        dir = stage.directory;
+        while (iter.hasNext()) {
+            if (iter.next().getValue().equals(dir)) {
+                iter.remove();
+            }
+        }
+        projectSave(projects);
+    }
+
     public FileNode projectForStage(Stage stage) throws IOException {
         FileNode result;
 
@@ -147,10 +164,15 @@ public class Session {
 
     public void addProject(FileNode project, FileNode stage) throws IOException {
         Map<FileNode, FileNode> projects;
-        List<String> lines;
 
         projects = projects();
         projects.put(project, stage);
+        projectSave(projects);
+    }
+
+    private void projectSave(Map<FileNode, FileNode> projects) throws IOException {
+        List<String> lines;
+
         lines = new ArrayList<>(projects.size());
         for (Map.Entry<FileNode, FileNode> entry : projects.entrySet()) {
             lines.add(entry.getKey().getAbsolute() + "=" + entry.getValue().getAbsolute());

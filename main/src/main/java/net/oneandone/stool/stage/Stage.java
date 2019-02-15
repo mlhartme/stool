@@ -85,19 +85,17 @@ public class Stage {
     }
 
     public final Session session;
-    private final String id;
     public final FileNode directory;
     private final StageConfiguration configuration;
 
     public Stage(Session session, FileNode directory, StageConfiguration configuration) {
         this.session = session;
-        this.id = directory.getName(); // TODO
         this.directory = directory;
         this.configuration = configuration;
     }
 
     public String getId() {
-        return id;
+        return directory.getName();
     }
 
     public StageConfiguration config() {
@@ -154,7 +152,7 @@ public class Stage {
 
 
     public String backstageLock() {
-        return "backstage-" + id;
+        return "backstage-" + getId();
     }
 
     public boolean isWorking() throws IOException {
@@ -200,7 +198,7 @@ public class Stage {
         fields.add(new Field("id") {
             @Override
             public Object get() {
-                return id;
+                return getId();
             }
         });
         fields.add(new Field("selected") {
@@ -440,7 +438,7 @@ public class Stage {
     }
 
     private Map<String, String> dockerLabel() {
-        return Strings.toMap("stool", id);
+        return Strings.toMap("stool", getId());
     }
 
     public void start(Map<String, FileNode> wars, Console console, Ports ports, boolean noCache) throws Exception {
@@ -454,7 +452,7 @@ public class Stage {
 
         checkMemory();
         engine = session.dockerEngine();
-        tag = id;
+        tag = getId();
         context = dockerContext(wars, ports);
         wipeContainer(engine);
         console.verbose.println("building image ... ");
@@ -675,7 +673,7 @@ public class Stage {
     //--
 
     public Ports loadPortsOpt() throws IOException {
-        return session.pool().stageOpt(id);
+        return session.pool().stageOpt(getId());
     }
 
     /** @return empty map of no ports are allocated */
@@ -702,7 +700,7 @@ public class Stage {
     public int contentHash() throws IOException {
         return ("StageInfo{"
                 + "name='" + config().name + '\''
-                + ", id='" + id + '\''
+                + ", id='" + getId() + '\''
                 + ", comment='" + config().comment + '\''
                 // TODO + ", origin='" + origin + '\''
                 + ", urls=" + urlMap()

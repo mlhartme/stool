@@ -41,8 +41,7 @@ public class Remove extends StageCommand {
         }
         stage.wipeDocker(session.dockerEngine());
 
-        // delete backstageLink first - to make sure no other stool invocation detects a stage backstage and wipes it
-        // TODO Files.delete(session.backstageLink(stage.getId()).toPath());
+        session.removeProjectStage(stage);
         stage.directory.deleteTree();
     }
 }
