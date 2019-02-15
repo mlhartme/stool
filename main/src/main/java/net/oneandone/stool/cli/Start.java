@@ -20,10 +20,12 @@ import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class Start extends StageCommand {
     private final boolean tail;
@@ -82,10 +84,7 @@ public class Start extends StageCommand {
         Ports ports;
         Project project;
 
-        project = Project.load(session.world.getWorking());
-        if (!stage.directory.equals(Project.stageLink(project.directory).resolveLink())) {
-            throw new IllegalStateException("TODO");
-        }
+        project = Project.load(session.projectForStage(stage));
         ports = session.pool().allocate(stage, project.selectedWars(stage.config().select), Collections.emptyMap());
         stage.start(project.wars(), console, ports, noCache);
     }

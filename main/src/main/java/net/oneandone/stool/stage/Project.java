@@ -35,17 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Project {
-    public static Project load(FileNode backstageLink) throws IOException {
-        FileNode backstageResolved;
-        FileNode project;
-
-        try {
-            backstageResolved = backstageLink.resolveLink();
-        } catch (IOException e) {
-            throw new IOException("unknown stage id: " + backstageLink.getName(), e);
-        }
-        project = backstageResolved.getParent();
-        project.checkDirectory();
+    public static Project load(FileNode project) throws IOException {
         return new Project(origin(project), project);
     }
 
@@ -77,10 +67,6 @@ public class Project {
         launcher = new Launcher(cwd, "git");
         launcher.arg(args);
         return launcher;
-    }
-
-    public static FileNode stageLink(FileNode projectDirectory) {
-        return projectDirectory.join(".stage");
     }
 
     //--

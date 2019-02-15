@@ -54,11 +54,7 @@ public class Port extends StageCommand {
     public void doMain(Stage stage) throws Exception {
         Project project;
 
-        project = Project.load(session.world.getWorking());
-        if (stage.directory.equals(Project.stageLink(project.directory).resolveLink())) {
-            session.pool().allocate(stage, project.selectedWars(stage.config().select), ports);
-        } else {
-            throw new IllegalStateException("TODO");
-        }
+        project = Project.load(session.projectForStage(stage));
+        session.pool().allocate(stage, project.selectedWars(stage.config().select), ports);
     }
 }

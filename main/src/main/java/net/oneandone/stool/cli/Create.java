@@ -57,13 +57,13 @@ public class Create extends SessionCommand {
     public void doRun() throws IOException {
         String origin;
         Stage stage;
-        FileNode stageLink;
         FileNode stageDirectory;
         Property property;
 
         project.checkDirectory();
-        stageLink = Project.stageLink(project);
-        stageLink.checkNotExists();
+        if (session.projects().containsKey(project)) {
+            throw new ArgumentException("project already has a stage");
+        }
 
         origin = Project.origin(project);
         if (origin == null) {
@@ -71,7 +71,7 @@ public class Create extends SessionCommand {
         }
         stageDirectory = session.createStageDirectory();
         stage = new Stage(session, stageDirectory, session.createStageConfiguration(origin));
-        stageDirectory.link(stageLink);
+        session.addProject(project, stageDirectory);
         stage.config().name = project.getName();
         stage.config().tuneMemory(stage.session.configuration.baseMemory, new Project(origin, project).size());
         for (Map.Entry<String, String> entry : config.entrySet()) {

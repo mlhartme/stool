@@ -28,7 +28,6 @@ import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.locking.LockManager;
-import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.MkdirException;
@@ -44,6 +43,8 @@ import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -101,6 +102,60 @@ public class Session {
         this.lockManager = LockManager.create(home.join("run/locks"), user + ":" + command.replace("\n", "\\n"), 30);
         this.lazyAccessors = null;
         this.lazyPool= null;
+    }
+
+    private FileNode projectsFile() {
+        return home.join("projects");
+    }
+
+    public Map<FileNode, FileNode> projects() throws IOException {
+        int idx;
+        Map<FileNode, FileNode> result;
+        FileNode file;
+        List<String> lines;
+
+        result = new HashMap<>();
+        file = projectsFile();
+        lines = file.exists() ? file.readLines() : Collections.emptyList();
+        for (String line : lines) {
+            idx = line.indexOf("=");
+            if (idx == -1) {
+                throw new IOException("projects file broken: " + idx);
+            }
+            result.put(world.file(line.substring(0, idx)), world.file(line.substring(idx + 1)));
+        }
+        return result;
+    }
+
+    public FileNode projectForStage(Stage stage) throws IOException {
+        FileNode result;
+
+        result = null;
+        for (Map.Entry<FileNode, FileNode> entry : projects().entrySet()) {
+            if (entry.getValue().equals(stage.directory)) {
+                if (result != null) {
+                    throw new IllegalStateException("TODO");
+                }
+                result = entry.getKey();
+            }
+        }
+        if (result == null) {
+            throw new IllegalStateException("TODO");
+        }
+        return result;
+    }
+
+    public void addProject(FileNode project, FileNode stage) throws IOException {
+        Map<FileNode, FileNode> projects;
+        List<String> lines;
+
+        projects = projects();
+        projects.put(project, stage);
+        lines = new ArrayList<>(projects.size());
+        for (Map.Entry<FileNode, FileNode> entry : projects.entrySet()) {
+            lines.add(entry.getKey().getAbsolute() + "=" + entry.getValue().getAbsolute());
+        }
+        projectsFile().writeLines(lines);
     }
 
     public Map<String, Accessor> accessors() {
@@ -262,16 +317,21 @@ public class Session {
             if (project == null) {
                 lazySelectedId = null;
             } else {
-                stage = Project.stageLink(project).resolveLink().checkDirectory();
-                lazySelectedId = stage.getName();
+                stage = projects().get(project);
+                if (stage != null) {
+                    lazySelectedId = stage.getName();
+                }
             }
         }
         return lazySelectedId;
     }
 
-    private FileNode findProjectDirectory(FileNode dir) {
+    private FileNode findProjectDirectory(FileNode dir) throws IOException {
+        Map<FileNode, FileNode> projects;
+
+        projects = projects();
         while (dir != null) {
-            if (Project.stageLink(dir).exists()) {
+            if (projects.containsKey(dir)) {
                 return dir;
             }
             dir = dir.getParent();
