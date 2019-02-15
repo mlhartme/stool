@@ -187,8 +187,7 @@ public class Stage {
         }
     }
 
-    public void initialize() throws IOException {
-        // important: this is the last step in stage creation; creating this file indicates that the stage is ready
+    public void saveConfig() throws IOException {
         session.saveStageProperties(config(), directory);
     }
 
