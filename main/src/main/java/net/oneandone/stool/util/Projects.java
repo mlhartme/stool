@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -28,6 +29,7 @@ import java.util.Map;
 
 public class Projects {
     private final FileNode file;
+    /** maps projects to stages */
     private final Map<FileNode, FileNode> map;
 
     public Projects(FileNode file) {
@@ -73,19 +75,27 @@ public class Projects {
     }
 
     public FileNode project(Stage stage) {
-        FileNode result;
+        List<FileNode> result;
 
-        result = null;
+        result = projects(stage);
+        switch (result.size()) {
+            case 0:
+                throw new ArgumentException("no project for stage " + stage.getName());
+            case 1:
+                return result.get(0);
+            default:
+                throw new ArgumentException("ambiguous projects for stage " + stage.getName());
+        }
+    }
+
+    public List<FileNode> projects(Stage stage) {
+        List<FileNode> result;
+
+        result = new ArrayList<>();
         for (Map.Entry<FileNode, FileNode> entry : map.entrySet()) {
             if (entry.getValue().equals(stage.directory)) {
-                if (result != null) {
-                    throw new IllegalStateException("TODO");
-                }
-                result = entry.getKey();
+                result.add(entry.getKey());
             }
-        }
-        if (result == null) {
-            throw new IllegalStateException("TODO");
         }
         return result;
     }
