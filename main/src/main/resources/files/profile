@@ -1,45 +1,31 @@
 # Stool shell code
 
-__stageName() {
-  grep \"name\" "$1"/.backstage/config.json | cut -d':' -f2 | cut -d'"' -f2
-}
-
-__stageDir() {
-  local dir="$1"
-  while [ "${dir}" != "/" ] ; do
-    if [ -d "${dir}"/.backstage ] ; then
-      echo -n "${dir}"
-      return
-    fi
-    dir="$(dirname "${dir}")"
-  done
-  echo -n ""
-  return
-}
-
 __stageIndicator() {
-  local stage="$1"
-  if [ "x${stage}" != "x" ] ; then
-    local name="$(__stageName "${stage}")"
-    echo -n "{${name}} "
-  # else
-  #   no stage -> no indicator
-  fi
-}
-
-__stageLinked() {
+  local project="$1"
   local home
   if [ "x${STOOL_HOME}" != "x" ]; then
     home=$STOOL_HOME
   else
     home=$HOME/.stool
   fi
-  local found=$(find -L $home/stages -maxdepth 1 -samefile $1/.backstage -print 2>/dev/null)
-  if [ "x$found" != "x" ] ; then
-    echo "0"
+  if [ -f ${home}/projects ] ; then
+    line=$(grep "${project}=" ${home}/projects)
+    if [ "x${line}" != "x" ] ; then
+      stage=$(echo $line | cut -f 2 -d "=")
+      local name="$(__stageName "${stage}")"
+      echo -n "{${name}} "
+    else
+      # not mapped -> no indicator
+      return
+    fi
   else
-    echo "1"
+    # no projects at all -> no indicator
+    return
   fi
+}
+
+__stageName() {
+  grep \"name\" "$1"/config.json | cut -d':' -f2 | cut -d'"' -f2
 }
 
 if [ "x$BASH" != "x" ] ; then
@@ -49,19 +35,16 @@ if [ "x$BASH" != "x" ] ; then
             __stoolPromptUpdate() {
                 eval "${STOOL_OLD_PROMPT_COMMAND}"
                 local dir=$(pwd)
-                if [ "x${dir}" != "x${__STAGE_DIR}" ] ; then
+                if [ "x${dir}" != "x${__PROJECT_DIR}" ] ; then
                   # cwd has changed, update stage dir
-                  export __STAGE_DIR="$(__stageDir "$dir")"
-                  if [ $(__stageLinked $__STAGE_DIR) != "0" ] ; then
-                    export __STAGE_DIR=""
-                  fi
+                  export __PROJECT_DIR="$dir"
                 fi
                 if [ "x${STOOL_PS1}" = "x" ] ; then
                   # We're called for the first time: setup PS1.
                   # Note that we have to delay this setup until the first PROMPT_COMMAND invocation to give users a chance to customize
                   # PS1 settings (e.g. in their ~/.bashrc for interactive shells)
                   export STOOL_PS1="${PS1}"
-                  PS1="\$(__stageIndicator \${__STAGE_DIR})${STOOL_PS1}"
+                  PS1="\$(__stageIndicator \${__PROJECT_DIR})${STOOL_PS1}"
                 # else
                 #   already initialized, nothing to do
                 fi
