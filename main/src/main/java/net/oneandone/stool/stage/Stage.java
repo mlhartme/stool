@@ -440,6 +440,7 @@ public class Stage {
         return Strings.toMap("stool", getId());
     }
 
+    private static final DateTimeFormatter TAG_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-hhmmss.S");
     public void build(Map<String, FileNode> wars, Console console, Ports ports, boolean noCache) throws Exception {
         Engine engine;
         String image;
@@ -449,7 +450,7 @@ public class Stage {
 
         checkMemory();
         engine = session.dockerEngine();
-        tag = getId();
+        tag = getId() + ":" + TAG_FORMAT.format(LocalDateTime.now());
         context = dockerContext(wars, ports);
         wipeContainer(engine);
         label = dockerLabel();
@@ -464,7 +465,7 @@ public class Stage {
             throw e;
         }
         console.verbose.println("image built: " + image);
-        wipeImages(engine, image);
+        //wipeImages(engine, image);
     }
 
     private static String toString(Map<Integer, Integer> map) {
