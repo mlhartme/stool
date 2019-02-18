@@ -440,7 +440,8 @@ public class Stage {
         return Strings.toMap("stool", getId());
     }
 
-    private static final DateTimeFormatter TAG_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-hhmmss.S");
+    private static final DateTimeFormatter TAG_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-HH:mm:ss");
+
     public void build(Map<String, FileNode> wars, Console console, Ports ports, boolean noCache) throws Exception {
         Engine engine;
         String image;
