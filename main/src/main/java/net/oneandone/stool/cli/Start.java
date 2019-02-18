@@ -16,23 +16,18 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 public class Start extends StageCommand {
     private final boolean tail;
-    private final boolean noCache;
 
-    public Start(Session session, boolean tail, boolean noCache) {
+    public Start(Session session, boolean tail) {
         super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.tail = tail;
-        this.noCache = noCache;
     }
 
     @Override
@@ -79,12 +74,6 @@ public class Start extends StageCommand {
     //--
 
     public void doNormal(Stage stage) throws Exception {
-        Ports ports;
-        Project project;
-
-        project = Project.load(session.projects().project(stage));
-        ports = session.pool().allocate(stage, project.selectedWars(stage.config().select), Collections.emptyMap());
-        stage.build(project.wars(), console, ports, noCache);
         stage.start(console);
     }
 

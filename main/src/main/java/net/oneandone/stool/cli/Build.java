@@ -16,22 +16,30 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 
-public class Restart extends StageCommand {
-    public Restart(Session session) {
-        super(false, session, /* locking done by subcommands */ Mode.NONE, Mode.NONE);
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+
+public class Build extends StageCommand {
+    private final boolean noCache;
+
+    public Build(Session session, boolean noCache) {
+        super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
+        this.noCache = noCache;
     }
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        if (stage.state() == Stage.State.UP || stage.state() == Stage.State.WORKING) {
-            new Stop(session).doRun(stage);
-        } else {
-            console.info.println("Container is not running - starting a new instance.");
-        }
+        Ports ports;
+        Project project;
 
-        new Start(session, false).doRun(stage);
+        project = Project.load(session.projects().project(stage));
+        ports = session.pool().allocate(stage, project.selectedWars(stage.config().select), Collections.emptyMap());
+        stage.build(project.wars(), console, ports, noCache);
     }
 }

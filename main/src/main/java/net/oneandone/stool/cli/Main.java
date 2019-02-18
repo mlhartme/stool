@@ -95,8 +95,9 @@ public class Main {
                       cli.add(Ls.class, "list -defaults=@list.defaults info* { select*(info) }");
                       cli.add(Port.class, "port port { port*(port) }");
                       cli.add(Remove.class, "remove -batch");
-                      cli.add(Restart.class, "restart -nocache");
-                      cli.add(Start.class, "start -tail -nocache");
+                      cli.add(Restart.class, "restart");
+                      cli.add(Build.class, "build -nocache");
+                      cli.add(Start.class, "start -tail");
                       cli.add(Status.class, "status -defaults=@status.defaults info* { select*(info) }");
                       cli.add(Stop.class, "stop");
                       cli.add(Validate.class, "validate -email -repair");

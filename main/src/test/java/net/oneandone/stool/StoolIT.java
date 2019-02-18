@@ -80,6 +80,7 @@ public class StoolIT {
         stool("status", "-stage", "it");
         stool("validate", "-stage", "it");
         stool("config", "-stage", "it", "memory=300");
+        stool("build", "-v", "-stage", "it");
         stool("start", "-v", "-stage", "it");
         stool("validate", "-stage", "it");
         stool("status", "-stage", "it");
