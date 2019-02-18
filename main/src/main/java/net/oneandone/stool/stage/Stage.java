@@ -286,6 +286,15 @@ public class Stage {
                 }
             }
         });
+        fields.add(new Field("images") {
+            @Override
+            public List<String> get() throws IOException {
+                Engine engine;
+
+                engine = session.dockerEngine();
+                return engine.imageList(dockerLabel());
+            }
+        });
         fields.add(new Field("container") {
             @Override
             public Object get() throws IOException {
@@ -466,7 +475,6 @@ public class Stage {
             throw e;
         }
         console.verbose.println("image built: " + image);
-        //wipeImages(engine, image);
     }
 
     private static String toString(Map<Integer, Integer> map) {
