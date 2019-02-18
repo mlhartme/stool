@@ -42,7 +42,7 @@ it no longer supports shared environments
   
 * dumped `type` field
 * updated inline 1.1.1 to 1.2.0
-* separate Start and Build commands; as a consequence, the restart command no longer has a nocache option
+* separate Start and Build commands; as a consequence, the restart command no longer has a nocache option; `build` is a project command
 
 
 ### 4.0.3 (2019-02-13)

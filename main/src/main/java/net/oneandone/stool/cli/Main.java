@@ -87,6 +87,7 @@ public class Main {
               cli.begin("globals.session", "");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Create.class, "create project property* { property*(property) }");
+                    cli.add(Build.class, "build -nocache project?");
                     cli.base(StageCommand.class, "-autorestart=@auto.restart -autostop=@auto.stop -stage -all -fail "
                             + "{ setAutoRestart(autorestart) setAutoStop(autostop) setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Cleanup.class, "cleanup");
@@ -96,7 +97,6 @@ public class Main {
                       cli.add(Port.class, "port port { port*(port) }");
                       cli.add(Remove.class, "remove -batch");
                       cli.add(Restart.class, "restart");
-                      cli.add(Build.class, "build -nocache");
                       cli.add(Start.class, "start -tail");
                       cli.add(Status.class, "status -defaults=@status.defaults info* { select*(info) }");
                       cli.add(Stop.class, "stop");

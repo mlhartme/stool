@@ -17,28 +17,21 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
-import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.util.Collections;
+public abstract class ProjectCommand extends SessionCommand {
+    private final FileNode project;
 
-public class Build extends ProjectCommand {
-    private final boolean noCache;
-
-    public Build(Session session, boolean noCache, FileNode project) {
-        super(session, Mode.EXCLUSIVE, project);
-        this.noCache = noCache;
+    public ProjectCommand(Session session, Mode portsLock, FileNode project) {
+        super(session, portsLock);
+        this.project = project == null ? session.world.getWorking() : project;
     }
 
     @Override
-    public void doRun(Project project) throws Exception {
-        Stage stage;
-        Ports ports;
-
-        stage = session.load(session.projects().stage(project.directory));
-        ports = session.pool().allocate(stage, project.selectedWars(stage.config().select), Collections.emptyMap());
-        stage.build(project.wars(), console, ports, noCache);
+    public void doRun() throws Exception {
+        doRun(Project.load(project));
     }
+
+    public abstract void doRun(Project project) throws Exception;
 }
