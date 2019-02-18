@@ -20,15 +20,16 @@ import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.fs.file.FileNode;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class Port extends StageCommand {
+public class Port extends ProjectCommand {
     private final Map<String, Integer> ports = new HashMap<>();
 
-    public Port(Session session) {
-        super(true, session, Mode.EXCLUSIVE, Mode.SHARED);
+    public Port(Session session, FileNode project) {
+        super(session, Mode.EXCLUSIVE, project);
     }
 
     public void port(String str) {
@@ -51,10 +52,10 @@ public class Port extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
-        Project project;
+    public void doRun(Project project) throws Exception {
+        Stage stage;
 
-        project = Project.load(session.projects().project(stage));
+        stage = session.load(session.projects().stage(project.directory));
         session.pool().allocate(stage, project.selectedWars(stage.config().select), ports);
     }
 }

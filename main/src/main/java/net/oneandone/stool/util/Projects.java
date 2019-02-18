@@ -74,20 +74,6 @@ public class Projects {
         return map.containsKey(project);
     }
 
-    public FileNode project(Stage stage) {
-        List<FileNode> result;
-
-        result = projects(stage);
-        switch (result.size()) {
-            case 0:
-                throw new ArgumentException("no project for stage " + stage.getName());
-            case 1:
-                return result.get(0);
-            default:
-                throw new ArgumentException("ambiguous projects for stage " + stage.getName());
-        }
-    }
-
     public List<FileNode> projects(Stage stage) {
         List<FileNode> result;
 

@@ -88,13 +88,13 @@ public class Main {
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Create.class, "create project property* { property*(property) }");
                     cli.add(Build.class, "build -nocache project?");
+                    cli.add(Port.class, "port port project? { port*(port) }");
                     cli.base(StageCommand.class, "-autorestart=@auto.restart -autostop=@auto.stop -stage -all -fail "
                             + "{ setAutoRestart(autorestart) setAutoStop(autostop) setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -details=@history.details:false -max=@history.max:50");
                       cli.add(Ls.class, "list -defaults=@list.defaults info* { select*(info) }");
-                      cli.add(Port.class, "port port { port*(port) }");
                       cli.add(Remove.class, "remove -batch");
                       cli.add(Restart.class, "restart");
                       cli.add(Start.class, "start -tail");
