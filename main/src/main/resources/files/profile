@@ -12,7 +12,7 @@ __stageIndicator() {
     while read -u10 line
     do
       local path="$(echo "${line}" | cut -f 1 -d "=")"
-      if echo "${project}/" | grep "${path}/"  ; then
+      if echo "${project}/" | grep "${path}/" >/dev/null ; then
         local name="$(__stageName $(echo ${line} | cut -f 2 -d "="))"
         echo -n "{${name}} "
         return
