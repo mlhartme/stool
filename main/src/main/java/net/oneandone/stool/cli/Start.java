@@ -85,7 +85,7 @@ public class Start extends StageCommand {
         project = Project.load(session.projects().project(stage));
         ports = session.pool().allocate(stage, project.selectedWars(stage.config().select), Collections.emptyMap());
         stage.build(project.wars(), console, ports, noCache);
-        stage.start(console, ports);
+        stage.start(console);
     }
 
     private void doTail(Stage stage) throws IOException {

@@ -59,6 +59,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -601,6 +602,27 @@ public class Engine implements AutoCloseable {
         if (size) {
             node = node.withParameter("size", "true");
         }
+        return parser.parse(node.readString()).getAsJsonObject();
+    }
+
+    public Map<String, String> imageLabels(String id) throws IOException {
+        JsonObject response;
+        JsonObject labels;
+        Map<String, String> result;
+
+        result = new HashMap<>();
+        response = imageInspect(id);
+        labels = response.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
+        for (Map.Entry<String, JsonElement> entry : labels.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().getAsString());
+        }
+        return result;
+    }
+
+    public JsonObject imageInspect(String id) throws IOException {
+        HttpNode node;
+
+        node = root.join("images", id, "json");
         return parser.parse(node.readString()).getAsJsonObject();
     }
 

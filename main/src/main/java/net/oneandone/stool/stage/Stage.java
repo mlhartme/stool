@@ -42,6 +42,7 @@ import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiWriter;
 import net.oneandone.sushi.io.OS;
+import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import javax.management.AttributeNotFoundException;
@@ -444,16 +445,19 @@ public class Stage {
         String image;
         String tag;
         FileNode context;
+        Map<String, String> label;
 
         checkMemory();
         engine = session.dockerEngine();
         tag = getId();
         context = dockerContext(wars, ports);
         wipeContainer(engine);
+        label = dockerLabel();
+        label.put("dockerMap", toString(ports.dockerMap()));
         console.verbose.println("building image ... ");
         try (Writer log = new FlushWriter(directory.join("image.log").newWriter())) {
             // don't close the tee writer, it would close console output as well
-            image = engine.imageBuild(tag, dockerLabel(), context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
+            image = engine.imageBuild(tag, label, context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {
             console.verbose.println("image build output");
             console.verbose.println(e.output);
@@ -463,12 +467,49 @@ public class Stage {
         wipeImages(engine, image);
     }
 
-    public void start(Console console, Ports ports) throws Exception {
+    private static String toString(Map<Integer, Integer> map) {
+        boolean first;
+        StringBuilder result;
+
+        first = true;
+        result = new StringBuilder();
+        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
+            if (first) {
+                first = false;
+            } else {
+                result.append(',');
+            }
+            result.append(entry.getKey());
+            result.append(',');
+            result.append(entry.getValue());
+        }
+        return result.toString();
+    }
+    private static Map<Integer, Integer> fromString(String str) {
+        String key;
+        Map<Integer, Integer> result;
+
+        key = null;
+        result = new HashMap<>();
+        for (String entry : Separator.COMMA.split(str)) {
+            if (key == null) {
+                key = entry;
+            } else {
+                result.put(Integer.parseInt(key), Integer.parseInt(entry));
+                key = null;
+            }
+        }
+        return result;
+    }
+
+
+    public void start(Console console) throws Exception {
         Engine engine;
         String container;
         Engine.Status status;
         String tag;
         Map<String, String> mounts;
+        Map<Integer, Integer> portMap;
 
         checkMemory();
         engine = session.dockerEngine();
@@ -478,9 +519,10 @@ public class Stage {
         for (Map.Entry<String, String> entry : mounts.entrySet()) {
             console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
         }
+        portMap = fromString(engine.imageLabels(tag).get("dockerMap"));
         container = engine.containerCreate(tag,  getName() + "." + session.configuration.hostname,
                 OS.CURRENT == OS.MAC, 1024L * 1024 * config().memory, null, null,
-                Collections.emptyMap(), mounts, ports.dockerMap());
+                Collections.emptyMap(), mounts, portMap);
         console.verbose.println("created container " + container);
         engine.containerStart(container);
         status = engine.containerStatus(container);

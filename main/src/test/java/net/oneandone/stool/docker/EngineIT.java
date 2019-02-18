@@ -23,8 +23,10 @@ import net.oneandone.sushi.util.Strings;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -147,10 +149,8 @@ public class EngineIT {
         container = engine.containerCreate(image, "foo", false,
                 limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         engine.containerStart(container);
-        System.out.println("started " + container);
         engine = open();
         engine.containerStop(container, 60);
-        System.out.println("stopped " + container);
 
         engine.containerRemove(container);
         engine.imageRemove(image);
@@ -160,10 +160,8 @@ public class EngineIT {
         container = engine.containerCreate(image, "foo", false,
                 limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         engine.containerStart(container);
-        System.out.println("started " + container);
         engine = open();
         engine.containerStop(container, 60);
-        System.out.println("stopped " + container);
 
         engine.containerRemove(container);
         engine.imageRemove(image);
@@ -303,6 +301,20 @@ public class EngineIT {
             assertTrue(e.error.contains("COPY failed"));
             assertNotNull("", e.output);
         }
+    }
+
+    @Test
+    public void labels() throws IOException {
+        Map<String, String> labels = Strings.toMap("a", "b", "1", "234");
+        Engine engine;
+        StringWriter output;
+        String image;
+
+        engine = open();
+        output = new StringWriter();
+        image = engine.imageBuild("labeltest", labels, df("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
+                false, output);
+        assertEquals(labels, engine.imageLabels(image));
     }
 
     //--
