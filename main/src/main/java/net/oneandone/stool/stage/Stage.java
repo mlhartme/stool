@@ -65,6 +65,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -290,9 +291,18 @@ public class Stage {
             @Override
             public List<String> get() throws IOException {
                 Engine engine;
+                List<String> images;
+                List<String> result;
+                JsonObject json;
 
                 engine = session.dockerEngine();
-                return engine.imageList(dockerLabel());
+                images = engine.imageList(dockerLabel());
+                result = new ArrayList<>();
+                for (String image : images) {
+                    json = engine.imageInspect(image);
+                    result.add(json.get("Created").getAsString() + " " + json.get("RepoTags"));
+                }
+                return result;
             }
         });
         fields.add(new Field("container") {
@@ -409,15 +419,44 @@ public class Stage {
 
     public void wipeDocker(Engine engine) throws IOException {
         wipeContainer(engine);
-        wipeImages(engine, null);
+        wipeImages(engine);
     }
 
-    public void wipeImages(Engine engine, String keep) throws IOException {
+    public void wipeImages(Engine engine) throws IOException {
         for (String image : engine.imageList(dockerLabel())) {
-            if (!image.equals(keep)) {
-                session.console.verbose.println("remove image: " + image);
-                engine.imageRemove(image);
-            }
+            session.console.verbose.println("remove image: " + image);
+            engine.imageRemove(image);
+        }
+    }
+
+    private static final DateTimeFormatter CREATED_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
+
+    public static void main(String[] args) {
+        System.out.println("" + CREATED_FMT.parse("2015-09-10T08:30:53.26995814Z"));
+    }
+
+    public void wipeOldImages(Engine engine, int keep) throws IOException {
+        List<String> images;
+        LocalDateTime date;
+        Map<LocalDateTime, String> dates;
+        List<LocalDateTime> keys;
+        String remove;
+
+        images = engine.imageList(dockerLabel());
+        if (images.size() <= keep) {
+            return;
+        }
+        dates = new HashMap<>();
+        for (String image : images) {
+            date = (LocalDateTime) CREATED_FMT.parse(engine.imageInspect(image).get("Created").getAsString());
+            dates.put(date, image);
+        }
+        keys = new ArrayList<>(dates.keySet());
+        Collections.sort(keys);
+        while (keys.size() > keep) {
+            remove = dates.get(keys.remove(0));
+            session.console.verbose.println("remove image: " + remove);
+            engine.imageRemove(dates.get(remove));
         }
     }
 
@@ -460,6 +499,7 @@ public class Stage {
 
         checkMemory();
         engine = session.dockerEngine();
+      //  wipeOldImages(engine,1);
         tag = getId() + ":" + TAG_FORMAT.format(LocalDateTime.now());
         context = dockerContext(wars, ports);
         wipeContainer(engine);
