@@ -5,6 +5,9 @@
 Stool is a tool to create containers on develop workstations and manage them on a (shared) docker host; 
 it no longer supports shared environments
 
+New philio: projects are the former stages, this is where your sources reside.
+Stages are now the central part; multiple project can be associated with the same stage.
+
 * stool is no long responsible to manage checkouts - use your standard tools instead; 
   * dumped `create`, `refresh` and `move` command
   * dumped `refresh` stage config
@@ -12,6 +15,7 @@ it no longer supports shared environments
   * dumped svn credentials handling
   * dumped macros
 
+* added `attach` command to bind an existing stage to a project
 * dumped vhosts bind mounts, copy war instead
 
 * stool no longer adjust the current working directory
