@@ -37,6 +37,8 @@ import java.util.Map;
 
 public abstract class StageCommand extends SessionCommand {
     private final Mode lock;
+
+    /** true if command supports the auto options */
     private final boolean withAutoRunning;
 
     private boolean autoRestart;
@@ -49,11 +51,6 @@ public abstract class StageCommand extends SessionCommand {
         super(session, portsLock);
         this.withAutoRunning = withAutoRunning;
         this.lock = lock;
-    }
-
-    /** derived classes override this if the answer is not static */
-    public boolean withAutoRunning() {
-        return withAutoRunning;
     }
 
     public void setAutoRestart(boolean autoRestart) {
@@ -179,7 +176,7 @@ public abstract class StageCommand extends SessionCommand {
         boolean postStart;
 
         state = stage.state();
-        if (state == Stage.State.UP && (withAutoRunning()) && (autoRestart || autoStop)) {
+        if (state == Stage.State.UP && withAutoRunning && (autoRestart || autoStop)) {
             postStart = autoRestart;
             new Stop(session).doRun(stage);
         } else {
