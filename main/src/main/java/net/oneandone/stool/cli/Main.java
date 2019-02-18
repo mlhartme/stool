@@ -89,6 +89,7 @@ public class Main {
                     cli.add(Create.class, "create project property* { property*(property) }");
                     cli.add(Build.class, "build -nocache project?");
                     cli.add(Attach.class, "attach stage project?");
+                    cli.add(Detatch.class, "detatch project?");
                     cli.add(Port.class, "port port project? { port*(port) }");
                     cli.base(StageCommand.class, "-autorestart=@auto.restart -autostop=@auto.stop -stage -all -fail "
                             + "{ setAutoRestart(autorestart) setAutoStop(autostop) setStage(stage) setAll(all) setFail(fail) }");

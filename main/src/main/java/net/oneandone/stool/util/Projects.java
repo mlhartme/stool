@@ -16,6 +16,7 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -68,6 +69,15 @@ public class Projects {
             }
         }
         save();
+    }
+
+    public boolean remove(Project project) throws IOException {
+        if (map.remove(project.directory) != null) {
+            save();
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public boolean hasProject(FileNode project) {

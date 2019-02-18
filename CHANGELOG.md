@@ -15,7 +15,7 @@ Stages are now the central part; multiple project can be associated with the sam
   * dumped svn credentials handling
   * dumped macros
 
-* added `attach` command to bind an existing stage to a project
+* added `attach` and `detatch` commands to manage project - stage association
 * dumped vhosts bind mounts, copy war instead
 
 * stool no longer adjust the current working directory
