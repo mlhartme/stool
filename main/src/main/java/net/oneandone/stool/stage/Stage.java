@@ -439,14 +439,11 @@ public class Stage {
         return Strings.toMap("stool", getId());
     }
 
-    public void start(Map<String, FileNode> wars, Console console, Ports ports, boolean noCache) throws Exception {
+    public void build(Map<String, FileNode> wars, Console console, Ports ports, boolean noCache) throws Exception {
         Engine engine;
         String image;
-        String container;
-        Engine.Status status;
         String tag;
         FileNode context;
-        Map<String, String> mounts;
 
         checkMemory();
         engine = session.dockerEngine();
@@ -464,6 +461,18 @@ public class Stage {
         }
         console.verbose.println("image built: " + image);
         wipeImages(engine, image);
+    }
+
+    public void start(Console console, Ports ports) throws Exception {
+        Engine engine;
+        String container;
+        Engine.Status status;
+        String tag;
+        Map<String, String> mounts;
+
+        checkMemory();
+        engine = session.dockerEngine();
+        tag = getId();
         console.info.println("starting container ...");
         mounts = bindMounts();
         for (Map.Entry<String, String> entry : mounts.entrySet()) {
