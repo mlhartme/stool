@@ -310,31 +310,4 @@ public class Project {
         result = Strings.removeRightOpt(result, ".git");
         return result.isEmpty() ? "stage" : result;
     }
-
-    //--
-
-    public List<Field> todoFields() {
-        List<Field> fields;
-
-        fields = new ArrayList<>();
-        fields.add(new Field("directory") {
-            @Override
-            public Object get() {
-                return Project.this.directory.getAbsolute();
-            }
-        });
-        fields.add(new Field("origin") {
-            @Override
-            public Object get() {
-                return Project.this.getOrigin();
-            }
-        });
-        fields.add(new Field("buildtime") {
-            @Override
-            public Object get() throws IOException {
-                return Project.this.buildtime();
-            }
-        });
-        return fields;
-    }
 }
