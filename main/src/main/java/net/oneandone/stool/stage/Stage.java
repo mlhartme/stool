@@ -294,7 +294,10 @@ public class Stage {
         fields.add(new Field("image") {
             @Override
             public String get() throws IOException {
-                return currentImage().id;
+                Image image;
+
+                image = currentImage();
+                return image == null ? null : image.id;
             }
         });
         fields.add(new Field("container") {
