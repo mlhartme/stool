@@ -87,7 +87,7 @@ public class Main {
               cli.begin("globals.session", "");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Create.class, "create project property* { property*(property) }");
-                    cli.add(Build.class, "build -nocache -keep=5 -m= project?");
+                    cli.add(Build.class, "build -nocache -keep=5 -restart -m= project?");
                     cli.add(Attach.class, "attach stage project?");
                     cli.add(Detatch.class, "detatch project?");
                     cli.add(Port.class, "port port project? { port*(port) }");

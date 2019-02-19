@@ -504,7 +504,6 @@ public class Stage {
         }
         tag = getId() + ":" + TAG_FORMAT.format(LocalDateTime.now());
         context = dockerContext(wars, ports);
-        wipeContainer(engine);
         label = dockerLabel();
         label.put(LABEL_PORTS, toString(ports.dockerMap()));
         label.put(LABEL_COMMENT, comment);
@@ -557,6 +556,7 @@ public class Stage {
             throw new IOException("image not found: " + idx);
         }
         image = images.get(idx);
+        wipeContainer(engine);
         console.info.println("starting container ...");
         mounts = bindMounts();
         for (Map.Entry<String, String> entry : mounts.entrySet()) {

@@ -29,12 +29,14 @@ import java.util.Collections;
 public class Build extends ProjectCommand {
     private final boolean noCache;
     private final int keep;
+    private final boolean restart;
     private final String comment;
 
-    public Build(Session session, boolean noCache, int keep, String comment, FileNode project) {
+    public Build(Session session, boolean noCache, int keep, boolean restart, String comment, FileNode project) {
         super(session, Mode.EXCLUSIVE, project);
-        this.keep = keep;
         this.noCache = noCache;
+        this.keep = keep;
+        this.restart = restart;
         this.comment = comment;
     }
 
@@ -46,10 +48,9 @@ public class Build extends ProjectCommand {
         stage = session.load(session.projects().stage(project.directory));
         ports = session.pool().allocate(stage, project.selectedWars(stage.config().select), Collections.emptyMap());
         stage.build(project.wars(), console, ports, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
-    }
-
-    private String origin() {
-        return "o";
+        if (restart) {
+            new Restart(session).doRun(stage);
+        }
     }
 
     private String createdBy() {
