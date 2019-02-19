@@ -27,13 +27,11 @@ import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Create extends SessionCommand {
-    private final FileNode project;
+public class Create extends ProjectCommand {
     private final Map<String, String> config;
 
     public Create(Session session, FileNode project) {
-        super(session, Mode.EXCLUSIVE);
-        this.project = project;
+        super(session, Mode.EXCLUSIVE, project == null ? session.world.getWorking() : project);
         this.config = new LinkedHashMap<>();
     }
 
@@ -54,26 +52,21 @@ public class Create extends SessionCommand {
     }
 
     @Override
-    public void doRun() throws IOException {
-        String origin;
+    public void doRun(Project project) throws IOException {
         Stage stage;
         FileNode stageDirectory;
         Property property;
 
-        project.checkDirectory();
-        if (session.projects().hasProject(project)) {
+        project.directory.checkDirectory();
+        if (session.projects().hasProject(project.directory)) {
             throw new ArgumentException("project already has a stage");
         }
 
-        origin = Project.origin(project);
-        if (origin == null) {
-            throw new ArgumentException("unknown scm: " + project);
-        }
         stageDirectory = session.createStageDirectory();
-        stage = new Stage(session, stageDirectory, session.createStageConfiguration(origin));
-        session.projects().add(project, stageDirectory);
-        stage.config().name = project.getName();
-        stage.config().tuneMemory(stage.session.configuration.baseMemory, new Project(origin, project).size());
+        stage = new Stage(session, stageDirectory, session.createStageConfiguration(project.getOrigin()));
+        session.projects().add(project.directory, stageDirectory);
+        stage.config().name = project.directory.getName();
+        stage.config().tuneMemory(stage.session.configuration.baseMemory, project.size());
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());
             if (property == null) {
@@ -82,7 +75,7 @@ public class Create extends SessionCommand {
             property.set(entry.getValue());
         }
         Project.checkName(stage.config().name);
-        stage.creatorFile().writeString(project.getOwner().getName());
+        stage.creatorFile().writeString(project.directory.getOwner().getName());
         stage.saveConfig();
         stage.modify();
 
