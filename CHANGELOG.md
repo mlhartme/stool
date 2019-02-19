@@ -48,6 +48,7 @@ Stages are now the central part; multiple project can be associated with the sam
   * remove Project.updatesAvailable
   
 
+* start now takes an image index argument
 * added "images" command
 * dumped `type` field
 * updated inline 1.1.1 to 1.2.0

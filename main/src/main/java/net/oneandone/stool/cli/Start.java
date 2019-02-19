@@ -24,10 +24,12 @@ import java.util.List;
 
 public class Start extends StageCommand {
     private final boolean tail;
+    private final int image;
 
-    public Start(Session session, boolean tail) {
+    public Start(Session session, boolean tail, int image) {
         super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.tail = tail;
+        this.image = image;
     }
 
     @Override
@@ -74,7 +76,7 @@ public class Start extends StageCommand {
     //--
 
     public void doNormal(Stage stage) throws Exception {
-        stage.start(console);
+        stage.start(console, image);
     }
 
     private void doTail(Stage stage) throws IOException {

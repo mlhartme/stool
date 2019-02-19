@@ -32,6 +32,6 @@ public class Restart extends StageCommand {
             console.info.println("Container is not running - starting a new instance.");
         }
 
-        new Start(session, false).doRun(stage);
+        new Start(session, false, 0).doRun(stage);
     }
 }

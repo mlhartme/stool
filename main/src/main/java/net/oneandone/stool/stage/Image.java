@@ -85,7 +85,7 @@ public class Image implements Comparable<Image> {
 
     @Override
     public int compareTo(Image o) {
-        return created.compareTo(o.created);
+        return -created.compareTo(o.created);
     }
 
     public String toString() {

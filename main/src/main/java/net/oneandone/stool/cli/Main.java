@@ -100,7 +100,7 @@ public class Main {
                       cli.add(Ls.class, "list -defaults=@list.defaults info* { select*(info) }");
                       cli.add(Remove.class, "remove -batch");
                       cli.add(Restart.class, "restart");
-                      cli.add(Start.class, "start -tail");
+                      cli.add(Start.class, "start -tail -image");
                       cli.add(Status.class, "status -defaults=@status.defaults info* { select*(info) }");
                       cli.add(Stop.class, "stop");
                       cli.add(Validate.class, "validate -email -repair");

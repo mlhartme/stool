@@ -29,15 +29,18 @@ public class Images extends StageCommand {
     @Override
     public void doMain(Stage stage) throws Exception {
         Engine engine;
+        int idx;
 
         engine = stage.session.dockerEngine();
+        idx = 0;
         for (Image image : stage.images(engine)) {
-            console.info.println(image.id);
+            console.info.printf("[%d] %s\n", idx, image.id);
             console.info.println("  comment:    " + image.comment);
             console.info.println("  origin:     " + image.origin);
             console.info.println("  created-at: " + image.created);
             console.info.println("  created-by: " + image.createdBy);
             console.info.println("  created-on: " + image.createdOn);
+            idx++;
         }
         stage.modify();
         stage.rotateLogs(console);

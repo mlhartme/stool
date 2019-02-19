@@ -544,12 +544,12 @@ public class Stage {
         return result.toString();
     }
 
-    public void start(Console console) throws Exception {
+    public void start(Console console, int idx) throws Exception {
         Engine engine;
         List<Image> images;
+        Image image;
         String container;
         Engine.Status status;
-        String id;
         Map<String, String> mounts;
         Map<Integer, Integer> portMap;
 
@@ -557,19 +557,18 @@ public class Stage {
         checkMemory();
         engine = session.dockerEngine();
         images = images(engine);
-        if (images.isEmpty()) {
-            throw new IOException("no images, please build your stage first");
+        if (idx < 0 || idx >= images.size()) {
+            throw new IOException("image not found: " + idx);
         }
-        id = images.get(images.size() - 1).id;
+        image = images.get(idx);
         console.info.println("starting container ...");
         mounts = bindMounts();
         for (Map.Entry<String, String> entry : mounts.entrySet()) {
             console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
         }
-        portMap = images.get(images.size() - 1).ports;
-        container = engine.containerCreate(id,  getName() + "." + session.configuration.hostname,
+        container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                 OS.CURRENT == OS.MAC, 1024L * 1024 * config().memory, null, null,
-                Collections.emptyMap(), mounts, portMap);
+                Collections.emptyMap(), mounts, image.ports);
         console.verbose.println("created container " + container);
         engine.containerStart(container);
         status = engine.containerStatus(container);
