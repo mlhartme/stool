@@ -49,7 +49,7 @@ public class Build extends ProjectCommand {
         ports = session.pool().allocate(stage, project.selectedWars(stage.config().select), Collections.emptyMap());
         stage.build(project.wars(), console, ports, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
         if (restart) {
-            new Restart(session).doRun(stage);
+            new Restart(session, 0).doRun(stage);
         }
     }
 

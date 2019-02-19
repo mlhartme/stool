@@ -20,8 +20,11 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
 public class Restart extends StageCommand {
-    public Restart(Session session) {
+    private final int image;
+
+    public Restart(Session session, int image) {
         super(false, session, /* locking done by subcommands */ Mode.NONE, Mode.NONE);
+        this.image = image;
     }
 
     @Override
@@ -32,6 +35,6 @@ public class Restart extends StageCommand {
             console.info.println("Container is not running - starting a new instance.");
         }
 
-        new Start(session, false, 0).doRun(stage);
+        new Start(session, false, image).doRun(stage);
     }
 }
