@@ -28,18 +28,24 @@ public class Images extends StageCommand {
 
     @Override
     public void doMain(Stage stage) throws Exception {
+        Image current;
         Engine engine;
+        String marker;
         int idx;
+        String currentId;
 
         engine = stage.session.dockerEngine();
+        current = stage.currentImage();
+        currentId = current == null ? null : current.id;
         idx = 0;
         for (Image image : stage.images(engine)) {
-            console.info.printf("[%d] %s\n", idx, image.id);
-            console.info.println("  comment:    " + image.comment);
-            console.info.println("  origin:     " + image.origin);
-            console.info.println("  created-at: " + image.created);
-            console.info.println("  created-by: " + image.createdBy);
-            console.info.println("  created-on: " + image.createdOn);
+            marker = image.id.equals(currentId) ? "==>" : "   ";
+            console.info.printf("%s [%d] %s\n", marker, idx, image.id);
+            console.info.println("       comment:    " + image.comment);
+            console.info.println("       origin:     " + image.origin);
+            console.info.println("       created-at: " + image.created);
+            console.info.println("       created-by: " + image.createdBy);
+            console.info.println("       created-on: " + image.createdOn);
             idx++;
         }
         stage.modify();

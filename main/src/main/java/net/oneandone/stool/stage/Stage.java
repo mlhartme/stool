@@ -291,20 +291,10 @@ public class Stage {
                 }
             }
         });
-        fields.add(new Field("images") {
+        fields.add(new Field("image") {
             @Override
-            public List<String> get() throws IOException {
-                Engine engine;
-                List<Image> images;
-                List<String> result;
-
-                engine = session.dockerEngine();
-                images = images(engine);
-                result = new ArrayList<>();
-                for (Image image : images) {
-                    result.add(image.toString());
-                }
-                return result;
+            public String get() throws IOException {
+                return currentImage().id;
             }
         });
         fields.add(new Field("container") {
@@ -452,7 +442,7 @@ public class Stage {
             return;
         }
         while (images.size() > keep) {
-            remove = images.remove(0).id;
+            remove = images.remove(images.size() - 1).id;
             session.console.verbose.println("remove image: " + remove);
             engine.imageRemove(remove);
         }
@@ -795,7 +785,7 @@ public class Stage {
 
     //--
 
-    private Image currentImage() throws IOException {
+    public Image currentImage() throws IOException {
         Engine engine;
         String container;
         List<Image> images;
@@ -805,7 +795,7 @@ public class Stage {
         container = dockerContainer();
         if (container != null) {
             json = engine.containerInspect(container, false);
-            return Image.load(engine, json.get("Image").getAsString());
+            return Image.load(engine, Strings.removeLeft(json.get("Image").getAsString(), "sha256:"));
         } else {
             images = images(session.dockerEngine());
             return images.isEmpty() ? null : images.get(0);
