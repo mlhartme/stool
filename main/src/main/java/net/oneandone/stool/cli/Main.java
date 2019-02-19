@@ -93,6 +93,7 @@ public class Main {
                     cli.add(Port.class, "port port project? { port*(port) }");
                     cli.base(StageCommand.class, "-autorestart=@auto.restart -autostop=@auto.stop -stage -all -fail "
                             + "{ setAutoRestart(autorestart) setAutoStop(autostop) setStage(stage) setAll(all) setFail(fail) }");
+                      cli.add(Images.class, "images");
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -details=@history.details:false -max=@history.max:50");
