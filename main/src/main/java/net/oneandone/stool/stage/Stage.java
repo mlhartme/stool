@@ -65,7 +65,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -291,16 +290,14 @@ public class Stage {
             @Override
             public List<String> get() throws IOException {
                 Engine engine;
-                List<String> images;
+                List<Image> images;
                 List<String> result;
-                JsonObject json;
 
                 engine = session.dockerEngine();
-                images = engine.imageList(dockerLabel());
+                images = images(engine);
                 result = new ArrayList<>();
-                for (String image : images) {
-                    json = engine.imageInspect(image);
-                    result.add(json.get("Created").getAsString() + " " + json.get("RepoTags"));
+                for (Image image : images) {
+                    result.add(image.toString());
                 }
                 return result;
             }
@@ -429,34 +426,30 @@ public class Stage {
         }
     }
 
-    private static final DateTimeFormatter CREATED_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
+    /** @return sorted list */
+    public List<Image> images(Engine engine) throws IOException {
+        List<Image> result;
 
-    public static void main(String[] args) {
-        System.out.println("" + CREATED_FMT.parse("2015-09-10T08:30:53.26995814Z"));
+        result = new ArrayList<>();
+        for (String image : engine.imageList(dockerLabel())) {
+            result.add(Image.load(engine, image));
+        }
+        Collections.sort(result);
+        return result;
     }
 
     public void wipeOldImages(Engine engine, int keep) throws IOException {
-        List<String> images;
-        LocalDateTime date;
-        Map<LocalDateTime, String> dates;
-        List<LocalDateTime> keys;
+        List<Image> images;
         String remove;
 
-        images = engine.imageList(dockerLabel());
+        images = images(engine);
         if (images.size() <= keep) {
             return;
         }
-        dates = new HashMap<>();
-        for (String image : images) {
-            date = (LocalDateTime) CREATED_FMT.parse(engine.imageInspect(image).get("Created").getAsString());
-            dates.put(date, image);
-        }
-        keys = new ArrayList<>(dates.keySet());
-        Collections.sort(keys);
-        while (keys.size() > keep) {
-            remove = dates.get(keys.remove(0));
+        while (images.size() > keep) {
+            remove = images.remove(0).id;
             session.console.verbose.println("remove image: " + remove);
-            engine.imageRemove(dates.get(remove));
+            engine.imageRemove(remove);
         }
     }
 
@@ -488,9 +481,10 @@ public class Stage {
         return Strings.toMap("stool", getId());
     }
 
-    private static final DateTimeFormatter TAG_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-HH:mm:ss");
+    private static final DateTimeFormatter TAG_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-HHmmss");
 
-    public void build(Map<String, FileNode> wars, Console console, Ports ports, boolean noCache) throws Exception {
+    /** @param keep 0 to keep all */
+    public void build(Map<String, FileNode> wars, Console console, Ports ports, boolean noCache, int keep) throws Exception {
         Engine engine;
         String image;
         String tag;
@@ -499,7 +493,9 @@ public class Stage {
 
         checkMemory();
         engine = session.dockerEngine();
-      //  wipeOldImages(engine,1);
+        if (keep > 0) {
+            wipeOldImages(engine,keep - 1);
+        }
         tag = getId() + ":" + TAG_FORMAT.format(LocalDateTime.now());
         context = dockerContext(wars, ports);
         wipeContainer(engine);
@@ -555,22 +551,28 @@ public class Stage {
 
     public void start(Console console) throws Exception {
         Engine engine;
+        List<Image> images;
         String container;
         Engine.Status status;
-        String tag;
+        String id;
         Map<String, String> mounts;
         Map<Integer, Integer> portMap;
 
+
         checkMemory();
         engine = session.dockerEngine();
-        tag = getId();
+        images = images(engine);
+        if (images.isEmpty()) {
+            throw new IOException("no images, please build your stage first");
+        }
+        id = images.get(images.size() -1).id;
         console.info.println("starting container ...");
         mounts = bindMounts();
         for (Map.Entry<String, String> entry : mounts.entrySet()) {
             console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
         }
-        portMap = fromString(engine.imageLabels(tag).get("dockerMap"));
-        container = engine.containerCreate(tag,  getName() + "." + session.configuration.hostname,
+        portMap = fromString(engine.imageLabels(id).get("dockerMap"));
+        container = engine.containerCreate(id,  getName() + "." + session.configuration.hostname,
                 OS.CURRENT == OS.MAC, 1024L * 1024 * config().memory, null, null,
                 Collections.emptyMap(), mounts, portMap);
         console.verbose.println("created container " + container);

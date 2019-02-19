@@ -26,9 +26,11 @@ import java.util.Collections;
 
 public class Build extends ProjectCommand {
     private final boolean noCache;
+    private final int keep;
 
-    public Build(Session session, boolean noCache, FileNode project) {
+    public Build(Session session, boolean noCache, int keep, FileNode project) {
         super(session, Mode.EXCLUSIVE, project);
+        this.keep = keep;
         this.noCache = noCache;
     }
 
@@ -39,6 +41,6 @@ public class Build extends ProjectCommand {
 
         stage = session.load(session.projects().stage(project.directory));
         ports = session.pool().allocate(stage, project.selectedWars(stage.config().select), Collections.emptyMap());
-        stage.build(project.wars(), console, ports, noCache);
+        stage.build(project.wars(), console, ports, noCache, keep);
     }
 }

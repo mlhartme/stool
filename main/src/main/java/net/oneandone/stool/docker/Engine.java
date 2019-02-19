@@ -67,6 +67,8 @@ import java.util.Set;
 
 /** Connect to local docker engine via unix socket. https://docs.docker.com/engine/api/v1.37/ */
 public class Engine implements AutoCloseable {
+    public static final DateTimeFormatter CREATED_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
+
     public enum Status {
         CREATED,
         RUNNING,
