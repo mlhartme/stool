@@ -42,7 +42,6 @@ import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiWriter;
 import net.oneandone.sushi.io.OS;
-import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import javax.management.AttributeNotFoundException;
@@ -242,6 +241,12 @@ public class Stage {
             @Override
             public Object get() throws IOException {
                 return timespan(lastModifiedAt());
+            }
+        });
+        fields.add(new Field("origin") {
+            @Override
+            public Object get() throws IOException {
+                return origin();
             }
         });
         fields.add(new Field("cpu") {
@@ -551,8 +556,6 @@ public class Stage {
         String container;
         Engine.Status status;
         Map<String, String> mounts;
-        Map<Integer, Integer> portMap;
-
 
         checkMemory();
         engine = session.dockerEngine();
@@ -792,17 +795,40 @@ public class Stage {
 
     //--
 
+    private Image currentImage() throws IOException {
+        Engine engine;
+        String container;
+        List<Image> images;
+        JsonObject json;
+
+        engine = session.dockerEngine();
+        container = dockerContainer();
+        if (container != null) {
+            json = engine.containerInspect(container, false);
+            return Image.load(engine, json.get("Image").getAsString());
+        } else {
+            images = images(session.dockerEngine());
+            return images.isEmpty() ? null : images.get(0);
+        }
+    }
+
+    public String origin() throws IOException {
+        Image image;
+
+        image = currentImage();
+        return image == null ? null : image.origin;
+    }
+
     public int contentHash() throws IOException {
         return ("StageInfo{"
                 + "name='" + config().name + '\''
                 + ", id='" + getId() + '\''
                 + ", comment='" + config().comment + '\''
-                // TODO + ", origin='" + origin + '\''
+                + ", origin='" + origin() + '\''
                 + ", urls=" + urlMap()
                 + ", state=" + state()
                 + ", displayState=" + displayState()
                 + ", last-modified-by='" + lastModifiedBy() + '\''
-                // TODO + ", updateAvailable=" + updateAvailable()
                 + '}').hashCode();
     }
 
