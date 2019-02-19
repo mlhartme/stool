@@ -87,10 +87,6 @@ public class Project {
         return origin;
     }
 
-    public String getType() {
-        return getClass().getSimpleName().toLowerCase();
-    }
-
     //--
 
     public Map<String, FileNode> selectedWars(List<String> selected) throws IOException {

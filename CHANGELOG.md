@@ -47,7 +47,8 @@ Stages are now the central part; multiple project can be associated with the sam
   * source bind mounts (used for fitnesse) are gone
   * remove Project.updatesAvailable
   
-  
+
+* added "images" command
 * dumped `type` field
 * updated inline 1.1.1 to 1.2.0
 * separate Start and Build commands; as a consequence, the restart command no longer has a nocache option; `build` is a project command
