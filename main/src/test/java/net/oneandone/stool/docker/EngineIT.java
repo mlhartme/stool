@@ -57,7 +57,7 @@ public class EngineIT {
         engine.containerStart(container);
         Thread.sleep(1000);
         engine.containerRemove(container);
-        engine.imageRemove(image);
+        engine.imageRemove(image, false);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class EngineIT {
         assertEquals(Arrays.asList(container), engine.containerList(image));
         engine.containerRemove(container);
         assertEquals(Arrays.asList(), engine.containerList(image));
-        engine.imageRemove(image);
+        engine.imageRemove(image, false);
         assertEquals(Arrays.asList(), engine.imageList(labels));
     }
 
@@ -131,7 +131,7 @@ public class EngineIT {
         } catch (FileNotFoundException e) {
             // ok
         }
-        engine.imageRemove(image);
+        engine.imageRemove(image, false);
     }
 
     @Test
@@ -153,7 +153,7 @@ public class EngineIT {
         engine.containerStop(container, 60);
 
         engine.containerRemove(container);
-        engine.imageRemove(image);
+        engine.imageRemove(image, false);
 
         engine = open();
         image = engine.imageBuild("sometag",  Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false,null);
@@ -164,7 +164,7 @@ public class EngineIT {
         engine.containerStop(container, 60);
 
         engine.containerRemove(container);
-        engine.imageRemove(image);
+        engine.imageRemove(image, false);
     }
 
     @Test
@@ -189,7 +189,7 @@ public class EngineIT {
         assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
         assertNotNull(engine.containerLogs(container));
         engine.containerRemove(container);
-        engine.imageRemove(image);
+        engine.imageRemove(image, false);
     }
 
     @Test
@@ -210,7 +210,7 @@ public class EngineIT {
         assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
         assertEquals("bar after\n", engine.containerLogs(container));
         engine.containerRemove(container);
-        engine.imageRemove(image);
+        engine.imageRemove(image, false);
     }
 
     @Test
@@ -238,7 +238,7 @@ public class EngineIT {
         assertTrue(output.contains(file.getAbsolute()));
         engine.containerRemove(container);
 
-        engine.imageRemove(image);
+        engine.imageRemove(image, false);
     }
 
     @Test
@@ -284,7 +284,7 @@ public class EngineIT {
 
         engine = open();
         engine.imageBuildWithOutput(image, WORLD.guessProjectHome(getClass()).join("src/test/docker"));
-        engine.imageRemove(image);
+        engine.imageRemove(image, false);
     }
 
     @Test

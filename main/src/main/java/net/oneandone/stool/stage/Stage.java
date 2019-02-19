@@ -420,7 +420,7 @@ public class Stage {
     public void wipeImages(Engine engine) throws IOException {
         for (String image : engine.imageList(dockerLabel())) {
             session.console.verbose.println("remove image: " + image);
-            engine.imageRemove(image);
+            engine.imageRemove(image, true /* because the might be multiple tags */);
         }
     }
 
@@ -447,7 +447,7 @@ public class Stage {
         while (images.size() > keep) {
             remove = images.remove(images.size() - 1).id;
             session.console.verbose.println("remove image: " + remove);
-            engine.imageRemove(remove);
+            engine.imageRemove(remove, true); // TODO: 'force' could remove an image even if there's still a container running; but I need force to delete with multiple tags ...
         }
     }
 
@@ -556,7 +556,7 @@ public class Stage {
             throw new IOException("image not found: " + idx);
         }
         image = images.get(idx);
-        wipeContainer(engine);
+        // TODO: wipeContainer(engine);
         console.info.println("starting container ...");
         mounts = bindMounts();
         for (Map.Entry<String, String> entry : mounts.entrySet()) {

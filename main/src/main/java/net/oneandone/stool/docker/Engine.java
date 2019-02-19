@@ -333,8 +333,14 @@ public class Engine implements AutoCloseable {
         return dest.toByteArray();
     }
 
-    public void imageRemove(String id) throws IOException {
-        Method.delete(root.join("images", id));
+    public void imageRemove(String id, boolean force) throws IOException {
+        HttpNode node;
+
+        node = root.join("images", id);
+        if (force) {
+            node = node.withParameter("force", "true");
+        }
+        Method.delete(node);
     }
 
 
