@@ -21,21 +21,39 @@ import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Create extends ProjectCommand {
     private final Map<String, String> config;
 
-    public Create(Session session, FileNode project) {
-        super(session, Mode.EXCLUSIVE, project == null ? session.world.getWorking() : project);
+    public Create(Session session, List<String> args) {
+        super(session, Mode.EXCLUSIVE, eatProject(session.world, args));
         this.config = new LinkedHashMap<>();
+        for (String arg : args) {
+            property(arg);
+        }
     }
 
-    public void property(String str) {
+    private static FileNode eatProject(World world, List<String> args) {
+        String arg;
+
+        if (!args.isEmpty()) {
+            arg = args.get(0);
+            if (!arg.contains("=")) {
+                args.remove(0);
+                return world.file(arg);
+            }
+        }
+        return world.getWorking();
+    }
+
+    private void property(String str) {
         int idx;
         String key;
         String value;

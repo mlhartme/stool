@@ -86,7 +86,7 @@ public class Main {
               cli.add(Setup.class, "setup -batch config? { config(config) }");
               cli.begin("globals.session", "");
                 cli.base(SessionCommand.class, "-nolock { setNoLock(nolock) }");
-                    cli.add(Create.class, "create project property* { property*(property) }");
+                    cli.add(Create.class, "create projectAndProperties*");
                     cli.add(Build.class, "build -nocache -keep=5 -restart -m= project?");
                     cli.add(Attach.class, "attach stage project?");
                     cli.add(Detatch.class, "detatch project?");
