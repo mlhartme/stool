@@ -483,8 +483,16 @@ public class Stage {
 
     private static final DateTimeFormatter TAG_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-HHmmss");
 
+    public static final String LABEL_PORTS = "ports";
+    public static final String LABEL_COMMENT = "comment";
+    public static final String LABEL_ORIGIN = "origin";
+    public static final String LABEL_CREATED_BY = "created-by";
+    public static final String LABEL_CREATED_ON = "created-on";
+
     /** @param keep 0 to keep all */
-    public void build(Map<String, FileNode> wars, Console console, Ports ports, boolean noCache, int keep) throws Exception {
+    public void build(Map<String, FileNode> wars, Console console, Ports ports,
+                      String comment, String origin, String createdBy, String createdOn,
+                      boolean noCache, int keep) throws Exception {
         Engine engine;
         String image;
         String tag;
@@ -500,7 +508,11 @@ public class Stage {
         context = dockerContext(wars, ports);
         wipeContainer(engine);
         label = dockerLabel();
-        label.put("dockerMap", toString(ports.dockerMap()));
+        label.put(LABEL_PORTS, toString(ports.dockerMap()));
+        label.put(LABEL_COMMENT, comment);
+        label.put(LABEL_ORIGIN, origin);
+        label.put(LABEL_CREATED_BY, createdBy);
+        label.put(LABEL_CREATED_ON, createdOn);
         console.verbose.println("building image ... ");
         try (Writer log = new FlushWriter(directory.join("image.log").newWriter())) {
             // don't close the tee writer, it would close console output as well
@@ -531,23 +543,6 @@ public class Stage {
         }
         return result.toString();
     }
-    private static Map<Integer, Integer> fromString(String str) {
-        String key;
-        Map<Integer, Integer> result;
-
-        key = null;
-        result = new HashMap<>();
-        for (String entry : Separator.COMMA.split(str)) {
-            if (key == null) {
-                key = entry;
-            } else {
-                result.put(Integer.parseInt(key), Integer.parseInt(entry));
-                key = null;
-            }
-        }
-        return result;
-    }
-
 
     public void start(Console console) throws Exception {
         Engine engine;
@@ -565,13 +560,13 @@ public class Stage {
         if (images.isEmpty()) {
             throw new IOException("no images, please build your stage first");
         }
-        id = images.get(images.size() -1).id;
+        id = images.get(images.size() - 1).id;
         console.info.println("starting container ...");
         mounts = bindMounts();
         for (Map.Entry<String, String> entry : mounts.entrySet()) {
             console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
         }
-        portMap = fromString(engine.imageLabels(id).get("dockerMap"));
+        portMap = images.get(images.size() - 1).ports;
         container = engine.containerCreate(id,  getName() + "." + session.configuration.hostname,
                 OS.CURRENT == OS.MAC, 1024L * 1024 * config().memory, null, null,
                 Collections.emptyMap(), mounts, portMap);

@@ -22,16 +22,20 @@ import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Collections;
 
 public class Build extends ProjectCommand {
     private final boolean noCache;
     private final int keep;
+    private final String comment;
 
-    public Build(Session session, boolean noCache, int keep, FileNode project) {
+    public Build(Session session, boolean noCache, int keep, String comment, FileNode project) {
         super(session, Mode.EXCLUSIVE, project);
         this.keep = keep;
         this.noCache = noCache;
+        this.comment = comment;
     }
 
     @Override
@@ -41,6 +45,22 @@ public class Build extends ProjectCommand {
 
         stage = session.load(session.projects().stage(project.directory));
         ports = session.pool().allocate(stage, project.selectedWars(stage.config().select), Collections.emptyMap());
-        stage.build(project.wars(), console, ports, noCache, keep);
+        stage.build(project.wars(), console, ports, comment, origin(), createdBy(), createdOn(), noCache, keep);
+    }
+
+    private String origin() {
+        return "o";
+    }
+
+    private String createdBy() {
+        return System.getProperty("user.name");
+    }
+
+    private String createdOn() {
+        try {
+            return InetAddress.getLocalHost().getCanonicalHostName();
+        } catch (UnknownHostException e) {
+            return "unknown host: " + e.getMessage();
+        }
     }
 }
