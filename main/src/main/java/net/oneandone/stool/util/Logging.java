@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Settings;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiOutputStream;
@@ -31,6 +32,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/** Stool logging is just saving console output to log files - there's no logback or log4j involved */
 public class Logging {
     private static final String EXTENSION = ".log";
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
@@ -48,7 +50,7 @@ public class Logging {
         date = DATE_FORMAT.format(LocalDate.now());
         prefix = date + ".";
         id = prefix + Integer.toString(id(dir, prefix));
-        result = new Logging(id, dir.join(name + "-" + date + EXTENSION), user);
+        result = new Logging(id, logFile(dir, name), user);
         return result;
     }
 
@@ -57,56 +59,91 @@ public class Logging {
     private final FileNode file;
     private final String user;
 
+    private String command;
+
     private String stageId;
     private String stageName;
+    private FileNode stageFile;
 
     public Logging(String id, FileNode file, String user) throws IOException {
         this.id = id;
         this.file = file;
         this.user = user;
-        setStage("", "");
+        this.stageId = "";
+        this.stageName = "";
+        this.stageFile = null;
         if (!file.exists()) {
             file.writeBytes();
         }
     }
 
-    public void setStage(String id, String name) {
+    public void command(String command) {
+        this.command = command;
+        log("command", command);
+    }
+
+    public void openStage(String id, String name) throws MkdirException {
+        if (stageFile != null) {
+            throw new IllegalStateException("stage already open: " + stageFile.getAbsolute());
+        }
         stageId = id;
         stageName = name;
+        stageFile = logFile(file.getParent().getParent().join("stages", id, "stagelogs").mkdirOpt(), "stool");
+        command(command);
+    }
+
+    private static FileNode logFile(FileNode dir, String base) {
+        String date;
+
+        date = DATE_FORMAT.format(LocalDate.now());
+        return dir.join(base + "-" + date + EXTENSION);
+    }
+
+    public void closeStage() {
+        if (stageFile == null) {
+            throw new IllegalStateException("stage already closed");
+        }
+        stageFile = null;
+        stageId = "";
+        stageName = "";
     }
 
     /** this is the counter-part of the LogEntry.parse method */
     public void log(String logger, String message) {
+        try (Writer writer = (stageFile != null ? stageFile : file).newAppender()) {
+            logEntry(logger, message, writer);
+        } catch (IOException e) {
+            throw new RuntimeException("cannot write log file: " + e.getMessage(), e);
+        }
+    }
+
+    private void logEntry(String logger, String message, Writer writer) throws IOException {
         char c;
 
-        try (Writer writer = file.newAppender()) {
-            writer.append(LogEntry.TIME_FMT.format(LocalDateTime.now())).append('|');
-            writer.append(id).append('|');
-            writer.append(logger).append('|');
-            writer.append(user).append('|');
-            writer.append(stageId).append('|');
-            writer.append(stageName).append('|');
-            for (int i = 0, max = message.length(); i < max; i++) {
-                c = message.charAt(i);
-                switch (c) {
-                    case '\r':
-                        writer.append("\\r");
-                        break;
-                    case '\n':
-                        writer.append("\\n");
-                        break;
-                    case '\\':
-                        writer.append("\\\\");
-                        break;
-                    default:
-                        writer.append(c);
-                        break;
-                }
+        writer.append(LogEntry.TIME_FMT.format(LocalDateTime.now())).append('|');
+        writer.append(id).append('|');
+        writer.append(logger).append('|');
+        writer.append(user).append('|');
+        writer.append(stageId).append('|');
+        writer.append(stageName).append('|');
+        for (int i = 0, max = message.length(); i < max; i++) {
+            c = message.charAt(i);
+            switch (c) {
+                case '\r':
+                    writer.append("\\r");
+                    break;
+                case '\n':
+                    writer.append("\\n");
+                    break;
+                case '\\':
+                    writer.append("\\\\");
+                    break;
+                default:
+                    writer.append(c);
+                    break;
             }
-            writer.append('\n');
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        writer.append('\n');
     }
 
     public void error(String message, Throwable throwable) {

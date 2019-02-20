@@ -74,7 +74,7 @@ public class Main {
             console = console(logging, System.out, System.err);
         }
         command = "stool " + hideCredentials(args);
-        logging.log("COMMAND", command);
+        logging.command(command);
         globals = new Globals(environment, home, logging, command, console, world);
         cli = new Cli(globals::handleException);
         loadDefaults(cli, world);

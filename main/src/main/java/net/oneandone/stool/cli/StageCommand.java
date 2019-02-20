@@ -374,12 +374,11 @@ public abstract class StageCommand extends SessionCommand {
         }
 
         private void run(Stage stage, boolean main) throws Exception {
+            if (withPrefix) {
+                ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
+            }
+            session.logging.openStage(stage.getId(), stage.getName());
             try (Lock lock1 = createLock(stage.lock(), lock)) {
-                if (withPrefix) {
-                    ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
-                }
-                session.logging.setStage(stage.getId(), stage.getName());
-
                 if (main) {
                     runMain(stage);
                 } else {
@@ -394,7 +393,7 @@ public abstract class StageCommand extends SessionCommand {
                 }
                 failures.add(stage, e);
             } finally {
-                session.logging.setStage("", "");
+                session.logging.closeStage();
                 if (console.info instanceof PrefixWriter) {
                     ((PrefixWriter) console.info).setPrefix("");
                 }
