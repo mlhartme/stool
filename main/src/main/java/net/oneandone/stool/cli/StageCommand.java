@@ -38,27 +38,13 @@ import java.util.Map;
 public abstract class StageCommand extends SessionCommand {
     private final Mode lock;
 
-    /** true if command supports the auto options */
-    private final boolean withAutoRunning;
-
-    private boolean autoRestart;
-    private boolean autoStop;
     private String stageClause;
     private boolean all;
     private Fail fail = Fail.NORMAL;
 
-    public StageCommand(boolean withAutoRunning, Session session, Mode portsLock, Mode lock) {
+    public StageCommand(Session session, Mode portsLock, Mode lock) {
         super(session, portsLock);
-        this.withAutoRunning = withAutoRunning;
         this.lock = lock;
-    }
-
-    public void setAutoRestart(boolean autoRestart) {
-        this.autoRestart = autoRestart;
-    }
-
-    public void setAutoStop(boolean autoStop) {
-        this.autoStop = autoStop;
     }
 
     public void setStage(String stageClause) {
@@ -84,9 +70,6 @@ public abstract class StageCommand extends SessionCommand {
         boolean withPrefix;
         Worker worker;
 
-        if (autoStop && autoRestart) {
-            throw new ArgumentException("ambiguous options: you cannot use both -autostop and -autorestart");
-        }
         failures = new EnumerationFailed();
         lst = selected(failures);
         failureMessage = failures.getMessage();
@@ -169,20 +152,6 @@ public abstract class StageCommand extends SessionCommand {
     /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
     public boolean doBefore(List<Stage> stages, int indent) throws IOException {
         return stages.size() != 1;
-    }
-
-    private boolean autoStart(Stage stage) throws Exception {
-        Stage.State state;
-        boolean postStart;
-
-        state = stage.state();
-        if (state == Stage.State.UP && withAutoRunning && (autoRestart || autoStop)) {
-            postStart = autoRestart;
-            new Stop(session).doRun(stage);
-        } else {
-            postStart = false;
-        }
-        return postStart;
     }
 
     //--
@@ -402,9 +371,6 @@ public abstract class StageCommand extends SessionCommand {
 
         private void runMain(Stage stage) throws Exception {
             console.verbose.println("*** stage main");
-            if (autoStart(stage)) {
-                postStarts.put(stage, new Start(session, false, 0));
-            }
             doMain(stage);
         }
 

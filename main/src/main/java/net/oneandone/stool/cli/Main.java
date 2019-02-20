@@ -91,8 +91,7 @@ public class Main {
                     cli.add(Attach.class, "attach stage project?");
                     cli.add(Detatch.class, "detatch project?");
                     cli.add(Port.class, "port port project? { port*(port) }");
-                    cli.base(StageCommand.class, "-autorestart=@auto.restart -autostop=@auto.stop -stage -all -fail "
-                            + "{ setAutoRestart(autorestart) setAutoStop(autostop) setStage(stage) setAll(all) setFail(fail) }");
+                    cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Images.class, "images");
                       cli.add(Cleanup.class, "cleanup");
                       cli.add(Config.class, "config property* { property*(property) }");

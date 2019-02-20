@@ -27,7 +27,7 @@ public class Start extends StageCommand {
     private final int image;
 
     public Start(Session session, boolean tail, int image) {
-        super(false, session, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
+        super(session, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.tail = tail;
         this.image = image;
     }

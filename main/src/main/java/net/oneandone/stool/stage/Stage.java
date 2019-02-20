@@ -232,7 +232,7 @@ public class Stage {
         fields.add(new Field("created-at") {
             @Override
             public Object get() throws IOException {
-                return LogEntry.FULL_FMT.format(created());
+                return logReader().first().dateTime;
             }
 
         });
@@ -728,15 +728,7 @@ public class Stage {
 
     /** @return login name */
     public String createdBy() throws IOException {
-        return creatorFile().readString().trim();
-    }
-
-    public FileNode creatorFile() {
-        return directory.join("creator.touch");
-    }
-
-    public LocalDateTime created() throws IOException {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(creatorFile().getLastModified()), ZoneId.systemDefault());
+        return logReader().first().user;
     }
 
     //--

@@ -48,6 +48,7 @@ Stages are now the central part; multiple project can be associated with the sam
   * remove Project.updatesAvailable
   
 
+* dumped various 'auto' options - they were disabled for all remaining commands exception `remove`
 * start now takes an image index argument
 * added "images" command
 * dumped `type` field

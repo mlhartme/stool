@@ -32,7 +32,7 @@ public class History extends StageCommand {
     private final int max;
 
     public History(Session session, boolean details, int max) {
-        super(false, session, Mode.NONE, Mode.SHARED);
+        super(session, Mode.NONE, Mode.SHARED);
         this.details = details;
         this.max = max;
     }
@@ -53,10 +53,6 @@ public class History extends StageCommand {
         while (true) {
             entry = reader.prev();
             if (entry == null) {
-                break;
-            }
-            if (entry.dateTime.plusHours(1).isBefore(stage.created())) {
-                // this assumes that creating a stage does not take longer than 1 hour
                 break;
             }
             lst = detailsMap.get(entry.id);

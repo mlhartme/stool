@@ -23,7 +23,7 @@ public class Restart extends StageCommand {
     private final int image;
 
     public Restart(Session session, int image) {
-        super(false, session, /* locking done by subcommands */ Mode.NONE, Mode.NONE);
+        super(session, /* locking done by subcommands */ Mode.NONE, Mode.NONE);
         this.image = image;
     }
 

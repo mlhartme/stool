@@ -93,7 +93,6 @@ public class Create extends ProjectCommand {
             property.set(entry.getValue());
         }
         Project.checkName(stage.config().name);
-        stage.creatorFile().writeString(project.directory.getOwner().getName());
         stage.saveConfig();
 
         session.logging.openStage(stage.getId(), stage.getName());

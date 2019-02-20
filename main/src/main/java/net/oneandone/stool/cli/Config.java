@@ -35,7 +35,7 @@ public class Config extends StageCommand {
     private boolean set;
 
     public Config(Session session) {
-        super(false, session, Mode.NONE, Mode.EXCLUSIVE);
+        super(session, Mode.NONE, Mode.EXCLUSIVE);
         arguments = new LinkedHashMap<>();
     }
 

@@ -23,7 +23,7 @@ import net.oneandone.stool.util.Session;
 
 public class Images extends StageCommand {
     public Images(Session session) {
-        super(false, session, Mode.NONE, Mode.EXCLUSIVE);
+        super(session, Mode.NONE, Mode.EXCLUSIVE);
     }
 
     @Override
