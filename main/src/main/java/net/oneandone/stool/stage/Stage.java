@@ -32,6 +32,7 @@ import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.LogEntry;
+import net.oneandone.stool.util.LogReader;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
@@ -120,6 +121,10 @@ public class Stage {
         result.add(propertyOpt("name"));
         result.addAll(fields());
         return result;
+    }
+
+    public LogReader logReader() throws IOException {
+        return LogReader.create(session.logging.directory().join(getId()));
     }
 
     //--
@@ -240,7 +245,7 @@ public class Stage {
         fields.add(new Field("last-modified-at") {
             @Override
             public Object get() throws IOException {
-                return timespan(lastModifiedAt());
+                return timespan(logReader().lastModified());
             }
         });
         fields.add(new Field("origin") {
@@ -734,25 +739,6 @@ public class Stage {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(creatorFile().getLastModified()), ZoneId.systemDefault());
     }
 
-    public FileNode modifiedFile() throws IOException {
-        FileNode file;
-
-        file = directory.join("modified.touch");
-        if (!file.exists()) {
-            file.getParent().mkdirOpt();
-            file.writeString(session.user);
-        }
-        return file;
-    }
-
-    public String lastModifiedBy() throws IOException {
-        return modifiedFile().readString().trim();
-    }
-
-    public long lastModifiedAt() throws IOException {
-        return modifiedFile().getLastModified();
-    }
-
     //--
 
     public Ports loadPortsOpt() throws IOException {
@@ -813,8 +799,11 @@ public class Stage {
                 + ", urls=" + urlMap()
                 + ", state=" + state()
                 + ", displayState=" + displayState()
-                + ", last-modified-by='" + lastModifiedBy() + '\''
                 + '}').hashCode();
+    }
+
+    public String lastModifiedBy() throws IOException {
+        return logReader().prev().user;
     }
 
     //-- for dashboard

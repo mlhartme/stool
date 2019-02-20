@@ -15,6 +15,9 @@
  */
 package net.oneandone.stool.util;
 
+import net.oneandone.sushi.fs.FileNotFoundException;
+import net.oneandone.sushi.fs.GetLastModifiedException;
+import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.LineFormat;
 import net.oneandone.sushi.io.LineReader;
@@ -56,11 +59,26 @@ public class LogReader {
         this.lines = null;
     }
 
-    public LogEntry prev() throws IOException {
-        FileNode file;
+    public long lastModified() throws GetLastModifiedException {
+        return files.get(files.size() - 1).getLastModified();
+    }
+
+    public LogEntry first() throws IOException {
         String line;
-        InputStream src;
-        LineReader reader;
+
+        for (FileNode file : files) {
+            try (LineReader reader = open(file)) {
+                line = reader.next();
+                if (line != null) {
+                    return LogEntry.parse(line);
+                }
+            }
+        }
+        return null;
+    }
+
+    public LogEntry prev() throws IOException {
+        String line;
         LogEntry result;
         int size;
 
@@ -70,21 +88,16 @@ public class LogReader {
                 if (size == 0) {
                     return null;
                 }
-                file = files.remove(size - 1);
-                src = file.newInputStream();
-                if (file.getName().endsWith(".gz")) {
-                    src = new GZIPInputStream(src);
-                }
-                lines = new ArrayList<>();
-                reader = new LineReader(new InputStreamReader(src, "utf8"), LineFormat.RAW_FORMAT);
-                while (true) {
-                    line = reader.next();
-                    if (line == null) {
-                        break;
+                try (LineReader reader = open(files.remove(size - 1))) {
+                    lines = new ArrayList<>();
+                    while (true) {
+                        line = reader.next();
+                        if (line == null) {
+                            break;
+                        }
+                        lines.add(line);
                     }
-                    lines.add(line);
                 }
-                reader.close();
             }
             size = lines.size();
             if (size > 0) {
@@ -94,5 +107,15 @@ public class LogReader {
                 lines = null;
             }
         }
+    }
+
+    private LineReader open(FileNode file) throws IOException {
+        InputStream src;
+
+        src = file.newInputStream();
+        if (file.getName().endsWith(".gz")) {
+            src = new GZIPInputStream(src);
+        }
+        return new LineReader(new InputStreamReader(src, "utf8"), LineFormat.RAW_FORMAT);
     }
 }
