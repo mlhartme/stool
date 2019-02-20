@@ -26,7 +26,6 @@ public class Cleanup extends StageCommand {
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        stage.modify();
         stage.rotateLogs(console);
     }
 }

@@ -30,7 +30,6 @@ public class Remove extends StageCommand {
     @Override
     public void doMain(Stage stage) throws Exception {
         stage.checkNotUp();
-        stage.modify();
         // TODO: remove stage link ...
         if (!batch) {
             console.info.println("Ready to delete " + stage.directory.getAbsolute() + "?");

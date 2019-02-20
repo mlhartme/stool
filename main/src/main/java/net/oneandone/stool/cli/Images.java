@@ -48,7 +48,6 @@ public class Images extends StageCommand {
             console.info.println("       created-on: " + image.createdOn);
             idx++;
         }
-        stage.modify();
         stage.rotateLogs(console);
     }
 }

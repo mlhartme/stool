@@ -745,14 +745,6 @@ public class Stage {
         return file;
     }
 
-    public void modify() throws IOException {
-        FileNode file;
-
-        file = modifiedFile();
-        file.getParent().mkdirOpt();
-        file.writeString(session.user);
-    }
-
     public String lastModifiedBy() throws IOException {
         return modifiedFile().readString().trim();
     }

@@ -50,7 +50,6 @@ public class Start extends StageCommand {
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        stage.modify();
         // to avoid running into a ping timeout below:
         stage.session.configuration.verfiyHostname();
         stage.checkConstraints();

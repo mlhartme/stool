@@ -26,7 +26,6 @@ public class Stop extends StageCommand {
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        stage.modify();
         doNormal(stage);
     }
 
