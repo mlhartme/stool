@@ -49,7 +49,7 @@ public class History extends StageCommand {
         stageId = stage.getId();
         counter = 0;
         detailsMap = new HashMap<>();
-        reader = LogReader.create(session.logging.directory());
+        reader = LogReader.create(session.logging.directory().join(stageId));
         while (true) {
             entry = reader.prev();
             if (entry == null) {

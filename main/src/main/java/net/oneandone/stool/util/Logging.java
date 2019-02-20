@@ -79,7 +79,7 @@ public class Logging {
 
     public void command(String command) {
         this.command = command;
-        log("command", command);
+        log("COMMAND", command);
     }
 
     public void openStage(String id, String name) throws MkdirException {
@@ -88,7 +88,7 @@ public class Logging {
         }
         stageId = id;
         stageName = name;
-        stageFile = logFile(file.getParent().getParent().join("stages", id, "stagelogs").mkdirOpt(), "stool");
+        stageFile = logFile(directory().join(id).mkdirOpt(), "stool");
         command(command);
     }
 
