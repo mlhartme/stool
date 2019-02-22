@@ -97,7 +97,7 @@ public class Main {
                       cli.add(Config.class, "config property* { property*(property) }");
                       cli.add(History.class, "history -details=@history.details:false -max=@history.max:50");
                       cli.add(Ls.class, "list -defaults=@list.defaults info* { select*(info) }");
-                      cli.add(Remove.class, "remove -batch");
+                      cli.add(Remove.class, "remove -batch -stop");
                       cli.add(Restart.class, "restart -image");
                       cli.add(Start.class, "start -tail -image");
                       cli.add(Status.class, "status -defaults=@status.defaults info* { select*(info) }");

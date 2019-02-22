@@ -167,7 +167,7 @@ public class Validate extends StageCommand {
                 if (stage.config().expire.expiredDays() >= session.configuration.autoRemove) {
                     try {
                         report.user(stage, "removing expired stage");
-                        new Remove(session, true).doRun(stage);
+                        new Remove(session, true, true).doRun(stage);
                     } catch (Exception e) {
                         report.user(stage, "failed to remove expired stage: " + e.getMessage());
                         e.printStackTrace(console.verbose);

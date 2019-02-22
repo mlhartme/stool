@@ -21,14 +21,19 @@ import net.oneandone.stool.util.Session;
 
 public class Remove extends StageCommand {
     private final boolean batch;
+    private final boolean stop;
 
-    public Remove(Session session, boolean batch) {
+    public Remove(Session session, boolean batch, boolean stop) {
         super(session, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.batch = batch;
+        this.stop = stop;
     }
 
     @Override
     public void doMain(Stage stage) throws Exception {
+        if (stop && stage.state() == Stage.State.UP) {
+            new Stop(session).doRun(stage);
+        }
         stage.checkNotUp();
         // TODO: remove stage link ...
         if (!batch) {
