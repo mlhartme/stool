@@ -271,7 +271,7 @@ public class Session {
             if (project == null) {
                 lazySelectedId = null;
             } else {
-                stage = projects().stage(project);
+                stage = projects().stageOpt(project);
                 if (stage != null) {
                     lazySelectedId = stage.getName();
                 }

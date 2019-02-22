@@ -53,7 +53,17 @@ public class Projects {
         }
     }
 
-    public FileNode stage(FileNode project) {
+    public FileNode stage(FileNode project) throws IOException {
+        FileNode result;
+
+        result = stageOpt(project);
+        if (result == null) {
+            throw new IOException("no stage attached to project " + project);
+        }
+        return result;
+    }
+
+    public FileNode stageOpt(FileNode project) {
         return map.get(project);
     }
 
