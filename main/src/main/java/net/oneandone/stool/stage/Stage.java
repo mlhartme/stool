@@ -31,7 +31,6 @@ import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Info;
-import net.oneandone.stool.util.LogEntry;
 import net.oneandone.stool.util.LogReader;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Property;
@@ -61,9 +60,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -561,7 +558,7 @@ public class Stage {
             throw new IOException("image not found: " + idx);
         }
         image = images.get(idx);
-        // TODO: wipeContainer(engine);
+        wipeContainer(engine);
         console.info.println("starting container ...");
         mounts = bindMounts();
         for (Map.Entry<String, String> entry : mounts.entrySet()) {
