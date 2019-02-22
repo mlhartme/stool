@@ -22,8 +22,8 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
-public class Detatch extends ProjectCommand {
-    public Detatch(Session session, FileNode project) {
+public class Detach extends ProjectCommand {
+    public Detach(Session session, FileNode project) {
         super(session, Mode.EXCLUSIVE, project);
     }
 
