@@ -45,11 +45,11 @@ import java.util.List;
 import java.util.Map;
 
 public class Session {
-    public static Session load(FileNode home, Logging logging, String command, Console console, World world) throws IOException {
+    public static Session load(FileNode home, Logging logging, String command, Console console) throws IOException {
         Gson gson;
 
-        gson = gson(world);
-        return new Session(gson, logging, command, home, console, world, StoolConfiguration.load(gson, home));
+        gson = gson(home.getWorld());
+        return new Session(gson, logging, command, home, console, StoolConfiguration.load(gson, home));
     }
 
     private static final int MEM_RESERVED_OS = 500;
@@ -61,10 +61,9 @@ public class Session {
     public final String user;
     private final String command;
 
-    public final FileNode home;
-
     public final Console console;
     public final World world;
+    public final FileNode home;
     public final StoolConfiguration configuration;
 
     private final FileNode stages;
@@ -77,14 +76,14 @@ public class Session {
     private Map<String, Accessor> lazyAccessors;
     private Pool lazyPool;
 
-    public Session(Gson gson, Logging logging, String command, FileNode home, Console console, World world, StoolConfiguration configuration) {
+    public Session(Gson gson, Logging logging, String command, FileNode home, Console console, StoolConfiguration configuration) {
         this.gson = gson;
         this.logging = logging;
         this.user = logging.getUser();
         this.command = command;
-        this.home = home;
         this.console = console;
-        this.world = world;
+        this.world = home.getWorld();
+        this.home = home;
         this.configuration = configuration;
         this.stages = home.join("stages");
         this.stageIdPrefix = logging.id + ".";

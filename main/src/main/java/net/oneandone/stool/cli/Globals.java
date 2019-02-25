@@ -57,7 +57,7 @@ public class Globals {
             throw new IOException("Stool home directory not found: " + home.getAbsolute()
                      + "\nRun 'stool setup' to create it.");
         }
-        session = Session.load(home, logging, command, console, world);
+        session = Session.load(home, logging, command, console);
         session.checkVersion();
         return session;
     }
