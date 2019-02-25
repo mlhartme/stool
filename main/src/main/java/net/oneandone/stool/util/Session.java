@@ -110,11 +110,13 @@ public class Session {
         return home.join("templates");
     }
 
-    public Stage load(FileNode stageResolved) throws IOException {
-        return new Stage(this, stageResolved, loadStageConfiguration(stageResolved));
+    //-- Stage access
+
+    public Stage load(FileNode stage) throws IOException {
+        return new Stage(this, stage, loadStageConfiguration(stage));
     }
 
-    public Stage load(String id) throws IOException {
+    public Stage loadById(String id) throws IOException {
         return load(stages.join(id).checkDirectory());
     }
 
