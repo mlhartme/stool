@@ -72,7 +72,6 @@ public class Create extends ProjectCommand {
     @Override
     public void doRun(Project project) throws IOException {
         Stage stage;
-        FileNode stageDirectory;
         Property property;
 
         project.directory.checkDirectory();
@@ -80,9 +79,8 @@ public class Create extends ProjectCommand {
             throw new ArgumentException("project already has a stage");
         }
 
-        stageDirectory = session.createStageDirectory();
-        stage = new Stage(session, stageDirectory, session.createStageConfiguration(project.getOrigin()));
-        session.projects().add(project.directory, stageDirectory);
+        stage = session.create(project.getOrigin());
+        session.projects().add(project.directory, stage.directory);
         stage.config().name = project.directory.getName();
         stage.config().tuneMemory(stage.session.configuration.baseMemory, project.size());
         for (Map.Entry<String, String> entry : config.entrySet()) {

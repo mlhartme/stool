@@ -166,6 +166,30 @@ public class Session {
         return result;
     }
 
+    //-- Stage create
+
+    public Stage create(String origin) throws MkdirException {
+        FileNode directory;
+
+        directory = stages.join(nextStageId()).mkdir();
+        return new Stage(this, directory, createStageConfiguration(origin));
+    }
+
+    private StageConfiguration createStageConfiguration(String origin) {
+        StageConfiguration result;
+
+        result = new StageConfiguration(templates().join("tomcat"));
+        result.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
+        configuration.setDefaults(accessors(), result, origin);
+        return result;
+    }
+
+    private String nextStageId() {
+        nextStageId++;
+        return stageIdPrefix + nextStageId;
+    }
+
+
     //-- Stage access
 
     public Stage load(FileNode stage) throws IOException {
@@ -261,8 +285,7 @@ public class Session {
         return (int) (result / 1024 / 1024);
     }
 
-    //--
-
+    //-- Projects
 
     private Projects lazyProjects = null;
 
@@ -332,24 +355,6 @@ public class Session {
 
     public void updatePool() { // TODO: hack to see updated application urls
         lazyPool = null;
-    }
-
-    public StageConfiguration createStageConfiguration(String url) {
-        StageConfiguration result;
-
-        result = new StageConfiguration(templates().join("tomcat"));
-        result.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
-        configuration.setDefaults(accessors(), result, url);
-        return result;
-    }
-
-    public FileNode createStageDirectory() throws MkdirException {
-        return stages.join(nextStageId()).mkdir();
-    }
-
-    private String nextStageId() {
-        nextStageId++;
-        return stageIdPrefix + nextStageId;
     }
 
     public static Gson gson(World world) {
