@@ -134,7 +134,7 @@ public abstract class StageCommand extends SessionCommand {
         });
     }
 
-    protected Stage selected() throws IOException {
+    private Stage selected() throws IOException {
         String id;
 
         id = session.getSelectedStageId();

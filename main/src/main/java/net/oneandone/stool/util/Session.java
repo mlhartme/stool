@@ -110,74 +110,7 @@ public class Session {
         return home.join("templates");
     }
 
-    //-- Stage access
-
-    public Stage load(FileNode stage) throws IOException {
-        return new Stage(this, stage, loadStageConfiguration(stage));
-    }
-
-    public Stage loadById(String id) throws IOException {
-        return load(stages.join(id).checkDirectory());
-    }
-
-    public Stage loadByName(String stageName) throws IOException {
-        List<FileNode> directories;
-        StageConfiguration config;
-
-        directories = stages.list();
-        for (FileNode directory : directories) {
-            config = StageConfiguration.load(gson, StageConfiguration.file(directory));
-            if (stageName.equals(config.name)) {
-                return load(directory);
-            }
-        }
-        throw new IllegalArgumentException("stage not found: " + stageName);
-    }
-
-    //--
-
-    /** logs an error for administrators, i.e. the user is not expected to understand/fix this problem. */
-    public void reportException(String context, Throwable e) {
-        String subject;
-        StringWriter body;
-        PrintWriter writer;
-
-        logging.error("[" + command + "] " + context + ": " + e.getMessage(), e);
-        if (!configuration.admin.isEmpty()) {
-            subject = "[stool exception] " + e.getMessage();
-            body = new StringWriter();
-            body.write("stool: " + Main.versionString(world) + "\n");
-            body.write("command: " + command + "\n");
-            body.write("context: " + context + "\n");
-            body.write("user: " + user + "\n");
-            body.write("hostname: " + configuration.hostname + "\n");
-            writer = new PrintWriter(body);
-            while (true) {
-                e.printStackTrace(writer);
-                e = e.getCause();
-                if (e == null) {
-                    break;
-                }
-                body.append("Caused by:\n");
-            }
-            try {
-                configuration.mailer().send(configuration.admin, new String[]{configuration.admin}, subject, body.toString());
-            } catch (MessagingException suppressed) {
-                logging.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
-            }
-        }
-    }
-
-    //-- environment handling
-
-    private static int memTotal() {
-        long result;
-
-        result = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
-        return (int) (result / 1024 / 1024);
-    }
-
-    //--
+    //-- Stage listings
 
     public List<Stage> list(EnumerationFailed problems, Predicate predicate) throws IOException {
         List<Stage> result;
@@ -233,8 +166,17 @@ public class Session {
         return result;
     }
 
-    /** return directory or null */
-    public FileNode lookup(String stageName) throws IOException {
+    //-- Stage access
+
+    public Stage load(FileNode stage) throws IOException {
+        return new Stage(this, stage, loadStageConfiguration(stage));
+    }
+
+    public Stage loadById(String id) throws IOException {
+        return load(stages.join(id).checkDirectory());
+    }
+
+    public Stage loadByName(String stageName) throws IOException {
         List<FileNode> directories;
         StageConfiguration config;
 
@@ -242,21 +184,13 @@ public class Session {
         for (FileNode directory : directories) {
             config = StageConfiguration.load(gson, StageConfiguration.file(directory));
             if (stageName.equals(config.name)) {
-                return directory;
+                return load(directory);
             }
         }
-        return null;
+        throw new IllegalArgumentException("stage not found: " + stageName);
     }
 
-    private Projects lazyProjects = null;
-
-    public Projects projects() throws IOException {
-        if (lazyProjects == null) {
-            lazyProjects = new Projects(home.join("projects"));
-            lazyProjects.load();
-        }
-        return lazyProjects;
-    }
+    //-- selected stage
 
     private static final String UNKNOWN = "../unknown/..";
     private String lazySelectedId = UNKNOWN;
@@ -277,6 +211,67 @@ public class Session {
             }
         }
         return lazySelectedId;
+    }
+
+    public boolean isSelected(Stage stage) throws IOException {
+        return stage.getId().equals(getSelectedStageId());
+    }
+
+
+    //--
+
+    /** logs an error for administrators, i.e. the user is not expected to understand/fix this problem. */
+    public void reportException(String context, Throwable e) {
+        String subject;
+        StringWriter body;
+        PrintWriter writer;
+
+        logging.error("[" + command + "] " + context + ": " + e.getMessage(), e);
+        if (!configuration.admin.isEmpty()) {
+            subject = "[stool exception] " + e.getMessage();
+            body = new StringWriter();
+            body.write("stool: " + Main.versionString(world) + "\n");
+            body.write("command: " + command + "\n");
+            body.write("context: " + context + "\n");
+            body.write("user: " + user + "\n");
+            body.write("hostname: " + configuration.hostname + "\n");
+            writer = new PrintWriter(body);
+            while (true) {
+                e.printStackTrace(writer);
+                e = e.getCause();
+                if (e == null) {
+                    break;
+                }
+                body.append("Caused by:\n");
+            }
+            try {
+                configuration.mailer().send(configuration.admin, new String[]{configuration.admin}, subject, body.toString());
+            } catch (MessagingException suppressed) {
+                logging.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
+            }
+        }
+    }
+
+    //-- environment handling
+
+    private static int memTotal() {
+        long result;
+
+        result = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
+        return (int) (result / 1024 / 1024);
+    }
+
+    //--
+
+
+    private Projects lazyProjects = null;
+
+    public Projects projects() throws IOException {
+        if (lazyProjects == null) {
+            lazyProjects = new Projects(home.join("projects"));
+            lazyProjects.load();
+        }
+        return lazyProjects;
     }
 
     private FileNode findProjectDirectory(FileNode dir) throws IOException {
@@ -315,10 +310,6 @@ public class Session {
         return home.join("run/ports");
     }
 
-    public boolean isSelected(Stage stage) throws IOException {
-        return stage.getId().equals(getSelectedStageId());
-    }
-
     //-- stage properties
 
 
@@ -331,10 +322,6 @@ public class Session {
     }
 
     //-- stool properties
-
-    public List<FileNode> stageDirectories() throws IOException {
-        return stages.list();
-    }
 
     public Pool pool() throws IOException {
         if (lazyPool == null) {
@@ -409,7 +396,7 @@ public class Session {
         StageConfiguration config;
 
         reserved = 0;
-        for (FileNode directory : stageDirectories()) {
+        for (FileNode directory : stages.list()) {
             config = loadStageConfiguration(directory);
             reserved += Math.max(0, config.quota);
         }
