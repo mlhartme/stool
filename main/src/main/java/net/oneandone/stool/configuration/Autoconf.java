@@ -55,7 +55,6 @@ public class Autoconf {
             dest.ldapUnit = "cisostages";
             dest.admin = "michael.hartmeier@1und1.de";
             dest.mailHost = "mri.server.lan";
-            dest.macros.put("trustStore", "-Djavax.net.ssl.trustStore=" + tools + "/cacerts");
             // note: doesn't work on local machines, only for stages ...
             // dest.certificates = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
             dflt = dest.defaults.get("");

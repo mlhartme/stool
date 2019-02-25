@@ -62,11 +62,6 @@ public class StoolConfiguration {
      */
     public String admin;
 
-    /**
-     * For additional "system-wide" shortcuts.
-     */
-    public Map<String, String> macros;
-
     // preserve order!
     public LinkedHashMap<String, Map<String, String>> defaults;
 
@@ -110,7 +105,6 @@ public class StoolConfiguration {
         autoRemove = -1;
         defaults = new LinkedHashMap<>();
         defaults.put("", new HashMap<>());
-        macros = new LinkedHashMap<>();
         ldapUrl = "";
         ldapPrincipal = "";
         ldapCredentials = "";
