@@ -33,8 +33,6 @@ import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
-import net.oneandone.sushi.util.Strings;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
@@ -379,30 +377,6 @@ public class Session {
 
     public FileNode downloads() {
         return home.join("downloads");
-    }
-
-    public List<String> search(String search) throws IOException {
-        FileNode working;
-        List<String> cmd;
-        List<String> result;
-        int idx;
-
-        working = world.getWorking();
-        result = new ArrayList<>();
-        if (configuration.search.isEmpty()) {
-            throw new IOException("no search tool configured");
-        }
-        cmd = Separator.SPACE.split(configuration.search);
-        idx = cmd.indexOf("()");
-        if (idx == -1) {
-            throw new IOException("search tool configured without () placeholder");
-        }
-        cmd.set(idx, search);
-        for (String line : Separator.RAW_LINE.split(working.exec(Strings.toArray(cmd)))) {
-            line = line.trim();
-            result.add(line);
-        }
-        return result;
     }
 
     public void checkVersion() throws IOException {

@@ -22,7 +22,8 @@ Stages are now the central part; multiple project can be associated with the sam
 * stool config changes
   * dumped `diskMin`
   * dumped `macros`
-q  
+  * dumped `search`
+
 * stage config changes
   * dumped `autoRefresh`
 

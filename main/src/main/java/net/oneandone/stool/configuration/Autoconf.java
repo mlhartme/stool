@@ -38,7 +38,6 @@ public class Autoconf {
 
         result = new StoolConfiguration();
         result.hostname = hostname();
-        result.search = search(home.getWorld());
         oneAndOne(environment, home, result, log);
         return result;
     }
@@ -104,21 +103,6 @@ public class Autoconf {
         result.put("pom", "workspace.xml");
         result.put("refresh", "pws @stoolSvnCredentials@ up");
         return result;
-    }
-
-    private static String search(World world) throws IOException {
-        String str;
-
-        try {
-            str = world.getHome().exec("which", "pommes").trim();
-        } catch (Failure e) {
-            return "";
-        }
-        if (world.file(str).isFile()) {
-            return "pommes find () - %s";
-        } else {
-            return "";
-        }
     }
 
     private static String hostname() throws UnknownHostException {

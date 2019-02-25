@@ -89,8 +89,6 @@ public class StoolConfiguration {
      */
     public int autoRemove;
 
-    public String search;
-
     public int quota;
 
     /** Path to docker unix domain socket */
@@ -112,7 +110,6 @@ public class StoolConfiguration {
         mailHost = "";
         mailUsername = "";
         mailPassword = "";
-        search = "";
         quota = 0;
         docker = "/var/run/docker.sock";
     }
