@@ -58,11 +58,6 @@ public class StoolConfiguration {
     public boolean vhosts;
 
     /**
-     * in megabyte
-     */
-    public int diskMin;
-
-    /**
      * Name + email. Used for problem reports, feedback emails,
      */
     public String admin;
@@ -111,7 +106,6 @@ public class StoolConfiguration {
         portLast = 9999;
         baseMemory = 400;
         hostname = "localhost";
-        diskMin = 1000;
         admin = "";
         autoRemove = -1;
         defaults = new LinkedHashMap<>();

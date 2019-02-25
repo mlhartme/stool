@@ -108,7 +108,7 @@ public class StoolIT {
         environment.setHome(home);
         home.getParent().mkdirsOpt();
         home.deleteTreeOpt();
-        stool("setup", "-batch", "{ \"diskMin\": 500, \"portFirst\": " + start + ", \"portLast\": " + end + " }");
+        stool("setup", "-batch", "{ \"portFirst\": " + start + ", \"portLast\": " + end + " }");
         stages = home.getParent().join(context + "-stages");
         stages.deleteTreeOpt();
         stages.mkdir();
