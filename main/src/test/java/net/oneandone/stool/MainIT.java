@@ -31,7 +31,7 @@ import static org.junit.Assert.fail;
 /**
  * Integration tests for the command line.
  */
-public class StoolIT {
+public class MainIT {
     private static final World WORLD;
     private static final FileNode IT;
 
@@ -41,14 +41,14 @@ public class StoolIT {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-        IT = WORLD.guessProjectHome(StoolIT.class).join("target/it");
+        IT = WORLD.guessProjectHome(MainIT.class).join("target/it");
     }
 
     private static int id = 0;
 
     private Environment environment;
 
-    public StoolIT() {
+    public MainIT() {
     }
 
     @After
