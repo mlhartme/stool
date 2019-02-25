@@ -91,13 +91,4 @@ public class DashboardConfiguration {
     public ExecutorService executorService() {
         return Executors.newCachedThreadPool();
     }
-
-    @Bean
-    public Timer autoRefresh() throws IOException {
-        Timer timer;
-
-        timer = new Timer("Refresh");
-        timer.schedule(new RefreshTask(jar(), session(), logs()), 20000, 60000);
-        return timer;
-    }
 }

@@ -67,9 +67,6 @@ public class StageConfiguration {
     @Option(key = "url")
     public String url;
 
-    @Option(key = "autoRefresh")
-    public Boolean autoRefresh;
-
     @Option(key = "comment")
     public String comment;
 
@@ -89,7 +86,6 @@ public class StageConfiguration {
         this.expire = Expire.never();
         this.url = "(http:https)://%h/";
         this.comment = "";
-        this.autoRefresh = false;
         this.template = template;
         // TODO: duplicates Dockerfile template defaults
         this.templateEnv = Strings.toMap("version", "9.0.13", "opts", "", "debug", "false", "suspend", "false");

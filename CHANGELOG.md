@@ -18,7 +18,7 @@ Stages are now the central part; multiple project can be associated with the sam
 * added `remote -stop` option
 * added `attach` and `detatch` commands to manage project - stage association
 * dumped vhosts bind mounts, copy war instead
-
+* dumped stage config `autoRefresh`
 * docker changes
   * stages can have multiple images now
   * use image tags with timestamps
