@@ -186,7 +186,7 @@ public class Stage {
     }
 
     public void saveConfig() throws IOException {
-        session.saveStageConfiguration(config(), directory);
+        config().save(session.gson, StageConfiguration.file(directory));
     }
 
     //--

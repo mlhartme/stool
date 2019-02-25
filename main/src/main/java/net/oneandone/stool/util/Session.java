@@ -214,6 +214,10 @@ public class Session {
         throw new IllegalArgumentException("stage not found: " + stageName);
     }
 
+    private StageConfiguration loadStageConfiguration(FileNode stage) throws IOException {
+        return StageConfiguration.load(gson, StageConfiguration.file(stage));
+    }
+
     //-- selected stage
 
     private static final String UNKNOWN = "../unknown/..";
@@ -241,6 +245,27 @@ public class Session {
         return stage.getId().equals(getSelectedStageId());
     }
 
+    //-- Projects
+
+    private Projects lazyProjects = null;
+
+    public Projects projects() throws IOException {
+        if (lazyProjects == null) {
+            lazyProjects = new Projects(home.join("projects"));
+            lazyProjects.load();
+        }
+        return lazyProjects;
+    }
+
+    private FileNode findProjectDirectory(FileNode dir) throws IOException {
+        while (dir != null) {
+            if (projects().hasProject(dir)) {
+                return dir;
+            }
+            dir = dir.getParent();
+        }
+        return null;
+    }
 
     //--
 
@@ -285,28 +310,6 @@ public class Session {
         return (int) (result / 1024 / 1024);
     }
 
-    //-- Projects
-
-    private Projects lazyProjects = null;
-
-    public Projects projects() throws IOException {
-        if (lazyProjects == null) {
-            lazyProjects = new Projects(home.join("projects"));
-            lazyProjects.load();
-        }
-        return lazyProjects;
-    }
-
-    private FileNode findProjectDirectory(FileNode dir) throws IOException {
-        while (dir != null) {
-            if (projects().hasProject(dir)) {
-                return dir;
-            }
-            dir = dir.getParent();
-        }
-        return null;
-    }
-
     //--
 
     /** @return memory not yet reserved */
@@ -331,17 +334,6 @@ public class Session {
 
     public FileNode ports() {
         return home.join("run/ports");
-    }
-
-    //-- stage properties
-
-
-    public void saveStageConfiguration(StageConfiguration stageConfiguration, FileNode stage) throws IOException {
-        stageConfiguration.save(gson, StageConfiguration.file(stage));
-    }
-
-    public StageConfiguration loadStageConfiguration(FileNode stage) throws IOException {
-        return StageConfiguration.load(gson, StageConfiguration.file(stage));
     }
 
     //-- stool properties
