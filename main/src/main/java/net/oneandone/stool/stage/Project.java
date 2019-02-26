@@ -171,23 +171,6 @@ public class Project {
         return false;
     }
 
-    public static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss").withZone(ZoneId.systemDefault());
-
-    public String buildtime() throws IOException {
-        Collection<FileNode> artifacts;
-        long time;
-
-        artifacts = wars().values();
-        if (artifacts.isEmpty()) {
-            return null;
-        }
-        time = Long.MIN_VALUE;
-        for (FileNode a : artifacts) {
-            time = Math.max(time, a.getLastModified());
-        }
-        return FMT.format(Instant.ofEpochMilli(time));
-    }
-
     private Map<String, FileNode> lazyWars;
 
     public Map<String, FileNode> wars() throws IOException {
