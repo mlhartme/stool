@@ -80,7 +80,7 @@ public class Pool {
     }
 
     // TODO: ugly reference to stage ...
-    public Ports allocate(Stage stage, Map<String, FileNode> nameWars, Map<String, Integer> fixed) throws IOException {
+    public Ports allocate(Stage stage, String app, Map<String, Integer> fixed) throws IOException {
         LinkedHashSet<String> names;
         Vhost previous;
         Vhost found;
@@ -97,14 +97,13 @@ public class Pool {
         names.add(Ports.JMX_DEBUG);
 
         names.addAll(fixed.keySet());
-
-        names.addAll(nameWars.keySet());
+        names.add(app);
 
         stageName = stage.getName();
         stageId = stage.getId();
         result = new ArrayList<>();
         for (String name : names) {
-            webapp = nameWars.get(name) != null;
+            webapp = app.equals(name);
             port = fixed.get(name);
             previous = lookupId(name, stageId);
             if (previous != null) {

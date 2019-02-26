@@ -54,7 +54,7 @@ public class Build extends ProjectCommand {
         }
         stage = session.load(session.projects().stage(project.getDirectory()));
         for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
-            ports = session.pool().allocate(stage, project.selectedWars(stage.configuration.select), Collections.emptyMap());
+            ports = session.pool().allocate(stage, entry.getKey(), Collections.emptyMap());
             stage.build(entry.getKey(), entry.getValue(), console, ports, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
             if (restart) {
                 new Restart(session, 0).doRun(stage);
