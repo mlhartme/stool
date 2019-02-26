@@ -41,6 +41,7 @@ public class Images extends StageCommand {
         for (Image image : stage.images(engine)) {
             marker = image.id.equals(currentId) ? "==>" : "   ";
             console.info.printf("%s [%d] %s\n", marker, idx, image.id);
+            console.info.println("       app:        " + image.app);
             console.info.println("       comment:    " + image.comment);
             console.info.println("       origin:     " + image.origin);
             console.info.println("       created-at: " + image.created);

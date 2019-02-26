@@ -35,6 +35,7 @@ public class Image implements Comparable<Image> {
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
         return new Image(id, created,
                 portsFromString(labels.get(Stage.LABEL_PORTS).getAsString()),
+                labels.get(Stage.LABEL_APP).getAsString(),
                 labels.get(Stage.LABEL_COMMENT).getAsString(),
                 labels.get(Stage.LABEL_ORIGIN).getAsString(),
                 labels.get(Stage.LABEL_CREATED_BY).getAsString(),
@@ -66,17 +67,20 @@ public class Image implements Comparable<Image> {
     /** docker api returns an author field, but i didn't find documentation how to set it */
     public final Map<Integer, Integer> ports;
 
+    public final String app;
+
     /** docker api returns a comment field, but i didn't find documentation how to set it */
     public final String comment;
     public final String origin;
     public final String createdBy;
     public final String createdOn;
 
-    public Image(String id, LocalDateTime created, Map<Integer, Integer> ports, String comment, String origin, String createdBy, String createdOn) {
+    public Image(String id, LocalDateTime created, Map<Integer, Integer> ports, String app, String comment, String origin, String createdBy, String createdOn) {
         this.id = id;
         this.created = created;
 
         this.ports = ports;
+        this.app = app;
         this.comment = comment;
         this.origin = origin;
         this.createdBy = createdBy;

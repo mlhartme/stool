@@ -407,7 +407,7 @@ public class Stage {
     }
 
     public void wipeImages(Engine engine) throws IOException {
-        for (String image : engine.imageList(stoolLabel())) {
+        for (String image : engine.imageList(stageLabel())) {
             session.console.verbose.println("remove image: " + image);
             engine.imageRemove(image, true /* because the might be multiple tags */);
         }
@@ -418,7 +418,7 @@ public class Stage {
         List<Image> result;
 
         result = new ArrayList<>();
-        for (String image : engine.imageList(stoolLabel())) {
+        for (String image : engine.imageList(stageLabel())) {
             result.add(Image.load(engine, image));
         }
         Collections.sort(result);
@@ -441,7 +441,7 @@ public class Stage {
     }
 
     public void wipeContainer(Engine engine) throws IOException {
-        for (String image : engine.imageList(stoolLabel())) {
+        for (String image : engine.imageList(stageLabel())) {
             for (String container : engine.containerList(image)) {
                 session.console.verbose.println("remove container: " + container);
                 engine.containerRemove(container);
@@ -468,13 +468,14 @@ public class Stage {
 
     private static final String LABEL_PREFIX = "net.onetandone.stool-";
     public static final String LABEL_STAGE = LABEL_PREFIX + "stage";
+    public static final String LABEL_APP = LABEL_PREFIX + "app";
     public static final String LABEL_PORTS = LABEL_PREFIX + "ports";
     public static final String LABEL_COMMENT = LABEL_PREFIX + "comment";
     public static final String LABEL_ORIGIN = LABEL_PREFIX + "origin";
     public static final String LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
     public static final String LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
 
-    private Map<String, String> stoolLabel() {
+    private Map<String, String> stageLabel() {
         return Strings.toMap(LABEL_STAGE, getId());
     }
 
@@ -495,12 +496,13 @@ public class Stage {
         }
         tag = getId() + ":" + TAG_FORMAT.format(LocalDateTime.now());
         context = dockerContext(app, war, ports);
-        label = stoolLabel();
-        label.put(LABEL_PORTS, toString(ports.dockerMap()));
+        label = stageLabel();
+        label.put(LABEL_APP, app);
         label.put(LABEL_COMMENT, comment);
         label.put(LABEL_ORIGIN, origin);
         label.put(LABEL_CREATED_BY, createdBy);
         label.put(LABEL_CREATED_ON, createdOn);
+        label.put(LABEL_PORTS, toString(ports.dockerMap()));
         console.verbose.println("building image ... ");
         try (Writer log = new FlushWriter(directory.join("image.log").newWriter())) {
             // don't close the tee writer, it would close console output as well
