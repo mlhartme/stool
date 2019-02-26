@@ -18,6 +18,7 @@ package net.oneandone.stool.dashboard.config;
 
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Vhost;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -98,10 +99,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public ServiceProperties serviceProperties() throws IOException {
         ServiceProperties serviceProperties;
+        Vhost webapp;
 
         serviceProperties = new ServiceProperties();
-        serviceProperties.setService(self.loadPortsOpt().webapp().httpsUrl(
-                session.configuration.vhosts, self.getName(), session.configuration.hostname) + "/j_spring_cas_security_check");
+        webapp = self.loadPortsOpt().webapp();
+        serviceProperties.setService("https://" + webapp.fqdn(session.configuration.vhosts, self.getName(), session.configuration.hostname)
+                + ":" + webapp.httpsPort() + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
     }

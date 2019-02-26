@@ -97,10 +97,6 @@ public class Vhost {
         return even + 1;
     }
 
-    public String httpsUrl(boolean vhosts, String stageName, String hostname) {
-        return "https://" + (fqdn(vhosts, stageName, hostname) + ":" + httpsPort());
-    }
-
     public String fqdn(boolean vhosts, String stageName, String hostname) {
         if (vhosts) {
             return name + "." + stageName + "." + hostname;
