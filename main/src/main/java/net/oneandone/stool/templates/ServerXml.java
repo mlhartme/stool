@@ -43,6 +43,16 @@ public class ServerXml {
         return new ServerXml(src.getWorld().getXml(), src.readXml(), stageName, hostname, webapp);
     }
 
+    public static String fqdn(boolean vhosts, String app, String stageName, String hostname) {
+        if (vhosts) {
+            return app + "." + stageName + "." + hostname;
+        } else {
+            return hostname;
+        }
+    }
+
+    //--
+
     private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";
     private static final String HTTPS_PATH = "Connector[starts-with(@secure,'true')]";
 
@@ -85,7 +95,7 @@ public class ServerXml {
         Element context;
         Element element;
 
-        name = webapp.fqdn(true, stageName, hostname);
+        name = fqdn(true, webapp.name, stageName, hostname);
         service.setAttribute("name", name);
         engine = selector.element(service, "Engine");
         engine.setAttribute("defaultHost", name);
@@ -107,7 +117,7 @@ public class ServerXml {
         host.appendChild(context);
 
         element = service.getOwnerDocument().createElement("Alias");
-        element.setAttribute("name", webapp.fqdn(false, stageName, hostname));
+        element.setAttribute("name", fqdn(false, webapp.name, stageName, hostname));
         host.insertBefore(element, host.getFirstChild());
     }
 

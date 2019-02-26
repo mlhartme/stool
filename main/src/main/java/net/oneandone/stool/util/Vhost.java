@@ -97,14 +97,6 @@ public class Vhost {
         return even + 1;
     }
 
-    public String fqdn(boolean vhosts, String stageName, String hostname) {
-        if (vhosts) {
-            return name + "." + stageName + "." + hostname;
-        } else {
-            return hostname;
-        }
-    }
-
     public String toLine() {
         // CAUTION: just
         //    even + SEP
