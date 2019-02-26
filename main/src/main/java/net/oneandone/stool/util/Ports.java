@@ -106,10 +106,8 @@ public class Ports {
         result = new HashMap<>();
         result.put(jmx, jmx);
         result.put(debug, debug);
-        for (Vhost vhost : Arrays.asList(webapp)) {
-            result.put(vhost.even, vhost.even);
-            result.put(vhost.even + 1, vhost.even + 1);
-        }
+        result.put(webapp.even, webapp.even);
+        result.put(webapp.even + 1, webapp.even + 1);
         return result;
     }
 }
