@@ -30,6 +30,7 @@ import net.oneandone.stool.templates.TemplateField;
 import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.util.Field;
+import net.oneandone.stool.util.FlushWriter;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.LogReader;
 import net.oneandone.stool.util.Ports;
@@ -72,14 +73,6 @@ import java.util.Map;
 
 /** Represents the former backstage directory. From a Docker perspective, a stage roughly represents a Repository */
 public class Stage {
-    public enum State {
-        DOWN, UP, WORKING;
-
-        public String toString() {
-            return name().toLowerCase();
-        }
-    }
-
     public final Session session;
     public final FileNode directory;
     public final StageConfiguration configuration;
@@ -97,6 +90,45 @@ public class Stage {
     public String getName() {
         return configuration.name;
     }
+
+    //-- state
+
+    public enum State {
+        DOWN("primary"), UP("success"), WORKING("danger");
+
+        public String display;
+
+        State(String display) {
+            this.display = display;
+        }
+
+        public String toString() {
+            return name().toLowerCase();
+        }
+    }
+
+    public State state() throws IOException {
+        if (session.lockManager.hasExclusiveLocks(lock())) {
+            return State.WORKING;
+        } else if (dockerContainer() != null) {
+            return State.UP;
+        } else {
+            return State.DOWN;
+        }
+
+    }
+
+    public void checkNotUp() throws IOException {
+        if (state() == State.UP) {
+            throw new IOException("stage is not stopped.");
+        }
+    }
+
+    public String lock() {
+        return "stage-" + getId();
+    }
+
+    //-- fields and properties
 
     public Field fieldOpt(String str) throws IOException {
         for (Field f : fields()) {
@@ -138,49 +170,33 @@ public class Stage {
         throw new ArgumentException(str + ": no such status field or property, choose one of " + lst);
     }
 
-    public LogReader logReader() throws IOException {
-        return LogReader.create(session.logging.directory().join(getId()));
-    }
+    public List<Property> properties() {
+        List<Property> result;
+        Map<String, String> env;
+        String prefix;
 
-    public String lock() {
-        return "stage-" + getId();
-    }
-
-    public boolean isWorking() throws IOException {
-        return session.lockManager.hasExclusiveLocks(lock());
-    }
-
-    public State state() throws IOException {
-        if (dockerContainer() != null) {
-            return State.UP;
-        } else {
-            return State.DOWN;
+        result = new ArrayList<>();
+        for (Accessor type : session.accessors().values()) {
+            if (!type.name.equals("template.env")) {
+                result.add(new StandardProperty(type, configuration));
+            }
         }
-
-    }
-
-    public void checkNotUp() throws IOException {
-        if (state() == State.UP) {
-            throw new IOException("stage is not stopped.");
+        env = configuration.templateEnv;
+        prefix = configuration.template.getName() + ".";
+        for (String name : configuration.templateEnv.keySet()) {
+            result.add(new TemplateProperty(prefix + name, env, name));
         }
+        return result;
     }
 
-    public String displayState() throws IOException {
-        switch (isWorking() ? State.WORKING : state()) {
-            case UP:
-                return "success";
-            case WORKING:
-                return "primary";
-            default:
-                return "danger";
+    public Property propertyOpt(String name) {
+        for (Property property : properties()) {
+            if (name.equals(property.name())) {
+                return property;
+            }
         }
+        return null;
     }
-
-    public void saveConfig() throws IOException {
-        configuration.save(session.gson, StageConfiguration.file(directory));
-    }
-
-    //--
 
     public List<Field> fields() throws IOException {
         List<Field> fields;
@@ -324,7 +340,7 @@ public class Stage {
         return fields;
     }
 
-    public static String timespan(long since) {
+    private static String timespan(long since) {
         long diff;
         StringBuilder result;
         long hours;
@@ -341,35 +357,15 @@ public class Stage {
         }
     }
 
-    public List<Property> properties() {
-        List<Property> result;
-        Map<String, String> env;
-        String prefix;
-
-        result = new ArrayList<>();
-        for (Accessor type : session.accessors().values()) {
-            if (!type.name.equals("template.env")) {
-                result.add(new StandardProperty(type, configuration));
-            }
-        }
-        env = configuration.templateEnv;
-        prefix = configuration.template.getName() + ".";
-        for (String name : configuration.templateEnv.keySet()) {
-            result.add(new TemplateProperty(prefix + name, env, name));
-        }
-        return result;
+    public void saveConfig() throws IOException {
+        configuration.save(session.gson, StageConfiguration.file(directory));
     }
 
-    public Property propertyOpt(String name) {
-        for (Property property : properties()) {
-            if (name.equals(property.name())) {
-                return property;
-            }
-        }
-        return null;
-    }
+    //-- logs
 
-    //--
+    public LogReader logReader() throws IOException {
+        return LogReader.create(session.logging.directory().join(getId()));
+    }
 
     public Logs logs() {
         return new Logs(directory.join("logs"));
@@ -392,7 +388,7 @@ public class Stage {
         return node.getParent().join("archive", FMT.format(LocalDateTime.now())).mkdirsOpt();
     }
 
-    //--
+    //-- docker
 
     public FileNode dockerContainerFile() {
         return directory.join("container.id");
@@ -411,7 +407,7 @@ public class Stage {
     }
 
     public void wipeImages(Engine engine) throws IOException {
-        for (String image : engine.imageList(dockerLabel())) {
+        for (String image : engine.imageList(stoolLabel())) {
             session.console.verbose.println("remove image: " + image);
             engine.imageRemove(image, true /* because the might be multiple tags */);
         }
@@ -422,7 +418,7 @@ public class Stage {
         List<Image> result;
 
         result = new ArrayList<>();
-        for (String image : engine.imageList(dockerLabel())) {
+        for (String image : engine.imageList(stoolLabel())) {
             result.add(Image.load(engine, image));
         }
         Collections.sort(result);
@@ -445,7 +441,7 @@ public class Stage {
     }
 
     public void wipeContainer(Engine engine) throws IOException {
-        for (String image : engine.imageList(dockerLabel())) {
+        for (String image : engine.imageList(stoolLabel())) {
             for (String container : engine.containerList(image)) {
                 session.console.verbose.println("remove container: " + container);
                 engine.containerRemove(container);
@@ -468,17 +464,19 @@ public class Stage {
         }
     }
 
-    private Map<String, String> dockerLabel() {
-        return Strings.toMap("stool", getId());
-    }
-
     private static final DateTimeFormatter TAG_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-HHmmss");
 
-    public static final String LABEL_PORTS = "ports";
-    public static final String LABEL_COMMENT = "comment";
-    public static final String LABEL_ORIGIN = "origin";
-    public static final String LABEL_CREATED_BY = "created-by";
-    public static final String LABEL_CREATED_ON = "created-on";
+    private static final String LABEL_PREFIX = "net.onetandone.stool-";
+    public static final String LABEL_STAGE = LABEL_PREFIX + "stage";
+    public static final String LABEL_PORTS = LABEL_PREFIX + "ports";
+    public static final String LABEL_COMMENT = LABEL_PREFIX + "comment";
+    public static final String LABEL_ORIGIN = LABEL_PREFIX + "origin";
+    public static final String LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
+    public static final String LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
+
+    private Map<String, String> stoolLabel() {
+        return Strings.toMap(LABEL_STAGE, getId());
+    }
 
     /** @param keep 0 to keep all */
     public void build(Map<String, FileNode> wars, Console console, Ports ports,
@@ -497,7 +495,7 @@ public class Stage {
         }
         tag = getId() + ":" + TAG_FORMAT.format(LocalDateTime.now());
         context = dockerContext(wars, ports);
-        label = dockerLabel();
+        label = stoolLabel();
         label.put(LABEL_PORTS, toString(ports.dockerMap()));
         label.put(LABEL_COMMENT, comment);
         label.put(LABEL_ORIGIN, origin);
@@ -580,38 +578,6 @@ public class Stage {
         engine = session.dockerEngine();
         engine.containerStop(container, 300);
         dockerContainerFile().deleteFile();
-    }
-
-    private static class FlushWriter extends Writer {
-        private final Writer dest;
-
-        private FlushWriter(Writer dest) {
-            this.dest = dest;
-        }
-
-
-        @Override
-        public void write(char[] chars, int ofs, int len) throws IOException {
-            int c;
-
-            for (int i = 0; i < len; i++) {
-                c = chars[ofs + i];
-                dest.write(c);
-                if (c == '\n') {
-                    flush();
-                }
-            }
-        }
-
-        @Override
-        public void flush() throws IOException {
-            dest.flush();
-        }
-
-        @Override
-        public void close() throws IOException {
-            dest.close();
-        }
     }
 
     private Map<String, String> bindMounts() throws IOException {
@@ -778,7 +744,7 @@ public class Stage {
                 + ", origin='" + origin() + '\''
                 + ", urls=" + urlMap()
                 + ", state=" + state()
-                + ", displayState=" + displayState()
+                + ", displayState=" + state().display
                 + '}').hashCode();
     }
 
