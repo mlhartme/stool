@@ -116,28 +116,6 @@ public class Vhost {
         return new Vhost(newEven == null ? even : newEven, name, id, newWebapp);
     }
 
-    public String context(String stageName, String hostname, String url) {
-        String result;
-        String context;
-
-        result = null;
-        for (String str : doMap(stageName, hostname, url).values()) {
-            context = getContext(str);
-            if (result == null) {
-                result = context;
-            } else if (!result.equals(context)) {
-                throw new IllegalStateException("ambiguous context: " + result + " vs " + context);
-            }
-        }
-        if (result == null) {
-            throw new IllegalStateException("context not found: " + url);
-        }
-        if (!result.isEmpty() && !result.startsWith("/")) {
-            throw new IllegalStateException(hostname + " " + url + " " + result);
-        }
-        return result;
-    }
-
     public Map<String, String> urlMap(String stageName, String hostname, String url) {
         Map<String, String> result;
 
@@ -167,25 +145,7 @@ public class Vhost {
         }
         return url.substring(0, context) + url.substring(context + 1);
     }
-
-    /** return path as used in Tomcat context element - either empty of starts with a slash */
-    private static String getContext(String url) {
-        int beforeHost;
-        int afterHost;
-        int context;
-
-        beforeHost = url.indexOf("://");
-        if (beforeHost == -1) {
-            return "";
-        }
-        afterHost = url.indexOf("/", beforeHost + 3);
-        if (afterHost == -1) {
-            return "";
-        }
-        context = url.indexOf("//", afterHost + 1);
-        return context == -1 ? "" : url.substring(afterHost, context);
-    }
-
+    
     private Map<String, String> doMap(String stageName, String hostname, String url) {
         Map<String, String> result;
         Map<Character, String> map;

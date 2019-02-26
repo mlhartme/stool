@@ -16,6 +16,7 @@
 package net.oneandone.stool.templates;
 
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Url;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
@@ -32,6 +33,7 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -60,14 +62,18 @@ public class ServerXml {
     private final Document document;
     private final String stageName;
     private final String hostname;
-    private final Vhost webapp;
+    private final String app;
+    private final int httpPort;
+    private final int httpsPort;
 
     public ServerXml(Xml xml, Document document, String stageName, String hostname, Vhost webapp) {
         this.selector = xml.getSelector();
         this.document = document;
         this.stageName = stageName;
         this.hostname = hostname;
-        this.webapp = webapp;
+        this.app = webapp.name;
+        this.httpPort = webapp.httpPort();
+        this.httpsPort = webapp.httpsPort();
     }
 
     public void save(FileNode file) throws IOException {
@@ -84,7 +90,7 @@ public class ServerXml {
         document.getDocumentElement().appendChild(service);
         service(service);
         connectors(service, keystorePassword, legacy);
-        contexts(webapp.context(stageName, hostname, url), service, cookies);
+        contexts(context(url), service, cookies);
         template.getParentNode().removeChild(template);
     }
 
@@ -95,7 +101,7 @@ public class ServerXml {
         Element context;
         Element element;
 
-        name = fqdn(true, webapp.name, stageName, hostname);
+        name = fqdn(true, app, stageName, hostname);
         service.setAttribute("name", name);
         engine = selector.element(service, "Engine");
         engine.setAttribute("defaultHost", name);
@@ -112,12 +118,12 @@ public class ServerXml {
         engine.appendChild(host);
         context = service.getOwnerDocument().createElement("Context");
         context.setAttribute("path", "");
-        context.setAttribute("docBase", "/usr/local/tomcat/webapps/" + webapp.name);
+        context.setAttribute("docBase", "/usr/local/tomcat/webapps/" + app);
 
         host.appendChild(context);
 
         element = service.getOwnerDocument().createElement("Alias");
-        element.setAttribute("name", fqdn(false, webapp.name, stageName, hostname));
+        element.setAttribute("name", fqdn(false, app, stageName, hostname));
         host.insertBefore(element, host.getFirstChild());
     }
 
@@ -127,9 +133,9 @@ public class ServerXml {
         ip = "0.0.0.0";
         try {
             connectorDisable(service, "Connector[starts-with(@protocol,'AJP')]");
-            connectorEnable(service, HTTP_PATH, ip, webapp.httpPort(), webapp.httpsPort(), legacy);
+            connectorEnable(service, HTTP_PATH, ip, httpPort, httpsPort, legacy);
             if (keystorePassword != null) {
-                sslConnector(service, HTTPS_PATH, webapp.httpsPort(), ip, keystorePassword, legacy);
+                sslConnector(service, HTTPS_PATH, httpsPort, ip, keystorePassword, legacy);
             } else {
                 connectorDisable(service, HTTPS_PATH);
             }
@@ -314,6 +320,113 @@ public class ServerXml {
         }
         for (Comment c : remove) {
             c.getParentNode().removeChild(c);
+        }
+    }
+
+    //--
+
+    public String context(String url) {
+        String result;
+        String context;
+
+        result = null;
+        for (String str : doMap(url).values()) {
+            context = getContext(str);
+            if (result == null) {
+                result = context;
+            } else if (!result.equals(context)) {
+                throw new IllegalStateException("ambiguous context: " + result + " vs " + context);
+            }
+        }
+        if (result == null) {
+            throw new IllegalStateException("context not found: " + url);
+        }
+        if (!result.isEmpty() && !result.startsWith("/")) {
+            throw new IllegalStateException(hostname + " " + url + " " + result);
+        }
+        return result;
+    }
+
+    private static String hideContext(String url) {
+        int beforeHost;
+        int afterHost;
+        int context;
+
+        beforeHost = url.indexOf("://");
+        if (beforeHost == -1) {
+            return url;
+        }
+        afterHost = url.indexOf("/", beforeHost + 3);
+        if (afterHost == -1) {
+            return url;
+        }
+        context = url.indexOf("//", afterHost + 1);
+        if (context == -1) {
+            return url;
+        }
+        return url.substring(0, context) + url.substring(context + 1);
+    }
+
+    /** return path as used in Tomcat context element - either empty of starts with a slash */
+    private static String getContext(String url) {
+        int beforeHost;
+        int afterHost;
+        int context;
+
+        beforeHost = url.indexOf("://");
+        if (beforeHost == -1) {
+            return "";
+        }
+        afterHost = url.indexOf("/", beforeHost + 3);
+        if (afterHost == -1) {
+            return "";
+        }
+        context = url.indexOf("//", afterHost + 1);
+        return context == -1 ? "" : url.substring(afterHost, context);
+    }
+
+    private Map<String, String> doMap(String url) {
+        Map<String, String> result;
+        Map<Character, String> map;
+        List<String> all;
+        List<String> http;
+        List<String> https;
+
+        result = new LinkedHashMap<>();
+        map = new HashMap<>();
+        map.put('h', hostname);
+        map.put('a', app);
+        map.put('s', stageName);
+        map.put('p', "%p");
+        all = Url.parse(url).sustitute(map).map();
+        http = new ArrayList<>();
+        https = new ArrayList<>();
+        for (String u : all) {
+            if (u.startsWith("https:")) {
+                https.add(u.replace("%p", Integer.toString(httpsPort)));
+            } else {
+                http.add(u.replace("%p", Integer.toString(httpPort)));
+            }
+        }
+        add(app, "", http, result);
+        add(app, " SSL", https, result);
+        return result;
+    }
+
+    private static void add(String nameBase, String nameSuffix, List<String> all, Map<String, String> result) {
+        String name;
+        int no;
+
+        no = 0;
+        for (String u : all) {
+            if (all.size() > 1) {
+                no++;
+                name = nameBase + "-" + no;
+            } else {
+                name = nameBase;
+            }
+            name = name + nameSuffix;
+            result.put(name, u);
         }
     }
 }
