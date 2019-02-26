@@ -212,11 +212,11 @@ public class Validate extends StageCommand {
         }
         containerList.removeAll(removes);
         if (containerList.isEmpty()) {
-            stage.dockerContainerFile().writeLines(containerList);
-            report.admin(stage, "repaired by removing them from " + stage.dockerContainerFile());
-        } else {
             stage.dockerContainerFile().deleteFile();
             report.admin(stage, "repaired by deleting " + stage.dockerContainerFile());
+        } else {
+            stage.dockerContainerFile().writeLines(containerList);
+            report.admin(stage, "repaired by removing them from " + stage.dockerContainerFile());
         }
     }
 

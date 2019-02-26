@@ -424,7 +424,7 @@ public class Stage {
         }
     }
 
-    /** @return sorted list */
+    /** @return app mapped to sorted list */
     public Map<String, List<Image>> images(Engine engine) throws IOException {
         Map<String, List<Image>> result;
         Image image;
@@ -570,6 +570,7 @@ public class Stage {
 
         checkMemory();
         engine = session.dockerEngine();
+        wipeContainer(engine);
         allImages = images(engine);
         containerList = new ArrayList<>();
         for (String app : allImages.keySet()) {
@@ -580,7 +581,6 @@ public class Stage {
             } else {
                 image = images.get(idx);
             }
-            wipeContainer(engine);
             console.info.println("starting container ...");
             mounts = bindMounts();
             for (Map.Entry<String, String> entry : mounts.entrySet()) {
