@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.util;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -25,14 +25,14 @@ import java.util.Map;
 public class Ports {
     public static final String JMX_DEBUG = "+jmx+debug";
 
-    private final List<Vhost> vhosts;
-    private final int jmxDebug;
+    private final Vhost jmxDebug;
+    private final Vhost webapp;
 
     public Ports(List<Vhost> vhosts) {
         String id;
 
-        if (vhosts.isEmpty()) {
-            throw new IllegalStateException();
+        if (vhosts.size() != 2) {
+            throw new IllegalStateException(vhosts.toString());
         }
         id = null;
         for (Vhost v : vhosts) {
@@ -44,37 +44,44 @@ public class Ports {
                 }
             }
         }
-        this.vhosts = vhosts;
-        this.jmxDebug = indexOf(JMX_DEBUG);
-        if (jmxDebug == -1) {
+        this.jmxDebug = vhosts.get(indexOf(vhosts, JMX_DEBUG));
+        if (jmxDebug == null) {
             throw new IllegalArgumentException(vhosts.toString());
         }
+        this.webapp = webapp(vhosts);
     }
 
     public int jmx() {
-        return vhosts.get(jmxDebug).even;
+        return jmxDebug.even;
     }
 
     public int debug() {
-        return vhosts.get(jmxDebug).even + 1;
+        return jmxDebug.even + 1;
     }
 
     public Vhost webapp() {
-        List<Vhost> result;
-
-        result = new ArrayList<>();
-        for (Vhost v : vhosts) {
-            if (v.isWebapp()) {
-                result.add(v);
-            }
-        }
-        if (result.size() != 1) {
-            throw new IllegalStateException(result.toString());
-        }
-        return result.get(0);
+        return webapp;
     }
 
-    private int indexOf(String name) {
+    private static Vhost webapp(List<Vhost> vhosts) {
+        Vhost result;
+
+        result = null;
+        for (Vhost v : vhosts) {
+            if (v.isWebapp()) {
+                if (result != null) {
+                    throw new IllegalStateException();
+                }
+                result = v;
+            }
+        }
+        if (result == null) {
+            throw new IllegalStateException(result.toString());
+        }
+        return result;
+    }
+
+    private static int indexOf(List<Vhost> vhosts, String name) {
         Vhost vhost;
 
         for (int i = 0; i < vhosts.size(); i++) {
@@ -98,7 +105,7 @@ public class Ports {
         Map<Integer, Integer> result;
 
         result = new HashMap<>();
-        for (Vhost vhost : vhosts) {
+        for (Vhost vhost : Arrays.asList(jmxDebug, webapp)) {
             result.put(vhost.even, vhost.even);
             result.put(vhost.even + 1, vhost.even + 1);
         }
