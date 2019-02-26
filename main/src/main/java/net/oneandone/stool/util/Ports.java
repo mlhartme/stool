@@ -25,6 +25,7 @@ import java.util.Map;
 public class Ports {
     public static Ports forVhosts(List<Vhost> vhosts) {
         String id;
+        int jmxDebug;
 
         if (vhosts.size() != 2) {
             throw new IllegalStateException(vhosts.toString());
@@ -39,7 +40,8 @@ public class Ports {
                 }
             }
         }
-        return new Ports(vhosts.get(indexOf(vhosts, JMX_DEBUG)).even, webapp(vhosts));
+        jmxDebug = vhosts.get(indexOf(vhosts, JMX_DEBUG)).even;
+        return new Ports(jmxDebug, jmxDebug + 1, webapp(vhosts));
     }
 
     private static Vhost webapp(List<Vhost> vhosts) {
@@ -76,20 +78,14 @@ public class Ports {
 
     public static final String JMX_DEBUG = "+jmx+debug";
 
-    private final int jmxDebug;
+    public final int jmx;
+    public final int debug;
     private final Vhost webapp;
 
-    public Ports(int jmxDebug, Vhost webapp) {
-        this.jmxDebug = jmxDebug;
+    public Ports(int jmx, int debug, Vhost webapp) {
+        this.jmx = jmx;
+        this.debug = debug;
         this.webapp = webapp;
-    }
-
-    public int jmx() {
-        return jmxDebug;
-    }
-
-    public int debug() {
-        return jmxDebug + 1;
     }
 
     public Vhost webapp() {
@@ -108,14 +104,12 @@ public class Ports {
         Map<Integer, Integer> result;
 
         result = new HashMap<>();
-        result.put(jmxDebug, jmxDebug);
-        result.put(jmxDebug + 1, jmxDebug + 1);
+        result.put(jmx, jmx);
+        result.put(debug, debug);
         for (Vhost vhost : Arrays.asList(webapp)) {
             result.put(vhost.even, vhost.even);
             result.put(vhost.even + 1, vhost.even + 1);
         }
-        result.put(jmx(), jmx());
-        result.put(debug(), debug());
         return result;
     }
 }

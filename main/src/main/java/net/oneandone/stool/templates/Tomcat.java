@@ -151,8 +151,8 @@ public class Tomcat {
 
         // see http://docs.oracle.com/javase/7/docs/technotes/guides/management/agent.html
         opts.add("-Dcom.sun.management.jmxremote.authenticate=false");
-        opts.add("-Dcom.sun.management.jmxremote.port=" + ports.jmx());
-        opts.add("-Dcom.sun.management.jmxremote.rmi.port=" + ports.jmx());
+        opts.add("-Dcom.sun.management.jmxremote.port=" + ports.jmx);
+        opts.add("-Dcom.sun.management.jmxremote.rmi.port=" + ports.jmx);
         opts.add("-Djava.rmi.server.hostname=" + session.configuration.hostname); // needed for jmx access - see https://forums.docker.com/t/enable-jmx-rmi-access-to-a-docker-container/625/2
         opts.add("-Dcom.sun.management.jmxremote.ssl=false");
 
@@ -160,7 +160,7 @@ public class Tomcat {
             opts.add("-Xdebug");
             opts.add("-Xnoagent");
             opts.add("-Djava.compiler=NONE");
-            opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=" + ports.debug() + ",suspend=" + (suspend ? "y" : "n"));
+            opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=" + ports.debug + ",suspend=" + (suspend ? "y" : "n"));
         }
         return Separator.SPACE.join(opts);
     }
