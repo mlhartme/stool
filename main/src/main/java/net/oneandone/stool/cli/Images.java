@@ -21,6 +21,11 @@ import net.oneandone.stool.stage.Image;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 public class Images extends StageCommand {
     public Images(Session session) {
         super(session, Mode.NONE, Mode.EXCLUSIVE);
@@ -28,27 +33,35 @@ public class Images extends StageCommand {
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        Image current;
+        Map<String, List<Image>> all;
+        List<String> apps;
+        Map<String, Image> current;
         Engine engine;
         String marker;
         int idx;
         String currentId;
 
         engine = stage.session.dockerEngine();
-        current = stage.currentImage();
-        currentId = current == null ? null : current.id;
-        idx = 0;
-        for (Image image : stage.images(engine)) {
-            marker = image.id.equals(currentId) ? "==>" : "   ";
-            console.info.printf("%s [%d] %s\n", marker, idx, image.id);
-            console.info.println("       app:        " + image.app);
-            console.info.println("       comment:    " + image.comment);
-            console.info.println("       origin:     " + image.origin);
-            console.info.println("       created-at: " + image.created);
-            console.info.println("       created-by: " + image.createdBy);
-            console.info.println("       created-on: " + image.createdOn);
-            idx++;
+        all = stage.images(engine);
+        apps = new ArrayList<>(all.keySet());
+        Collections.sort(apps);
+        current = stage.currentImages();
+        for (String app : apps) {
+            currentId = current.get(app).id;
+            idx = 0;
+            for (Image image : all.get(app)) {
+                marker = image.id.equals(currentId) ? "==>" : "   ";
+                console.info.printf("%s [%d] %s\n", marker, idx, image.id);
+                console.info.println("       app:        " + image.app);
+                console.info.println("       comment:    " + image.comment);
+                console.info.println("       origin:     " + image.origin);
+                console.info.println("       created-at: " + image.created);
+                console.info.println("       created-by: " + image.createdBy);
+                console.info.println("       created-on: " + image.createdOn);
+                idx++;
+            }
+            stage.rotateLogs(console);
+
         }
-        stage.rotateLogs(console);
     }
 }

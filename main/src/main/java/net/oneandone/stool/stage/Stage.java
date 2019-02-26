@@ -110,7 +110,7 @@ public class Stage {
     public State state() throws IOException {
         if (session.lockManager.hasExclusiveLocks(lock())) {
             return State.WORKING;
-        } else if (dockerContainer() != null) {
+        } else if (dockerContainerList() != null) {
             return State.UP;
         } else {
             return State.DOWN;
@@ -265,7 +265,7 @@ public class Stage {
                 Engine engine;
                 Stats stats;
 
-                container = dockerContainer();
+                container = dockerContainerFirst();
                 if (container == null) {
                     return null;
                 }
@@ -286,7 +286,7 @@ public class Stage {
                 Engine engine;
                 Stats stats;
 
-                container = dockerContainer();
+                container = dockerContainerFirst();
                 if (container == null) {
                     return null;
                 }
@@ -305,14 +305,14 @@ public class Stage {
             public String get() throws IOException {
                 Image image;
 
-                image = currentImage();
+                image = currentImageFirst();
                 return image == null ? null : image.id;
             }
         });
         fields.add(new Field("container") {
             @Override
             public Object get() throws IOException {
-                return dockerContainer();
+                return dockerContainerFirst();
             }
         });
         fields.add(new Field("apps") {
@@ -332,7 +332,7 @@ public class Stage {
             public Object get() throws IOException {
                 String container;
 
-                container = dockerContainer();
+                container = dockerContainerFirst();
                 return container == null ? null : timespan(session.dockerEngine().containerStartedAt(container));
             }
         });
@@ -391,14 +391,25 @@ public class Stage {
     //-- docker
 
     public FileNode dockerContainerFile() {
-        return directory.join("container.id");
+        return directory.join("container.ids");
     }
 
-    public String dockerContainer() throws IOException {
+    public String dockerContainerFirst() throws IOException { // TODO
+        List<String> result;
+
+        result = dockerContainerList();
+        if (result == null || result.isEmpty()) {
+            return null;
+        } else {
+            return result.get(0);
+        }
+    }
+
+    public List<String> dockerContainerList() throws IOException {
         FileNode file;
 
         file = dockerContainerFile();
-        return file.exists() ? file.readString().trim() : null;
+        return file.exists() ? file.readLines() : null;
     }
 
     public void wipeDocker(Engine engine) throws IOException {
@@ -414,29 +425,42 @@ public class Stage {
     }
 
     /** @return sorted list */
-    public List<Image> images(Engine engine) throws IOException {
-        List<Image> result;
+    public Map<String, List<Image>> images(Engine engine) throws IOException {
+        Map<String, List<Image>> result;
+        Image image;
+        List<Image> list;
 
-        result = new ArrayList<>();
-        for (String image : engine.imageList(stageLabel())) {
-            result.add(Image.load(engine, image));
+        result = new HashMap<>();
+        for (String id : engine.imageList(stageLabel())) {
+            image = Image.load(engine, id);
+            list = result.get(image.app);
+            if (list == null) {
+                list = new ArrayList<>();
+                result.put(image.app, list);
+            }
+            list.add(image);
         }
-        Collections.sort(result);
+        for (List<Image> l : result.values()) {
+            Collections.sort(l);
+        }
         return result;
     }
 
     public void wipeOldImages(Engine engine, int keep) throws IOException {
+        Map<String, List<Image>> allImages;
         List<Image> images;
         String remove;
 
-        images = images(engine);
-        if (images.size() <= keep) {
-            return;
-        }
-        while (images.size() > keep) {
-            remove = images.remove(images.size() - 1).id;
-            session.console.verbose.println("remove image: " + remove);
-            engine.imageRemove(remove, true); // TODO: 'force' could remove an image even if there's still a container running; but I need force to delete with multiple tags ...
+        allImages = images(engine);
+        for (String app : allImages.keySet()) {
+            images = allImages.get(app);
+            if (images.size() > keep) {
+                while (images.size() > keep) {
+                    remove = images.remove(images.size() - 1).id;
+                    session.console.verbose.println("remove image: " + remove);
+                    engine.imageRemove(remove, true); // TODO: 'force' could remove an image even if there's still a container running; but I need force to delete with multiple tags ...
+                }
+            }
         }
     }
 
@@ -536,50 +560,62 @@ public class Stage {
 
     public void start(Console console, int idx) throws Exception {
         Engine engine;
+        Map<String, List<Image>> allImages;
         List<Image> images;
         Image image;
         String container;
         Engine.Status status;
         Map<String, String> mounts;
+        List<String> containerList;
 
         checkMemory();
         engine = session.dockerEngine();
-        images = images(engine);
-        if (idx < 0 || idx >= images.size()) {
-            throw new IOException("image not found: " + idx);
+        allImages = images(engine);
+        containerList = new ArrayList<>();
+        for (String app : allImages.keySet()) {
+            images = allImages.get(app);
+            if (idx < 0 || idx >= images.size()) {
+                console.info.printf("%s: image %d not found - using %d\n", app, idx, images.size() - 1);
+                image = images.get(images.size() - 1);
+            } else {
+                image = images.get(idx);
+            }
+            wipeContainer(engine);
+            console.info.println("starting container ...");
+            mounts = bindMounts();
+            for (Map.Entry<String, String> entry : mounts.entrySet()) {
+                console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
+            }
+            container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
+                    OS.CURRENT == OS.MAC, 1024L * 1024 * configuration.memory, null, null,
+                    Collections.emptyMap(), mounts, image.ports);
+            console.verbose.println("created container " + container);
+            engine.containerStart(container);
+            status = engine.containerStatus(container);
+            if (status != Engine.Status.RUNNING) {
+                throw new IOException("unexpected status: " + status);
+            }
+            containerList.add(container);
         }
-        image = images.get(idx);
-        wipeContainer(engine);
-        console.info.println("starting container ...");
-        mounts = bindMounts();
-        for (Map.Entry<String, String> entry : mounts.entrySet()) {
-            console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
-        }
-        container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
-                OS.CURRENT == OS.MAC, 1024L * 1024 * configuration.memory, null, null,
-                Collections.emptyMap(), mounts, image.ports);
-        console.verbose.println("created container " + container);
-        engine.containerStart(container);
-        status = engine.containerStatus(container);
-        if (status != Engine.Status.RUNNING) {
-            throw new IOException("unexpected status: " + status);
-        }
-        dockerContainerFile().writeString(container);
+        dockerContainerFile().writeLines(containerList);
     }
 
     /** Fails if container is not running */
     public void stop(Console console) throws IOException {
-        String container;
+        List<String> containerList;
         Engine engine;
 
-        container = dockerContainer();
-        if (container == null) {
+        containerList = dockerContainerList();
+        if (containerList == null) {
             throw new IOException("container is not running.");
         }
-        console.info.println("stopping container ...");
-        engine = session.dockerEngine();
-        engine.containerStop(container, 300);
+        for (String container : containerList) {
+            console.info.println("stopping container ...");
+            engine = session.dockerEngine();
+            engine.containerStop(container, 300);
+        }
         dockerContainerFile().deleteFile();
+
     }
 
     private Map<String, String> bindMounts() throws IOException {
@@ -714,27 +750,41 @@ public class Stage {
 
     //--
 
-    public Image currentImage() throws IOException {
+    public Image currentImageFirst() throws IOException { // TODO
+        Collection<Image> images;
+
+        images = currentImages().values();
+        return images.isEmpty() ? null : images.iterator().next();
+    }
+
+    public Map<String, Image> currentImages() throws IOException {
         Engine engine;
-        String container;
-        List<Image> images;
+        List<String> containerList;
         JsonObject json;
+        Map<String, Image> result;
+        Image image;
 
         engine = session.dockerEngine();
-        container = dockerContainer();
-        if (container != null) {
-            json = engine.containerInspect(container, false);
-            return Image.load(engine, Strings.removeLeft(json.get("Image").getAsString(), "sha256:"));
+        result = new HashMap<>();
+        containerList = dockerContainerList();
+        if (containerList != null) {
+            for (String container : containerList) {
+                json = engine.containerInspect(container, false);
+                image = Image.load(engine, Strings.removeLeft(json.get("Image").getAsString(), "sha256:"));
+                result.put(image.app, image);
+            }
         } else {
-            images = images(session.dockerEngine());
-            return images.isEmpty() ? null : images.get(0);
+            for (Map.Entry<String, List<Image>> entry : images(session.dockerEngine()).entrySet()) {
+                result.put(entry.getKey(), entry.getValue().get(0));
+            }
         }
+        return result;
     }
 
     public String origin() throws IOException {
         Image image;
 
-        image = currentImage();
+        image = currentImageFirst();
         return image == null ? null : image.origin;
     }
 
@@ -852,7 +902,7 @@ public class Stage {
         String container;
         JsonObject obj;
 
-        container = dockerContainer();
+        container = dockerContainerFirst();
         if (container == null) {
             return 0;
         }
@@ -867,7 +917,7 @@ public class Stage {
         Engine engine;
 
         engine = session.dockerEngine();
-        engine.containerLogsFollow(dockerContainer(), new OutputStream() {
+        engine.containerLogsFollow(dockerContainerFirst(), new OutputStream() {
             @Override
             public void write(int b) {
                 dest.write(b);

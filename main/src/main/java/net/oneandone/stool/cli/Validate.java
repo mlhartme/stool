@@ -154,7 +154,7 @@ public class Validate extends StageCommand {
         }
         report.user(stage, message);
         if (repair) {
-            if (stage.dockerContainer() != null) {
+            if (stage.dockerContainerList() != null) {
                 try {
                     new Stop(session).doRun(stage);
                     report.user(stage, "stage has been stopped");
@@ -181,30 +181,42 @@ public class Validate extends StageCommand {
     }
 
     private void container(Stage stage) throws IOException {
-        String container;
+        List<String> containerList;
         Status status;
+        List<String> removes;
 
-        container = stage.dockerContainer();
-        if (container == null) {
+        containerList = stage.dockerContainerList();
+        if (containerList == null) {
             // not running, nothing to check
             return;
         }
-        try {
-            status = session.dockerEngine().containerStatus(container);
-        } catch (FileNotFoundException e) {
-            report.admin(stage, container + ": container not found");
-            if (repair) {
-                stage.dockerContainerFile().deleteFile();
-                report.admin(stage, "repaired by deleting " + stage.dockerContainerFile());
+        removes = new ArrayList<>();
+        for (String container : containerList) {
+            try {
+                status = session.dockerEngine().containerStatus(container);
+            } catch (FileNotFoundException e) {
+                report.admin(stage, container + ": container not found");
+                if (repair) {
+                    stage.dockerContainerFile().deleteFile();
+                    removes.add(container);
+                }
+                continue;
             }
-            return;
+            if (status != Status.RUNNING) {
+                report.admin(stage, container + ": container is not running: " + status);
+                if (repair) {
+                    stage.dockerContainerFile().deleteFile();
+                    removes.add(container);
+                }
+            }
         }
-        if (status != Status.RUNNING) {
-            report.admin(stage, container + ": container is not running: " + status);
-            if (repair) {
-                stage.dockerContainerFile().deleteFile();
-                report.admin(stage, "repaired by deleting " + stage.dockerContainerFile());
-            }
+        containerList.removeAll(removes);
+        if (containerList.isEmpty()) {
+            stage.dockerContainerFile().writeLines(containerList);
+            report.admin(stage, "repaired by removing them from " + stage.dockerContainerFile());
+        } else {
+            stage.dockerContainerFile().deleteFile();
+            report.admin(stage, "repaired by deleting " + stage.dockerContainerFile());
         }
     }
 
