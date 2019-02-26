@@ -16,7 +16,6 @@
 package net.oneandone.stool.templates;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
@@ -40,8 +39,8 @@ import static net.oneandone.stool.templates.CookieMode.LEGACY;
 import static net.oneandone.stool.templates.CookieMode.OFF;
 
 public class ServerXml {
-    public static ServerXml load(Node src, String stageName, String hostname) throws IOException, SAXException {
-        return new ServerXml(src.getWorld().getXml(), src.readXml(), stageName, hostname);
+    public static ServerXml load(Node src, String stageName, String hostname, Vhost webapp) throws IOException, SAXException {
+        return new ServerXml(src.getWorld().getXml(), src.readXml(), stageName, hostname, webapp);
     }
 
     private static final String HTTP_PATH = "Connector[starts-with(@protocol,'HTTP')]";
@@ -51,42 +50,42 @@ public class ServerXml {
     private final Document document;
     private final String stageName;
     private final String hostname;
+    private final Vhost webapp;
 
-    public ServerXml(Xml xml, Document document, String stageName, String hostname) {
+    public ServerXml(Xml xml, Document document, String stageName, String hostname, Vhost webapp) {
         this.selector = xml.getSelector();
         this.document = document;
         this.stageName = stageName;
         this.hostname = hostname;
+        this.webapp = webapp;
     }
 
     public void save(FileNode file) throws IOException {
         file.writeXml(document);
     }
 
-    public void configure(Ports ports, String url, String keystorePassword, CookieMode cookies, boolean legacy) throws XmlException {
+    public void configure(String url, String keystorePassword, CookieMode cookies, boolean legacy) throws XmlException {
         Element template;
         Element service;
-        Vhost vhost;
 
         document.getDocumentElement().setAttribute("port", "-1");
         template = selector.element(document, "Server/Service");
-        vhost = ports.webapp();
         service = (Element) template.cloneNode(true);
         document.getDocumentElement().appendChild(service);
-        service(service, vhost);
-        connectors(service, vhost, keystorePassword, legacy);
-        contexts(vhost.context(stageName, hostname, url), service, cookies);
+        service(service);
+        connectors(service, keystorePassword, legacy);
+        contexts(webapp.context(stageName, hostname, url), service, cookies);
         template.getParentNode().removeChild(template);
     }
 
-    private void service(Element service, Vhost vhost) throws XmlException {
+    private void service(Element service) throws XmlException {
         String name;
         Element engine;
         Element host;
         Element context;
         Element element;
 
-        name = vhost.fqdn(true, stageName, hostname);
+        name = webapp.fqdn(true, stageName, hostname);
         service.setAttribute("name", name);
         engine = selector.element(service, "Engine");
         engine.setAttribute("defaultHost", name);
@@ -103,24 +102,24 @@ public class ServerXml {
         engine.appendChild(host);
         context = service.getOwnerDocument().createElement("Context");
         context.setAttribute("path", "");
-        context.setAttribute("docBase", "/usr/local/tomcat/webapps/" + vhost.name);
+        context.setAttribute("docBase", "/usr/local/tomcat/webapps/" + webapp.name);
 
         host.appendChild(context);
 
         element = service.getOwnerDocument().createElement("Alias");
-        element.setAttribute("name", vhost.fqdn(false, stageName, hostname));
+        element.setAttribute("name", webapp.fqdn(false, stageName, hostname));
         host.insertBefore(element, host.getFirstChild());
     }
 
-    private void connectors(Element service, Vhost host, String keystorePassword, boolean legacy) {
+    private void connectors(Element service, String keystorePassword, boolean legacy) {
         String ip;
 
         ip = "0.0.0.0";
         try {
             connectorDisable(service, "Connector[starts-with(@protocol,'AJP')]");
-            connectorEnable(service, HTTP_PATH, ip, host.httpPort(), host.httpsPort(), legacy);
+            connectorEnable(service, HTTP_PATH, ip, webapp.httpPort(), webapp.httpsPort(), legacy);
             if (keystorePassword != null) {
-                sslConnector(service, HTTPS_PATH, host.httpsPort(), ip, keystorePassword, legacy);
+                sslConnector(service, HTTPS_PATH, webapp.httpsPort(), ip, keystorePassword, legacy);
             } else {
                 connectorDisable(service, HTTPS_PATH);
             }
