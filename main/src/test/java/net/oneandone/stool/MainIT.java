@@ -56,12 +56,6 @@ public class MainIT {
         stool("stop", "-stage" , "state=up", "-fail", "after");
     }
 
-    @Ignore
-    public void turnaroundGavArtifact() throws IOException {
-        turnaround("gav", null /*"gav:net.oneandone:hellowar:1.0.4" */);
-    }
-
-
     @Test
     public void turnaroundGitSource() throws IOException {
         FileNode project;
