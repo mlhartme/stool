@@ -59,7 +59,7 @@ public class Ports {
         return vhosts.get(jmxDebug).even + 1;
     }
 
-    public List<Vhost> webapps() {
+    public Vhost webapp() {
         List<Vhost> result;
 
         result = new ArrayList<>();
@@ -68,21 +68,10 @@ public class Ports {
                 result.add(v);
             }
         }
-        return result;
-    }
-
-    public Vhost firstWebapp() {
-        for (Vhost vhost : webapps()) {
-            return vhost;
+        if (result.size() != 1) {
+            throw new IllegalStateException(result.toString());
         }
-        throw new IllegalStateException();
-    }
-
-    public Vhost lookup(String name) {
-        int idx;
-
-        idx = indexOf(name);
-        return idx == -1 ? null : vhosts.get(idx);
+        return result.get(0);
     }
 
     private int indexOf(String name) {
@@ -101,9 +90,7 @@ public class Ports {
         Map<String, String> result;
 
         result = new LinkedHashMap<>();
-        for (Vhost vhost : webapps()) {
-            result.putAll(vhost.urlMap(stageName, hostname, url));
-        }
+        result.putAll(webapp().urlMap(stageName, hostname, url));
         return result;
     }
 

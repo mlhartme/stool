@@ -66,16 +66,16 @@ public class ServerXml {
     public void configure(Ports ports, String url, String keystorePassword, CookieMode cookies, boolean legacy) throws XmlException {
         Element template;
         Element service;
+        Vhost vhost;
 
         document.getDocumentElement().setAttribute("port", "-1");
         template = selector.element(document, "Server/Service");
-        for (Vhost vhost : ports.webapps()) {
-            service = (Element) template.cloneNode(true);
-            document.getDocumentElement().appendChild(service);
-            service(service, vhost);
-            connectors(service, vhost, keystorePassword, legacy);
-            contexts(vhost.context(stageName, hostname, url), service, cookies);
-        }
+        vhost = ports.webapp();
+        service = (Element) template.cloneNode(true);
+        document.getDocumentElement().appendChild(service);
+        service(service, vhost);
+        connectors(service, vhost, keystorePassword, legacy);
+        contexts(vhost.context(stageName, hostname, url), service, cookies);
         template.getParentNode().removeChild(template);
     }
 
