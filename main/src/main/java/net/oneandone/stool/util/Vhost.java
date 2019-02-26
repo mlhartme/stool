@@ -30,7 +30,7 @@ public class Vhost {
 
     // parses   <even> <name> <id> [<docroot>]
     // where name is the application name.
-    public static Vhost forLine(World world, String line) {
+    public static Vhost forLine(String line) {
         int afterEven;
         int afterName;
         int afterId;
@@ -145,7 +145,7 @@ public class Vhost {
         }
         return url.substring(0, context) + url.substring(context + 1);
     }
-    
+
     private Map<String, String> doMap(String stageName, String hostname, String url) {
         Map<String, String> result;
         Map<Character, String> map;

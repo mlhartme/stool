@@ -46,7 +46,7 @@ public class Pool {
                     if (line == null) {
                         break;
                     }
-                    result.vhosts.add(Vhost.forLine(file.getWorld(), line));
+                    result.vhosts.add(Vhost.forLine(line));
                 }
             }
         }
