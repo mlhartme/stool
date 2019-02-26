@@ -286,17 +286,15 @@ public class Tomcat {
         // mark as source stage
         context.join(".source").writeBytes();
 
-        for (Vhost vhost : ports.vhosts()) {
-            if (vhost.isWebapp()) {
-                deps = fitnesseProject(vhost).join("target/fitnesse/dependencies");
-                deps.deleteTreeOpt();
-                deps.mkdirsOpt();
-                /* TODO
-                launcher = project.launcher("mvn", "dependency::copy-dependencies",
-                        "-DoutputDirectory=" + deps.getAbsolute(), "-DexcludeScope=system");
-                launcher.dir(vhostProject(vhost));
-                launcher.exec(session.console.verbose); */
-            }
+        for (Vhost vhost : ports.webapps()) {
+            deps = fitnesseProject(vhost).join("target/fitnesse/dependencies");
+            deps.deleteTreeOpt();
+            deps.mkdirsOpt();
+            /* TODO
+            launcher = project.launcher("mvn", "dependency::copy-dependencies",
+                    "-DoutputDirectory=" + deps.getAbsolute(), "-DexcludeScope=system");
+            launcher.dir(vhostProject(vhost));
+            launcher.exec(session.console.verbose); */
         }
     }
 
@@ -306,26 +304,22 @@ public class Tomcat {
         result = new StringBuilder();
         result.append("#!/bin/bash\n");
         result.append("umask 0002");
-        for (Vhost vhost : ports.vhosts()) {
-            if (vhost.isWebapp()) {
-                result.append("\n");
-                result.append("# vhost " + vhost.name + "\n");
-                result.append("cd /stage/" + fitnesseProject(vhost).getRelative(projectDirectory) + "\n");
-                result.append("deps=target/fitnesse/dependencies\n");
-                result.append("cp=target/test-classes:target/classes\n");
-                result.append("for file in $(ls $deps/*.jar); do\n");
-                result.append("  cp=\"$cp:$file\"\n");
-                result.append("done\n");
-                result.append("export CLASSPATH=$cp\n");
-                result.append("java -jar $HOME/fitnesse-standalone.jar -v -r src/test/fitnesse -p " + vhost.httpPort() + " -e 0 >/var/log/stool/fitnesse-" + vhost.name + ".log 2>&1 &\n");
-                result.append(pidvar(vhost) + "=$!\n");
-            }
+        for (Vhost vhost : ports.webapps()) {
+            result.append("\n");
+            result.append("# vhost " + vhost.name + "\n");
+            result.append("cd /stage/" + fitnesseProject(vhost).getRelative(projectDirectory) + "\n");
+            result.append("deps=target/fitnesse/dependencies\n");
+            result.append("cp=target/test-classes:target/classes\n");
+            result.append("for file in $(ls $deps/*.jar); do\n");
+            result.append("  cp=\"$cp:$file\"\n");
+            result.append("done\n");
+            result.append("export CLASSPATH=$cp\n");
+            result.append("java -jar $HOME/fitnesse-standalone.jar -v -r src/test/fitnesse -p " + vhost.httpPort() + " -e 0 >/var/log/stool/fitnesse-" + vhost.name + ".log 2>&1 &\n");
+            result.append(pidvar(vhost) + "=$!\n");
         }
         result.append("trap 'kill -TERM " + allPids() + "' TERM\n");
-        for (Vhost vhost : ports.vhosts()) {
-            if (vhost.isWebapp()) {
-                result.append("wait $" + pidvar(vhost) + "\n");
-            }
+        for (Vhost vhost : ports.webapps()) {
+            result.append("wait $" + pidvar(vhost) + "\n");
         }
         return result.toString();
     }
@@ -345,10 +339,8 @@ public class Tomcat {
         StringBuilder result;
 
         result = new StringBuilder();
-        for (Vhost vhost : ports.vhosts()) {
-            if (vhost.isWebapp()) {
-                result.append('$').append(pidvar(vhost));
-            }
+        for (Vhost vhost : ports.webapps()) {
+            result.append('$').append(pidvar(vhost));
         }
         return result.toString();
     }

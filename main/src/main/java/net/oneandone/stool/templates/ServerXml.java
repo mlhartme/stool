@@ -69,14 +69,12 @@ public class ServerXml {
 
         document.getDocumentElement().setAttribute("port", "-1");
         template = selector.element(document, "Server/Service");
-        for (Vhost vhost : ports.vhosts()) {
-            if (vhost.isWebapp()) {
-                service = (Element) template.cloneNode(true);
-                document.getDocumentElement().appendChild(service);
-                service(service, vhost);
-                connectors(service, vhost, keystorePassword, legacy);
-                contexts(vhost.context(stageName, hostname, url), service, cookies);
-            }
+        for (Vhost vhost : ports.webapps()) {
+            service = (Element) template.cloneNode(true);
+            document.getDocumentElement().appendChild(service);
+            service(service, vhost);
+            connectors(service, vhost, keystorePassword, legacy);
+            contexts(vhost.context(stageName, hostname, url), service, cookies);
         }
         template.getParentNode().removeChild(template);
     }

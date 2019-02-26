@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.util;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -58,15 +59,21 @@ public class Ports {
         return vhosts.get(jmxDebug).even + 1;
     }
 
-    public List<Vhost> vhosts() {
-        return vhosts;
+    public List<Vhost> webapps() {
+        List<Vhost> result;
+
+        result = new ArrayList<>();
+        for (Vhost v : vhosts) {
+            if (v.isWebapp()) {
+                result.add(v);
+            }
+        }
+        return result;
     }
 
     public Vhost firstWebapp() {
-        for (Vhost vhost : vhosts()) {
-            if (vhost.isWebapp()) {
-                return vhost;
-            }
+        for (Vhost vhost : webapps()) {
+            return vhost;
         }
         throw new IllegalStateException();
     }
@@ -94,10 +101,8 @@ public class Ports {
         Map<String, String> result;
 
         result = new LinkedHashMap<>();
-        for (Vhost vhost : vhosts()) {
-            if (vhost.isWebapp()) {
-                result.putAll(vhost.urlMap(stageName, hostname, url));
-            }
+        for (Vhost vhost : webapps()) {
+            result.putAll(vhost.urlMap(stageName, hostname, url));
         }
         return result;
     }

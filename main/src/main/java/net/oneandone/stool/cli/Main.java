@@ -27,6 +27,7 @@ import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
 import net.oneandone.sushi.io.InputLogStream;
 import net.oneandone.sushi.io.MultiOutputStream;
+import net.oneandone.sushi.util.Separator;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -73,7 +74,7 @@ public class Main {
         } else {
             console = console(logging, System.out, System.err);
         }
-        command = "stool " + hideCredentials(args);
+        command = "stool " + Separator.SPACE.join(args);
         logging.command(command);
         globals = new Globals(environment, home, logging, command, console, world);
         cli = new Cli(globals::handleException);
@@ -121,41 +122,6 @@ public class Main {
     public static Console console(Logging logging, OutputStream out, OutputStream err) {
         return new Console(logging.writer(out, "OUT"), logging.writer(err, "ERR"),
                 new InputLogStream(System.in, new LogOutputStream(logging, "IN")));
-    }
-
-    private static String hideCredentials(String[] args) {
-        StringBuilder result;
-        boolean options;
-        String arg;
-
-        result = new StringBuilder();
-        options = true;
-        for (int i = 0; i < args.length; i++) {
-            arg = args[i];
-            if (options) {
-                switch (arg) {
-                    case "-svnuser":
-                    case "-svnpassword":
-                        arg = arg + " ********";
-                        i++;
-                        break;
-                    default:
-                        if (arg.startsWith("-svnuser=")) {
-                            arg = "-svnuser=******";
-                        } else if (arg.startsWith("-svnpassword=")) {
-                            arg = "-svnpassword=*******";
-                        }
-                        if (!arg.startsWith("-")) {
-                            options = false;
-                        }
-                }
-            }
-            if (result.length() > 0) {
-                result.append(' ');
-            }
-            result.append(arg);
-        }
-        return result.toString();
     }
 
     //--
