@@ -23,12 +23,7 @@ import java.util.Map;
 
 /** Manage ports used for one stage. Immutable. Do not create directly, use Pool class instead. */
 public class Ports {
-    public static final String JMX_DEBUG = "+jmx+debug";
-
-    private final Vhost jmxDebug;
-    private final Vhost webapp;
-
-    public Ports(List<Vhost> vhosts) {
+    public static Ports forVhosts(List<Vhost> vhosts) {
         String id;
 
         if (vhosts.size() != 2) {
@@ -44,23 +39,7 @@ public class Ports {
                 }
             }
         }
-        this.jmxDebug = vhosts.get(indexOf(vhosts, JMX_DEBUG));
-        if (jmxDebug == null) {
-            throw new IllegalArgumentException(vhosts.toString());
-        }
-        this.webapp = webapp(vhosts);
-    }
-
-    public int jmx() {
-        return jmxDebug.even;
-    }
-
-    public int debug() {
-        return jmxDebug.even + 1;
-    }
-
-    public Vhost webapp() {
-        return webapp;
+        return new Ports(vhosts.get(indexOf(vhosts, JMX_DEBUG)).even, webapp(vhosts));
     }
 
     private static Vhost webapp(List<Vhost> vhosts) {
@@ -93,6 +72,30 @@ public class Ports {
         return -1;
     }
 
+    //--
+
+    public static final String JMX_DEBUG = "+jmx+debug";
+
+    private final int jmxDebug;
+    private final Vhost webapp;
+
+    public Ports(int jmxDebug, Vhost webapp) {
+        this.jmxDebug = jmxDebug;
+        this.webapp = webapp;
+    }
+
+    public int jmx() {
+        return jmxDebug;
+    }
+
+    public int debug() {
+        return jmxDebug + 1;
+    }
+
+    public Vhost webapp() {
+        return webapp;
+    }
+
     public Map<String, String> urlMap(String stageName, String hostname, String url) {
         Map<String, String> result;
 
@@ -105,7 +108,9 @@ public class Ports {
         Map<Integer, Integer> result;
 
         result = new HashMap<>();
-        for (Vhost vhost : Arrays.asList(jmxDebug, webapp)) {
+        result.put(jmxDebug, jmxDebug);
+        result.put(jmxDebug + 1, jmxDebug + 1);
+        for (Vhost vhost : Arrays.asList(webapp)) {
             result.put(vhost.even, vhost.even);
             result.put(vhost.even + 1, vhost.even + 1);
         }

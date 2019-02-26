@@ -142,7 +142,7 @@ public class Pool {
             }
         }
         save();
-        return new Ports(result);
+        return Ports.forVhosts(result);
     }
 
     private void gc() {
@@ -298,7 +298,7 @@ public class Pool {
                 result.add(vhost);
             }
         }
-        return result.isEmpty() ? null : new Ports(result);
+        return result.isEmpty() ? null : Ports.forVhosts(result);
     }
 
 }
