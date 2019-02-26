@@ -45,7 +45,7 @@ public class Build extends ProjectCommand {
         Stage stage;
         Ports ports;
 
-        stage = session.load(session.projects().stage(project.directory));
+        stage = session.load(session.projects().stage(project.getDirectory()));
         ports = session.pool().allocate(stage, project.selectedWars(stage.configuration.select), Collections.emptyMap());
         stage.build(project.wars(), console, ports, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
         if (restart) {

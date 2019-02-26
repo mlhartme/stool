@@ -35,6 +35,6 @@ public class Attach extends ProjectCommand {
         Stage s;
 
         s = session.loadByName(stage);
-        session.projects().add(project.directory, s.directory);
+        session.projects().add(project.getDirectory(), s.directory);
     }
 }

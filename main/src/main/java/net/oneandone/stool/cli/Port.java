@@ -55,7 +55,7 @@ public class Port extends ProjectCommand {
     public void doRun(Project project) throws Exception {
         Stage stage;
 
-        stage = session.load(session.projects().stage(project.directory));
+        stage = session.load(session.projects().stage(project.getDirectory()));
         session.pool().allocate(stage, project.selectedWars(stage.configuration.select), ports);
     }
 }

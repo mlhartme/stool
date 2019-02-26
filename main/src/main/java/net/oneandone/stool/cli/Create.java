@@ -73,15 +73,17 @@ public class Create extends ProjectCommand {
     public void doRun(Project project) throws IOException {
         Stage stage;
         Property property;
+        FileNode directory;
 
-        project.directory.checkDirectory();
-        if (session.projects().hasProject(project.directory)) {
+
+        directory = project.getDirectory().checkDirectory();
+        if (session.projects().hasProject(directory)) {
             throw new ArgumentException("project already has a stage");
         }
 
         stage = session.create(project.getOrigin());
-        session.projects().add(project.directory, stage.directory);
-        stage.configuration.name = project.directory.getName();
+        session.projects().add(directory, stage.directory);
+        stage.configuration.name = directory.getName();
         stage.configuration.tuneMemory(stage.session.configuration.baseMemory, project.size());
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());

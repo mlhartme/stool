@@ -72,7 +72,7 @@ public class Project {
     //--
 
     private final String origin;
-    public final FileNode directory;
+    private final FileNode directory;
 
     public Project(String origin, FileNode directory) {
         this.origin = origin;

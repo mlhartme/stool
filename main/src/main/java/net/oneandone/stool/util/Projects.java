@@ -82,7 +82,7 @@ public class Projects {
     }
 
     public boolean remove(Project project) throws IOException {
-        if (map.remove(project.directory) != null) {
+        if (map.remove(project.getDirectory()) != null) {
             save();
             return true;
         } else {
