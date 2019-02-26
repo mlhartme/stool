@@ -82,7 +82,7 @@ public class Stage {
 
     public final Session session;
     public final FileNode directory;
-    private final StageConfiguration configuration;
+    public final StageConfiguration configuration;
 
     public Stage(Session session, FileNode directory, StageConfiguration configuration) {
         this.session = session;
@@ -94,12 +94,8 @@ public class Stage {
         return directory.getName();
     }
 
-    public StageConfiguration config() {
-        return configuration;
-    }
-
     public String getName() {
-        return config().name;
+        return configuration.name;
     }
 
     public Field fieldOpt(String str) throws IOException {
@@ -119,12 +115,6 @@ public class Stage {
         result.addAll(fields());
         return result;
     }
-
-    public LogReader logReader() throws IOException {
-        return LogReader.create(session.logging.directory().join(getId()));
-    }
-
-    //--
 
     public Info info(String str) throws IOException {
         Info result;
@@ -148,8 +138,9 @@ public class Stage {
         throw new ArgumentException(str + ": no such status field or property, choose one of " + lst);
     }
 
-    //-- pid file handling
-
+    public LogReader logReader() throws IOException {
+        return LogReader.create(session.logging.directory().join(getId()));
+    }
 
     public String lock() {
         return "stage-" + getId();
@@ -186,7 +177,7 @@ public class Stage {
     }
 
     public void saveConfig() throws IOException {
-        config().save(session.gson, StageConfiguration.file(directory));
+        configuration.save(session.gson, StageConfiguration.file(directory));
     }
 
     //--
@@ -329,7 +320,7 @@ public class Stage {
                 return container == null ? null : timespan(session.dockerEngine().containerStartedAt(container));
             }
         });
-        fields.addAll(TemplateField.scanTemplate(this, config().template));
+        fields.addAll(TemplateField.scanTemplate(this, configuration.template));
         return fields;
     }
 
@@ -466,10 +457,10 @@ public class Stage {
         int used;
         int quota;
 
-        if (config().expire.isExpired()) {
-            throw new ArgumentException("Stage expired " + config().expire + ". To start it, you have to adjust the 'expire' date.");
+        if (configuration.expire.isExpired()) {
+            throw new ArgumentException("Stage expired " + configuration.expire + ". To start it, you have to adjust the 'expire' date.");
         }
-        quota = config().quota;
+        quota = configuration.quota;
         used = diskUsed();
         if (used > quota) {
             throw new ArgumentException("Stage quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n" +
@@ -565,7 +556,7 @@ public class Stage {
             console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
         }
         container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
-                OS.CURRENT == OS.MAC, 1024L * 1024 * config().memory, null, null,
+                OS.CURRENT == OS.MAC, 1024L * 1024 * configuration.memory, null, null,
                 Collections.emptyMap(), mounts, image.ports);
         console.verbose.println("created container " + container);
         engine.containerStart(container);
@@ -646,7 +637,7 @@ public class Stage {
         configuration = new Configuration(Configuration.VERSION_2_3_26);
         configuration.setDefaultEncoding("UTF-8");
 
-        src = config().template;
+        src = this.configuration.template;
         dest = directory.join("context");
         dest.deleteTreeOpt();
         dest.mkdir();
@@ -699,7 +690,7 @@ public class Stage {
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
         result.put("tomcat", new Tomcat(wars,this, context, session, ports));
         for (Variable env : environment) {
-            value = config().templateEnv.get(env.name);
+            value = configuration.templateEnv.get(env.name);
             if (value == null) {
                 throw new IOException("missing variable in template.env: " + env.name);
             }
@@ -711,7 +702,7 @@ public class Stage {
     private void checkMemory() throws IOException {
         int requested;
 
-        requested = config().memory;
+        requested = configuration.memory;
         int unreserved = session.memUnreserved();
         if (requested > unreserved) {
             throw new ArgumentException("Cannot reserve memory:\n"
@@ -739,7 +730,7 @@ public class Stage {
         Ports ports;
 
         ports = loadPortsOpt();
-        return ports == null ? new HashMap<>() : ports.urlMap(getName(), session.configuration.hostname, config().url);
+        return ports == null ? new HashMap<>() : ports.urlMap(getName(), session.configuration.hostname, configuration.url);
     }
 
     /** @return empty list of no ports are allocated */
@@ -781,9 +772,9 @@ public class Stage {
 
     public int contentHash() throws IOException {
         return ("StageInfo{"
-                + "name='" + config().name + '\''
+                + "name='" + configuration.name + '\''
                 + ", id='" + getId() + '\''
-                + ", comment='" + config().comment + '\''
+                + ", comment='" + configuration.comment + '\''
                 + ", origin='" + origin() + '\''
                 + ", urls=" + urlMap()
                 + ", state=" + state()

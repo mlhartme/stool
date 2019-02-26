@@ -51,7 +51,7 @@ public class Tomcat {
         this.wars = wars;
         this.stage = stage;
         this.context = context;
-        this.configuration = stage.config();
+        this.configuration = stage.configuration;
         this.session = session;
         this.console = session.console;
         this.ports = ports;
@@ -147,7 +147,7 @@ public class Tomcat {
         tomcatOpts = escape(extraOpts);
         opts.addAll(Separator.SPACE.split(tomcatOpts));
 
-        opts.add("-Xmx" + stage.config().memory * 3 / 4 + "m");
+        opts.add("-Xmx" + stage.configuration.memory * 3 / 4 + "m");
 
         // see http://docs.oracle.com/javase/7/docs/technotes/guides/management/agent.html
         opts.add("-Dcom.sun.management.jmxremote.authenticate=false");

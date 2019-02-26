@@ -163,8 +163,8 @@ public class Validate extends StageCommand {
                     e.printStackTrace(console.verbose);
                 }
             }
-            if (session.configuration.autoRemove >= 0 && stage.config().expire.expiredDays() >= 0) {
-                if (stage.config().expire.expiredDays() >= session.configuration.autoRemove) {
+            if (session.configuration.autoRemove >= 0 && stage.configuration.expire.expiredDays() >= 0) {
+                if (stage.configuration.expire.expiredDays() >= session.configuration.autoRemove) {
                     try {
                         report.user(stage, "removing expired stage");
                         new Remove(session, true, true).doRun(stage);
@@ -174,7 +174,7 @@ public class Validate extends StageCommand {
                     }
                 } else {
                     report.user(stage, "CAUTION: This stage will be removed automatically in "
-                            + (session.configuration.autoRemove - stage.config().expire.expiredDays()) + " day(s)");
+                            + (session.configuration.autoRemove - stage.configuration.expire.expiredDays()) + " day(s)");
                 }
             }
         }
@@ -231,7 +231,7 @@ public class Validate extends StageCommand {
             String login;
 
             done = new HashSet<>();
-            for (String user : stage.config().notify) {
+            for (String user : stage.configuration.notify) {
                 switch (user) {
                     case StageConfiguration.NOTIFY_LAST_MODIFIED_BY:
                         login = stage.lastModifiedBy();
