@@ -22,9 +22,11 @@ import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Collections;
+import java.util.Map;
 
 public class Build extends ProjectCommand {
     private final boolean noCache;
@@ -44,12 +46,19 @@ public class Build extends ProjectCommand {
     public void doRun(Project project) throws Exception {
         Stage stage;
         Ports ports;
+        Map<String, FileNode> wars;
 
+        wars = project.wars();
+        if (wars.isEmpty()) {
+            throw new IOException("no wars to build");
+        }
         stage = session.load(session.projects().stage(project.getDirectory()));
-        ports = session.pool().allocate(stage, project.selectedWars(stage.configuration.select), Collections.emptyMap());
-        stage.build(project.wars(), console, ports, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
-        if (restart) {
-            new Restart(session, 0).doRun(stage);
+        for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
+            ports = session.pool().allocate(stage, project.selectedWars(stage.configuration.select), Collections.emptyMap());
+            stage.build(entry.getKey(), entry.getValue(), console, ports, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
+            if (restart) {
+                new Restart(session, 0).doRun(stage);
+            }
         }
     }
 

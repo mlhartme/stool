@@ -39,7 +39,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Tomcat {
-    private final Map<String, FileNode> wars;
+    private final String app;
+    private final FileNode war;
     private final Stage stage;
     private final FileNode context;
     private final StageConfiguration configuration;
@@ -47,8 +48,9 @@ public class Tomcat {
     private final Console console;
     private final Ports ports;
 
-    public Tomcat(Map<String, FileNode> wars, Stage stage, FileNode context, Session session, Ports ports) {
-        this.wars = wars;
+    public Tomcat(String app, FileNode war, Stage stage, FileNode context, Session session, Ports ports) {
+        this.app = app;
+        this.war = war;
         this.stage = stage;
         this.context = context;
         this.configuration = stage.configuration;
@@ -65,9 +67,7 @@ public class Tomcat {
     }
 
     public void webapps() throws IOException {
-        for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
-            entry.getValue().copyFile(context.join("webapps").mkdirOpt().join(entry.getKey() + ".war"));
-        }
+        war.copyFile(context.join("webapps").mkdirOpt().join(app + ".war"));
     }
 
     /** empty string if app does not need any secrets */
