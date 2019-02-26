@@ -106,8 +106,8 @@ public class Ports {
         result = new HashMap<>();
         result.put(jmx, jmx);
         result.put(debug, debug);
-        result.put(webapp.even, webapp.even);
-        result.put(webapp.even + 1, webapp.even + 1);
+        result.put(8080, webapp.even);
+        result.put(8443, webapp.even + 1);
         return result;
     }
 }

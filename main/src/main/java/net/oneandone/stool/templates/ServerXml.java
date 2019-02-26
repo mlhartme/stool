@@ -17,7 +17,6 @@ package net.oneandone.stool.templates;
 
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Url;
-import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -41,8 +40,8 @@ import static net.oneandone.stool.templates.CookieMode.LEGACY;
 import static net.oneandone.stool.templates.CookieMode.OFF;
 
 public class ServerXml {
-    public static ServerXml load(Node src, String stageName, String hostname, Vhost webapp) throws IOException, SAXException {
-        return new ServerXml(src.getWorld().getXml(), src.readXml(), stageName, hostname, webapp);
+    public static ServerXml load(Node src, String stageName, String hostname, String app) throws IOException, SAXException {
+        return new ServerXml(src.getWorld().getXml(), src.readXml(), stageName, hostname, app);
     }
 
     public static String fqdn(boolean vhosts, String app, String stageName, String hostname) {
@@ -66,14 +65,14 @@ public class ServerXml {
     private final int httpPort;
     private final int httpsPort;
 
-    public ServerXml(Xml xml, Document document, String stageName, String hostname, Vhost webapp) {
+    public ServerXml(Xml xml, Document document, String stageName, String hostname, String app) {
         this.selector = xml.getSelector();
         this.document = document;
         this.stageName = stageName;
         this.hostname = hostname;
-        this.app = webapp.name;
-        this.httpPort = webapp.httpPort();
-        this.httpsPort = webapp.httpsPort();
+        this.app = app;
+        this.httpPort = 8080;
+        this.httpsPort = 8443;
     }
 
     public void save(FileNode file) throws IOException {
