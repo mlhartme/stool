@@ -54,8 +54,7 @@ public class Start extends StageCommand {
         stage.session.configuration.verfiyHostname();
         stage.checkConstraints();
         checkNotStarted(stage);
-
-        doNormal(stage);
+        stage.start(console, image);
     }
 
     @Override
@@ -73,10 +72,6 @@ public class Start extends StageCommand {
     }
 
     //--
-
-    public void doNormal(Stage stage) throws Exception {
-        stage.start(console, image);
-    }
 
     private void doTail(Stage stage) throws IOException {
         console.info.println("Tailing container output.");
