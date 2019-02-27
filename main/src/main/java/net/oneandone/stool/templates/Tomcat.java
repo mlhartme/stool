@@ -160,7 +160,7 @@ public class Tomcat {
             opts.add("-Xdebug");
             opts.add("-Xnoagent");
             opts.add("-Djava.compiler=NONE");
-            opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=" + ports.debug + ",suspend=" + (suspend ? "y" : "n"));
+            opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=5005,suspend=" + (suspend ? "y" : "n"));
         }
         return Separator.SPACE.join(opts);
     }

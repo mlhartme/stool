@@ -105,7 +105,7 @@ public class Ports {
 
         result = new HashMap<>();
         result.put(jmx, jmx);
-        result.put(debug, debug);
+        result.put(5005, debug);
         result.put(8080, webapp.even);
         result.put(8443, webapp.even + 1);
         return result;
