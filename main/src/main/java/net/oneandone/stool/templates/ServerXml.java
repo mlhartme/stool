@@ -80,10 +80,17 @@ public class ServerXml {
     }
 
     public void configure(String url, String keystorePassword, CookieMode cookies, boolean legacy) throws XmlException {
+        Element jmxmp;
         Element template;
         Element service;
 
         document.getDocumentElement().setAttribute("port", "-1");
+
+        jmxmp = document.createElement("Listener");
+        jmxmp.setAttribute("className", "javax.management.remote.extension.JMXMPLifecycleListener");
+        jmxmp.setAttribute("port", "5555");
+        document.getDocumentElement().appendChild(jmxmp);
+
         template = selector.element(document, "Server/Service");
         service = (Element) template.cloneNode(true);
         document.getDocumentElement().appendChild(service);

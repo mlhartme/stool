@@ -149,16 +149,6 @@ public class Tomcat {
 
         opts.add("-Xmx" + stage.configuration.memory * 3 / 4 + "m");
 
-        // see http://docs.oracle.com/javase/7/docs/technotes/guides/management/agent.html
-        // and https://forums.docker.com/t/enable-jmx-rmi-access-to-a-docker-container/625
-        // CAUTION: only works as long as the jmx port is not re-mapped (because rmi communicates it as part of it's protocol, see
-        //          https://forums.docker.com/t/exposing-mapped-jmx-ports-from-multiple-containers/5287/7)
-        opts.add("-Dcom.sun.management.jmxremote.authenticate=false");
-        opts.add("-Dcom.sun.management.jmxremote.port=" + ports.jmx);
-        opts.add("-Dcom.sun.management.jmxremote.rmi.port=" + ports.jmx);
-        opts.add("-Djava.rmi.server.hostname=" + session.configuration.hostname);
-        opts.add("-Dcom.sun.management.jmxremote.ssl=false");
-
         if (debug || suspend) {
             opts.add("-Xdebug");
             opts.add("-Xnoagent");

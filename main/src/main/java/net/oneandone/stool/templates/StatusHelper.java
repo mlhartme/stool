@@ -71,7 +71,7 @@ public class StatusHelper {
         }
         // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
         try {
-            url = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + stage.session.configuration.hostname + ":" + ports.jmx + "/jmxrmi");
+            url = new JMXServiceURL("service:jmx:jmxmp://" + stage.session.configuration.hostname + ":" + ports.jmx);
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
         }
