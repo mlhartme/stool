@@ -101,21 +101,18 @@ public class ServerXml {
     }
 
     private void service(Element service) throws XmlException {
-        String name;
         Element engine;
         Element host;
         Element context;
         Element element;
 
-        name = fqdn(true, app, stageName, hostname);
-        service.setAttribute("name", name);
         engine = selector.element(service, "Engine");
-        engine.setAttribute("defaultHost", name);
+        engine.setAttribute("defaultHost", "localhost");
         for (Element child : selector.elements(service, "Engine/Host")) {
             child.getParentNode().removeChild(child);
         }
         host = service.getOwnerDocument().createElement("Host");
-        host.setAttribute("name", name);
+        host.setAttribute("name", "localhost");
 
         // TODO: i'd like to ignore context.xml files, but controlpanel brings them to enable "crosscontext" - I don't know if that's required
         // host.setAttribute("deployXML", "false"); // ignore descriptors embedded in the application
@@ -245,19 +242,15 @@ public class ServerXml {
     public void addContextParameters(Stage stage, boolean logroot, Map<String, String> additionals) throws XmlException, MkdirException {
         Element context;
         Map<String, String> map;
-        String name;
-        String app;
         FileNode dir;
 
         for (Element host : selector.elements(document, "Server/Service/Engine/Host")) {
             context = selector.element(host, "Context");
-            name = host.getAttribute("name");
-            app = name.substring(0, name.indexOf('.'));
             map = new HashMap<>();
             if (logroot) {
-                dir = stage.directory.join("logs/applogs", app);
+                dir = stage.directory.join("logs/applogs");
                 dir.mkdirsOpt();
-                map.put("logroot", "/usr/local/tomcat/logs/applogs/" + app);
+                map.put("logroot", "/usr/local/tomcat/logs/applogs");
             }
             map.putAll(additionals);
             for (Map.Entry<String, String> entry : map.entrySet()) {
