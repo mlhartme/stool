@@ -85,7 +85,7 @@ public class Ports {
 
         for (int i = 0; i < vhosts.size(); i++) {
             vhost = vhosts.get(i);
-            if (name.equals(vhost.name)) {
+            if (name.equals(vhost.app)) {
                 return i;
             }
         }

@@ -172,7 +172,7 @@ public class Pool {
 
     public Vhost lookupId(String name, String id) {
         for (Vhost vhost : vhosts) {
-            if (name.equals(vhost.name) && id.equals(vhost.id)) {
+            if (name.equals(vhost.app) && id.equals(vhost.id)) {
                 return vhost;
             }
         }

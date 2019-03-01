@@ -737,7 +737,7 @@ public class Stage {
         return session.pool().stageOpt(getId());
     }
 
-    /** @return empty map of no ports are allocated */
+    /** @return empty map if no ports are allocated */
     public Map<String, String> urlMap() throws IOException {
         Ports ports;
         Vhost webapp;
@@ -747,7 +747,7 @@ public class Stage {
             return new HashMap<>();
         } else {
             webapp = ports.webapp();
-            return UrlPattern.parse(configuration.url).urlMap(webapp.name, getName(), session.configuration.hostname,
+            return UrlPattern.parse(configuration.url).urlMap(webapp.app, getName(), session.configuration.hostname,
                     webapp.httpPort(), webapp.httpsPort());
         }
     }

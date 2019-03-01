@@ -15,10 +15,6 @@
  */
 package net.oneandone.stool.util;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /** Represents one line in the "ports" file. Immutable */
@@ -32,7 +28,7 @@ public class Vhost {
         int afterName;
         int afterId;
         int even;
-        String name;
+        String app;
         String id;
         boolean webapp;
 
@@ -46,7 +42,7 @@ public class Vhost {
         if (afterName == -1) {
             throw new IllegalArgumentException("invalid vhost line: " + line);
         }
-        name = line.substring(afterEven + 1, afterName);
+        app = line.substring(afterEven + 1, afterName);
 
         afterId = line.indexOf(SEP, afterName + 1);
         if (afterId == -1) {
@@ -56,28 +52,27 @@ public class Vhost {
             id = line.substring(afterName + 1, afterId);
             webapp = true;
         }
-        return new Vhost(even, name, id, webapp);
+        return new Vhost(even, app, id, webapp);
     }
 
     public final int even;
 
-    /** name of vhost, i.e. the application */
-    public final String name;
+    public final String app;
 
     /** stage id */
     public final String id;
 
     public final boolean webapp;
 
-    public Vhost(int even, String name, String id, boolean webapp) {
-        if (name.indexOf(SEP) != -1) {
-            throw new IllegalArgumentException(name);
+    public Vhost(int even, String app, String id, boolean webapp) {
+        if (app.indexOf(SEP) != -1) {
+            throw new IllegalArgumentException(app);
         }
         if (id.indexOf('.') == -1) {
             throw new IllegalArgumentException(id);
         }
         this.even = even;
-        this.name = name;
+        this.app = app;
         this.id = id;
         this.webapp = webapp;
     }
@@ -98,7 +93,7 @@ public class Vhost {
         // CAUTION: just
         //    even + SEP
         // is an integer addition!
-        return Integer.toString(even) + SEP + name + SEP + id + (webapp ? SEP + "webapp" : "");
+        return Integer.toString(even) + SEP + app + SEP + id + (webapp ? SEP + "webapp" : "");
     }
 
     public String toString() {
@@ -110,6 +105,6 @@ public class Vhost {
         if (Objects.equals(this.webapp, newWebapp) && (newEven == null || newEven == even)) {
             return null;
         }
-        return new Vhost(newEven == null ? even : newEven, name, id, newWebapp);
+        return new Vhost(newEven == null ? even : newEven, app, id, newWebapp);
     }
 }
