@@ -38,6 +38,8 @@ import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.StandardProperty;
 import net.oneandone.stool.util.TemplateProperty;
+import net.oneandone.stool.util.UrlPattern;
+import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -738,9 +740,15 @@ public class Stage {
     /** @return empty map of no ports are allocated */
     public Map<String, String> urlMap() throws IOException {
         Ports ports;
+        Vhost webapp;
 
         ports = loadPortsOpt();
-        return ports == null ? new HashMap<>() : ports.webapp().urlMap(getName(), session.configuration.hostname, configuration.url);
+        if (ports == null) {
+            return new HashMap<>();
+        } else {
+            webapp = ports.webapp();
+            return UrlPattern.urlMap(webapp.name, getName(), session.configuration.hostname, webapp.httpPort(), webapp.httpsPort(), configuration.url);
+        }
     }
 
     /** @return empty list of no ports are allocated */

@@ -17,7 +17,9 @@ package net.oneandone.stool.util;
 
 import net.oneandone.inline.ArgumentException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -109,5 +111,76 @@ public class UrlPattern {
         }
         multiString.append(path);
         return multiString.lst;
+    }
+
+    //--
+
+    public static Map<String, String> urlMap(String app, String stageName, String hostname, int httpPort, int httpsPort, String url) {
+        Map<String, String> result;
+
+        result = new LinkedHashMap<>();
+        for (Map.Entry<String, String> entry : doMap(app, stageName, hostname, httpPort, httpsPort, url).entrySet()) {
+            result.put(entry.getKey(), hideContextMarker(entry.getValue()));
+        }
+        return result;
+    }
+
+    private static String hideContextMarker(String url) {
+        int beforeHost;
+        int afterHost;
+        int context;
+
+        beforeHost = url.indexOf("://");
+        if (beforeHost == -1) {
+            return url;
+        }
+        afterHost = url.indexOf("/", beforeHost + 3);
+        if (afterHost == -1) {
+            return url;
+        }
+        context = url.indexOf("//", afterHost + 1);
+        if (context == -1) {
+            return url;
+        }
+        return url.substring(0, context) + url.substring(context + 1);
+    }
+
+    private static Map<String, String> doMap(String name, String stageName, String hostname, int httpPort, int httpsPort, String url) {
+        Map<String, String> result;
+        List<String> all;
+        List<String> http;
+        List<String> https;
+
+        result = new LinkedHashMap<>();
+        all = UrlPattern.parse(url).substitute(name, stageName, hostname).map();
+        http = new ArrayList<>();
+        https = new ArrayList<>();
+        for (String u : all) {
+            if (u.startsWith("https:")) {
+                https.add(u.replace("%p", Integer.toString(httpsPort)));
+            } else {
+                http.add(u.replace("%p", Integer.toString(httpPort)));
+            }
+        }
+        add(name, "", http, result);
+        add(name, " SSL", https, result);
+        return result;
+    }
+
+    private static void add(String nameBase, String nameSuffix, List<String> all, Map<String, String> result) {
+        String name;
+        int no;
+
+        no = 0;
+        for (String u : all) {
+            if (all.size() > 1) {
+                no++;
+                name = nameBase + "-" + no;
+            } else {
+                name = nameBase;
+            }
+            name = name + nameSuffix;
+            result.put(name, u);
+        }
     }
 }
