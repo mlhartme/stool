@@ -36,10 +36,7 @@ public class Ports {
         JsonElement str;
 
         str = labels.get(name);
-        if (str == null) {
-            throw new IllegalStateException("label not found: " + name); // TODO: checked exception?
-        }
-        return Integer.parseInt(str.getAsString());
+        return str == null ? -1 : Integer.parseInt(str.getAsString());
     }
 
     public static Ports forVhosts(List<Vhost> vhosts) {

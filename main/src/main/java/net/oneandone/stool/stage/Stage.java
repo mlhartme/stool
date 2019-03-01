@@ -591,11 +591,20 @@ public class Stage {
 
         hostPorts = session.pool().allocate(this, app, Collections.emptyMap());
         result = new HashMap<>();
-        result.put(containerPorts.http, hostPorts.http);
-        result.put(containerPorts.https, hostPorts.https);
-        result.put(containerPorts.jmx, hostPorts.jmx);
-        result.put(containerPorts.debug, hostPorts.debug);
+        addOpt(result, containerPorts.http, hostPorts.http);
+        addOpt(result, containerPorts.https, hostPorts.https);
+        addOpt(result, containerPorts.jmx, hostPorts.jmx);
+        addOpt(result, containerPorts.debug, hostPorts.debug);
         return result;
+    }
+
+    private static void addOpt(Map<Integer, Integer> dest, int left, int right) {
+        if (right == -1) {
+            throw new IllegalStateException();
+        }
+        if (left != -1) {
+            dest.put(left, right);
+        }
     }
 
     /** Fails if container is not running */
