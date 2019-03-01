@@ -25,7 +25,6 @@ import net.oneandone.stool.configuration.Accessor;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
-import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.templates.TemplateField;
 import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.templates.Variable;
@@ -258,63 +257,6 @@ public class Stage {
             @Override
             public Object get() throws IOException {
                 return origin();
-            }
-        });
-        fields.add(new Field("cpu") {
-            @Override
-            public Object get() throws IOException {
-                String container;
-                Engine engine;
-                Stats stats;
-
-                container = dockerContainerFirst();
-                if (container == null) {
-                    return null;
-                }
-                engine = session.dockerEngine();
-                stats = engine.containerStats(container);
-                if (stats != null) {
-                    return stats.cpu;
-                } else {
-                    // not started
-                    return 0;
-                }
-            }
-        });
-        fields.add(new Field("mem") {
-            @Override
-            public Object get() throws IOException {
-                String container;
-                Engine engine;
-                Stats stats;
-
-                container = dockerContainerFirst();
-                if (container == null) {
-                    return null;
-                }
-                engine = session.dockerEngine();
-                stats = engine.containerStats(container);
-                if (stats != null) {
-                    return stats.memoryUsage * 100 / stats.memoryLimit;
-                } else {
-                    // not started
-                    return 0;
-                }
-            }
-        });
-        fields.add(new Field("image") {
-            @Override
-            public String get() throws IOException {
-                Image image;
-
-                image = currentImageFirst();
-                return image == null ? null : image.id;
-            }
-        });
-        fields.add(new Field("container") {
-            @Override
-            public Object get() throws IOException {
-                return dockerContainerFirst();
             }
         });
         fields.add(new Field("apps") {
@@ -594,7 +536,7 @@ public class Stage {
         result = new HashMap<>();
         addOpt(result, containerPorts.http, hostPorts.http);
         addOpt(result, containerPorts.https, hostPorts.https);
-        addOpt(result, containerPorts.jmx, hostPorts.jmx);
+        addOpt(result, containerPorts.jmxmp, hostPorts.jmxmp);
         addOpt(result, containerPorts.debug, hostPorts.debug);
         return result;
     }
@@ -778,17 +720,27 @@ public class Stage {
     //--
 
     public Image currentImageFirst() throws IOException { // TODO
-        Collection<Image> images;
+        Collection<Current> images;
 
-        images = currentImages().values();
-        return images.isEmpty() ? null : images.iterator().next();
+        images = currentMap().values();
+        return images.isEmpty() ? null : images.iterator().next().image;
     }
 
-    public Map<String, Image> currentImages() throws IOException {
+    public static class Current {
+        public final Image image;
+        public final String container;
+
+        public Current(Image image, String container) {
+            this.image = image;
+            this.container = container;
+        }
+    }
+
+    public Map<String, Current> currentMap() throws IOException {
         Engine engine;
         List<String> containerList;
         JsonObject json;
-        Map<String, Image> result;
+        Map<String, Current> result;
         Image image;
 
         engine = session.dockerEngine();
@@ -798,11 +750,11 @@ public class Stage {
             for (String container : containerList) {
                 json = engine.containerInspect(container, false);
                 image = Image.load(engine, Strings.removeLeft(json.get("Image").getAsString(), "sha256:"));
-                result.put(image.app, image);
+                result.put(image.app, new Current(image, container));
             }
         } else {
             for (Map.Entry<String, List<Image>> entry : images(session.dockerEngine()).entrySet()) {
-                result.put(entry.getKey(), entry.getValue().get(0));
+                result.put(entry.getKey(), new Current(entry.getValue().get(0), null));
             }
         }
         return result;
@@ -903,7 +855,7 @@ public class Stage {
 
             // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
             try {
-                url = new JMXServiceURL("service:jmx:jmxmp://" + session.configuration.hostname + ":" + ports.jmx);
+                url = new JMXServiceURL("service:jmx:jmxmp://" + session.configuration.hostname + ":" + ports.jmxmp);
             } catch (MalformedURLException e) {
                 throw new IllegalStateException(e);
             }

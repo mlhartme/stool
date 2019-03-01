@@ -47,8 +47,8 @@ public class StatusHelper {
         map = new ArrayList<>();
         if (ports != null) {
             map.add("debug port: " + ports.debug);
-            map.add("jmx port: " + ports.jmx);
-            url = stage.session.configuration.hostname + ":" + ports.jmx;
+            map.add("jmx port: " + ports.jmxmp);
+            url = stage.session.configuration.hostname + ":" + ports.jmxmp;
             map.add("  jconsole " + url);
             map.add("  jvisualvm --openjmx " + url);
         }
@@ -71,7 +71,7 @@ public class StatusHelper {
         }
         // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
         try {
-            url = new JMXServiceURL("service:jmx:jmxmp://" + stage.session.configuration.hostname + ":" + ports.jmx);
+            url = new JMXServiceURL("service:jmx:jmxmp://" + stage.session.configuration.hostname + ":" + ports.jmxmp);
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
         }

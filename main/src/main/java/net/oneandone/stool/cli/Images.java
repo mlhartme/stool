@@ -16,11 +16,14 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.docker.Engine;
+import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Image;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Session;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,22 +38,25 @@ public class Images extends StageCommand {
     public void doMain(Stage stage) throws Exception {
         Map<String, List<Image>> all;
         List<String> apps;
-        Map<String, Image> current;
+        Map<String, Stage.Current> currentMap;
         Engine engine;
         String marker;
         int idx;
-        String currentId;
+        Stage.Current current;
 
         engine = stage.session.dockerEngine();
         all = stage.images(engine);
         apps = new ArrayList<>(all.keySet());
         Collections.sort(apps);
-        current = stage.currentImages();
+        currentMap = stage.currentMap();
         for (String app : apps) {
-            currentId = current.get(app).id;
+            current = currentMap.get(app);
             idx = 0;
+            console.info.println("cpu: " + cpu(current));
+            console.info.println("mem: " + mem(current));
+            console.info.println("container: " + current.container);
             for (Image image : all.get(app)) {
-                marker = image.id.equals(currentId) ? "==>" : "   ";
+                marker = image.id.equals(current.image.id) ? "==>" : "   ";
                 console.info.printf("%s [%d] %s\n", marker, idx, image.id);
                 console.info.println("       app:        " + image.app);
                 console.info.println("       comment:    " + image.comment);
@@ -62,6 +68,44 @@ public class Images extends StageCommand {
             }
             stage.rotateLogs(console);
 
+        }
+    }
+
+    private Integer cpu(Stage.Current current) throws IOException {
+        Engine engine;
+        Stats stats;
+        String container;
+
+        container = current.container;
+        if (container == null) {
+            return null;
+        }
+        engine = session.dockerEngine();
+        stats = engine.containerStats(container);
+        if (stats != null) {
+            return stats.cpu;
+        } else {
+            // not started
+            return 0;
+        }
+    }
+
+    private Long mem(Stage.Current current) throws IOException {
+        String container;
+        Engine engine;
+        Stats stats;
+
+        container = current.container;
+        if (container == null) {
+            return null;
+        }
+        engine = session.dockerEngine();
+        stats = engine.containerStats(container);
+        if (stats != null) {
+            return stats.memoryUsage * 100 / stats.memoryLimit;
+        } else {
+            // not started
+            return 0L;
         }
     }
 }

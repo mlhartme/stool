@@ -71,13 +71,13 @@ public class Ports {
 
     public final int http;
     public final int https;
-    public final int jmx;
+    public final int jmxmp;
     public final int debug;
 
-    public Ports(int http, int https, int jmx, int debug) {
+    public Ports(int http, int https, int jmxmp, int debug) {
         this.http = http;
         this.https = https;
-        this.jmx = jmx;
+        this.jmxmp = jmxmp;
         this.debug = debug;
     }
 }
