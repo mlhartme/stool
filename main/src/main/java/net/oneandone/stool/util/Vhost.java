@@ -157,7 +157,7 @@ public class Vhost {
         map.put('a', name);
         map.put('s', stageName);
         map.put('p', "%p");
-        all = Url.parse(url).sustitute(map).map();
+        all = UrlPattern.parse(url).sustitute(map).map();
         http = new ArrayList<>();
         https = new ArrayList<>();
         for (String u : all) {

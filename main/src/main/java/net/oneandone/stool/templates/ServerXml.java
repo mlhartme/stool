@@ -16,7 +16,7 @@
 package net.oneandone.stool.templates;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Url;
+import net.oneandone.stool.util.UrlPattern;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -338,7 +338,7 @@ public class ServerXml {
         }
         return result;
     }
-    
+
     /** return path as used in Tomcat context element - either empty of starts with a slash */
     private static String getContext(String url) {
         int beforeHost;
@@ -370,7 +370,7 @@ public class ServerXml {
         map.put('a', app);
         map.put('s', stageName);
         map.put('p', "%p");
-        all = Url.parse(url).sustitute(map).map();
+        all = UrlPattern.parse(url).sustitute(map).map();
         http = new ArrayList<>();
         https = new ArrayList<>();
         for (String u : all) {
@@ -390,7 +390,7 @@ public class ServerXml {
         int no;
 
         no = 0;
-        for (String u : all) {
+        for (String url : all) {
             if (all.size() > 1) {
                 no++;
                 name = nameBase + "-" + no;
@@ -398,7 +398,7 @@ public class ServerXml {
                 name = nameBase;
             }
             name = name + nameSuffix;
-            result.put(name, u);
+            result.put(name, url);
         }
     }
 }

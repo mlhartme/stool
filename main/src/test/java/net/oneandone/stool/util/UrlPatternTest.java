@@ -23,7 +23,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-public class UrlTest {
+public class UrlPatternTest {
     @Test
     public void normal() {
         parse("http://foo.bar/");
@@ -57,15 +57,15 @@ public class UrlTest {
     @Test
     public void subst() {
         Map<Character, String> map;
-        Url url;
+        UrlPattern urlPattern;
 
         map = new HashMap<>();
         map.put('p', "proto");
         map.put('h', "host");
         map.put('s', "segment");
-        url = Url.parse("%p://h%h/con%stext");
-        url = url.sustitute(map);
-        assertEquals("proto://hhost/consegmenttext", url.toString());
+        urlPattern = UrlPattern.parse("%p://h%h/con%stext");
+        urlPattern = urlPattern.sustitute(map);
+        assertEquals("proto://hhost/consegmenttext", urlPattern.toString());
     }
 
     @Test
@@ -75,10 +75,10 @@ public class UrlTest {
     }
 
     public void map(String urlstr, String ... mapped) {
-        Url url;
+        UrlPattern urlPattern;
 
-        url = Url.parse(urlstr);
-        assertEquals(Arrays.asList(mapped), url.map());
+        urlPattern = UrlPattern.parse(urlstr);
+        assertEquals(Arrays.asList(mapped), urlPattern.map());
     }
 
     private void parse(String urlstr) {
@@ -86,9 +86,9 @@ public class UrlTest {
     }
 
     private void parse(String urlstr, String normalized) {
-        Url url;
+        UrlPattern urlPattern;
 
-        url = Url.parse(urlstr);
-        assertEquals(normalized, url.toString());
+        urlPattern = UrlPattern.parse(urlstr);
+        assertEquals(normalized, urlPattern.toString());
     }
 }

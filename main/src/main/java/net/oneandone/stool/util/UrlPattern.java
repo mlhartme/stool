@@ -20,10 +20,10 @@ import net.oneandone.inline.ArgumentException;
 import java.util.List;
 import java.util.Map;
 
-public class Url {
+public class UrlPattern {
     private static final String CONTEXT = "!";
 
-    public static Url parse(String url) {
+    public static UrlPattern parse(String url) {
         int beforeHost;
         int afterHost;
         String protocol;
@@ -54,7 +54,7 @@ public class Url {
             path = url.substring(beforePath);
         }
         hostname = url.substring(beforeHost + 3, afterHost);
-        return new Url(protocol, hostname, context, path);
+        return new UrlPattern(protocol, hostname, context, path);
     }
 
     //--
@@ -65,15 +65,15 @@ public class Url {
     private final String context;
     private final String path;
 
-    public Url(String protocol, String hostname, String context, String path) {
+    public UrlPattern(String protocol, String hostname, String context, String path) {
         this.protocol = protocol;
         this.hostname = hostname;
         this.context = context;
         this.path = path;
     }
 
-    public Url sustitute(Map<Character, String> map) {
-        return new Url(Subst.subst(protocol, map), Subst.subst(hostname, map), context == null ? null : Subst.subst(context, map), Subst.subst(path, map));
+    public UrlPattern sustitute(Map<Character, String> map) {
+        return new UrlPattern(Subst.subst(protocol, map), Subst.subst(hostname, map), context == null ? null : Subst.subst(context, map), Subst.subst(path, map));
     }
 
     public String toString() {
