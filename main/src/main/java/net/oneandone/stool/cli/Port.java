@@ -57,7 +57,7 @@ public class Port extends ProjectCommand {
 
         stage = session.load(session.projects().stage(project.getDirectory()));
         for (String app : project.wars().keySet()) {
-            session.pool().allocate(stage, app, ports);
+            session.pool().allocate(stage, app, null /* TODO ports */);
         }
     }
 }

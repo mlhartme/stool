@@ -18,6 +18,7 @@ package net.oneandone.stool.dashboard.config;
 
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.templates.ServerXml;
+import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.Vhost;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
@@ -42,6 +43,7 @@ import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 
 import java.io.IOException;
+import java.util.Map;
 
 @EnableWebSecurity
 @Configuration
@@ -100,12 +102,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public ServiceProperties serviceProperties() throws IOException {
         ServiceProperties serviceProperties;
-        Vhost webapp;
+        Map<String, Ports> map;
+        Map.Entry<String, Ports> entry;
 
         serviceProperties = new ServiceProperties();
-        webapp = self.loadPortsOpt().webapp();
-        serviceProperties.setService("https://" + ServerXml.fqdn(session.configuration.vhosts, webapp.app,
-                self.getName(), session.configuration.hostname) + ":" + webapp.httpsPort() + "/j_spring_cas_security_check");
+        map = self.loadPorts();
+        if (map.size() != 1) {
+            throw new IllegalStateException(map.toString());
+        }
+        entry = map.entrySet().iterator().next();
+        serviceProperties.setService("https://" + ServerXml.fqdn(session.configuration.vhosts, entry.getKey(),
+                self.getName(), session.configuration.hostname) + ":" + entry.getValue().https + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
     }

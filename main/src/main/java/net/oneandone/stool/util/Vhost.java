@@ -21,8 +21,8 @@ import java.util.Objects;
 public class Vhost {
     private static final char SEP = ' ';
 
-    // parses   <even> <name> <id> [<docroot>]
-    // where name is the application name.
+    // parses   <even> ' ' <app> ' ' <id> [' ' <webapp>]
+    // where webapp is an arbitrary string for the webapp ports - or empty for jmxDebug
     public static Vhost forLine(String line) {
         int afterEven;
         int afterName;

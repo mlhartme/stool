@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -80,69 +81,85 @@ public class Pool {
     }
 
     // TODO: ugly reference to stage ...
-    public Ports allocate(Stage stage, String app, Map<String, Integer> fixed) throws IOException {
-        LinkedHashSet<String> names;
-        Vhost previous;
-        Vhost found;
+    public Ports allocate(Stage stage, String app, Integer port) throws IOException {
         String stageName;
         String stageId;
-        List<Vhost> result;
-        Integer port; // null for not fixed
-        Vhost modified;
-        boolean webapp;
+        Vhost webapp;
+        Vhost jmxDebug;
 
         gc();
 
-        names = new LinkedHashSet<>();
-        names.add(Ports.JMX_DEBUG);
-
-        names.addAll(fixed.keySet());
-        names.add(app);
-
         stageName = stage.getName();
         stageId = stage.getId();
-        result = new ArrayList<>();
-        for (String name : names) {
-            webapp = app.equals(name);
-            port = fixed.get(name);
-            previous = lookupId(name, stageId);
-            if (previous != null) {
-                modified = previous.set(port, webapp);
-                if (modified == null) {
-                    // no changes
-                    result.add(previous);
-                } else {
-                    if (port != null) {
-                        if (used(port)) {
-                            throw new ArgumentException("port already reserved: " + port);
-                        }
-                        checkFree(port);
-                    }
-                    result.add(modified);
-                    vhosts.remove(previous);
-                    vhosts.add(modified);
-                }
-            } else {
-                if (port == null) {
-                    found = allocate(name, stageName, stageId, webapp);
-                } else {
-                    found = allocate(port, name, stageId, webapp);
-                    if (found.even != port) {
-                        throw new ArgumentException("port already in use: " + port);
-                    }
-                }
-                result.add(found);
-            }
-        }
-
-        // gc this stage, i.e. remove all vhosts that are now unused
-        for (int i = vhosts.size() - 1; i >= 0; i--) {
-            if (stageId.equals(vhosts.get(i).id) && !result.contains(vhosts.get(i))) {
-                vhosts.remove(i);
-            }
-        }
+        webapp = allocateVhost(app, stageName, stageId, true, port);
+        jmxDebug = allocateVhost(app, stageName, stageId, false, null);
         save();
-        return Ports.forVhosts(result);
+        return Ports.forVhosts(webapp, jmxDebug);
+    }
+
+    private Vhost allocateVhost(String app, String stageName, String stageId, boolean webapp, Integer port) throws IOException {
+        Vhost previous;
+        Vhost modified;
+        Vhost found;
+
+        previous = lookupId(app, stageId, webapp);
+        if (previous != null) {
+            modified = previous.set(null, webapp);
+            if (modified == null) {
+                return previous;
+            } else {
+                if (port != null) {
+                    if (used(port)) {
+                        throw new ArgumentException("port already reserved: " + port);
+                    }
+                    checkFree(port);
+                }
+                vhosts.remove(previous);
+                vhosts.add(modified);
+                return modified;
+            }
+        } else {
+            if (port == null) {
+                found = allocate(app, stageName, stageId, webapp);
+            } else {
+                found = allocate(port, app, stageId, webapp);
+                if (found.even != port) {
+                    throw new ArgumentException("port already in use: " + port);
+                }
+            }
+            return found;
+        }
+    }
+
+    private Vhost allocate(String app, String stage, String id, boolean webapp) throws IOException {
+        return allocate(startPortForApp(app, stage), app, id, webapp);
+    }
+
+    private Vhost allocate(int start, String app, String id, boolean webapp) throws IOException {
+        int current;
+        Vhost result;
+
+        if ((start < first) || (start > last)) {
+            throw new IllegalArgumentException("ports out of range: " + start);
+        }
+        if (start % 2 != 0) {
+            throw new IllegalArgumentException("even port expected: " + start);
+        }
+        current = start;
+        do {
+            if (!used(current)) {
+                checkFree(current);
+                checkFree(current + 1);
+                result = new Vhost(current, app, id, webapp);
+                vhosts.add(result);
+                return result;
+            }
+            current += 2;
+            if (current > last) {
+                current = first;
+            }
+        } while (current != start);
+        throw new IOException("cannot find free port in range [" + first + ", " + last + "[");
     }
 
     private void gc() {
@@ -170,9 +187,9 @@ public class Pool {
         }
     }
 
-    public Vhost lookupId(String name, String id) {
+    public Vhost lookupId(String app, String id, boolean webapp) {
         for (Vhost vhost : vhosts) {
-            if (name.equals(vhost.app) && id.equals(vhost.id)) {
+            if (app.equals(vhost.app) && id.equals(vhost.id) && webapp == vhost.webapp) {
                 return vhost;
             }
         }
@@ -187,37 +204,6 @@ public class Pool {
             lines.add(vhost.toLine());
         }
         file.writeLines(lines);
-    }
-
-    private Vhost allocate(String name, String stage, String id, boolean webapp) throws IOException {
-        return allocate(forName(name, stage), name, id, webapp);
-    }
-
-    private Vhost allocate(int start, String name, String id, boolean webapp) throws IOException {
-        int current;
-        Vhost result;
-
-        if ((start < first) || (start > last)) {
-            throw new IllegalArgumentException("ports out of range: " + start);
-        }
-        if (start % 2 != 0) {
-            throw new IllegalArgumentException("even port expected: " + start);
-        }
-        current = start;
-        do {
-            if (!used(current)) {
-                checkFree(current);
-                checkFree(current + 1);
-                result = new Vhost(current, name, id, webapp);
-                vhosts.add(result);
-                return result;
-            }
-            current += 2;
-            if (current > last) {
-                current = first;
-            }
-        } while (current != start);
-        throw new IOException("cannot find free port in range [" + first + ", " + last + "[");
     }
 
     public int temp() throws IOException {
@@ -244,10 +230,10 @@ public class Pool {
         return false;
     }
 
-    private int forName(String name, String stage) {
+    private int startPortForApp(String app, String stage) {
         int result;
 
-        result = (name + stage).hashCode();
+        result = (app + stage).hashCode();
         if (result < 0) {
             result = -result;
             if (result < 0) { // happens for Integer.MIN_VALUE
@@ -289,16 +275,26 @@ public class Pool {
         }
     }
 
-    public Ports stageOpt(String id) {
-        List<Vhost> result;
+    public Map<String, Ports> stage(String id) {
+        Map<String, List<Vhost>> map;
+        List<Vhost> list;
+        Map<String, Ports> result;
 
-        result = new ArrayList<>();
+        map = new HashMap<>();
         for (Vhost vhost : vhosts) {
             if (id.equals(vhost.id)) {
-                result.add(vhost);
+                list = map.get(vhost.app);
+                if (list == null) {
+                    list = new ArrayList<>();
+                    map.put(vhost.app, list);
+                }
+                list.add(vhost);
             }
         }
-        return result.isEmpty() ? null : Ports.forVhosts(result);
+        result = new HashMap<>(map.size());
+        for (Map.Entry<String, List<Vhost>> entry : map.entrySet()) {
+            result.put(entry.getKey(), Ports.forVhosts(entry.getValue()));
+        }
+        return result;
     }
-
 }

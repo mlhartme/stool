@@ -40,61 +40,35 @@ public class Ports {
     }
 
     public static Ports forVhosts(List<Vhost> vhosts) {
-        String id;
-        int jmxDebug;
-        Vhost webapp;
+        Vhost first;
+        Vhost second;
 
         if (vhosts.size() != 2) {
             throw new IllegalStateException(vhosts.toString());
         }
-        id = null;
-        for (Vhost v : vhosts) {
-            if (id == null) {
-                id = v.id;
-            } else {
-                if (!id.equals(v.id)) {
-                    throw new IllegalArgumentException(id + " vs " + v.id);
-                }
-            }
+        first = vhosts.get(0);
+        second = vhosts.get(1);
+        if (!first.id.equals(second.id)) {
+            throw new IllegalArgumentException(first.id + " vs " + second.id);
         }
-        jmxDebug = vhosts.get(indexOf(vhosts, JMX_DEBUG)).even;
-        webapp = webapp(vhosts);
-        return new Ports(webapp.httpPort(), webapp.httpsPort(), jmxDebug, jmxDebug + 1, webapp);
+        if (!first.app.equals(second.app)) {
+            throw new IllegalArgumentException(first.app + " vs " + second.app);
+        }
+        if (first.webapp == second.webapp) {
+            throw new IllegalArgumentException(first.app + " vs " + second.app);
+        }
+        if (first.webapp) {
+            return forVhosts(first, second);
+        } else {
+            return forVhosts(second, first);
+        }
     }
 
-    private static Vhost webapp(List<Vhost> vhosts) {
-        Vhost result;
-
-        result = null;
-        for (Vhost v : vhosts) {
-            if (v.isWebapp()) {
-                if (result != null) {
-                    throw new IllegalStateException();
-                }
-                result = v;
-            }
-        }
-        if (result == null) {
-            throw new IllegalStateException(result.toString());
-        }
-        return result;
-    }
-
-    private static int indexOf(List<Vhost> vhosts, String name) {
-        Vhost vhost;
-
-        for (int i = 0; i < vhosts.size(); i++) {
-            vhost = vhosts.get(i);
-            if (name.equals(vhost.app)) {
-                return i;
-            }
-        }
-        return -1;
+    public static Ports forVhosts(Vhost webapp, Vhost jmxDebug) {
+        return new Ports(webapp.httpPort(), webapp.httpsPort(), jmxDebug.even, jmxDebug.even + 1, webapp);
     }
 
     //--
-
-    public static final String JMX_DEBUG = "+jmx+debug";
 
     public final int http;
     public final int https;

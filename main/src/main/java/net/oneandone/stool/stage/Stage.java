@@ -70,6 +70,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -590,7 +591,7 @@ public class Stage {
         Ports hostPorts;
         Map<Integer, Integer> result;
 
-        hostPorts = session.pool().allocate(this, app, Collections.emptyMap());
+        hostPorts = session.pool().allocate(this, app, null);
         result = new HashMap<>();
         addOpt(result, containerPorts.http, hostPorts.http);
         addOpt(result, containerPorts.https, hostPorts.https);
@@ -733,23 +734,35 @@ public class Stage {
 
     //--
 
-    public Ports loadPortsOpt() throws IOException {
-        return session.pool().stageOpt(getId());
+    public Ports loadPortsFirst() throws IOException { // TODO
+        Map<String, Ports> map;
+
+        map = loadPorts();
+        if (map.isEmpty()) {
+            return null;
+        } else {
+            return map.values().iterator().next();
+        }
+    }
+
+    /** maps app to its ports; empty map if not ports allocated yet */
+    public Map<String, Ports> loadPorts() throws IOException {
+        return session.pool().stage(getId());
     }
 
     /** @return empty map if no ports are allocated */
     public Map<String, String> urlMap() throws IOException {
+        Map<String, String> result;
+        String app;
         Ports ports;
-        Vhost webapp;
 
-        ports = loadPortsOpt();
-        if (ports == null) {
-            return new HashMap<>();
-        } else {
-            webapp = ports.webapp();
-            return UrlPattern.parse(configuration.url).urlMap(webapp.app, getName(), session.configuration.hostname,
-                    webapp.httpPort(), webapp.httpsPort());
+        result = new LinkedHashMap<>();
+        for (Map.Entry<String, Ports> entry : loadPorts().entrySet()) {
+            app = entry.getKey();
+            ports = entry.getValue();
+            result.putAll(UrlPattern.parse(configuration.url).urlMap(app, getName(), session.configuration.hostname, ports.http, ports.https));
         }
+        return result;
     }
 
     /** @return empty list of no ports are allocated */
@@ -847,35 +860,39 @@ public class Stage {
     }
 
     //--
-    /* TODO: work for tomcat only */
+
     public void awaitStartup(Console console) throws IOException, InterruptedException {
+        String app;
         Ports ports;
         String state;
 
-        ports = loadPortsOpt();
-        for (int count = 0; true; count++) {
-            try {
-                state = jmxEngineState(ports);
-                break;
-            } catch (Exception e) {
-                if (count > 600) {
-                    throw new IOException("initial state timed out: " + e.getMessage(), e);
+        for (Map.Entry<String, Ports> entry : loadPorts().entrySet()) {
+            app = entry.getKey();
+            ports = entry.getValue();
+            for (int count = 0; true; count++) {
+                try {
+                    state = jmxEngineState(ports);
+                    break;
+                } catch (Exception e) {
+                    if (count > 600) {
+                        throw new IOException(app + ": initial state timed out: " + e.getMessage(), e);
+                    }
+                    if (count % 100 == 99) {
+                        console.info.println(app + ": waiting for tomcat startup ... ");
+                    }
+                    Thread.sleep(100);
+                }
+            }
+            for (int count = 1; !"STARTED".equals(state); count++) {
+                if (count > 10 * 60 * 5) {
+                    throw new IOException(app + ": tomcat startup timed out, state" + state);
                 }
                 if (count % 100 == 99) {
-                    console.info.println("waiting for tomcat startup ... ");
+                    console.info.println(app + ": waiting for tomcat startup ... " + state);
                 }
                 Thread.sleep(100);
+                state = jmxEngineState(ports);
             }
-        }
-        for (int count = 1; !"STARTED".equals(state); count++) {
-            if (count > 10 * 60 *5) {
-                throw new IOException("tomcat startup timed out, state" + state);
-            }
-            if (count % 100 == 99) {
-                console.info.println("waiting for tomcat startup ... " + state);
-            }
-            Thread.sleep(100);
-            state = jmxEngineState(ports);
         }
     }
 
