@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.cli;
 
+import com.google.gson.JsonObject;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.locking.Mode;
@@ -56,6 +57,8 @@ public class Images extends StageCommand {
             console.info.println("mem:       " + mem(current));
             console.info.println("container: " + current.container);
             console.info.println("origin:    " + current.image.origin);
+            console.info.println("uptime:    " + uptime(current));
+            console.info.println("disk-used: " + diskUsed(current));
             for (Image image : all.get(app)) {
                 marker = image.id.equals(current.image.id) ? "==>" : "   ";
                 console.info.printf("%s [%d] %s\n", marker, idx, image.id);
@@ -70,6 +73,26 @@ public class Images extends StageCommand {
             stage.rotateLogs(console);
 
         }
+    }
+
+    public int diskUsed(Stage.Current current) throws IOException {
+        String container;
+        JsonObject obj;
+
+        container = current.container;
+        if (container == null) {
+            return 0;
+        }
+        obj = session.dockerEngine().containerInspect(container, true);
+        // not SizeRootFs, that's the image size plus the rw layer
+        return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
+    }
+
+    private String uptime(Stage.Current current) throws IOException {
+        String container;
+
+        container = current.container;
+        return container == null ? null : Stage.timespan(session.dockerEngine().containerStartedAt(container));
     }
 
     private Integer cpu(Stage.Current current) throws IOException {

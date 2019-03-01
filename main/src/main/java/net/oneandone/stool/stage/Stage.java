@@ -259,26 +259,11 @@ public class Stage {
                 return namedUrls();
             }
         });
-        fields.add(new Field("disk") {
-            @Override
-            public Object get() throws IOException {
-                return diskUsed();
-            }
-        });
-        fields.add(new Field("uptime") {
-            @Override
-            public Object get() throws IOException {
-                String container;
-
-                container = dockerContainerFirst();
-                return container == null ? null : timespan(session.dockerEngine().containerStartedAt(container));
-            }
-        });
         fields.addAll(TemplateField.scanTemplate(this, configuration.template));
         return fields;
     }
 
-    private static String timespan(long since) {
+    public static String timespan(long since) {
         long diff;
         StringBuilder result;
         long hours;
@@ -330,17 +315,6 @@ public class Stage {
 
     public FileNode dockerContainerFile() {
         return directory.join("container.ids");
-    }
-
-    public String dockerContainerFirst() throws IOException { // TODO
-        List<String> result;
-
-        result = dockerContainerList();
-        if (result == null || result.isEmpty()) {
-            return null;
-        } else {
-            return result.get(0);
-        }
     }
 
     public List<String> dockerContainerList() throws IOException {
@@ -419,11 +393,11 @@ public class Stage {
             throw new ArgumentException("Stage expired " + configuration.expire + ". To start it, you have to adjust the 'expire' date.");
         }
         quota = configuration.quota;
-        used = diskUsed();
+        /* TODO: used = diskUsed();
         if (used > quota) {
             throw new ArgumentException("Stage quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n" +
                     "Consider running 'stool cleanup'.");
-        }
+        }*/
     }
 
     private static final DateTimeFormatter TAG_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-HHmmss");
@@ -861,34 +835,27 @@ public class Stage {
         }
     }
 
-    public int diskUsed() throws IOException {
-        String container;
-        JsonObject obj;
-
-        container = dockerContainerFirst();
-        if (container == null) {
-            return 0;
-        }
-        obj = session.dockerEngine().containerInspect(container, true);
-        // not SizeRootFs, that's the image size plus the rw layer
-        return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
-    }
-
     // CAUTION: blocks until ctrl-c.
     // Format: https://docs.docker.com/engine/api/v1.33/#operation/ContainerAttach
     public void tailF(PrintWriter dest) throws IOException {
+        List<String> containers;
         Engine engine;
 
-        engine = session.dockerEngine();
-        engine.containerLogsFollow(dockerContainerFirst(), new OutputStream() {
-            @Override
-            public void write(int b) {
-                dest.write(b);
-                if (b == 10) {
-                    dest.flush(); // newline
+        containers = dockerContainerList();
+        if (containers.size() != 1) {
+            session.console.info.println("ignoring -tail option because container is not unique");
+        } else {
+            engine = session.dockerEngine();
+            engine.containerLogsFollow(containers.get(0), new OutputStream() {
+                @Override
+                public void write(int b) {
+                    dest.write(b);
+                    if (b == 10) {
+                        dest.flush(); // newline
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
 }
