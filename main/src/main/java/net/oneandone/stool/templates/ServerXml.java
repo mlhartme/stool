@@ -118,7 +118,7 @@ public class ServerXml {
         engine.appendChild(host);
         context = service.getOwnerDocument().createElement("Context");
         context.setAttribute("path", "");
-        context.setAttribute("docBase", "/usr/local/tomcat/webapps/" + app);
+        context.setAttribute("docBase", "/usr/local/tomcat/webapps/app");
 
         host.appendChild(context);
     }
