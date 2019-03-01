@@ -253,12 +253,6 @@ public class Stage {
                 return timespan(logReader().lastModified());
             }
         });
-        fields.add(new Field("origin") {
-            @Override
-            public Object get() throws IOException {
-                return origin();
-            }
-        });
         fields.add(new Field("apps") {
             @Override
             public Object get() throws IOException {
@@ -719,13 +713,6 @@ public class Stage {
 
     //--
 
-    public Image currentImageFirst() throws IOException { // TODO
-        Collection<Current> images;
-
-        images = currentMap().values();
-        return images.isEmpty() ? null : images.iterator().next().image;
-    }
-
     public static class Current {
         public final Image image;
         public final String container;
@@ -760,19 +747,12 @@ public class Stage {
         return result;
     }
 
-    public String origin() throws IOException {
-        Image image;
-
-        image = currentImageFirst();
-        return image == null ? null : image.origin;
-    }
-
     public int contentHash() throws IOException {
         return ("StageInfo{"
                 + "name='" + configuration.name + '\''
                 + ", id='" + getId() + '\''
                 + ", comment='" + configuration.comment + '\''
-                + ", origin='" + origin() + '\''
+                // TODO: current immage, container?
                 + ", urls=" + urlMap()
                 + ", state=" + state()
                 + ", displayState=" + state().display

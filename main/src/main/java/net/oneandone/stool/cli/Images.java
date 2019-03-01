@@ -52,9 +52,10 @@ public class Images extends StageCommand {
         for (String app : apps) {
             current = currentMap.get(app);
             idx = 0;
-            console.info.println("cpu: " + cpu(current));
-            console.info.println("mem: " + mem(current));
+            console.info.println("cpu:       " + cpu(current));
+            console.info.println("mem:       " + mem(current));
             console.info.println("container: " + current.container);
+            console.info.println("origin:    " + current.image.origin);
             for (Image image : all.get(app)) {
                 marker = image.id.equals(current.image.id) ? "==>" : "   ";
                 console.info.printf("%s [%d] %s\n", marker, idx, image.id);
