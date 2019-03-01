@@ -21,7 +21,6 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.Vhost;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -46,7 +45,7 @@ public class Tomcat {
     private final StageConfiguration configuration;
     private final Session session;
     private final Console console;
-    private final Vhost webapp;
+    private final String webappName;
 
     public Tomcat(String app, FileNode war, Stage stage, FileNode context, Session session, Ports ports) {
         this.app = app;
@@ -56,7 +55,7 @@ public class Tomcat {
         this.configuration = stage.configuration;
         this.session = session;
         this.console = session.console;
-        this.webapp = ports.webapp();
+        this.webappName = ports.webapp().name;
     }
 
     //-- public interface
@@ -132,7 +131,7 @@ public class Tomcat {
         serverXmlDest = serverXml();
         tar(tomcat, "zxf", tomcatTarGz.getName(), "--strip-components=2", tomcatName(version) + "/conf/server.xml");
 
-        serverXml = ServerXml.load(serverXmlDest, stage.getName(), session.configuration.hostname, webapp.name);
+        serverXml = ServerXml.load(serverXmlDest, stage.getName(), session.configuration.hostname, webappName);
         serverXml.stripComments();
         serverXml.configure(configuration.url, keystorePassword, cookies, legacyVersion(version));
         serverXml.save(serverXmlDest);
@@ -166,7 +165,7 @@ public class Tomcat {
     public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
 
-        serverXml = ServerXml.load(serverXml(), stage.getName(), session.configuration.hostname, webapp.name);
+        serverXml = ServerXml.load(serverXml(), stage.getName(), session.configuration.hostname, webappName);
         serverXml.addContextParameters(stage, logroot, Strings.toMap(additionals));
         serverXml.save(serverXml());
     }
@@ -262,76 +261,5 @@ public class Tomcat {
         if (!output.trim().isEmpty()) {
             throw new IOException("unexpected output by tar command: " + output);
         }
-    }
-
-    //--
-
-    // TODO: placing this in a separate Fitnesse class didn't work
-    public void fitnesse(FileNode projectDirectory) throws IOException {
-        Launcher launcher;
-        FileNode dir;
-        FileNode deps;
-
-        dir = projectDirectory.join("target/fitnesse");
-        dir.mkdirsOpt();
-        dir.join("fitnesse.sh").writeString(fitnesseSh(projectDirectory));
-        dir.join("fitnesse.sh").setPermissions("rwxrwxrwx");
-        // mark as source stage
-        context.join(".source").writeBytes();
-
-        deps = fitnesseProject(webapp).join("target/fitnesse/dependencies");
-        deps.deleteTreeOpt();
-        deps.mkdirsOpt();
-        /* TODO
-        launcher = project.launcher("mvn", "dependency::copy-dependencies",
-                "-DoutputDirectory=" + deps.getAbsolute(), "-DexcludeScope=system");
-        launcher.dir(vhostProject(vhost));
-        launcher.exec(session.console.verbose); */
-    }
-
-    private String fitnesseSh(FileNode projectDirectory) {
-        StringBuilder result;
-
-        result = new StringBuilder();
-        result.append("#!/bin/bash\n");
-        result.append("umask 0002");
-        result.append("\n");
-        result.append("# vhost " + webapp.name + "\n");
-        result.append("cd /stage/" + fitnesseProject(webapp).getRelative(projectDirectory) + "\n");
-        result.append("deps=target/fitnesse/dependencies\n");
-        result.append("cp=target/test-classes:target/classes\n");
-        result.append("for file in $(ls $deps/*.jar); do\n");
-        result.append("  cp=\"$cp:$file\"\n");
-        result.append("done\n");
-        result.append("export CLASSPATH=$cp\n");
-        result.append("java -jar $HOME/fitnesse-standalone.jar -v -r src/test/fitnesse -p " + webapp.httpPort() + " -e 0 >/var/log/stool/fitnesse-" + webapp.name + ".log 2>&1 &\n");
-        result.append(pidvar(webapp) + "=$!\n");
-
-        result.append("trap 'kill -TERM " + allPids() + "' TERM\n");
-        result.append("wait $" + pidvar(webapp) + "\n");
-        return result.toString();
-    }
-
-    private FileNode fitnesseProject(Vhost fitnesseHost) {
-        FileNode dir;;
-
-
-        dir = null; // TODO: ports.lookup(fitnesseHost.name).war.getParent();
-        if (!dir.getName().equals("target")) {
-            throw new IllegalStateException(dir.getAbsolute());
-        }
-        return dir.getParent();
-    }
-
-    private String allPids() {
-        StringBuilder result;
-
-        result = new StringBuilder();
-        result.append('$').append(pidvar(webapp));
-        return result.toString();
-    }
-
-    private static String pidvar(Vhost vhost) {
-        return "pid_" + vhost.httpPort();
     }
 }
