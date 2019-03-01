@@ -188,6 +188,25 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
+    public List<String> containerList(String key, String value) throws IOException {
+        String filters;
+        Node node;
+        JsonArray array;
+        List<String> result;
+        String id;
+
+        node = root.join("containers/json");
+        filters = "&filters=" + enc("{\"label\" : [\"" + key + "=" + value + "\"] }");
+        node = node.getRoot().node(node.getPath(), "all=true" + filters);
+        array = parser.parse(node.readString()).getAsJsonArray();
+        result = new ArrayList<>(array.size());
+        for (JsonElement element : array) {
+            id = element.getAsJsonObject().get("Id").getAsString();
+            result.add(id);
+        }
+        return result;
+    }
+
     /** @return output */
     public String imageBuildWithOutput(String nameTag, FileNode context) throws IOException {
         try (StringWriter dest = new StringWriter()) {

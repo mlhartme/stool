@@ -18,14 +18,12 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.docker.Engine.Status;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -137,7 +135,6 @@ public class Validate extends StageCommand {
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        container(stage);
         constraints(stage);
     }
 
@@ -177,46 +174,6 @@ public class Validate extends StageCommand {
                             + (session.configuration.autoRemove - stage.configuration.expire.expiredDays()) + " day(s)");
                 }
             }
-        }
-    }
-
-    private void container(Stage stage) throws IOException {
-        List<String> containerList;
-        Status status;
-        List<String> removes;
-
-        containerList = stage.dockerContainerList();
-        if (containerList == null) {
-            // not running, nothing to check
-            return;
-        }
-        removes = new ArrayList<>();
-        for (String container : containerList) {
-            try {
-                status = session.dockerEngine().containerStatus(container);
-            } catch (FileNotFoundException e) {
-                report.admin(stage, container + ": container not found");
-                if (repair) {
-                    stage.dockerContainerFile().deleteFile();
-                    removes.add(container);
-                }
-                continue;
-            }
-            if (status != Status.RUNNING) {
-                report.admin(stage, container + ": container is not running: " + status);
-                if (repair) {
-                    stage.dockerContainerFile().deleteFile();
-                    removes.add(container);
-                }
-            }
-        }
-        containerList.removeAll(removes);
-        if (containerList.isEmpty()) {
-            stage.dockerContainerFile().deleteFile();
-            report.admin(stage, "repaired by deleting " + stage.dockerContainerFile());
-        } else {
-            stage.dockerContainerFile().writeLines(containerList);
-            report.admin(stage, "repaired by removing them from " + stage.dockerContainerFile());
         }
     }
 

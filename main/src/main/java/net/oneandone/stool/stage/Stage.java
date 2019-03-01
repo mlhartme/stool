@@ -313,17 +313,6 @@ public class Stage {
 
     //-- docker
 
-    public FileNode dockerContainerFile() {
-        return directory.join("container.ids");
-    }
-
-    public List<String> dockerContainerList() throws IOException {
-        FileNode file;
-
-        file = dockerContainerFile();
-        return file.exists() ? file.readLines() : null;
-    }
-
     public void wipeDocker(Engine engine) throws IOException {
         wipeContainer(engine);
         wipeImages(engine);
@@ -462,13 +451,11 @@ public class Stage {
         String container;
         Engine.Status status;
         Map<String, String> mounts;
-        List<String> containerList;
 
         checkMemory();
         engine = session.dockerEngine();
         wipeContainer(engine);
         allImages = images(engine);
-        containerList = new ArrayList<>();
         for (String app : allImages.keySet()) {
             images = allImages.get(app);
             if (idx < 0 || idx >= images.size()) {
@@ -491,9 +478,7 @@ public class Stage {
             if (status != Engine.Status.RUNNING) {
                 throw new IOException("unexpected status: " + status);
             }
-            containerList.add(container);
         }
-        dockerContainerFile().writeLines(containerList);
     }
 
     private Map<Integer, Integer> map(Ports containerPorts, String app) throws IOException {
@@ -532,8 +517,6 @@ public class Stage {
             engine = session.dockerEngine();
             engine.containerStop(container, 300);
         }
-        dockerContainerFile().deleteFile();
-
     }
 
     private Map<String, String> bindMounts() throws IOException {
@@ -697,6 +680,13 @@ public class Stage {
         }
     }
 
+    public List<String> dockerContainerList() throws IOException {
+        Engine engine;
+
+        engine = session.dockerEngine();
+        return engine.containerList(LABEL_STAGE, getId());
+    }
+
     public Map<String, Current> currentMap() throws IOException {
         Engine engine;
         List<String> containerList;
@@ -707,16 +697,10 @@ public class Stage {
         engine = session.dockerEngine();
         result = new HashMap<>();
         containerList = dockerContainerList();
-        if (containerList != null) {
-            for (String container : containerList) {
-                json = engine.containerInspect(container, false);
-                image = Image.load(engine, Strings.removeLeft(json.get("Image").getAsString(), "sha256:"));
-                result.put(image.app, new Current(image, container));
-            }
-        } else {
-            for (Map.Entry<String, List<Image>> entry : images(session.dockerEngine()).entrySet()) {
-                result.put(entry.getKey(), new Current(entry.getValue().get(0), null));
-            }
+        for (String container : containerList) {
+            json = engine.containerInspect(container, false);
+            image = Image.load(engine, Strings.removeLeft(json.get("Image").getAsString(), "sha256:"));
+            result.put(image.app, new Current(image, container));
         }
         return result;
     }

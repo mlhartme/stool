@@ -50,6 +50,11 @@ public class Images extends StageCommand {
         apps = new ArrayList<>(all.keySet());
         Collections.sort(apps);
         currentMap = stage.currentMap();
+        for (Map.Entry<String, List<Image>> entry : all.entrySet()) {
+            if (!currentMap.containsKey(entry.getKey())) {
+                currentMap.put(entry.getKey(), new Stage.Current(entry.getValue().get(0), null));
+            }
+        }
         for (String app : apps) {
             current = currentMap.get(app);
             idx = 0;
