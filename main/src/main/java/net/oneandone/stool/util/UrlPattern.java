@@ -115,11 +115,11 @@ public class UrlPattern {
 
     //--
 
-    public static Map<String, String> urlMap(String app, String stageName, String hostname, int httpPort, int httpsPort, String url) {
+    public Map<String, String> urlMap(String app, String stageName, String hostname, int httpPort, int httpsPort) {
         Map<String, String> result;
 
         result = new LinkedHashMap<>();
-        for (Map.Entry<String, String> entry : doMap(app, stageName, hostname, httpPort, httpsPort, url).entrySet()) {
+        for (Map.Entry<String, String> entry : doMap(app, stageName, hostname, httpPort, httpsPort).entrySet()) {
             result.put(entry.getKey(), hideContextMarker(entry.getValue()));
         }
         return result;
@@ -145,14 +145,14 @@ public class UrlPattern {
         return url.substring(0, context) + url.substring(context + 1);
     }
 
-    private static Map<String, String> doMap(String name, String stageName, String hostname, int httpPort, int httpsPort, String url) {
+    private Map<String, String> doMap(String name, String stageName, String hostname, int httpPort, int httpsPort) {
         Map<String, String> result;
         List<String> all;
         List<String> http;
         List<String> https;
 
         result = new LinkedHashMap<>();
-        all = UrlPattern.parse(url).substitute(name, stageName, hostname).map();
+        all = substitute(name, stageName, hostname).map();
         http = new ArrayList<>();
         https = new ArrayList<>();
         for (String u : all) {

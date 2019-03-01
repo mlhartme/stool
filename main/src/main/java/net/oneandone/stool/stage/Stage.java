@@ -747,7 +747,8 @@ public class Stage {
             return new HashMap<>();
         } else {
             webapp = ports.webapp();
-            return UrlPattern.urlMap(webapp.name, getName(), session.configuration.hostname, webapp.httpPort(), webapp.httpsPort(), configuration.url);
+            return UrlPattern.parse(configuration.url).urlMap(webapp.name, getName(), session.configuration.hostname,
+                    webapp.httpPort(), webapp.httpsPort());
         }
     }
 
