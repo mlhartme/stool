@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;

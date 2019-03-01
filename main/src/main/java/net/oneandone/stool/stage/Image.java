@@ -18,12 +18,9 @@ package net.oneandone.stool.stage;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.util.Ports;
-import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Image implements Comparable<Image> {
     public static Image load(Engine engine, String id) throws IOException {

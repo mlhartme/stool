@@ -16,10 +16,8 @@
 package net.oneandone.stool.configuration;
 
 import net.oneandone.stool.util.Environment;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
-import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
