@@ -315,90 +315,10 @@ public class ServerXml {
         }
     }
 
-    //--
-
-    public String context(String url) {
+    private String context(String url) {
         String result;
-        String context;
 
-        result = null;
-        for (String str : doMap(url).values()) {
-            context = getContext(str);
-            if (result == null) {
-                result = context;
-            } else if (!result.equals(context)) {
-                throw new IllegalStateException("ambiguous context: " + result + " vs " + context);
-            }
-        }
-        if (result == null) {
-            throw new IllegalStateException("context not found: " + url);
-        }
-        if (!result.isEmpty() && !result.startsWith("/")) {
-            throw new IllegalStateException(hostname + " " + url + " " + result);
-        }
-        return result;
-    }
-
-    /** return path as used in Tomcat context element - either empty of starts with a slash */
-    private static String getContext(String url) {
-        int beforeHost;
-        int afterHost;
-        int context;
-
-        beforeHost = url.indexOf("://");
-        if (beforeHost == -1) {
-            return "";
-        }
-        afterHost = url.indexOf("/", beforeHost + 3);
-        if (afterHost == -1) {
-            return "";
-        }
-        context = url.indexOf("//", afterHost + 1);
-        return context == -1 ? "" : url.substring(afterHost, context);
-    }
-
-    private Map<String, String> doMap(String url) {
-        Map<String, String> result;
-        Map<Character, String> map;
-        List<String> all;
-        List<String> http;
-        List<String> https;
-
-        result = new LinkedHashMap<>();
-        map = new HashMap<>();
-        map.put('h', hostname);
-        map.put('a', app);
-        map.put('s', stageName);
-        map.put('p', "%p");
-        all = UrlPattern.parse(url).sustitute(map).map();
-        http = new ArrayList<>();
-        https = new ArrayList<>();
-        for (String u : all) {
-            if (u.startsWith("https:")) {
-                https.add(u.replace("%p", Integer.toString(httpsPort)));
-            } else {
-                http.add(u.replace("%p", Integer.toString(httpPort)));
-            }
-        }
-        add(app, "", http, result);
-        add(app, " SSL", https, result);
-        return result;
-    }
-
-    private static void add(String nameBase, String nameSuffix, List<String> all, Map<String, String> result) {
-        String name;
-        int no;
-
-        no = 0;
-        for (String url : all) {
-            if (all.size() > 1) {
-                no++;
-                name = nameBase + "-" + no;
-            } else {
-                name = nameBase;
-            }
-            name = name + nameSuffix;
-            result.put(name, url);
-        }
+        result = UrlPattern.parse(url).getContext(); // TODO: any substitutions needed?
+        return result == null ? "" : result;
     }
 }

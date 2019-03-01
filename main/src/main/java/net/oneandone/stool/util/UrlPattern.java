@@ -72,6 +72,10 @@ public class UrlPattern {
         this.path = path;
     }
 
+    public String getContext() {
+        return context;
+    }
+
     public UrlPattern sustitute(Map<Character, String> map) {
         return new UrlPattern(Subst.subst(protocol, map), Subst.subst(hostname, map), context == null ? null : Subst.subst(context, map), Subst.subst(path, map));
     }
