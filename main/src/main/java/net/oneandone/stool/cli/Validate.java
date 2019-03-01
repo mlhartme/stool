@@ -151,7 +151,7 @@ public class Validate extends StageCommand {
         }
         report.user(stage, message);
         if (repair) {
-            if (stage.dockerContainerList() != null) {
+            if (!stage.dockerContainerList().isEmpty()) {
                 try {
                     new Stop(session).doRun(stage);
                     report.user(stage, "stage has been stopped");

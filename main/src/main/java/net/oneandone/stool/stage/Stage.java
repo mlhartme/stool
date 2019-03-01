@@ -111,10 +111,10 @@ public class Stage {
     public State state() throws IOException {
         if (session.lockManager.hasExclusiveLocks(lock())) {
             return State.WORKING;
-        } else if (dockerContainerList() != null) {
-            return State.UP;
-        } else {
+        } else if (dockerContainerList().isEmpty()) {
             return State.DOWN;
+        } else {
+            return State.UP;
         }
 
     }
@@ -509,7 +509,7 @@ public class Stage {
         Engine engine;
 
         containerList = dockerContainerList();
-        if (containerList == null) {
+        if (containerList.isEmpty()) {
             throw new IOException("container is not running.");
         }
         for (String container : containerList) {
