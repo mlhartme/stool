@@ -338,27 +338,7 @@ public class ServerXml {
         }
         return result;
     }
-
-    private static String hideContext(String url) {
-        int beforeHost;
-        int afterHost;
-        int context;
-
-        beforeHost = url.indexOf("://");
-        if (beforeHost == -1) {
-            return url;
-        }
-        afterHost = url.indexOf("/", beforeHost + 3);
-        if (afterHost == -1) {
-            return url;
-        }
-        context = url.indexOf("//", afterHost + 1);
-        if (context == -1) {
-            return url;
-        }
-        return url.substring(0, context) + url.substring(context + 1);
-    }
-
+    
     /** return path as used in Tomcat context element - either empty of starts with a slash */
     private static String getContext(String url) {
         int beforeHost;

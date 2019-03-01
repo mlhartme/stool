@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.sushi.fs.World;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -121,12 +119,12 @@ public class Vhost {
 
         result = new LinkedHashMap<>();
         for (Map.Entry<String, String> entry : doMap(stageName, hostname, url).entrySet()) {
-            result.put(entry.getKey(), hideContext(entry.getValue()));
+            result.put(entry.getKey(), hideContextMarker(entry.getValue()));
         }
         return result;
     }
 
-    private static String hideContext(String url) {
+    private static String hideContextMarker(String url) {
         int beforeHost;
         int afterHost;
         int context;
