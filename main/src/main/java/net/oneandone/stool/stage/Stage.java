@@ -33,6 +33,7 @@ import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.FlushWriter;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.LogReader;
+import net.oneandone.stool.util.Pool;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
@@ -491,9 +492,14 @@ public class Stage {
     private static final DateTimeFormatter TAG_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-HHmmss");
 
     private static final String LABEL_PREFIX = "net.onetandone.stool-";
+
+    public static final String LABEL_PORT_HTTP = LABEL_PREFIX + "port.http";
+    public static final String LABEL_PORT_HTTPS = LABEL_PREFIX + "port.https";
+    public static final String LABEL_PORT_JMXMP = LABEL_PREFIX + "port.jmxmp";
+    public static final String LABEL_PORT_DEBUG = LABEL_PREFIX + "port.debug";
+
     public static final String LABEL_STAGE = LABEL_PREFIX + "stage";
     public static final String LABEL_APP = LABEL_PREFIX + "app";
-    public static final String LABEL_PORTS = LABEL_PREFIX + "ports";
     public static final String LABEL_COMMENT = LABEL_PREFIX + "comment";
     public static final String LABEL_ORIGIN = LABEL_PREFIX + "origin";
     public static final String LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
@@ -504,8 +510,7 @@ public class Stage {
     }
 
     /** @param keep 0 to keep all */
-    public void build(String app, FileNode war, Console console, Ports ports,
-                      String comment, String origin, String createdBy, String createdOn,
+    public void build(String app, FileNode war, Console console, String comment, String origin, String createdBy, String createdOn,
                       boolean noCache, int keep) throws Exception {
         Engine engine;
         String image;
@@ -526,7 +531,6 @@ public class Stage {
         label.put(LABEL_ORIGIN, origin);
         label.put(LABEL_CREATED_BY, createdBy);
         label.put(LABEL_CREATED_ON, createdOn);
-        label.put(LABEL_PORTS, toString(ports.dockerMap()));
         console.verbose.println("building image ... ");
         try (Writer log = new FlushWriter(directory.join("image.log").newWriter())) {
             // don't close the tee writer, it would close console output as well
@@ -537,25 +541,6 @@ public class Stage {
             throw e;
         }
         console.verbose.println("image built: " + image);
-    }
-
-    private static String toString(Map<Integer, Integer> map) {
-        boolean first;
-        StringBuilder result;
-
-        first = true;
-        result = new StringBuilder();
-        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
-            if (first) {
-                first = false;
-            } else {
-                result.append(',');
-            }
-            result.append(entry.getKey());
-            result.append(',');
-            result.append(entry.getValue());
-        }
-        return result.toString();
     }
 
     public void start(Console console, int idx) throws Exception {
@@ -588,7 +573,7 @@ public class Stage {
             }
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC, 1024L * 1024 * configuration.memory, null, null,
-                    Collections.emptyMap(), mounts, image.ports);
+                    Collections.emptyMap(), mounts, map(image.ports, image.app));
             console.verbose.println("created container " + container);
             engine.containerStart(container);
             status = engine.containerStatus(container);
@@ -598,6 +583,19 @@ public class Stage {
             containerList.add(container);
         }
         dockerContainerFile().writeLines(containerList);
+    }
+
+    private Map<Integer, Integer> map(Ports containerPorts, String app) throws IOException {
+        Ports hostPorts;
+        Map<Integer, Integer> result;
+
+        hostPorts = session.pool().allocate(this, app, Collections.emptyMap());
+        result = new HashMap<>();
+        result.put(containerPorts.http, hostPorts.http);
+        result.put(containerPorts.https, hostPorts.https);
+        result.put(containerPorts.jmx, hostPorts.jmx);
+        result.put(containerPorts.debug, hostPorts.debug);
+        return result;
     }
 
     /** Fails if container is not running */

@@ -17,6 +17,7 @@ package net.oneandone.stool.stage;
 
 import com.google.gson.JsonObject;
 import net.oneandone.stool.docker.Engine;
+import net.oneandone.stool.util.Ports;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
@@ -33,8 +34,7 @@ public class Image implements Comparable<Image> {
         inspect = engine.imageInspect(id);
         created = LocalDateTime.parse(inspect.get("Created").getAsString(), Engine.CREATED_FMT);
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
-        return new Image(id, created,
-                portsFromString(labels.get(Stage.LABEL_PORTS).getAsString()),
+        return new Image(id, created, Ports.fromLabels(labels),
                 labels.get(Stage.LABEL_APP).getAsString(),
                 labels.get(Stage.LABEL_COMMENT).getAsString(),
                 labels.get(Stage.LABEL_ORIGIN).getAsString(),
@@ -42,30 +42,12 @@ public class Image implements Comparable<Image> {
                 labels.get(Stage.LABEL_CREATED_ON).getAsString());
     }
 
-    private static Map<Integer, Integer> portsFromString(String str) {
-        String key;
-        Map<Integer, Integer> result;
-
-        key = null;
-        result = new HashMap<>();
-        for (String entry : Separator.COMMA.split(str)) {
-            if (key == null) {
-                key = entry;
-            } else {
-                result.put(Integer.parseInt(key), Integer.parseInt(entry));
-                key = null;
-            }
-        }
-        return result;
-    }
-
     public final String id;
     public final LocalDateTime created;
 
     //-- meta data
 
-    /** docker api returns an author field, but i didn't find documentation how to set it */
-    public final Map<Integer, Integer> ports;
+    public final Ports ports;
 
     public final String app;
 
@@ -75,7 +57,7 @@ public class Image implements Comparable<Image> {
     public final String createdBy;
     public final String createdOn;
 
-    public Image(String id, LocalDateTime created, Map<Integer, Integer> ports, String app, String comment, String origin, String createdBy, String createdOn) {
+    public Image(String id, LocalDateTime created, Ports ports, String app, String comment, String origin, String createdBy, String createdOn) {
         this.id = id;
         this.created = created;
 

@@ -15,15 +15,37 @@
  */
 package net.oneandone.stool.util;
 
-import java.util.HashMap;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import net.oneandone.stool.stage.Stage;
+
 import java.util.List;
-import java.util.Map;
 
 /** Manage ports used for one stage. Immutable. Do not create directly, use Pool class instead. */
 public class Ports {
+    public static Ports fromLabels(JsonObject labels) {
+        return new Ports(
+                get(labels, Stage.LABEL_PORT_HTTP),
+                get(labels, Stage.LABEL_PORT_HTTPS),
+                get(labels, Stage.LABEL_PORT_JMXMP),
+                get(labels, Stage.LABEL_PORT_DEBUG),
+                null);
+    }
+
+    private static int get(JsonObject labels, String name) {
+        JsonElement str;
+
+        str = labels.get(name);
+        if (str == null) {
+            throw new IllegalStateException("label not found: " + name); // TODO: checked exception?
+        }
+        return Integer.parseInt(str.getAsString());
+    }
+
     public static Ports forVhosts(List<Vhost> vhosts) {
         String id;
         int jmxDebug;
+        Vhost webapp;
 
         if (vhosts.size() != 2) {
             throw new IllegalStateException(vhosts.toString());
@@ -39,7 +61,8 @@ public class Ports {
             }
         }
         jmxDebug = vhosts.get(indexOf(vhosts, JMX_DEBUG)).even;
-        return new Ports(jmxDebug, jmxDebug + 1, webapp(vhosts));
+        webapp = webapp(vhosts);
+        return new Ports(webapp.httpPort(), webapp.httpsPort(), jmxDebug, jmxDebug + 1, webapp);
     }
 
     private static Vhost webapp(List<Vhost> vhosts) {
@@ -76,11 +99,16 @@ public class Ports {
 
     public static final String JMX_DEBUG = "+jmx+debug";
 
+    public final int http;
+    public final int https;
     public final int jmx;
     public final int debug;
-    private final Vhost webapp;
 
-    public Ports(int jmx, int debug, Vhost webapp) {
+    private final Vhost webapp; // TODO: dump
+
+    public Ports(int http, int https, int jmx, int debug, Vhost webapp) {
+        this.http = http;
+        this.https = https;
         this.jmx = jmx;
         this.debug = debug;
         this.webapp = webapp;
@@ -88,16 +116,5 @@ public class Ports {
 
     public Vhost webapp() {
         return webapp;
-    }
-
-    public Map<Integer, Integer> dockerMap() {
-        Map<Integer, Integer> result;
-
-        result = new HashMap<>();
-        result.put(5555, jmx);
-        result.put(5005, debug);
-        result.put(8080, webapp.even);
-        result.put(8443, webapp.even + 1);
-        return result;
     }
 }
