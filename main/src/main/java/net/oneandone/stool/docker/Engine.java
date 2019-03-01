@@ -188,7 +188,7 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    public List<String> containerList(String key, String value) throws IOException {
+    public List<String> containerListRunning(String key, String value) throws IOException {
         String filters;
         Node node;
         JsonArray array;
@@ -196,7 +196,7 @@ public class Engine implements AutoCloseable {
         String id;
 
         node = root.join("containers/json");
-        filters = "&filters=" + enc("{\"label\" : [\"" + key + "=" + value + "\"] }");
+        filters = "&filters=" + enc("{\"label\" : [\"" + key + "=" + value + "\"], \"status\" : [\"running\"] }");
         node = node.getRoot().node(node.getPath(), "all=true" + filters);
         array = parser.parse(node.readString()).getAsJsonArray();
         result = new ArrayList<>(array.size());

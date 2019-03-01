@@ -684,7 +684,7 @@ public class Stage {
         Engine engine;
 
         engine = session.dockerEngine();
-        return engine.containerList(LABEL_STAGE, getId());
+        return engine.containerListRunning(LABEL_STAGE, getId());
     }
 
     public Map<String, Current> currentMap() throws IOException {
