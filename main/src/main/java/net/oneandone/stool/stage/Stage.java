@@ -734,7 +734,7 @@ public class Stage {
         Ports ports;
 
         ports = loadPortsOpt();
-        return ports == null ? new HashMap<>() : ports.urlMap(getName(), session.configuration.hostname, configuration.url);
+        return ports == null ? new HashMap<>() : ports.webapp().urlMap(getName(), session.configuration.hostname, configuration.url);
     }
 
     /** @return empty list of no ports are allocated */
