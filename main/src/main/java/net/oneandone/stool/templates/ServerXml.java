@@ -32,7 +32,6 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,8 +39,8 @@ import static net.oneandone.stool.templates.CookieMode.LEGACY;
 import static net.oneandone.stool.templates.CookieMode.OFF;
 
 public class ServerXml {
-    public static ServerXml load(Node src, String stageName, String hostname, String app) throws IOException, SAXException {
-        return new ServerXml(src.getWorld().getXml(), src.readXml(), stageName, hostname, app);
+    public static ServerXml load(Node src) throws IOException, SAXException {
+        return new ServerXml(src.getWorld().getXml(), src.readXml());
     }
 
     public static String fqdn(boolean vhosts, String app, String stageName, String hostname) {
@@ -59,18 +58,12 @@ public class ServerXml {
 
     private final Selector selector;
     private final Document document;
-    private final String stageName;
-    private final String hostname;
-    private final String app;
     private final int httpPort;
     private final int httpsPort;
 
-    public ServerXml(Xml xml, Document document, String stageName, String hostname, String app) {
+    public ServerXml(Xml xml, Document document) {
         this.selector = xml.getSelector();
         this.document = document;
-        this.stageName = stageName;
-        this.hostname = hostname;
-        this.app = app;
         this.httpPort = 8080;
         this.httpsPort = 8443;
     }
@@ -79,7 +72,7 @@ public class ServerXml {
         file.writeXml(document);
     }
 
-    public void configure(String url, String keystorePassword, CookieMode cookies, boolean legacy) throws XmlException {
+    public void configure(String context, String keystorePassword, CookieMode cookies, boolean legacy) throws XmlException {
         Element jmxmp;
         Element template;
         Element service;
@@ -96,7 +89,7 @@ public class ServerXml {
         document.getDocumentElement().appendChild(service);
         service(service);
         connectors(service, keystorePassword, legacy);
-        contexts(context(url), service, cookies);
+        context(context, service, cookies);
         template.getParentNode().removeChild(template);
     }
 
@@ -208,7 +201,7 @@ public class ServerXml {
         }
     }
 
-    private void contexts(String path, Element service, CookieMode cookies) throws XmlException {
+    private void context(String path, Element service, CookieMode cookies) throws XmlException {
         Element context;
         Element cp;
         Element manager;

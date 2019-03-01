@@ -20,6 +20,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.UrlPattern;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
@@ -128,10 +129,25 @@ public class Tomcat {
         serverXmlDest = serverXml();
         tar(tomcat, "zxf", tomcatTarGz.getName(), "--strip-components=2", tomcatName(version) + "/conf/server.xml");
 
-        serverXml = ServerXml.load(serverXmlDest, stage.getName(), session.configuration.hostname, app);
+        serverXml = ServerXml.load(serverXmlDest);
         serverXml.stripComments();
-        serverXml.configure(configuration.url, keystorePassword, cookies, legacyVersion(version));
+        serverXml.configure(context(), keystorePassword, cookies, legacyVersion(version));
         serverXml.save(serverXmlDest);
+    }
+
+    private String context() {
+        UrlPattern urlPattern;
+        Map<Character, String> map;
+        String result;
+
+        urlPattern = UrlPattern.parse(configuration.url);
+        map = new HashMap<>();
+        map.put('h', session.configuration.hostname);
+        map.put('a', app);
+        map.put('s', configuration.name);
+        map.put('p', "%p");
+        result = urlPattern.sustitute(map).getContext();
+        return result == null ? "" : result;
     }
 
     public String catalinaOpts(String extraOpts, boolean debug, boolean suspend) {
@@ -162,7 +178,7 @@ public class Tomcat {
     public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
 
-        serverXml = ServerXml.load(serverXml(), stage.getName(), session.configuration.hostname, app);
+        serverXml = ServerXml.load(serverXml());
         serverXml.addContextParameters(stage, logroot, Strings.toMap(additionals));
         serverXml.save(serverXml());
     }
