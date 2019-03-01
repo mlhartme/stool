@@ -15,6 +15,9 @@ Stages are now the central part; multiple project can be associated with the sam
   * dumped svn credentials handling
   * dumped macros
 
+* changed server.xml: set `deployXML` to false 
+  (since we now have exactly one web application per Tomcat, crossContext has no meaning; 
+   and i checked controlpanel trunk - is doesn't contain any symlink, so we can live without `allowLinking`)
 * create one image per war file
 * added `remote -stop` option
 * added `attach` and `detatch` commands to manage project - stage association

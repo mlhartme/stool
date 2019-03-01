@@ -104,7 +104,6 @@ public class ServerXml {
         Element engine;
         Element host;
         Element context;
-        Element element;
 
         engine = selector.element(service, "Engine");
         engine.setAttribute("defaultHost", "localhost");
@@ -113,9 +112,7 @@ public class ServerXml {
         }
         host = service.getOwnerDocument().createElement("Host");
         host.setAttribute("name", "localhost");
-
-        // TODO: i'd like to ignore context.xml files, but controlpanel brings them to enable "crosscontext" - I don't know if that's required
-        // host.setAttribute("deployXML", "false"); // ignore descriptors embedded in the application
+        host.setAttribute("deployXML", "false"); // ignore descriptors embedded in the application
 
         host.setAttribute("autoDeploy", "false");
         engine.appendChild(host);
@@ -124,10 +121,6 @@ public class ServerXml {
         context.setAttribute("docBase", "/usr/local/tomcat/webapps/" + app);
 
         host.appendChild(context);
-
-        element = service.getOwnerDocument().createElement("Alias");
-        element.setAttribute("name", fqdn(false, app, stageName, hostname));
-        host.insertBefore(element, host.getFirstChild());
     }
 
     private void connectors(Element service, String keystorePassword, boolean legacy) {
