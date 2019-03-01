@@ -19,7 +19,6 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
@@ -45,9 +44,8 @@ public class Tomcat {
     private final StageConfiguration configuration;
     private final Session session;
     private final Console console;
-    private final String webappName;
 
-    public Tomcat(String app, FileNode war, Stage stage, FileNode context, Session session, Ports ports) {
+    public Tomcat(String app, FileNode war, Stage stage, FileNode context, Session session) {
         this.app = app;
         this.war = war;
         this.stage = stage;
@@ -55,7 +53,6 @@ public class Tomcat {
         this.configuration = stage.configuration;
         this.session = session;
         this.console = session.console;
-        this.webappName = ports.webapp().name;
     }
 
     //-- public interface
@@ -131,7 +128,7 @@ public class Tomcat {
         serverXmlDest = serverXml();
         tar(tomcat, "zxf", tomcatTarGz.getName(), "--strip-components=2", tomcatName(version) + "/conf/server.xml");
 
-        serverXml = ServerXml.load(serverXmlDest, stage.getName(), session.configuration.hostname, webappName);
+        serverXml = ServerXml.load(serverXmlDest, stage.getName(), session.configuration.hostname, app);
         serverXml.stripComments();
         serverXml.configure(configuration.url, keystorePassword, cookies, legacyVersion(version));
         serverXml.save(serverXmlDest);
@@ -165,7 +162,7 @@ public class Tomcat {
     public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
 
-        serverXml = ServerXml.load(serverXml(), stage.getName(), session.configuration.hostname, webappName);
+        serverXml = ServerXml.load(serverXml(), stage.getName(), session.configuration.hostname, app);
         serverXml.addContextParameters(stage, logroot, Strings.toMap(additionals));
         serverXml.save(serverXml());
     }

@@ -519,7 +519,7 @@ public class Stage {
             wipeOldImages(engine,keep - 1);
         }
         tag = getId() + ":" + TAG_FORMAT.format(LocalDateTime.now());
-        context = dockerContext(app, war, ports);
+        context = dockerContext(app, war);
         label = stageLabel();
         label.put(LABEL_APP, app);
         label.put(LABEL_COMMENT, comment);
@@ -628,7 +628,7 @@ public class Stage {
 
     private static final String FREEMARKER_EXT = ".fm";
 
-    private FileNode dockerContext(String app, FileNode war, Ports ports) throws IOException, TemplateException {
+    private FileNode dockerContext(String app, FileNode war) throws IOException, TemplateException {
         Configuration configuration;
         FileNode src;
         FileNode dest;
@@ -658,7 +658,7 @@ public class Stage {
                     configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
                     template = configuration.getTemplate(srcfile.getName());
                     tmp = new StringWriter();
-                    template.process(templateEnv(app, war, dest, ports, environment), tmp);
+                    template.process(templateEnv(app, war, dest, environment), tmp);
                     destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
                     destfile.writeString(tmp.getBuffer().toString());
                 } else {
@@ -677,7 +677,7 @@ public class Stage {
         return dest;
     }
 
-    private Map<String, Object> templateEnv(String app, FileNode war, FileNode context, Ports ports, Collection<Variable> environment) throws IOException {
+    private Map<String, Object> templateEnv(String app, FileNode war, FileNode context, Collection<Variable> environment) throws IOException {
         Map<String, Object> result;
         String value;
 
@@ -692,7 +692,7 @@ public class Stage {
         }
         result.put("hostHome", session.world.getHome().getAbsolute());
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
-        result.put("tomcat", new Tomcat(app, war,this, context, session, ports));
+        result.put("tomcat", new Tomcat(app, war,this, context, session));
         for (Variable env : environment) {
             value = configuration.templateEnv.get(env.name);
             if (value == null) {
