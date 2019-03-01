@@ -137,16 +137,10 @@ public class Tomcat {
 
     private String context() {
         UrlPattern urlPattern;
-        Map<Character, String> map;
         String result;
 
         urlPattern = UrlPattern.parse(configuration.url);
-        map = new HashMap<>();
-        map.put('h', session.configuration.hostname);
-        map.put('a', app);
-        map.put('s', configuration.name);
-        map.put('p', "%p");
-        result = urlPattern.sustitute(map).getContext();
+        result = urlPattern.substitute(app, configuration.name, session.configuration.hostname).getContext();
         return result == null ? "" : result;
     }
 

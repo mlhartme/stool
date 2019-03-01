@@ -16,7 +16,6 @@
 package net.oneandone.stool.templates;
 
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.UrlPattern;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -306,12 +305,5 @@ public class ServerXml {
         for (Comment c : remove) {
             c.getParentNode().removeChild(c);
         }
-    }
-
-    private String context(String url) {
-        String result;
-
-        result = UrlPattern.parse(url).getContext(); // TODO: any substitutions needed?
-        return result == null ? "" : result;
     }
 }

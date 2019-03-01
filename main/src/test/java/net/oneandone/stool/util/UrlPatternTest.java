@@ -64,7 +64,7 @@ public class UrlPatternTest {
         map.put('h', "host");
         map.put('s', "segment");
         urlPattern = UrlPattern.parse("%p://h%h/con%stext");
-        urlPattern = urlPattern.sustitute(map);
+        urlPattern = urlPattern.substitute(map);
         assertEquals("proto://hhost/consegmenttext", urlPattern.toString());
     }
 

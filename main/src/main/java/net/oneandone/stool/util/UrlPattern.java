@@ -17,6 +17,7 @@ package net.oneandone.stool.util;
 
 import net.oneandone.inline.ArgumentException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -76,7 +77,18 @@ public class UrlPattern {
         return context;
     }
 
-    public UrlPattern sustitute(Map<Character, String> map) {
+    public UrlPattern substitute(String app, String stage, String hostname) {
+        Map<Character, String> map;
+
+        map = new HashMap<>();
+        map.put('a', app);
+        map.put('s', stage);
+        map.put('h', hostname);
+        map.put('p', "%p");
+        return substitute(map);
+    }
+
+    public UrlPattern substitute(Map<Character, String> map) {
         return new UrlPattern(Subst.subst(protocol, map), Subst.subst(hostname, map), context == null ? null : Subst.subst(context, map), Subst.subst(path, map));
     }
 

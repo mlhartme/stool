@@ -146,18 +146,12 @@ public class Vhost {
 
     private Map<String, String> doMap(String stageName, String hostname, String url) {
         Map<String, String> result;
-        Map<Character, String> map;
         List<String> all;
         List<String> http;
         List<String> https;
 
         result = new LinkedHashMap<>();
-        map = new HashMap<>();
-        map.put('h', hostname);
-        map.put('a', name);
-        map.put('s', stageName);
-        map.put('p', "%p");
-        all = UrlPattern.parse(url).sustitute(map).map();
+        all = UrlPattern.parse(url).substitute(name, stageName, hostname).map();
         http = new ArrayList<>();
         https = new ArrayList<>();
         for (String u : all) {
