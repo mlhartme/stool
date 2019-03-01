@@ -46,7 +46,7 @@ public class Tomcat {
     private final StageConfiguration configuration;
     private final Session session;
     private final Console console;
-    private final Ports ports;
+    private final Vhost webapp;
 
     public Tomcat(String app, FileNode war, Stage stage, FileNode context, Session session, Ports ports) {
         this.app = app;
@@ -56,7 +56,7 @@ public class Tomcat {
         this.configuration = stage.configuration;
         this.session = session;
         this.console = session.console;
-        this.ports = ports;
+        this.webapp = ports.webapp();
     }
 
     //-- public interface
@@ -132,7 +132,7 @@ public class Tomcat {
         serverXmlDest = serverXml();
         tar(tomcat, "zxf", tomcatTarGz.getName(), "--strip-components=2", tomcatName(version) + "/conf/server.xml");
 
-        serverXml = ServerXml.load(serverXmlDest, stage.getName(), session.configuration.hostname, ports.webapp().name);
+        serverXml = ServerXml.load(serverXmlDest, stage.getName(), session.configuration.hostname, webapp.name);
         serverXml.stripComments();
         serverXml.configure(configuration.url, keystorePassword, cookies, legacyVersion(version));
         serverXml.save(serverXmlDest);
@@ -166,7 +166,7 @@ public class Tomcat {
     public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
 
-        serverXml = ServerXml.load(serverXml(), stage.getName(), session.configuration.hostname, ports.webapp().name);
+        serverXml = ServerXml.load(serverXml(), stage.getName(), session.configuration.hostname, webapp.name);
         serverXml.addContextParameters(stage, logroot, Strings.toMap(additionals));
         serverXml.save(serverXml());
     }
@@ -271,7 +271,6 @@ public class Tomcat {
         Launcher launcher;
         FileNode dir;
         FileNode deps;
-        Vhost vhost;
 
         dir = projectDirectory.join("target/fitnesse");
         dir.mkdirsOpt();
@@ -280,8 +279,7 @@ public class Tomcat {
         // mark as source stage
         context.join(".source").writeBytes();
 
-        vhost = ports.webapp();
-        deps = fitnesseProject(vhost).join("target/fitnesse/dependencies");
+        deps = fitnesseProject(webapp).join("target/fitnesse/dependencies");
         deps.deleteTreeOpt();
         deps.mkdirsOpt();
         /* TODO
@@ -293,26 +291,24 @@ public class Tomcat {
 
     private String fitnesseSh(FileNode projectDirectory) {
         StringBuilder result;
-        Vhost vhost;
 
         result = new StringBuilder();
         result.append("#!/bin/bash\n");
         result.append("umask 0002");
-        vhost = ports.webapp();
         result.append("\n");
-        result.append("# vhost " + vhost.name + "\n");
-        result.append("cd /stage/" + fitnesseProject(vhost).getRelative(projectDirectory) + "\n");
+        result.append("# vhost " + webapp.name + "\n");
+        result.append("cd /stage/" + fitnesseProject(webapp).getRelative(projectDirectory) + "\n");
         result.append("deps=target/fitnesse/dependencies\n");
         result.append("cp=target/test-classes:target/classes\n");
         result.append("for file in $(ls $deps/*.jar); do\n");
         result.append("  cp=\"$cp:$file\"\n");
         result.append("done\n");
         result.append("export CLASSPATH=$cp\n");
-        result.append("java -jar $HOME/fitnesse-standalone.jar -v -r src/test/fitnesse -p " + vhost.httpPort() + " -e 0 >/var/log/stool/fitnesse-" + vhost.name + ".log 2>&1 &\n");
-        result.append(pidvar(vhost) + "=$!\n");
+        result.append("java -jar $HOME/fitnesse-standalone.jar -v -r src/test/fitnesse -p " + webapp.httpPort() + " -e 0 >/var/log/stool/fitnesse-" + webapp.name + ".log 2>&1 &\n");
+        result.append(pidvar(webapp) + "=$!\n");
 
         result.append("trap 'kill -TERM " + allPids() + "' TERM\n");
-        result.append("wait $" + pidvar(vhost) + "\n");
+        result.append("wait $" + pidvar(webapp) + "\n");
         return result.toString();
     }
 
@@ -331,7 +327,7 @@ public class Tomcat {
         StringBuilder result;
 
         result = new StringBuilder();
-        result.append('$').append(pidvar(ports.webapp()));
+        result.append('$').append(pidvar(webapp));
         return result.toString();
     }
 
