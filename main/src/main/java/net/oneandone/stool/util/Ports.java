@@ -28,8 +28,7 @@ public class Ports {
                 get(labels, Stage.LABEL_PORT_HTTP),
                 get(labels, Stage.LABEL_PORT_HTTPS),
                 get(labels, Stage.LABEL_PORT_JMXMP),
-                get(labels, Stage.LABEL_PORT_DEBUG),
-                null);
+                get(labels, Stage.LABEL_PORT_DEBUG));
     }
 
     private static int get(JsonObject labels, String name) {
@@ -65,7 +64,7 @@ public class Ports {
     }
 
     public static Ports forVhosts(Vhost webapp, Vhost jmxDebug) {
-        return new Ports(webapp.httpPort(), webapp.httpsPort(), jmxDebug.even, jmxDebug.even + 1, webapp);
+        return new Ports(webapp.httpPort(), webapp.httpsPort(), jmxDebug.even, jmxDebug.even + 1);
     }
 
     //--
@@ -75,17 +74,10 @@ public class Ports {
     public final int jmx;
     public final int debug;
 
-    private final Vhost webapp; // TODO: dump
-
-    public Ports(int http, int https, int jmx, int debug, Vhost webapp) {
+    public Ports(int http, int https, int jmx, int debug) {
         this.http = http;
         this.https = https;
         this.jmx = jmx;
         this.debug = debug;
-        this.webapp = webapp;
-    }
-
-    public Vhost webapp() {
-        return webapp;
     }
 }
