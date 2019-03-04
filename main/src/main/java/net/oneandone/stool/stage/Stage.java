@@ -227,6 +227,18 @@ public class Stage {
                 return state().toString();
             }
         });
+        fields.add(new Field("running") {
+            @Override
+            public Object get() throws IOException {
+                Map<String, Current> map;
+                List<String> result;
+
+                map = currentMap();
+                result = new ArrayList<>(map.keySet());
+                Collections.sort(result);
+                return result;
+            }
+        });
         fields.add(new Field("created-by") {
             @Override
             public Object get() throws IOException {
@@ -256,19 +268,7 @@ public class Stage {
         fields.add(new Field("apps") {
             @Override
             public Object get() throws IOException {
-                return namedUrls();
-            }
-        });
-        fields.add(new Field("running") {
-            @Override
-            public Object get() throws IOException {
-                Map<String, Current> map;
-                List<String> result;
-
-                map = currentMap();
-                result = new ArrayList<>(map.keySet());
-                Collections.sort(result);
-                return result;
+                return namedUrls(null);
             }
         });
         fields.addAll(TemplateField.scanTemplate(this, configuration.template));
@@ -707,8 +707,11 @@ public class Stage {
         return session.pool().stage(getId());
     }
 
-    /** @return empty map if no ports are allocated */
-    public Map<String, String> urlMap() throws IOException {
+    /**
+     * @param oneApp null for all apps
+     * @return empty map if no ports are allocated
+     */
+    public Map<String, String> urlMap(String oneApp) throws IOException {
         Map<String, String> result;
         String app;
         Ports ports;
@@ -716,18 +719,20 @@ public class Stage {
         result = new LinkedHashMap<>();
         for (Map.Entry<String, Ports> entry : loadPorts().entrySet()) {
             app = entry.getKey();
-            ports = entry.getValue();
-            result.putAll(UrlPattern.parse(configuration.url).urlMap(app, getName(), session.configuration.hostname, ports.http, ports.https));
+            if (oneApp == null || oneApp.equals(app)) {
+                ports = entry.getValue();
+                result.putAll(UrlPattern.parse(configuration.url).urlMap(app, getName(), session.configuration.hostname, ports.http, ports.https));
+            }
         }
         return result;
     }
 
     /** @return empty list of no ports are allocated */
-    public List<String> namedUrls() throws IOException {
+    public List<String> namedUrls(String oneApp) throws IOException {
         List<String> result;
 
         result = new ArrayList<>();
-        for (Map.Entry<String, String> entry : urlMap().entrySet()) {
+        for (Map.Entry<String, String> entry : urlMap(oneApp).entrySet()) {
             result.add(entry.getKey() + " " + entry.getValue());
         }
         return result;
@@ -776,7 +781,7 @@ public class Stage {
                 + ", id='" + getId() + '\''
                 + ", comment='" + configuration.comment + '\''
                 // TODO: current immage, container?
-                + ", urls=" + urlMap()
+                + ", urls=" + urlMap(null)
                 + ", state=" + state()
                 + ", displayState=" + state().display
                 + '}').hashCode();
@@ -791,7 +796,7 @@ public class Stage {
     public String sharedText() throws IOException {
         Map<String, String> urls;
 
-        urls = urlMap();
+        urls = urlMap(null);
         if (urls == null) {
             return "";
         }

@@ -61,7 +61,7 @@ public class GoController {
         stage = session.loadByName(stageId);
         switch (stage.state()) {
             case UP:
-                urlMap = stage.urlMap();
+                urlMap = stage.urlMap(null);
                 if (appName == null) {
                     url = urlMap.values().iterator().next();
                 } else {

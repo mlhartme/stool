@@ -64,8 +64,10 @@ public class Start extends StageCommand {
         stage.awaitStartup(console);
         Thread.sleep(2000);
         console.info.println("Applications available:");
-        for (String app : stage.namedUrls()) {
-            console.info.println("  " + app);
+        for (String app : stage.currentMap().keySet()) {
+            for (String url : stage.namedUrls(app)) {
+                console.info.println("  " + url);
+            }
         }
         if (tail) {
             doTail(stage);
