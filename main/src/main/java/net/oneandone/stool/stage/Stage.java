@@ -259,6 +259,18 @@ public class Stage {
                 return namedUrls();
             }
         });
+        fields.add(new Field("running") {
+            @Override
+            public Object get() throws IOException {
+                Map<String, Current> map;
+                List<String> result;
+
+                map = currentMap();
+                result = new ArrayList<>(map.keySet());
+                Collections.sort(result);
+                return result;
+            }
+        });
         fields.addAll(TemplateField.scanTemplate(this, configuration.template));
         return fields;
     }
