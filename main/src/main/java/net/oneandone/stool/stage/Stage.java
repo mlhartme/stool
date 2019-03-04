@@ -467,7 +467,7 @@ public class Stage {
             for (String old : engine.containerList(image.id)) {
                 engine.containerRemove(old);
             }
-            console.info.println("starting container ...");
+            console.info.println(image.app + ": starting container ...");
             mounts = bindMounts();
             for (Map.Entry<String, String> mount : mounts.entrySet()) {
                 console.verbose.println("  " + mount.getKey() + "\t -> " + mount.getValue());
@@ -552,7 +552,7 @@ public class Stage {
     public void stop(Console console, List<String> apps) throws IOException {
         Map<String, Current> currentMap;
         Engine engine;
-        List<String> containers;
+        Map<String, String> containers;
         List<String> unknown;
         List<String> notRunning;
 
@@ -562,11 +562,11 @@ public class Stage {
             throw new IOException("unknown app(s): " + unknown);
         }
         currentMap = currentMap();
-        containers = new ArrayList<>();
+        containers = new LinkedHashMap<>();
         notRunning = new ArrayList<>();
         for (Map.Entry<String, Current> current : currentMap.entrySet()) {
             if (apps.isEmpty() || apps.contains(current.getKey())) {
-                containers.add(current.getValue().container);
+                containers.put(current.getKey(), current.getValue().container);
             } else {
                 notRunning.add(current.getKey());
             }
@@ -577,10 +577,10 @@ public class Stage {
         if (containers.isEmpty()) {
             throw new IOException("stage is already stopped");
         }
-        for (String container : containers) {
-            console.info.println("stopping container ...");
+        for (Map.Entry<String, String> entry : containers.entrySet()) {
+            console.info.println(entry.getKey() + ": stopping container ...");
             engine = session.dockerEngine();
-            engine.containerStop(container, 300);
+            engine.containerStop(entry.getValue(), 300);
         }
     }
 
