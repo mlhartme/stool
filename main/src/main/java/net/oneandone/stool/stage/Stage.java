@@ -455,31 +455,22 @@ public class Stage {
         console.verbose.println("image built: " + image);
     }
 
-    public void start(Console console, int idx) throws Exception {
+    public void start(Console console, Map<String, Integer> selection) throws Exception {
         Engine engine;
-        Map<String, List<Image>> allImages;
-        List<Image> images;
-        Image image;
         String container;
         Engine.Status status;
         Map<String, String> mounts;
 
         checkMemory();
         engine = session.dockerEngine();
-        wipeContainer(engine);
-        allImages = images(engine);
-        for (String app : allImages.keySet()) {
-            images = allImages.get(app);
-            if (idx < 0 || idx >= images.size()) {
-                console.info.printf("%s: image %d not found - using %d\n", app, idx, images.size() - 1);
-                image = images.get(images.size() - 1);
-            } else {
-                image = images.get(idx);
+        for (Image image : resolve(engine, selection)) {
+            for (String old : engine.containerList(image.id)) {
+                engine.containerRemove(old);
             }
             console.info.println("starting container ...");
             mounts = bindMounts();
-            for (Map.Entry<String, String> entry : mounts.entrySet()) {
-                console.verbose.println("  " + entry.getKey() + "\t -> " + entry.getValue());
+            for (Map.Entry<String, String> mount : mounts.entrySet()) {
+                console.verbose.println("  " + mount.getKey() + "\t -> " + mount.getValue());
             }
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC, 1024L * 1024 * configuration.memory, null, null,
@@ -491,6 +482,48 @@ public class Stage {
                 throw new IOException("unexpected status: " + status);
             }
         }
+    }
+
+    private List<Image> resolve(Engine engine, Map<String, Integer> selectionOrig) throws IOException {
+        Map<String, Integer> selection;
+        Map<String, List<Image>> allImages;
+        Collection<String> running;
+        String app;
+        int idx;
+        List<Image> list;
+        List<Image> result;
+
+        allImages = images(engine);
+        if (allImages.isEmpty()) {
+            throw new IOException("no apps to start - did you build the stage?");
+        }
+        running = currentMap().keySet();
+        if (selectionOrig.isEmpty()) {
+            selection = new HashMap<>();
+            for (String a : allImages.keySet()) {
+                selection.put(a, 0);
+            }
+        } else {
+            selection = selectionOrig;
+        }
+        result = new ArrayList<>();
+        for (Map.Entry<String, Integer> entry : selection.entrySet()) {
+            app = entry.getKey();
+            if (running.contains(app)) {
+                session.console.info.println("warning: app will not be started because it is already running: " + app);
+            } else {
+                idx = entry.getValue();
+                list = allImages.get(app);
+                if (list == null) {
+                    throw new IOException("app not found: " + app);
+                }
+                if (idx < 0 || idx >= list.size()) {
+                    throw new IOException(app + ": app index not found: " + idx);
+                }
+                result.add(list.get(idx));
+            }
+        }
+        return result;
     }
 
     private Map<Integer, Integer> map(Ports containerPorts, String app) throws IOException {
@@ -516,15 +549,35 @@ public class Stage {
     }
 
     /** Fails if container is not running */
-    public void stop(Console console) throws IOException {
-        List<String> containerList;
+    public void stop(Console console, List<String> apps) throws IOException {
+        Map<String, Current> currentMap;
         Engine engine;
+        List<String> containers;
+        List<String> unknown;
+        List<String> notRunning;
 
-        containerList = dockerContainerList();
-        if (containerList.isEmpty()) {
-            throw new IOException("container is not running.");
+        unknown = new ArrayList<>(apps);
+        unknown.removeAll(images(session.dockerEngine()).keySet());
+        if (!unknown.isEmpty()) {
+            throw new IOException("unknown app(s): " + unknown);
         }
-        for (String container : containerList) {
+        currentMap = currentMap();
+        containers = new ArrayList<>();
+        notRunning = new ArrayList<>();
+        for (Map.Entry<String, Current> current : currentMap.entrySet()) {
+            if (apps.isEmpty() || apps.contains(current.getKey())) {
+                containers.add(current.getValue().container);
+            } else {
+                notRunning.add(current.getKey());
+            }
+        }
+        if (!notRunning.isEmpty()) {
+            console.info.println("warning: the following apps will not be stopped because they are not running: " + apps);
+        }
+        if (containers.isEmpty()) {
+            throw new IOException("stage is already stopped");
+        }
+        for (String container : containers) {
             console.info.println("stopping container ...");
             engine = session.dockerEngine();
             engine.containerStop(container, 300);

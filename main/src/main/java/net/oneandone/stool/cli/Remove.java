@@ -19,6 +19,8 @@ import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
+import java.util.ArrayList;
+
 public class Remove extends StageCommand {
     private final boolean batch;
     private final boolean stop;

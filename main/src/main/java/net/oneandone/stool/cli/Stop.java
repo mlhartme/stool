@@ -19,9 +19,18 @@ import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Stop extends StageCommand {
+    private final List<String> apps;
+
     public Stop(Session session) {
+        this(session, new ArrayList<>());
+    }
+    public Stop(Session session, List<String> apps) {
         super(session, Mode.SHARED, Mode.SHARED);
+        this.apps = apps;
     }
 
     @Override
@@ -30,7 +39,7 @@ public class Stop extends StageCommand {
     }
 
     public void doNormal(Stage stage) throws Exception {
-        stage.stop(console);
+        stage.stop(console, apps);
     }
 
     @Override

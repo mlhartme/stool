@@ -179,6 +179,24 @@ public abstract class StageCommand extends SessionCommand {
 
     //--
 
+    protected static Map<String, Integer> selection(List<String> selection) {
+        int idx;
+        Map<String, Integer> result;
+
+        result = new LinkedHashMap<>();
+        for (String appIndex : selection) {
+            idx = appIndex.indexOf(':');
+            if (idx == -1) {
+                result.put(appIndex, 0);
+            } else {
+                result.put(appIndex.substring(0, idx), Integer.parseInt(appIndex.substring(idx + 1)));
+            }
+        }
+        return result;
+    }
+
+    //--
+
     private Predicate or(String string) {
         List<String> args;
 

@@ -20,16 +20,18 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Start extends StageCommand {
     private final boolean tail;
-    private final int image;
+    private final Map<String, Integer> selection;
 
-    public Start(Session session, boolean tail, int image) {
+    public Start(Session session, boolean tail, List<String> selection) {
         super(session, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.tail = tail;
-        this.image = image;
+        this.selection = selection(selection);
     }
 
     @Override
@@ -53,8 +55,7 @@ public class Start extends StageCommand {
         // to avoid running into a ping timeout below:
         stage.session.configuration.verfiyHostname();
         stage.checkConstraints();
-        checkNotStarted(stage);
-        stage.start(console, image);
+        stage.start(console, selection);
     }
 
     @Override
@@ -78,12 +79,5 @@ public class Start extends StageCommand {
         console.info.println("Press Ctrl-C to abort.");
         console.info.println();
         stage.tailF(console.info);
-    }
-
-    private void checkNotStarted(Stage stage) throws IOException {
-        if (stage.state().equals(Stage.State.UP)) {
-            throw new IOException("Stage is already running.");
-        }
-
     }
 }

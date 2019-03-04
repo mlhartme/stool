@@ -24,6 +24,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Map;
 
 public class Build extends ProjectCommand {
@@ -53,7 +54,7 @@ public class Build extends ProjectCommand {
         for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
             stage.build(entry.getKey(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
             if (restart) {
-                new Restart(session, 0).doRun(stage);
+                new Restart(session, new ArrayList<>()).doRun(stage);
             }
         }
     }

@@ -99,10 +99,10 @@ public class Main {
                       cli.add(History.class, "history -details=@history.details:false -max=@history.max:50");
                       cli.add(Ls.class, "list -defaults=@list.defaults info* { select*(info) }");
                       cli.add(Remove.class, "remove -batch -stop");
-                      cli.add(Restart.class, "restart image?=0");
-                      cli.add(Start.class, "start -tail image?=0");
+                      cli.add(Restart.class, "restart appIndex*");
+                      cli.add(Start.class, "start -tail appIndex*");
                       cli.add(Status.class, "status -defaults=@status.defaults info* { select*(info) }");
-                      cli.add(Stop.class, "stop");
+                      cli.add(Stop.class, "stop app*");
                       cli.add(Validate.class, "validate -email -repair");
 
         return cli.run(args);
