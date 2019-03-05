@@ -234,8 +234,8 @@ public class EngineIT {
         output = engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "\n"));
         assertNotNull(output);
 
-        container = engine.containerCreate(image, "foo", false, null, null, null, Collections.emptyMap(),
-                Strings.toMap(home.getAbsolute(), home.getAbsolute()), Collections.emptyMap());
+        container = engine.containerCreate(image, "foo", false, null, null, null,
+                Collections.emptyMap(), Collections.singletonMap(home, home.getAbsolute()), Collections.emptyMap());
         assertNotNull(container);
         assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
         engine.containerStart(container);

@@ -377,7 +377,7 @@ public class Engine implements AutoCloseable {
      * @return container id
      */
     public String containerCreate(String image, String hostname, boolean priviledged, Long memory, String stopSignal, Integer stopTimeout,
-                                  Map<String, String> env, Map<String, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
+                                  Map<String, String> env, Map<FileNode, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
         JsonObject body;
         JsonObject response;
         JsonObject hostConfig;
@@ -412,8 +412,8 @@ public class Engine implements AutoCloseable {
         }
         mounts = new JsonArray();
         hostConfig.add("Mounts", mounts);
-        for (Map.Entry<String, String> entry : bindMounts.entrySet()) {
-            mounts.add(body("type", "bind", "source", entry.getKey(), "target", entry.getValue()));
+        for (Map.Entry<FileNode, String> entry : bindMounts.entrySet()) {
+            mounts.add(body("type", "bind", "source", entry.getKey().checkDirectory().getAbsolute(), "target", entry.getValue()));
         }
         drops = new JsonArray(); // added security - not sure if I really need this
         drops.add(new JsonPrimitive("setuid"));

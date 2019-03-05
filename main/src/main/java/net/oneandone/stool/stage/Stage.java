@@ -461,7 +461,7 @@ public class Stage {
         Engine engine;
         String container;
         Engine.Status status;
-        Map<String, String> mounts;
+        Map<FileNode, String> mounts;
 
         checkMemory();
         engine = session.dockerEngine();
@@ -471,8 +471,8 @@ public class Stage {
             }
             console.info.println(image.app + ": starting container ...");
             mounts = bindMounts(image);
-            for (Map.Entry<String, String> mount : mounts.entrySet()) {
-                console.verbose.println("  " + mount.getKey() + "\t -> " + mount.getValue());
+            for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
+                console.verbose.println("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC, 1024L * 1024 * configuration.memory, null, null,
@@ -586,13 +586,13 @@ public class Stage {
         }
     }
 
-    private Map<String, String> bindMounts(Image image) throws IOException {
-        Map<String, String> result;
+    private Map<FileNode, String> bindMounts(Image image) throws IOException {
+        Map<FileNode, String> result;
 
         result = new HashMap<>();
-        result.put(directory.join("logs").mkdirOpt().getAbsolute(), "/var/log/stool");
+        result.put(directory.join("logs").mkdirOpt(), "/var/log/stool");
         for (Map.Entry<String, String> entry : image.secrets.entrySet()) {
-            result.put(session.world.file(session.configuration.secrets).join(entry.getKey()).getAbsolute(), entry.getValue());
+            result.put(session.world.file(session.configuration.secrets).join(entry.getKey()), entry.getValue());
         }
         return result;
     }
