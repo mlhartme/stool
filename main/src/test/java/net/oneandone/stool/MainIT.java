@@ -101,7 +101,7 @@ public class MainIT {
         environment.setHome(home);
         home.getParent().mkdirsOpt();
         home.deleteTreeOpt();
-        stool("setup", "-batch", "{ \"portFirst\": " + start + ", \"portLast\": " + end + " }");
+        stool("setup", "-batch", "{ \"id\": " + "\"integrationtests\", \"portFirst\": " + start + ", \"portLast\": " + end + " }");
         stages = home.getParent().join(context + "-stages");
         stages.deleteTreeOpt();
         stages.mkdir();

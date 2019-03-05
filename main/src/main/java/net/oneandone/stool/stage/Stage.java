@@ -412,6 +412,7 @@ public class Stage {
 
     public static final String LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
 
+    public static final String LABEL_STOOL = LABEL_PREFIX + "stool";
     public static final String LABEL_STAGE = LABEL_PREFIX + "stage";
     public static final String LABEL_APP = LABEL_PREFIX + "app";
     public static final String LABEL_COMMENT = LABEL_PREFIX + "comment";
@@ -420,7 +421,7 @@ public class Stage {
     public static final String LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
 
     private Map<String, String> stageLabel() {
-        return Strings.toMap(LABEL_STAGE, getId());
+        return Strings.toMap(LABEL_STOOL, session.configuration.id, LABEL_STAGE, getId());
     }
 
     /** @param keep 0 to keep all */

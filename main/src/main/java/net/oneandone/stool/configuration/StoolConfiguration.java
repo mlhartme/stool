@@ -43,6 +43,8 @@ public class StoolConfiguration {
 
     //--
 
+    public String id;
+
     public int portFirst;
 
     public int portLast;
@@ -98,6 +100,7 @@ public class StoolConfiguration {
     public String secrets;
 
     public StoolConfiguration() {
+        id = "main";
         portFirst = 9000;
         portLast = 9999;
         baseMemory = 400;
