@@ -53,7 +53,7 @@ public class Build extends ProjectCommand {
         stage = session.load(session.projects().stage(project.getDirectory()));
         for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
-            stage.build(entry.getKey(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
+            stage.build(entry.getKey(), project.getDirectory(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
             if (restart) {
                 new Restart(session, new ArrayList<>()).doRun(stage);
             }

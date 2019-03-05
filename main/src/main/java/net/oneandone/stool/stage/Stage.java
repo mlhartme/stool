@@ -48,10 +48,10 @@ import net.oneandone.sushi.util.Strings;
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
 import javax.management.MBeanException;
-import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
+import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
@@ -424,7 +424,7 @@ public class Stage {
     }
 
     /** @param keep 0 to keep all */
-    public void build(String app, FileNode war, Console console, String comment, String origin, String createdBy, String createdOn,
+    public void build(String app, FileNode project, FileNode war, Console console, String comment, String origin, String createdBy, String createdOn,
                       boolean noCache, int keep) throws Exception {
         Engine engine;
         String image;
@@ -438,7 +438,7 @@ public class Stage {
             wipeOldImages(engine,keep - 1);
         }
         tag = getId() + ":" + TAG_FORMAT.format(LocalDateTime.now());
-        context = dockerContext(app, war);
+        context = dockerContext(app, project, war);
         label = stageLabel();
         label.put(LABEL_APP, app);
         label.put(LABEL_COMMENT, comment);
@@ -596,7 +596,7 @@ public class Stage {
 
     private static final String FREEMARKER_EXT = ".fm";
 
-    private FileNode dockerContext(String app, FileNode war) throws IOException, TemplateException {
+    private FileNode dockerContext(String app, FileNode project, FileNode war) throws IOException, TemplateException {
         Configuration configuration;
         FileNode src;
         FileNode dest;
@@ -626,7 +626,7 @@ public class Stage {
                     configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
                     template = configuration.getTemplate(srcfile.getName());
                     tmp = new StringWriter();
-                    template.process(templateEnv(app, war, dest, environment), tmp);
+                    template.process(templateEnv(app, project, war, dest, environment), tmp);
                     destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
                     destfile.writeString(tmp.getBuffer().toString());
                 } else {
@@ -645,7 +645,7 @@ public class Stage {
         return dest;
     }
 
-    private Map<String, Object> templateEnv(String app, FileNode war, FileNode context, Collection<Variable> environment) throws IOException {
+    private Map<String, Object> templateEnv(String app, FileNode project, FileNode war, FileNode context, Collection<Variable> environment) throws IOException {
         Map<String, Object> result;
         String value;
 
@@ -660,7 +660,7 @@ public class Stage {
         }
         result.put("hostHome", session.world.getHome().getAbsolute());
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
-        result.put("tomcat", new Tomcat(app, war,this, context, session));
+        result.put("tomcat", new Tomcat(app, project, war,this, context, session));
         for (Variable env : environment) {
             value = configuration.templateEnv.get(env.name);
             if (value == null) {
@@ -857,35 +857,28 @@ public class Stage {
         }
     }
 
-    private MBeanServerConnection lazyJmxConnection;
+    private JMXConnector jmxConnection(Ports ports) throws IOException {
+        JMXServiceURL url;
 
-    private MBeanServerConnection jmxConnection(Ports ports) throws IOException {
-        if (lazyJmxConnection == null) {
-            JMXServiceURL url;
-
-            // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-            try {
-                url = new JMXServiceURL("service:jmx:jmxmp://" + session.configuration.hostname + ":" + ports.jmxmp);
-            } catch (MalformedURLException e) {
-                throw new IllegalStateException(e);
-            }
-            lazyJmxConnection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
+        // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
+        try {
+            url = new JMXServiceURL("service:jmx:jmxmp://" + session.configuration.hostname + ":" + ports.jmxmp);
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(e);
         }
-        return lazyJmxConnection;
+        return JMXConnectorFactory.connect(url, null);
     }
 
     private String jmxEngineState(Ports ports) throws IOException {
-        MBeanServerConnection connection;
         ObjectName name;
 
-        connection = jmxConnection(ports);
         try {
             name = new ObjectName("Catalina:type=Engine");
         } catch (MalformedObjectNameException e) {
             throw new IllegalStateException(e);
         }
-        try {
-            return (String) connection.getAttribute(name, "stateName");
+        try (JMXConnector connection = jmxConnection(ports)) {
+            return (String) connection.getMBeanServerConnection().getAttribute(name, "stateName");
         } catch (ReflectionException | InstanceNotFoundException | AttributeNotFoundException | MBeanException e) {
             throw new IllegalStateException();
         }
