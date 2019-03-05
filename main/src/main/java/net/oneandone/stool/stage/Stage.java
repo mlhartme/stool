@@ -470,7 +470,7 @@ public class Stage {
                 engine.containerRemove(old);
             }
             console.info.println(image.app + ": starting container ...");
-            mounts = bindMounts();
+            mounts = bindMounts(image);
             for (Map.Entry<String, String> mount : mounts.entrySet()) {
                 console.verbose.println("  " + mount.getKey() + "\t -> " + mount.getValue());
             }
@@ -586,11 +586,14 @@ public class Stage {
         }
     }
 
-    private Map<String, String> bindMounts() throws IOException {
+    private Map<String, String> bindMounts(Image image) throws IOException {
         Map<String, String> result;
 
         result = new HashMap<>();
         result.put(directory.join("logs").mkdirOpt().getAbsolute(), "/var/log/stool");
+        for (Map.Entry<String, String> entry : image.secrets.entrySet()) {
+            result.put(session.world.file(session.configuration.secrets).join(entry.getKey()).getAbsolute(), entry.getValue());
+        }
         return result;
     }
 

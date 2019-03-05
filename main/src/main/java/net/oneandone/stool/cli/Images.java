@@ -73,6 +73,12 @@ public class Images extends StageCommand {
                 console.info.println("       created-at: " + image.created);
                 console.info.println("       created-by: " + image.createdBy);
                 console.info.println("       created-on: " + image.createdOn);
+                console.info.print("       secrets:    ");
+                for (String key : image.secrets.keySet()) {
+                    console.info.print(key);
+                    console.info.print(' ');
+                }
+                console.info.println();
                 idx++;
             }
             stage.rotateLogs(console);

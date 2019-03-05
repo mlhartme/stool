@@ -35,6 +35,7 @@ public class Autoconf {
         StoolConfiguration result;
 
         result = new StoolConfiguration();
+        result.secrets = home.getWorld().getHome().join(".fault").getAbsolute();
         result.hostname = hostname();
         oneAndOne(environment, home, result, log);
         return result;

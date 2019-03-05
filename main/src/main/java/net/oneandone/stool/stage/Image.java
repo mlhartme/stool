@@ -15,12 +15,15 @@
  */
 package net.oneandone.stool.stage;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.util.Ports;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Image implements Comparable<Image> {
     public static Image load(Engine engine, String id) throws IOException {
@@ -36,7 +39,23 @@ public class Image implements Comparable<Image> {
                 labels.get(Stage.LABEL_COMMENT).getAsString(),
                 labels.get(Stage.LABEL_ORIGIN).getAsString(),
                 labels.get(Stage.LABEL_CREATED_BY).getAsString(),
-                labels.get(Stage.LABEL_CREATED_ON).getAsString());
+                labels.get(Stage.LABEL_CREATED_ON).getAsString(),
+                secrets(labels));
+    }
+
+    private static Map<String, String> secrets(JsonObject labels) {
+        Map<String, String> secrets;
+        String key;
+
+        secrets = new HashMap<>();
+        for (Map.Entry<String, JsonElement> entry : labels.entrySet()) {
+            key = entry.getKey();
+            if (key.startsWith(Stage.LABEL_MOUNT_SECRETS_PREFIX)) {
+                secrets.put(key.substring(Stage.LABEL_MOUNT_SECRETS_PREFIX.length()), entry.getValue().getAsString());
+            }
+
+        }
+        return secrets;
     }
 
     public final String id;
@@ -54,7 +73,11 @@ public class Image implements Comparable<Image> {
     public final String createdBy;
     public final String createdOn;
 
-    public Image(String id, LocalDateTime created, Ports ports, String app, String comment, String origin, String createdBy, String createdOn) {
+    /** maps relative host path to absolute container path */
+    public final Map<String, String> secrets;
+
+    public Image(String id, LocalDateTime created, Ports ports, String app, String comment, String origin, String createdBy, String createdOn,
+                 Map<String, String> secrets) {
         this.id = id;
         this.created = created;
 
@@ -64,6 +87,7 @@ public class Image implements Comparable<Image> {
         this.origin = origin;
         this.createdBy = createdBy;
         this.createdOn = createdOn;
+        this.secrets = secrets;
     }
 
     @Override

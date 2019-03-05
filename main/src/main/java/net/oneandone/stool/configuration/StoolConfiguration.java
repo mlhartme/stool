@@ -94,6 +94,9 @@ public class StoolConfiguration {
     /** Path to docker unix domain socket */
     public String docker;
 
+    /** absolute path to secrets root */
+    public String secrets;
+
     public StoolConfiguration() {
         portFirst = 9000;
         portLast = 9999;
@@ -112,6 +115,7 @@ public class StoolConfiguration {
         mailPassword = "";
         quota = 0;
         docker = "/var/run/docker.sock";
+        secrets = "/etc/fault/workspace";
     }
 
     public static FileNode configurationFile(FileNode home) {
