@@ -381,7 +381,7 @@ public class Engine implements AutoCloseable {
         JsonObject body;
         JsonObject response;
         JsonObject hostConfig;
-        JsonArray binds;
+        JsonArray mounts;
         JsonObject portBindings;
         JsonArray drops;
 
@@ -410,10 +410,10 @@ public class Engine implements AutoCloseable {
         if (priviledged) {
             hostConfig.add("Privileged", new JsonPrimitive(true));
         }
-        binds = new JsonArray();
-        hostConfig.add("Binds", binds);
+        mounts = new JsonArray();
+        hostConfig.add("Mounts", mounts);
         for (Map.Entry<String, String> entry : bindMounts.entrySet()) {
-            binds.add(entry.getKey() + ":" + entry.getValue());
+            mounts.add(body("type", "bind", "source", entry.getKey(), "target", entry.getValue()));
         }
         drops = new JsonArray(); // added security - not sure if I really need this
         drops.add(new JsonPrimitive("setuid"));
