@@ -107,17 +107,6 @@ public class Project {
         return wars().size();
     }
 
-
-    public List<String> faultProjects() throws IOException {
-        List<String> result;
-
-        result = new ArrayList<>();
-        for (FileNode war : wars().values()) {
-            result.add("file:" + war.getAbsolute());
-        }
-        return result;
-    }
-
     //--
 
     @Override

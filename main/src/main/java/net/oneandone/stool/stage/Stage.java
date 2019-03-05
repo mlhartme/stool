@@ -410,6 +410,8 @@ public class Stage {
     public static final String LABEL_PORT_JMXMP = LABEL_PREFIX + "port.jmxmp";
     public static final String LABEL_PORT_DEBUG = LABEL_PREFIX + "port.debug";
 
+    public static final String LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
+
     public static final String LABEL_STAGE = LABEL_PREFIX + "stage";
     public static final String LABEL_APP = LABEL_PREFIX + "app";
     public static final String LABEL_COMMENT = LABEL_PREFIX + "comment";

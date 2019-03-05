@@ -67,38 +67,28 @@ public class Tomcat {
         war.copyFile(context.join("webapps").mkdirOpt().join(app + ".war"));
     }
 
-    /** empty string if app does not need any secrets */
-    public String fault() throws IOException {
+    /** @return LABEL directives declaring the secrets */
+    public String fault(String basedir) throws IOException {
         Launcher launcher;
-        List<String> projects;
-        FileNode token;
         FileNode list;
+        StringBuilder result;
 
         list = session.world.getTemp().createTempFile();
-        launcher = context.launcher("fault");
+        launcher = session.world.getWorking().launcher("fault");
         if (console.getVerbose()) {
             launcher.arg("-v");
         }
         launcher.arg("resolve", "-output", list.getAbsolute());
-        /* TODO: for (String p : project.faultProjects()) {
-            launcher.arg(p);
-        }*/
-        // TODO
-        launcher.arg("@-");
+        launcher.arg("file:pom.xml");  // TODO
 
         launcher.getBuilder().inheritIO();
         console.verbose.println("exec " + launcher);
         launcher.exec();
-        projects = list.readLines();
-        if (projects.isEmpty()) {
-            return "";
+        result = new StringBuilder();
+        for (String project : list.readLines()) {
+            result.append("LABEL " + Stage.LABEL_MOUNT_SECRETS_PREFIX + project + "=" + basedir + "/" + project + "\n");
         }
-        token = context.join(".fault-token");
-        token.writeString("");
-        session.world.onShutdown().deleteAtExit(token);
-        token.setPermissions("rw-------");
-        token.appendString(session.world.getHome().join(token.getName()).readString());
-        return Separator.SPACE.join(projects);
+        return result.toString();
     }
 
     /* also checks sha1 digest - https://run-jira.tool.1and1.com/browse/CISOOPS-2406 */
