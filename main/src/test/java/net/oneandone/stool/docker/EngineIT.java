@@ -74,11 +74,11 @@ public class EngineIT {
         ids = engine.imageList(labels);
         assertEquals(1, ids.size());
         image = ids.get(0);
-        assertEquals(Arrays.asList(), engine.containerList(image));
+        assertEquals(Arrays.asList(), engine.containerListForImage(image));
         container = engine.containerCreate(image, "somehost");
-        assertEquals(Arrays.asList(container), engine.containerList(image));
+        assertEquals(Arrays.asList(container), engine.containerListForImage(image));
         engine.containerRemove(container);
-        assertEquals(Arrays.asList(), engine.containerList(image));
+        assertEquals(Arrays.asList(), engine.containerListForImage(image));
         engine.imageRemove(image, false);
         assertEquals(Arrays.asList(), engine.imageList(labels));
     }

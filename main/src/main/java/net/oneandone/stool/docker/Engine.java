@@ -169,24 +169,27 @@ public class Engine implements AutoCloseable {
      * @param image may be null
      * @return container ids
      */
-    public List<String> containerList(String image) throws IOException {
-        return doContainerList("{\"ancestor\" : [\"" + image + "\"] }");
+    public List<String> containerListForImage(String image) throws IOException {
+        return doContainerList("{\"ancestor\" : [\"" + image + "\"] }", true);
     }
 
     public List<String> containerListRunning(String key, String value) throws IOException {
-        return doContainerList("{\"label\" : [\"" + key + "=" + value + "\"], \"status\" : [\"running\"] }");
+        return doContainerList("{\"label\" : [\"" + key + "=" + value + "\"], \"status\" : [\"running\"] }", false);
     }
 
-    public List<String> doContainerList(String filter) throws IOException {
-        String filters;
-        Node node;
+    private List<String> doContainerList(String filters, boolean all) throws IOException {
+        HttpNode node;
         JsonArray array;
         List<String> result;
         String id;
 
         node = root.join("containers/json");
-        filters = "&filters=" + enc(filter);
-        node = node.getRoot().node(node.getPath(), "all=true" + filters);
+        if (filters != null) {
+            node = node.withParameter("filters", filters);
+        }
+        if (all) {
+            node = node.withParameter("all", "true");
+        }
         array = parser.parse(node.readString()).getAsJsonArray();
         result = new ArrayList<>(array.size());
         for (JsonElement element : array) {
@@ -194,8 +197,8 @@ public class Engine implements AutoCloseable {
             result.add(id);
         }
         return result;
-
     }
+
     /** @return output */
     public String imageBuildWithOutput(String nameTag, FileNode context) throws IOException {
         try (StringWriter dest = new StringWriter()) {
