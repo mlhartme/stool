@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -74,11 +75,11 @@ public class EngineIT {
         ids = engine.imageList(labels);
         assertEquals(1, ids.size());
         image = ids.get(0);
-        assertEquals(Arrays.asList(), engine.containerListForImage(image));
+        assertTrue(engine.containerListForImage(image).isEmpty());
         container = engine.containerCreate(image, "somehost");
-        assertEquals(Arrays.asList(container), engine.containerListForImage(image));
+        assertEquals(Arrays.asList(container), new ArrayList<>(engine.containerListForImage(image).keySet()));
         engine.containerRemove(container);
-        assertEquals(Arrays.asList(), engine.containerListForImage(image));
+        assertTrue(engine.containerListForImage(image).isEmpty());
         engine.imageRemove(image, false);
         assertEquals(Arrays.asList(), engine.imageList(labels));
     }

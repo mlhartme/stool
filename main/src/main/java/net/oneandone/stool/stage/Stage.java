@@ -379,7 +379,7 @@ public class Stage {
 
     public void wipeContainer(Engine engine) throws IOException {
         for (String image : engine.imageList(stageLabel())) {
-            for (String container : engine.containerListForImage(image)) {
+            for (String container : engine.containerListForImage(image).keySet()) {
                 session.console.verbose.println("remove container: " + container);
                 engine.containerRemove(container);
             }
@@ -467,7 +467,7 @@ public class Stage {
         checkMemory();
         engine = session.dockerEngine();
         for (Image image : resolve(engine, selection)) {
-            for (String old : engine.containerListForImage(image.id)) {
+            for (String old : engine.containerListForImage(image.id).keySet()) {
                 engine.containerRemove(old);
             }
             console.info.println(image.app + ": starting container ...");
@@ -760,7 +760,7 @@ public class Stage {
         Engine engine;
 
         engine = session.dockerEngine();
-        return engine.containerListRunning(LABEL_STAGE, getId());
+        return new ArrayList<>(engine.containerListRunning(LABEL_STAGE, getId()).keySet());
     }
 
     public Map<String, Current> currentMap() throws IOException {

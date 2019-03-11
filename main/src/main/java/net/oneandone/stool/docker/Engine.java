@@ -165,22 +165,31 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
+    public static class ListInfo {
+        public final String id;
+        public final Map<Integer, Integer> ports;
+
+        public ListInfo(String id, Map<Integer, Integer> ports) {
+            this.id = id;
+            this.ports = ports;
+        }
+    }
     /**
      * @param image may be null
      * @return container ids
      */
-    public List<String> containerListForImage(String image) throws IOException {
+    public Map<String, ListInfo> containerListForImage(String image) throws IOException {
         return doContainerList("{\"ancestor\" : [\"" + image + "\"] }", true);
     }
 
-    public List<String> containerListRunning(String key, String value) throws IOException {
+    public Map<String, ListInfo> containerListRunning(String key, String value) throws IOException {
         return doContainerList("{\"label\" : [\"" + key + "=" + value + "\"], \"status\" : [\"running\"] }", false);
     }
 
-    private List<String> doContainerList(String filters, boolean all) throws IOException {
+    private Map<String, ListInfo> doContainerList(String filters, boolean all) throws IOException {
         HttpNode node;
         JsonArray array;
-        List<String> result;
+        Map<String, ListInfo> result;
         String id;
 
         node = root.join("containers/json");
@@ -191,12 +200,24 @@ public class Engine implements AutoCloseable {
             node = node.withParameter("all", "true");
         }
         array = parser.parse(node.readString()).getAsJsonArray();
-        result = new ArrayList<>(array.size());
+        result = new HashMap<>(array.size());
         for (JsonElement element : array) {
             id = element.getAsJsonObject().get("Id").getAsString();
-            result.add(id);
+            result.put(id, new ListInfo(id, ports(element.getAsJsonObject().get("Ports").getAsJsonArray())));
         }
         return result;
+    }
+
+    private static Map<Integer, Integer> ports(JsonArray array) {
+        JsonObject obj;
+        Map<Integer, Integer> ports;
+
+        ports = new HashMap<>();
+        for (JsonElement element : array) {
+            obj = element.getAsJsonObject();
+            ports.put(obj.get("PrivatePort").getAsInt(), obj.get("PublicPort").getAsInt());
+        }
+        return ports;
     }
 
     /** @return output */
