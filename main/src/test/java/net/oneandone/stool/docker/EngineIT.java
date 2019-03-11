@@ -27,6 +27,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -61,22 +62,51 @@ public class EngineIT {
     }
 
     @Test
-    public void list() throws IOException {
+    public void list() throws IOException, InterruptedException {
         Map<String, String> labels;
         Engine engine;
         List<String> ids;
         String image;
         String container;
+        Map<Integer, Integer> ports;
+        Map<String, Engine.ListInfo> map;
 
         labels = Strings.toMap("stooltest", UUID.randomUUID().toString());
         engine = open();
         assertTrue(engine.imageList(labels).isEmpty());
-        engine.imageBuild("sometag", labels, df("FROM debian:stretch-slim\nRUN touch abc\nCMD echo hello\n"), false,null);
+        engine.imageBuild("sometag", labels, df("FROM debian:stretch-slim\nRUN touch abc\nCMD sleep 2\n"), false,null);
         ids = engine.imageList(labels);
         assertEquals(1, ids.size());
         image = ids.get(0);
         assertTrue(engine.containerListForImage(image).isEmpty());
-        container = engine.containerCreate(image, "somehost");
+        ports = new HashMap<>();
+        ports.put(1301, 1302);
+        container = engine.containerCreate(image, "somehost", false, null, null, null,
+                Collections.emptyMap(), Collections.emptyMap(), ports);
+
+        assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
+        map = engine.containerListForImage(image);
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(container));
+        assertTrue(map.get(container).ports.isEmpty()); // no ports allocated until the container is actually started
+
+        engine.containerStart(container);
+
+        assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
+        map = engine.containerListForImage(image);
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(container));
+        assertEquals(ports, map.get(container).ports);
+
+        Thread.sleep(2500);
+
+        assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
+
+        map = engine.containerListForImage(image);
+        assertEquals(1, map.size());
+        assertTrue(map.containsKey(container));
+        assertTrue(map.get(container).ports.isEmpty()); // ports free again
+
         assertEquals(Arrays.asList(container), new ArrayList<>(engine.containerListForImage(image).keySet()));
         engine.containerRemove(container);
         assertTrue(engine.containerListForImage(image).isEmpty());
