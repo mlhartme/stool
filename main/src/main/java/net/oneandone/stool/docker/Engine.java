@@ -170,25 +170,14 @@ public class Engine implements AutoCloseable {
      * @return container ids
      */
     public List<String> containerList(String image) throws IOException {
-        String filters;
-        Node node;
-        JsonArray array;
-        List<String> result;
-        String id;
-
-        node = root.join("containers/json");
-        filters = image == null? "" : "&filters=" + enc("{\"ancestor\" : [\"" + image + "\"] }");
-        node = node.getRoot().node(node.getPath(), "all=true" + filters);
-        array = parser.parse(node.readString()).getAsJsonArray();
-        result = new ArrayList<>(array.size());
-        for (JsonElement element : array) {
-            id = element.getAsJsonObject().get("Id").getAsString();
-            result.add(id);
-        }
-        return result;
+        return doContainerList("{\"ancestor\" : [\"" + image + "\"] }");
     }
 
     public List<String> containerListRunning(String key, String value) throws IOException {
+        return doContainerList("{\"label\" : [\"" + key + "=" + value + "\"], \"status\" : [\"running\"] }");
+    }
+
+    public List<String> doContainerList(String filter) throws IOException {
         String filters;
         Node node;
         JsonArray array;
@@ -196,7 +185,7 @@ public class Engine implements AutoCloseable {
         String id;
 
         node = root.join("containers/json");
-        filters = "&filters=" + enc("{\"label\" : [\"" + key + "=" + value + "\"], \"status\" : [\"running\"] }");
+        filters = "&filters=" + enc(filter);
         node = node.getRoot().node(node.getPath(), "all=true" + filters);
         array = parser.parse(node.readString()).getAsJsonArray();
         result = new ArrayList<>(array.size());
@@ -205,8 +194,8 @@ public class Engine implements AutoCloseable {
             result.add(id);
         }
         return result;
-    }
 
+    }
     /** @return output */
     public String imageBuildWithOutput(String nameTag, FileNode context) throws IOException {
         try (StringWriter dest = new StringWriter()) {
