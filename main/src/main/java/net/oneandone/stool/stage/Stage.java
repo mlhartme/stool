@@ -449,7 +449,7 @@ public class Stage {
         console.verbose.println("building image ... ");
         try (Writer log = new FlushWriter(directory.join("image.log").newWriter())) {
             // don't close the tee writer, it would close console output as well
-            image = engine.imageBuild(tag, label, context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
+            image = engine.imageBuild(tag, configuration.templateEnv, label, context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {
             console.verbose.println("image build output");
             console.verbose.println(e.output);

@@ -53,7 +53,7 @@ public class EngineIT {
         String container;
 
         engine = open();
-        image = engine.imageBuild("sometag", Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD ls -la /dev/fuse\n"), false,null);
+        image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD ls -la /dev/fuse\n"), false,null);
         container = engine.containerCreate(image, "somehost");
         engine.containerStart(container);
         Thread.sleep(1000);
@@ -74,7 +74,7 @@ public class EngineIT {
         labels = Strings.toMap("stooltest", UUID.randomUUID().toString());
         engine = open();
         assertTrue(engine.imageList(labels).isEmpty());
-        engine.imageBuild("sometag", labels, df("FROM debian:stretch-slim\nRUN touch abc\nCMD sleep 2\n"), false,null);
+        engine.imageBuild("sometag", Collections.emptyMap(), labels, df("FROM debian:stretch-slim\nRUN touch abc\nCMD sleep 2\n"), false,null);
         ids = engine.imageList(labels);
         assertEquals(1, ids.size());
         image = ids.get(0);
@@ -127,7 +127,7 @@ public class EngineIT {
         message = UUID.randomUUID().toString();
 
         engine = open();
-        image = engine.imageBuild("sometag",  Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"),false,null);
+        image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"),false,null);
         assertNotNull(image);
 
         container = engine.containerCreate(image, "foo", false,
@@ -182,7 +182,7 @@ public class EngineIT {
         message = UUID.randomUUID().toString();
 
         engine = open();
-        image = engine.imageBuild("sometag",  Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false,null);
+        image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false,null);
         container = engine.containerCreate(image, "foo", false,
                 limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         engine.containerStart(container);
@@ -193,7 +193,7 @@ public class EngineIT {
         engine.imageRemove(image, false);
 
         engine = open();
-        image = engine.imageBuild("sometag",  Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false,null);
+        image = engine.imageBuild("sometag", Collections.emptyMap(),  Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false,null);
         container = engine.containerCreate(image, "foo", false,
                 limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         engine.containerStart(container);
@@ -349,7 +349,7 @@ public class EngineIT {
 
         engine = open();
         output = new StringWriter();
-        image = engine.imageBuild("labeltest", labels, df("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
+        image = engine.imageBuild("labeltest", Collections.emptyMap(), labels, df("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
                 false, output);
         assertEquals(labels, engine.imageLabels(image));
     }
