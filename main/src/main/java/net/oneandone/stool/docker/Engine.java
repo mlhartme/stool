@@ -231,8 +231,9 @@ public class Engine implements AutoCloseable {
     /**
      * @param log may be null
      * @return image id */
-    public String imageBuild(String nameTag, Map<String, String> labels, FileNode context, boolean noCache, Writer log) throws IOException {
-        HttpNode node;
+    public String imageBuild(String nameTag, Map<String, String> labels,
+                             FileNode context, boolean noCache, Writer log) throws IOException {
+        HttpNode build;
         StringBuilder output;
         JsonObject object;
         String error;
@@ -243,13 +244,16 @@ public class Engine implements AutoCloseable {
         JsonElement aux;
         String id;
 
-        node = root.join("build");
-        node = node.getRoot().node(node.getPath(), "t=" + nameTag + labelsToJsonObject(labels) + (noCache ? "&nocache=true" : ""));
+        build = root.join("build");
+        build = build.withParameter("t", nameTag + labelsToJsonObject(labels));
+        if (noCache) {
+            build = build.withParameter("nocache", "true");
+        }
         output = new StringBuilder();
         error = null;
         errorDetail = null;
         id = null;
-        try (InputStream raw = postStream(node, tar(context))) {
+        try (InputStream raw = postStream(build, tar(context))) {
             in = new AsciiInputStream(raw, 4096);
             while (true) {
                 line = in.readLine();

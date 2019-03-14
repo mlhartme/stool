@@ -50,40 +50,38 @@ public class Variable {
 
     public static Variable scan(String line) throws IOException {
         List<String> lst;
-        String type;
         String name;
         Object dflt;
         Function<String, Object> parser;
         String init;
+        int idx;
 
         line = line.trim();
-        if (!line.startsWith("#CONFIG")) {
+        if (line.length() < 4 || !line.substring(0, 3).trim().toUpperCase().equals("ARG")) {
             return null;
         }
-        lst = Separator.SPACE.split(line.trim());
-        if (lst.size() < 2) {
-            throw new IOException("invalid configuration directive, expected '#CONFIG <type> <name> <default>?', got '" + line + "'");
+        line = line.substring(4).trim();
+        idx = line.indexOf('=');
+        if (idx == -1) {
+            name = line;
+            init = "";
+        } else {
+            name = line.substring(0, idx).trim();
+            init = line.substring(idx + 1).trim();
         }
-        type = lst.get(1);
-        init = Separator.SPACE.join(lst.subList(3, lst.size()));
-        switch (type) {
-            case "Integer":
-                parser = Integer::parseInt;
-                break;
-            case "Boolean":
+        switch (init.toLowerCase()) { // TODO: detecting boolean is a heuristic ...
+            case "true":
+            case "false":
                 parser = (String str) -> { switch (str) {
                     case "true": return true;
                     case "false": return false;
                     default: throw new ArgumentException("expected 'true' or 'false', got '" + str + "'");
                 } };
                 break;
-            case "String":
+            default:
                 parser = (String arg) -> arg;
                 break;
-            default:
-                throw new IOException("invalid env type, expected 'Integer', 'Boolean' or 'String', got '" + lst.get(0) + "'");
         }
-        name = lst.get(2);
         try {
             dflt = parser.apply(init);
         } catch (RuntimeException e) {
