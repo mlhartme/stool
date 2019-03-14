@@ -245,7 +245,10 @@ public class Engine implements AutoCloseable {
         String id;
 
         build = root.join("build");
-        build = build.withParameter("t", nameTag + labelsToJsonObject(labels));
+        build = build.withParameter("t", nameTag);
+        if (!labels.isEmpty()) {
+            build = build.withParameter("labels", obj(labels).toString());
+        }
         if (noCache) {
             build = build.withParameter("nocache", "true");
         }
@@ -735,17 +738,6 @@ public class Engine implements AutoCloseable {
             builder.append('"');
         }
         return builder.toString();
-    }
-
-    private static String labelsToJsonObject(Map<String, String> maps) {
-        StringBuilder result;
-
-        if (maps.isEmpty()) {
-            return "";
-        }
-        result = new StringBuilder();
-        result.append(obj(maps).toString());
-        return "&labels=" + enc(result.toString());
     }
 
     private static String enc(String str) {
