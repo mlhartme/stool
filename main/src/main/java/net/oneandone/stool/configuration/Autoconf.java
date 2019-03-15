@@ -57,11 +57,11 @@ public class Autoconf {
             // dest.certificates = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
             dflt = dest.defaults.get("");
             dflt.put("template", "tomcat");
-            dflt.put("template.env", "version:9.0.13,cookies:strict,opts:,mode:test,debug:false,suspend:false,certificate:self-signed");
+            dflt.put("template.env", "java:8,version:9.0.16,cookies:strict,opts:,mode:test,debug:false,suspend:false,certificate:self-signed");
             dest.defaults.put("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/", cp());
             dest.defaults.put("svn:https://svn.1and1.org/svn/sales/workspaces/", workspace());
 
-            templates = home.getWorld().file(tools).join("stool/templates");
+            templates = home.getWorld().file(tools).join("stool/templates-5");
             if (templates.isDirectory()) {
                 templates.link(home.join("templates").deleteTree());
             }
