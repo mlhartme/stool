@@ -21,10 +21,16 @@ import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Image;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Session;
 
+import javax.management.MBeanServerConnection;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.openmbean.CompositeData;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -64,6 +70,7 @@ public class Images extends StageCommand {
             console.info.println("origin:    " + current.image.origin);
             console.info.println("uptime:    " + uptime(current));
             console.info.println("disk-used: " + diskUsed(current));
+            console.info.println("heap:      " + heap(stage, app, current));
             for (Image image : all.get(app)) {
                 marker = image.id.equals(current.image.id) ? "==>" : "   ";
                 console.info.printf("%s [%d] %s\n", marker, idx, image.id);
@@ -84,6 +91,50 @@ public class Images extends StageCommand {
             stage.rotateLogs(console);
 
         }
+    }
+
+    public String heap(Stage stage, String app, Stage.Current current) throws IOException {
+        String container;
+        JMXServiceURL url;
+        MBeanServerConnection connection;
+        ObjectName name;
+        CompositeData result;
+        long used;
+        long max;
+
+        container = current.container;
+        if (container == null) {
+            return "";
+        }
+        if (current.image.ports.jmxmp == -1) {
+            return "[no jmx port]";
+        }
+
+        // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
+        try {
+            url = new JMXServiceURL("service:jmx:jmxmp://" + stage.session.configuration.hostname + ":" + stage.loadPorts().get(app).jmxmp);
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
+        try {
+            connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
+        } catch (IOException e) {
+            e.printStackTrace(stage.session.console.verbose);
+            return "[cannot connect jmx server: " + e.getMessage() + "]";
+        }
+        try {
+            name = new ObjectName("java.lang:type=Memory");
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalStateException(e);
+        }
+        try {
+            result = (CompositeData) connection.getAttribute(name, "HeapMemoryUsage");
+        } catch (Exception e) {
+            return "[cannot get jmx attribute: " + e.getMessage() + "]";
+        }
+        used = (Long) result.get("used");
+        max = (Long) result.get("max");
+        return Float.toString(((float) (used * 1000 / max)) / 10);
     }
 
     public int diskUsed(Stage.Current current) throws IOException {

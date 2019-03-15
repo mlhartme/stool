@@ -18,25 +18,15 @@ package net.oneandone.stool.templates;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 
-import javax.management.MBeanServerConnection;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.openmbean.CompositeData;
-import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXServiceURL;
-import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class StatusHelper {
     private final Stage stage;
-    private final Stage.State state;
     private final Ports ports;
 
-    public StatusHelper(Stage stage, Stage.State state, Ports ports) {
+    public StatusHelper(Stage stage, Ports ports) {
         this.stage = stage;
-        this.state = state;
         this.ports = ports;
     }
 
@@ -53,46 +43,5 @@ public class StatusHelper {
             map.add("  jvisualvm --openjmx " + url);
         }
         return map;
-    }
-
-    public String heap() {
-        JMXServiceURL url;
-        MBeanServerConnection connection;
-        ObjectName name;
-        CompositeData result;
-        long used;
-        long max;
-
-        if (state != Stage.State.UP) {
-            return "";
-        }
-        if (ports == null) {
-            return "[missing jmx port]"; // I've seen this happen on ...
-        }
-        // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-        try {
-            url = new JMXServiceURL("service:jmx:jmxmp://" + stage.session.configuration.hostname + ":" + ports.jmxmp);
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
-        }
-        try {
-            connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
-        } catch (IOException e) {
-            e.printStackTrace(stage.session.console.verbose);
-            return "[cannot connect jmx server: " + e.getMessage() + "]";
-        }
-        try {
-            name = new ObjectName("java.lang:type=Memory");
-        } catch (MalformedObjectNameException e) {
-            throw new IllegalStateException(e);
-        }
-        try {
-            result = (CompositeData) connection.getAttribute(name, "HeapMemoryUsage");
-        } catch (Exception e) {
-            return "[cannot get jmx attribute: " + e.getMessage() + "]";
-        }
-        used = (Long) result.get("used");
-        max = (Long) result.get("max");
-        return Float.toString(((float) (used * 1000 / max)) / 10);
     }
 }
