@@ -21,6 +21,7 @@ import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Image;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 
 import javax.management.MBeanServerConnection;
@@ -70,6 +71,7 @@ public class Images extends StageCommand {
             console.info.println("origin:    " + current.image.origin);
             console.info.println("uptime:    " + uptime(current));
             console.info.println("disk-used: " + diskUsed(current));
+            console.info.println("ports:     " + ports(stage, app));
             console.info.println("heap:      " + heap(stage, app, current));
             for (Image image : all.get(app)) {
                 marker = image.id.equals(current.image.id) ? "==>" : "   ";
@@ -91,6 +93,25 @@ public class Images extends StageCommand {
             stage.rotateLogs(console);
 
         }
+    }
+
+    public String ports(Stage stage, String app) throws IOException {
+        StringBuilder result;
+        Ports ports;
+        String url;
+
+        result = new StringBuilder();
+        ports = stage.loadPorts().get(app);
+        if (ports.debug != -1) {
+            result.append("debug port: " + ports.debug + "\n");
+        }
+        if (ports.jmxmp != -1) {
+            result.append("jmx port: " + ports.jmxmp + "\n");
+            url = stage.session.configuration.hostname + ":" + ports.jmxmp;
+            result.append("  jconsole " + url);
+            result.append("  jvisualvm --openjmx " + url);
+        }
+        return result.toString();
     }
 
     public String heap(Stage stage, String app, Stage.Current current) throws IOException {

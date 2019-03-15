@@ -25,7 +25,6 @@ import net.oneandone.stool.configuration.Accessor;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
-import net.oneandone.stool.templates.TemplateField;
 import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.util.Field;
@@ -271,7 +270,6 @@ public class Stage {
                 return namedUrls(null);
             }
         });
-        fields.addAll(TemplateField.scanTemplate(this, configuration.template));
         return fields;
     }
 
