@@ -101,7 +101,7 @@ public class Session {
 
     public Map<String, Accessor> accessors() {
         if (lazyAccessors == null) {
-            lazyAccessors = StageConfiguration.accessors(templates());
+            lazyAccessors = StageConfiguration.accessors();
         }
         return lazyAccessors;
     }
@@ -178,7 +178,7 @@ public class Session {
     private StageConfiguration createStageConfiguration(String origin) {
         StageConfiguration result;
 
-        result = new StageConfiguration(templates().join("tomcat"));
+        result = new StageConfiguration();
         result.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
         configuration.setDefaults(accessors(), result, origin);
         return result;

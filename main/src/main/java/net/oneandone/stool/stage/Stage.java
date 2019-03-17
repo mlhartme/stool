@@ -70,6 +70,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /** Represents the former backstage directory. From a Docker perspective, a stage roughly represents a Repository */
 public class Stage {
@@ -172,19 +173,10 @@ public class Stage {
 
     public List<Property> properties() {
         List<Property> result;
-        Map<String, String> env;
-        String prefix;
 
         result = new ArrayList<>();
         for (Accessor type : session.accessors().values()) {
-            if (!type.name.equals("template.env")) {
-                result.add(new StandardProperty(type, configuration));
-            }
-        }
-        env = configuration.templateEnv;
-        prefix = configuration.template.getName() + ".";
-        for (String name : configuration.templateEnv.keySet()) {
-            result.add(new TemplateProperty(prefix + name, env, name));
+            result.add(new StandardProperty(type, configuration));
         }
         return result;
     }
@@ -198,7 +190,7 @@ public class Stage {
         return null;
     }
 
-    public List<Field> fields() throws IOException {
+    public List<Field> fields() {
         List<Field> fields;
 
         fields = new ArrayList<>();
@@ -430,6 +422,10 @@ public class Stage {
         String tag;
         FileNode context;
         Map<String, String> label;
+        Properties appProperties;
+        FileNode template;
+        Collection<Variable> env;
+        Map<String, Object> buildArgs;
 
         checkMemory();
         engine = session.dockerEngine();
@@ -437,7 +433,11 @@ public class Stage {
             wipeOldImages(engine,keep - 1);
         }
         tag = getId() + ":" + TAG_FORMAT.format(LocalDateTime.now());
-        context = dockerContext(app, project, war);
+        appProperties = properties(war);
+        template = template(appProperties);
+        env = Variable.scanTemplate(template).values();
+        buildArgs = buildArgs(env, appProperties);
+        context = dockerContext(app, project, war, template, buildArgs);
         label = stageLabel();
         label.put(LABEL_APP, app);
         label.put(LABEL_COMMENT, comment);
@@ -447,13 +447,23 @@ public class Stage {
         console.verbose.println("building image ... ");
         try (Writer log = new FlushWriter(directory.join("image.log").newWriter())) {
             // don't close the tee writer, it would close console output as well
-            image = engine.imageBuild(tag, configuration.templateEnv, label, context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
+            image = engine.imageBuild(tag, convert(buildArgs), label, context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {
             console.verbose.println("image build output");
             console.verbose.println(e.output);
             throw e;
         }
         console.verbose.println("image built: " + image);
+    }
+
+    private static Map<String, String> convert(Map<String, Object> in) {
+        Map<String, String> out;
+
+        out = new HashMap<>(in.size());
+        for (Map.Entry<String, Object> entry : in.entrySet()) {
+            out.put(entry.getKey(), entry.getValue().toString());
+        }
+        return out;
     }
 
     public void start(Console console, Map<String, Integer> selection) throws Exception {
@@ -598,24 +608,21 @@ public class Stage {
 
     private static final String FREEMARKER_EXT = ".fm";
 
-    private FileNode dockerContext(String app, FileNode project, FileNode war) throws IOException, TemplateException {
+    private FileNode dockerContext(String app, FileNode project, FileNode war, FileNode src, Map<String, Object> buildArgs)
+            throws IOException, TemplateException {
         Configuration configuration;
-        FileNode src;
         FileNode dest;
         FileNode destparent;
         FileNode destfile;
         Template template;
         StringWriter tmp;
-        Collection<Variable> environment;
 
         configuration = new Configuration(Configuration.VERSION_2_3_26);
         configuration.setDefaultEncoding("UTF-8");
 
-        src = this.configuration.template;
         dest = directory.join("context");
         dest.deleteTreeOpt();
         dest.mkdir();
-        environment = Variable.scanTemplate(src).values();
         try {
             for (FileNode srcfile : src.find("**/*")) {
                 if (srcfile.isDirectory()) {
@@ -628,7 +635,7 @@ public class Stage {
                     configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
                     template = configuration.getTemplate(srcfile.getName());
                     tmp = new StringWriter();
-                    template.process(templateEnv(app, project, war, dest, environment), tmp);
+                    template.process(templateEnv(app, project, war, dest, buildArgs), tmp);
                     destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
                     destfile.writeString(tmp.getBuffer().toString());
                 } else {
@@ -647,9 +654,25 @@ public class Stage {
         return dest;
     }
 
-    private Map<String, Object> templateEnv(String app, FileNode project, FileNode war, FileNode context, Collection<Variable> environment) throws IOException {
+    private Properties properties(FileNode war) throws IOException {
+        Node<?> root;
+
+        root = war.openZip();
+        return root.join("WEB-INF/classes/META-INF/stool.properties").readProperties();
+    }
+
+    private FileNode template(Properties appProperies) throws IOException {
+        String template;
+
+        template = appProperies.getProperty("template");
+        if (template == null) {
+            throw new IOException("missing propertyl: template");
+        }
+        return session.templates().join(template).checkDirectory();
+    }
+
+    private Map<String, Object> templateEnv(String app, FileNode project, FileNode war, FileNode context, Map<String, Object> buildArgs) {
         Map<String, Object> result;
-        String value;
 
         result = new HashMap<>();
 
@@ -663,12 +686,22 @@ public class Stage {
         result.put("hostHome", session.world.getHome().getAbsolute());
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
         result.put("tomcat", new Tomcat(app, project, war,this, context, session));
+        result.putAll(buildArgs);
+        return result;
+    }
+
+    private Map<String, Object> buildArgs(Collection<Variable> environment, Properties appProperties) {
+        Map<String, Object> result;
+        String value;
+
+        result = new HashMap<>();
         for (Variable env : environment) {
-            value = configuration.templateEnv.get(env.name);
+            value = appProperties.getProperty(env.name);
             if (value == null) {
-                throw new IOException("missing variable in template.env: " + env.name);
+                result.put(env.name, env.dflt);
+            } else {
+                result.put(env.name, env.parse(value));
             }
-            result.put(env.name, env.parse(value));
         }
         return result;
     }

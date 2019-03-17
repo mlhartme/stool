@@ -43,7 +43,6 @@ public class Autoconf {
 
     private static void oneAndOne(Environment environment, FileNode home, StoolConfiguration dest, Writer log) throws IOException {
         String tools;
-        Map<String, String> dflt;
         FileNode templates;
         FileNode downloadsCache;
         FileNode init;
@@ -55,9 +54,6 @@ public class Autoconf {
             dest.mailHost = "mri.server.lan";
             // note: doesn't work on local machines, only for stages ...
             // dest.certificates = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
-            dflt = dest.defaults.get("");
-            dflt.put("template", "tomcat");
-            dflt.put("template.env", "java:8,version:9.0.16,cookies:strict,opts:,mode:test,debug:false,suspend:false,certificate:self-signed");
             dest.defaults.put("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/", cp());
             dest.defaults.put("svn:https://svn.1and1.org/svn/sales/workspaces/", workspace());
 

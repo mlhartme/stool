@@ -18,7 +18,6 @@ package net.oneandone.stool.configuration;
 import com.google.gson.Gson;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -70,13 +69,7 @@ public class StageConfiguration {
     @Option(key = "comment")
     public String comment;
 
-    @Option(key = "template")
-    public FileNode template;
-
-    @Option(key = "template.env")
-    public Map<String, String> templateEnv;
-
-    public StageConfiguration(FileNode template) {
+    public StageConfiguration() {
         this.name = "noname";
         this.notify = new ArrayList<>();
         this.notify.add(NOTIFY_CREATED_BY);
@@ -86,9 +79,6 @@ public class StageConfiguration {
         this.expire = Expire.never();
         this.url = "(http:https)://%h/";
         this.comment = "";
-        this.template = template;
-        // TODO: duplicates Dockerfile template defaults
-        this.templateEnv = Strings.toMap("version", "9.0.13", "opts", "", "debug", "false", "suspend", "false");
     }
 
     public void tuneMemory(int baseMemory, int size) {
@@ -106,7 +96,7 @@ public class StageConfiguration {
     //--
 
     /** you'll usually invoke session.accessors() instead */
-    public static Map<String,Accessor> accessors(FileNode templates) {
+    public static Map<String,Accessor> accessors() {
         Map<String, Accessor> result;
         Option option;
 
@@ -114,11 +104,7 @@ public class StageConfiguration {
         for (java.lang.reflect.Field field : StageConfiguration.class.getFields()) {
             option = field.getAnnotation(Option.class);
             if (option != null) {
-                if (option.key().equals("template")) {
-                    result.put(option.key(), new TemplateAccessor(option.key(), templates));
-                } else {
-                    result.put(option.key(), new ReflectAccessor(option.key(), field));
-                }
+                result.put(option.key(), new ReflectAccessor(option.key(), field));
             }
         }
         return result;

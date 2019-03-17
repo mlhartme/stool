@@ -249,6 +249,7 @@ public class Engine implements AutoCloseable {
         if (!labels.isEmpty()) {
             build = build.withParameter("labels", obj(labels).toString());
         }
+        build = build.withParameter("buildargs", obj(args).toString());
         if (noCache) {
             build = build.withParameter("nocache", "true");
         }

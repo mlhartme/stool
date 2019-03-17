@@ -64,7 +64,7 @@ public class StoolConfiguration {
      */
     public String admin;
 
-    // preserve order!
+    // preserve order!  TODO: dump
     public LinkedHashMap<String, Map<String, String>> defaults;
 
     /**

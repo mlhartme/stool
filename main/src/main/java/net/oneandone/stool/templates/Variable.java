@@ -48,8 +48,7 @@ public class Variable {
         return result;
     }
 
-    public static Variable scan(String line) throws IOException {
-        List<String> lst;
+    public static Variable scan(String line){
         String name;
         Object dflt;
         Function<String, Object> parser;
