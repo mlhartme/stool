@@ -102,6 +102,9 @@ public class Images extends StageCommand {
 
         result = new StringBuilder();
         ports = stage.loadPorts().get(app);
+        if (ports == null) {
+            return "";
+        }
         if (ports.debug != -1) {
             result.append("debug port: " + ports.debug + "\n");
         }
