@@ -600,6 +600,10 @@ public class Stage {
 
         result = new HashMap<>();
         result.put(directory.join("logs").mkdirOpt(), "/var/log/stool");
+        /*
+        if (image.ports.https != -1) {
+            result.put(session.certifact().getAbsolute(), "/usr/local/tomcat/conf/tomcat.jks");
+        }*/
         for (Map.Entry<String, String> entry : image.secrets.entrySet()) {
             result.put(session.world.file(session.configuration.secrets).join(entry.getKey()), entry.getValue());
         }
@@ -676,13 +680,6 @@ public class Stage {
 
         result = new HashMap<>();
 
-        if (OS.CURRENT == OS.MAC) {
-            result.put("UID", "0");
-            result.put("GID", "0");
-        } else {
-            result.put("UID", Long.toString(Engine.geteuid()));
-            result.put("GID", Long.toString(Engine.getegid()));
-        }
         result.put("hostHome", session.world.getHome().getAbsolute());
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
         result.put("tomcat", new Tomcat(app, project, war,this, context, session));
