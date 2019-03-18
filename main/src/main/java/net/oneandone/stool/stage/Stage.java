@@ -35,7 +35,6 @@ import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.StandardProperty;
-import net.oneandone.stool.util.TemplateProperty;
 import net.oneandone.stool.util.UrlPattern;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
@@ -131,7 +130,7 @@ public class Stage {
 
     //-- fields and properties
 
-    public Field fieldOpt(String str) throws IOException {
+    public Field fieldOpt(String str) {
         for (Field f : fields()) {
             if (str.equals(f.name())) {
                 return f;
@@ -140,7 +139,7 @@ public class Stage {
         return null;
     }
 
-    public List<Info> fieldsAndName() throws IOException {
+    public List<Info> fieldsAndName() {
         List<Info> result;
 
         result = new ArrayList<>();
@@ -149,7 +148,7 @@ public class Stage {
         return result;
     }
 
-    public Info info(String str) throws IOException {
+    public Info info(String str) {
         Info result;
         List<String> lst;
 
@@ -728,17 +727,6 @@ public class Stage {
     }
 
     //--
-
-    public Ports loadPortsFirst() throws IOException { // TODO
-        Map<String, Ports> map;
-
-        map = loadPorts();
-        if (map.isEmpty()) {
-            return null;
-        } else {
-            return map.values().iterator().next();
-        }
-    }
 
     /** maps app to its ports; empty map if not ports allocated yet */
     public Map<String, Ports> loadPorts() throws IOException {
