@@ -136,7 +136,7 @@ public class Tomcat {
         return result == null ? "" : result;
     }
 
-    public String catalinaOpts(String extraOpts, boolean debug, boolean suspend) {
+    public String catalinaOpts(String extraOpts) {
         List<String> opts;
         String tomcatOpts;
 
@@ -147,12 +147,6 @@ public class Tomcat {
 
         opts.add("-Xmx" + stage.configuration.memory * 3 / 4 + "m");
 
-        if (debug || suspend) {
-            opts.add("-Xdebug");
-            opts.add("-Xnoagent");
-            opts.add("-Djava.compiler=NONE");
-            opts.add("-Xrunjdwp:transport=dt_socket,server=y,address=5005,suspend=" + (suspend ? "y" : "n"));
-        }
         return Separator.SPACE.join(opts);
     }
 

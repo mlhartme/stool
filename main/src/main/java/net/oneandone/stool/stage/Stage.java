@@ -466,7 +466,7 @@ public class Stage {
         return out;
     }
 
-    public void start(Console console, Map<String, Integer> selection) throws Exception {
+    public void start(Console console, Map<String, String> environment, Map<String, Integer> selection) throws Exception {
         Engine engine;
         String container;
         Engine.Status status;

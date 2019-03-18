@@ -21,17 +21,40 @@ import net.oneandone.stool.util.Session;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class Start extends StageCommand {
     private final boolean tail;
+    private final Map<String, String> environment;
     private final Map<String, Integer> selection;
 
     public Start(Session session, boolean tail, List<String> selection) {
         super(session, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.tail = tail;
+        this.environment = eatEnvironment(selection);
         this.selection = selection(selection);
+    }
+
+    private static Map<String, String> eatEnvironment(List<String> selection) {
+        Iterator<String> iter;
+        String str;
+        int idx;
+        Map<String, String> result;
+
+        result = new HashMap<>();
+        iter = selection.iterator();
+        while (iter.hasNext()) {
+            str = iter.next();
+            idx = str.indexOf('=');
+            if (idx == -1) {
+                break;
+            }
+            result.put(str.substring(0, idx), str.substring(idx + 1));
+            iter.remove();
+        }
+        return result;
     }
 
     @Override
@@ -55,7 +78,7 @@ public class Start extends StageCommand {
         // to avoid running into a ping timeout below:
         stage.session.configuration.verfiyHostname();
         stage.checkConstraints();
-        stage.start(console, selection);
+        stage.start(console, environment, selection);
     }
 
     @Override
