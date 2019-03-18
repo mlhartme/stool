@@ -84,26 +84,6 @@ public class Project {
 
     //--
 
-    public Map<String, FileNode> selectedWars(List<String> selected) throws IOException {
-        Map<String, FileNode> wars;
-        Iterator<Map.Entry<String, FileNode>> iter;
-        String name;
-
-        wars = new LinkedHashMap<>(wars());
-        if (!selected.isEmpty()) {
-            iter = wars.entrySet().iterator();
-            while (iter.hasNext()) {
-                name = iter.next().getKey();
-                if (!selected.contains(name)) {
-                    iter.remove();
-                }
-            }
-        }
-        return wars;
-    }
-
-    //--
-
     @Override
     public String toString() {
         return origin;

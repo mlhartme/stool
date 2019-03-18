@@ -53,9 +53,6 @@ public class StageConfiguration {
     @Option(key = "memory")
     public Integer memory;
 
-    @Option(key = "select")
-    public List<String> select;
-
     /** login names or email addresses, or "@last-modified-by" or "@created-by" */
     @Option(key = "notify")
     public List<String> notify;
@@ -75,7 +72,6 @@ public class StageConfiguration {
         this.notify.add(NOTIFY_CREATED_BY);
         this.quota = 10000;
         this.memory = 400;
-        this.select = new ArrayList<>();
         this.expire = Expire.never();
         this.url = "(http:https)://%h/";
         this.comment = "";
