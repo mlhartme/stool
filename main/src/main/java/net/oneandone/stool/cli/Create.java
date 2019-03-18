@@ -84,7 +84,6 @@ public class Create extends ProjectCommand {
         stage = session.create(project.getOrigin());
         session.projects().add(directory, stage.directory);
         stage.configuration.name = directory.getName();
-        stage.configuration.tuneMemory(stage.session.configuration.baseMemory, project.size());
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());
             if (property == null) {

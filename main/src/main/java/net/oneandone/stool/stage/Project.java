@@ -102,11 +102,6 @@ public class Project {
         return wars;
     }
 
-    /** @return nummer of applications */
-    public int size() throws IOException {
-        return wars().size();
-    }
-
     //--
 
     @Override
