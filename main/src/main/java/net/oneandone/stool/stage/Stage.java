@@ -680,7 +680,6 @@ public class Stage {
 
         result = new HashMap<>();
 
-        result.put("hostHome", session.world.getHome().getAbsolute());
         result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
         result.put("tomcat", new Tomcat(app, project, war,this, context, session));
         result.putAll(buildArgs);
