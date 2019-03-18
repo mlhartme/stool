@@ -71,7 +71,7 @@ public class Home {
 
         world = dir.getWorld();
         world.resource("files/home").copyDirectory(dir);
-        for (String name : new String[]{"stages", "logs", "run", "system", "downloads"}) {
+        for (String name : new String[]{"stages", "logs", "run", "certs", "system", "downloads"}) {
             dir.join(name).mkdir();
         }
         profile(dir.join("shell.rc"),

@@ -434,7 +434,7 @@ public class Engine implements AutoCloseable {
         mounts = new JsonArray();
         hostConfig.add("Mounts", mounts);
         for (Map.Entry<FileNode, String> entry : bindMounts.entrySet()) {
-            mounts.add(body("type", "bind", "source", entry.getKey().checkDirectory().getAbsolute(), "target", entry.getValue()));
+            mounts.add(body("type", "bind", "source", entry.getKey().checkExists().getAbsolute(), "target", entry.getValue()));
         }
         drops = new JsonArray(); // added security - not sure if I really need this
         drops.add(new JsonPrimitive("setuid"));

@@ -600,10 +600,10 @@ public class Stage {
 
         result = new HashMap<>();
         result.put(directory.join("logs").mkdirOpt(), "/var/log/stool");
-        /*
         if (image.ports.https != -1) {
-            result.put(session.certifact().getAbsolute(), "/usr/local/tomcat/conf/tomcat.jks");
-        }*/
+            result.put(session.certificate(session.configuration.vhosts ? image.app + "." + getName() + "." + session.configuration.hostname
+                    : session.configuration.hostname), "/usr/local/tomcat/conf/tomcat.jks");
+        }
         for (Map.Entry<String, String> entry : image.secrets.entrySet()) {
             result.put(session.world.file(session.configuration.secrets).join(entry.getKey()), entry.getValue());
         }
@@ -679,8 +679,6 @@ public class Stage {
         Map<String, Object> result;
 
         result = new HashMap<>();
-
-        result.put("certname", session.configuration.vhosts ? "*." + getName() + "." + session.configuration.hostname : session.configuration.hostname);
         result.put("tomcat", new Tomcat(app, project, war,this, context, session));
         result.putAll(buildArgs);
         return result;

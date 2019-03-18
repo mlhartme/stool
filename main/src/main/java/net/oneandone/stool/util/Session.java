@@ -425,4 +425,22 @@ public class Session {
             lazyEngine.close();
         }
     }
+
+    //--
+
+    public FileNode certificate(String certname) throws IOException {
+        FileNode script;
+        FileNode file;
+        FileNode tmp;
+
+        script = configuration.certificate;
+        if (script == null || !script.isFile()) {
+            throw new IOException("don't know how to generate certifcate: " + script);
+        }
+        file = home.join("certs", certname);
+        tmp = world.getTemp().createTempDirectory();
+        console.verbose.println(tmp.exec(script.getAbsolute(), certname, file.getAbsolute()));
+        tmp.deleteTree();
+        return file;
+    }
 }

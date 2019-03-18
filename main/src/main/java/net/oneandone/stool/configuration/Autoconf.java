@@ -50,6 +50,7 @@ public class Autoconf {
         tools = cisoTools(environment);
         if (tools != null) {
             dest.ldapUnit = "cisostages";
+            dest.certificate = home.getWorld().file(tools).join("stool/templates-5/selfsigned.sh"); // TODO
             dest.admin = "michael.hartmeier@1und1.de";
             dest.mailHost = "mri.server.lan";
             // note: doesn't work on local machines, only for stages ...
