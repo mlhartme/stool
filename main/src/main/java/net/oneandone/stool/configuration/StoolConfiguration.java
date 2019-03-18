@@ -99,6 +99,9 @@ public class StoolConfiguration {
     /** absolute path to secrets root */
     public String secrets;
 
+    // default environment for every container
+    public Map<String, String> environment;
+
     public StoolConfiguration() {
         id = "main";
         portFirst = 9000;
@@ -119,6 +122,7 @@ public class StoolConfiguration {
         quota = 0;
         docker = "/var/run/docker.sock";
         secrets = "/etc/fault/workspace";
+        environment = new HashMap<>();
     }
 
     public static FileNode configurationFile(FileNode home) {

@@ -33,17 +33,18 @@ public class Start extends StageCommand {
     public Start(Session session, boolean tail, List<String> selection) {
         super(session, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.tail = tail;
-        this.environment = eatEnvironment(selection);
+        this.environment = new HashMap<>(session.configuration.environment);
+
+        eatEnvironment(selection, environment);
+
         this.selection = selection(selection);
     }
 
-    private static Map<String, String> eatEnvironment(List<String> selection) {
+    private static void eatEnvironment(List<String> selection, Map<String, String> dest) {
         Iterator<String> iter;
         String str;
         int idx;
-        Map<String, String> result;
 
-        result = new HashMap<>();
         iter = selection.iterator();
         while (iter.hasNext()) {
             str = iter.next();
@@ -51,10 +52,9 @@ public class Start extends StageCommand {
             if (idx == -1) {
                 break;
             }
-            result.put(str.substring(0, idx), str.substring(idx + 1));
+            dest.put(str.substring(0, idx), str.substring(idx + 1));
             iter.remove();
         }
-        return result;
     }
 
     @Override
