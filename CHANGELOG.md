@@ -23,6 +23,7 @@ Stages are now the central part; multiple project can be associated with the sam
 * added `remote -stop` option
 * added `attach` and `detatch` commands to manage project - stage association
 * dumped vhosts bind mounts, copy war instead
+* switch keystore format from JKS to PKCS12
 
 * stool config changes
   * dumped `diskMin`

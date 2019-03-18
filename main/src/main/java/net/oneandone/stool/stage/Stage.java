@@ -602,7 +602,7 @@ public class Stage {
         result.put(directory.join("logs").mkdirOpt(), "/var/log/stool");
         if (image.ports.https != -1) {
             result.put(session.certificate(session.configuration.vhosts ? image.app + "." + getName() + "." + session.configuration.hostname
-                    : session.configuration.hostname), "/usr/local/tomcat/conf/tomcat.jks");
+                    : session.configuration.hostname), "/usr/local/tomcat/conf/tomcat.p12");
         }
         for (Map.Entry<String, String> entry : image.secrets.entrySet()) {
             result.put(session.world.file(session.configuration.secrets).join(entry.getKey()), entry.getValue());

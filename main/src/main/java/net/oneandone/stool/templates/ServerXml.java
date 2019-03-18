@@ -190,8 +190,8 @@ public class ServerXml {
         element.setAttribute("useBodyEncodingForURI", "true");
 
         element.setAttribute("keystorePass", keystorePassword);
-        element.setAttribute("keystoreFile", "/usr/local/tomcat/conf/tomcat.jks");
-        element.setAttribute("keystoreType", "JKS");
+        element.setAttribute("keystoreFile", "/usr/local/tomcat/conf/tomcat.p12");
+        element.setAttribute("keystoreType", "PKCS12");
 
         element.removeAttribute("SSLCertificateFile");
         element.removeAttribute("SSLCertificateKeyFile");
