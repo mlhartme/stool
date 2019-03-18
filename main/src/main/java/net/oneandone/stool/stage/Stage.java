@@ -478,14 +478,15 @@ public class Stage {
             for (String old : engine.containerListForImage(image.id).keySet()) {
                 engine.containerRemove(old);
             }
-            console.info.println(image.app + ": starting container ...");
+            console.verbose.println("environment: " + environment);
+            console.info.println(image.app + ": starting container ... ");
             mounts = bindMounts(image);
             for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
                 console.verbose.println("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC, 1024L * 1024 * configuration.memory, null, null,
-                    Collections.emptyMap(), mounts, map(image.ports, image.app));
+                    environment, mounts, map(image.ports, image.app));
             console.verbose.println("created container " + container);
             engine.containerStart(container);
             status = engine.containerStatus(container);
