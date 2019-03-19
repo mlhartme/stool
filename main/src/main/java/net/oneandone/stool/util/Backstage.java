@@ -57,7 +57,7 @@ public class Backstage {
 
     private final FileNode directory;
 
-    public Backstage(FileNode directory) {
+    private Backstage(FileNode directory) {
         this.directory = directory;
     }
 
@@ -79,7 +79,6 @@ public class Backstage {
     private FileNode map() {
         return directory.join("stage");
     }
-
 
     public void remove() throws IOException {
         directory.deleteTree();

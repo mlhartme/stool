@@ -34,7 +34,7 @@ public class Project {
         return new Project(origin(project), project);
     }
 
-    public static String origin(FileNode dir) throws IOException {
+    private static String origin(FileNode dir) throws IOException {
         if (dir.join(".svn").isDirectory()) {
             return "svn:" + svnCheckoutUrl(dir);
         }
