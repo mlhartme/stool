@@ -79,12 +79,12 @@ public class Create extends ProjectCommand {
         if (backstage == null) {
             backstage = Project.create(project);
         } else {
-            if (backstage.stageOpt() != null) {
+            if (backstage.getAttachedOpt() != null) {
                 throw new ArgumentException("project already has a stage");
             }
         }
         stage = session.create(backstage.getOrigin());
-        backstage.attach(stage.directory);
+        backstage.setAttached(stage.directory);
         stage.configuration.name = project.getName();
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());

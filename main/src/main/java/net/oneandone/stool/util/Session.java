@@ -235,7 +235,7 @@ public class Session {
             if (project == null) {
                 lazySelectedId = null;
             } else {
-                stage = project.stageOpt();
+                stage = project.getAttachedOpt();
                 if (stage != null) {
                     lazySelectedId = stage.getName();
                 }

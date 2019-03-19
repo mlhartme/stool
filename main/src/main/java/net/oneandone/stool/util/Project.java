@@ -69,14 +69,14 @@ public class Project {
         this.project = backstage.getParent();
     }
 
-    public FileNode stageOpt() throws IOException {
+    public FileNode getAttachedOpt() throws IOException {
         FileNode map;
 
         map = map();
         return map.isFile() ? backstage.getWorld().file(map.readString().trim()) : null;
     }
 
-    public void attach(FileNode stage) throws IOException {
+    public void setAttached(FileNode stage) throws IOException {
         map().writeString(stage.getAbsolute());
     }
 
@@ -84,7 +84,7 @@ public class Project {
         return backstage.join("stage");
     }
 
-    public void remove() throws IOException {
+    public void removeBackstage() throws IOException {
         backstage.deleteTree();
     }
 

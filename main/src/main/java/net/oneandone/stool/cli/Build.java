@@ -57,7 +57,7 @@ public class Build extends ProjectCommand {
         if (wars.isEmpty()) {
             throw new IOException("no wars to build");
         }
-        stageDir = project.stageOpt();
+        stageDir = project.getAttachedOpt();
         if (stageDir == null) {
             throw new IOException("no stage attached to " + projectDirectory);
         }

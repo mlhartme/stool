@@ -21,19 +21,21 @@ import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
+import java.io.IOException;
+
 public class Detach extends ProjectCommand {
     public Detach(Session session, FileNode project) {
         super(session, Mode.EXCLUSIVE, project);
     }
 
     @Override
-    public void doRun(FileNode project) throws Exception {
+    public void doRun(FileNode project) throws IOException {
         Project backstage;
 
         backstage = Project.lookup(project);
         if (backstage == null) {
             throw new ArgumentException("project is not attached");
         }
-        backstage.remove();
+        backstage.removeBackstage();
     }
 }

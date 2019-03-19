@@ -40,6 +40,6 @@ public class Attach extends ProjectCommand {
         if (backstage == null) {
             backstage = Project.create(project);
         }
-        backstage.attach(s.directory);
+        backstage.setAttached(s.directory);
     }
 }

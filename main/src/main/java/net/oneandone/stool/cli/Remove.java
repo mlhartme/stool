@@ -49,7 +49,7 @@ public class Remove extends StageCommand {
 
         project = Project.lookup(session.world.getWorking());
         if (project != null) {
-            project.remove();
+            project.removeBackstage();
         }
     }
 }
