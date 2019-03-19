@@ -85,7 +85,7 @@ public class Create extends ProjectCommand {
             }
         }
         stage = session.create(backstage.project().getOrigin());
-        backstage.add(stage.directory);
+        backstage.attach(stage.directory);
         stage.configuration.name = project.getName();
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());

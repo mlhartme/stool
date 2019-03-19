@@ -65,16 +65,6 @@ public class Backstage {
         return Project.load(directory.getParent());
     }
 
-    public FileNode stage() throws IOException {
-        FileNode result;
-
-        result = stageOpt();
-        if (result == null) {
-            throw new IOException("no stage attached to " + directory);
-        }
-        return result;
-    }
-
     public FileNode stageOpt() throws IOException {
         FileNode map;
 
@@ -82,7 +72,7 @@ public class Backstage {
         return map.isFile() ? directory.getWorld().file(map.readString().trim()) : null;
     }
 
-    public void add(FileNode stage) throws IOException {
+    public void attach(FileNode stage) throws IOException {
         map().writeString(stage.getAbsolute());
     }
 

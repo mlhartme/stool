@@ -41,6 +41,6 @@ public class Attach extends ProjectCommand {
         if (backstage == null) {
             backstage = Backstage.create(project);
         }
-        backstage.add(s.directory);
+        backstage.attach(s.directory);
     }
 }
