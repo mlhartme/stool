@@ -28,7 +28,7 @@ import java.util.Map;
 
 public class Backstage {
     public static Backstage create(FileNode project) throws IOException {
-        return new Backstage(file(project).mkdir());
+        return new Backstage(backstage(project).mkdir());
     }
 
     public static Backstage get(FileNode dir) throws IOException {
@@ -41,11 +41,11 @@ public class Backstage {
         return result;
     }
 
-    public static Backstage lookup(FileNode dir) throws IOException {
+    public static Backstage lookup(FileNode dir) {
         FileNode backstage;
 
         while (dir != null) {
-            backstage = file(dir);
+            backstage = backstage(dir);
             if (backstage.isDirectory()) {
                 return new Backstage(backstage);
             }
@@ -54,7 +54,7 @@ public class Backstage {
         return null;
     }
 
-    private static FileNode file(FileNode project) {
+    private static FileNode backstage(FileNode project) {
         return project.join(".backstage");
     }
 
@@ -63,12 +63,10 @@ public class Backstage {
     private final FileNode backstage;
 
     private final FileNode project;
-    private final String origin;
 
-    private Backstage(FileNode backstage) throws IOException {
+    private Backstage(FileNode backstage) {
         this.backstage = backstage;
         this.project = backstage.getParent();
-        this.origin = origin(project);
     }
 
     public FileNode stageOpt() throws IOException {
@@ -141,15 +139,15 @@ public class Backstage {
         return project;
     }
 
-    public String getOrigin() {
-        return origin;
+    public String getOrigin() throws IOException {
+        return origin(project);
     }
 
     //--
 
     @Override
     public String toString() {
-        return origin;
+        return project.getAbsolute();
     }
 
     //--
