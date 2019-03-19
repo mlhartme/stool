@@ -26,28 +26,28 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Backstage {
-    public static Backstage create(FileNode project) throws IOException {
-        return new Backstage(backstage(project).mkdir());
+public class Project {
+    public static Project create(FileNode project) throws IOException {
+        return new Project(backstage(project).mkdir());
     }
 
-    public static Backstage get(FileNode dir) throws IOException {
-        Backstage result;
+    public static Project get(FileNode dir) throws IOException {
+        Project result;
 
-        result = Backstage.lookup(dir);
+        result = Project.lookup(dir);
         if (result == null) {
             throw new IOException("not a project: " + dir);
         }
         return result;
     }
 
-    public static Backstage lookup(FileNode dir) {
+    public static Project lookup(FileNode dir) {
         FileNode backstage;
 
         while (dir != null) {
             backstage = backstage(dir);
             if (backstage.isDirectory()) {
-                return new Backstage(backstage);
+                return new Project(backstage);
             }
             dir = dir.getParent();
         }
@@ -64,7 +64,7 @@ public class Backstage {
 
     private final FileNode project;
 
-    private Backstage(FileNode backstage) {
+    private Project(FileNode backstage) {
         this.backstage = backstage;
         this.project = backstage.getParent();
     }

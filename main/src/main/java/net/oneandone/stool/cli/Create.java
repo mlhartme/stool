@@ -18,7 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Backstage;
+import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
@@ -71,13 +71,13 @@ public class Create extends ProjectCommand {
 
     @Override
     public void doRun(FileNode project) throws IOException {
-        Backstage backstage;
+        Project backstage;
         Stage stage;
         Property property;
 
-        backstage = Backstage.lookup(project);
+        backstage = Project.lookup(project);
         if (backstage == null) {
-            backstage = Backstage.create(project);
+            backstage = Project.create(project);
         } else {
             if (backstage.stageOpt() != null) {
                 throw new ArgumentException("project already has a stage");
@@ -93,7 +93,7 @@ public class Create extends ProjectCommand {
             }
             property.set(entry.getValue());
         }
-        Backstage.checkName(stage.configuration.name);
+        Project.checkName(stage.configuration.name);
         stage.saveConfig();
 
         session.logging.openStage(stage.getId(), stage.getName());

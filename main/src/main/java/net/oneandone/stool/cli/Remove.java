@@ -17,7 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Backstage;
+import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Session;
 
 public class Remove extends StageCommand {
@@ -32,7 +32,7 @@ public class Remove extends StageCommand {
 
     @Override
     public void doMain(Stage stage) throws Exception {
-        Backstage backstage;
+        Project project;
 
         if (stop && stage.state() == Stage.State.UP) {
             new Stop(session).doRun(stage);
@@ -47,9 +47,9 @@ public class Remove extends StageCommand {
 
         stage.directory.deleteTree();
 
-        backstage = Backstage.lookup(session.world.getWorking());
-        if (backstage != null) {
-            backstage.remove();
+        project = Project.lookup(session.world.getWorking());
+        if (project != null) {
+            project.remove();
         }
     }
 }

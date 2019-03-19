@@ -227,15 +227,15 @@ public class Session {
     private String lazySelectedId = UNKNOWN;
 
     public String getSelectedStageId() throws IOException {
-        Backstage backstage;
+        Project project;
         FileNode stage;
 
         if (lazySelectedId == UNKNOWN) {
-            backstage = Backstage.lookup(world.getWorking());
-            if (backstage == null) {
+            project = Project.lookup(world.getWorking());
+            if (project == null) {
                 lazySelectedId = null;
             } else {
-                stage = backstage.stageOpt();
+                stage = project.stageOpt();
                 if (stage != null) {
                     lazySelectedId = stage.getName();
                 }

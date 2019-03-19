@@ -27,7 +27,7 @@ import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.templates.Variable;
-import net.oneandone.stool.util.Backstage;
+import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.FlushWriter;
 import net.oneandone.stool.util.Info;
@@ -415,7 +415,7 @@ public class Stage {
     }
 
     /** @param keep 0 to keep all */
-    public void build(Backstage backstage, String app, FileNode project, FileNode war, Console console, String comment, String origin,
+    public void build(Project backstage, String app, FileNode project, FileNode war, Console console, String comment, String origin,
                       String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
         Engine engine;
         String image;
@@ -613,7 +613,7 @@ public class Stage {
 
     private static final String FREEMARKER_EXT = ".fm";
 
-    private FileNode dockerContext(Backstage backstage, String app, FileNode project, FileNode war, FileNode src, Map<String, Object> buildArgs)
+    private FileNode dockerContext(Project backstage, String app, FileNode project, FileNode war, FileNode src, Map<String, Object> buildArgs)
             throws IOException, TemplateException {
         Configuration configuration;
         FileNode dest;

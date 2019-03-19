@@ -18,7 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Backstage;
+import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -44,27 +44,27 @@ public class Build extends ProjectCommand {
 
     @Override
     public void doRun(FileNode projectDirectory) throws Exception {
-        Backstage backstage;
+        Project project;
         FileNode stageDir;
         Stage stage;
         Map<String, FileNode> wars;
 
-        backstage = Backstage.lookup(projectDirectory);
-        if (backstage == null) {
+        project = Project.lookup(projectDirectory);
+        if (project == null) {
             throw new ArgumentException("unknown stage");
         }
-        wars = backstage.wars();
+        wars = project.wars();
         if (wars.isEmpty()) {
             throw new IOException("no wars to build");
         }
-        stageDir = backstage.stageOpt();
+        stageDir = project.stageOpt();
         if (stageDir == null) {
             throw new IOException("no stage attached to " + projectDirectory);
         }
         stage = session.load(stageDir);
         for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
-            stage.build(backstage, entry.getKey(), backstage.getProject(), entry.getValue(), console, comment, backstage.getOrigin(), createdBy(), createdOn(), noCache, keep);
+            stage.build(project, entry.getKey(), project.getProject(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
             if (restart) {
                 new Restart(session, new ArrayList<>()).doRun(stage);
             }
