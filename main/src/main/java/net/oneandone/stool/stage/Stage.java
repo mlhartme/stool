@@ -445,7 +445,7 @@ public class Stage {
         label.put(LABEL_CREATED_BY, createdBy);
         label.put(LABEL_CREATED_ON, createdOn);
         console.verbose.println("building image ... ");
-        try (Writer log = new FlushWriter(directory.join("image.log").newWriter())) {
+        try (Writer log = new FlushWriter(backstage.imageLog().newWriter())) {
             // don't close the tee writer, it would close console output as well
             image = engine.imageBuild(tag, convert(buildArgs), label, context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {

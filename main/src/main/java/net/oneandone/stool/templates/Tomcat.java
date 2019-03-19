@@ -189,14 +189,6 @@ public class Tomcat {
         return major < 8;
     }
 
-    private String certhost() {
-        if (session.configuration.vhosts) {
-            return "*." + stage.getName() + "." + session.configuration.hostname;
-        } else {
-            return session.configuration.hostname;
-        }
-    }
-
     //--
 
     private static String tomcatName(String version) {

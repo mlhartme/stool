@@ -1137,7 +1137,6 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
 ... of $STOOL_HOME (default is `~/.stool`)
 
         |- config.json (Stool configuration)
-        |- maven-settings.xml (to resolve dependencies if a user has no MAVEN_HOME)
         |- run
         |  |- locks       (holds all locking data)
         |  '- ports       (lists all allocated ports)
@@ -1150,20 +1149,17 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
         |- bash.complete
         '- stages
            |- id (directory for the respective stage; former 'backstage')
-           :  |- stoollogs        (directory with stool log files)
-              |- config.json      (stage configuration)
-              |- creator.touch    (created when stage is created, tracks created-by and created-at)
-              |- modified.touch   (touched if Stool command modifies this stage)
-              |- logs             (log file of running stage)
-              |- image.log        (Docker's image build output) 
-              '- context          (context to build docker image)
+           :  |- config.json      (stage configuration)
+              '- logs             (log file of running stage)
            
 ... of project directories
 
         :
         :  (normal project files)
         :
-        '- .stage                 (symlink to stage directory)
+        '- .backstage
+              |- image.log        (Docker's image build output) 
+              '- context          (context to build docker image)
 
 
 Normal project files for source stages are simply the respective SCM files, for artifact stages they are:

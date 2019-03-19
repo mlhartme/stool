@@ -93,4 +93,8 @@ public class Backstage {
         result.mkdir();
         return result;
     }
+
+    public FileNode imageLog() {
+        return directory.join("image.log");
+    }
 }
