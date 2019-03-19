@@ -79,12 +79,14 @@ public class EngineIT {
         assertEquals(1, ids.size());
         image = ids.get(0);
         assertTrue(engine.containerListForImage(image).isEmpty());
+        assertTrue(engine.containerListRunning("stooltest").isEmpty());
         ports = new HashMap<>();
         ports.put(1301, 1302);
         container = engine.containerCreate(image, "somehost", false, null, null, null,
                 Collections.emptyMap(), Collections.emptyMap(), ports);
 
         assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
+        assertTrue(engine.containerListRunning("stooltest").isEmpty());
         map = engine.containerListForImage(image);
         assertEquals(1, map.size());
         assertTrue(map.containsKey(container));
@@ -93,6 +95,7 @@ public class EngineIT {
         engine.containerStart(container);
 
         assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
+        assertEquals(Arrays.asList(container), new ArrayList<>(engine.containerListRunning("stooltest").keySet()));
         map = engine.containerListForImage(image);
         assertEquals(1, map.size());
         assertTrue(map.containsKey(container));

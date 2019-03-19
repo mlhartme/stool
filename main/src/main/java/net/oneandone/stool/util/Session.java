@@ -17,6 +17,7 @@ package net.oneandone.stool.util;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.cli.EnumerationFailed;
 import net.oneandone.stool.cli.Main;
@@ -28,11 +29,13 @@ import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.locking.LockManager;
+import net.oneandone.stool.stage.Image;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Strings;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
@@ -320,14 +323,19 @@ public class Session {
     /** used for running containers */
     private int memReservedContainers() throws IOException {
         int reserved;
+        Engine engine;
         StageConfiguration stage;
+        JsonObject json;
+        Image image;
 
         reserved = 0;
-        for (FileNode directory : stages.list()) {
-            if (directory.join("container.id").exists()) {
-                stage = loadStageConfiguration(directory);
-                reserved += stage.memory;
-            }
+        engine = dockerEngine();
+        for (String container : engine.containerListRunning(Stage.LABEL_STOOL).keySet()) {
+            System.out.println("container: " + container);
+            json = engine.containerInspect(container, false);
+            image = Image.load(engine, Strings.removeLeft(json.get("Image").getAsString(), "sha256:"));
+            stage = loadStageConfiguration(stages.join(image.id).checkDirectory());
+            reserved += stage.memory;
         }
         return reserved;
     }

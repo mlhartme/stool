@@ -186,6 +186,10 @@ public class Engine implements AutoCloseable {
         return doContainerList("{\"label\" : [\"" + key + "=" + value + "\"], \"status\" : [\"running\"] }", false);
     }
 
+    public Map<String, ListInfo> containerListRunning(String key) throws IOException {
+        return doContainerList("{\"label\" : [\"" + key + "\"], \"status\" : [\"running\"] }", false);
+    }
+
     private Map<String, ListInfo> doContainerList(String filters, boolean all) throws IOException {
         HttpNode node;
         JsonArray array;
