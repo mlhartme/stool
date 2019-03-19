@@ -93,18 +93,6 @@ public class Projects {
         return map.containsKey(project);
     }
 
-    public List<FileNode> projects(Stage stage) {
-        List<FileNode> result;
-
-        result = new ArrayList<>();
-        for (Map.Entry<FileNode, FileNode> entry : map.entrySet()) {
-            if (entry.getValue().equals(stage.directory)) {
-                result.add(entry.getKey());
-            }
-        }
-        return result;
-    }
-
     public void add(FileNode project, FileNode stage) throws IOException {
         map.put(project, stage);
         save();
