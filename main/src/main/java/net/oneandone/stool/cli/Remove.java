@@ -38,18 +38,17 @@ public class Remove extends StageCommand {
             new Stop(session).doRun(stage);
         }
         stage.checkNotUp();
-        // TODO: remove stage link ...
         if (!batch) {
             console.info.println("Ready to delete " + stage.directory.getAbsolute() + "?");
             console.pressReturn();
         }
         stage.wipeDocker(session.dockerEngine());
 
-        stage.directory.deleteTree();
-
         project = Project.lookup(session.world.getWorking());
-        if (project != null) {
+        if (project != null && stage.directory.equals(project.getAttachedOpt())) {
+            console.info.println("removing backstage");
             project.removeBackstage();
         }
+        stage.directory.deleteTree();
     }
 }
