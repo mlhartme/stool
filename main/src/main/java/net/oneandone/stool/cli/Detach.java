@@ -18,6 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
+import net.oneandone.stool.util.Backstage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -27,9 +28,13 @@ public class Detach extends ProjectCommand {
     }
 
     @Override
-    public void doRun(Project project) throws Exception {
-        if (!session.projects().remove(project)) {
+    public void doRun(FileNode project) throws Exception {
+        Backstage backstage;
+
+        backstage = Backstage.lookup(project);
+        if (backstage == null) {
             throw new ArgumentException("project is not attached");
         }
+        backstage.remove();
     }
 }

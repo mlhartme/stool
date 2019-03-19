@@ -17,9 +17,8 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Backstage;
 import net.oneandone.stool.util.Session;
-
-import java.util.ArrayList;
 
 public class Remove extends StageCommand {
     private final boolean batch;
@@ -33,6 +32,8 @@ public class Remove extends StageCommand {
 
     @Override
     public void doMain(Stage stage) throws Exception {
+        Backstage backstage;
+
         if (stop && stage.state() == Stage.State.UP) {
             new Stop(session).doRun(stage);
         }
@@ -44,7 +45,11 @@ public class Remove extends StageCommand {
         }
         stage.wipeDocker(session.dockerEngine());
 
-        session.projects().remove(stage);
         stage.directory.deleteTree();
+
+        backstage = Backstage.lookup(session.world.getWorking());
+        if (backstage != null) {
+            backstage.remove();
+        }
     }
 }

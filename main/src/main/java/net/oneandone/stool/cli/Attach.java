@@ -18,6 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Backstage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -31,10 +32,15 @@ public class Attach extends ProjectCommand {
     }
 
     @Override
-    public void doRun(Project project) throws Exception {
+    public void doRun(FileNode project) throws Exception {
+        Backstage backstage;
         Stage s;
 
         s = session.loadByName(stage);
-        session.projects().add(project.getDirectory(), s.directory);
+        backstage = Backstage.lookup(project);
+        if (backstage == null) {
+            backstage = Backstage.create(project);
+        }
+        backstage.add(s.directory);
     }
 }

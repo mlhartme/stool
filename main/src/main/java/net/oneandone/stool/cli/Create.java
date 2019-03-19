@@ -19,6 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Backstage;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
@@ -70,20 +71,22 @@ public class Create extends ProjectCommand {
     }
 
     @Override
-    public void doRun(Project project) throws IOException {
+    public void doRun(FileNode project) throws IOException {
+        Backstage backstage;
         Stage stage;
         Property property;
-        FileNode directory;
 
-
-        directory = project.getDirectory().checkDirectory();
-        if (session.projects().hasProject(directory)) {
-            throw new ArgumentException("project already has a stage");
+        backstage = Backstage.lookup(project);
+        if (backstage == null) {
+            backstage = Backstage.create(project);
+        } else {
+            if (backstage.stageOpt() != null) {
+                throw new ArgumentException("project already has a stage");
+            }
         }
-
-        stage = session.create(project.getOrigin());
-        session.projects().add(directory, stage.directory);
-        stage.configuration.name = directory.getName();
+        stage = session.create(backstage.project().getOrigin());
+        backstage.add(stage.directory);
+        stage.configuration.name = project.getName();
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());
             if (property == null) {

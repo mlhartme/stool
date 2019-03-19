@@ -8,17 +8,11 @@ __stageIndicator() {
   else
     home=$HOME/.stool
   fi
-  if [ -f ${home}/projects ] ; then
-    while read -u10 line
-    do
-      local path="$(echo "${line}" | cut -f 1 -d "=")"
-      if echo "${project}/" | grep "${path}/" >/dev/null ; then
-        local name="$(__stageName $(echo ${line} | cut -f 2 -d "="))"
-        echo -n "{${name}} "
-        return
-      fi
-    done 10< "${home}/projects"
-    # not mapped -> no indicator
+  if [ -f "${project}/.backstage/stage" ] ; then
+      local path="$(cat "${project}/.backstage/stage")"
+      local name="$(__stageName ${path})"
+      echo -n "{${name}} "
+      return
   else
     # no projects at all -> no indicator
     return

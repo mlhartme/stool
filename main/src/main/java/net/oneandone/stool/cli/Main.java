@@ -91,7 +91,6 @@ public class Main {
                     cli.add(Build.class, "build -nocache -keep=5 -restart -m= project?");
                     cli.add(Attach.class, "attach stage project?");
                     cli.add(Detach.class, "detach project?");
-                    cli.add(Port.class, "port port project? { port*(port) }");
                     cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(Images.class, "images");
                       cli.add(Cleanup.class, "cleanup");

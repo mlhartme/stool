@@ -15,9 +15,11 @@
  */
 package net.oneandone.stool.cli;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Backstage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -42,15 +44,23 @@ public class Build extends ProjectCommand {
     }
 
     @Override
-    public void doRun(Project project) throws Exception {
+    public void doRun(FileNode projectDirectory) throws Exception {
+        Backstage backstage;
+        Project project;
         Stage stage;
         Map<String, FileNode> wars;
+
+        backstage = Backstage.lookup(projectDirectory);
+        if (backstage == null) {
+            throw new ArgumentException("unknown stage");
+        }
+        project = backstage.project();
 
         wars = project.wars();
         if (wars.isEmpty()) {
             throw new IOException("no wars to build");
         }
-        stage = session.load(session.projects().stage(project.getDirectory()));
+        stage = session.load(backstage.stage());
         for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
             stage.build(entry.getKey(), project.getDirectory(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);

@@ -25,6 +25,8 @@ Stages are now the central part; multiple project can be associated with the sam
 * dumped vhosts bind mounts, copy war instead
 * switch keystore format from JKS to PKCS12
 
+* removed ports command
+
 * stool config changes
   * dumped `diskMin`
   * dumped `macros`

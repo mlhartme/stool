@@ -227,15 +227,15 @@ public class Session {
     private String lazySelectedId = UNKNOWN;
 
     public String getSelectedStageId() throws IOException {
-        FileNode project;
+        Backstage backstage;
         FileNode stage;
 
         if (lazySelectedId == UNKNOWN) {
-            project = findProjectDirectory(world.getWorking());
-            if (project == null) {
+            backstage = Backstage.lookup(world.getWorking());
+            if (backstage == null) {
                 lazySelectedId = null;
             } else {
-                stage = projects().stageOpt(project);
+                stage = backstage.stageOpt();
                 if (stage != null) {
                     lazySelectedId = stage.getName();
                 }
@@ -246,28 +246,6 @@ public class Session {
 
     public boolean isSelected(Stage stage) throws IOException {
         return stage.getId().equals(getSelectedStageId());
-    }
-
-    //-- Projects
-
-    private Projects lazyProjects = null;
-
-    public Projects projects() throws IOException {
-        if (lazyProjects == null) {
-            lazyProjects = new Projects(home.join("projects"));
-            lazyProjects.load();
-        }
-        return lazyProjects;
-    }
-
-    private FileNode findProjectDirectory(FileNode dir) throws IOException {
-        while (dir != null) {
-            if (projects().hasProject(dir)) {
-                return dir;
-            }
-            dir = dir.getParent();
-        }
-        return null;
     }
 
     //--
