@@ -17,7 +17,6 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Project;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Backstage;
 import net.oneandone.stool.util.Property;
@@ -84,7 +83,7 @@ public class Create extends ProjectCommand {
                 throw new ArgumentException("project already has a stage");
             }
         }
-        stage = session.create(backstage.project().getOrigin());
+        stage = session.create(backstage.getOrigin());
         backstage.attach(stage.directory);
         stage.configuration.name = project.getName();
         for (Map.Entry<String, String> entry : config.entrySet()) {
@@ -94,7 +93,7 @@ public class Create extends ProjectCommand {
             }
             property.set(entry.getValue());
         }
-        Project.checkName(stage.configuration.name);
+        Backstage.checkName(stage.configuration.name);
         stage.saveConfig();
 
         session.logging.openStage(stage.getId(), stage.getName());

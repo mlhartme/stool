@@ -15,14 +15,19 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.stage.Project;
-import net.oneandone.sushi.fs.MkdirException;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Failure;
+import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Backstage {
-    public static Backstage create(FileNode project) throws MkdirException {
+    public static Backstage create(FileNode project) throws IOException {
         return new Backstage(file(project).mkdir());
     }
 
@@ -36,7 +41,7 @@ public class Backstage {
         return result;
     }
 
-    public static Backstage lookup(FileNode dir) {
+    public static Backstage lookup(FileNode dir) throws IOException {
         FileNode backstage;
 
         while (dir != null) {
@@ -55,21 +60,22 @@ public class Backstage {
 
     //--
 
-    private final FileNode directory;
+    private final FileNode backstage;
 
-    private Backstage(FileNode directory) {
-        this.directory = directory;
-    }
+    private final FileNode project;
+    private final String origin;
 
-    public Project project() throws IOException {
-        return Project.load(directory.getParent());
+    private Backstage(FileNode backstage) throws IOException {
+        this.backstage = backstage;
+        this.project = backstage.getParent();
+        this.origin = origin(project);
     }
 
     public FileNode stageOpt() throws IOException {
         FileNode map;
 
         map = map();
-        return map.isFile() ? directory.getWorld().file(map.readString().trim()) : null;
+        return map.isFile() ? backstage.getWorld().file(map.readString().trim()) : null;
     }
 
     public void attach(FileNode stage) throws IOException {
@@ -77,23 +83,236 @@ public class Backstage {
     }
 
     private FileNode map() {
-        return directory.join("stage");
+        return backstage.join("stage");
     }
 
     public void remove() throws IOException {
-        directory.deleteTree();
+        backstage.deleteTree();
     }
 
     public FileNode createContext() throws IOException {
         FileNode result;
 
-        result = directory.join("context");
+        result = backstage.join("context");
         result.deleteTreeOpt();
         result.mkdir();
         return result;
     }
 
     public FileNode imageLog() {
-        return directory.join("image.log");
+        return backstage.join("image.log");
+    }
+
+    //--
+
+    private static String origin(FileNode dir) throws IOException {
+        if (dir.join(".svn").isDirectory()) {
+            return "svn:" + svnCheckoutUrl(dir);
+        }
+        if (dir.join(".git").isDirectory()) {
+            return "git:" + git(dir, "config", "--get", "remote.origin.url").exec().trim();
+        }
+        throw new IOException("not a checkout: " + dir);
+    }
+
+    private static String svnCheckoutUrl(FileNode dir) throws Failure {
+        Launcher launcher;
+        String str;
+        int idx;
+
+        launcher = new Launcher(dir, "svn", "info");
+        launcher.env("LC_ALL", "C");
+        str = launcher.exec();
+        idx = str.indexOf("URL:") + 4;
+        return str.substring(idx, str.indexOf("\n", idx)).trim();
+    }
+
+    private static Launcher git(FileNode cwd, String... args) {
+        Launcher launcher;
+
+        launcher = new Launcher(cwd, "git");
+        launcher.arg(args);
+        return launcher;
+    }
+
+    //--
+
+    public FileNode getProject() {
+        return project;
+    }
+
+    public String getOrigin() {
+        return origin;
+    }
+
+    //--
+
+    @Override
+    public String toString() {
+        return origin;
+    }
+
+    //--
+
+    protected void addWars(FileNode directory, Map<String, FileNode> result) throws IOException {
+        List<FileNode> files;
+        List<FileNode> wars;
+
+        files = directory.list();
+        if (!hasPom(files)) {
+            return;
+        }
+
+        wars = directory.find("target/*.war");
+        switch (wars.size()) {
+            case 0:
+                // do nothing
+                break;
+            case 1:
+                result.put(directory.getName(), wars.get(0));
+                break;
+            default:
+                throw new IOException(directory + ": wars ambiguous: " + wars);
+        }
+        for (FileNode file : files) {
+            if (file.isDirectory()) {
+                addWars(file, result);
+            }
+        }
+    }
+
+    private static boolean hasPom(List<FileNode> list) {
+        String name;
+
+        for (FileNode file : list) {
+            name = file.getName();
+            if (name.equals("pom.xml") || name.equals("workspace.xml")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private Map<String, FileNode> lazyWars;
+
+    public Map<String, FileNode> wars() throws IOException {
+        if (lazyWars == null) {
+            lazyWars = new HashMap<>();
+            addWars(project, lazyWars);
+        }
+        return lazyWars;
+    }
+
+    //-- stage name
+
+    /**
+     * The stage name has to be a valid domain name because is used as part of the application url.
+     * See http://tools.ietf.org/html/rfc1035 section 2.3.1.
+     */
+    public static void checkName(String name) {
+        char c;
+
+        if (name.isEmpty()) {
+            throw new ArgumentException("empty stage name is not allowed");
+        }
+        if (name.length() > 30) {
+            //ITCA does not accept too long commonNames
+            throw new ArgumentException("Stage Name is too long. Please take a shorter one.");
+        }
+        if (!isLetter(name.charAt(0))) {
+            throw new ArgumentException("stage name does not start with a letter");
+        }
+        for (int i = 1; i < name.length(); i++) {
+            c = name.charAt(i);
+            if (!isValidStageNameChar(c)) {
+                throw new ArgumentException("stage name contains illegal character: " + c);
+            }
+        }
+    }
+
+    public static boolean isValidStageNameChar(char c) {
+        return isLetter(c) || isDigit(c) || c == '-' || c == '.';
+    }
+    // cannot use Character.is... because we check ascii only
+    private static boolean isLetter(char c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+    }
+    // cannot use Character.is... because we check ascii only
+    private static boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
+    public static String nameForUrl(String url) {
+        if (url.startsWith("gav:")) {
+            return nameForGavUrl(url);
+        } else if (url.startsWith("file:")) {
+            return nameForFileUrl(url);
+        } else {
+            return nameForSvnOrGitUrl(url);
+        }
+    }
+
+    private static String nameForGavUrl(String url) {
+        int end;
+        int start;
+
+        url = one(url);
+        end = url.lastIndexOf(':');
+        if (end == -1) {
+            return "stage";
+        }
+        start = url.lastIndexOf(':', end - 1);
+        if (start == -1) {
+            return "stage";
+        }
+        return url.substring(start + 1, end);
+    }
+
+    private static String nameForFileUrl(String url) {
+        int idx;
+
+        url = one(url);
+        idx = url.lastIndexOf('/');
+        if (idx == -1) {
+            return "idx";
+        }
+        url = url.substring(idx + 1);
+        idx = url.lastIndexOf('.');
+        if (idx == -1) {
+            return url;
+        } else {
+            return url.substring(0, idx);
+        }
+    }
+
+    private static String one(String url) {
+        int end;
+
+        end = url.lastIndexOf(',');
+        if (end != -1) {
+            url = url.substring(0, end);
+        }
+        end = url.lastIndexOf('=');
+        if (end != -1) {
+            url = url.substring(0, end);
+        }
+        return url;
+    }
+
+    private static String nameForSvnOrGitUrl(String url) {
+        String result;
+        int idx;
+
+        result = Strings.removeRightOpt(url, "/");
+        idx = result.indexOf(':');
+        if (idx != -1) {
+            // strip protocol - important vor gav stages
+            result = result.substring(idx + 1);
+        }
+        result = Strings.removeRightOpt(result, "/trunk");
+        idx = result.lastIndexOf('/');
+        result = result.substring(idx + 1); // ok for -1
+        result = Strings.removeRightOpt(result, ".git");
+        return result.isEmpty() ? "stage" : result;
     }
 }
