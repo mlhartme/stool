@@ -166,11 +166,11 @@ public class Tomcat {
     //--
 
     private FileNode tomcatTarGz(String version) {
-        return stage.directory.join("context/tomcat/apache-tomcat-" + version + ".tar.gz");
+        return context.join("tomcat/apache-tomcat-" + version + ".tar.gz");
     }
 
     private FileNode serverXml() {
-        return stage.directory.join("context/tomcat/server.xml");
+        return context.join("tomcat/server.xml");
     }
 
     /** @return true for 8.0.x and older */

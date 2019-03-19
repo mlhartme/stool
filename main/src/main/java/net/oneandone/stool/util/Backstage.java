@@ -84,4 +84,13 @@ public class Backstage {
     public void remove() throws IOException {
         directory.deleteTree();
     }
+
+    public FileNode createContext() throws IOException {
+        FileNode result;
+
+        result = directory.join("context");
+        result.deleteTreeOpt();
+        result.mkdir();
+        return result;
+    }
 }

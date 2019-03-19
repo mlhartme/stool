@@ -27,6 +27,7 @@ import net.oneandone.stool.docker.BuildError;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.templates.Variable;
+import net.oneandone.stool.util.Backstage;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.FlushWriter;
 import net.oneandone.stool.util.Info;
@@ -414,8 +415,8 @@ public class Stage {
     }
 
     /** @param keep 0 to keep all */
-    public void build(String app, FileNode project, FileNode war, Console console, String comment, String origin, String createdBy, String createdOn,
-                      boolean noCache, int keep) throws Exception {
+    public void build(Backstage backstage, String app, FileNode project, FileNode war, Console console, String comment, String origin,
+                      String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
         Engine engine;
         String image;
         String tag;
@@ -436,7 +437,7 @@ public class Stage {
         template = template(appProperties);
         env = Variable.scanTemplate(template).values();
         buildArgs = buildArgs(env, appProperties);
-        context = dockerContext(app, project, war, template, buildArgs);
+        context = dockerContext(backstage, app, project, war, template, buildArgs);
         label = stageLabel();
         label.put(LABEL_APP, app);
         label.put(LABEL_COMMENT, comment);
@@ -612,7 +613,7 @@ public class Stage {
 
     private static final String FREEMARKER_EXT = ".fm";
 
-    private FileNode dockerContext(String app, FileNode project, FileNode war, FileNode src, Map<String, Object> buildArgs)
+    private FileNode dockerContext(Backstage backstage, String app, FileNode project, FileNode war, FileNode src, Map<String, Object> buildArgs)
             throws IOException, TemplateException {
         Configuration configuration;
         FileNode dest;
@@ -624,9 +625,7 @@ public class Stage {
         configuration = new Configuration(Configuration.VERSION_2_3_26);
         configuration.setDefaultEncoding("UTF-8");
 
-        dest = directory.join("context");
-        dest.deleteTreeOpt();
-        dest.mkdir();
+        dest = backstage.createContext();
         try {
             for (FileNode srcfile : src.find("**/*")) {
                 if (srcfile.isDirectory()) {

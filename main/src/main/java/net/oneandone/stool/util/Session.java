@@ -309,7 +309,6 @@ public class Session {
         reserved = 0;
         engine = dockerEngine();
         for (String container : engine.containerListRunning(Stage.LABEL_STOOL).keySet()) {
-            System.out.println("container: " + container);
             json = engine.containerInspect(container, false);
             image = Image.load(engine, Strings.removeLeft(json.get("Image").getAsString(), "sha256:"));
             stage = loadStageConfiguration(stages.join(image.id).checkDirectory());
