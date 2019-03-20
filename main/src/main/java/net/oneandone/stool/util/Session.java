@@ -323,15 +323,11 @@ public class Session {
         return reserved;
     }
 
-    public FileNode ports() {
-        return home.join("run/ports");
-    }
-
     //-- stool properties
 
     public Pool pool() throws IOException {
         if (lazyPool == null) {
-            lazyPool = Pool.loadOpt(ports(), configuration.portFirst, configuration.portLast, stages);
+            lazyPool = Pool.load(dockerEngine(), configuration.portFirst, configuration.portLast);
         }
         return lazyPool;
     }

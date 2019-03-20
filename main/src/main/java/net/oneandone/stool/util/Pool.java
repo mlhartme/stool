@@ -15,7 +15,9 @@
  */
 package net.oneandone.stool.util;
 
+import com.google.gson.JsonObject;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.LineFormat;
@@ -33,51 +35,47 @@ import java.util.Map;
 import java.util.Set;
 
 public class Pool {
-    private static final LineFormat FMT = new LineFormat(LineFormat.LF_SEPARATOR, LineFormat.Trim.ALL, LineFormat.excludes(true));
-
-    public static Pool loadOpt(FileNode file, int first, int last, FileNode stages) throws IOException {
+    public static Pool load(Engine engine, int first, int last) throws IOException {
+        JsonObject labels;
+        Ports ports;
         Pool result;
-        String line;
+        String stage;
+        String app;
 
-        result = new Pool(file, first, last, stages);
-        if (file.exists()) {
-            try (Reader in = file.newReader(); LineReader src = new LineReader(in, FMT)) {
-                while (true) {
-                    line = src.next();
-                    if (line == null) {
-                        break;
-                    }
-                    result.vhosts.add(Vhost.forLine(line));
-                }
+        result = new Pool(first, last);
+        for (String container : engine.containerList(Stage.LABEL_STOOL).keySet()) {
+            labels = engine.containerInspect(container, false).get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
+            stage = labels.get(Stage.LABEL_STAGE).getAsString();
+            app = labels.get(Stage.LABEL_APP).getAsString();
+            ports = Ports.fromHostLabels(labels);
+            if (ports.https != ports.http + 1) {
+                throw new IllegalStateException(ports.toString());
             }
+            if (ports.debug != ports.jmxmp + 1) {
+                throw new IllegalStateException(ports.toString());
+            }
+            result.vhosts.add(new Vhost(ports.http, app, stage, true));
+            result.vhosts.add(new Vhost(ports.jmxmp, app, stage, false));
         }
         return result;
     }
 
     //--
 
-    private final FileNode file;
     private final int first;
     private final int last;
     private final List<Vhost> vhosts;
-    private final FileNode stages;
 
-    public Pool(FileNode file, int first, int last, FileNode stages) {
+    public Pool(int first, int last) {
         if (first % 2 != 0) {
             throw new IllegalArgumentException("even port expected: " + first);
         }
         if (last % 2 != 1) {
             throw new IllegalArgumentException("odd port expected: " + last);
         }
-        this.file = file;
         this.first = first;
         this.last = last;
-        this.stages = stages;
         this.vhosts = new ArrayList<>();
-    }
-
-    public FileNode getFile() {
-        return file;
     }
 
     // TODO: ugly reference to stage ...
@@ -87,13 +85,10 @@ public class Pool {
         Vhost webapp;
         Vhost jmxDebug;
 
-        gc();
-
         stageName = stage.getName();
         stageId = stage.getId();
         webapp = allocateVhost(app, stageName, stageId, true, port);
         jmxDebug = allocateVhost(app, stageName, stageId, false, null);
-        save();
         return Ports.forVhosts(webapp, jmxDebug);
     }
 
@@ -162,31 +157,6 @@ public class Pool {
         throw new IOException("cannot find free port in range [" + first + ", " + last + "[");
     }
 
-    private void gc() {
-        Set<String> ids;
-
-        ids = new HashSet<>();
-        for (Vhost vhost : vhosts) {
-            ids.add(vhost.id);
-        }
-        for (String id : ids) {
-            if (!stages.join(id).isDirectory()) {
-                gcId(id);
-            }
-        }
-    }
-
-    private void gcId(String id) {
-        Vhost vhost;
-
-        for (int i = vhosts.size() - 1; i >= 0; i--) {
-            vhost = vhosts.get(i);
-            if (id.equals(vhost.id)) {
-                vhosts.remove(i);
-            }
-        }
-    }
-
     public Vhost lookupId(String app, String id, boolean webapp) {
         for (Vhost vhost : vhosts) {
             if (app.equals(vhost.app) && id.equals(vhost.id) && webapp == vhost.webapp) {
@@ -194,16 +164,6 @@ public class Pool {
             }
         }
         return null;
-    }
-
-    public void save() throws IOException {
-        List<String> lines;
-
-        lines = new ArrayList<>();
-        for (Vhost vhost : vhosts) {
-            lines.add(vhost.toLine());
-        }
-        file.writeLines(lines);
     }
 
     public int temp() throws IOException {
