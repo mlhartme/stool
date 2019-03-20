@@ -474,8 +474,8 @@ public class Stage {
         Engine engine;
         String container;
         Engine.Status status;
+        Ports hostPorts;
         Map<FileNode, String> mounts;
-        Map<Integer, Integer> ports;
 
         checkMemory();
         engine = session.dockerEngine();
@@ -489,10 +489,10 @@ public class Stage {
             for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
                 console.verbose.println("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
-            ports = image.ports.map(session.pool().allocate(this, image.app, null));
+            hostPorts = session.pool().allocate(this, image.app, null);
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * configuration.memory, null, null,
-                    Strings.toMap(LABEL_PORTS, portsToString(ports)), environment, mounts, ports);
+                    hostPorts.toHostLabels(), environment, mounts, image.ports.map(hostPorts));
             console.verbose.println("created container " + container);
             engine.containerStart(container);
             status = engine.containerStatus(container);
@@ -500,21 +500,6 @@ public class Stage {
                 throw new IOException("unexpected status: " + status);
             }
         }
-    }
-
-    private static String portsToString(Map<Integer, Integer> ports) {
-        StringBuilder result;
-
-        result = new StringBuilder();
-        for (Map.Entry<Integer, Integer> entry : ports.entrySet()) {
-            if (result.length() > 0) {
-                result.append(", ");
-            }
-            result.append(entry.getKey());
-            result.append(':');
-            result.append(entry.getValue());
-        }
-        return result.toString();
     }
 
     private List<Image> resolve(Engine engine, Map<String, Integer> selectionOrig) throws IOException {

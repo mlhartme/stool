@@ -112,4 +112,25 @@ public class Ports {
         this.jmxmp = jmxmp;
         this.debug = debug;
     }
+
+    public Map<String, String> toHostLabels() {
+        return toLabels(Stage.LABEL_HOST_PORT_PREFIX);
+    }
+
+    private Map<String, String> toLabels(String prefix) {
+        Map<String, String> result;
+
+        result = new HashMap<>();
+        addOpt(result, prefix + Stage.LABEL_HTTP_SUFFIX, http);
+        addOpt(result, prefix + Stage.LABEL_HTTPS_SUFFIX, https);
+        addOpt(result, prefix + Stage.LABEL_JMXMP_SUFFIX, jmxmp);
+        addOpt(result, prefix + Stage.LABEL_DEBUG_SUFFIX, debug);
+        return result;
+    }
+
+    private static void addOpt(Map<String, String> dest, String key, int value) {
+        if (value != -1) {
+            dest.put(key, Integer.toString(value));
+        }
+    }
 }
