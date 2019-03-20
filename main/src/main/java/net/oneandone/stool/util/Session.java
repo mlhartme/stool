@@ -305,14 +305,20 @@ public class Session {
         StageConfiguration stage;
         JsonObject json;
         Image image;
+        FileNode directory;
 
         reserved = 0;
         engine = dockerEngine();
         for (String container : engine.containerListRunning(Stage.LABEL_STOOL).keySet()) {
             json = engine.containerInspect(container, false);
             image = Image.load(engine, Strings.removeLeft(json.get("Image").getAsString(), "sha256:"));
-            stage = loadStageConfiguration(stages.join(image.id).checkDirectory());
-            reserved += stage.memory;
+            directory = stages.join(image.id);
+            if (directory.exists()) {
+                stage = loadStageConfiguration(directory);
+                reserved += stage.memory;
+            } else {
+                // TODO: stage container?
+            }
         }
         return reserved;
     }

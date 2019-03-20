@@ -398,11 +398,6 @@ public class Stage {
     public static final String LABEL_HOST_PORT_PREFIX = LABEL_PREFIX + "host.port.";
     public static final String LABEL_CONTAINER_PORT_PREFIX = LABEL_PREFIX + "container.port.";
 
-    public static final String LABEL_HTTP_SUFFIX = "http";
-    public static final String LABEL_HTTPS_SUFFIX = "https";
-    public static final String LABEL_JMXMP_SUFFIX = "jmxmp";
-    public static final String LABEL_DEBUG_SUFFIX = "debug";
-
     public static final String LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
 
     public static final String LABEL_STOOL = LABEL_PREFIX + "stool";

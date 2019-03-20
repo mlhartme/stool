@@ -26,6 +26,23 @@ import java.util.Map;
 
 /** Manage ports used for one stage. Immutable. Do not create directly, use Pool class instead. */
 public class Ports {
+    public enum Port {
+        HTTP, HTTPS, JMXMP, DEBUG;
+
+        public int get(JsonObject labels, String prefix) {
+            JsonElement str;
+
+            str = labels.get(prefix + toString().toLowerCase());
+            return str == null ? -1 : Integer.parseInt(str.getAsString());
+        }
+
+        public void add(Map<String, String> dest, String prefix, int value) {
+            if (value != -1) {
+                dest.put(prefix + toString().toLowerCase(), Integer.toString(value));
+            }
+        }
+    }
+
     public static Ports fromContainerLabels(JsonObject labels) {
         return fromLabels(labels, Stage.LABEL_CONTAINER_PORT_PREFIX);
     }
@@ -36,18 +53,12 @@ public class Ports {
 
     public static Ports fromLabels(JsonObject labels, String prefix) {
         return new Ports(
-                get(labels, prefix + Stage.LABEL_HTTP_SUFFIX),
-                get(labels, prefix + Stage.LABEL_HTTPS_SUFFIX),
-                get(labels, prefix + Stage.LABEL_JMXMP_SUFFIX),
-                get(labels, prefix + Stage.LABEL_DEBUG_SUFFIX));
+                Port.HTTP.get(labels, prefix),
+                Port.HTTPS.get(labels, prefix),
+                Port.JMXMP.get(labels, prefix),
+                Port.DEBUG.get(labels, prefix));
     }
 
-    private static int get(JsonObject labels, String name) {
-        JsonElement str;
-
-        str = labels.get(name);
-        return str == null ? -1 : Integer.parseInt(str.getAsString());
-    }
 
     public static Ports forVhosts(List<Vhost> vhosts) {
         Vhost first;
@@ -121,16 +132,11 @@ public class Ports {
         Map<String, String> result;
 
         result = new HashMap<>();
-        addOpt(result, prefix + Stage.LABEL_HTTP_SUFFIX, http);
-        addOpt(result, prefix + Stage.LABEL_HTTPS_SUFFIX, https);
-        addOpt(result, prefix + Stage.LABEL_JMXMP_SUFFIX, jmxmp);
-        addOpt(result, prefix + Stage.LABEL_DEBUG_SUFFIX, debug);
+        Port.HTTP.add(result, prefix, http);
+        Port.HTTPS.add(result, prefix, https);
+        Port.JMXMP.add(result, prefix, jmxmp);
+        Port.DEBUG.add(result, prefix, debug);
         return result;
     }
 
-    private static void addOpt(Map<String, String> dest, String key, int value) {
-        if (value != -1) {
-            dest.put(key, Integer.toString(value));
-        }
-    }
 }
