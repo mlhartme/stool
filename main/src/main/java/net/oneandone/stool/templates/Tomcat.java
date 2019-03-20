@@ -144,9 +144,6 @@ public class Tomcat {
 
         tomcatOpts = escape(extraOpts);
         opts.addAll(Separator.SPACE.split(tomcatOpts));
-
-        opts.add("-Xmx" + stage.configuration.memory * 3 / 4 + "m");
-
         return Separator.SPACE.join(opts);
     }
 

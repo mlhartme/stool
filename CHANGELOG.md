@@ -26,7 +26,7 @@ Stages are now the central part; multiple project can be associated with the sam
 * switch keystore format from JKS to PKCS12
 
 * removed ports command
-
+* no longer set -Xmx (let the jvm figure out this)
 * stool config changes
   * dumped `diskMin`
   * dumped `macros`
