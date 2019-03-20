@@ -409,6 +409,7 @@ public class Stage {
     public static final String LABEL_ORIGIN = LABEL_PREFIX + "origin";
     public static final String LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
     public static final String LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
+    public static final String LABEL_PORTS = LABEL_PREFIX + "ports";
 
     private Map<String, String> stageLabel() {
         return Strings.toMap(LABEL_STOOL, session.configuration.id, LABEL_STAGE, getId());
@@ -471,6 +472,7 @@ public class Stage {
         String container;
         Engine.Status status;
         Map<FileNode, String> mounts;
+        Map<Integer, Integer> ports;
 
         checkMemory();
         engine = session.dockerEngine();
@@ -484,9 +486,10 @@ public class Stage {
             for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
                 console.verbose.println("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
+            ports = map(image.ports, image.app);
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * configuration.memory, null, null,
-                    Collections.emptyMap(), environment, mounts, map(image.ports, image.app));
+                    Strings.toMap(LABEL_PORTS, portsToString(ports)), environment, mounts, ports);
             console.verbose.println("created container " + container);
             engine.containerStart(container);
             status = engine.containerStatus(container);
@@ -494,6 +497,21 @@ public class Stage {
                 throw new IOException("unexpected status: " + status);
             }
         }
+    }
+
+    private static String portsToString(Map<Integer, Integer> ports) {
+        StringBuilder result;
+
+        result = new StringBuilder();
+        for (Map.Entry<Integer, Integer> entry : ports.entrySet()) {
+            if (result.length() > 0) {
+                result.append(", ");
+            }
+            result.append(entry.getKey());
+            result.append(':');
+            result.append(entry.getValue());
+        }
+        return result.toString();
     }
 
     private List<Image> resolve(Engine engine, Map<String, Integer> selectionOrig) throws IOException {

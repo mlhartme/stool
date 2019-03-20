@@ -74,7 +74,7 @@ public class EngineIT {
         Map<String, Engine.ListInfo> map;
         JsonObject obj;
         JsonObject cmp;
-        
+
         labels = Strings.toMap("stooltest", UUID.randomUUID().toString());
         engine = open();
         assertTrue(engine.imageList(labels).isEmpty());
