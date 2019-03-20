@@ -484,7 +484,7 @@ public class Stage {
             for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
                 console.verbose.println("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
-            hostPorts = session.pool().allocate(this, image.app, null);
+            hostPorts = session.pool().allocate(this, image.app);
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * configuration.memory, null, null,
                     hostPorts.toHostLabels(), environment, mounts, image.ports.map(hostPorts));

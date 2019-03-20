@@ -16,23 +16,15 @@
 package net.oneandone.stool.util;
 
 import com.google.gson.JsonObject;
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.io.LineFormat;
-import net.oneandone.sushi.io.LineReader;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class Pool {
     public static Pool load(Engine engine, int first, int last) throws IOException {
@@ -79,7 +71,7 @@ public class Pool {
     }
 
     // TODO: ugly reference to stage ...
-    public Ports allocate(Stage stage, String app, Integer port) throws IOException {
+    public Ports allocate(Stage stage, String app) throws IOException {
         String stageName;
         String stageId;
         Vhost webapp;
@@ -87,12 +79,12 @@ public class Pool {
 
         stageName = stage.getName();
         stageId = stage.getId();
-        webapp = allocateVhost(app, stageName, stageId, true, port);
-        jmxDebug = allocateVhost(app, stageName, stageId, false, null);
+        webapp = allocateVhost(app, stageName, stageId, true);
+        jmxDebug = allocateVhost(app, stageName, stageId, false);
         return Ports.forVhosts(webapp, jmxDebug);
     }
 
-    private Vhost allocateVhost(String app, String stageName, String stageId, boolean webapp, Integer port) throws IOException {
+    private Vhost allocateVhost(String app, String stageName, String stageId, boolean webapp) throws IOException {
         Vhost previous;
         Vhost modified;
         Vhost found;
@@ -103,25 +95,12 @@ public class Pool {
             if (modified == null) {
                 return previous;
             } else {
-                if (port != null) {
-                    if (used(port)) {
-                        throw new ArgumentException("port already reserved: " + port);
-                    }
-                    checkFree(port);
-                }
                 vhosts.remove(previous);
                 vhosts.add(modified);
                 return modified;
             }
         } else {
-            if (port == null) {
-                found = allocate(app, stageName, stageId, webapp);
-            } else {
-                found = allocate(port, app, stageId, webapp);
-                if (found.even != port) {
-                    throw new ArgumentException("port already in use: " + port);
-                }
-            }
+            found = allocate(app, stageName, stageId, webapp);
             return found;
         }
     }

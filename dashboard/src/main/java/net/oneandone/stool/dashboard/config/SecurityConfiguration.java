@@ -20,7 +20,6 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.templates.ServerXml;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
-import net.oneandone.stool.util.Vhost;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
