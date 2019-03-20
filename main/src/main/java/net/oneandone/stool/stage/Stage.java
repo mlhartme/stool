@@ -486,7 +486,7 @@ public class Stage {
             }
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * configuration.memory, null, null,
-                    environment, mounts, map(image.ports, image.app));
+                    Collections.emptyMap(), environment, mounts, map(image.ports, image.app));
             console.verbose.println("created container " + container);
             engine.containerStart(container);
             status = engine.containerStatus(container);

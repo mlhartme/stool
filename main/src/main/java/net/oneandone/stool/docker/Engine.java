@@ -391,7 +391,8 @@ public class Engine implements AutoCloseable {
     //-- containers
 
     public String containerCreate(String image, String hostname) throws IOException {
-        return containerCreate(image, hostname, false, null, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        return containerCreate(image, hostname, false, null, null, null,
+                Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
     }
 
     /**
@@ -402,7 +403,7 @@ public class Engine implements AutoCloseable {
      * @return container id
      */
     public String containerCreate(String image, String hostname, boolean priviledged, Long memory, String stopSignal, Integer stopTimeout,
-                                  Map<String, String> env, Map<FileNode, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
+                                  Map<String, String> labels, Map<String, String> env, Map<FileNode, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
         JsonObject body;
         JsonObject response;
         JsonObject hostConfig;
@@ -414,6 +415,9 @@ public class Engine implements AutoCloseable {
             body = body("Image", image, "Hostname", hostname);
         } else {
             body = body("Image", image, "Hostname", hostname, "User", Long.toString(geteuid()), "Group", Long.toString(getegid()));
+        }
+        if (!labels.isEmpty()) {
+            body.add("Labels", obj(labels));
         }
         if (stopSignal != null) {
             body.add("StopSignal", new JsonPrimitive(stopSignal));
