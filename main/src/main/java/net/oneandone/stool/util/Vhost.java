@@ -21,40 +21,6 @@ import java.util.Objects;
 public class Vhost {
     private static final char SEP = ' ';
 
-    // parses   <even> ' ' <app> ' ' <id> [' ' <webapp>]
-    // where webapp is an arbitrary string for the webapp ports - or empty for jmxDebug
-    public static Vhost forLine(String line) {
-        int afterEven;
-        int afterName;
-        int afterId;
-        int even;
-        String app;
-        String id;
-        boolean webapp;
-
-        afterEven = line.indexOf(SEP);
-        if (afterEven == -1) {
-            throw new IllegalArgumentException("invalid vhost line: " + line);
-        }
-        even = Integer.parseInt(line.substring(0, afterEven));
-
-        afterName = line.indexOf(SEP, afterEven + 1);
-        if (afterName == -1) {
-            throw new IllegalArgumentException("invalid vhost line: " + line);
-        }
-        app = line.substring(afterEven + 1, afterName);
-
-        afterId = line.indexOf(SEP, afterName + 1);
-        if (afterId == -1) {
-            id = line.substring(afterName + 1);
-            webapp = false;
-        } else {
-            id = line.substring(afterName + 1, afterId);
-            webapp = true;
-        }
-        return new Vhost(even, app, id, webapp);
-    }
-
     public final int even;
 
     public final String app;
@@ -77,10 +43,6 @@ public class Vhost {
         this.webapp = webapp;
     }
 
-    public boolean isWebapp() {
-        return webapp;
-    }
-
     public int httpPort() {
         return even;
     }
@@ -89,15 +51,8 @@ public class Vhost {
         return even + 1;
     }
 
-    public String toLine() {
-        // CAUTION: just
-        //    even + SEP
-        // is an integer addition!
-        return Integer.toString(even) + SEP + app + SEP + id + (webapp ? SEP + "webapp" : "");
-    }
-
     public String toString() {
-        return toLine();
+        return Integer.toString(even) + SEP + app + SEP + id + (webapp ? SEP + "webapp" : "");
     }
 
     /** null if not modified */

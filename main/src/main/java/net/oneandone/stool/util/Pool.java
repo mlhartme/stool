@@ -157,7 +157,7 @@ public class Pool {
         throw new IOException("cannot find free port in range [" + first + ", " + last + "[");
     }
 
-    public Vhost lookupId(String app, String id, boolean webapp) {
+    private Vhost lookupId(String app, String id, boolean webapp) {
         for (Vhost vhost : vhosts) {
             if (app.equals(vhost.app) && id.equals(vhost.id) && webapp == vhost.webapp) {
                 return vhost;
