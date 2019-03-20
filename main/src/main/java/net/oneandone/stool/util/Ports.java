@@ -19,7 +19,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.stage.Stage;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** Manage ports used for one stage. Immutable. Do not create directly, use Pool class instead. */
 public class Ports {
@@ -73,6 +76,27 @@ public class Ports {
 
     public static Ports forVhosts(Vhost webapp, Vhost jmxDebug) {
         return new Ports(webapp.httpPort(), webapp.httpsPort(), jmxDebug.even, jmxDebug.even + 1);
+    }
+
+
+    public Map<Integer, Integer> map(Ports hostPorts) {
+        Map<Integer, Integer> result;
+
+        result = new HashMap<>();
+        addOpt(result, http, hostPorts.http);
+        addOpt(result, https, hostPorts.https);
+        addOpt(result, jmxmp, hostPorts.jmxmp);
+        addOpt(result, debug, hostPorts.debug);
+        return result;
+    }
+
+    private static void addOpt(Map<Integer, Integer> dest, int left, int right) {
+        if (right == -1) {
+            throw new IllegalStateException();
+        }
+        if (left != -1) {
+            dest.put(left, right);
+        }
     }
 
     //--

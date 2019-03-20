@@ -489,7 +489,7 @@ public class Stage {
             for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
                 console.verbose.println("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
-            ports = map(image.ports, image.app);
+            ports = image.ports.map(session.pool().allocate(this, image.app, null));
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * configuration.memory, null, null,
                     Strings.toMap(LABEL_PORTS, portsToString(ports)), environment, mounts, ports);
@@ -557,28 +557,6 @@ public class Stage {
             }
         }
         return result;
-    }
-
-    private Map<Integer, Integer> map(Ports containerPorts, String app) throws IOException {
-        Ports hostPorts;
-        Map<Integer, Integer> result;
-
-        hostPorts = session.pool().allocate(this, app, null);
-        result = new HashMap<>();
-        addOpt(result, containerPorts.http, hostPorts.http);
-        addOpt(result, containerPorts.https, hostPorts.https);
-        addOpt(result, containerPorts.jmxmp, hostPorts.jmxmp);
-        addOpt(result, containerPorts.debug, hostPorts.debug);
-        return result;
-    }
-
-    private static void addOpt(Map<Integer, Integer> dest, int left, int right) {
-        if (right == -1) {
-            throw new IllegalStateException();
-        }
-        if (left != -1) {
-            dest.put(left, right);
-        }
     }
 
     /** Fails if container is not running */
