@@ -30,7 +30,7 @@ RUN set -x; \
 	apt-get update && apt-get install -y --no-install-recommends ca-certificates curl wget procps bzip2 unzip xz-utils gpg openjdk-8-jre="$JAVA_DEBIAN_VERSION" && rm -rf /var/lib/apt/lists/*
 
 COPY tomcat /tmp/tomcat
-ENV CATALINA_OPTS ${tomcat.catalinaOpts(opts, debug, suspend)}
+ENV CATALINA_OPTS ${OPTS}
 ENV CATALINA_HOME /usr/local/tomcat
 RUN set -x; \
     mkdir $CATALINA_HOME; \

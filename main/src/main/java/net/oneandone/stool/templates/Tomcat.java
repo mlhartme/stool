@@ -136,22 +136,6 @@ public class Tomcat {
         return result == null ? "" : result;
     }
 
-    public String catalinaOpts(String extraOpts) {
-        List<String> opts;
-        String tomcatOpts;
-
-        opts = new ArrayList<>();
-
-        tomcatOpts = escape(extraOpts);
-        opts.addAll(Separator.SPACE.split(tomcatOpts));
-        return Separator.SPACE.join(opts);
-    }
-
-    /* for shell processing in dockerfile and eval call in catalina.sh: | -> \\| */
-    private static String escape(String str) {
-        return str.replace("|", "\\\\|");
-    }
-
     public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {
         ServerXml serverXml;
 
