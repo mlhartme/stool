@@ -34,7 +34,7 @@ public class Image implements Comparable<Image> {
         inspect = engine.imageInspect(id);
         created = LocalDateTime.parse(inspect.get("Created").getAsString(), Engine.CREATED_FMT);
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
-        return new Image(id, created, Ports.fromLabels(labels),
+        return new Image(id, created, Ports.fromContainerLabels(labels),
                 labels.get(Stage.LABEL_APP).getAsString(),
                 labels.get(Stage.LABEL_COMMENT).getAsString(),
                 labels.get(Stage.LABEL_ORIGIN).getAsString(),

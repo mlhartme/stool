@@ -395,10 +395,13 @@ public class Stage {
 
     private static final String LABEL_PREFIX = "net.onetandone.stool-";
 
-    public static final String LABEL_PORT_HTTP = LABEL_PREFIX + "port.http";
-    public static final String LABEL_PORT_HTTPS = LABEL_PREFIX + "port.https";
-    public static final String LABEL_PORT_JMXMP = LABEL_PREFIX + "port.jmxmp";
-    public static final String LABEL_PORT_DEBUG = LABEL_PREFIX + "port.debug";
+    public static final String LABEL_HOST_PORT_PREFIX = LABEL_PREFIX + "host.port.";
+    public static final String LABEL_CONTAINER_PORT_PREFIX = LABEL_PREFIX + "container.port.";
+
+    public static final String LABEL_HTTP_SUFFIX = "http";
+    public static final String LABEL_HTTPS_SUFFIX = "https";
+    public static final String LABEL_JMXMP_SUFFIX = "jmxmp";
+    public static final String LABEL_DEBUG_SUFFIX = "debug";
 
     public static final String LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
 
@@ -422,7 +425,7 @@ public class Stage {
         String image;
         String tag;
         FileNode context;
-        Map<String, String> label;
+        Map<String, String> labels;
         Properties appProperties;
         FileNode template;
         Collection<Variable> env;
@@ -439,16 +442,16 @@ public class Stage {
         env = Variable.scanTemplate(template).values();
         buildArgs = buildArgs(env, appProperties);
         context = dockerContext(backstage, app, project, war, template, buildArgs);
-        label = stageLabel();
-        label.put(LABEL_APP, app);
-        label.put(LABEL_COMMENT, comment);
-        label.put(LABEL_ORIGIN, origin);
-        label.put(LABEL_CREATED_BY, createdBy);
-        label.put(LABEL_CREATED_ON, createdOn);
+        labels = stageLabel();
+        labels.put(LABEL_APP, app);
+        labels.put(LABEL_COMMENT, comment);
+        labels.put(LABEL_ORIGIN, origin);
+        labels.put(LABEL_CREATED_BY, createdBy);
+        labels.put(LABEL_CREATED_ON, createdOn);
         console.verbose.println("building image ... ");
         try (Writer log = new FlushWriter(backstage.imageLog().newWriter())) {
             // don't close the tee writer, it would close console output as well
-            image = engine.imageBuild(tag, convert(buildArgs), label, context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
+            image = engine.imageBuild(tag, convert(buildArgs), labels, context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {
             console.verbose.println("image build output");
             console.verbose.println(e.output);

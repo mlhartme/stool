@@ -23,12 +23,20 @@ import java.util.List;
 
 /** Manage ports used for one stage. Immutable. Do not create directly, use Pool class instead. */
 public class Ports {
-    public static Ports fromLabels(JsonObject labels) {
+    public static Ports fromContainerLabels(JsonObject labels) {
+        return fromLabels(labels, Stage.LABEL_CONTAINER_PORT_PREFIX);
+    }
+
+    public static Ports fromHostLabels(JsonObject labels) {
+        return fromLabels(labels, Stage.LABEL_HOST_PORT_PREFIX);
+    }
+
+    public static Ports fromLabels(JsonObject labels, String prefix) {
         return new Ports(
-                get(labels, Stage.LABEL_PORT_HTTP),
-                get(labels, Stage.LABEL_PORT_HTTPS),
-                get(labels, Stage.LABEL_PORT_JMXMP),
-                get(labels, Stage.LABEL_PORT_DEBUG));
+                get(labels, prefix + Stage.LABEL_HTTP_SUFFIX),
+                get(labels, prefix + Stage.LABEL_HTTPS_SUFFIX),
+                get(labels, prefix + Stage.LABEL_JMXMP_SUFFIX),
+                get(labels, prefix + Stage.LABEL_DEBUG_SUFFIX));
     }
 
     private static int get(JsonObject labels, String name) {
