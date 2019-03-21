@@ -415,7 +415,7 @@ public class Stage {
     }
 
     /** @param keep 0 to keep all */
-    public void build(Project backstage, String app, FileNode project, FileNode war, Console console, String comment, String origin,
+    public void build(Project project, String app, FileNode war, Console console, String comment, String origin,
                       String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
         Engine engine;
         String image;
@@ -437,7 +437,7 @@ public class Stage {
         template = template(appProperties);
         env = Variable.scanTemplate(template).values();
         buildArgs = buildArgs(env, appProperties);
-        context = dockerContext(backstage, app, project, war, template, buildArgs);
+        context = dockerContext(project, app, war, template, buildArgs);
         labels = stageLabel();
         labels.put(LABEL_APP, app);
         labels.put(LABEL_COMMENT, comment);
@@ -445,7 +445,7 @@ public class Stage {
         labels.put(LABEL_CREATED_BY, createdBy);
         labels.put(LABEL_CREATED_ON, createdOn);
         console.verbose.println("building image ... ");
-        try (Writer log = new FlushWriter(backstage.imageLog().newWriter())) {
+        try (Writer log = new FlushWriter(project.imageLog().newWriter())) {
             // don't close the tee writer, it would close console output as well
             image = engine.imageBuild(tag, convert(buildArgs), labels, context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
         } catch (BuildError e) {
@@ -593,7 +593,7 @@ public class Stage {
 
     private static final String FREEMARKER_EXT = ".fm";
 
-    private FileNode dockerContext(Project backstage, String app, FileNode project, FileNode war, FileNode src, Map<String, Object> buildArgs)
+    private FileNode dockerContext(Project project, String app, FileNode war, FileNode src, Map<String, Object> buildArgs)
             throws IOException, TemplateException {
         Configuration configuration;
         FileNode dest;
@@ -605,7 +605,7 @@ public class Stage {
         configuration = new Configuration(Configuration.VERSION_2_3_26);
         configuration.setDefaultEncoding("UTF-8");
 
-        dest = backstage.createContext();
+        dest = project.createContext();
         try {
             for (FileNode srcfile : src.find("**/*")) {
                 if (srcfile.isDirectory()) {
@@ -618,7 +618,7 @@ public class Stage {
                     configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
                     template = configuration.getTemplate(srcfile.getName());
                     tmp = new StringWriter();
-                    template.process(templateEnv(app, project, war, dest, buildArgs), tmp);
+                    template.process(templateEnv(app, project.getProject(), war, dest, buildArgs), tmp);
                     destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
                     destfile.writeString(tmp.getBuffer().toString());
                 } else {
