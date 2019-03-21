@@ -19,9 +19,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.stage.Stage;
 
-import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /** Manage ports used for one stage. Immutable. Do not create directly, use Pool class instead. */
@@ -60,36 +58,6 @@ public class Ports {
     }
 
 
-    public static Ports forVhosts(List<Vhost> vhosts) {
-        Vhost first;
-        Vhost second;
-
-        if (vhosts.size() != 2) {
-            throw new IllegalStateException(vhosts.toString());
-        }
-        first = vhosts.get(0);
-        second = vhosts.get(1);
-        if (!first.id.equals(second.id)) {
-            throw new IllegalArgumentException(first.id + " vs " + second.id);
-        }
-        if (!first.app.equals(second.app)) {
-            throw new IllegalArgumentException(first.app + " vs " + second.app);
-        }
-        if (first.webapp == second.webapp) {
-            throw new IllegalArgumentException(first.app + " vs " + second.app);
-        }
-        if (first.webapp) {
-            return forVhosts(first, second);
-        } else {
-            return forVhosts(second, first);
-        }
-    }
-
-    public static Ports forVhosts(Vhost webapp, Vhost jmxDebug) {
-        return new Ports(webapp.httpPort(), webapp.httpsPort(), jmxDebug.even, jmxDebug.even + 1);
-    }
-
-
     public Map<Integer, Integer> map(Ports hostPorts) {
         Map<Integer, Integer> result;
 
@@ -122,6 +90,10 @@ public class Ports {
         this.https = https;
         this.jmxmp = jmxmp;
         this.debug = debug;
+    }
+
+    public boolean contains(int port) {
+        return http == port || https == port || jmxmp == port || debug == port;
     }
 
     public Map<String, String> toHostLabels() {
