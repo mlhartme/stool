@@ -27,12 +27,19 @@ import java.util.Map;
 
 public class Start extends StageCommand {
     private final boolean tail;
+    private final int http;
+    private final int https;
     private final Map<String, String> environment;
     private final Map<String, Integer> selection;
 
     public Start(Session session, boolean tail, List<String> selection) {
+        this(session, tail, -1, -1, selection);
+    }
+    public Start(Session session, boolean tail, int http, int https, List<String> selection) {
         super(session, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.tail = tail;
+        this.http = http;
+        this.https = https;
         this.environment = new HashMap<>(session.configuration.environment);
 
         eatEnvironment(selection, environment);
@@ -78,7 +85,7 @@ public class Start extends StageCommand {
         // to avoid running into a ping timeout below:
         stage.session.configuration.verfiyHostname();
         stage.checkConstraints();
-        stage.start(console, environment, selection);
+        stage.start(console,  http, https, environment, selection);
     }
 
     @Override

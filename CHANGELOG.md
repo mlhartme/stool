@@ -25,6 +25,7 @@ Stages are now the central part; multiple project can be associated with the sam
 * dumped vhosts bind mounts, copy war instead
 * switch keystore format from JKS to PKCS12
 
+* dumped port command, instead, start has http and https options now
 * removed ports command
 * no longer set -Xmx (let the jvm figure out this)
 * stool config changes

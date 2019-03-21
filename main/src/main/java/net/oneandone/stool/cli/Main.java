@@ -99,7 +99,7 @@ public class Main {
                       cli.add(Ls.class, "list -defaults=@list.defaults info* { select*(info) }");
                       cli.add(Remove.class, "remove -batch -stop");
                       cli.add(Restart.class, "restart appIndex*");
-                      cli.add(Start.class, "start -tail envAppIndex*");
+                      cli.add(Start.class, "start -tail -http=-1 -https=-1 envAppIndex*");
                       cli.add(Status.class, "status -defaults=@status.defaults info* { select*(info) }");
                       cli.add(Stop.class, "stop app*");
                       cli.add(Validate.class, "validate -email -repair");

@@ -56,24 +56,19 @@ public class Pool {
     }
     //--
 
+    /** first port, inclusive */
     private final int first;
+    /** last port, inclusive */
     private final int last;
     private final List<Data> datas;
 
     public Pool(int first, int last) {
-        if (first % 2 != 0) {
-            throw new IllegalArgumentException("even port expected: " + first);
-        }
-        if (last % 2 != 1) {
-            throw new IllegalArgumentException("odd port expected: " + last);
-        }
         this.first = first;
         this.last = last;
         this.datas = new ArrayList<>();
     }
 
-    // TODO: ugly reference to stage ...
-    public Ports allocate(Stage stage, String app) throws IOException {
+    public Ports allocate(Stage stage, String app, int http, int https) throws IOException {
         String id;
         Ports previous;
 
