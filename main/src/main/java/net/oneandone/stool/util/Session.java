@@ -150,7 +150,7 @@ public class Session {
             }
         });
         for (Map.Entry<String, Exception> entry : problems.problems.entrySet()) {
-            reportException(entry.getKey() + ": Session.listWithoutDashboard", entry.getValue());
+            reportException(entry.getKey() + ": Session.listAll", entry.getValue());
         }
         return result;
     }
@@ -173,18 +173,14 @@ public class Session {
 
     public Stage create(String origin) throws MkdirException {
         FileNode directory;
+        StageConfiguration c;
 
         directory = stages.join(nextStageId()).mkdir();
-        return new Stage(this, directory, createStageConfiguration(origin));
-    }
 
-    private StageConfiguration createStageConfiguration(String origin) {
-        StageConfiguration result;
-
-        result = new StageConfiguration();
-        result.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
-        configuration.setDefaults(accessors(), result, origin);
-        return result;
+        c = new StageConfiguration();
+        c.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
+        configuration.setDefaults(accessors(), c, origin);
+        return new Stage(this, directory, c);
     }
 
     private String nextStageId() {
