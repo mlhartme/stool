@@ -74,6 +74,7 @@ public class App extends StageCommand {
         String marker;
         int idx;
         Stage.Current current;
+        Ports ports;
 
         engine = stage.session.dockerEngine();
         all = stage.images(engine);
@@ -86,18 +87,33 @@ public class App extends StageCommand {
         for (String app : selection(all.keySet())) {
             current = currentMap.get(app);
             idx = 0;
+            ports = stage.loadPorts().get(app);
+            console.info.println("app:       " + app);
             console.info.println("cpu:       " + cpu(current));
             console.info.println("mem:       " + mem(current));
             console.info.println("container: " + current.container);
             console.info.println("origin:    " + current.image.origin);
             console.info.println("uptime:    " + uptime(current));
-            console.info.println("disk-used: " + diskUsed(current));
-            console.info.println("ports:     " + ports(stage, app));
             console.info.println("heap:      " + heap(stage, app, current));
+            console.info.println("disk-used: " + diskUsed(current));
+            if (ports != null) {
+                if (ports.debug != -1) {
+                    console.info.println("debug port " + ports.debug);
+                }
+                if (ports.jmxmp != -1) {
+                    String url;
+
+                    console.info.println("jmx port:  " + ports.jmxmp);
+                    url = stage.session.configuration.hostname + ":" + ports.jmxmp;
+                    console.info.println("                 jconsole " + url);
+                    console.info.println("                 jvisualvm --openjmx " + url);
+                }
+            }
+            console.info.println();
+
             for (Image image : all.get(app)) {
                 marker = image.id.equals(current.image.id) ? "==>" : "   ";
                 console.info.printf("%s [%d] %s\n", marker, idx, image.id);
-                console.info.println("       app:        " + image.app);
                 console.info.println("       comment:    " + image.comment);
                 console.info.println("       origin:     " + image.origin);
                 console.info.println("       created-at: " + image.created);
@@ -114,28 +130,6 @@ public class App extends StageCommand {
             stage.rotateLogs(console);
 
         }
-    }
-
-    public String ports(Stage stage, String app) throws IOException {
-        StringBuilder result;
-        Ports ports;
-        String url;
-
-        result = new StringBuilder();
-        ports = stage.loadPorts().get(app);
-        if (ports == null) {
-            return "";
-        }
-        if (ports.debug != -1) {
-            result.append("debug port: " + ports.debug + "\n");
-        }
-        if (ports.jmxmp != -1) {
-            result.append("jmx port: " + ports.jmxmp + "\n");
-            url = stage.session.configuration.hostname + ":" + ports.jmxmp;
-            result.append("  jconsole " + url);
-            result.append("  jvisualvm --openjmx " + url);
-        }
-        return result.toString();
     }
 
     public String heap(Stage stage, String app, Stage.Current current) throws IOException {
