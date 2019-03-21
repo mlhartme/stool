@@ -233,7 +233,7 @@ public class ServerXml {
             context = selector.element(host, "Context");
             map = new HashMap<>();
             if (logroot) {
-                dir = stage.directory.join("logs/applogs");
+                dir = stage.getDirectory().join("logs/applogs");
                 dir.mkdirsOpt();
                 map.put("logroot", "/usr/local/tomcat/logs/applogs");
             }

@@ -39,7 +39,7 @@ public class Remove extends StageCommand {
         }
         stage.checkNotUp();
         if (!batch) {
-            console.info.println("Ready to delete " + stage.directory.getAbsolute() + "?");
+            console.info.println("Ready to delete stage " + stage.getName() + " (id=" + stage.getId() + ")?");
             console.pressReturn();
         }
         stage.wipeDocker(session.dockerEngine());
@@ -49,6 +49,6 @@ public class Remove extends StageCommand {
             console.info.println("removing backstage");
             project.removeBackstage();
         }
-        stage.directory.deleteTree();
+        stage.getDirectory().deleteTree();
     }
 }

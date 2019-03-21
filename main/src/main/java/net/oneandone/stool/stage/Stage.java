@@ -37,8 +37,10 @@ import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.StandardProperty;
 import net.oneandone.stool.util.UrlPattern;
+import net.oneandone.sushi.fs.DeleteException;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
+import net.oneandone.sushi.fs.NodeNotFoundException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiWriter;
 import net.oneandone.sushi.io.OS;
@@ -75,13 +77,17 @@ import java.util.Properties;
 /** Represents the former backstage directory. From a Docker perspective, a stage roughly represents a Repository */
 public class Stage {
     public final Session session;
-    public final FileNode directory;
+    private final FileNode directory;
     public final StageConfiguration configuration;
 
     public Stage(Session session, FileNode directory, StageConfiguration configuration) {
         this.session = session;
         this.directory = directory;
         this.configuration = configuration;
+    }
+
+    public FileNode getDirectory() {
+        return directory;
     }
 
     public String getId() {
