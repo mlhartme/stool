@@ -74,15 +74,15 @@ public class Pool {
 
     // TODO: ugly reference to stage ...
     public Ports allocate(Stage stage, String app) throws IOException {
-        String stageId;
+        String id;
         Ports previous;
 
-        stageId = stage.getId();
-        previous = lookup(stageId, app);
+        id = stage.getId();
+        previous = lookup(id, app);
         if (previous != null) {
-            return previous; // TODO: add more ports
+            return previous;
         } else {
-            return allocate(startPortForApp(app, stage.getName()), app, stageId);
+            return allocate(startPortForApp(app, stage.getName()), app, id);
         }
     }
 
@@ -95,49 +95,43 @@ public class Pool {
         return null;
     }
 
+    /** @return ports with all ports allocated */
     private Ports allocate(int start, String app, String id) throws IOException {
         Ports ports;
-        int http;
-        int https;
-        int jmxmp;
-        int debug;
-        List<Integer> ignores;
+        List<Integer> list;
 
         if ((start < first) || (start > last)) {
             throw new IllegalArgumentException("ports out of range: " + start);
         }
-        ignores = new ArrayList<>();
-        http = allocateOne(start, ignores);
-        ignores.add(http);
-        https = allocateOne(start, ignores);
-        ignores.add(https);
-        jmxmp = allocateOne(start, ignores);
-        ignores.add(jmxmp);
-        debug = allocateOne(start, ignores);
-        ports = new Ports(http, https, jmxmp, debug);
+        list = allocateList(start, 4);
+        if (list.size() < 4) {
+            throw new IOException("cannot find 4 free port in range [" + first + ", " + last + "[");
+        }
+        ports = new Ports(list.get(0), list.get(1), list.get(2), list.get(3));
         datas.add(new Data(id, app, ports));
         return ports;
     }
 
-    private int allocateOne(int start, List<Integer> ignores) throws IOException {
+    private List<Integer> allocateList(int start, int count) throws IOException {
         int current;
+        List<Integer> result;
 
         if ((start < first) || (start > last)) {
             throw new IllegalArgumentException("ports out of range: " + start);
         }
+        result = new ArrayList<>();
         current = start;
         do {
-            if (!ignores.contains(current) && !isAllocated(current)) {
+            if (!isAllocated(current)) {
                 checkFree(current);
-                return current;
+                result.add(current);
+                if (result.size() >= count) {
+                    break;
+                }
             }
-            if (current < last) {
-                current++;
-            } else {
-                current = first;
-            }
+            current = current < last ? current + 1 : first;
         } while (current != start);
-        throw new IOException("cannot find free port in range [" + first + ", " + last + "[");
+        return result;
     }
 
     public int temp() throws IOException {
