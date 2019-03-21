@@ -70,34 +70,17 @@ public class Create extends ProjectCommand {
     }
 
     @Override
-    public void doRun(FileNode project) throws IOException {
-        Project backstage;
-        Stage stage;
-        Property property;
+    public void doRun(FileNode projectDirectory) throws IOException {
+        Project project;
 
-        backstage = Project.lookup(project);
-        if (backstage == null) {
-            backstage = Project.create(project);
+        project = Project.lookup(projectDirectory);
+        if (project == null) {
+            project = Project.create(projectDirectory);
         } else {
-            if (backstage.getAttachedOpt() != null) {
+            if (project.getAttachedOpt() != null) {
                 throw new ArgumentException("project already has a stage");
             }
         }
-        stage = session.create(backstage.getOrigin());
-        backstage.setAttached(stage.reference);
-        stage.configuration.name = project.getName();
-        for (Map.Entry<String, String> entry : config.entrySet()) {
-            property = stage.propertyOpt(entry.getKey());
-            if (property == null) {
-                throw new ArgumentException("unknown property: " + entry.getKey());
-            }
-            property.set(entry.getValue());
-        }
-        Project.checkName(stage.configuration.name);
-        stage.saveConfig();
-
-        session.logging.openStage(stage.reference.getId(), stage.getName());
-        console.info.println("stage create: " + stage.getName());
-        session.logging.closeStage();
+        clientSession.create(project, project.getProject(), config, console);
     }
 }
