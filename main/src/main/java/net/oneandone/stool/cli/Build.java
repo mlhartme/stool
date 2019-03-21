@@ -18,7 +18,6 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -47,7 +46,6 @@ public class Build extends ProjectCommand {
     public void doRun(FileNode projectDirectory) throws Exception {
         Project project;
         Reference reference;
-        Stage stage;
         Map<String, FileNode> wars;
 
         project = Project.lookup(projectDirectory);
@@ -62,12 +60,11 @@ public class Build extends ProjectCommand {
         if (reference == null) {
             throw new IOException("no stage attached to " + projectDirectory);
         }
-        stage = session.load(reference);
         for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
-            stage.build(project, entry.getKey(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
+            clientSession.build(reference, project, entry.getKey(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
             if (restart) {
-                new Restart(session, new ArrayList<>()).doRun(stage);
+                new Restart(session, new ArrayList<>()).doRun(reference);
             }
         }
     }

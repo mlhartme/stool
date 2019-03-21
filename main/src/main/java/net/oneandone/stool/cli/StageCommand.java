@@ -18,6 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.locking.Mode;
+import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Predicate;
@@ -158,6 +159,10 @@ public abstract class StageCommand extends SessionCommand {
 
     /** main method to perform this command */
     public abstract void doMain(Stage stage) throws Exception;
+
+    public void doRun(Reference reference) throws Exception {
+        doRun(session.load(reference));
+    }
 
     public void doRun(Stage stage) throws Exception {
         doMain(stage);

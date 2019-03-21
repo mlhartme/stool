@@ -32,6 +32,7 @@ import java.io.Writer;
 public abstract class SessionCommand {
     protected final Console console;
     protected final World world;
+    protected final ClientSession clientSession;
     protected final Session session;
     private final Mode portsLock;
     private boolean nolock;
@@ -39,6 +40,7 @@ public abstract class SessionCommand {
     public SessionCommand(Session session, Mode portsLock) {
         this.console = session.console;
         this.world = session.world;
+        this.clientSession = new ClientSession(session);
         this.session = session;
         this.portsLock = portsLock;
         this.nolock = false;
