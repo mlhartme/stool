@@ -16,6 +16,7 @@
 package net.oneandone.stool.cli;
 
 import com.google.gson.JsonObject;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.locking.Mode;
@@ -33,19 +34,41 @@ import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class Images extends StageCommand {
-    public Images(Session session) {
+public class App extends StageCommand {
+    private final List<String> names;
+
+    public App(Session session, List<String> names) {
         super(session, Mode.NONE, Mode.EXCLUSIVE);
+        this.names = names;
+    }
+
+    private List<String> selection(Collection<String> available) {
+        List<String> result;
+
+        if (names.isEmpty()) {
+            result = new ArrayList<>(available);
+            Collections.sort(result);
+        } else {
+            result = new ArrayList<>();
+            for (String name : names) {
+                if (available.contains(name)) {
+                    result.add(name);
+                } else {
+                    throw new ArgumentException("unknown app: " + name);
+                }
+            }
+        }
+        return result;
     }
 
     @Override
     public void doMain(Stage stage) throws Exception {
         Map<String, List<Image>> all;
-        List<String> apps;
         Map<String, Stage.Current> currentMap;
         Engine engine;
         String marker;
@@ -54,15 +77,13 @@ public class Images extends StageCommand {
 
         engine = stage.session.dockerEngine();
         all = stage.images(engine);
-        apps = new ArrayList<>(all.keySet());
-        Collections.sort(apps);
         currentMap = stage.currentMap();
         for (Map.Entry<String, List<Image>> entry : all.entrySet()) {
             if (!currentMap.containsKey(entry.getKey())) {
                 currentMap.put(entry.getKey(), new Stage.Current(entry.getValue().get(0), null));
             }
         }
-        for (String app : apps) {
+        for (String app : selection(all.keySet())) {
             current = currentMap.get(app);
             idx = 0;
             console.info.println("cpu:       " + cpu(current));
