@@ -75,9 +75,15 @@ public class Pool {
         id = stage.getId();
         previous = lookup(id, app);
         if (previous != null) {
+            if ((http != -1 && http != previous.http) || (https != -1 && https != previous.http)) {
+                previous = null;
+                remove(id, app);
+            }
+        }
+        if (previous != null) {
             return previous;
         } else {
-            return allocate(startPortForApp(app, stage.getName()), app, id);
+            return allocate(startPortForApp(app, stage.getName()), app, id, http, https);
         }
     }
 
@@ -89,44 +95,70 @@ public class Pool {
         }
         return null;
     }
+    private boolean remove(String id, String app) {
+        Data data;
+
+        for (int i = 0; i < datas.size(); i++) {
+            data = datas.get(i);
+            if (id.equals(data.id) && app.equals(data.app)) {
+                datas.remove(i);
+                return true;
+            }
+        }
+        return false;
+    }
 
     /** @return ports with all ports allocated */
-    private Ports allocate(int start, String app, String id) throws IOException {
+    private Ports allocate(int start, String app, String id, int fixedHttp, int fixedHttps) throws IOException {
         Ports ports;
-        List<Integer> list;
+        List<Integer> ignores;
+        int http;
+        int https;
+        int jmxmp;
+        int debug;
 
         if ((start < first) || (start > last)) {
             throw new IllegalArgumentException("ports out of range: " + start);
         }
-        list = allocateList(start, 4);
-        if (list.size() < 4) {
-            throw new IOException("cannot find 4 free port in range [" + first + ", " + last + "[");
+        ignores = new ArrayList<>();
+
+        http = one(fixedHttp != -1 ? fixedHttp : start, ignores);
+        if (fixedHttp != -1 && http != fixedHttp) {
+            throw new IOException("http port is already allocated: " + fixedHttp);
         }
-        ports = new Ports(list.get(0), list.get(1), list.get(2), list.get(3));
+        ignores.add(http);
+
+        https = one(fixedHttps != -1 ? fixedHttps : start, ignores);
+        if (fixedHttps != -1 && https != fixedHttps) {
+            throw new IOException("https port is already allocated: " + fixedHttps);
+        }
+        ignores.add(https);
+
+        jmxmp = one(start, ignores);
+        ignores.add(jmxmp);
+
+        debug = one(start, ignores);
+
+        ports = new Ports(http, https, jmxmp, debug);
         datas.add(new Data(id, app, ports));
         return ports;
     }
 
-    private List<Integer> allocateList(int start, int count) throws IOException {
+    private int one(int start, List<Integer> ignores) throws IOException {
         int current;
-        List<Integer> result;
 
         if ((start < first) || (start > last)) {
-            throw new IllegalArgumentException("ports out of range: " + start);
+            throw new IllegalArgumentException(start + ": port out of range " + first + " ... " + last);
         }
-        result = new ArrayList<>();
         current = start;
         do {
-            if (!isAllocated(current)) {
+            if (!ignores.contains(current) && !isAllocated(current)) {
                 checkFree(current);
-                result.add(current);
-                if (result.size() >= count) {
-                    break;
-                }
+                return current;
             }
             current = current < last ? current + 1 : first;
         } while (current != start);
-        return result;
+        throw new IOException("no free port in range " + first + " .. " + last);
     }
 
     public int temp() throws IOException {
