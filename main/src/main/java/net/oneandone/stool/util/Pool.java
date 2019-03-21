@@ -72,7 +72,7 @@ public class Pool {
         String id;
         Ports previous;
 
-        id = stage.getId();
+        id = stage.reference.getId();
         previous = lookup(id, app);
         if (previous != null) {
             if ((http != -1 && http != previous.http) || (https != -1 && https != previous.http)) {

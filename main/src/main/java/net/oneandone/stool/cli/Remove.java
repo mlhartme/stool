@@ -39,7 +39,7 @@ public class Remove extends StageCommand {
         }
         stage.checkNotUp();
         if (!batch) {
-            console.info.println("Ready to delete stage " + stage.getName() + " (id=" + stage.getId() + ")?");
+            console.info.println("Ready to delete stage " + stage.getName() + " (id=" + stage.reference.getId() + ")?");
             console.pressReturn();
         }
         stage.wipeDocker(session.dockerEngine());

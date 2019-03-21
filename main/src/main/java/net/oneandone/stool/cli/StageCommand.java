@@ -364,7 +364,7 @@ public abstract class StageCommand extends SessionCommand {
             if (withPrefix) {
                 ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
             }
-            session.logging.openStage(stage.getId(), stage.getName());
+            session.logging.openStage(stage.reference.getId(), stage.getName());
             try (Lock lock1 = createLock(stage.lock(), lock)) {
                 if (main) {
                     runMain(stage);

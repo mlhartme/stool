@@ -233,7 +233,7 @@ public class Session {
             } else {
                 stage = project.getAttachedOpt(this);
                 if (stage != null) {
-                    lazySelectedId = stage.getId();
+                    lazySelectedId = stage.reference.getId();
                 }
             }
         }
@@ -241,7 +241,7 @@ public class Session {
     }
 
     public boolean isSelected(Stage stage) throws IOException {
-        return stage.getId().equals(getSelectedStageId());
+        return stage.reference.getId().equals(getSelectedStageId());
     }
 
     //--

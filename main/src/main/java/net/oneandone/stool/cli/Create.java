@@ -96,7 +96,7 @@ public class Create extends ProjectCommand {
         Project.checkName(stage.configuration.name);
         stage.saveConfig();
 
-        session.logging.openStage(stage.getId(), stage.getName());
+        session.logging.openStage(stage.reference.getId(), stage.getName());
         console.info.println("stage create: " + stage.getName());
         session.logging.closeStage();
     }

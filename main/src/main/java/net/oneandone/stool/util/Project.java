@@ -78,7 +78,7 @@ public class Project {
     }
 
     public void setAttached(Stage stage) throws IOException {
-        map().writeString(stage.getId());
+        map().writeString(stage.reference.getId());
     }
 
     private FileNode map() {

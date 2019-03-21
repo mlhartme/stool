@@ -37,10 +37,8 @@ import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.StandardProperty;
 import net.oneandone.stool.util.UrlPattern;
-import net.oneandone.sushi.fs.DeleteException;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
-import net.oneandone.sushi.fs.NodeNotFoundException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.MultiWriter;
 import net.oneandone.sushi.io.OS;
@@ -77,21 +75,19 @@ import java.util.Properties;
 /** Represents the former backstage directory. From a Docker perspective, a stage roughly represents a Repository */
 public class Stage {
     public final Session session;
+    public final Reference reference;
     private final FileNode directory;
     public final StageConfiguration configuration;
 
     public Stage(Session session, FileNode directory, StageConfiguration configuration) {
         this.session = session;
+        this.reference = new Reference(directory.getName());
         this.directory = directory;
         this.configuration = configuration;
     }
 
     public FileNode getDirectory() {
         return directory;
-    }
-
-    public String getId() {
-        return directory.getName();
     }
 
     public String getName() {
@@ -132,7 +128,7 @@ public class Stage {
     }
 
     public String lock() {
-        return "stage-" + getId();
+        return "stage-" + reference.getId();
     }
 
     //-- fields and properties
@@ -203,7 +199,7 @@ public class Stage {
         fields.add(new Field("id") {
             @Override
             public Object get() {
-                return getId();
+                return reference.getId();
             }
         });
         fields.add(new Field("selected") {
@@ -295,7 +291,7 @@ public class Stage {
     //-- logs
 
     public LogReader logReader() throws IOException {
-        return LogReader.create(session.logging.directory().join(getId()));
+        return LogReader.create(session.logging.directory().join(reference.getId()));
     }
 
     public Logs logs() {
@@ -413,10 +409,9 @@ public class Stage {
     public static final String LABEL_ORIGIN = LABEL_PREFIX + "origin";
     public static final String LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
     public static final String LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
-    public static final String LABEL_PORTS = LABEL_PREFIX + "ports";
 
     private Map<String, String> stageLabel() {
-        return Strings.toMap(LABEL_STOOL, session.configuration.id, LABEL_STAGE, getId());
+        return Strings.toMap(LABEL_STOOL, session.configuration.id, LABEL_STAGE, reference.getId());
     }
 
     /** @param keep 0 to keep all */
@@ -437,7 +432,7 @@ public class Stage {
         if (keep > 0) {
             wipeOldImages(engine,keep - 1);
         }
-        tag = getId() + ":" + TAG_FORMAT.format(LocalDateTime.now());
+        tag = reference.getId() + ":" + TAG_FORMAT.format(LocalDateTime.now());
         appProperties = properties(war);
         template = template(appProperties);
         env = Variable.scanTemplate(template).values();
@@ -708,7 +703,7 @@ public class Stage {
 
     /** maps app to its ports; empty map if not ports allocated yet */
     public Map<String, Ports> loadPorts() throws IOException {
-        return session.pool().stage(getId());
+        return session.pool().stage(reference.getId());
     }
 
     /**
@@ -758,7 +753,7 @@ public class Stage {
         Engine engine;
 
         engine = session.dockerEngine();
-        return new ArrayList<>(engine.containerListRunning(LABEL_STAGE, getId()).keySet());
+        return new ArrayList<>(engine.containerListRunning(LABEL_STAGE, reference.getId()).keySet());
     }
 
     public Map<String, Current> currentMap() throws IOException {
@@ -782,7 +777,7 @@ public class Stage {
     public int contentHash() throws IOException {
         return ("StageInfo{"
                 + "name='" + configuration.name + '\''
-                + ", id='" + getId() + '\''
+                + ", id='" + reference.getId() + '\''
                 + ", comment='" + configuration.comment + '\''
                 // TODO: current immage, container?
                 + ", urls=" + urlMap(null)
