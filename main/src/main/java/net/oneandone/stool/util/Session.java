@@ -224,16 +224,16 @@ public class Session {
 
     public String getSelectedStageId() throws IOException {
         Project project;
-        FileNode stage;
+        Stage stage;
 
         if (lazySelectedId == UNKNOWN) {
             project = Project.lookup(world.getWorking());
             if (project == null) {
                 lazySelectedId = null;
             } else {
-                stage = project.getAttachedOpt();
+                stage = project.getAttachedOpt(this);
                 if (stage != null) {
-                    lazySelectedId = stage.getName();
+                    lazySelectedId = stage.getId();
                 }
             }
         }

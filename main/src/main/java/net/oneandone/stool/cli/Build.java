@@ -45,7 +45,6 @@ public class Build extends ProjectCommand {
     @Override
     public void doRun(FileNode projectDirectory) throws Exception {
         Project project;
-        FileNode stageDir;
         Stage stage;
         Map<String, FileNode> wars;
 
@@ -57,11 +56,10 @@ public class Build extends ProjectCommand {
         if (wars.isEmpty()) {
             throw new IOException("no wars to build");
         }
-        stageDir = project.getAttachedOpt();
-        if (stageDir == null) {
+        stage = project.getAttachedOpt(session);
+        if (stage == null) {
             throw new IOException("no stage attached to " + projectDirectory);
         }
-        stage = session.load(stageDir);
         for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
             stage.build(project, entry.getKey(), project.getProject(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);

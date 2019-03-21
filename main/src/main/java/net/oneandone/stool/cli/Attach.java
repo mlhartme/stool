@@ -22,24 +22,24 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
 public class Attach extends ProjectCommand {
-    private final String stage;
+    private final String stageName;
 
-    public Attach(Session session, String stage, FileNode project) {
+    public Attach(Session session, String stageName, FileNode project) {
         super(session, Mode.EXCLUSIVE, project);
 
-        this.stage = stage;
+        this.stageName = stageName;
     }
 
     @Override
     public void doRun(FileNode project) throws Exception {
         Project backstage;
-        Stage s;
+        Stage stage;
 
-        s = session.loadByName(stage);
+        stage = session.loadByName(stageName);
         backstage = Project.lookup(project);
         if (backstage == null) {
             backstage = Project.create(project);
         }
-        backstage.setAttached(s.directory);
+        backstage.setAttached(stage);
     }
 }

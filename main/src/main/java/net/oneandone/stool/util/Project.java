@@ -16,6 +16,7 @@
 package net.oneandone.stool.util;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
@@ -69,15 +70,15 @@ public class Project {
         this.project = backstage.getParent();
     }
 
-    public FileNode getAttachedOpt() throws IOException {
+    public Stage getAttachedOpt(Session session) throws IOException {
         FileNode map;
 
         map = map();
-        return map.isFile() ? backstage.getWorld().file(map.readString().trim()) : null;
+        return map.isFile() ? session.loadById(map.readString().trim()) : null;
     }
 
-    public void setAttached(FileNode stage) throws IOException {
-        map().writeString(stage.getAbsolute());
+    public void setAttached(Stage stage) throws IOException {
+        map().writeString(stage.getId());
     }
 
     private FileNode map() {
