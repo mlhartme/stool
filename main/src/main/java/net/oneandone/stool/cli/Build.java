@@ -62,7 +62,7 @@ public class Build extends ProjectCommand {
         }
         for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
-            clientSession.build(reference, project, entry.getKey(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
+            server.build(reference, project, entry.getKey(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
             if (restart) {
                 new Restart(session, new ArrayList<>()).doRun(reference);
             }

@@ -17,9 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Project;
-import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -81,6 +79,6 @@ public class Create extends ProjectCommand {
                 throw new ArgumentException("project already has a stage");
             }
         }
-        clientSession.create(project, project.getProject(), config, console);
+        server.create(project, project.getProject(), config, console);
     }
 }

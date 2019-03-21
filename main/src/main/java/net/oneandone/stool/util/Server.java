@@ -1,21 +1,18 @@
-package net.oneandone.stool.cli;
+package net.oneandone.stool.util;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Project;
-import net.oneandone.stool.util.Property;
-import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.util.Map;
 
-public class ClientSession {
+public class Server {
     private final Session session;
 
-    public ClientSession(Session session) {
+    public Server(Session session) {
         this.session = session;
     }
 

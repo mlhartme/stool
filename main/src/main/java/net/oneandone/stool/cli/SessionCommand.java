@@ -18,6 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.locking.Lock;
 import net.oneandone.stool.locking.Mode;
+import net.oneandone.stool.util.Server;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
@@ -32,7 +33,7 @@ import java.io.Writer;
 public abstract class SessionCommand {
     protected final Console console;
     protected final World world;
-    protected final ClientSession clientSession;
+    protected final Server server;
     protected final Session session;
     private final Mode portsLock;
     private boolean nolock;
@@ -40,7 +41,7 @@ public abstract class SessionCommand {
     public SessionCommand(Session session, Mode portsLock) {
         this.console = session.console;
         this.world = session.world;
-        this.clientSession = new ClientSession(session);
+        this.server = new Server(session);
         this.session = session;
         this.portsLock = portsLock;
         this.nolock = false;
@@ -85,9 +86,5 @@ public abstract class SessionCommand {
 
     protected void message(String msg) {
         console.info.println(Strings.indent(msg, "  "));
-    }
-
-    protected void newline() {
-        console.info.println();
     }
 }
