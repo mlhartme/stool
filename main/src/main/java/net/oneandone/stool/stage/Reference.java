@@ -11,4 +11,11 @@ public class Reference {
     public String getId() {
         return id;
     }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof Reference) {
+            return ((Reference) obj).id.equals(id);
+        }
+        return false;
+    }
 }

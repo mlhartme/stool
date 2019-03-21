@@ -45,7 +45,7 @@ public class Remove extends StageCommand {
         stage.wipeDocker(session.dockerEngine());
 
         project = Project.lookup(session.world.getWorking());
-        if (project != null && stage.equals(project.getAttachedOpt(session))) {
+        if (project != null && stage.reference.equals(project.getAttachedOpt())) {
             console.info.println("removing backstage");
             project.removeBackstage();
         }

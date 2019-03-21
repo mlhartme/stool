@@ -40,6 +40,6 @@ public class Attach extends ProjectCommand {
         if (backstage == null) {
             backstage = Project.create(project);
         }
-        backstage.setAttached(stage);
+        backstage.setAttached(stage.reference);
     }
 }

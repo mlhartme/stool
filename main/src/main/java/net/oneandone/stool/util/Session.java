@@ -30,6 +30,7 @@ import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.stage.Image;
+import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.sushi.fs.MkdirException;
@@ -195,6 +196,10 @@ public class Session {
         return new Stage(this, stage, loadStageConfiguration(stage));
     }
 
+    public Stage load(Reference reference) throws IOException {
+        return loadById(reference.getId());
+    }
+
     public Stage loadById(String id) throws IOException {
         return load(stages.join(id).checkDirectory());
     }
@@ -224,16 +229,16 @@ public class Session {
 
     public String getSelectedStageId() throws IOException {
         Project project;
-        Stage stage;
+        Reference stage;
 
         if (lazySelectedId == UNKNOWN) {
             project = Project.lookup(world.getWorking());
             if (project == null) {
                 lazySelectedId = null;
             } else {
-                stage = project.getAttachedOpt(this);
+                stage = project.getAttachedOpt();
                 if (stage != null) {
-                    lazySelectedId = stage.reference.getId();
+                    lazySelectedId = stage.getId();
                 }
             }
         }
