@@ -40,7 +40,7 @@ public class Stop extends StageCommand {
     }
 
     public void doNormal(Reference reference) throws Exception {
-        session.load(reference).stop(console, apps);
+        server.stop(reference, apps);
     }
 
     @Override

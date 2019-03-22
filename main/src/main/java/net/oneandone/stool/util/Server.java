@@ -7,6 +7,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 public class Server {
@@ -16,6 +17,31 @@ public class Server {
         this.session = session;
     }
 
+
+    public Stage.State state(Reference reference) throws IOException {
+        return session.load(reference).state();
+    }
+
+    public void start(Reference reference, int http, int https, Map<String, String> environment, Map<String, Integer> apps) throws IOException {
+        Stage stage;
+
+        stage = session.load(reference);
+        // to avoid running into a ping timeout below:
+        stage.session.configuration.verfiyHostname();
+        stage.checkConstraints();
+        stage.start(session.console,  http, https, environment, apps);
+    }
+
+    public void stop(Reference reference, List<String> apps) throws IOException {
+        session.load(reference).stop(session.console, apps);
+    }
+
+    public void awaitStartup(Reference reference) throws IOException, InterruptedException {
+        Stage stage;
+
+        stage = session.load(reference);
+        stage.awaitStartup(session.console);
+    }
 
     public Reference resolveName(String name) throws IOException {
         return session.loadByName(name).reference;

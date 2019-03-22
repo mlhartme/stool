@@ -34,15 +34,15 @@ public class Restart extends StageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Stage stage;
+        Stage.State state;
 
-        stage = session.load(reference);
-        if (stage.state() == Stage.State.UP || stage.state() == Stage.State.WORKING) {
-            new Stop(session, new ArrayList<>(selection(selection).keySet())).doRun(stage.reference);
+
+        state = server.state(reference);
+        if (state == Stage.State.UP || state == Stage.State.WORKING) {
+            new Stop(session, new ArrayList<>(selection(selection).keySet())).doRun(reference);
         } else {
             console.info.println("Container is not running - starting a new instance.");
         }
-
-        new Start(session, false, selection).doRun(stage.reference);
+        new Start(session, false, selection).doRun(reference);
     }
 }

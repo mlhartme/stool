@@ -466,7 +466,7 @@ public class Stage {
         return out;
     }
 
-    public void start(Console console, int http, int https, Map<String, String> environment, Map<String, Integer> selection) throws Exception {
+    public void start(Console console, int http, int https, Map<String, String> environment, Map<String, Integer> selection) throws IOException {
         Engine engine;
         String container;
         Engine.Status status;
