@@ -77,7 +77,7 @@ public class Start extends StageCommand {
 
         Thread.sleep(2000);
         console.info.println("Applications available:");
-        for (String app : server.apps(reference)) {
+        for (String app : server.running(reference)) {
             for (String url : server.namedUrls(reference, app)) {
                 console.info.println("  " + url);
             }
