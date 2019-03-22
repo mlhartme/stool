@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.cli;
 
+import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Session;
@@ -54,10 +55,12 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Reference reference) throws Exception {
+        Stage stage;
         List<String> line;
         Info info;
 
+        stage = session.load(reference);
         line = new ArrayList<>();
         lines.add(line);
         for (String infoName : selected) {

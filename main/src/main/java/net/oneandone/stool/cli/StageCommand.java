@@ -158,19 +158,15 @@ public abstract class StageCommand extends SessionCommand {
     //--
 
     /** main method to perform this command */
-    public abstract void doMain(Stage stage) throws Exception;
+    public abstract void doMain(Reference stage) throws Exception;
 
     public void doRun(Reference reference) throws Exception {
-        doRun(session.load(reference));
-    }
-
-    public void doRun(Stage stage) throws Exception {
-        doMain(stage);
-        doFinish(stage);
+        doMain(reference);
+        doFinish(reference);
     }
 
     /** override this if your doMain method needs some finishing */
-    public void doFinish(Stage stage) throws Exception {
+    public void doFinish(Reference reference) throws Exception {
     }
 
     /* Note that the stage is not locked when this method is called. */
@@ -394,17 +390,17 @@ public abstract class StageCommand extends SessionCommand {
 
         private void runMain(Stage stage) throws Exception {
             console.verbose.println("*** stage main");
-            doMain(stage);
+            doMain(stage.reference);
         }
 
         private void runFinish(Stage stage) throws Exception {
             Start postStart;
 
             console.verbose.println("*** stage finish");
-            doFinish(stage);
+            doFinish(stage.reference);
             postStart = postStarts.get(stage);
             if (postStart != null) {
-                postStart.doRun(stage);
+                postStart.doRun(stage.reference);
             }
         }
     }

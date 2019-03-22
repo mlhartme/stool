@@ -17,6 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
+import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Session;
@@ -66,13 +67,15 @@ public class Config extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Reference reference) throws Exception {
+        Stage stage;
         boolean error;
         Property prop;
         String value;
         Collection<Property> props;
         int width;
 
+        stage = session.load(reference);
         if (set) {
             error = false;
             for (Map.Entry<String, String> entry : arguments.entrySet()) {

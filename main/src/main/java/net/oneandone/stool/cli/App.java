@@ -21,6 +21,7 @@ import net.oneandone.stool.docker.Engine;
 import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Image;
+import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
@@ -67,7 +68,8 @@ public class App extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Reference reference) throws Exception {
+        Stage stage;
         Map<String, List<Image>> all;
         Map<String, Stage.Current> currentMap;
         Engine engine;
@@ -76,6 +78,7 @@ public class App extends StageCommand {
         Stage.Current current;
         Ports ports;
 
+        stage = session.load(reference);
         engine = stage.session.dockerEngine();
         all = stage.images(engine);
         currentMap = stage.currentMap();

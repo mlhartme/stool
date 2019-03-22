@@ -16,6 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
+import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Session;
@@ -31,11 +32,13 @@ public class Remove extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Reference reference) throws Exception {
+        Stage stage;
         Project project;
 
+        stage = session.load(reference);
         if (stop && stage.state() == Stage.State.UP) {
-            new Stop(session).doRun(stage);
+            new Stop(session).doRun(reference);
         }
         stage.checkNotUp();
         if (!batch) {

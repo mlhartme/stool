@@ -16,6 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
+import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
@@ -82,7 +83,10 @@ public class Start extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Reference reference) throws Exception {
+        Stage stage;
+
+        stage = session.load(reference);
         // to avoid running into a ping timeout below:
         stage.session.configuration.verfiyHostname();
         stage.checkConstraints();
@@ -90,7 +94,11 @@ public class Start extends StageCommand {
     }
 
     @Override
-    public void doFinish(Stage stage) throws Exception {
+    public void doFinish(Reference reference) throws Exception {
+        Stage stage;
+
+        stage = session.load(reference);
+
         // TODO - to avoid quick start/stop problems; just a ping doesn't solve this, and I don't understand why ...
         stage.awaitStartup(console);
         Thread.sleep(2000);

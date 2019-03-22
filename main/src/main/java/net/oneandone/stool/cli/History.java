@@ -16,6 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
+import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.LogEntry;
 import net.oneandone.stool.util.LogReader;
@@ -38,7 +39,7 @@ public class History extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Reference reference) throws Exception {
         String stageId;
         LogEntry entry;
         Map<String, List<LogEntry>> detailsMap; /* id to it's details */
@@ -46,10 +47,10 @@ public class History extends StageCommand {
         List<LogEntry> lst;
         int counter;
 
-        stageId = stage.reference.getId();
+        stageId = reference.getId();
         counter = 0;
         detailsMap = new HashMap<>();
-        reader = stage.logReader();
+        reader = session.load(reference).logReader();
         while (true) {
             entry = reader.prev();
             if (entry == null) {

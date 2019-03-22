@@ -16,6 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
+import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
@@ -34,16 +35,16 @@ public class Stop extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
-        doNormal(stage);
+    public void doMain(Reference reference) throws Exception {
+        doNormal(reference);
     }
 
-    public void doNormal(Stage stage) throws Exception {
-        stage.stop(console, apps);
+    public void doNormal(Reference reference) throws Exception {
+        session.load(reference).stop(console, apps);
     }
 
     @Override
-    public void doFinish(Stage stage) {
+    public void doFinish(Reference reference) {
         console.info.println("state: down");
     }
 }

@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.cli;
 
+import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Session;
@@ -32,12 +33,14 @@ public class Status extends InfoCommand {
     private static final Separator TAB = Separator.on('\t');
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Reference reference) throws Exception {
+        Stage stage;
         List<Info> infos;
         int width;
         boolean first;
         String value;
 
+        stage = session.load(reference);
         if (selected.isEmpty()) {
             selected.addAll(defaults());
             if (selected.isEmpty()) {

@@ -19,6 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
+import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
@@ -33,6 +34,7 @@ import javax.naming.NamingException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.sql.Ref;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -134,8 +136,8 @@ public class Validate extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
-        constraints(stage);
+    public void doMain(Reference reference) throws Exception {
+        constraints(session.load(reference));
     }
 
     //--
@@ -153,7 +155,7 @@ public class Validate extends StageCommand {
         if (repair) {
             if (!stage.dockerContainerList().isEmpty()) {
                 try {
-                    new Stop(session).doRun(stage);
+                    new Stop(session).doRun(stage.reference);
                     report.user(stage, "stage has been stopped");
                 } catch (Exception e) {
                     report.user(stage, "stage failed to stop: " + e.getMessage());
@@ -164,7 +166,7 @@ public class Validate extends StageCommand {
                 if (stage.configuration.expire.expiredDays() >= session.configuration.autoRemove) {
                     try {
                         report.user(stage, "removing expired stage");
-                        new Remove(session, true, true).doRun(stage);
+                        new Remove(session, true, true).doRun(stage.reference);
                     } catch (Exception e) {
                         report.user(stage, "failed to remove expired stage: " + e.getMessage());
                         e.printStackTrace(console.verbose);

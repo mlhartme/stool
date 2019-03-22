@@ -16,6 +16,7 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
+import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
@@ -32,13 +33,16 @@ public class Restart extends StageCommand {
     }
 
     @Override
-    public void doMain(Stage stage) throws Exception {
+    public void doMain(Reference reference) throws Exception {
+        Stage stage;
+
+        stage = session.load(reference);
         if (stage.state() == Stage.State.UP || stage.state() == Stage.State.WORKING) {
-            new Stop(session, new ArrayList<>(selection(selection).keySet())).doRun(stage);
+            new Stop(session, new ArrayList<>(selection(selection).keySet())).doRun(stage.reference);
         } else {
             console.info.println("Container is not running - starting a new instance.");
         }
 
-        new Start(session, false, selection).doRun(stage);
+        new Start(session, false, selection).doRun(stage.reference);
     }
 }
