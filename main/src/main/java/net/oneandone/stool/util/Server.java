@@ -11,6 +11,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.stage.State;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
@@ -29,9 +30,11 @@ import java.util.List;
 import java.util.Map;
 
 public class Server {
+    public final World world;
     public final Session session;
 
     public Server(Session session) {
+        this.world = session.world;
         this.session = session;
     }
 
@@ -139,11 +142,26 @@ public class Server {
         return session.load(reference).state();
     }
 
-    public void start(Reference reference, int http, int https, Map<String, String> environment, Map<String, Integer> apps) throws IOException {
+    public List<String> namedUrls(Reference reference, String app) throws IOException {
+        return session.load(reference).namedUrls(app);
+    }
+
+    public List<String> apps(Reference reference) throws IOException {
+        List<String> result;
+
+        result = new ArrayList<>(session.load(reference).currentMap().keySet());
+        Collections.sort(result);
+        return result;
+    }
+
+    public void start(Reference reference, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {
         Stage stage;
         int global;
         int reserved;
+        Map<String, String> environment;
 
+        environment = new HashMap<>(session.configuration.environment);
+        environment.putAll(startEnvironment);
         global = session.configuration.quota;
         if (global != 0) {
             reserved = session.quotaReserved();

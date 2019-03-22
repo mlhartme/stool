@@ -42,7 +42,7 @@ public class Start extends StageCommand {
         this.tail = tail;
         this.http = http;
         this.https = https;
-        this.environment = new HashMap<>(server.session.configuration.environment);
+        this.environment = new HashMap<>();
 
         eatEnvironment(selection, environment);
 
@@ -75,27 +75,24 @@ public class Start extends StageCommand {
     public void doFinish(Reference reference) throws Exception {
         server.awaitStartup(reference);
 
-        Stage stage;
-
         Thread.sleep(2000);
         console.info.println("Applications available:");
-        stage = server.session.load(reference);
-        for (String app : stage.currentMap().keySet()) {
-            for (String url : stage.namedUrls(app)) {
+        for (String app : server.apps(reference)) {
+            for (String url : server.namedUrls(reference, app)) {
                 console.info.println("  " + url);
             }
         }
         if (tail) {
-            doTail(stage);
+            doTail(reference);
         }
     }
 
     //--
 
-    private void doTail(Stage stage) throws IOException {
+    private void doTail(Reference reference) throws IOException {
         console.info.println("Tailing container output.");
         console.info.println("Press Ctrl-C to abort.");
         console.info.println();
-        stage.tailF(console.info);
+        // TODO: stage.tailF(console.info);
     }
 }
