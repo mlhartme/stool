@@ -17,9 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Server;
-import net.oneandone.stool.util.Session;
 
 import java.util.ArrayList;
 import java.util.List;

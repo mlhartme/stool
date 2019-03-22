@@ -22,12 +22,10 @@ import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Predicate;
-import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Server;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.io.PrefixWriter;
-import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 

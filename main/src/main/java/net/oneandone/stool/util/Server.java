@@ -14,8 +14,6 @@ import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 
-import javax.mail.MessagingException;
-import javax.naming.NamingException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;

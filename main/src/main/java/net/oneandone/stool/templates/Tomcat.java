@@ -23,7 +23,6 @@ import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.UrlPattern;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
-import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
 import net.oneandone.sushi.util.SubstitutionException;
@@ -32,9 +31,7 @@ import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Tomcat {

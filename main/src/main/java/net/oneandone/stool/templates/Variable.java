@@ -17,12 +17,10 @@ package net.oneandone.stool.templates;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 

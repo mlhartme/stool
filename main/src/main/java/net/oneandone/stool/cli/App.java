@@ -25,7 +25,6 @@ import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Server;
-import net.oneandone.stool.util.Session;
 
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
