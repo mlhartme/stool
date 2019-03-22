@@ -9,11 +9,16 @@ import net.oneandone.stool.cli.Validate;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.stage.State;
+import net.oneandone.stool.users.User;
+import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
+import javax.mail.MessagingException;
+import javax.naming.NamingException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -198,6 +203,51 @@ public class Server {
     }
 
     //-- validate
+
+    public void email(Validate.Report report) throws MessagingException, NamingException {
+        String hostname;
+        Mailer mailer;
+        Console console;
+        String user;
+        String email;
+        String body;
+
+        hostname = session.configuration.hostname;
+        mailer = session.configuration.mailer();
+        console = session.console;
+        for (Map.Entry<String, List<String>> entry : report.users.entrySet()) {
+            user = entry.getKey();
+            body = Separator.RAW_LINE.join(entry.getValue());
+            email = email(session, user);
+            if (email == null) {
+                console.error.println("cannot send email, there's nobody to send it to.");
+            } else {
+                console.info.println("sending email to " + email);
+                mailer.send("stool@" + hostname, new String[] { email }, "Validation of your stage(s) on " + hostname + " failed", body);
+            }
+        }
+    }
+
+    private static String email(Session session, String user) throws NamingException {
+        User userobj;
+        String email;
+
+        if (user == null) {
+            email = session.configuration.admin;
+        } else {
+            if (user.contains("@")) {
+                return user;
+            }
+            try {
+                userobj = session.users.byLogin(user);
+                email = (userobj.isGenerated() ? session.configuration.admin : userobj.email);
+            } catch (UserNotFound e) {
+                email = session.configuration.admin;
+            }
+        }
+        return email.isEmpty() ? null : email;
+    }
+
 
     public void validateState(Reference reference, Validate.Report report, boolean repair) throws IOException {
         Stage stage;

@@ -20,15 +20,8 @@ import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.users.User;
-import net.oneandone.stool.users.UserNotFound;
-import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Server;
-import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.util.Separator;
 
-import javax.mail.MessagingException;
-import javax.naming.NamingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,7 +53,7 @@ public class Validate extends StageCommand {
         } else {
             report.console(console);
             if (email) {
-                report.email(server.session);
+                server.email(report);
             }
             console.info.println();
             console.info.println("validate failed");
@@ -77,7 +70,7 @@ public class Validate extends StageCommand {
 
     public static class Report {
         /** key is a userid or an emails address */
-        private final Map<String, List<String>> users;
+        public final Map<String, List<String>> users;
 
         public Report() {
             this.users = new HashMap<>();
@@ -129,50 +122,6 @@ public class Validate extends StageCommand {
                     }
                 }
             }
-        }
-
-        public void email(Session session) throws NamingException, MessagingException {
-            String hostname;
-            Mailer mailer;
-            Console console;
-            String user;
-            String email;
-            String body;
-
-            hostname = session.configuration.hostname;
-            mailer = session.configuration.mailer();
-            console = session.console;
-            for (Map.Entry<String, List<String>> entry : users.entrySet()) {
-                user = entry.getKey();
-                body = Separator.RAW_LINE.join(entry.getValue());
-                email = email(session, user);
-                if (email == null) {
-                    console.error.println("cannot send email, there's nobody to send it to.");
-                } else {
-                    console.info.println("sending email to " + email);
-                    mailer.send("stool@" + hostname, new String[] { email }, "Validation of your stage(s) on " + hostname + " failed", body);
-                }
-            }
-        }
-
-        private static String email(Session session, String user) throws NamingException {
-            User userobj;
-            String email;
-
-            if (user == null) {
-                email = session.configuration.admin;
-            } else {
-                if (user.contains("@")) {
-                    return user;
-                }
-                try {
-                    userobj = session.users.byLogin(user);
-                    email = (userobj.isGenerated() ? session.configuration.admin : userobj.email);
-                } catch (UserNotFound e) {
-                    email = session.configuration.admin;
-                }
-            }
-            return email.isEmpty() ? null : email;
         }
 
         public boolean isEmpty() {
