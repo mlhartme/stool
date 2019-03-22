@@ -32,6 +32,15 @@ public class App extends StageCommand {
         this.names = names;
     }
 
+    @Override
+    public void doMain(Reference reference) throws Exception {
+        for (String app : appSelection(server.apps(reference))) {
+            for (String line : server.appInfo(reference, app)) {
+                console.info.println(line);
+            }
+        }
+    }
+
     private List<String> appSelection(Collection<String> available) {
         List<String> result;
 
@@ -49,16 +58,5 @@ public class App extends StageCommand {
             }
         }
         return result;
-    }
-
-    @Override
-    public void doMain(Reference reference) throws Exception {
-        List<String> apps;
-
-        for (String app : appSelection(server.apps(reference))) {
-            for (String line : server.appInfo(reference, app)) {
-                console.info.println(line);
-            }
-        }
     }
 }

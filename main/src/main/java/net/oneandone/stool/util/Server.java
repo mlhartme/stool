@@ -63,6 +63,84 @@ public class Server {
         return session.loadByName(name).reference;
     }
 
+    //-- create, build, start, stop, remove
+
+    public void create(Project backstage, FileNode project, Map<String, String> config, Console console) throws IOException {
+        Stage stage;
+        Property property;
+
+        stage = session.create(backstage.getOrigin());
+        backstage.setAttached(stage.reference);
+        stage.configuration.name = project.getName();
+        for (Map.Entry<String, String> entry : config.entrySet()) {
+            property = stage.propertyOpt(entry.getKey());
+            if (property == null) {
+                throw new ArgumentException("unknown property: " + entry.getKey());
+            }
+            property.set(entry.getValue());
+        }
+        Project.checkName(stage.configuration.name);
+        stage.saveConfig();
+
+        session.logging.openStage(stage.reference.getId(), stage.getName());
+        console.info.println("stage create: " + stage.getName());
+        session.logging.closeStage();
+    }
+
+    public void build(Reference reference, Project project, String app, FileNode war, Console console, String comment,
+                      String origin, String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
+        session.load(reference).build(project, app, war, console, comment, origin, createdBy, createdOn, noCache, keep);
+    }
+
+    public void start(Reference reference, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {
+        Stage stage;
+        int global;
+        int reserved;
+        Map<String, String> environment;
+
+        environment = new HashMap<>(session.configuration.environment);
+        environment.putAll(startEnvironment);
+        global = session.configuration.quota;
+        if (global != 0) {
+            reserved = session.quotaReserved();
+            if (reserved > global) {
+                throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
+                        + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
+            }
+        }
+
+        stage = session.load(reference);
+        stage.session.configuration.verfiyHostname();
+        stage.checkConstraints();
+        stage.start(session.console,  http, https, environment, apps);
+    }
+
+    public Map<String, List<String>> awaitStartup(Reference reference) throws IOException, InterruptedException {
+        Stage stage;
+        Map<String, List<String>> result;
+
+        stage = session.load(reference);
+        stage.awaitStartup(session.console);
+
+        result = new LinkedHashMap<>();
+        for (String app : stage.currentMap().keySet()) {
+            stage.namedUrls(app);
+        }
+        return result;
+    }
+
+    public void stop(Reference reference, List<String> apps) throws IOException {
+        session.load(reference).stop(session.console, apps);
+    }
+
+    public void remove(Reference reference) throws IOException {
+        Stage stage;
+
+        stage = session.load(reference);
+        stage.wipeDocker(session.dockerEngine());
+        stage.getDirectory().deleteTree();
+    }
+
     //--
 
     public List<Reference> list(EnumerationFailed problems, Predicate predicate) throws IOException {
@@ -149,14 +227,6 @@ public class Server {
         return false;
     }
 
-    public void remove(Reference reference) throws IOException {
-        Stage stage;
-
-        stage = session.load(reference);
-        stage.wipeDocker(session.dockerEngine());
-        stage.getDirectory().deleteTree();
-    }
-
     public String quota() throws IOException {
         int global;
 
@@ -182,75 +252,6 @@ public class Server {
         result = new ArrayList<>(session.load(reference).images(session.dockerEngine()).keySet());
         Collections.sort(result);
         return result;
-    }
-
-    public void start(Reference reference, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {
-        Stage stage;
-        int global;
-        int reserved;
-        Map<String, String> environment;
-
-        environment = new HashMap<>(session.configuration.environment);
-        environment.putAll(startEnvironment);
-        global = session.configuration.quota;
-        if (global != 0) {
-            reserved = session.quotaReserved();
-            if (reserved > global) {
-                throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
-                        + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
-            }
-        }
-
-        stage = session.load(reference);
-        stage.session.configuration.verfiyHostname();
-        stage.checkConstraints();
-        stage.start(session.console,  http, https, environment, apps);
-    }
-
-    public Map<String, List<String>> awaitStartup(Reference reference) throws IOException, InterruptedException {
-        Stage stage;
-        Map<String, List<String>> result;
-
-        stage = session.load(reference);
-        stage.awaitStartup(session.console);
-
-        result = new LinkedHashMap<>();
-        for (String app : stage.currentMap().keySet()) {
-            stage.namedUrls(app);
-        }
-        return result;
-    }
-
-    public void stop(Reference reference, List<String> apps) throws IOException {
-        session.load(reference).stop(session.console, apps);
-    }
-
-    public void create(Project backstage, FileNode project, Map<String, String> config, Console console) throws IOException {
-        Stage stage;
-        Property property;
-
-        stage = session.create(backstage.getOrigin());
-        backstage.setAttached(stage.reference);
-        stage.configuration.name = project.getName();
-        for (Map.Entry<String, String> entry : config.entrySet()) {
-            property = stage.propertyOpt(entry.getKey());
-            if (property == null) {
-                throw new ArgumentException("unknown property: " + entry.getKey());
-            }
-            property.set(entry.getValue());
-        }
-        Project.checkName(stage.configuration.name);
-        stage.saveConfig();
-
-        session.logging.openStage(stage.reference.getId(), stage.getName());
-        console.info.println("stage create: " + stage.getName());
-        session.logging.closeStage();
-    }
-
-
-    public void build(Reference reference, Project project, String app, FileNode war, Console console, String comment,
-                      String origin, String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
-        session.load(reference).build(project, app, war, console, comment, origin, createdBy, createdOn, noCache, keep);
     }
 
     //-- validate
@@ -392,18 +393,6 @@ public class Server {
 
         dig = new Launcher(session.world.getWorking(), "dig", "+short", name);
         return dig.exec().trim();
-    }
-
-    //--
-
-    /** CAUTION: do not place this in a session, because it doesn't work long-lived sessions (dashboard!) */
-    private Processes lazyProcesses = null;
-
-    public Processes processes() throws Failure {
-        if (lazyProcesses == null) {
-            lazyProcesses = Processes.load(session.world);
-        }
-        return lazyProcesses;
     }
 
     //-- config command
