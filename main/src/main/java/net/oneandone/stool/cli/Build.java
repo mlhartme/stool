@@ -64,7 +64,7 @@ public class Build extends ProjectCommand {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
             server.build(reference, project, entry.getKey(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
             if (restart) {
-                new Restart(session, new ArrayList<>()).doRun(reference);
+                new Restart(sessionTodo, new ArrayList<>()).doRun(reference);
             }
         }
     }

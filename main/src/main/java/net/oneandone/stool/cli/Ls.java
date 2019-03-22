@@ -60,7 +60,7 @@ public class Ls extends InfoCommand {
         List<String> line;
         Info info;
 
-        stage = session.load(reference);
+        stage = sessionTodo.load(reference);
         line = new ArrayList<>();
         lines.add(line);
         for (String infoName : selected) {
@@ -91,7 +91,7 @@ public class Ls extends InfoCommand {
         }
         message("");
         header("storage");
-        message("        mem: " + Strings.padLeft("~" + session.memUnreserved() + " mb free", padStorage));
+        message("        mem: " + Strings.padLeft("~" + sessionTodo.memUnreserved() + " mb free", padStorage));
         quota();
         message("");
     }
@@ -99,11 +99,11 @@ public class Ls extends InfoCommand {
     private void quota() throws IOException {
         int global;
 
-        global = session.configuration.quota;
+        global = sessionTodo.configuration.quota;
         if (global == 0) {
             message(" disk: quota disabled");
         } else {
-            message(" disk: " + session.quotaReserved() + "/" + global + " mb reserved");
+            message(" disk: " + sessionTodo.quotaReserved() + "/" + global + " mb reserved");
         }
     }
 

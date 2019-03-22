@@ -22,6 +22,10 @@ public class Server {
         return session.load(reference).getName();
     }
 
+    public void rotateLogs(Reference reference) throws IOException {
+        session.load(reference).rotateLogs(session.console);
+    }
+
     public void remove(Reference reference) throws IOException {
         Stage stage;
 

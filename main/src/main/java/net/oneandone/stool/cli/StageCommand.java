@@ -116,7 +116,7 @@ public abstract class StageCommand extends ClientCommand {
                 if (all) {
                     return all(problems);
                 } else if (stageClause != null) {
-                    return session.list(problems, or(stageClause));
+                    return sessionTodo.list(problems, or(stageClause));
                 } else {
                     throw new IllegalStateException();
                 }
@@ -127,7 +127,7 @@ public abstract class StageCommand extends ClientCommand {
 
 
     protected List<Stage> all(EnumerationFailed problems) throws IOException {
-        return session.list(problems, new Predicate() {
+        return sessionTodo.list(problems, new Predicate() {
             @Override
             public boolean matches(Stage stage) {
                 return true;
@@ -138,11 +138,11 @@ public abstract class StageCommand extends ClientCommand {
     private Stage selected() throws IOException {
         String id;
 
-        id = session.getSelectedStageId();
+        id = sessionTodo.getSelectedStageId();
         if (id == null) {
             throw new IOException("no stage selected");
         }
-        return session.loadById(id);
+        return sessionTodo.loadById(id);
     }
 
     /** override this to change the default */
@@ -365,7 +365,7 @@ public abstract class StageCommand extends ClientCommand {
             if (withPrefix) {
                 ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
             }
-            session.logging.openStage(stage.reference.getId(), stage.getName());
+            sessionTodo.logging.openStage(stage.reference.getId(), stage.getName());
             try (Lock lock1 = createLock(stage.lock(), lock)) {
                 if (main) {
                     runMain(stage);
@@ -381,7 +381,7 @@ public abstract class StageCommand extends ClientCommand {
                 }
                 failures.add(stage, e);
             } finally {
-                session.logging.closeStage();
+                sessionTodo.logging.closeStage();
                 if (console.info instanceof PrefixWriter) {
                     ((PrefixWriter) console.info).setPrefix("");
                 }

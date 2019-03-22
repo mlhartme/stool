@@ -50,7 +50,7 @@ public class History extends StageCommand {
         stageId = reference.getId();
         counter = 0;
         detailsMap = new HashMap<>();
-        reader = session.load(reference).logReader();
+        reader = sessionTodo.load(reference).logReader();
         while (true) {
             entry = reader.prev();
             if (entry == null) {

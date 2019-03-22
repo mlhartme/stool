@@ -71,9 +71,9 @@ public class Start extends StageCommand {
         int global;
         int reserved;
 
-        global = session.configuration.quota;
+        global = sessionTodo.configuration.quota;
         if (global != 0) {
-            reserved = session.quotaReserved();
+            reserved = sessionTodo.quotaReserved();
             if (reserved > global) {
                 throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
                   + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
@@ -95,7 +95,7 @@ public class Start extends StageCommand {
 
         Thread.sleep(2000);
         console.info.println("Applications available:");
-        stage = session.load(reference);
+        stage = sessionTodo.load(reference);
         for (String app : stage.currentMap().keySet()) {
             for (String url : stage.namedUrls(app)) {
                 console.info.println("  " + url);

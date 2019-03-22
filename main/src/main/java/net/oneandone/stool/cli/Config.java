@@ -75,7 +75,7 @@ public class Config extends StageCommand {
         Collection<Property> props;
         int width;
 
-        stage = session.load(reference);
+        stage = sessionTodo.load(reference);
         if (set) {
             error = false;
             for (Map.Entry<String, String> entry : arguments.entrySet()) {

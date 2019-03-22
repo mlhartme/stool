@@ -40,7 +40,7 @@ public class Remove extends StageCommand {
 
         state = server.state(reference);
         if (stop && state == State.UP) {
-            new Stop(session).doRun(reference);
+            new Stop(sessionTodo).doRun(reference);
         }
         if (server.state(reference) == State.UP) {
             throw new IOException("stage is not stopped.");
@@ -52,7 +52,7 @@ public class Remove extends StageCommand {
 
         server.remove(reference);
 
-        project = Project.lookup(session.world.getWorking());
+        project = Project.lookup(world.getWorking());
         if (project != null && reference.equals(project.getAttachedOpt())) {
             console.info.println("removing backstage");
             project.removeBackstage();

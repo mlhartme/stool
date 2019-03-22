@@ -40,7 +40,7 @@ public class Status extends InfoCommand {
         boolean first;
         String value;
 
-        stage = session.load(reference);
+        stage = sessionTodo.load(reference);
         if (selected.isEmpty()) {
             selected.addAll(defaults());
             if (selected.isEmpty()) {

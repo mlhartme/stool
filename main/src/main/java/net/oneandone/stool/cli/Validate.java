@@ -60,7 +60,8 @@ public class Validate extends StageCommand {
         report = new Report();
         docker();
         dns();
-        session.logging.rotate();
+
+        sessionTodo.logging.rotate();
         locks();
         super.doRun();
         if (report.isEmpty()) {
@@ -68,7 +69,7 @@ public class Validate extends StageCommand {
         } else {
             report.console(console);
             if (email) {
-                report.email(session);
+                report.email(sessionTodo);
             }
             console.info.println();
             console.info.println("validate failed");
@@ -77,7 +78,7 @@ public class Validate extends StageCommand {
 
     private void docker() {
         try {
-            session.dockerEngine().imageList(Collections.emptyMap());
+            sessionTodo.dockerEngine().imageList(Collections.emptyMap());
         } catch (IOException e) {
             report.admin("cannot access docker: " + e.getMessage());
             e.printStackTrace(console.verbose);
@@ -91,34 +92,34 @@ public class Validate extends StageCommand {
         ServerSocket socket;
 
         try {
-            ip = digIp(session.configuration.hostname);
+            ip = digIp(sessionTodo.configuration.hostname);
         } catch (Failure e) {
             report.admin("cannot validate dns entries: " + e.getMessage());
             return;
         }
         if (ip.isEmpty()) {
-            report.admin("missing dns entry for " + session.configuration.hostname);
+            report.admin("missing dns entry for " + sessionTodo.configuration.hostname);
             return;
         }
 
         // make sure that hostname points to this machine. Help to detect actually adding the name of a different machine
-        port = session.pool().temp();
+        port = sessionTodo.pool().temp();
         try {
-            socket = new ServerSocket(port,50, InetAddress.getByName(session.configuration.hostname));
+            socket = new ServerSocket(port,50, InetAddress.getByName(sessionTodo.configuration.hostname));
             socket.close();
         } catch (IOException e) {
-            report.admin("cannot open socket on machine " + session.configuration.hostname + ", port " + port + ". Check the configured hostname.");
+            report.admin("cannot open socket on machine " + sessionTodo.configuration.hostname + ", port " + port + ". Check the configured hostname.");
             e.printStackTrace(console.verbose);
         }
 
-        subDomain = digIp("foo." + session.configuration.hostname);
+        subDomain = digIp("foo." + sessionTodo.configuration.hostname);
         if (subDomain.isEmpty() || !subDomain.endsWith(ip)) {
-            report.admin("missing dns * entry for " + session.configuration.hostname + " (" + subDomain + ")");
+            report.admin("missing dns * entry for " + sessionTodo.configuration.hostname + " (" + subDomain + ")");
         }
     }
 
     private void locks() throws IOException {
-        for (Integer pid : session.lockManager.validate(processes(), repair)) {
+        for (Integer pid : sessionTodo.lockManager.validate(processes(), repair)) {
             if (repair) {
                 report.admin("repaired locks: removed stale lock(s) for process id " + pid);
             } else {
@@ -137,7 +138,7 @@ public class Validate extends StageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        constraints(session.load(reference));
+        constraints(sessionTodo.load(reference));
     }
 
     //--
@@ -155,25 +156,25 @@ public class Validate extends StageCommand {
         if (repair) {
             if (!stage.dockerContainerList().isEmpty()) {
                 try {
-                    new Stop(session).doRun(stage.reference);
+                    new Stop(sessionTodo).doRun(stage.reference);
                     report.user(stage, "stage has been stopped");
                 } catch (Exception e) {
                     report.user(stage, "stage failed to stop: " + e.getMessage());
                     e.printStackTrace(console.verbose);
                 }
             }
-            if (session.configuration.autoRemove >= 0 && stage.configuration.expire.expiredDays() >= 0) {
-                if (stage.configuration.expire.expiredDays() >= session.configuration.autoRemove) {
+            if (sessionTodo.configuration.autoRemove >= 0 && stage.configuration.expire.expiredDays() >= 0) {
+                if (stage.configuration.expire.expiredDays() >= sessionTodo.configuration.autoRemove) {
                     try {
                         report.user(stage, "removing expired stage");
-                        new Remove(session, true, true).doRun(stage.reference);
+                        new Remove(sessionTodo, true, true).doRun(stage.reference);
                     } catch (Exception e) {
                         report.user(stage, "failed to remove expired stage: " + e.getMessage());
                         e.printStackTrace(console.verbose);
                     }
                 } else {
                     report.user(stage, "CAUTION: This stage will be removed automatically in "
-                            + (session.configuration.autoRemove - stage.configuration.expire.expiredDays()) + " day(s)");
+                            + (sessionTodo.configuration.autoRemove - stage.configuration.expire.expiredDays()) + " day(s)");
                 }
             }
         }

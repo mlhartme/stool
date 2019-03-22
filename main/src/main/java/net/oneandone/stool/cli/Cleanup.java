@@ -17,7 +17,6 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Session;
 
 public class Cleanup extends StageCommand {
@@ -27,6 +26,6 @@ public class Cleanup extends StageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        session.load(reference).rotateLogs(console);
+        server.rotateLogs(reference);
     }
 }

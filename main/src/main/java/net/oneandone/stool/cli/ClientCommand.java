@@ -34,7 +34,7 @@ public abstract class ClientCommand {
     protected final Console console;
     protected final World world;
     protected final Server server;
-    protected final Session session;
+    protected final Session sessionTodo;
     private final Mode portsLock;
     private boolean nolock;
 
@@ -42,7 +42,7 @@ public abstract class ClientCommand {
         this.console = session.console;
         this.world = session.world;
         this.server = new Server(session);
-        this.session = session;
+        this.sessionTodo = session;
         this.portsLock = portsLock;
         this.nolock = false;
     }
@@ -55,14 +55,14 @@ public abstract class ClientCommand {
         try (Lock lock = createLock("ports", portsLock)) {
             doRun();
         } finally {
-            session.closeDockerEngine();
+            sessionTodo.closeDockerEngine();
         }
     }
 
     public abstract void doRun() throws Exception;
 
     protected Lock createLock(String lock, Mode mode) throws IOException {
-        return session.lockManager.acquire(lock, console, nolock ? Mode.NONE : mode);
+        return sessionTodo.lockManager.acquire(lock, console, nolock ? Mode.NONE : mode);
     }
 
     protected void run(Launcher l, Node output) throws IOException {

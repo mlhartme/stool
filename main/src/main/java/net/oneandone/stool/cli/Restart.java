@@ -38,10 +38,10 @@ public class Restart extends StageCommand {
 
         state = server.state(reference);
         if (state == State.UP || state == State.WORKING) {
-            new Stop(session, new ArrayList<>(selection(selection).keySet())).doRun(reference);
+            new Stop(sessionTodo, new ArrayList<>(selection(selection).keySet())).doRun(reference);
         } else {
             console.info.println("Container is not running - starting a new instance.");
         }
-        new Start(session, false, selection).doRun(reference);
+        new Start(sessionTodo, false, selection).doRun(reference);
     }
 }

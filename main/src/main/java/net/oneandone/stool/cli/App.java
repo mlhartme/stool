@@ -78,7 +78,7 @@ public class App extends StageCommand {
         Stage.Current current;
         Ports ports;
 
-        stage = session.load(reference);
+        stage = sessionTodo.load(reference);
         engine = stage.session.dockerEngine();
         all = stage.images(engine);
         currentMap = stage.currentMap();
@@ -187,7 +187,7 @@ public class App extends StageCommand {
         if (container == null) {
             return 0;
         }
-        obj = session.dockerEngine().containerInspect(container, true);
+        obj = sessionTodo.dockerEngine().containerInspect(container, true);
         // not SizeRootFs, that's the image size plus the rw layer
         return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
@@ -196,7 +196,7 @@ public class App extends StageCommand {
         String container;
 
         container = current.container;
-        return container == null ? null : Stage.timespan(session.dockerEngine().containerStartedAt(container));
+        return container == null ? null : Stage.timespan(sessionTodo.dockerEngine().containerStartedAt(container));
     }
 
     private Integer cpu(Stage.Current current) throws IOException {
@@ -208,7 +208,7 @@ public class App extends StageCommand {
         if (container == null) {
             return null;
         }
-        engine = session.dockerEngine();
+        engine = sessionTodo.dockerEngine();
         stats = engine.containerStats(container);
         if (stats != null) {
             return stats.cpu;
@@ -227,7 +227,7 @@ public class App extends StageCommand {
         if (container == null) {
             return null;
         }
-        engine = session.dockerEngine();
+        engine = sessionTodo.dockerEngine();
         stats = engine.containerStats(container);
         if (stats != null) {
             return stats.memoryUsage * 100 / stats.memoryLimit;
