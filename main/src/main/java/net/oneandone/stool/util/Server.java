@@ -25,6 +25,25 @@ public class Server {
         return session.load(reference).getName();
     }
 
+    public List<Info> status(Reference reference, List<String> selected) throws IOException {
+        Stage stage;
+        List<Info> result;
+
+        stage = session.load(reference);
+        if (selected.isEmpty()) {
+            if (selected.isEmpty()) {
+                for (Info info : stage.fieldsAndName()) {
+                    selected.add(info.name());
+                }
+            }
+        }
+        result = new ArrayList<>();
+        for (String name : selected) {
+            result.add(stage.info(name));
+        }
+        return result;
+    }
+
     public List<String> history(Reference reference, boolean details, int max) throws IOException {
         String stageId;
         LogEntry entry;

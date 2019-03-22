@@ -16,13 +16,11 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Status extends InfoCommand {
@@ -34,25 +32,12 @@ public class Status extends InfoCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Stage stage;
         List<Info> infos;
         int width;
         boolean first;
         String value;
 
-        stage = sessionTodo.load(reference);
-        if (selected.isEmpty()) {
-            selected.addAll(defaults());
-            if (selected.isEmpty()) {
-                for (Info info : stage.fieldsAndName()) {
-                    selected.add(info.name());
-                }
-            }
-        }
-        infos = new ArrayList<>();
-        for (String name : selected) {
-            infos.add(stage.info(name));
-        }
+        infos = server.status(reference, selected.isEmpty() ? defaults() : selected);
         width = 0;
         for (Info info : infos) {
             width = Math.max(width, info.name().length());

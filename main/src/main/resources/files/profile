@@ -16,9 +16,8 @@ __projectDir() {
 __stageIndicator() {
   local project=$(__projectDir $1)
   if [ -f "${project}/.backstage/stage" ] ; then
-      local path="$(cat "${project}/.backstage/stage")"
-      local name="$(__stageName ${path})"
-      echo -n "{${name}} "
+      local id="$(cat "${project}/.backstage/stage")"
+      echo -n "{${id}} "
       return
   else
     # no projects at all -> no indicator
