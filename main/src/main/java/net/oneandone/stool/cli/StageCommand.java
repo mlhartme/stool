@@ -80,11 +80,11 @@ public abstract class StageCommand extends ClientCommand {
         }
         width = 0;
         for (Reference reference : lst) {
-            width = Math.max(width, sessionTodo.load(reference).getName().length());
+            width = Math.max(width, server.session.load(reference).getName().length());
         }
         width += 5;
         withPrefix = doBefore(lst, width);
-        worker = new Worker(sessionTodo, width, failures, withPrefix);
+        worker = new Worker(server.session, width, failures, withPrefix);
         for (Reference reference : lst) {
             worker.main(reference);
         }
@@ -141,11 +141,11 @@ public abstract class StageCommand extends ClientCommand {
     private Reference selected() throws IOException {
         String id;
 
-        id = sessionTodo.getSelectedStageId();
+        id = server.session.getSelectedStageId();
         if (id == null) {
             throw new IOException("no stage selected");
         }
-        return sessionTodo.loadById(id).reference;
+        return server.session.loadById(id).reference;
     }
 
     /** override this to change the default */
@@ -329,16 +329,6 @@ public abstract class StageCommand extends ClientCommand {
                 return result == eq;
             }
         };
-    }
-
-    /** CAUTION: do not place this in a session, because it doesn't work long-lived sessions (dashboard!) */
-    private Processes lazyProcesses = null;
-
-    public Processes processes() throws Failure {
-        if (lazyProcesses == null) {
-            lazyProcesses = Processes.load(world);
-        }
-        return lazyProcesses;
     }
 
     //--

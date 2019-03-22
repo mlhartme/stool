@@ -86,7 +86,7 @@ public class Ls extends InfoCommand {
         }
         message("");
         header("storage");
-        message("        mem: " + Strings.padLeft("~" + sessionTodo.memUnreserved() + " mb free", padStorage));
+        message("        mem: " + Strings.padLeft("~" + server.session.memUnreserved() + " mb free", padStorage));
         quota();
         message("");
     }
@@ -94,11 +94,11 @@ public class Ls extends InfoCommand {
     private void quota() throws IOException {
         int global;
 
-        global = sessionTodo.configuration.quota;
+        global = server.session.configuration.quota;
         if (global == 0) {
             message(" disk: quota disabled");
         } else {
-            message(" disk: " + sessionTodo.quotaReserved() + "/" + global + " mb reserved");
+            message(" disk: " + server.session.quotaReserved() + "/" + global + " mb reserved");
         }
     }
 

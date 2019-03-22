@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
 import net.oneandone.stool.locking.Mode;
@@ -26,18 +25,12 @@ import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Server;
 import net.oneandone.stool.util.Session;
-import net.oneandone.sushi.launcher.Failure;
-import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.sql.Ref;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,126 +52,25 @@ public class Validate extends StageCommand {
     @Override
     public void doRun() throws Exception {
         report = new Report();
-        docker();
-        dns();
 
-        sessionTodo.logging.rotate();
-        locks();
+        server.validateServer(report, repair);
         super.doRun();
         if (report.isEmpty()) {
             console.info.println("validate ok");
         } else {
             report.console(console);
             if (email) {
-                report.email(sessionTodo);
+                report.email(server.session);
             }
             console.info.println();
             console.info.println("validate failed");
         }
     }
 
-    private void docker() {
-        try {
-            sessionTodo.dockerEngine().imageList(Collections.emptyMap());
-        } catch (IOException e) {
-            report.admin("cannot access docker: " + e.getMessage());
-            e.printStackTrace(console.verbose);
-        }
-    }
-
-    private void dns() throws IOException {
-        int port;
-        String ip;
-        String subDomain;
-        ServerSocket socket;
-
-        try {
-            ip = digIp(sessionTodo.configuration.hostname);
-        } catch (Failure e) {
-            report.admin("cannot validate dns entries: " + e.getMessage());
-            return;
-        }
-        if (ip.isEmpty()) {
-            report.admin("missing dns entry for " + sessionTodo.configuration.hostname);
-            return;
-        }
-
-        // make sure that hostname points to this machine. Help to detect actually adding the name of a different machine
-        port = sessionTodo.pool().temp();
-        try {
-            socket = new ServerSocket(port,50, InetAddress.getByName(sessionTodo.configuration.hostname));
-            socket.close();
-        } catch (IOException e) {
-            report.admin("cannot open socket on machine " + sessionTodo.configuration.hostname + ", port " + port + ". Check the configured hostname.");
-            e.printStackTrace(console.verbose);
-        }
-
-        subDomain = digIp("foo." + sessionTodo.configuration.hostname);
-        if (subDomain.isEmpty() || !subDomain.endsWith(ip)) {
-            report.admin("missing dns * entry for " + sessionTodo.configuration.hostname + " (" + subDomain + ")");
-        }
-    }
-
-    private void locks() throws IOException {
-        for (Integer pid : sessionTodo.lockManager.validate(processes(), repair)) {
-            if (repair) {
-                report.admin("repaired locks: removed stale lock(s) for process id " + pid);
-            } else {
-                report.admin("detected stale locks for process id " + pid);
-            }
-        }
-
-    }
-
-    private String digIp(String name) throws Failure {
-        Launcher dig;
-
-        dig = new Launcher(world.getWorking(), "dig", "+short", name);
-        return dig.exec().trim();
-    }
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        constraints(sessionTodo.load(reference));
-    }
-
-    //--
-
-    public void constraints(Stage stage) throws IOException {
-        String message;
-
-        try {
-            stage.checkConstraints();
-            return;
-        } catch (ArgumentException e) {
-            message = e.getMessage();
-        }
-        report.user(stage, message);
-        if (repair) {
-            if (!stage.dockerContainerList().isEmpty()) {
-                try {
-                    new Stop(server).doRun(stage.reference);
-                    report.user(stage, "stage has been stopped");
-                } catch (Exception e) {
-                    report.user(stage, "stage failed to stop: " + e.getMessage());
-                    e.printStackTrace(console.verbose);
-                }
-            }
-            if (sessionTodo.configuration.autoRemove >= 0 && stage.configuration.expire.expiredDays() >= 0) {
-                if (stage.configuration.expire.expiredDays() >= sessionTodo.configuration.autoRemove) {
-                    try {
-                        report.user(stage, "removing expired stage");
-                        new Remove(server, true, true).doRun(stage.reference);
-                    } catch (Exception e) {
-                        report.user(stage, "failed to remove expired stage: " + e.getMessage());
-                        e.printStackTrace(console.verbose);
-                    }
-                } else {
-                    report.user(stage, "CAUTION: This stage will be removed automatically in "
-                            + (sessionTodo.configuration.autoRemove - stage.configuration.expire.expiredDays()) + " day(s)");
-                }
-            }
-        }
+        server.validateState(reference, report, repair);
     }
 
     //--

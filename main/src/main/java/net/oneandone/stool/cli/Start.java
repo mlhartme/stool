@@ -68,22 +68,6 @@ public class Start extends StageCommand {
     }
 
     @Override
-    public boolean doBefore(List<Reference> references, int indent) throws IOException {
-        int global;
-        int reserved;
-
-        global = sessionTodo.configuration.quota;
-        if (global != 0) {
-            reserved = sessionTodo.quotaReserved();
-            if (reserved > global) {
-                throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
-                  + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
-            }
-        }
-        return super.doBefore(references, indent);
-    }
-
-    @Override
     public void doMain(Reference reference) throws Exception {
         server.start(reference, http, https, environment, selection);
     }
@@ -96,7 +80,7 @@ public class Start extends StageCommand {
 
         Thread.sleep(2000);
         console.info.println("Applications available:");
-        stage = sessionTodo.load(reference);
+        stage = server.session.load(reference);
         for (String app : stage.currentMap().keySet()) {
             for (String url : stage.namedUrls(app)) {
                 console.info.println("  " + url);
