@@ -17,7 +17,6 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Server;
@@ -46,7 +45,7 @@ public class Validate extends StageCommand {
     public void doRun() throws Exception {
         report = new Report();
 
-        server.validateServer(report, repair);
+        server.validateServer(report);
         super.doRun();
         if (report.isEmpty()) {
             console.info.println("validate ok");

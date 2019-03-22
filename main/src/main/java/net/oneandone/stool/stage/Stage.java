@@ -97,18 +97,11 @@ public class Stage {
     //-- state
 
     public State state() throws IOException {
-        if (session.lockManager.hasExclusiveLocks(lock())) {
-            return State.WORKING;
-        } else if (dockerContainerList().isEmpty()) {
+        if (dockerContainerList().isEmpty()) {
             return State.DOWN;
         } else {
             return State.UP;
         }
-
-    }
-
-    public String lock() {
-        return "stage-" + reference.getId();
     }
 
     //-- fields and properties

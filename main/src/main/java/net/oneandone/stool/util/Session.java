@@ -28,7 +28,6 @@ import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.docker.Engine;
-import net.oneandone.stool.locking.LockManager;
 import net.oneandone.stool.stage.Image;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
@@ -75,7 +74,6 @@ public class Session {
     private final String stageIdPrefix;
     private int nextStageId;
     public final Users users;
-    public final LockManager lockManager;
 
     private Map<String, Accessor> lazyAccessors;
     private Pool lazyPool;
@@ -98,7 +96,6 @@ public class Session {
             this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials,
                     "ou=users,ou=" + configuration.ldapUnit);
         }
-        this.lockManager = LockManager.create(home.join("run/locks"), user + ":" + command.replace("\n", "\\n"), 30);
         this.lazyAccessors = null;
         this.lazyPool= null;
     }

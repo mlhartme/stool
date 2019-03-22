@@ -16,7 +16,6 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.fs.World;

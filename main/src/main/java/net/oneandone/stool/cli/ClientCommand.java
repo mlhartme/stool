@@ -16,8 +16,6 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.locking.Lock;
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;

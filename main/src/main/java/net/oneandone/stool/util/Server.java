@@ -341,10 +341,9 @@ public class Server {
     }
 
 
-    public void validateServer(Validate.Report report, boolean repair) throws IOException {
+    public void validateServer(Validate.Report report) throws IOException {
         validateDocker(report);
         validateDns(report);
-        validateLocks(report, repair);
     }
 
     private void validateDocker(Validate.Report report) {
@@ -387,17 +386,6 @@ public class Server {
         if (subDomain.isEmpty() || !subDomain.endsWith(ip)) {
             report.admin("missing dns * entry for " + session.configuration.hostname + " (" + subDomain + ")");
         }
-    }
-
-    private void validateLocks(Validate.Report report, boolean repair) throws IOException {
-        for (Integer pid : session.lockManager.validate(processes(), repair)) {
-            if (repair) {
-                report.admin("repaired locks: removed stale lock(s) for process id " + pid);
-            } else {
-                report.admin("detected stale locks for process id " + pid);
-            }
-        }
-
     }
 
     private String digIp(String name) throws Failure {
