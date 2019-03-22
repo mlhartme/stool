@@ -71,10 +71,12 @@ public class Start extends StageCommand {
 
     @Override
     public void doFinish(Reference reference) throws Exception {
-        server.awaitStartup(reference);
+        Map<String, List<String>> running;
+
+        running = server.awaitStartup(reference);
         console.info.println("Applications available:");
-        for (String app : server.running(reference)) {
-            for (String url : server.namedUrls(reference, app)) {
+        for (String app : running.keySet()) {
+            for (String url : running.get(app)) {
                 console.info.println("  " + url);
             }
         }

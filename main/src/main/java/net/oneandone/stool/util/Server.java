@@ -38,6 +38,7 @@ import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,6 +55,10 @@ public class Server {
 
     public String getName(Reference reference) throws IOException {
         return session.load(reference).getName();
+    }
+
+    public Reference resolveName(String name) throws IOException {
+        return session.loadByName(name).reference;
     }
 
     public List<Reference> list(EnumerationFailed problems, Predicate predicate) throws IOException {
@@ -171,22 +176,10 @@ public class Server {
         return session.load(reference).state();
     }
 
-    public List<String> namedUrls(Reference reference, String app) throws IOException {
-        return session.load(reference).namedUrls(app);
-    }
-
     public List<String> apps(Reference reference) throws IOException {
         List<String> result;
 
         result = new ArrayList<>(session.load(reference).images(session.dockerEngine()).keySet());
-        Collections.sort(result);
-        return result;
-    }
-
-    public List<String> running(Reference reference) throws IOException {
-        List<String> result;
-
-        result = new ArrayList<>(session.load(reference).currentMap().keySet());
         Collections.sort(result);
         return result;
     }
@@ -214,19 +207,22 @@ public class Server {
         stage.start(session.console,  http, https, environment, apps);
     }
 
-    public void stop(Reference reference, List<String> apps) throws IOException {
-        session.load(reference).stop(session.console, apps);
-    }
-
-    public void awaitStartup(Reference reference) throws IOException, InterruptedException {
+    public Map<String, List<String>> awaitStartup(Reference reference) throws IOException, InterruptedException {
         Stage stage;
+        Map<String, List<String>> result;
 
         stage = session.load(reference);
         stage.awaitStartup(session.console);
+
+        result = new LinkedHashMap<>();
+        for (String app : stage.currentMap().keySet()) {
+            stage.namedUrls(app);
+        }
+        return result;
     }
 
-    public Reference resolveName(String name) throws IOException {
-        return session.loadByName(name).reference;
+    public void stop(Reference reference, List<String> apps) throws IOException {
+        session.load(reference).stop(session.console, apps);
     }
 
     public void create(Project backstage, FileNode project, Map<String, String> config, Console console) throws IOException {
