@@ -349,13 +349,13 @@ public abstract class StageCommand extends ClientCommand {
         }
 
         private void run(Reference reference, boolean main) throws Exception {
-            Stage stage;
+            String name;
 
-            stage = sessionTodo.load(reference);
+            name = server.getName(reference);
             if (withPrefix) {
-                ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
+                ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + name + "} ", width));
             }
-            sessionTodo.logging.openStage(stage.reference.getId(), stage.getName());
+            sessionTodo.logging.openStage(reference.getId(), name);
             try {
                 if (main) {
                     runMain(reference);
@@ -363,13 +363,13 @@ public abstract class StageCommand extends ClientCommand {
                     runFinish(reference);
                 }
             } catch (Error | RuntimeException e) {
-                console.error.println(stage.getName() + ": " + e.getMessage());
+                console.error.println(name + ": " + e.getMessage());
                 throw e;
             } catch (Exception e /* esp. ArgumentException */) {
                 if (fail == Fail.NORMAL) {
                     throw e;
                 }
-                failures.add(stage, e);
+                failures.add(name, reference, e);
             } finally {
                 sessionTodo.logging.closeStage();
                 if (console.info instanceof PrefixWriter) {

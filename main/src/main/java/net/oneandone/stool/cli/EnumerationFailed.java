@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.cli;
 
+import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 
 import java.util.HashMap;
@@ -31,8 +32,8 @@ public class EnumerationFailed extends Exception {
         return problems.isEmpty();
     }
 
-    public void add(Stage stage, Exception cause) {
-        add(stage.getName() + " (" + stage.reference.getId() + ")", cause);
+    public void add(String name, Reference reference, Exception cause) {
+        add(name + " (" + reference.getId() + ")", cause);
     }
 
     public void add(String stage, Exception cause) {
