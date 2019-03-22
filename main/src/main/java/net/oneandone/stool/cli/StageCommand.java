@@ -332,19 +332,18 @@ public abstract class StageCommand extends ClientCommand {
         private final int width;
         private final EnumerationFailed failures;
         private final boolean withPrefix;
-        private final Map<Stage, Start> postStarts;
 
         public Worker(Session sessionTodo, int width, EnumerationFailed failures, boolean withPrefix) {
             this.sessionTodo = sessionTodo;
             this.width = width;
             this.failures = failures;
             this.withPrefix = withPrefix;
-            this.postStarts = new LinkedHashMap<>();
         }
 
         public void main(Reference reference) throws Exception {
             run(reference, true);
         }
+
         public void finish(Reference reference) throws Exception {
             run(reference, false);
         }
@@ -359,9 +358,9 @@ public abstract class StageCommand extends ClientCommand {
             sessionTodo.logging.openStage(stage.reference.getId(), stage.getName());
             try {
                 if (main) {
-                    runMain(stage);
+                    runMain(reference);
                 } else {
-                    runFinish(stage);
+                    runFinish(reference);
                 }
             } catch (Error | RuntimeException e) {
                 console.error.println(stage.getName() + ": " + e.getMessage());
@@ -379,20 +378,14 @@ public abstract class StageCommand extends ClientCommand {
             }
         }
 
-        private void runMain(Stage stage) throws Exception {
+        private void runMain(Reference reference) throws Exception {
             console.verbose.println("*** stage main");
-            doMain(stage.reference);
+            doMain(reference);
         }
 
-        private void runFinish(Stage stage) throws Exception {
-            Start postStart;
-
+        private void runFinish(Reference reference) throws Exception {
             console.verbose.println("*** stage finish");
-            doFinish(stage.reference);
-            postStart = postStarts.get(stage);
-            if (postStart != null) {
-                postStart.doRun(stage.reference);
-            }
+            doFinish(reference);
         }
     }
 }
