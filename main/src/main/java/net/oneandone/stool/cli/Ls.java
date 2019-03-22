@@ -56,15 +56,11 @@ public class Ls extends InfoCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Stage stage;
         List<String> line;
-        Info info;
 
-        stage = sessionTodo.load(reference);
         line = new ArrayList<>();
         lines.add(line);
-        for (String infoName : selected) {
-            info = stage.info(infoName);
+        for (Info info : server.status(reference, selected)) {
             line.add(info.getAsString().replace("\t", " "));
         }
     }
