@@ -20,6 +20,7 @@ import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Predicate;
+import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Server;
 import net.oneandone.stool.util.Session;
@@ -132,13 +133,10 @@ public abstract class StageCommand extends ClientCommand {
     }
 
     private Reference selected() throws IOException {
-        String id;
+        Project project;
 
-        id = server.session.getSelectedStageId();
-        if (id == null) {
-            throw new IOException("no stage selected");
-        }
-        return server.session.loadById(id).reference;
+        project = Project.lookup(world.getWorking());
+        return project == null ? null : project.getAttachedOpt();
     }
 
     /** override this to change the default */

@@ -219,33 +219,6 @@ public class Session {
         return StageConfiguration.load(gson, StageConfiguration.file(stage));
     }
 
-    //-- selected stage
-
-    private static final String UNKNOWN = "../unknown/..";
-    private String lazySelectedId = UNKNOWN;
-
-    public String getSelectedStageId() throws IOException {
-        Project project;
-        Reference stage;
-
-        if (lazySelectedId == UNKNOWN) {
-            project = Project.lookup(world.getWorking());
-            if (project == null) {
-                lazySelectedId = null;
-            } else {
-                stage = project.getAttachedOpt();
-                if (stage != null) {
-                    lazySelectedId = stage.getId();
-                }
-            }
-        }
-        return lazySelectedId;
-    }
-
-    public boolean isSelected(Stage stage) throws IOException {
-        return stage.reference.getId().equals(getSelectedStageId());
-    }
-
     //--
 
     /** logs an error for administrators, i.e. the user is not expected to understand/fix this problem. */

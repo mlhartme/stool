@@ -46,6 +46,8 @@ Stages are now the central part; multiple project can be associated with the sam
   * dumped cd (TODO: add this functionality to pommes)
   * dumped select (use `pg`)
   
+* dumped isSelected field
+
 * stool is no longer responsible for building - use your standard build tools and configuration instead
   * dumped `build` command
   * dumped `refresh -build` option

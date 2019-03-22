@@ -175,12 +175,6 @@ public class Stage {
                 return reference.getId();
             }
         });
-        fields.add(new Field("selected") {
-            @Override
-            public Object get() throws IOException {
-                return session.isSelected(Stage.this);
-            }
-        });
         fields.add(new Field("stage") {
             @Override
             public Object get() {
