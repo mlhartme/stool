@@ -19,7 +19,7 @@ import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.file.FileNode;
 
-public abstract class ProjectCommand extends SessionCommand {
+public abstract class ProjectCommand extends ClientCommand {
     private final FileNode project;
 
     public ProjectCommand(Session session, Mode portsLock, FileNode project) {

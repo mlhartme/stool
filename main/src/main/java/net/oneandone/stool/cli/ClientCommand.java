@@ -30,7 +30,7 @@ import net.oneandone.sushi.util.Strings;
 import java.io.IOException;
 import java.io.Writer;
 
-public abstract class SessionCommand {
+public abstract class ClientCommand {
     protected final Console console;
     protected final World world;
     protected final Server server;
@@ -38,7 +38,7 @@ public abstract class SessionCommand {
     private final Mode portsLock;
     private boolean nolock;
 
-    public SessionCommand(Session session, Mode portsLock) {
+    public ClientCommand(Session session, Mode portsLock) {
         this.console = session.console;
         this.world = session.world;
         this.server = new Server(session);

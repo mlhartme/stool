@@ -36,7 +36,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public abstract class StageCommand extends SessionCommand {
+public abstract class StageCommand extends ClientCommand {
     private final Mode lock;
 
     private String stageClause;
