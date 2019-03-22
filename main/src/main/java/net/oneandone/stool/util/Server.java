@@ -4,6 +4,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.State;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ public class Server {
         stage.getDirectory().deleteTree();
     }
 
-    public Stage.State state(Reference reference) throws IOException {
+    public State state(Reference reference) throws IOException {
         return session.load(reference).state();
     }
 

@@ -17,7 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.State;
 import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Session;
 
@@ -35,14 +35,14 @@ public class Remove extends StageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Stage.State state;
+        State state;
         Project project;
 
         state = server.state(reference);
-        if (stop && state == Stage.State.UP) {
+        if (stop && state == State.UP) {
             new Stop(session).doRun(reference);
         }
-        if (server.state(reference) == Stage.State.UP) {
+        if (server.state(reference) == State.UP) {
             throw new IOException("stage is not stopped.");
         }
         if (!batch) {

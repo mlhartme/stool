@@ -17,12 +17,11 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.stage.State;
 import net.oneandone.stool.util.Session;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class Restart extends StageCommand {
     private final List<String> selection;
@@ -34,11 +33,11 @@ public class Restart extends StageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Stage.State state;
+        State state;
 
 
         state = server.state(reference);
-        if (state == Stage.State.UP || state == Stage.State.WORKING) {
+        if (state == State.UP || state == State.WORKING) {
             new Stop(session, new ArrayList<>(selection(selection).keySet())).doRun(reference);
         } else {
             console.info.println("Container is not running - starting a new instance.");

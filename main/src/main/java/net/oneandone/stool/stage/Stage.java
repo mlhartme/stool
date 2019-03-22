@@ -96,20 +96,6 @@ public class Stage {
 
     //-- state
 
-    public enum State {
-        DOWN("primary"), UP("success"), WORKING("danger");
-
-        public String display;
-
-        State(String display) {
-            this.display = display;
-        }
-
-        public String toString() {
-            return name().toLowerCase();
-        }
-    }
-
     public State state() throws IOException {
         if (session.lockManager.hasExclusiveLocks(lock())) {
             return State.WORKING;
