@@ -35,7 +35,7 @@ public class Build extends ProjectCommand {
     private final String comment;
 
     public Build(Server server, boolean noCache, int keep, boolean restart, String comment, FileNode project) {
-        super(server, Mode.EXCLUSIVE, project);
+        super(server, project);
         this.noCache = noCache;
         this.keep = keep;
         this.restart = restart;

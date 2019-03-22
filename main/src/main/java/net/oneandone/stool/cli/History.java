@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.util.Server;
 
@@ -24,7 +23,7 @@ public class History extends StageCommand {
     private final int max;
 
     public History(Server server, boolean details, int max) {
-        super(server, Mode.NONE, Mode.SHARED);
+        super(server);
         this.details = details;
         this.max = max;
     }

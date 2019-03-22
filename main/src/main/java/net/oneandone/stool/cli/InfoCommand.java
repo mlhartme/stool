@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.util.Separator;
 
@@ -29,7 +28,7 @@ public abstract class InfoCommand extends StageCommand {
     private final String defaults;
 
     public InfoCommand(Server server, String defaults) {
-        super(server, Mode.SHARED, Mode.SHARED);
+        super(server);
         this.defaults = defaults == null ? "" : defaults;
     }
 

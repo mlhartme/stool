@@ -31,7 +31,7 @@ public class Create extends ProjectCommand {
     private final Map<String, String> config;
 
     public Create(Server server, List<String> args) {
-        super(server, Mode.EXCLUSIVE, eatProject(server.world, args));
+        super(server, eatProject(server.world, args));
         this.config = new LinkedHashMap<>();
         for (String arg : args) {
             property(arg);

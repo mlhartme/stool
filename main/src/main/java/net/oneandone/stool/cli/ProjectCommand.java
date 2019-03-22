@@ -15,15 +15,14 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.fs.file.FileNode;
 
 public abstract class ProjectCommand extends ClientCommand {
     private final FileNode project;
 
-    public ProjectCommand(Server server, Mode portsLock, FileNode project) {
-        super(server, portsLock);
+    public ProjectCommand(Server server, FileNode project) {
+        super(server);
         this.project = project == null ? world.getWorking() : project;
     }
 

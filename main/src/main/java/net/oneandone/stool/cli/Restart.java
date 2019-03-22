@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.State;
 import net.oneandone.stool.util.Server;
@@ -27,7 +26,7 @@ public class Restart extends StageCommand {
     private final List<String> selection;
 
     public Restart(Server server, List<String> selection) {
-        super(server, /* locking done by subcommands */ Mode.NONE, Mode.NONE);
+        super(server);
         this.selection = selection;
     }
 

@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Server;
@@ -25,7 +24,7 @@ public class Attach extends ProjectCommand {
     private final String stageName;
 
     public Attach(Server server, String stageName, FileNode project) {
-        super(server, Mode.EXCLUSIVE, project);
+        super(server, project);
 
         this.stageName = stageName;
     }

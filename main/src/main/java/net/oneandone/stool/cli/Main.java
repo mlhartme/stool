@@ -86,7 +86,7 @@ public class Main {
               cli.addDefault(Help.class, "help command?");
               cli.add(Setup.class, "setup -batch config? { config(config) }");
               cli.begin("globals.server", "");
-                cli.base(ClientCommand.class, "-nolock { setNoLock(nolock) }");
+                cli.base(ClientCommand.class, "");
                     cli.add(Create.class, "create projectAndProperties*");
                     cli.add(Build.class, "build -nocache -keep=5 -restart -m= project?");
                     cli.add(Attach.class, "attach stage project?");

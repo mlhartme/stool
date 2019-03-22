@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.util.Server;
 
@@ -29,7 +28,7 @@ public class Stop extends StageCommand {
         this(server, new ArrayList<>());
     }
     public Stop(Server server, List<String> apps) {
-        super(server, Mode.SHARED, Mode.SHARED);
+        super(server);
         this.apps = apps;
     }
 

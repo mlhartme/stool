@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.State;
 import net.oneandone.stool.util.Project;
@@ -28,7 +27,7 @@ public class Remove extends StageCommand {
     private final boolean stop;
 
     public Remove(Server server, boolean batch, boolean stop) {
-        super(server, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
+        super(server);
         this.batch = batch;
         this.stop = stop;
     }

@@ -16,7 +16,6 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.util.Server;
 
@@ -29,7 +28,7 @@ public class App extends StageCommand {
     private final List<String> names;
 
     public App(Server server, List<String> names) {
-        super(server, Mode.NONE, Mode.EXCLUSIVE);
+        super(server);
         this.names = names;
     }
 

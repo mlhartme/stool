@@ -15,9 +15,7 @@
  */
 package net.oneandone.stool.cli;
 
-import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Server;
 
 import java.io.IOException;
@@ -38,7 +36,7 @@ public class Start extends StageCommand {
     }
 
     public Start(Server server, boolean tail, int http, int https, List<String> selection) {
-        super(server, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
+        super(server);
         this.tail = tail;
         this.http = http;
         this.https = https;

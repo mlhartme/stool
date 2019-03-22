@@ -36,15 +36,12 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class StageCommand extends ClientCommand {
-    private final Mode lock;
-
     private String stageClause;
     private boolean all;
     private Fail fail = Fail.NORMAL;
 
-    public StageCommand(Server server, Mode portsLock, Mode lock) {
-        super(server, portsLock);
-        this.lock = lock;
+    public StageCommand(Server server) {
+        super(server);
     }
 
     public void setStage(String stageClause) {
@@ -362,7 +359,7 @@ public abstract class StageCommand extends ClientCommand {
                 ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
             }
             sessionTodo.logging.openStage(stage.reference.getId(), stage.getName());
-            try (Lock lock1 = createLock(stage.lock(), lock)) {
+            try {
                 if (main) {
                     runMain(stage);
                 } else {

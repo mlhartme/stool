@@ -37,7 +37,7 @@ public class Validate extends StageCommand {
     private Report report;
 
     public Validate(Server server, boolean email, boolean repair) {
-        super(server, Mode.SHARED, Mode.EXCLUSIVE);
+        super(server);
         this.email = email;
         this.repair = repair;
     }
