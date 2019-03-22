@@ -138,6 +138,21 @@ public class Server {
         stage.getDirectory().deleteTree();
     }
 
+    public String quota() throws IOException {
+        int global;
+
+        global = session.configuration.quota;
+        if (global == 0) {
+            return null;
+        } else {
+            return session.quotaReserved() + "/" + global;
+        }
+    }
+
+    public int memUnreserved() throws IOException {
+        return session.memUnreserved();
+    }
+
     public State state(Reference reference) throws IOException {
         return session.load(reference).state();
     }
