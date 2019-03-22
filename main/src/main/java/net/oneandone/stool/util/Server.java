@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Server {
-    private final Session session;
+    public final Session session;
 
     public Server(Session session) {
         this.session = session;

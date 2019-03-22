@@ -18,7 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.util.Project;
-import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -30,8 +30,8 @@ import java.util.Map;
 public class Create extends ProjectCommand {
     private final Map<String, String> config;
 
-    public Create(Session session, List<String> args) {
-        super(session, Mode.EXCLUSIVE, eatProject(session.world, args));
+    public Create(Server server, List<String> args) {
+        super(server, Mode.EXCLUSIVE, eatProject(server.session.world, args));
         this.config = new LinkedHashMap<>();
         for (String arg : args) {
             property(arg);

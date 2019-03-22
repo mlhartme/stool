@@ -24,6 +24,7 @@ import net.oneandone.stool.util.Field;
 import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Processes;
 import net.oneandone.stool.util.Property;
+import net.oneandone.stool.util.Server;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.launcher.Failure;
@@ -43,8 +44,8 @@ public abstract class StageCommand extends ClientCommand {
     private boolean all;
     private Fail fail = Fail.NORMAL;
 
-    public StageCommand(Session session, Mode portsLock, Mode lock) {
-        super(session, portsLock);
+    public StageCommand(Server server, Mode portsLock, Mode lock) {
+        super(server, portsLock);
         this.lock = lock;
     }
 

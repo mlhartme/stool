@@ -85,7 +85,7 @@ public class Main {
            cli.begin("globals", globals,  "-exception { setException(exception) }");
               cli.addDefault(Help.class, "help command?");
               cli.add(Setup.class, "setup -batch config? { config(config) }");
-              cli.begin("globals.session", "");
+              cli.begin("globals.server", "");
                 cli.base(ClientCommand.class, "-nolock { setNoLock(nolock) }");
                     cli.add(Create.class, "create projectAndProperties*");
                     cli.add(Build.class, "build -nocache -keep=5 -restart -m= project?");

@@ -17,7 +17,7 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.util.Info;
-import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -28,8 +28,8 @@ import java.util.List;
 public class Ls extends InfoCommand {
     private final List<List<String>> lines;
 
-    public Ls(Session session, String defaults) {
-        super(session, defaults);
+    public Ls(Server server, String defaults) {
+        super(server, defaults);
         lines = new ArrayList<>();
     }
 

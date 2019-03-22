@@ -18,14 +18,14 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.util.Project;
-import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
 public class Detach extends ProjectCommand {
-    public Detach(Session session, FileNode project) {
-        super(session, Mode.EXCLUSIVE, project);
+    public Detach(Server server, FileNode project) {
+        super(server, Mode.EXCLUSIVE, project);
     }
 
     @Override

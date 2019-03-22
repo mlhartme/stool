@@ -17,14 +17,14 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Server;
 
 public class History extends StageCommand {
     private final boolean details;
     private final int max;
 
-    public History(Session session, boolean details, int max) {
-        super(session, Mode.NONE, Mode.SHARED);
+    public History(Server server, boolean details, int max) {
+        super(server, Mode.NONE, Mode.SHARED);
         this.details = details;
         this.max = max;
     }

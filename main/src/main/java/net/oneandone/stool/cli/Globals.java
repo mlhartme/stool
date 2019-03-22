@@ -19,6 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;
+import net.oneandone.stool.util.Server;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -50,7 +51,11 @@ public class Globals {
         }
     }
 
-    public Session session() throws IOException {
+    public Server server() throws IOException {
+        return new Server(session());
+    }
+
+    private Session session() throws IOException {
         Session session;
 
         if (!home.exists()) {

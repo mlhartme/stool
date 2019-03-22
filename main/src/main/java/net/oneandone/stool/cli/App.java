@@ -24,6 +24,7 @@ import net.oneandone.stool.stage.Image;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Ports;
+import net.oneandone.stool.util.Server;
 import net.oneandone.stool.util.Session;
 
 import javax.management.MBeanServerConnection;
@@ -43,8 +44,8 @@ import java.util.Map;
 public class App extends StageCommand {
     private final List<String> names;
 
-    public App(Session session, List<String> names) {
-        super(session, Mode.NONE, Mode.EXCLUSIVE);
+    public App(Server server, List<String> names) {
+        super(server, Mode.NONE, Mode.EXCLUSIVE);
         this.names = names;
     }
 

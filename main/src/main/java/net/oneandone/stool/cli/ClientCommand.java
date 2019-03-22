@@ -38,11 +38,11 @@ public abstract class ClientCommand {
     private final Mode portsLock;
     private boolean nolock;
 
-    public ClientCommand(Session session, Mode portsLock) {
-        this.console = session.console;
-        this.world = session.world;
-        this.server = new Server(session);
-        this.sessionTodo = session;
+    public ClientCommand(Server server, Mode portsLock) {
+        this.console = server.session.console;
+        this.world = server.session.world;
+        this.server = server;
+        this.sessionTodo = server.session;
         this.portsLock = portsLock;
         this.nolock = false;
     }

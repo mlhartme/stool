@@ -19,7 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.util.Project;
-import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -34,8 +34,8 @@ public class Build extends ProjectCommand {
     private final boolean restart;
     private final String comment;
 
-    public Build(Session session, boolean noCache, int keep, boolean restart, String comment, FileNode project) {
-        super(session, Mode.EXCLUSIVE, project);
+    public Build(Server server, boolean noCache, int keep, boolean restart, String comment, FileNode project) {
+        super(server, Mode.EXCLUSIVE, project);
         this.noCache = noCache;
         this.keep = keep;
         this.restart = restart;
@@ -64,7 +64,7 @@ public class Build extends ProjectCommand {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
             server.build(reference, project, entry.getKey(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
             if (restart) {
-                new Restart(sessionTodo, new ArrayList<>()).doRun(reference);
+                new Restart(server, new ArrayList<>()).doRun(reference);
             }
         }
     }

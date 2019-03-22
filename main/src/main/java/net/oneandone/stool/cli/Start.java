@@ -18,6 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.util.Server;
 import net.oneandone.stool.util.Session;
 
 import java.io.IOException;
@@ -33,16 +34,16 @@ public class Start extends StageCommand {
     private final Map<String, String> environment;
     private final Map<String, Integer> selection;
 
-    public Start(Session session, boolean tail, List<String> selection) {
-        this(session, tail, -1, -1, selection);
+    public Start(Server server, boolean tail, List<String> selection) {
+        this(server, tail, -1, -1, selection);
     }
 
-    public Start(Session session, boolean tail, int http, int https, List<String> selection) {
-        super(session, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
+    public Start(Server server, boolean tail, int http, int https, List<String> selection) {
+        super(server, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.tail = tail;
         this.http = http;
         this.https = https;
-        this.environment = new HashMap<>(session.configuration.environment);
+        this.environment = new HashMap<>(server.session.configuration.environment);
 
         eatEnvironment(selection, environment);
 

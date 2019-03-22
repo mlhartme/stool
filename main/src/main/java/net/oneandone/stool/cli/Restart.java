@@ -18,6 +18,7 @@ package net.oneandone.stool.cli;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.State;
+import net.oneandone.stool.util.Server;
 import net.oneandone.stool.util.Session;
 
 import java.util.ArrayList;
@@ -26,8 +27,8 @@ import java.util.List;
 public class Restart extends StageCommand {
     private final List<String> selection;
 
-    public Restart(Session session, List<String> selection) {
-        super(session, /* locking done by subcommands */ Mode.NONE, Mode.NONE);
+    public Restart(Server server, List<String> selection) {
+        super(server, /* locking done by subcommands */ Mode.NONE, Mode.NONE);
         this.selection = selection;
     }
 
@@ -38,10 +39,10 @@ public class Restart extends StageCommand {
 
         state = server.state(reference);
         if (state == State.UP || state == State.WORKING) {
-            new Stop(sessionTodo, new ArrayList<>(selection(selection).keySet())).doRun(reference);
+            new Stop(server, new ArrayList<>(selection(selection).keySet())).doRun(reference);
         } else {
             console.info.println("Container is not running - starting a new instance.");
         }
-        new Start(sessionTodo, false, selection).doRun(reference);
+        new Start(server, false, selection).doRun(reference);
     }
 }

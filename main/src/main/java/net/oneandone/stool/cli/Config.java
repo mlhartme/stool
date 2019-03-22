@@ -20,6 +20,7 @@ import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Property;
+import net.oneandone.stool.util.Server;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Strings;
 
@@ -35,8 +36,8 @@ public class Config extends StageCommand {
     private boolean get;
     private boolean set;
 
-    public Config(Session session) {
-        super(session, Mode.NONE, Mode.EXCLUSIVE);
+    public Config(Server server) {
+        super(server, Mode.NONE, Mode.EXCLUSIVE);
         arguments = new LinkedHashMap<>();
     }
 

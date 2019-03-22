@@ -17,15 +17,15 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.util.Info;
-import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.util.List;
 
 public class Status extends InfoCommand {
-    public Status(Session session, String defaults) {
-        super(session, defaults);
+    public Status(Server server, String defaults) {
+        super(server, defaults);
     }
 
     private static final Separator TAB = Separator.on('\t');

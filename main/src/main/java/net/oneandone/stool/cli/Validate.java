@@ -24,6 +24,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.stool.util.Mailer;
+import net.oneandone.stool.util.Server;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
@@ -49,8 +50,8 @@ public class Validate extends StageCommand {
 
     private Report report;
 
-    public Validate(Session session, boolean email, boolean repair) {
-        super(session, Mode.SHARED, Mode.EXCLUSIVE);
+    public Validate(Server server, boolean email, boolean repair) {
+        super(server, Mode.SHARED, Mode.EXCLUSIVE);
         this.email = email;
         this.repair = repair;
     }
@@ -156,7 +157,7 @@ public class Validate extends StageCommand {
         if (repair) {
             if (!stage.dockerContainerList().isEmpty()) {
                 try {
-                    new Stop(sessionTodo).doRun(stage.reference);
+                    new Stop(server).doRun(stage.reference);
                     report.user(stage, "stage has been stopped");
                 } catch (Exception e) {
                     report.user(stage, "stage failed to stop: " + e.getMessage());
@@ -167,7 +168,7 @@ public class Validate extends StageCommand {
                 if (stage.configuration.expire.expiredDays() >= sessionTodo.configuration.autoRemove) {
                     try {
                         report.user(stage, "removing expired stage");
-                        new Remove(sessionTodo, true, true).doRun(stage.reference);
+                        new Remove(server, true, true).doRun(stage.reference);
                     } catch (Exception e) {
                         report.user(stage, "failed to remove expired stage: " + e.getMessage());
                         e.printStackTrace(console.verbose);

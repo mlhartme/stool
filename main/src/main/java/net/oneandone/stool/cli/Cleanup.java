@@ -17,11 +17,11 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Server;
 
 public class Cleanup extends StageCommand {
-    public Cleanup(Session session) {
-        super(session, Mode.NONE, Mode.EXCLUSIVE);
+    public Cleanup(Server server) {
+        super(server, Mode.NONE, Mode.EXCLUSIVE);
     }
 
     @Override

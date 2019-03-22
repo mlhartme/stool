@@ -19,7 +19,7 @@ import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.State;
 import net.oneandone.stool.util.Project;
-import net.oneandone.stool.util.Session;
+import net.oneandone.stool.util.Server;
 
 import java.io.IOException;
 
@@ -27,8 +27,8 @@ public class Remove extends StageCommand {
     private final boolean batch;
     private final boolean stop;
 
-    public Remove(Session session, boolean batch, boolean stop) {
-        super(session, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
+    public Remove(Server server, boolean batch, boolean stop) {
+        super(server, Mode.EXCLUSIVE, Mode.EXCLUSIVE);
         this.batch = batch;
         this.stop = stop;
     }
@@ -40,7 +40,7 @@ public class Remove extends StageCommand {
 
         state = server.state(reference);
         if (stop && state == State.UP) {
-            new Stop(sessionTodo).doRun(reference);
+            new Stop(server).doRun(reference);
         }
         if (server.state(reference) == State.UP) {
             throw new IOException("stage is not stopped.");
