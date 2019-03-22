@@ -72,8 +72,6 @@ public class Start extends StageCommand {
     @Override
     public void doFinish(Reference reference) throws Exception {
         server.awaitStartup(reference);
-
-        Thread.sleep(2000);
         console.info.println("Applications available:");
         for (String app : server.running(reference)) {
             for (String url : server.namedUrls(reference, app)) {
