@@ -17,6 +17,17 @@ public class Server {
         this.session = session;
     }
 
+    public String getName(Reference reference) throws IOException {
+        return session.load(reference).getName();
+    }
+
+    public void remove(Reference reference) throws IOException {
+        Stage stage;
+
+        stage = session.load(reference);
+        stage.wipeDocker(session.dockerEngine());
+        stage.getDirectory().deleteTree();
+    }
 
     public Stage.State state(Reference reference) throws IOException {
         return session.load(reference).state();

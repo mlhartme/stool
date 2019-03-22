@@ -21,6 +21,8 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Session;
 
+import java.io.IOException;
+
 public class Remove extends StageCommand {
     private final boolean batch;
     private final boolean stop;
@@ -33,25 +35,27 @@ public class Remove extends StageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Stage stage;
+        Stage.State state;
         Project project;
 
-        stage = session.load(reference);
-        if (stop && stage.state() == Stage.State.UP) {
+        state = server.state(reference);
+        if (stop && state == Stage.State.UP) {
             new Stop(session).doRun(reference);
         }
-        stage.checkNotUp();
+        if (server.state(reference) == Stage.State.UP) {
+            throw new IOException("stage is not stopped.");
+        }
         if (!batch) {
-            console.info.println("Ready to delete stage " + stage.getName() + " (id=" + stage.reference.getId() + ")?");
+            console.info.println("Ready to delete stage " + server.getName(reference) + " (id=" + reference.getId() + ")?");
             console.pressReturn();
         }
-        stage.wipeDocker(session.dockerEngine());
+
+        server.remove(reference);
 
         project = Project.lookup(session.world.getWorking());
-        if (project != null && stage.reference.equals(project.getAttachedOpt())) {
+        if (project != null && reference.equals(project.getAttachedOpt())) {
             console.info.println("removing backstage");
             project.removeBackstage();
         }
-        stage.getDirectory().deleteTree();
     }
 }

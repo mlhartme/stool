@@ -121,12 +121,6 @@ public class Stage {
 
     }
 
-    public void checkNotUp() throws IOException {
-        if (state() == State.UP) {
-            throw new IOException("stage is not stopped.");
-        }
-    }
-
     public String lock() {
         return "stage-" + reference.getId();
     }
