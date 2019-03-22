@@ -65,7 +65,7 @@ public abstract class StageCommand extends ClientCommand {
     @Override
     public void doRun() throws Exception {
         int width;
-        List<Stage> lst;
+        List<Reference> lst;
         EnumerationFailed failures;
         String failureMessage;
         boolean withPrefix;
@@ -78,17 +78,19 @@ public abstract class StageCommand extends ClientCommand {
             throw failures;
         }
         width = 0;
-        for (Stage stage : lst) {
-            width = Math.max(width, stage.getName().length());
+        for (Reference reference : lst) {
+            width = Math.max(width, sessionTodo.load(reference).getName().length());
         }
         width += 5;
         withPrefix = doBefore(lst, width);
-        worker = new Worker(width, failures, withPrefix);
-        for (Stage stage : lst) {
-            worker.main(stage);
+        worker = new Worker(sessionTodo, width, failures, withPrefix);
+        for (Reference reference : lst) {
+            worker.main(reference);
         }
-        for (Stage stage : lst) {
-            worker.finish(stage);
+        if (this instanceof Remove) {
+            // TODO - skip
+        } else for (Reference reference : lst) {
+            worker.finish(reference);
         }
         doAfter();
         failureMessage = failures.getMessage();
@@ -105,7 +107,7 @@ public abstract class StageCommand extends ClientCommand {
         }
     }
 
-    private List<Stage> selected(EnumerationFailed problems) throws IOException {
+    private List<Reference> selected(EnumerationFailed problems) throws IOException {
         int count;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
@@ -116,7 +118,7 @@ public abstract class StageCommand extends ClientCommand {
                 if (all) {
                     return all(problems);
                 } else if (stageClause != null) {
-                    return sessionTodo.list(problems, or(stageClause));
+                    return server.list(problems, or(stageClause));
                 } else {
                     throw new IllegalStateException();
                 }
@@ -126,8 +128,8 @@ public abstract class StageCommand extends ClientCommand {
     }
 
 
-    protected List<Stage> all(EnumerationFailed problems) throws IOException {
-        return sessionTodo.list(problems, new Predicate() {
+    protected List<Reference> all(EnumerationFailed problems) throws IOException {
+        return server.list(problems, new Predicate() {
             @Override
             public boolean matches(Stage stage) {
                 return true;
@@ -135,24 +137,24 @@ public abstract class StageCommand extends ClientCommand {
         });
     }
 
-    private Stage selected() throws IOException {
+    private Reference selected() throws IOException {
         String id;
 
         id = sessionTodo.getSelectedStageId();
         if (id == null) {
             throw new IOException("no stage selected");
         }
-        return sessionTodo.loadById(id);
+        return sessionTodo.loadById(id).reference;
     }
 
     /** override this to change the default */
-    protected List<Stage> defaultSelected(EnumerationFailed notUsed) throws IOException {
+    protected List<Reference> defaultSelected(EnumerationFailed notUsed) throws IOException {
         return Collections.singletonList(selected());
     }
 
     /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
-    public boolean doBefore(List<Stage> stages, int indent) throws IOException {
-        return stages.size() != 1;
+    public boolean doBefore(List<Reference> references, int indent) throws IOException {
+        return references.size() != 1;
     }
 
     //--
@@ -342,26 +344,31 @@ public abstract class StageCommand extends ClientCommand {
 
     /** executes a stage command with proper locking */
     public class Worker {
+        private final Session sessionTodo;
         private final int width;
         private final EnumerationFailed failures;
         private final boolean withPrefix;
         private final Map<Stage, Start> postStarts;
 
-        public Worker(int width, EnumerationFailed failures, boolean withPrefix) {
+        public Worker(Session sessionTodo, int width, EnumerationFailed failures, boolean withPrefix) {
+            this.sessionTodo = sessionTodo;
             this.width = width;
             this.failures = failures;
             this.withPrefix = withPrefix;
             this.postStarts = new LinkedHashMap<>();
         }
 
-        public void main(Stage stage) throws Exception {
-            run(stage, true);
+        public void main(Reference reference) throws Exception {
+            run(reference, true);
         }
-        public void finish(Stage stage) throws Exception {
-            run(stage, false);
+        public void finish(Reference reference) throws Exception {
+            run(reference, false);
         }
 
-        private void run(Stage stage, boolean main) throws Exception {
+        private void run(Reference reference, boolean main) throws Exception {
+            Stage stage;
+
+            stage = sessionTodo.load(reference);
             if (withPrefix) {
                 ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage.getName() + "} ", width));
             }

@@ -16,7 +16,6 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Strings;
@@ -35,7 +34,7 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public boolean doBefore(List<Stage> stages, int indent) {
+    public boolean doBefore(List<Reference> referencesNotUsed, int indent) {
         List<String> line;
 
         if (selected.isEmpty()) {
@@ -118,7 +117,7 @@ public class Ls extends InfoCommand {
         return result;
     }
 
-    protected List<Stage> defaultSelected(EnumerationFailed problems) throws IOException {
+    protected List<Reference> defaultSelected(EnumerationFailed problems) throws IOException {
         return all(problems);
     }
 }

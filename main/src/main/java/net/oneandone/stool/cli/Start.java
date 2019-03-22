@@ -67,7 +67,7 @@ public class Start extends StageCommand {
     }
 
     @Override
-    public boolean doBefore(List<Stage> stages, int indent) throws IOException {
+    public boolean doBefore(List<Reference> references, int indent) throws IOException {
         int global;
         int reserved;
 
@@ -79,7 +79,7 @@ public class Start extends StageCommand {
                   + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
             }
         }
-        return super.doBefore(stages, indent);
+        return super.doBefore(references, indent);
     }
 
     @Override

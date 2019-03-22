@@ -2,6 +2,7 @@ package net.oneandone.stool.util;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
+import net.oneandone.stool.cli.EnumerationFailed;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.stage.State;
@@ -23,6 +24,16 @@ public class Server {
 
     public String getName(Reference reference) throws IOException {
         return session.load(reference).getName();
+    }
+
+    public List<Reference> list(EnumerationFailed problems, Predicate predicate) throws IOException {
+        List<Reference> result;
+
+        result = new ArrayList<>();
+        for (Stage stage : session.list(problems, predicate)) {
+            result.add(stage.reference);
+        }
+        return result;
     }
 
     public List<Info> status(Reference reference, List<String> selected) throws IOException {
