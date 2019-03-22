@@ -47,6 +47,7 @@ Stages are now the central part; multiple project can be associated with the sam
   * dumped select (use `pg`)
   
 * dumped isSelected field
+* dumped cleanup command: there's no m2 repository to cleanup, and log file rotation has to be part of the server configuration
 
 * stool is no longer responsible for building - use your standard build tools and configuration instead
   * dumped `build` command

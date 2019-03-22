@@ -53,6 +53,8 @@ public class Server {
         this.session = session;
     }
 
+    //--
+
     public String getName(Reference reference) throws IOException {
         return session.load(reference).getName();
     }
@@ -60,6 +62,8 @@ public class Server {
     public Reference resolveName(String name) throws IOException {
         return session.loadByName(name).reference;
     }
+
+    //--
 
     public List<Reference> list(EnumerationFailed problems, Predicate predicate) throws IOException {
         List<Reference> result;
@@ -143,10 +147,6 @@ public class Server {
             }
         }
         return false;
-    }
-
-    public void rotateLogs(Reference reference) throws IOException {
-        session.load(reference).rotateLogs(session.console);
     }
 
     public void remove(Reference reference) throws IOException {

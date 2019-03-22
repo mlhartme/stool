@@ -265,17 +265,6 @@ public class Stage {
         return new Logs(directory.join("logs"));
     }
 
-    public void rotateLogs(Console console) throws IOException {
-        Node archived;
-
-        for (Node logfile : directory.find("**/*.log")) {
-            archived = archiveDirectory(logfile).join(logfile.getName() + ".gz");
-            console.verbose.println(String.format("rotating %s to %s", logfile.getRelative(directory), archived.getRelative(directory)));
-            logfile.gzip(archived);
-            logfile.deleteFile();
-        }
-    }
-
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
 
     private Node archiveDirectory(Node node) throws MkdirException {
