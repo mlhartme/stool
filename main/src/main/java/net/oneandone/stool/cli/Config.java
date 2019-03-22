@@ -18,13 +18,11 @@ package net.oneandone.stool.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.locking.Mode;
 import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.util.Strings;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,38 +66,18 @@ public class Config extends StageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        Stage stage;
-        boolean error;
-        Property prop;
-        String value;
-        Collection<Property> props;
+        List<Property> props;
         int width;
 
-        stage = server.session.load(reference);
         if (set) {
-            error = false;
-            for (Map.Entry<String, String> entry : arguments.entrySet()) {
-                prop = stage.propertyOpt(entry.getKey());
-                if (prop == null) {
-                    throw new ArgumentException("unknown property: " + entry.getKey());
-                }
-                value = entry.getValue();
-                value = value.replace("{}", prop.get());
-                try {
-                    prop.set(value);
-                    // don't print the value - e.g. expire translates numbers into dates
-                    console.info.println(prop.name() + "=" + prop.get());
-                } catch (RuntimeException e) {
-                    console.info.println("invalid value for property " + prop.name() + " : " + e.getMessage());
-                    e.printStackTrace(console.verbose);
-                    error = true;
-                }
-            }
-            if (!error) {
-                stage.saveConfig();
+            for (Property prop : server.setProperties(reference, arguments)) {
+                console.info.println(prop.name() + "=" + prop.get());
             }
         } else {
-            props = get ? argumentProperties(stage) : stage.properties();
+            props = server.getProperties(reference);
+            if (get) {
+                props = argumentProperties(props);
+            }
             width = 0 ;
             if (props.size() > 1) {
                 for (Property property : props) {
@@ -113,18 +91,27 @@ public class Config extends StageCommand {
         }
     }
 
-    private List<Property> argumentProperties(Stage stage) {
+    private List<Property> argumentProperties(List<Property> all) {
         List<Property> result;
         Property property;
 
         result = new ArrayList<>();
         for (String name : arguments.keySet()) {
-            property = stage.propertyOpt(name);
+            property = lookup(all, name);
             if (property == null) {
                 throw new ArgumentException("unknown property: " + name);
             }
             result.add(property);
         }
         return result;
+    }
+
+    private Property lookup(List<Property> properties, String name) {
+        for (Property property : properties) {
+            if (name.equals(property.name())) {
+                return property;
+            }
+        }
+        return null;
     }
 }

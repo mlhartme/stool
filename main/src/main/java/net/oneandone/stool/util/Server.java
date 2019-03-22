@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -398,5 +399,37 @@ public class Server {
             lazyProcesses = Processes.load(session.world);
         }
         return lazyProcesses;
+    }
+
+    //-- config command
+
+    public List<Property> getProperties(Reference reference) throws Exception {
+        return session.load(reference).properties();
+    }
+
+    public List<Property> setProperties(Reference reference, Map<String, String> arguments) throws IOException {
+        Stage stage;
+        Property prop;
+        String value;
+        List<Property> result;
+
+        result = new ArrayList<>();
+        stage = session.load(reference);
+        for (Map.Entry<String, String> entry : arguments.entrySet()) {
+            prop = stage.propertyOpt(entry.getKey());
+            if (prop == null) {
+                throw new ArgumentException("unknown property: " + entry.getKey());
+            }
+            value = entry.getValue();
+            value = value.replace("{}", prop.get());
+            try {
+                prop.set(value);
+                result.add(prop);
+            } catch (RuntimeException e) {
+                throw new ArgumentException("invalid value for property " + prop.name() + " : " + e.getMessage());
+            }
+        }
+        stage.saveConfig();
+        return result;
     }
 }
