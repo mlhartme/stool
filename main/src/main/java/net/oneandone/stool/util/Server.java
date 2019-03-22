@@ -15,6 +15,7 @@ import net.oneandone.stool.stage.Stage;
 import net.oneandone.stool.stage.State;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
+import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
@@ -41,10 +42,12 @@ import java.util.List;
 import java.util.Map;
 
 public class Server {
+    public final Console console;
     public final World world;
-    public final Session session;
+    private final Session session;
 
     public Server(Session session) {
+        this.console = session.console;
         this.world = session.world;
         this.session = session;
     }
@@ -600,5 +603,14 @@ public class Server {
             // not started
             return 0L;
         }
+    }
+
+    public void openStage(Reference reference, String name) throws MkdirException {
+        session.logging.openStage(reference.getId(), name);
+
+    }
+
+    public void closeStage() {
+        session.logging.closeStage();
     }
 }

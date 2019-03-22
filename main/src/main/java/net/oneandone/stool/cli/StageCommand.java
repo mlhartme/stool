@@ -23,7 +23,6 @@ import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Server;
-import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -74,11 +73,11 @@ public abstract class StageCommand extends ClientCommand {
         }
         width = 0;
         for (Reference reference : lst) {
-            width = Math.max(width, server.session.load(reference).getName().length());
+            width = Math.max(width, server.getName(reference).length());
         }
         width += 5;
         withPrefix = doBefore(lst, width);
-        worker = new Worker(server.session, width, failures, withPrefix);
+        worker = new Worker(server, width, failures, withPrefix);
         for (Reference reference : lst) {
             worker.main(reference);
         }
@@ -326,13 +325,13 @@ public abstract class StageCommand extends ClientCommand {
 
     /** executes a stage command with proper locking */
     public class Worker {
-        private final Session sessionTodo;
+        private final Server server;
         private final int width;
         private final EnumerationFailed failures;
         private final boolean withPrefix;
 
-        public Worker(Session sessionTodo, int width, EnumerationFailed failures, boolean withPrefix) {
-            this.sessionTodo = sessionTodo;
+        public Worker(Server server, int width, EnumerationFailed failures, boolean withPrefix) {
+            this.server = server;
             this.width = width;
             this.failures = failures;
             this.withPrefix = withPrefix;
@@ -353,7 +352,7 @@ public abstract class StageCommand extends ClientCommand {
             if (withPrefix) {
                 ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + name + "} ", width));
             }
-            sessionTodo.logging.openStage(reference.getId(), name);
+            server.openStage(reference, name);
             try {
                 if (main) {
                     runMain(reference);
@@ -369,7 +368,7 @@ public abstract class StageCommand extends ClientCommand {
                 }
                 failures.add(name, reference, e);
             } finally {
-                sessionTodo.logging.closeStage();
+                server.closeStage();
                 if (console.info instanceof PrefixWriter) {
                     ((PrefixWriter) console.info).setPrefix("");
                 }

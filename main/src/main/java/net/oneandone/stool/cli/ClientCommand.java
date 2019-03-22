@@ -33,8 +33,8 @@ public abstract class ClientCommand {
     protected final Server server;
 
     public ClientCommand(Server server) {
-        this.console = server.session.console;
-        this.world = server.session.world;
+        this.console = server.console;
+        this.world = server.world;
         this.server = server;
     }
 
@@ -42,7 +42,8 @@ public abstract class ClientCommand {
         try {
             doRun();
         } finally {
-            server.session.closeDockerEngine();
+            // TODO: move into server shutdown:
+            //    server.session.closeDockerEngine();
         }
     }
 
