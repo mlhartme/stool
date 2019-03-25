@@ -4,7 +4,7 @@ import com.google.gson.JsonObject;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
-import net.oneandone.stool.client.cli.Report;
+import net.oneandone.stool.client.Report;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.Stats;
 import net.oneandone.stool.server.stage.Image;

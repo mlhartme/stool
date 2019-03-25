@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.stool.client.Report;
 import net.oneandone.stool.server.stage.Reference;
 import net.oneandone.stool.server.util.Server;
 

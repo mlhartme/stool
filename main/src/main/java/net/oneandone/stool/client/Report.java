@@ -1,4 +1,4 @@
-package net.oneandone.stool.client.cli;
+package net.oneandone.stool.client;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.server.configuration.StageConfiguration;
