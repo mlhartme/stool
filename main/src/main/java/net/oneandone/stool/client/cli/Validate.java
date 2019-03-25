@@ -15,43 +15,36 @@
  */
 package net.oneandone.stool.client.cli;
 
-import net.oneandone.stool.client.Report;
-import net.oneandone.stool.server.stage.Reference;
 import net.oneandone.stool.server.util.Server;
 
-public class Validate extends StageCommand {
+import java.util.List;
+
+/** Currently not stage stage event because the server performs validation as a single operation */
+public class Validate extends ClientCommand {
     private final boolean email;
     private final boolean repair;
+    private final String stageClause;
 
-    private Report report;
-
-    public Validate(Server server, boolean email, boolean repair) {
+    public Validate(Server server, boolean email, boolean repair, String stageClause) {
         super(server);
         this.email = email;
         this.repair = repair;
+        this.stageClause = stageClause;
     }
 
     @Override
     public void doRun() throws Exception {
-        report = new Report();
+        List<String> result;
 
-        server.validateServer(report);
-        super.doRun();
-        if (report.isEmpty()) {
+        result = server.validate(stageClause, email, repair);
+        if (result.isEmpty()) {
             console.info.println("validate ok");
         } else {
-            report.console(console);
-            if (email) {
-                server.email(report);
+            for (String line : result) {
+                console.info.println(line);
             }
             console.info.println();
             console.info.println("validate failed");
         }
-    }
-
-
-    @Override
-    public void doMain(Reference reference) throws Exception {
-        server.validateState(reference, report, repair);
     }
 }

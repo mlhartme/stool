@@ -1,0 +1,198 @@
+package net.oneandone.stool.server.util;
+
+import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
+import net.oneandone.stool.client.Report;
+import net.oneandone.stool.server.stage.Reference;
+import net.oneandone.stool.server.stage.Stage;
+import net.oneandone.stool.server.users.User;
+import net.oneandone.stool.server.users.UserNotFound;
+import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.launcher.Failure;
+import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Separator;
+
+import javax.mail.MessagingException;
+import javax.naming.NamingException;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Validation {
+    private final Server server;
+    public final Console console;
+    public final World world;
+    private final Session session;
+
+    public Validation(Server server, Session session) {
+        this.server = server;
+        this.console = session.console;
+        this.world = session.world;
+        this.session = session;
+    }
+
+    public List<String> run(String stageClause, boolean email, boolean repair) throws IOException, MessagingException, NamingException {
+        Report report;
+        List<Reference> references;
+        Map<String, IOException> problems;
+
+        report = new Report();
+        validateServer(report);
+        problems = new HashMap<>();
+        references = server.search(stageClause, problems);
+        if (!problems.isEmpty()) {
+            throw new IOException("cannot get stages: " + problems.toString());
+        }
+        for (Reference reference : references) {
+            validateStage(reference, report, repair);
+        }
+        if (email) {
+            email(report);
+        }
+        return report.messages();
+    }
+
+    private void validateStage(Reference reference, Report report, boolean repair) throws IOException {
+        Stage stage;
+        String message;
+
+        stage = session.load(reference);
+        try {
+            stage.checkConstraints();
+            return;
+        } catch (ArgumentException e) {
+            message = e.getMessage();
+        }
+        report.user(stage, message);
+        if (repair) {
+            if (!stage.dockerContainerList().isEmpty()) {
+                try {
+                    server.stop(reference, new ArrayList<>());
+                    report.user(stage, "stage has been stopped");
+                } catch (Exception e) {
+                    report.user(stage, "stage failed to stop: " + e.getMessage());
+                    e.printStackTrace(session.console.verbose);
+                }
+            }
+            if (session.configuration.autoRemove >= 0 && stage.configuration.expire.expiredDays() >= 0) {
+                if (stage.configuration.expire.expiredDays() >= session.configuration.autoRemove) {
+                    try {
+                        report.user(stage, "removing expired stage");
+                        server.remove(reference);
+                    } catch (Exception e) {
+                        report.user(stage, "failed to remove expired stage: " + e.getMessage());
+                        e.printStackTrace(session.console.verbose);
+                    }
+                } else {
+                    report.user(stage, "CAUTION: This stage will be removed automatically in "
+                            + (session.configuration.autoRemove - stage.configuration.expire.expiredDays()) + " day(s)");
+                }
+            }
+        }
+    }
+
+    private void validateServer(Report report) throws IOException {
+        validateDocker(report);
+        validateDns(report);
+    }
+
+
+    private void email(Report report) throws MessagingException, NamingException {
+        String hostname;
+        Mailer mailer;
+        Console console;
+        String user;
+        String email;
+        String body;
+
+        hostname = session.configuration.hostname;
+        mailer = session.configuration.mailer();
+        console = session.console;
+        for (Map.Entry<String, List<String>> entry : report.users.entrySet()) {
+            user = entry.getKey();
+            body = Separator.RAW_LINE.join(entry.getValue());
+            email = email(session, user);
+            if (email == null) {
+                console.error.println("cannot send email, there's nobody to send it to.");
+            } else {
+                console.info.println("sending email to " + email);
+                mailer.send("stool@" + hostname, new String[] { email }, "Validation of your stage(s) on " + hostname + " failed", body);
+            }
+        }
+    }
+
+    private static String email(Session session, String user) throws NamingException {
+        User userobj;
+        String email;
+
+        if (user == null) {
+            email = session.configuration.admin;
+        } else {
+            if (user.contains("@")) {
+                return user;
+            }
+            try {
+                userobj = session.users.byLogin(user);
+                email = (userobj.isGenerated() ? session.configuration.admin : userobj.email);
+            } catch (UserNotFound e) {
+                email = session.configuration.admin;
+            }
+        }
+        return email.isEmpty() ? null : email;
+    }
+
+
+    private void validateDocker(Report report) {
+        try {
+            session.dockerEngine().imageList(Collections.emptyMap());
+        } catch (IOException e) {
+            report.admin("cannot access docker: " + e.getMessage());
+            e.printStackTrace(session.console.verbose);
+        }
+    }
+
+    private void validateDns(Report report) throws IOException {
+        int port;
+        String ip;
+        String subDomain;
+        ServerSocket socket;
+
+        try {
+            ip = digIp(session.configuration.hostname);
+        } catch (Failure e) {
+            report.admin("cannot validate dns entries: " + e.getMessage());
+            return;
+        }
+        if (ip.isEmpty()) {
+            report.admin("missing dns entry for " + session.configuration.hostname);
+            return;
+        }
+
+        // make sure that hostname points to this machine. Help to detect actually adding the name of a different machine
+        port = session.pool().temp();
+        try {
+            socket = new ServerSocket(port,50, InetAddress.getByName(session.configuration.hostname));
+            socket.close();
+        } catch (IOException e) {
+            report.admin("cannot open socket on machine " + session.configuration.hostname + ", port " + port + ". Check the configured hostname.");
+            e.printStackTrace(session.console.verbose);
+        }
+
+        subDomain = digIp("foo." + session.configuration.hostname);
+        if (subDomain.isEmpty() || !subDomain.endsWith(ip)) {
+            report.admin("missing dns * entry for " + session.configuration.hostname + " (" + subDomain + ")");
+        }
+    }
+
+    private String digIp(String name) throws Failure {
+        Launcher dig;
+
+        dig = new Launcher(session.world.getWorking(), "dig", "+short", name);
+        return dig.exec().trim();
+    }
+}

@@ -91,6 +91,7 @@ public class Main {
                     cli.add(Build.class, "build -nocache -keep=5 -restart -m= project?");
                     cli.add(Attach.class, "attach stage project?");
                     cli.add(Detach.class, "detach project?");
+                    cli.add(Validate.class, "validate -email -repair -stage");
                     cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(App.class, "app name*");
                       cli.add(Config.class, "config property* { property*(property) }");
@@ -101,7 +102,6 @@ public class Main {
                       cli.add(Start.class, "start -tail -http=-1 -https=-1 envAppIndex*");
                       cli.add(Status.class, "status -defaults=@status.defaults info* { select*(info) }");
                       cli.add(Stop.class, "stop app*");
-                      cli.add(Validate.class, "validate -email -repair");
 
         return cli.run(args);
     }
