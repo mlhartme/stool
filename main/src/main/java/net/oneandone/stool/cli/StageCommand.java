@@ -17,14 +17,9 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.util.Field;
-import net.oneandone.stool.util.Predicate;
 import net.oneandone.stool.util.Project;
-import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.io.PrefixWriter;
-import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
