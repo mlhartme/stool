@@ -12,7 +12,6 @@ import net.oneandone.stool.docker.Stats;
 import net.oneandone.stool.stage.Image;
 import net.oneandone.stool.stage.Reference;
 import net.oneandone.stool.stage.Stage;
-import net.oneandone.stool.stage.State;
 import net.oneandone.stool.users.User;
 import net.oneandone.stool.users.UserNotFound;
 import net.oneandone.sushi.fs.MkdirException;
@@ -59,11 +58,11 @@ public class Server {
         return session.loadByName(name).reference;
     }
 
-    public List<Reference> list(EnumerationFailed problems, Predicate predicate) throws IOException {
+    public List<Reference> list(EnumerationFailed problems, String stageClause) throws IOException {
         List<Reference> result;
 
         result = new ArrayList<>();
-        for (Stage stage : session.list(problems, predicate)) {
+        for (Stage stage : session.list(problems, PredicateParser.parse(stageClause))) {
             result.add(stage.reference);
         }
         return result;

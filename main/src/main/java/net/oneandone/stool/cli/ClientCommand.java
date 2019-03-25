@@ -77,7 +77,8 @@ public abstract class ClientCommand {
         console.info.println(Strings.indent(msg, "  "));
     }
 
-    //--
+
+    //-- utility code to simplify server api
 
     public String getName(Reference reference) throws Exception {
         List<Property> properties;
