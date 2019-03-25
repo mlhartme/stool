@@ -24,6 +24,7 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,6 +99,8 @@ public abstract class StageCommand extends ClientCommand {
 
     private List<Reference> selectedList(EnumerationFailed problems) throws IOException {
         int count;
+        Map<String, IOException> serverProblems;
+        List<Reference> result;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
         switch (count) {
@@ -105,9 +108,15 @@ public abstract class StageCommand extends ClientCommand {
                 return defaultSelected(problems);
             case 1:
                 if (all) {
-                    return server.search(problems, null);
+                    serverProblems = new HashMap<>();
+                    result = server.search(null, serverProblems);
+                    problems.addAll(serverProblems);
+                    return result;
                 } else if (stageClause != null) {
-                    return server.search(problems, stageClause);
+                    serverProblems = new HashMap<>();
+                    result = server.search(stageClause, serverProblems);
+                    problems.addAll(serverProblems);
+                    return result;
                 } else {
                     throw new IllegalStateException();
                 }

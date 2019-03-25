@@ -30,7 +30,9 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public abstract class ClientCommand {
     protected final Console console;
@@ -81,9 +83,14 @@ public abstract class ClientCommand {
     //-- utility code to simplify server api
 
     public Reference resolveName(String name) throws IOException {
+        Map<String, IOException> problems;
         List<Reference> found;
 
-        found = server.search(null, name);
+        problems = new HashMap<>();
+        found = server.search(name, problems);
+        if (!problems.isEmpty()) {
+            throw new IOException("cannot resolve name: " + problems.toString());
+        }
         switch (found.size()) {
             case 0:
                 throw new IOException("no such stage: " + name);

@@ -17,6 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.stool.server.stage.Reference;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +39,12 @@ public class EnumerationFailed extends Exception {
     public void add(String stage, Exception cause) {
         problems.put(stage, cause);
         addSuppressed(cause);
+    }
+
+    public void addAll(Map<String, IOException> problems) {
+        for (Map.Entry<String, IOException> entry : problems.entrySet()) {
+            add(entry.getKey(), entry.getValue());
+        }
     }
 
     /** @return null when there's no message */

@@ -43,6 +43,7 @@ import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -112,7 +113,7 @@ public class Session {
 
     //-- Stage listings
 
-    public List<Stage> list(EnumerationFailed problems, Predicate predicate) throws IOException {
+    public List<Stage> list(Predicate predicate, Map<String, IOException> problems) throws IOException {
         List<Stage> result;
         Stage stage;
 
@@ -122,7 +123,7 @@ public class Session {
                 try {
                     stage = load(directory);
                 } catch (IOException e) {
-                    problems.add(directory.getName(), e);
+                    problems.put(directory.getAbsolute(), e);
                     continue;
                 }
                 if (predicate.matches(stage)) {
@@ -137,16 +138,16 @@ public class Session {
 
     public List<Stage> listAll() throws IOException {
         List<Stage> result;
-        EnumerationFailed problems;
+        Map<String, IOException> problems;
 
-        problems = new EnumerationFailed();
-        result = list(problems, new Predicate() {
+        problems = new HashMap<>();
+        result = list(new Predicate() {
             @Override
             public boolean matches(Stage stage) {
                 return true;
             }
-        });
-        for (Map.Entry<String, Exception> entry : problems.problems.entrySet()) {
+        }, problems);
+        for (Map.Entry<String, IOException> entry : problems.entrySet()) {
             reportException(entry.getKey() + ": Session.listAll", entry.getValue());
         }
         return result;

@@ -55,11 +55,11 @@ public class Server {
     //--
 
     /** @param stageClause null to return all stages */
-    public List<Reference> search(EnumerationFailed problems, String stageClause) throws IOException {
+    public List<Reference> search(String stageClause, Map<String, IOException> problems) throws IOException {
         List<Reference> result;
 
         result = new ArrayList<>();
-        for (Stage stage : session.list(problems, PredicateParser.parse(stageClause))) {
+        for (Stage stage : session.list(PredicateParser.parse(stageClause), problems)) {
             result.add(stage.reference);
         }
         return result;

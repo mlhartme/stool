@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class Ls extends InfoCommand {
     private final List<List<String>> lines;
@@ -117,7 +118,7 @@ public class Ls extends InfoCommand {
         return result;
     }
 
-    protected List<Reference> defaultSelected(EnumerationFailed problems) throws IOException {
-        return server.search(problems, null);
+    protected List<Reference> defaultSelected(Map<String, IOException> problems) throws IOException {
+        return server.search(null, problems);
     }
 }
