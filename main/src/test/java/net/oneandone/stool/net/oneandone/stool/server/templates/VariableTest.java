@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.templates;
+package net.oneandone.stool.net.oneandone.stool.server.templates;
 
 import org.junit.Test;
 

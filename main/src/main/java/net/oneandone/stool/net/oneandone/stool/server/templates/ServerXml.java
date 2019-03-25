@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.templates;
+package net.oneandone.stool.net.oneandone.stool.server.templates;
 
 import net.oneandone.stool.net.oneandone.stool.server.stage.Stage;
 import net.oneandone.sushi.fs.MkdirException;
@@ -34,8 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static net.oneandone.stool.templates.CookieMode.LEGACY;
-import static net.oneandone.stool.templates.CookieMode.OFF;
+import static net.oneandone.stool.net.oneandone.stool.server.templates.CookieMode.LEGACY;
+import static net.oneandone.stool.net.oneandone.stool.server.templates.CookieMode.OFF;
 
 public class ServerXml {
     public static ServerXml load(Node src) throws IOException, SAXException {

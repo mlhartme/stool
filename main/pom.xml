@@ -185,13 +185,13 @@
               -keep public class net.oneandone.stool.net.oneandone.stool.server.setup.Debfiles {
               public static void main(java.lang.String[]);
               }
-              -keepclassmembers public class net.oneandone.stool.configuration.StoolConfiguration {
+              -keepclassmembers public class net.oneandone.stool.net.oneandone.stool.server.configuration.StoolConfiguration {
               !static !transient &lt;fields&gt;;
               }
-              -keep class net.oneandone.stool.templates.Tomcat {
+              -keep class net.oneandone.stool.net.oneandone.stool.server.templates.Tomcat {
               public *;
               }
-              -keep class net.oneandone.stool.templates.StatusHelper {
+              -keep class net.oneandone.stool.net.oneandone.stool.server.templates.StatusHelper {
               public *;
               }
 

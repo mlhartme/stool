@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.dashboard;
 
-import net.oneandone.stool.configuration.Accessor;
-import net.oneandone.stool.configuration.StoolConfiguration;
+import net.oneandone.stool.net.oneandone.stool.server.configuration.Accessor;
+import net.oneandone.stool.net.oneandone.stool.server.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Mailer;
 import net.oneandone.stool.util.Session;
 import org.slf4j.Logger;

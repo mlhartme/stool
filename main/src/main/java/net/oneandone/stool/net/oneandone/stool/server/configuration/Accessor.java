@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.configuration;
+package net.oneandone.stool.net.oneandone.stool.server.configuration;
 
 /** Handles Stool or Stage configuration access. Converts between strings an objects and deals with reflection */
 public abstract class Accessor {

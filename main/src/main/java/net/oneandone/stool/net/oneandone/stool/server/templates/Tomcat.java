@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.templates;
+package net.oneandone.stool.net.oneandone.stool.server.templates;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
-import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.UrlPattern;

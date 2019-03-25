@@ -15,8 +15,8 @@
  */
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.configuration.Accessor;
-import net.oneandone.stool.configuration.StageConfiguration;
+import net.oneandone.stool.net.oneandone.stool.server.configuration.Accessor;
+import net.oneandone.stool.net.oneandone.stool.server.configuration.StageConfiguration;
 
 /** A computable value representing one aspect of the stage status. */
 public class StandardProperty extends Property {
