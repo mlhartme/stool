@@ -61,7 +61,7 @@ public abstract class StageCommand extends ClientCommand {
         Worker worker;
 
         failures = new EnumerationFailed();
-        lst = selected(failures);
+        lst = selectedList(failures);
         failureMessage = failures.getMessage();
         if (failureMessage != null && fail == Fail.NORMAL) {
             throw failures;
@@ -96,7 +96,7 @@ public abstract class StageCommand extends ClientCommand {
         }
     }
 
-    private List<Reference> selected(EnumerationFailed problems) throws IOException {
+    private List<Reference> selectedList(EnumerationFailed problems) throws IOException {
         int count;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
@@ -116,7 +116,7 @@ public abstract class StageCommand extends ClientCommand {
         }
     }
 
-    private Reference selected() throws IOException {
+    private Reference selectedList() throws IOException {
         Project project;
 
         project = Project.lookup(world.getWorking());
@@ -125,7 +125,7 @@ public abstract class StageCommand extends ClientCommand {
 
     /** override this to change the default */
     protected List<Reference> defaultSelected(EnumerationFailed notUsed) throws IOException {
-        return Collections.singletonList(selected());
+        return Collections.singletonList(selectedList());
     }
 
     /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
