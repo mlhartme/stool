@@ -110,20 +110,15 @@ public abstract class StageCommand extends ClientCommand {
                 return defaultSelected(problems);
             case 1:
                 if (all) {
-                    return all(problems);
+                    return server.search(problems, null);
                 } else if (stageClause != null) {
-                    return server.list(problems, stageClause);
+                    return server.search(problems, stageClause);
                 } else {
                     throw new IllegalStateException();
                 }
             default:
                 throw new ArgumentException("too many select options");
         }
-    }
-
-
-    protected List<Reference> all(EnumerationFailed problems) throws IOException {
-        return server.list(problems, null);
     }
 
     private Reference selected() throws IOException {

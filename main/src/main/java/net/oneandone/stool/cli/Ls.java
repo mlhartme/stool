@@ -118,6 +118,6 @@ public class Ls extends InfoCommand {
     }
 
     protected List<Reference> defaultSelected(EnumerationFailed problems) throws IOException {
-        return all(problems);
+        return server.search(problems, null);
     }
 }

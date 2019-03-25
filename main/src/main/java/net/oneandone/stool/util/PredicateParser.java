@@ -8,10 +8,10 @@ import java.io.IOException;
 import java.util.List;
 
 public class PredicateParser {
-    public static Predicate parse(String string) {
+    public static Predicate parse(String stringOpt) {
         List<String> args;
 
-        if (string == null) {
+        if (stringOpt == null) {
             return new Predicate() {
                 @Override
                 public boolean matches(Stage stage) {
@@ -19,7 +19,7 @@ public class PredicateParser {
                 }
             };
         } else {
-            args = Separator.COMMA.split(string);
+            args = Separator.COMMA.split(stringOpt);
             return new Predicate() {
                 @Override
                 public boolean matches(Stage stage) throws IOException {
