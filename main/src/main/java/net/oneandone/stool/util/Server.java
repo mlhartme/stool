@@ -54,10 +54,6 @@ public class Server {
 
     //--
 
-    public Reference resolveName(String name) throws IOException {
-        return session.loadByName(name).reference;
-    }
-
     /** @param stageClause null to return all stages */
     public List<Reference> search(EnumerationFailed problems, String stageClause) throws IOException {
         List<Reference> result;

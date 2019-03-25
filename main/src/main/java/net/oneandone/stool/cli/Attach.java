@@ -34,7 +34,7 @@ public class Attach extends ProjectCommand {
         Project backstage;
         Reference reference;
 
-        reference = server.resolveName(stageName);
+        reference = resolveName(stageName);
         backstage = Project.lookup(project);
         if (backstage == null) {
             backstage = Project.create(project);

@@ -80,6 +80,20 @@ public abstract class ClientCommand {
 
     //-- utility code to simplify server api
 
+    public Reference resolveName(String name) throws IOException {
+        List<Reference> found;
+
+        found = server.search(null, name);
+        switch (found.size()) {
+            case 0:
+                throw new IOException("no such stage: " + name);
+            case 1:
+                return found.get(0);
+            default:
+                throw new IOException("stage ambiguous: " + name);
+        }
+    }
+    
     public String getName(Reference reference) throws Exception {
         List<Property> properties;
 
