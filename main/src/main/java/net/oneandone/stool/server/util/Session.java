@@ -19,7 +19,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.cli.EnumerationFailed;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.Expire;
 import net.oneandone.stool.server.configuration.StageConfiguration;

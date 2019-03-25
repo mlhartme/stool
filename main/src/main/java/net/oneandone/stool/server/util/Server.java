@@ -3,9 +3,6 @@ package net.oneandone.stool.server.util;
 import com.google.gson.JsonObject;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.cli.EnumerationFailed;
-import net.oneandone.stool.client.cli.Remove;
-import net.oneandone.stool.client.cli.Stop;
 import net.oneandone.stool.client.cli.Validate;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.Stats;
@@ -304,7 +301,7 @@ public class Server {
         if (repair) {
             if (!stage.dockerContainerList().isEmpty()) {
                 try {
-                    new Stop(this).doRun(stage.reference);
+                    stop(reference, new ArrayList<>());
                     report.user(stage, "stage has been stopped");
                 } catch (Exception e) {
                     report.user(stage, "stage failed to stop: " + e.getMessage());
@@ -315,7 +312,7 @@ public class Server {
                 if (stage.configuration.expire.expiredDays() >= session.configuration.autoRemove) {
                     try {
                         report.user(stage, "removing expired stage");
-                        new Remove(this, true, true).doRun(stage.reference);
+                        remove(reference);
                     } catch (Exception e) {
                         report.user(stage, "failed to remove expired stage: " + e.getMessage());
                         e.printStackTrace(session.console.verbose);
