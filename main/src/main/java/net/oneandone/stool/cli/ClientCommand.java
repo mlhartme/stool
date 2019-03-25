@@ -93,7 +93,7 @@ public abstract class ClientCommand {
                 throw new IOException("stage ambiguous: " + name);
         }
     }
-    
+
     public String getName(Reference reference) throws Exception {
         List<Property> properties;
 
