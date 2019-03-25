@@ -55,10 +55,6 @@ public class Server {
 
     //--
 
-    public String getName(Reference reference) throws IOException {
-        return session.load(reference).getName();
-    }
-
     public Reference resolveName(String name) throws IOException {
         return session.loadByName(name).reference;
     }

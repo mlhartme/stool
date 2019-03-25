@@ -16,6 +16,8 @@
 package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Console;
+import net.oneandone.stool.stage.Reference;
+import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
@@ -26,6 +28,7 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 
 public abstract class ClientCommand {
     protected final Console console;
@@ -70,5 +73,17 @@ public abstract class ClientCommand {
 
     protected void message(String msg) {
         console.info.println(Strings.indent(msg, "  "));
+    }
+
+    public String getName(Reference reference) throws Exception {
+        List<Property> properties;
+
+        properties = server.getProperties(reference);
+        for (Property property : properties) {
+            if ("name".equals(property.name())) {
+                return property.get();
+            }
+        }
+        throw new IOException("missing 'name' property");
     }
 }
