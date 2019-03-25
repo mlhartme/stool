@@ -182,7 +182,7 @@
               -keep public class net.oneandone.stool.net.oneandone.stool.client.cli.Main {
               public static void main(java.lang.String[]);
               }
-              -keep public class net.oneandone.stool.setup.Debfiles {
+              -keep public class net.oneandone.stool.net.oneandone.stool.server.setup.Debfiles {
               public static void main(java.lang.String[]);
               }
               -keepclassmembers public class net.oneandone.stool.configuration.StoolConfiguration {
@@ -240,7 +240,7 @@
               <target>
                 <!-- main -->
                 <property name="cp" refid="maven.runtime.classpath" />
-                <java classname="net.oneandone.stool.setup.Debfiles" classpath="${project.build.directory}/stool" fork="false" failonerror="true">
+                <java classname="net.oneandone.stool.net.oneandone.stool.server.setup.Debfiles" classpath="${project.build.directory}/stool" fork="false" failonerror="true">
                   <arg path="${project.build.directory}/debfiles" />
                 </java>
               </target>

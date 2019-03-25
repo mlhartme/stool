@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.setup;
+package net.oneandone.stool.net.oneandone.stool.server.setup;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.util.Environment;
