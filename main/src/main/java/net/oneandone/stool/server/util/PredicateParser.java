@@ -1,6 +1,5 @@
 package net.oneandone.stool.server.util;
 
-import net.oneandone.stool.client.cli.PredicateException;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.sushi.util.Separator;
 
@@ -8,6 +7,12 @@ import java.io.IOException;
 import java.util.List;
 
 public class PredicateParser {
+    public static class PredicateException extends IOException {
+        public PredicateException(String s) {
+            super(s);
+        }
+    }
+
     public static Predicate parse(String stringOpt) {
         List<String> args;
 
