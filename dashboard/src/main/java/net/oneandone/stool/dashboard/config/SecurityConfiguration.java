@@ -16,8 +16,8 @@
 package net.oneandone.stool.dashboard.config;
 
 
-import net.oneandone.stool.net.oneandone.stool.server.stage.Stage;
-import net.oneandone.stool.net.oneandone.stool.server.templates.ServerXml;
+import net.oneandone.stool.server.stage.Stage;
+import net.oneandone.stool.server.templates.ServerXml;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;

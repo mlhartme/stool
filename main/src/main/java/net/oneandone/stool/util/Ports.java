@@ -17,7 +17,7 @@ package net.oneandone.stool.util;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.oneandone.stool.net.oneandone.stool.server.stage.Stage;
+import net.oneandone.stool.server.stage.Stage;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -16,8 +16,8 @@
 package net.oneandone.stool.util;
 
 import com.google.gson.JsonObject;
-import net.oneandone.stool.net.oneandone.stool.server.docker.Engine;
-import net.oneandone.stool.net.oneandone.stool.server.stage.Stage;
+import net.oneandone.stool.server.docker.Engine;
+import net.oneandone.stool.server.stage.Stage;
 
 import java.io.IOException;
 import java.net.ServerSocket;

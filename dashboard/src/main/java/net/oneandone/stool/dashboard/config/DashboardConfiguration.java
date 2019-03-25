@@ -17,7 +17,7 @@ package net.oneandone.stool.dashboard.config;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.dashboard.IndexController;
-import net.oneandone.stool.net.oneandone.stool.server.stage.Stage;
+import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.users.Users;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Logging;

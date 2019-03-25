@@ -89,7 +89,7 @@
           <path>$PATH</path>
           <options>-Djava.awt.headless=true</options>
           <name>stool</name>
-          <main>net.oneandone.stool.net.oneandone.stool.client.cli.Main</main>
+          <main>net.oneandone.stool.client.cli.Main</main>
           <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
           <remove>META-INF/maven/**/*,
             META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
@@ -128,7 +128,7 @@
               -dontwarn net.oneandone.sushi.**
 
               # inline reflection
-              -keep public class net.oneandone.stool.net.oneandone.stool.client.cli.* {
+              -keep public class net.oneandone.stool.client.cli.* {
               public *;
               }
               -keep public class net.oneandone.inline.Console {
@@ -179,19 +179,19 @@
               }
 
               # Stool
-              -keep public class net.oneandone.stool.net.oneandone.stool.client.cli.Main {
+              -keep public class net.oneandone.stool.client.cli.Main {
               public static void main(java.lang.String[]);
               }
-              -keep public class net.oneandone.stool.net.oneandone.stool.server.setup.Debfiles {
+              -keep public class net.oneandone.stool.server.setup.Debfiles {
               public static void main(java.lang.String[]);
               }
-              -keepclassmembers public class net.oneandone.stool.net.oneandone.stool.server.configuration.StoolConfiguration {
+              -keepclassmembers public class net.oneandone.stool.server.configuration.StoolConfiguration {
               !static !transient &lt;fields&gt;;
               }
-              -keep class net.oneandone.stool.net.oneandone.stool.server.templates.Tomcat {
+              -keep class net.oneandone.stool.server.templates.Tomcat {
               public *;
               }
-              -keep class net.oneandone.stool.net.oneandone.stool.server.templates.StatusHelper {
+              -keep class net.oneandone.stool.server.templates.StatusHelper {
               public *;
               }
 
@@ -240,7 +240,7 @@
               <target>
                 <!-- main -->
                 <property name="cp" refid="maven.runtime.classpath" />
-                <java classname="net.oneandone.stool.net.oneandone.stool.server.setup.Debfiles" classpath="${project.build.directory}/stool" fork="false" failonerror="true">
+                <java classname="net.oneandone.stool.server.setup.Debfiles" classpath="${project.build.directory}/stool" fork="false" failonerror="true">
                   <arg path="${project.build.directory}/debfiles" />
                 </java>
               </target>

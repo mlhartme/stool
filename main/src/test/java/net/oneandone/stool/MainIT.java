@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.net.oneandone.stool.client.cli.Main;
+import net.oneandone.stool.client.cli.Main;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.stool.util.Pool;
 import net.oneandone.sushi.fs.World;
