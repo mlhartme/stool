@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.setup;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.util.Environment;
+import net.oneandone.stool.server.util.Environment;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 

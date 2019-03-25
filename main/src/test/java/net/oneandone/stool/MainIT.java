@@ -16,8 +16,8 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.client.cli.Main;
-import net.oneandone.stool.util.Environment;
-import net.oneandone.stool.util.Pool;
+import net.oneandone.stool.server.util.Environment;
+import net.oneandone.stool.server.util.Pool;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.After;

@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.configuration;
 
-import net.oneandone.stool.util.Environment;
+import net.oneandone.stool.server.util.Environment;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.launcher.Launcher;

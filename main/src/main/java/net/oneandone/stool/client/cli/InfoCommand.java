@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.client.cli;
 
-import net.oneandone.stool.util.Server;
+import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.util.Separator;
 
 import java.util.ArrayList;

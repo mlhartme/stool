@@ -18,7 +18,7 @@ package net.oneandone.stool.server.stage;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.server.docker.Engine;
-import net.oneandone.stool.util.Ports;
+import net.oneandone.stool.server.util.Ports;
 
 import java.io.IOException;
 import java.time.LocalDateTime;

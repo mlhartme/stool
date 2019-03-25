@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.configuration;
 
 import com.google.gson.Gson;
-import net.oneandone.stool.util.Session;
+import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.Test;

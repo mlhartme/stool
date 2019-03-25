@@ -16,8 +16,8 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.util.Project;
-import net.oneandone.stool.util.Server;
+import net.oneandone.stool.server.util.Project;
+import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 

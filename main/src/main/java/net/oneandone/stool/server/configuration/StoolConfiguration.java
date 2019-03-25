@@ -19,7 +19,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.oneandone.stool.util.Mailer;
+import net.oneandone.stool.server.util.Mailer;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
