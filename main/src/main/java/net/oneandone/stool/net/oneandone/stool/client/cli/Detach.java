@@ -13,12 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.cli;
+package net.oneandone.stool.net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.util.Project;
+import net.oneandone.stool.util.Server;
+import net.oneandone.sushi.fs.file.FileNode;
 
-public class PredicateException extends ArgumentException {
-    public PredicateException(String s) {
-        super(s);
+import java.io.IOException;
+
+public class Detach extends ProjectCommand {
+    public Detach(Server server, FileNode project) {
+        super(server, project);
+    }
+
+    @Override
+    public void doRun(FileNode project) throws IOException {
+        Project backstage;
+
+        backstage = Project.lookup(project);
+        if (backstage == null) {
+            throw new ArgumentException("project is not attached");
+        }
+        backstage.removeBackstage();
     }
 }

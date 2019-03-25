@@ -1,6 +1,6 @@
 package net.oneandone.stool.util;
 
-import net.oneandone.stool.cli.PredicateException;
+import net.oneandone.stool.net.oneandone.stool.client.cli.PredicateException;
 import net.oneandone.stool.stage.Stage;
 import net.oneandone.sushi.util.Separator;
 

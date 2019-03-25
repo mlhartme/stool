@@ -13,30 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.cli;
+package net.oneandone.stool.net.oneandone.stool.client.cli;
 
 import net.oneandone.stool.util.Server;
-import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.fs.file.FileNode;
 
-import java.util.ArrayList;
-import java.util.List;
+public abstract class ProjectCommand extends ClientCommand {
+    private final FileNode project;
 
-public abstract class InfoCommand extends StageCommand {
-
-    protected final List<String> selected = new ArrayList<>();
-
-    private final String defaults;
-
-    public InfoCommand(Server server, String defaults) {
+    public ProjectCommand(Server server, FileNode project) {
         super(server);
-        this.defaults = defaults == null ? "" : defaults;
+        this.project = project == null ? world.getWorking() : project;
     }
 
-    public void select(String str) {
-        selected.add(str);
+    @Override
+    public void doRun() throws Exception {
+        doRun(project);
     }
 
-    protected List<String> defaults() {
-        return Separator.COMMA.split(defaults);
-    }
+    public abstract void doRun(FileNode project) throws Exception;
 }

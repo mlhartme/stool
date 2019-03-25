@@ -17,7 +17,7 @@ package net.oneandone.stool.setup;
 
 import com.google.gson.Gson;
 import net.oneandone.inline.Console;
-import net.oneandone.stool.cli.Main;
+import net.oneandone.stool.net.oneandone.stool.client.cli.Main;
 import net.oneandone.stool.configuration.Autoconf;
 import net.oneandone.stool.configuration.StoolConfiguration;
 import net.oneandone.stool.util.Environment;

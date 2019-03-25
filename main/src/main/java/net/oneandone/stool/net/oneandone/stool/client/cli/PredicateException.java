@@ -13,25 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.cli;
+package net.oneandone.stool.net.oneandone.stool.client.cli;
 
-import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.util.Server;
+import net.oneandone.inline.ArgumentException;
 
-public class History extends StageCommand {
-    private final boolean details;
-    private final int max;
-
-    public History(Server server, boolean details, int max) {
-        super(server);
-        this.details = details;
-        this.max = max;
-    }
-
-    @Override
-    public void doMain(Reference reference) throws Exception {
-        for (String line : server.history(reference, details, max)) {
-            console.info.println(line);
-        }
+public class PredicateException extends ArgumentException {
+    public PredicateException(String s) {
+        super(s);
     }
 }

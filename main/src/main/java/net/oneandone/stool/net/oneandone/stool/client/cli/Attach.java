@@ -13,23 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.cli;
+package net.oneandone.stool.net.oneandone.stool.client.cli;
 
+import net.oneandone.stool.stage.Reference;
+import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.fs.file.FileNode;
 
-public abstract class ProjectCommand extends ClientCommand {
-    private final FileNode project;
+public class Attach extends ProjectCommand {
+    private final String stageName;
 
-    public ProjectCommand(Server server, FileNode project) {
-        super(server);
-        this.project = project == null ? world.getWorking() : project;
+    public Attach(Server server, String stageName, FileNode project) {
+        super(server, project);
+
+        this.stageName = stageName;
     }
 
     @Override
-    public void doRun() throws Exception {
-        doRun(project);
-    }
+    public void doRun(FileNode project) throws Exception {
+        Project backstage;
+        Reference reference;
 
-    public abstract void doRun(FileNode project) throws Exception;
+        reference = resolveName(stageName);
+        backstage = Project.lookup(project);
+        if (backstage == null) {
+            backstage = Project.create(project);
+        }
+        backstage.setAttached(reference);
+    }
 }

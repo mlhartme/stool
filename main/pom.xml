@@ -89,7 +89,7 @@
           <path>$PATH</path>
           <options>-Djava.awt.headless=true</options>
           <name>stool</name>
-          <main>net.oneandone.stool.cli.Main</main>
+          <main>net.oneandone.stool.net.oneandone.stool.client.cli.Main</main>
           <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
           <remove>META-INF/maven/**/*,
             META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
@@ -128,7 +128,7 @@
               -dontwarn net.oneandone.sushi.**
 
               # inline reflection
-              -keep public class net.oneandone.stool.cli.* {
+              -keep public class net.oneandone.stool.net.oneandone.stool.client.cli.* {
               public *;
               }
               -keep public class net.oneandone.inline.Console {
@@ -172,14 +172,14 @@
 
               # jnr
               -keep class jnr.** {
-                *;
+              *;
               }
               -keep class com.kenai.** {
-                *;
+              *;
               }
 
               # Stool
-              -keep public class net.oneandone.stool.cli.Main {
+              -keep public class net.oneandone.stool.net.oneandone.stool.client.cli.Main {
               public static void main(java.lang.String[]);
               }
               -keep public class net.oneandone.stool.setup.Debfiles {
@@ -189,10 +189,10 @@
               !static !transient &lt;fields&gt;;
               }
               -keep class net.oneandone.stool.templates.Tomcat {
-                public *;
+              public *;
               }
               -keep class net.oneandone.stool.templates.StatusHelper {
-                public *;
+              public *;
               }
 
               # Sushi

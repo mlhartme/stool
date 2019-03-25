@@ -13,28 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.cli;
+package net.oneandone.stool.net.oneandone.stool.client.cli;
 
-import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Server;
-import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Detach extends ProjectCommand {
-    public Detach(Server server, FileNode project) {
-        super(server, project);
+public abstract class InfoCommand extends StageCommand {
+
+    protected final List<String> selected = new ArrayList<>();
+
+    private final String defaults;
+
+    public InfoCommand(Server server, String defaults) {
+        super(server);
+        this.defaults = defaults == null ? "" : defaults;
     }
 
-    @Override
-    public void doRun(FileNode project) throws IOException {
-        Project backstage;
+    public void select(String str) {
+        selected.add(str);
+    }
 
-        backstage = Project.lookup(project);
-        if (backstage == null) {
-            throw new ArgumentException("project is not attached");
-        }
-        backstage.removeBackstage();
+    protected List<String> defaults() {
+        return Separator.COMMA.split(defaults);
     }
 }

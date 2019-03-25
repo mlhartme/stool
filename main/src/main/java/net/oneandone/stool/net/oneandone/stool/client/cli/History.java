@@ -13,34 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.cli;
+package net.oneandone.stool.net.oneandone.stool.client.cli;
 
 import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.stage.State;
 import net.oneandone.stool.util.Server;
 
-import java.util.ArrayList;
-import java.util.List;
+public class History extends StageCommand {
+    private final boolean details;
+    private final int max;
 
-public class Restart extends StageCommand {
-    private final List<String> selection;
-
-    public Restart(Server server, List<String> selection) {
+    public History(Server server, boolean details, int max) {
         super(server);
-        this.selection = selection;
+        this.details = details;
+        this.max = max;
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        State state;
-
-
-        state = state(reference);
-        if (state == State.UP || state == State.WORKING) {
-            new Stop(server, new ArrayList<>(selection(selection).keySet())).doRun(reference);
-        } else {
-            console.info.println("Container is not running - starting a new instance.");
+        for (String line : server.history(reference, details, max)) {
+            console.info.println(line);
         }
-        new Start(server, false, selection).doRun(reference);
     }
 }
