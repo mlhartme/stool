@@ -32,7 +32,7 @@ import net.oneandone.stool.server.util.FlushWriter;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.LogReader;
 import net.oneandone.stool.server.util.Ports;
-import net.oneandone.stool.server.util.Project;
+import net.oneandone.stool.client.Project;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.stool.server.util.StandardProperty;
