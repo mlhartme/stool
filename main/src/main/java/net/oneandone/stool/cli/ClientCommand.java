@@ -17,6 +17,8 @@ package net.oneandone.stool.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.stage.Reference;
+import net.oneandone.stool.stage.State;
+import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.fs.Node;
@@ -75,6 +77,8 @@ public abstract class ClientCommand {
         console.info.println(Strings.indent(msg, "  "));
     }
 
+    //--
+
     public String getName(Reference reference) throws Exception {
         List<Property> properties;
 
@@ -86,4 +90,15 @@ public abstract class ClientCommand {
         }
         throw new IOException("missing 'name' property");
     }
+
+    public State state(Reference reference) throws IOException {
+        List<Info> lst;
+
+        lst = server.status(reference, Strings.toList("state"));
+        if (lst.size() != 1) {
+            throw new IllegalStateException(lst.toString());
+        }
+        return State.valueOf(lst.get(0).get().toString().toUpperCase());
+    }
+
 }

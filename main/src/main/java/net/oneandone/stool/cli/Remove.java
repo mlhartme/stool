@@ -37,11 +37,12 @@ public class Remove extends StageCommand {
         State state;
         Project project;
 
-        state = server.state(reference);
+        state = state(reference);
         if (stop && state == State.UP) {
             new Stop(server).doRun(reference);
+            state = state(reference);
         }
-        if (server.state(reference) == State.UP) {
+        if (state == State.UP) {
             throw new IOException("stage is not stopped.");
         }
         if (!batch) {

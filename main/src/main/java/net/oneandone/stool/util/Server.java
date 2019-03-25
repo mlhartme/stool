@@ -59,6 +59,16 @@ public class Server {
         return session.loadByName(name).reference;
     }
 
+    public List<Reference> list(EnumerationFailed problems, Predicate predicate) throws IOException {
+        List<Reference> result;
+
+        result = new ArrayList<>();
+        for (Stage stage : session.list(problems, predicate)) {
+            result.add(stage.reference);
+        }
+        return result;
+    }
+
     //-- create, build, start, stop, remove
 
     public void create(Project backstage, FileNode project, Map<String, String> config, Console console) throws IOException {
@@ -138,16 +148,6 @@ public class Server {
     }
 
     //--
-
-    public List<Reference> list(EnumerationFailed problems, Predicate predicate) throws IOException {
-        List<Reference> result;
-
-        result = new ArrayList<>();
-        for (Stage stage : session.list(problems, predicate)) {
-            result.add(stage.reference);
-        }
-        return result;
-    }
 
     public List<Info> status(Reference reference, List<String> selected) throws IOException {
         Stage stage;
@@ -236,10 +236,6 @@ public class Server {
 
     public int memUnreserved() throws IOException {
         return session.memUnreserved();
-    }
-
-    public State state(Reference reference) throws IOException {
-        return session.load(reference).state();
     }
 
     public List<String> apps(Reference reference) throws IOException {

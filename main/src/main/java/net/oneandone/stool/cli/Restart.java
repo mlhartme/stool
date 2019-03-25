@@ -35,7 +35,7 @@ public class Restart extends StageCommand {
         State state;
 
 
-        state = server.state(reference);
+        state = state(reference);
         if (state == State.UP || state == State.WORKING) {
             new Stop(server, new ArrayList<>(selection(selection).keySet())).doRun(reference);
         } else {
