@@ -3,7 +3,7 @@ package net.oneandone.stool.server.util;
 import com.google.gson.JsonObject;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.cli.Validate;
+import net.oneandone.stool.client.cli.Report;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.Stats;
 import net.oneandone.stool.server.stage.Image;
@@ -241,7 +241,7 @@ public class Server {
 
     //-- validate
 
-    public void email(Validate.Report report) throws MessagingException, NamingException {
+    public void email(Report report) throws MessagingException, NamingException {
         String hostname;
         Mailer mailer;
         Console console;
@@ -286,7 +286,7 @@ public class Server {
     }
 
 
-    public void validateState(Reference reference, Validate.Report report, boolean repair) throws IOException {
+    public void validateState(Reference reference, Report report, boolean repair) throws IOException {
         Stage stage;
         String message;
 
@@ -326,12 +326,12 @@ public class Server {
     }
 
 
-    public void validateServer(Validate.Report report) throws IOException {
+    public void validateServer(Report report) throws IOException {
         validateDocker(report);
         validateDns(report);
     }
 
-    private void validateDocker(Validate.Report report) {
+    private void validateDocker(Report report) {
         try {
             session.dockerEngine().imageList(Collections.emptyMap());
         } catch (IOException e) {
@@ -340,7 +340,7 @@ public class Server {
         }
     }
 
-    private void validateDns(Validate.Report report) throws IOException {
+    private void validateDns(Report report) throws IOException {
         int port;
         String ip;
         String subDomain;
