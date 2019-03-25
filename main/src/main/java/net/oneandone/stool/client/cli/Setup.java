@@ -18,6 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.server.setup.Home;
 import net.oneandone.stool.server.util.Environment;
+import net.oneandone.stool.server.util.Server;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -42,7 +43,7 @@ public class Setup {
         this.environment = globals.environment;
         this.home = globals.home;
         this.console = globals.console;
-        this.version = Main.versionString(world);
+        this.version = Server.versionString(world);
         this.batch = batch;
         this.explicitConfig = null;
     }

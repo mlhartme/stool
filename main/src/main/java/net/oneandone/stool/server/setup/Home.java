@@ -17,11 +17,11 @@ package net.oneandone.stool.server.setup;
 
 import com.google.gson.Gson;
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.cli.Main;
 import net.oneandone.stool.server.configuration.Autoconf;
 import net.oneandone.stool.server.configuration.StoolConfiguration;
 import net.oneandone.stool.server.util.Environment;
 import net.oneandone.stool.server.util.RmRfThread;
+import net.oneandone.stool.server.util.Server;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -82,7 +82,7 @@ public class Home {
             conf = conf.createPatched(gson, explicitConfig);
         }
         conf.save(gson, dir);
-        versionFile().writeString(Main.versionString(world));
+        versionFile().writeString(Server.versionString(world));
         dir.join("run/locks").mkfile();
     }
 

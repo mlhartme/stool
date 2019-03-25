@@ -20,7 +20,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.cli.EnumerationFailed;
-import net.oneandone.stool.client.cli.Main;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.Expire;
 import net.oneandone.stool.server.configuration.StageConfiguration;
@@ -231,7 +230,7 @@ public class Session {
         if (!configuration.admin.isEmpty()) {
             subject = "[stool exception] " + e.getMessage();
             body = new StringWriter();
-            body.write("stool: " + Main.versionString(world) + "\n");
+            body.write("stool: " + Server.versionString(world) + "\n");
             body.write("command: " + command + "\n");
             body.write("context: " + context + "\n");
             body.write("user: " + user + "\n");
@@ -327,7 +326,7 @@ public class Session {
         String binVersion;
 
         homeVersion = home.join("version").readString().trim();
-        binVersion = Main.versionString(world);
+        binVersion = Server.versionString(world);
         if (!homeVersion.equals(binVersion)) {
             throw new IOException("Cannot use home directory version " + homeVersion + " with Stool " + binVersion
                + "\nTry 'stool setup'");
