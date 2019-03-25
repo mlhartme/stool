@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.stage;
+package net.oneandone.stool.net.oneandone.stool.server.stage;
 
 import com.google.gson.JsonObject;
 import freemarker.template.Configuration;
@@ -23,8 +23,8 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.Accessor;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.docker.BuildError;
-import net.oneandone.stool.docker.Engine;
+import net.oneandone.stool.net.oneandone.stool.server.docker.BuildError;
+import net.oneandone.stool.net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.templates.Tomcat;
 import net.oneandone.stool.templates.Variable;
 import net.oneandone.stool.util.Field;

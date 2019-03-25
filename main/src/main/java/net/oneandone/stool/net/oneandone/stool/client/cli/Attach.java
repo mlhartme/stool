@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.net.oneandone.stool.client.cli;
 
-import net.oneandone.stool.stage.Reference;
+import net.oneandone.stool.net.oneandone.stool.server.stage.Reference;
 import net.oneandone.stool.util.Project;
 import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.fs.file.FileNode;

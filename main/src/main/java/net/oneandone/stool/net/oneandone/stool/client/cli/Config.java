@@ -16,7 +16,7 @@
 package net.oneandone.stool.net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.stage.Reference;
+import net.oneandone.stool.net.oneandone.stool.server.stage.Reference;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Server;
 import net.oneandone.sushi.util.Strings;

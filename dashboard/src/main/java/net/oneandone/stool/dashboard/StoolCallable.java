@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.dashboard;
 
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.util.Environment;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;

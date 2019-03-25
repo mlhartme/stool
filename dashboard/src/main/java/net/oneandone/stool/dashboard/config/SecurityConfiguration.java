@@ -16,7 +16,7 @@
 package net.oneandone.stool.dashboard.config;
 
 
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.templates.ServerXml;
 import net.oneandone.stool.util.Ports;
 import net.oneandone.stool.util.Session;

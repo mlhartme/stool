@@ -18,7 +18,7 @@ package net.oneandone.stool.templates;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.stool.util.UrlPattern;
 import net.oneandone.sushi.fs.file.FileNode;

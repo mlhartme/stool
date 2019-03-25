@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.dashboard;
 
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.util.Session;
 import net.oneandone.sushi.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;

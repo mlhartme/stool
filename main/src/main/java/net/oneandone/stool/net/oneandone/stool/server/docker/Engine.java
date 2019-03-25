@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.docker;
+package net.oneandone.stool.net.oneandone.stool.server.docker;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;

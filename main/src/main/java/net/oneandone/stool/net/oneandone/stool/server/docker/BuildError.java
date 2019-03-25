@@ -13,17 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.docker;
+package net.oneandone.stool.net.oneandone.stool.server.docker;
 
-public class Stats {
-    /* cpu percentage */
-    public final int cpu;
-    public final long memoryUsage;
-    public final long memoryLimit;
+import com.google.gson.JsonObject;
 
-    public Stats(int cpu, long memoryUsage, long memoryLimit) {
-        this.cpu = cpu;
-        this.memoryUsage = memoryUsage;
-        this.memoryLimit = memoryLimit;
+import java.io.IOException;
+
+public class BuildError extends IOException {
+    public final String error;
+    public final JsonObject details;
+    public final String output;
+
+    public BuildError(String error, JsonObject details, String output) {
+        super("docker build failed: " + error);
+        this.error = error;
+        this.details = details;
+        this.output = output;
     }
 }

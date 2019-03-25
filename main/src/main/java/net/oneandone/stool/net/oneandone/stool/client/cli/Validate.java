@@ -17,8 +17,8 @@ package net.oneandone.stool.net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.configuration.StageConfiguration;
-import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.stage.Stage;
+import net.oneandone.stool.net.oneandone.stool.server.stage.Reference;
+import net.oneandone.stool.net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.util.Server;
 
 import java.io.IOException;

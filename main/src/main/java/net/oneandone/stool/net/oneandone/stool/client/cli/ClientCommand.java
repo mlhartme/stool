@@ -16,8 +16,8 @@
 package net.oneandone.stool.net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.stage.Reference;
-import net.oneandone.stool.stage.State;
+import net.oneandone.stool.net.oneandone.stool.server.stage.Reference;
+import net.oneandone.stool.net.oneandone.stool.server.stage.State;
 import net.oneandone.stool.util.Info;
 import net.oneandone.stool.util.Property;
 import net.oneandone.stool.util.Server;

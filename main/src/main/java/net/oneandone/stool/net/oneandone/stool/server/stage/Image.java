@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.stage;
+package net.oneandone.stool.net.oneandone.stool.server.stage;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import net.oneandone.stool.docker.Engine;
+import net.oneandone.stool.net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.util.Ports;
 
 import java.io.IOException;
