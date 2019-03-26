@@ -21,7 +21,6 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Project;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.common.State;
 import net.oneandone.stool.server.configuration.Accessor;
