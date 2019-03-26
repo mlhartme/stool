@@ -22,7 +22,7 @@ import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.stool.server.util.UrlPattern;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
 import net.oneandone.sushi.util.SubstitutionException;
@@ -36,7 +36,6 @@ import java.util.Map;
 
 public class Tomcat {
     private final String app;
-    private final FileNode faultDir;
     private final FileNode war;
     private final Stage stage;
     private final FileNode context;
@@ -44,9 +43,8 @@ public class Tomcat {
     private final Session session;
     private final Console console;
 
-    public Tomcat(String app, FileNode faultDir, FileNode war, Stage stage, FileNode context, Session session) {
+    public Tomcat(String app, FileNode war, Stage stage, FileNode context, Session session) {
         this.app = app;
-        this.faultDir = faultDir;
         this.war = war;
         this.stage = stage;
         this.context = context;
@@ -67,24 +65,11 @@ public class Tomcat {
     }
 
     /** @return LABEL directives declaring the secrets */
-    public String fault(String basedir) throws IOException {
-        Launcher launcher;
-        FileNode list;
+    public String fault(String basedir, String faultProjects) {
         StringBuilder result;
 
-        list = session.world.getTemp().createTempFile();
-        launcher = faultDir.launcher("fault");
-        if (console.getVerbose()) {
-            launcher.arg("-v");
-        }
-        launcher.arg("resolve", "-output", list.getAbsolute());
-        launcher.arg("file:pom.xml");  // TODO
-
-        launcher.getBuilder().inheritIO();
-        console.verbose.println("exec " + launcher);
-        launcher.exec();
         result = new StringBuilder();
-        for (String project : list.readLines()) {
+        for (String project : Separator.COMMA.split(faultProjects)) {
             result.append("LABEL " + Stage.LABEL_MOUNT_SECRETS_PREFIX + project + "=" + basedir + "/" + project + "\n");
         }
         return result.toString();
