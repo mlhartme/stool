@@ -57,7 +57,7 @@ public class Globals {
             console = console(logging, System.out, System.err);
         }
         logging.command("stool " + Separator.SPACE.join(args));
-        return new Globals(environment, home, itHome, logging, args, console, world);
+        return new Globals(itHome, logging, args, console, world);
     }
 
     public static Console console(Logging logging, OutputStream out, OutputStream err) {
@@ -66,17 +66,13 @@ public class Globals {
     }
 
 
-    public final Environment environment;
-    public final FileNode home;
     private final FileNode itHome;
     public final Logging logging;
     private final String[] args;
     public final Console console;
     public final World world;
 
-    public Globals(Environment environment, FileNode home, FileNode itHome, Logging logging, String[] args, Console console, World world) {
-        this.environment = environment;
-        this.home = home;
+    public Globals(FileNode itHome, Logging logging, String[] args, Console console, World world) {
         this.itHome = itHome;
         this.logging = logging;
         this.args = args;
