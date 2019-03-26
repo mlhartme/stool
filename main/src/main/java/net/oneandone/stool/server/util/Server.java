@@ -58,13 +58,11 @@ public class Server {
 
     //-- create, build, start, stop, remove
 
-    public void create(Project project, Map<String, String> config, Console console) throws IOException {
+    public Reference create(String name, String origin, Map<String, String> config, Console console) throws IOException {
         Stage stage;
         Property property;
 
-        stage = session.create(project.getOrigin());
-        project.setAttached(stage.reference);
-        stage.configuration.name = project.getDirectory().getName();
+        stage = session.create(origin);
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());
             if (property == null) {
@@ -72,12 +70,13 @@ public class Server {
             }
             property.set(entry.getValue());
         }
-        Project.checkName(stage.configuration.name);
+        stage.configuration.name = name;
         stage.saveConfig();
 
         session.logging.openStage(stage.reference.getId(), stage.getName());
         console.info.println("stage create: " + stage.getName());
         session.logging.closeStage();
+        return stage.reference;
     }
 
     public void build(Reference reference, Project project, String app, FileNode war, Console console, String comment,

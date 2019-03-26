@@ -17,6 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Project;
+import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -69,6 +70,8 @@ public class Create extends ProjectCommand {
     @Override
     public void doRun(FileNode projectDirectory) throws IOException {
         Project project;
+        String name;
+        Reference reference;
 
         project = Project.lookup(projectDirectory);
         if (project == null) {
@@ -78,6 +81,12 @@ public class Create extends ProjectCommand {
                 throw new ArgumentException("project already has a stage");
             }
         }
-        server.create(project, config, console);
+        name = config.remove("name");
+        if (name == null) {
+            name = project.getDirectory().getName();
+        }
+        Project.checkName(name);
+        reference = server.create(name, project.getOrigin(), config, console);
+        project.setAttached(reference);
     }
 }
