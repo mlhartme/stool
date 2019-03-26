@@ -136,9 +136,10 @@ public class Server {
 
     //--
 
-    public List<Info> status(Reference reference, List<String> selected) throws IOException {
+    public Map<String, String> status(Reference reference, List<String> selected) throws IOException {
         Stage stage;
-        List<Info> result;
+        Map<String, String> result;
+        Info i;
 
         stage = session.load(reference);
         if (selected.isEmpty()) {
@@ -148,9 +149,10 @@ public class Server {
                 }
             }
         }
-        result = new ArrayList<>();
+        result = new LinkedHashMap<>();
         for (String name : selected) {
-            result.add(stage.info(name));
+            i = stage.info(name);
+            result.put(i.name(), i.getAsString());
         }
         return result;
     }

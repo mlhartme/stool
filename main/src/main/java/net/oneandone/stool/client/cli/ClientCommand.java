@@ -115,13 +115,13 @@ public abstract class ClientCommand {
     }
 
     public State state(Reference reference) throws IOException {
-        List<Info> lst;
+        Map<String, String> map;
 
-        lst = server.status(reference, Strings.toList("state"));
-        if (lst.size() != 1) {
-            throw new IllegalStateException(lst.toString());
+        map = server.status(reference, Strings.toList("state"));
+        if (map.size() != 1) {
+            throw new IllegalStateException(map.toString());
         }
-        return State.valueOf(lst.get(0).get().toString().toUpperCase());
+        return State.valueOf(map.values().iterator().next().toUpperCase());
     }
 
 }

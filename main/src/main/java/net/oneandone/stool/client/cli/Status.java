@@ -22,6 +22,7 @@ import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.util.List;
+import java.util.Map;
 
 public class Status extends InfoCommand {
     public Status(Server server, String defaults) {
@@ -32,23 +33,23 @@ public class Status extends InfoCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        List<Info> infos;
+        Map<String, String> infos;
         int width;
         boolean first;
         String value;
 
         infos = server.status(reference, selected.isEmpty() ? defaults() : selected);
         width = 0;
-        for (Info info : infos) {
-            width = Math.max(width, info.name().length());
+        for (String name : infos.keySet()) {
+            width = Math.max(width, name.length());
         }
         width += 2;
-        for (Info info : infos) {
-            console.info.print(Strings.times(' ', width - info.name().length()));
-            console.info.print(info.name());
+        for (Map.Entry<String, String> entry : infos.entrySet()) {
+            console.info.print(Strings.times(' ', width - entry.getKey().length()));
+            console.info.print(entry.getKey());
             console.info.print(" : ");
             first = true;
-            value = info.getAsString();
+            value = entry.getValue();
             if (value.isEmpty()) {
                 console.info.println();
             } else for (String str : TAB.split(value)) {

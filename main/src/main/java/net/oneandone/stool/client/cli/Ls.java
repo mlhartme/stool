@@ -60,8 +60,8 @@ public class Ls extends InfoCommand {
 
         line = new ArrayList<>();
         lines.add(line);
-        for (Info info : server.status(reference, selected)) {
-            line.add(info.getAsString().replace("\t", " "));
+        for (Map.Entry<String, String> entry : server.status(reference, selected).entrySet()) {
+            line.add(entry.getValue().replace("\t", " "));
         }
     }
 
