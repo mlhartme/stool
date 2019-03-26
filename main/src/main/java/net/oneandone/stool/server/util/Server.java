@@ -4,10 +4,10 @@ import com.google.gson.JsonObject;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
+import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.Stats;
 import net.oneandone.stool.server.stage.Image;
-import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
@@ -253,13 +253,13 @@ public class Server {
         return result;
     }
 
-    public List<Property> setProperties(Reference reference, Map<String, String> arguments) throws IOException {
+    public Map<String, String> setProperties(Reference reference, Map<String, String> arguments) throws IOException {
         Stage stage;
         Property prop;
         String value;
-        List<Property> result;
+        Map<String, String> result;
 
-        result = new ArrayList<>();
+        result = new LinkedHashMap<>();
         stage = session.load(reference);
         for (Map.Entry<String, String> entry : arguments.entrySet()) {
             prop = stage.propertyOpt(entry.getKey());
@@ -270,7 +270,7 @@ public class Server {
             value = value.replace("{}", prop.get());
             try {
                 prop.set(value);
-                result.add(prop);
+                result.put(prop.name(), prop.getAsString());
             } catch (RuntimeException e) {
                 throw new ArgumentException("invalid value for property " + prop.name() + " : " + e.getMessage());
             }

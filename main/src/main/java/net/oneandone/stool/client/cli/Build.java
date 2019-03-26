@@ -16,8 +16,8 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.client.Project;
+import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.fs.file.FileNode;
 

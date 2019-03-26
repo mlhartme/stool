@@ -16,12 +16,10 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
-import java.util.List;
 import java.util.Map;
 
 public class Status extends InfoCommand {

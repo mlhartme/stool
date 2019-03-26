@@ -16,7 +16,6 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.util.Strings;
 

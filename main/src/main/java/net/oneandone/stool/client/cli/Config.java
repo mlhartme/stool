@@ -17,13 +17,10 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.util.Strings;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Config extends StageCommand {
@@ -69,8 +66,8 @@ public class Config extends StageCommand {
         int width;
 
         if (set) {
-            for (Property prop : server.setProperties(reference, arguments)) {
-                console.info.println(prop.name() + "=" + prop.get());
+            for (Map.Entry<String, String> entry : server.setProperties(reference, arguments).entrySet()) {
+                console.info.println(entry.getKey() + "=" + entry.getValue());
             }
         } else {
             props = server.getProperties(reference);
