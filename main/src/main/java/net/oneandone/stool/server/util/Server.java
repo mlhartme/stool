@@ -117,7 +117,7 @@ public class Server {
 
         result = new LinkedHashMap<>();
         for (String app : stage.currentMap().keySet()) {
-            stage.namedUrls(app);
+            result.put(app, stage.namedUrls(app));
         }
         return result;
     }
@@ -241,8 +241,14 @@ public class Server {
 
     //-- config command
 
-    public List<Property> getProperties(Reference reference) throws Exception {
-        return session.load(reference).properties();
+    public Map<String, String> getProperties(Reference reference) throws Exception {
+        Map<String, String> result;
+
+        result = new LinkedHashMap<>();
+        for (Property property : session.load(reference).properties()) {
+            result.put(property.name(), property.get());
+        }
+        return result;
     }
 
     public List<Property> setProperties(Reference reference, Map<String, String> arguments) throws IOException {

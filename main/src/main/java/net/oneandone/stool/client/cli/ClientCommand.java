@@ -102,15 +102,16 @@ public abstract class ClientCommand {
     }
 
     public String getName(Reference reference) throws Exception {
-        List<Property> properties;
+        Map<String, String> properties;
+        String result;
 
         properties = server.getProperties(reference);
-        for (Property property : properties) {
-            if ("name".equals(property.name())) {
-                return property.get();
-            }
+        result = properties.get("name");
+        if (result == null) {
+            throw new IOException("missing 'name' property");
+        } else {
+            return result;
         }
-        throw new IOException("missing 'name' property");
     }
 
     public State state(Reference reference) throws IOException {

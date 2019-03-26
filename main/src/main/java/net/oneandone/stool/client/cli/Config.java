@@ -65,7 +65,7 @@ public class Config extends StageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        List<Property> props;
+        Map<String, String> props;
         int width;
 
         if (set) {
@@ -75,42 +75,35 @@ public class Config extends StageCommand {
         } else {
             props = server.getProperties(reference);
             if (get) {
-                props = argumentProperties(props);
+                props = selectedProperties(props);
+            } else {
+                // neither get nor set -> show all
             }
-            width = 0 ;
+            width = 0;
             if (props.size() > 1) {
-                for (Property property : props) {
-                    width = Math.max(width, property.name().length());
+                for (String name : props.keySet()) {
+                    width = Math.max(width, name.length());
                 }
                 width += 3;
             }
-            for (Property property : props) {
-                console.info.println(Strings.padLeft(property.name(), width) + " : " + property.get());
+            for (Map.Entry<String, String> entry : props.entrySet()) {
+                console.info.println(Strings.padLeft(entry.getKey(), width) + " : " + entry.getValue());
             }
         }
     }
 
-    private List<Property> argumentProperties(List<Property> all) {
-        List<Property> result;
-        Property property;
+    private Map<String, String> selectedProperties(Map<String, String> all) {
+        Map<String, String> result;
+        String property;
 
-        result = new ArrayList<>();
+        result = new LinkedHashMap<>();
         for (String name : arguments.keySet()) {
-            property = lookup(all, name);
+            property = all.get(name);
             if (property == null) {
                 throw new ArgumentException("unknown property: " + name);
             }
-            result.add(property);
+            result.put(name, property);
         }
         return result;
-    }
-
-    private Property lookup(List<Property> properties, String name) {
-        for (Property property : properties) {
-            if (name.equals(property.name())) {
-                return property;
-            }
-        }
-        return null;
     }
 }
