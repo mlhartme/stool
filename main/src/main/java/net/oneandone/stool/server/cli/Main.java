@@ -54,34 +54,14 @@ public class Main {
     }
 
     public static int run(Environment environment, World world, boolean it, String[] args) throws IOException {
-        Logging logging;
-        FileNode home;
         Cli cli;
-        String command;
         Globals globals;
-        Console console;
-        FileNode tmp;
 
-        home = environment.locateHome(world);
-        if (home.exists()) {
-            logging = Logging.forHome(home, environment.detectUser());
-        } else {
-            tmp = world.getTemp().createTempDirectory();
-            logging = new Logging("1", tmp.join("homeless"), environment.detectUser());
-        }
-        if (it) {
-            OutputStream devNull = MultiOutputStream.createNullStream();
-            console = console(logging, devNull, devNull);
-        } else {
-            console = console(logging, System.out, System.err);
-        }
-        command = "stool " + Separator.SPACE.join(args);
-        logging.command(command);
-        globals = new Globals(environment, home, logging, command, console, world);
+        globals = Globals.create(environment, world, it, args);
         cli = new Cli(globals::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
-        cli.begin(console, "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
+        cli.begin(globals.console, "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
            cli.begin("globals", globals,  "-exception { setException(exception) }");
               cli.add(Setup.class, "setup -batch config? { config(config) }");

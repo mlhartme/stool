@@ -16,19 +16,57 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.server.util.Environment;
+import net.oneandone.stool.server.util.LogOutputStream;
 import net.oneandone.stool.server.util.Logging;
 import net.oneandone.stool.server.util.Server;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.io.InputLogStream;
+import net.oneandone.sushi.io.MultiOutputStream;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 
 /** Basically a session factory */
 public class Globals {
+
+    public static Globals create(Environment environment, World world, boolean it, String[] args) throws IOException {
+        FileNode home;
+        Logging logging;
+        FileNode tmp;
+        String command;
+        Console console;
+
+        home = environment.locateHome(world);
+        if (home.exists()) {
+            logging = Logging.forHome(home, environment.detectUser());
+        } else {
+            tmp = world.getTemp().createTempDirectory();
+            logging = new Logging("1", tmp.join("homeless"), environment.detectUser());
+        }
+        if (it) {
+            OutputStream devNull = MultiOutputStream.createNullStream();
+            console = console(logging, devNull, devNull);
+        } else {
+            console = console(logging, System.out, System.err);
+        }
+        command = "stool " + Separator.SPACE.join(args);
+        logging.command(command);
+        return new Globals(environment, home, logging, command, console, world);
+    }
+
+    public static Console console(Logging logging, OutputStream out, OutputStream err) {
+        return new Console(logging.writer(out, "OUT"), logging.writer(err, "ERR"),
+                new InputLogStream(System.in, new LogOutputStream(logging, "IN")));
+    }
+
+
     public final Environment environment;
     public final FileNode home;
     public final Logging logging;
