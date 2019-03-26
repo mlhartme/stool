@@ -36,7 +36,7 @@ import java.util.Map;
 
 public class Tomcat {
     private final String app;
-    private final FileNode project;
+    private final FileNode faultDir;
     private final FileNode war;
     private final Stage stage;
     private final FileNode context;
@@ -44,9 +44,9 @@ public class Tomcat {
     private final Session session;
     private final Console console;
 
-    public Tomcat(String app, FileNode project, FileNode war, Stage stage, FileNode context, Session session) {
+    public Tomcat(String app, FileNode faultDir, FileNode war, Stage stage, FileNode context, Session session) {
         this.app = app;
-        this.project = project;
+        this.faultDir = faultDir;
         this.war = war;
         this.stage = stage;
         this.context = context;
@@ -73,7 +73,7 @@ public class Tomcat {
         StringBuilder result;
 
         list = session.world.getTemp().createTempFile();
-        launcher = project.launcher("fault");
+        launcher = faultDir.launcher("fault");
         if (console.getVerbose()) {
             launcher.arg("-v");
         }

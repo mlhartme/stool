@@ -394,7 +394,7 @@ public class Stage {
         template = template(appProperties);
         env = Variable.scanTemplate(template).values();
         buildArgs = buildArgs(env, appProperties);
-        context = dockerContext(project, app, war, template, buildArgs);
+        context = dockerContext(project.getDirectory(), app, war, template, buildArgs);
         labels = stageLabel();
         labels.put(LABEL_APP, app);
         labels.put(LABEL_COMMENT, comment);
@@ -554,7 +554,7 @@ public class Stage {
 
     private static final String FREEMARKER_EXT = ".fm";
 
-    private FileNode dockerContext(Project project, String app, FileNode war, FileNode src, Map<String, Object> buildArgs)
+    private FileNode dockerContext(FileNode faultDir, String app, FileNode war, FileNode src, Map<String, Object> buildArgs)
             throws IOException, TemplateException {
         Configuration configuration;
         FileNode dest;
@@ -579,7 +579,7 @@ public class Stage {
                     configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
                     template = configuration.getTemplate(srcfile.getName());
                     tmp = new StringWriter();
-                    template.process(templateEnv(app, project.getDirectory(), war, dest, buildArgs), tmp);
+                    template.process(templateEnv(app, faultDir, war, dest, buildArgs), tmp);
                     destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
                     destfile.writeString(tmp.getBuffer().toString());
                 } else {
@@ -615,11 +615,11 @@ public class Stage {
         return session.templates().join(template).checkDirectory();
     }
 
-    private Map<String, Object> templateEnv(String app, FileNode project, FileNode war, FileNode context, Map<String, Object> buildArgs) {
+    private Map<String, Object> templateEnv(String app, FileNode faultDir, FileNode war, FileNode context, Map<String, Object> buildArgs) {
         Map<String, Object> result;
 
         result = new HashMap<>();
-        result.put("tomcat", new Tomcat(app, project, war,this, context, session));
+        result.put("tomcat", new Tomcat(app, faultDir, war,this, context, session));
         result.putAll(buildArgs);
         return result;
     }
