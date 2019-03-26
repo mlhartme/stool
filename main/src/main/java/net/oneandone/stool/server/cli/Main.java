@@ -27,8 +27,6 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
 import net.oneandone.sushi.io.InputLogStream;
-import net.oneandone.sushi.io.MultiOutputStream;
-import net.oneandone.sushi.util.Separator;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;

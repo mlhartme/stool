@@ -16,26 +16,18 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Cli;
-import net.oneandone.inline.Console;
 import net.oneandone.inline.commands.PackageVersion;
-import net.oneandone.stool.server.cli.Setup;
 import net.oneandone.stool.server.util.Environment;
-import net.oneandone.stool.server.util.LogOutputStream;
-import net.oneandone.stool.server.util.Logging;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
-import net.oneandone.sushi.io.InputLogStream;
-import net.oneandone.sushi.io.MultiOutputStream;
-import net.oneandone.sushi.util.Separator;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
