@@ -18,8 +18,6 @@ package net.oneandone.stool.server.cli;
 import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
 import net.oneandone.inline.commands.PackageVersion;
-import net.oneandone.stool.client.cli.Globals;
-import net.oneandone.stool.server.util.Environment;
 import net.oneandone.stool.server.util.LogOutputStream;
 import net.oneandone.stool.server.util.Logging;
 import net.oneandone.sushi.fs.World;
