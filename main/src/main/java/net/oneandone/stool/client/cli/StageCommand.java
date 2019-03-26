@@ -105,7 +105,10 @@ public abstract class StageCommand extends ClientCommand {
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
         switch (count) {
             case 0:
-                return defaultSelected(problems);
+                serverProblems = new HashMap<>();
+                result = defaultSelected(serverProblems);
+                problems.addAll(serverProblems);
+                return result;
             case 1:
                 if (all) {
                     serverProblems = new HashMap<>();
@@ -125,16 +128,19 @@ public abstract class StageCommand extends ClientCommand {
         }
     }
 
-    private Reference selectedList() throws IOException {
+    /** override this to change the default */
+    protected List<Reference> defaultSelected(Map<String, IOException> notUsed) throws IOException {
         Project project;
+        Reference reference;
 
         project = Project.lookup(world.getWorking());
-        return project == null ? null : project.getAttachedOpt();
-    }
-
-    /** override this to change the default */
-    protected List<Reference> defaultSelected(EnumerationFailed notUsed) throws IOException {
-        return Collections.singletonList(selectedList());
+        if (project != null) {
+            reference = project.getAttachedOpt();
+            if (reference != null) {
+                return Collections.singletonList(reference);
+            }
+        }
+        return Collections.emptyList();
     }
 
     /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
