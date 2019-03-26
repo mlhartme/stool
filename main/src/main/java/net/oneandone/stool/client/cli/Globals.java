@@ -15,13 +15,11 @@
  */
 package net.oneandone.stool.client.cli;
 
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.server.util.Environment;
 import net.oneandone.stool.server.util.LogOutputStream;
 import net.oneandone.stool.server.util.Logging;
 import net.oneandone.stool.server.util.Server;
-import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.InputLogStream;
@@ -39,7 +37,6 @@ public class Globals {
         FileNode home;
         Logging logging;
         FileNode tmp;
-        String command;
         Console console;
 
         environment = Environment.loadSystem();
@@ -59,9 +56,8 @@ public class Globals {
         } else {
             console = console(logging, System.out, System.err);
         }
-        command = "stool " + Separator.SPACE.join(args);
-        logging.command(command);
-        return new Globals(environment, home, logging, command, console, world);
+        logging.command("stool " + Separator.SPACE.join(args));
+        return new Globals(environment, home, itHome, logging, args, console, world);
     }
 
     public static Console console(Logging logging, OutputStream out, OutputStream err) {
@@ -72,16 +68,18 @@ public class Globals {
 
     public final Environment environment;
     public final FileNode home;
+    private final FileNode itHome;
     public final Logging logging;
-    private final String command;
+    private final String[] args;
     public final Console console;
     public final World world;
 
-    public Globals(Environment environment, FileNode home, Logging logging, String command, Console console, World world) {
+    public Globals(Environment environment, FileNode home, FileNode itHome, Logging logging, String[] args, Console console, World world) {
         this.environment = environment;
         this.home = home;
+        this.itHome = itHome;
         this.logging = logging;
-        this.command = command;
+        this.args = args;
         this.console = console;
         this.world = world;
     }
@@ -93,19 +91,7 @@ public class Globals {
     }
 
     public Server server() throws IOException {
-        return new Server(session());
-    }
-
-    private Session session() throws IOException {
-        Session session;
-
-        if (!home.exists()) {
-            throw new IOException("Stool home directory not found: " + home.getAbsolute()
-                     + "\nRun 'stool setup' to create it.");
-        }
-        session = Session.load(home, logging, command, console);
-        session.checkVersion();
-        return session;
+        return net.oneandone.stool.server.cli.Globals.create(world, itHome, args).server();
     }
 
     //--
@@ -115,6 +101,7 @@ public class Globals {
         if (throwable instanceof InvocationTargetException) {
             return handleException(((InvocationTargetException) throwable).getTargetException());
         } else {
+            /* TODO:
             if ((throwable instanceof RuntimeException) && (!(throwable instanceof ArgumentException))) {
                 try {
                     session().reportException("RuntimeException", throwable);
@@ -122,7 +109,7 @@ public class Globals {
                     console.error.println("failed to report runtine exception: " + e.getMessage());
                     e.printStackTrace(console.verbose);
                 }
-            }
+            }*/
             return console.handleException(throwable);
         }
     }
