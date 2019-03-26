@@ -64,7 +64,7 @@ public class Server {
 
         stage = session.create(project.getOrigin());
         project.setAttached(stage.reference);
-        stage.configuration.name = project.getProject().getName();
+        stage.configuration.name = project.getDirectory().getName();
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());
             if (property == null) {

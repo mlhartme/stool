@@ -136,7 +136,7 @@ public class Project {
 
     //--
 
-    public FileNode getProject() {
+    public FileNode getDirectory() {
         return project;
     }
 

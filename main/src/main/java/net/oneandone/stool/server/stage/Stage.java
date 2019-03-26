@@ -576,7 +576,7 @@ public class Stage {
                     configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
                     template = configuration.getTemplate(srcfile.getName());
                     tmp = new StringWriter();
-                    template.process(templateEnv(app, project.getProject(), war, dest, buildArgs), tmp);
+                    template.process(templateEnv(app, project.getDirectory(), war, dest, buildArgs), tmp);
                     destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
                     destfile.writeString(tmp.getBuffer().toString());
                 } else {
