@@ -89,15 +89,6 @@ public class Project {
         backstage.deleteTree();
     }
 
-    public FileNode createContext() throws IOException {
-        FileNode result;
-
-        result = backstage.join("context");
-        result.deleteTreeOpt();
-        result.mkdir();
-        return result;
-    }
-
     public FileNode imageLog() {
         return backstage.join("image.log");
     }

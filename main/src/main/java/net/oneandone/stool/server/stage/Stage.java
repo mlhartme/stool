@@ -566,7 +566,7 @@ public class Stage {
         configuration = new Configuration(Configuration.VERSION_2_3_26);
         configuration.setDefaultEncoding("UTF-8");
 
-        dest = project.createContext();
+        dest = createContext();
         try {
             for (FileNode srcfile : src.find("**/*")) {
                 if (srcfile.isDirectory()) {
@@ -865,4 +865,14 @@ public class Stage {
         }
     }
 
+    //--
+
+    public FileNode createContext() throws IOException {
+        FileNode result;
+
+        result = directory.join("context");
+        result.deleteTreeOpt();
+        result.mkdir();
+        return result;
+    }
 }
