@@ -78,6 +78,6 @@ public class Create extends ProjectCommand {
                 throw new ArgumentException("project already has a stage");
             }
         }
-        server.create(project, project.getProject(), config, console);
+        server.create(project, config, console);
     }
 }

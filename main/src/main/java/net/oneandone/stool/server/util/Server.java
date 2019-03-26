@@ -58,13 +58,13 @@ public class Server {
 
     //-- create, build, start, stop, remove
 
-    public void create(Project backstage, FileNode project, Map<String, String> config, Console console) throws IOException {
+    public void create(Project project, Map<String, String> config, Console console) throws IOException {
         Stage stage;
         Property property;
 
-        stage = session.create(backstage.getOrigin());
-        backstage.setAttached(stage.reference);
-        stage.configuration.name = project.getName();
+        stage = session.create(project.getOrigin());
+        project.setAttached(stage.reference);
+        stage.configuration.name = project.getProject().getName();
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());
             if (property == null) {
