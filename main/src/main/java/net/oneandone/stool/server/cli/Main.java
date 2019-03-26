@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.client.cli;
+package net.oneandone.stool.server.cli;
 
 import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
 import net.oneandone.inline.commands.PackageVersion;
-import net.oneandone.stool.server.cli.Setup;
+import net.oneandone.stool.client.cli.Globals;
 import net.oneandone.stool.server.util.Environment;
 import net.oneandone.stool.server.util.LogOutputStream;
 import net.oneandone.stool.server.util.Logging;
@@ -84,24 +84,7 @@ public class Main {
         cli.begin(console, "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
            cli.begin("globals", globals,  "-exception { setException(exception) }");
-              cli.addDefault(Help.class, "help command?");
-              cli.begin("globals.server", "");
-                cli.base(ClientCommand.class, "");
-                    cli.add(Create.class, "create projectAndProperties*");
-                    cli.add(Build.class, "build -nocache -keep=5 -restart -m= project?");
-                    cli.add(Attach.class, "attach stage project?");
-                    cli.add(Detach.class, "detach project?");
-                    cli.add(Validate.class, "validate -email -repair -stage");
-                    cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
-                      cli.add(App.class, "app name*");
-                      cli.add(Config.class, "config property* { property*(property) }");
-                      cli.add(History.class, "history -details=@history.details:false -max=@history.max:50");
-                      cli.add(Ls.class, "list -defaults=@list.defaults info* { select*(info) }");
-                      cli.add(Remove.class, "remove -batch -stop");
-                      cli.add(Restart.class, "restart appIndex*");
-                      cli.add(Start.class, "start -tail -http=-1 -https=-1 envAppIndex*");
-                      cli.add(Status.class, "status -defaults=@status.defaults info* { select*(info) }");
-                      cli.add(Stop.class, "stop app*");
+              cli.add(Setup.class, "setup -batch config? { config(config) }");
 
         return cli.run(args);
     }

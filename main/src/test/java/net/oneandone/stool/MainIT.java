@@ -101,11 +101,27 @@ public class MainIT {
         environment.setHome(home);
         home.getParent().mkdirsOpt();
         home.deleteTreeOpt();
-        stool("setup", "-batch", "{ \"id\": " + "\"integrationtests\", \"portFirst\": " + start + ", \"portLast\": " + end + " }");
+        stoolServer("setup", "-batch", "{ \"id\": " + "\"integrationtests\", \"portFirst\": " + start + ", \"portLast\": " + end + " }");
         stages = home.getParent().join(context + "-stages");
         stages.deleteTreeOpt();
         stages.mkdir();
         WORLD.setWorking(stages);
+    }
+
+    private void stoolServer(String... args) throws IOException {
+        int result;
+        String command;
+
+        id++;
+        command = command(args);
+        System.out.print("  " + command);
+        result = net.oneandone.stool.server.cli.Main.run(environment, WORLD, true, args);
+        if (result == 0) {
+            System.out.println();
+        } else {
+            System.out.println(" -> failed: " + result + "(id " + id + ")");
+            fail(command + " -> " + result);
+        }
     }
 
     private void stool(String... args) throws IOException {
@@ -123,7 +139,6 @@ public class MainIT {
             fail(command + " -> " + result);
         }
     }
-
     private String command(String[] args) {
         StringBuilder command;
 

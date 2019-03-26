@@ -13,9 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.client.cli;
+package net.oneandone.stool.server.cli;
 
 import net.oneandone.inline.Console;
+import net.oneandone.stool.client.cli.Globals;
 import net.oneandone.stool.server.setup.Home;
 import net.oneandone.stool.server.util.Environment;
 import net.oneandone.stool.server.util.Server;
