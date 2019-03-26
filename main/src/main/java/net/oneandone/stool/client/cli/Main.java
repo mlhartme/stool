@@ -16,6 +16,7 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Cli;
+import net.oneandone.inline.Console;
 import net.oneandone.inline.commands.PackageVersion;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -27,6 +28,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
@@ -48,8 +50,17 @@ public class Main {
         Cli cli;
         Globals globals;
 
-        globals = Globals.create(world, itHome, args);
-        cli = new Cli(globals::handleException);
+        Console console;
+        PrintWriter itOut;
+
+        if (itHome != null) {
+            itOut = new PrintWriter(itHome.join("client-output").newAppender(), true);
+            console = new Console(itOut, itOut, System.in);
+        } else {
+            console = Console.create();
+        }
+        globals = new Globals(itHome, args, console, world);
+        cli = new Cli(globals.console::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
         cli.begin(globals.console, "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
