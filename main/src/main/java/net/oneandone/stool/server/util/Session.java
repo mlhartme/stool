@@ -27,7 +27,7 @@ import net.oneandone.stool.server.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.stage.Image;
-import net.oneandone.stool.Reference;
+import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.Users;
 import net.oneandone.sushi.fs.MkdirException;

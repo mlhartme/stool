@@ -3,7 +3,7 @@ package net.oneandone.stool.server.util;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.server.configuration.StageConfiguration;
-import net.oneandone.stool.Reference;
+import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserNotFound;

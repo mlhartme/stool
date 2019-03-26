@@ -1,4 +1,4 @@
-package net.oneandone.stool;
+package net.oneandone.stool.common;
 
 public enum State {
     DOWN("primary"), UP("success"), WORKING("danger");

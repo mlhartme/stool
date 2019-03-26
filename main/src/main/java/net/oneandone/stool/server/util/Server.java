@@ -7,7 +7,7 @@ import net.oneandone.stool.client.Project;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.Stats;
 import net.oneandone.stool.server.stage.Image;
-import net.oneandone.stool.Reference;
+import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;

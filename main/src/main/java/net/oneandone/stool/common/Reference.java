@@ -1,4 +1,4 @@
-package net.oneandone.stool;
+package net.oneandone.stool.common;
 
 /** client part of a Stage */
 public class Reference {

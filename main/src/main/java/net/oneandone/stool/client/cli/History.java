@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.client.cli;
 
-import net.oneandone.stool.Reference;
+import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.util.Server;
 
 public class History extends StageCommand {
