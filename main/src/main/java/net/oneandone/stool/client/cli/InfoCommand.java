@@ -15,7 +15,9 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.server.util.Server;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Separator;
 
 import java.util.ArrayList;
@@ -27,8 +29,8 @@ public abstract class InfoCommand extends StageCommand {
 
     private final String defaults;
 
-    public InfoCommand(Server server, String defaults) {
-        super(server);
+    public InfoCommand(World world, Console console, Server server, String defaults) {
+        super(world, console, server);
         this.defaults = defaults == null ? "" : defaults;
     }
 

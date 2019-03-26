@@ -22,6 +22,7 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
+import net.oneandone.sushi.io.PrefixWriter;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -51,13 +52,14 @@ public class Main {
         Globals globals;
 
         Console console;
-        PrintWriter itOut;
+        PrintWriter out;
 
         if (itHome != null) {
-            itOut = new PrintWriter(itHome.join("client-output").newAppender(), true);
-            console = new Console(itOut, itOut, System.in);
+            out = new PrefixWriter(itHome.join("client-output").newAppender());
+            console = new Console(out, out, System.in);
         } else {
-            console = Console.create();
+            out = new PrefixWriter(new PrintWriter(System.out));
+            console = new Console(out, out, System.in);
         }
         globals = new Globals(itHome, args, console, world);
         cli = new Cli(globals.console::handleException);
@@ -67,7 +69,9 @@ public class Main {
            cli.add(PackageVersion.class, "version");
            cli.begin("globals", globals,  "-exception { setException(exception) }");
               cli.addDefault(Help.class, "help command?");
-              cli.begin("globals.server", "");
+              cli.begin("globals.world", "");
+                       cli.begin("globals.console", "");
+                       cli.begin("globals.server", "");
                 cli.base(ClientCommand.class, "");
                     cli.add(Create.class, "create projectAndProperties*");
                     cli.add(Build.class, "build -nocache -keep=5 -restart -m= project?");

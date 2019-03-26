@@ -15,8 +15,10 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.util.Server;
+import net.oneandone.sushi.fs.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +26,11 @@ import java.util.List;
 public class Stop extends StageCommand {
     private final List<String> apps;
 
-    public Stop(Server server) {
-        this(server, new ArrayList<>());
+    public Stop(World world, Console console, Server server) {
+        this(world, console, server, new ArrayList<>());
     }
-    public Stop(Server server, List<String> apps) {
-        super(server);
+    public Stop(World world, Console console, Server server, List<String> apps) {
+        super(world, console, server);
         this.apps = apps;
     }
 

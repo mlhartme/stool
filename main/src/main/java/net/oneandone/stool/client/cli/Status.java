@@ -15,16 +15,18 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.util.Server;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
 import java.util.Map;
 
 public class Status extends InfoCommand {
-    public Status(Server server, String defaults) {
-        super(server, defaults);
+    public Status(World world, Console console, Server server, String defaults) {
+        super(world, console, server, defaults);
     }
 
     private static final Separator TAB = Separator.on('\t');

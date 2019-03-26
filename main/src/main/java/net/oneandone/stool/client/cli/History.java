@@ -15,15 +15,17 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.util.Server;
+import net.oneandone.sushi.fs.World;
 
 public class History extends StageCommand {
     private final boolean details;
     private final int max;
 
-    public History(Server server, boolean details, int max) {
-        super(server);
+    public History(World world, Console console, Server server, boolean details, int max) {
+        super(world, console, server);
         this.details = details;
         this.max = max;
     }

@@ -5,6 +5,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.common.Reference;
+import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.Stats;
 import net.oneandone.stool.server.stage.Image;
@@ -79,9 +80,26 @@ public class Server {
         return stage.reference;
     }
 
-    public void build(Reference reference, Project project, String app, FileNode war, Console console, String comment,
+    public static class BuildResult {
+        public final String error;
+        public final String output;
+
+        public BuildResult(String error, String output) {
+            this.error = error;
+            this.output = output;
+        }
+    }
+
+    public BuildResult build(Reference reference, Project project, String app, FileNode war, Console console, String comment,
                       String origin, String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
-        session.load(reference).build(project, app, war, console, comment, origin, createdBy, createdOn, noCache, keep);
+        String output;
+
+        try {
+            output = session.load(reference).build(project, app, war, console, comment, origin, createdBy, createdOn, noCache, keep);
+            return new BuildResult(null, output);
+        } catch (BuildError e) {
+            return new BuildResult(e.error, e.output);
+        }
     }
 
     public void start(Reference reference, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {

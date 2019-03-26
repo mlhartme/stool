@@ -15,8 +15,10 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.util.Server;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -28,8 +30,8 @@ import java.util.Map;
 public class Ls extends InfoCommand {
     private final List<List<String>> lines;
 
-    public Ls(Server server, String defaults) {
-        super(server, defaults);
+    public Ls(World world, Console console, Server server, String defaults) {
+        super(world, console, server, defaults);
         lines = new ArrayList<>();
     }
 

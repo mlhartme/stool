@@ -26,8 +26,8 @@ import java.io.IOException;
 public class Globals {
     private final FileNode itHome;
     private final String[] args;
-    public final Console console;
     public final World world;
+    public final Console console;
 
     public Globals(FileNode itHome, String[] args, Console console, World world) {
         this.itHome = itHome;
@@ -40,6 +40,14 @@ public class Globals {
         if (exception) {
             throw new RuntimeException("intentional exception");
         }
+    }
+
+    public World world() {
+        return world;
+    }
+
+    public Console console() {
+        return console;
     }
 
     public Server server() throws IOException {

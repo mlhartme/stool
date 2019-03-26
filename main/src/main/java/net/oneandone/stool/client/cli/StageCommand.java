@@ -16,9 +16,11 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.util.Server;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Strings;
 
@@ -34,8 +36,8 @@ public abstract class StageCommand extends ClientCommand {
     private boolean all;
     private Fail fail = Fail.NORMAL;
 
-    public StageCommand(Server server) {
-        super(server);
+    public StageCommand(World world, Console console, Server server) {
+        super(world, console, server);
     }
 
     public void setStage(String stageClause) {

@@ -31,7 +31,6 @@ import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.templates.Tomcat;
 import net.oneandone.stool.server.templates.Variable;
 import net.oneandone.stool.server.util.Field;
-import net.oneandone.stool.server.util.FlushWriter;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.LogReader;
 import net.oneandone.stool.server.util.Ports;
@@ -59,7 +58,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
@@ -373,7 +371,7 @@ public class Stage {
     }
 
     /** @param keep 0 to keep all */
-    public void build(Project project, String app, FileNode war, Console console, String comment, String origin,
+    public String build(Project project, String app, FileNode war, Console console, String comment, String origin,
                       String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
         Engine engine;
         String image;
@@ -384,6 +382,7 @@ public class Stage {
         FileNode template;
         Collection<Variable> env;
         Map<String, Object> buildArgs;
+        StringWriter output;
 
         checkMemory();
         engine = session.dockerEngine();
@@ -403,15 +402,19 @@ public class Stage {
         labels.put(LABEL_CREATED_BY, createdBy);
         labels.put(LABEL_CREATED_ON, createdOn);
         console.verbose.println("building image ... ");
-        try (Writer log = new FlushWriter(project.imageLog().newWriter())) {
+        output = new StringWriter();
+        try {
             // don't close the tee writer, it would close console output as well
-            image = engine.imageBuild(tag, convert(buildArgs), labels, context, noCache, MultiWriter.createTeeWriter(log, console.verbose));
+            image = engine.imageBuild(tag, convert(buildArgs), labels, context, noCache, MultiWriter.createTeeWriter(output, console.verbose));
         } catch (BuildError e) {
             console.verbose.println("image build output");
             console.verbose.println(e.output);
             throw e;
+        } finally {
+            output.close();
         }
         console.verbose.println("image built: " + image);
+        return output.toString();
     }
 
     private static Map<String, String> convert(Map<String, Object> in) {

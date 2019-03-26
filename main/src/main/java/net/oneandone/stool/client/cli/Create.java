@@ -16,6 +16,7 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.util.Server;
@@ -30,8 +31,8 @@ import java.util.Map;
 public class Create extends ProjectCommand {
     private final Map<String, String> config;
 
-    public Create(Server server, List<String> args) {
-        super(server, eatProject(server.world, args));
+    public Create(World world, Console console, Server server, List<String> args) {
+        super(world, console, server, eatProject(server.world, args));
         this.config = new LinkedHashMap<>();
         for (String arg : args) {
             property(arg);

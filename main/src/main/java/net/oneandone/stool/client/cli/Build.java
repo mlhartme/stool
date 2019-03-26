@@ -16,9 +16,11 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.util.Server;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -33,8 +35,8 @@ public class Build extends ProjectCommand {
     private final boolean restart;
     private final String comment;
 
-    public Build(Server server, boolean noCache, int keep, boolean restart, String comment, FileNode project) {
-        super(server, project);
+    public Build(World world, Console console, Server server, boolean noCache, int keep, boolean restart, String comment, FileNode project) {
+        super(world, console, server, project);
         this.noCache = noCache;
         this.keep = keep;
         this.restart = restart;
@@ -46,6 +48,7 @@ public class Build extends ProjectCommand {
         Project project;
         Reference reference;
         Map<String, FileNode> wars;
+        Server.BuildResult result;
 
         project = Project.lookup(projectDirectory);
         if (project == null) {
@@ -61,9 +64,19 @@ public class Build extends ProjectCommand {
         }
         for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
-            server.build(reference, project, entry.getKey(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
+            result = server.build(reference, project, entry.getKey(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
+            project.imageLog().writeString(result.output);
+            if (result.error != null) {
+                console.info.println("build failed: " + result.error);
+                console.info.println("build output");
+                console.info.println(result.output);
+                throw new ArgumentException("build failed");
+            } else {
+                console.info.println("verbose: " + console.getVerbose());
+                console.verbose.println(result.output);
+            }
             if (restart) {
-                new Restart(server, new ArrayList<>()).doRun(reference);
+                new Restart(world, console, server, new ArrayList<>()).doRun(reference);
             }
         }
     }

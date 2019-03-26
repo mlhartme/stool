@@ -15,8 +15,10 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.util.Server;
+import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -31,12 +33,12 @@ public class Start extends StageCommand {
     private final Map<String, String> environment;
     private final Map<String, Integer> selection;
 
-    public Start(Server server, boolean tail, List<String> selection) {
-        this(server, tail, -1, -1, selection);
+    public Start(World world, Console console, Server server, boolean tail, List<String> selection) {
+        this(world, console, server, tail, -1, -1, selection);
     }
 
-    public Start(Server server, boolean tail, int http, int https, List<String> selection) {
-        super(server);
+    public Start(World world, Console console, Server server, boolean tail, int http, int https, List<String> selection) {
+        super(world, console, server);
         this.tail = tail;
         this.http = http;
         this.https = https;

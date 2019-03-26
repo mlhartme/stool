@@ -33,13 +33,13 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class ClientCommand {
-    protected final Console console;
     protected final World world;
+    protected final Console console;
     protected final Server server;
 
-    public ClientCommand(Server server) {
-        this.console = server.console;
-        this.world = server.world;
+    public ClientCommand(World world, Console console, Server server) {
+        this.console = console;
+        this.world = world;
         this.server = server;
     }
 

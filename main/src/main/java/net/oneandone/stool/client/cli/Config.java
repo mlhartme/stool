@@ -16,8 +16,10 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.util.Server;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
 
 import java.util.LinkedHashMap;
@@ -29,8 +31,8 @@ public class Config extends StageCommand {
     private boolean get;
     private boolean set;
 
-    public Config(Server server) {
-        super(server);
+    public Config(World world, Console console, Server server) {
+        super(world, console, server);
         arguments = new LinkedHashMap<>();
     }
 

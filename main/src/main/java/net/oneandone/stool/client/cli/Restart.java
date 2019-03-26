@@ -15,9 +15,11 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.common.State;
 import net.oneandone.stool.server.util.Server;
+import net.oneandone.sushi.fs.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,8 +27,8 @@ import java.util.List;
 public class Restart extends StageCommand {
     private final List<String> selection;
 
-    public Restart(Server server, List<String> selection) {
-        super(server);
+    public Restart(World world, Console console, Server server, List<String> selection) {
+        super(world, console, server);
         this.selection = selection;
     }
 
@@ -37,10 +39,10 @@ public class Restart extends StageCommand {
 
         state = state(reference);
         if (state == State.UP || state == State.WORKING) {
-            new Stop(server, new ArrayList<>(selection(selection).keySet())).doRun(reference);
+            new Stop(world, console, server, new ArrayList<>(selection(selection).keySet())).doRun(reference);
         } else {
             console.info.println("Container is not running - starting a new instance.");
         }
-        new Start(server, false, selection).doRun(reference);
+        new Start(world, console, server, false, selection).doRun(reference);
     }
 }
