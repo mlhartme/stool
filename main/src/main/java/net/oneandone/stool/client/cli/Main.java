@@ -42,14 +42,14 @@ public class Main {
     }
 
     public static int run(String[] args) throws IOException {
-        return run(Environment.loadSystem(), world(), false, args);
+        return run(world(), null, args);
     }
 
-    public static int run(Environment environment, World world, boolean it, String[] args) throws IOException {
+    public static int run(World world, FileNode itHome, String[] args) throws IOException {
         Cli cli;
         Globals globals;
 
-        globals = Globals.create(environment, world, it, args);
+        globals = Globals.create(world, itHome, args);
         cli = new Cli(globals::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);

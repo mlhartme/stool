@@ -16,7 +16,6 @@
 package net.oneandone.stool;
 
 import net.oneandone.stool.client.cli.Main;
-import net.oneandone.stool.server.util.Environment;
 import net.oneandone.stool.server.util.Pool;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -32,20 +31,19 @@ import static org.junit.Assert.fail;
  */
 public class MainIT {
     private static final World WORLD;
-    private static final FileNode IT;
+    private static final FileNode IT_ROOT;
+    private static FileNode HOME;
 
     static {
         try {
             WORLD = Main.world();
+            IT_ROOT = WORLD.guessProjectHome(MainIT.class).join("target/it").mkdirOpt();
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
-        IT = WORLD.guessProjectHome(MainIT.class).join("target/it");
     }
 
     private static int id = 0;
-
-    private Environment environment;
 
     public MainIT() {
     }
@@ -53,13 +51,14 @@ public class MainIT {
     @After
     public void after() throws Exception {
         stool("stop", "-stage" , "state=up", "-fail", "after");
+        HOME = null;
     }
 
     @Test
     public void turnaroundGitSource() throws IOException {
         FileNode project;
 
-        project = IT.join("stages").mkdirsOpt().join("it");
+        project = IT_ROOT.join("stages").mkdirsOpt().join("it");
         System.out.println(project.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", project.getAbsolute()));
         System.out.println(project.exec("mvn", "clean", "package"));
         turnaround("git", project);
@@ -86,7 +85,6 @@ public class MainIT {
     }
 
     public void stoolSetup(String context) throws IOException {
-        FileNode home;
         FileNode stages;
         Integer start = 1300;
         Integer end = 1319;
@@ -95,27 +93,24 @@ public class MainIT {
             Pool.checkFree(even);
             Pool.checkFree(even + 1);
         }
-        environment = Environment.loadSystem();
-        IT.mkdirsOpt();
-        home = IT.join(context);
-        environment.setHome(home);
-        home.getParent().mkdirsOpt();
-        home.deleteTreeOpt();
-        stoolServer("setup", "-batch", "{ \"id\": " + "\"integrationtests\", \"portFirst\": " + start + ", \"portLast\": " + end + " }");
-        stages = home.getParent().join(context + "-stages");
+        HOME = IT_ROOT.join(context);
+        HOME.getParent().mkdirsOpt();
+        HOME.deleteTreeOpt();
+        stoolServer(HOME,"setup", "-batch", "{ \"id\": " + "\"integrationtests\", \"portFirst\": " + start + ", \"portLast\": " + end + " }");
+        stages = HOME.getParent().join(context + "-stages");
         stages.deleteTreeOpt();
         stages.mkdir();
         WORLD.setWorking(stages);
     }
 
-    private void stoolServer(String... args) throws IOException {
+    private void stoolServer(FileNode home, String... args) throws IOException {
         int result;
         String command;
 
         id++;
         command = command(args);
         System.out.print("  " + command);
-        result = net.oneandone.stool.server.cli.Main.run(environment, WORLD, true, args);
+        result = net.oneandone.stool.server.cli.Main.run(WORLD, home, args);
         if (result == 0) {
             System.out.println();
         } else {
@@ -131,7 +126,7 @@ public class MainIT {
         id++;
         command = command(args);
         System.out.print("  " + command);
-        result = Main.run(environment, WORLD, true, args);
+        result = Main.run(WORLD, HOME, args);
         if (result == 0) {
             System.out.println();
         } else {

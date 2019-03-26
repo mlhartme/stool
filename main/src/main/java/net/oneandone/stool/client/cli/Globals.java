@@ -16,7 +16,6 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.server.util.Environment;
 import net.oneandone.stool.server.util.LogOutputStream;
@@ -35,14 +34,18 @@ import java.lang.reflect.InvocationTargetException;
 
 /** Basically a session factory */
 public class Globals {
-
-    public static Globals create(Environment environment, World world, boolean it, String[] args) throws IOException {
+    public static Globals create(World world, FileNode itHome, String[] args) throws IOException {
+        Environment environment;
         FileNode home;
         Logging logging;
         FileNode tmp;
         String command;
         Console console;
 
+        environment = Environment.loadSystem();
+        if (itHome != null) {
+            environment.setHome(itHome);
+        }
         home = environment.locateHome(world);
         if (home.exists()) {
             logging = Logging.forHome(home, environment.detectUser());
@@ -50,7 +53,7 @@ public class Globals {
             tmp = world.getTemp().createTempDirectory();
             logging = new Logging("1", tmp.join("homeless"), environment.detectUser());
         }
-        if (it) {
+        if (itHome != null) {
             OutputStream devNull = MultiOutputStream.createNullStream();
             console = console(logging, devNull, devNull);
         } else {
