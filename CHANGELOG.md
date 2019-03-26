@@ -15,7 +15,7 @@ Stages are now the central part; multiple project can be associated with the sam
   * dumped svn credentials handling
   * dumped macros
 
-* removed client-side locking
+* removed client-side locking and logging
 
 * added `running` field
 * changed server.xml: set `deployXML` to false 
