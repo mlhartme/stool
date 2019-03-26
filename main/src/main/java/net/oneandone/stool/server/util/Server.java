@@ -33,13 +33,9 @@ import java.util.List;
 import java.util.Map;
 
 public class Server {
-    public final Console console;
-    public final World world;
     private final Session session;
 
     public Server(Session session) {
-        this.console = session.console;
-        this.world = session.world;
         this.session = session;
     }
 
