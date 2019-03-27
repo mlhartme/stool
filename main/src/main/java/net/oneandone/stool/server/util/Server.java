@@ -69,7 +69,7 @@ public class Server {
         stage.configuration.name = name;
         stage.saveConfig();
 
-        openStage(stage.reference, "create " + name);
+        openStage(stage.reference);
         console.info.println("stage create: " + stage.getName());
         closeStage();
         return stage.reference;
@@ -89,7 +89,7 @@ public class Server {
                       String origin, String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
         String output;
 
-        openStage(reference, "build " + app);
+        openStage(reference);
         try {
             output = session.load(reference).build(app, war, console, comment, origin, createdBy, createdOn, noCache, keep);
             return new BuildResult(null, output);
@@ -106,7 +106,7 @@ public class Server {
         int reserved;
         Map<String, String> environment;
 
-        openStage(reference, "start");
+        openStage(reference);
         try {
             environment = new HashMap<>(session.configuration.environment);
             environment.putAll(startEnvironment);
@@ -143,7 +143,7 @@ public class Server {
     }
 
     public void stop(Reference reference, List<String> apps) throws IOException {
-        openStage(reference, "stop");
+        openStage(reference);
         try {
             session.load(reference).stop(session.console, apps);
         } finally {
@@ -154,7 +154,7 @@ public class Server {
     public void remove(Reference reference) throws IOException {
         Stage stage;
 
-        openStage(reference, "remove");
+        openStage(reference);
         try {
             stage = session.load(reference);
             stage.wipeDocker(session.dockerEngine());
@@ -473,9 +473,9 @@ public class Server {
         }
     }
 
-    private void openStage(Reference reference, String command) throws MkdirException {
+    private void openStage(Reference reference) throws MkdirException {
         session.logging.openStage(reference.getId(), "TODO");
-        session.logging.command(command);
+        session.logging.command(session.command);
     }
 
     private void closeStage() {

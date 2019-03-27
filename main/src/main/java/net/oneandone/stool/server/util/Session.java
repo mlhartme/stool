@@ -61,7 +61,7 @@ public class Session {
     public final Gson gson;
     public final Logging logging;
     public final String user;
-    private final String command;
+    public final String command;
 
     public final Console console;
     public final World world;
@@ -376,7 +376,7 @@ public class Session {
         return lazyEngine;
     }
 
-    public void closeDockerEngine() {
+    public void closeDockerEngine() { // TODO: invoke on server shut-down
         if (lazyEngine != null) {
             console.verbose.println("close docker engine");
             lazyEngine.close();

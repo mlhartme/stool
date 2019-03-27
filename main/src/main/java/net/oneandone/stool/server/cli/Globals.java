@@ -39,7 +39,6 @@ public class Globals {
         FileNode home;
         Logging logging;
         FileNode tmp;
-        String command;
         Console console;
 
         environment = Environment.loadSystem();
@@ -59,9 +58,7 @@ public class Globals {
         } else {
             console = console(logging, System.out, System.err);
         }
-        command = "stool " + Separator.SPACE.join(args);
-        logging.command(command);
-        return new Globals(environment, home, logging, command, console, world);
+        return new Globals(environment, home, logging, "stool " + Separator.SPACE.join(args), console, world);
     }
 
     public static Console console(Logging logging, OutputStream out, OutputStream err) {

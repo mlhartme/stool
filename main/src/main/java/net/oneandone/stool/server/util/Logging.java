@@ -89,7 +89,6 @@ public class Logging {
         stageId = id;
         stageName = name;
         stageFile = logFile(directory().join(id).mkdirOpt(), "stool");
-        command(command);
     }
 
     private static FileNode logFile(FileNode dir, String base) {
