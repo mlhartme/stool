@@ -24,13 +24,12 @@ public class LogEntryTest {
     public void normal() {
         LogEntry entry;
 
-        entry = LogEntry.parse("10:12:12,948|131128.32|net.oneandone.sushi.cli.Command|mabraun|stageId|stageName|message with | separator \n");
+        entry = LogEntry.parse("10:12:12,948|131128.32|net.oneandone.sushi.cli.Command|mabraun|stageId|message with | separator \n");
         assertEquals("2013-11-28T10:12:12.948", entry.dateTime.toString());
-        assertEquals("131128.32", entry.id);
+        assertEquals("131128.32", entry.requestId);
         assertEquals("mabraun", entry.user);
         assertEquals("net.oneandone.sushi.cli.Command", entry.logger);
         assertEquals("stageId", entry.stageId);
-        assertEquals("stageName", entry.stageName);
         assertEquals("message with | separator ", entry.message);
     }
 }

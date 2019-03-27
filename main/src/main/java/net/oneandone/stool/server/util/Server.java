@@ -206,13 +206,13 @@ public class Server {
             if (entry == null) {
                 break;
             }
-            lst = detailsMap.get(entry.id);
+            lst = detailsMap.get(entry.requestId);
             if (lst == null) {
                 lst = new ArrayList<>();
-                detailsMap.put(entry.id, lst);
+                detailsMap.put(entry.requestId, lst);
             }
             if (entry.logger.equals("COMMAND")) {
-                detailsMap.remove(entry.id);
+                detailsMap.remove(entry.requestId);
                 lst.add(entry);
                 if (forStage(stageId, lst)) {
                     counter++;

@@ -26,7 +26,7 @@ Stages are now the central part; multiple project can be associated with the sam
 * added `attach` and `detatch` commands to manage project - stage association
 * dumped vhosts bind mounts, copy war instead
 * switch keystore format from JKS to PKCS12
-
+* removed stageName column from server logs
 * dumped port command, instead, start has http and https options now
 * removed ports command
 * no longer set -Xmx (let the jvm figure out this)

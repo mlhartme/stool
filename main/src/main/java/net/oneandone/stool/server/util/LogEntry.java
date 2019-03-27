@@ -30,39 +30,33 @@ public class LogEntry {
         LocalDate dateObj;
         int len;
         int time;
-        int id;
+        int requestId;
         String idStr;
         int logger;
         int user;
         int stageId;
-        int stageName;
 
         len = line.length();
 
         // CAUTION: do not use split, because messages may contain separators
         time = line.indexOf('|');
-        id = line.indexOf('|', time + 1); // invocation id
-        logger = line.indexOf('|', id + 1);
+        requestId = line.indexOf('|', time + 1); // invocation id
+        logger = line.indexOf('|', requestId + 1);
         user = line.indexOf('|', logger + 1);
         stageId = line.indexOf('|', user + 1);
-        stageName = line.indexOf('|', stageId + 1);
-        if (stageName == -1) {
-            throw new IllegalArgumentException(line);
-        }
         if (line.charAt(len - 1) != '\n') {
             throw new IllegalArgumentException(line);
         }
 
         // TODO: doesn't work for commands running during midnight ...
         timeObj = LocalTime.parse(line.substring(0, time), TIME_FMT);
-        idStr = line.substring(time + 1, id);
+        idStr = line.substring(time + 1, requestId);
         dateObj = LocalDate.parse(idStr.substring(0, idStr.indexOf(".")), Logging.DATE_FORMAT);
         return new LogEntry(LocalDateTime.of(dateObj, timeObj), idStr,
-                line.substring(id + 1, logger),
+                line.substring(requestId + 1, logger),
                 line.substring(logger + 1, user),
                 line.substring(user + 1, stageId),
-                line.substring(stageId + 1, stageName),
-                unescape(line.substring(stageName + 1, len -1)));
+                unescape(line.substring(stageId + 1, len -1)));
     }
 
     private static String unescape(String message) {
@@ -102,20 +96,18 @@ public class LogEntry {
     //--
 
     public final LocalDateTime dateTime;
-    public final String id;
+    public final String requestId;
     public final String logger;
     public final String user;
     public final String stageId;
-    public final String stageName;
     public final String message;
 
-    public LogEntry(LocalDateTime dateTime, String id, String logger, String user, String stageId, String stageName, String message) {
+    public LogEntry(LocalDateTime dateTime, String requestId, String logger, String user, String stageId, String message) {
         this.dateTime = dateTime;
-        this.id = id;
+        this.requestId = requestId;
         this.logger = logger;
         this.user = user;
         this.stageId = stageId;
-        this.stageName = stageName;
         this.message = message;
     }
 

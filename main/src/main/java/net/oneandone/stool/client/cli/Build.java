@@ -72,7 +72,6 @@ public class Build extends ProjectCommand {
                 console.info.println(result.output);
                 throw new ArgumentException("build failed");
             } else {
-                console.info.println("verbose: " + console.getVerbose());
                 console.verbose.println(result.output);
             }
             if (restart) {
