@@ -223,7 +223,6 @@ public abstract class StageCommand extends ClientCommand {
             if (withPrefix) {
                 ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + name + "} ", width));
             }
-            server.openStage(reference, name);
             try {
                 if (main) {
                     runMain(reference);
@@ -239,7 +238,6 @@ public abstract class StageCommand extends ClientCommand {
                 }
                 failures.add(name, reference, e);
             } finally {
-                server.closeStage();
                 if (console.info instanceof PrefixWriter) {
                     ((PrefixWriter) console.info).setPrefix("");
                 }

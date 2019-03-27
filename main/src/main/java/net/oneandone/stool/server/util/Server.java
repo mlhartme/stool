@@ -69,9 +69,9 @@ public class Server {
         stage.configuration.name = name;
         stage.saveConfig();
 
-        session.logging.openStage(stage.reference.getId(), stage.getName());
+        openStage(stage.reference, "create " + name);
         console.info.println("stage create: " + stage.getName());
-        session.logging.closeStage();
+        closeStage();
         return stage.reference;
     }
 
@@ -89,11 +89,14 @@ public class Server {
                       String origin, String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
         String output;
 
+        openStage(reference, "build " + app);
         try {
             output = session.load(reference).build(app, war, console, comment, origin, createdBy, createdOn, noCache, keep);
             return new BuildResult(null, output);
         } catch (BuildError e) {
             return new BuildResult(e.error, e.output);
+        } finally {
+            closeStage();
         }
     }
 
@@ -103,21 +106,26 @@ public class Server {
         int reserved;
         Map<String, String> environment;
 
-        environment = new HashMap<>(session.configuration.environment);
-        environment.putAll(startEnvironment);
-        global = session.configuration.quota;
-        if (global != 0) {
-            reserved = session.quotaReserved();
-            if (reserved > global) {
-                throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
-                        + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
+        openStage(reference, "start");
+        try {
+            environment = new HashMap<>(session.configuration.environment);
+            environment.putAll(startEnvironment);
+            global = session.configuration.quota;
+            if (global != 0) {
+                reserved = session.quotaReserved();
+                if (reserved > global) {
+                    throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
+                            + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
+                }
             }
-        }
 
-        stage = session.load(reference);
-        stage.session.configuration.verfiyHostname();
-        stage.checkConstraints();
-        stage.start(session.console,  http, https, environment, apps);
+            stage = session.load(reference);
+            stage.session.configuration.verfiyHostname();
+            stage.checkConstraints();
+            stage.start(session.console, http, https, environment, apps);
+        } finally {
+            closeStage();
+        }
     }
 
     public Map<String, List<String>> awaitStartup(Reference reference) throws IOException, InterruptedException {
@@ -135,15 +143,25 @@ public class Server {
     }
 
     public void stop(Reference reference, List<String> apps) throws IOException {
-        session.load(reference).stop(session.console, apps);
+        openStage(reference, "stop");
+        try {
+            session.load(reference).stop(session.console, apps);
+        } finally {
+            closeStage();
+        }
     }
 
     public void remove(Reference reference) throws IOException {
         Stage stage;
 
-        stage = session.load(reference);
-        stage.wipeDocker(session.dockerEngine());
-        stage.getDirectory().deleteTree();
+        openStage(reference, "remove");
+        try {
+            stage = session.load(reference);
+            stage.wipeDocker(session.dockerEngine());
+            stage.getDirectory().deleteTree();
+        } finally {
+            closeStage();
+        }
     }
 
     //--
@@ -195,6 +213,7 @@ public class Server {
             }
             if (entry.logger.equals("COMMAND")) {
                 detailsMap.remove(entry.id);
+                lst.add(entry);
                 if (forStage(stageId, lst)) {
                     counter++;
                     result.add("[" + LogEntry.FULL_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.message);
@@ -454,12 +473,12 @@ public class Server {
         }
     }
 
-    public void openStage(Reference reference, String name) throws MkdirException {
-        session.logging.openStage(reference.getId(), name);
-
+    private void openStage(Reference reference, String command) throws MkdirException {
+        session.logging.openStage(reference.getId(), "TODO");
+        session.logging.command(command);
     }
 
-    public void closeStage() {
+    private void closeStage() {
         session.logging.closeStage();
     }
 
