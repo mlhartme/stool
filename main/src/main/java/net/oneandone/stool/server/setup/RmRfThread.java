@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-/** deletes all directories */
+/** deletes all directories recursively */
 public class RmRfThread extends Thread {
     private final List<Node> dirs;
     private final Console console;
