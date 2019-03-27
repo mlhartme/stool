@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.setup;
+package net.oneandone.stool.server.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.Node;

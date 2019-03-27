@@ -177,7 +177,7 @@
               <target>
                 <!-- main -->
                 <property name="cp" refid="maven.runtime.classpath" />
-                <java classname="net.oneandone.stool.server.setup.Debfiles" classpath="${project.build.directory}/stool" fork="false" failonerror="true">
+                <java classname="net.oneandone.stool.server.cli.Debfiles" classpath="${project.build.directory}/stool" fork="false" failonerror="true">
                   <arg path="${project.build.directory}/debfiles" />
                 </java>
               </target>
