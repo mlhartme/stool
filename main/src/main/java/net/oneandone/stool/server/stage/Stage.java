@@ -20,7 +20,6 @@ import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.common.State;
 import net.oneandone.stool.server.configuration.Accessor;
@@ -40,7 +39,6 @@ import net.oneandone.stool.server.util.UrlPattern;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.io.MultiWriter;
 import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.util.Strings;
 
@@ -370,7 +368,7 @@ public class Stage {
     }
 
     /** @param keep 0 to keep all */
-    public String build(String app, FileNode war, Console console, String comment, String origin,
+    public String build(String app, FileNode war, String comment, String origin,
                       String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
         Engine engine;
         String image;
@@ -382,6 +380,7 @@ public class Stage {
         Collection<Variable> env;
         Map<String, Object> buildArgs;
         StringWriter output;
+        String result;
 
         checkMemory();
         engine = session.dockerEngine();
@@ -400,20 +399,21 @@ public class Stage {
         labels.put(LABEL_ORIGIN, origin);
         labels.put(LABEL_CREATED_BY, createdBy);
         labels.put(LABEL_CREATED_ON, createdOn);
-        console.verbose.println("building image ... ");
+        session.logging.verbose("building image ... ");
         output = new StringWriter();
         try {
-            // don't close the tee writer, it would close console output as well
-            image = engine.imageBuild(tag, convert(buildArgs), labels, context, noCache, MultiWriter.createTeeWriter(output, console.verbose));
+            image = engine.imageBuild(tag, convert(buildArgs), labels, context, noCache, output);
         } catch (BuildError e) {
-            console.verbose.println("image build output");
-            console.verbose.println(e.output);
+            session.logging.verbose("image build output");
+            session.logging.verbose(e.output);
             throw e;
         } finally {
             output.close();
         }
-        console.verbose.println("image built: " + image);
-        return output.toString();
+        result = output.toString();
+        session.logging.verbose("successfully built image: " + image);
+        session.logging.verbose(result);
+        return result;
     }
 
     private static Map<String, String> convert(Map<String, Object> in) {

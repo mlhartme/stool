@@ -85,13 +85,13 @@ public class Server {
         }
     }
 
-    public BuildResult build(Reference reference, String app, FileNode war, Console console, String comment,
+    public BuildResult build(Reference reference, String app, FileNode war, String comment,
                       String origin, String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
         String output;
 
         openStage(reference);
         try {
-            output = session.load(reference).build(app, war, console, comment, origin, createdBy, createdOn, noCache, keep);
+            output = session.load(reference).build(app, war, comment, origin, createdBy, createdOn, noCache, keep);
             return new BuildResult(null, output);
         } catch (BuildError e) {
             return new BuildResult(e.error, e.output);

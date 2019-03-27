@@ -64,7 +64,7 @@ public class Build extends ProjectCommand {
         }
         for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
-            result = server.build(reference, entry.getKey(), entry.getValue(), console, comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
+            result = server.build(reference, entry.getKey(), entry.getValue(), comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
             project.imageLog().writeString(result.output);
             if (result.error != null) {
                 console.info.println("build failed: " + result.error);
