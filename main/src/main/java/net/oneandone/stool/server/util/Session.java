@@ -18,7 +18,6 @@ package net.oneandone.stool.server.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.Expire;
@@ -47,11 +46,11 @@ import java.util.List;
 import java.util.Map;
 
 public class Session {
-    public static Session load(FileNode home, Logging logging, String command, Console console) throws IOException {
+    public static Session load(FileNode home, Logging logging, String command) throws IOException {
         Gson gson;
 
         gson = gson(home.getWorld());
-        return new Session(gson, logging, command, home, console, StoolConfiguration.load(gson, home));
+        return new Session(gson, logging, command, home, StoolConfiguration.load(gson, home));
     }
 
     private static final int MEM_RESERVED_OS = 500;
@@ -63,7 +62,6 @@ public class Session {
     public final String user;
     public final String command;
 
-    public final Console console;
     public final World world;
     public final FileNode home;
     public final StoolConfiguration configuration;
@@ -77,12 +75,11 @@ public class Session {
     private Map<String, Accessor> lazyAccessors;
     private Pool lazyPool;
 
-    public Session(Gson gson, Logging logging, String command, FileNode home, Console console, StoolConfiguration configuration) {
+    public Session(Gson gson, Logging logging, String command, FileNode home, StoolConfiguration configuration) {
         this.gson = gson;
         this.logging = logging;
         this.user = logging.getUser();
         this.command = command;
-        this.console = console;
         this.world = home.getWorld();
         this.home = home;
         this.configuration = configuration;
@@ -369,16 +366,14 @@ public class Session {
             log.deleteFileOpt();
             log.getParent().mkdirOpt();
             log.writeBytes();
-            log.setPermissions("rw-------"); // only current user, because it might include tar files of the context directory - which is sensitive
-            // TODO: does log-rotate preseve permissions?
-            lazyEngine = Engine.open(configuration.docker, console.getVerbose() ? log.getAbsolute() : null);
+            lazyEngine = Engine.open(configuration.docker, log.getAbsolute());
         }
         return lazyEngine;
     }
 
     public void closeDockerEngine() { // TODO: invoke on server shut-down
         if (lazyEngine != null) {
-            console.verbose.println("close docker engine");
+            logging.verbose("close docker engine");
             lazyEngine.close();
         }
     }
@@ -396,7 +391,7 @@ public class Session {
         }
         file = home.join("certs", certname);
         tmp = world.getTemp().createTempDirectory();
-        console.verbose.println(tmp.exec(script.getAbsolute(), certname, file.getAbsolute()));
+        logging.verbose(tmp.exec(script.getAbsolute(), certname, file.getAbsolute()));
         tmp.deleteTree();
         return file;
     }

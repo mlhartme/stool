@@ -18,20 +18,16 @@ package net.oneandone.stool.server.cli;
 import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
 import net.oneandone.inline.commands.PackageVersion;
-import net.oneandone.stool.server.util.LogOutputStream;
-import net.oneandone.stool.server.util.Logging;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
-import net.oneandone.sushi.io.InputLogStream;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
@@ -57,11 +53,10 @@ public class Main {
         cli = new Cli(globals::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
-        cli.begin(globals.console, "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
+        cli.begin(Console.create(), "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
            cli.begin("globals", globals,  "-exception { setException(exception) }");
               cli.add(Setup.class, "setup -batch config? { config(config) }");
-
         return cli.run(args);
     }
 
@@ -74,11 +69,6 @@ public class Main {
             p = file.readProperties();
             cli.defaults((Map) p);
         }
-    }
-
-    public static Console console(Logging logging, OutputStream out, OutputStream err) {
-        return new Console(logging.writer(out, "OUT"), logging.writer(err, "ERR"),
-                new InputLogStream(System.in, new LogOutputStream(logging, "IN")));
     }
 
     //--

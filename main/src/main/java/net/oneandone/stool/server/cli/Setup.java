@@ -30,19 +30,19 @@ import java.util.List;
 
 public class Setup {
     private final World world;
+    private final Console console;
     private final Environment environment;
     private final FileNode home;
-    private final Console console;
     private final String version;
     private final boolean batch;
 
     private String explicitConfig;
 
-    public Setup(Globals globals, boolean batch) {
+    public Setup(Globals globals, Console console, boolean batch) {
         this.world = globals.world;
+        this.console = console;
         this.environment = globals.environment;
         this.home = globals.home;
-        this.console = globals.console;
         this.version = Server.versionString(world);
         this.batch = batch;
         this.explicitConfig = null;

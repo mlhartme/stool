@@ -46,11 +46,6 @@ public class DashboardConfiguration {
     }
 
     @Bean
-    public Console console() {
-        return Console.create();
-    }
-
-    @Bean
     public FileNode home() throws IOException {
         return world().file(System.getProperty("stool.home"));
     }
@@ -68,7 +63,7 @@ public class DashboardConfiguration {
         p = properties();
         logging = Logging.create(logs(), "dashboard", Environment.loadSystem().detectUser());
         logging.log("dashboard", "startup");
-        return Session.load(home(), logging, "dashboard", console());
+        return Session.load(home(), logging, "dashboard");
     }
 
     @Bean

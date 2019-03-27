@@ -32,7 +32,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-/** Stool logging is just saving console output to log files - there's no logback or log4j involved */
+/** Simply log to a file - there's no logback or log4j involved */
 public class Logging {
     private static final String EXTENSION = ".log";
     public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
@@ -77,10 +77,37 @@ public class Logging {
         }
     }
 
+    //--
+
     public void command(String command) {
         this.command = command;
         log("COMMAND", command);
     }
+
+
+    public void info(String message) {
+        log("INFO", message);
+    }
+
+    public void verbose(String message) {
+        log("VERBOSE", message);
+    }
+
+    public void verbose(String message, Throwable throwable) {
+        log("VERBOSE", message);
+        log("VERBOSE", stacktrace(throwable));
+    }
+
+    public void error(String message, Throwable throwable) {
+        log("ERROR", message);
+        log("ERROR", stacktrace(throwable));
+    }
+
+    public void error(String message) {
+        log("ERROR", message);
+    }
+
+    //--
 
     public void openStage(String id, String name) throws MkdirException {
         if (stageFile != null) {
@@ -143,11 +170,6 @@ public class Logging {
             }
         }
         writer.append('\n');
-    }
-
-    public void error(String message, Throwable throwable) {
-        log("ERROR", message);
-        log("ERROR", stacktrace(throwable));
     }
 
     private static String stacktrace(Throwable throwable) {

@@ -122,7 +122,7 @@ public class Server {
             stage = session.load(reference);
             stage.session.configuration.verfiyHostname();
             stage.checkConstraints();
-            stage.start(session.console, http, https, environment, apps);
+            stage.start(http, https, environment, apps);
         } finally {
             closeStage();
         }
@@ -133,7 +133,7 @@ public class Server {
         Map<String, List<String>> result;
 
         stage = session.load(reference);
-        stage.awaitStartup(session.console);
+        stage.awaitStartup();
 
         result = new LinkedHashMap<>();
         for (String app : stage.currentMap().keySet()) {
@@ -145,7 +145,7 @@ public class Server {
     public void stop(Reference reference, List<String> apps) throws IOException {
         openStage(reference);
         try {
-            session.load(reference).stop(session.console, apps);
+            session.load(reference).stop(apps);
         } finally {
             closeStage();
         }
@@ -399,7 +399,7 @@ public class Server {
         try {
             connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
         } catch (IOException e) {
-            e.printStackTrace(stage.session.console.verbose);
+            session.logging.verbose("cannot connect to jmx server", e);
             return "[cannot connect jmx server: " + e.getMessage() + "]";
         }
         try {

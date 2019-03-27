@@ -1,7 +1,6 @@
 package net.oneandone.stool.server.util;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.stage.Stage;
@@ -27,13 +26,11 @@ import java.util.Set;
 
 public class Validation {
     private final Server server;
-    public final Console console;
     public final World world;
     private final Session session;
 
     public Validation(Server server, Session session) {
         this.server = server;
-        this.console = session.console;
         this.world = session.world;
         this.session = session;
     }
@@ -60,9 +57,11 @@ public class Validation {
     }
 
     private void validateStage(Reference reference, Report report, boolean repair) throws IOException {
+        Logging logging;
         Stage stage;
         String message;
 
+        logging = session.logging;
         stage = session.load(reference);
         try {
             stage.checkConstraints();
@@ -78,7 +77,7 @@ public class Validation {
                     report.user(stage, "stage has been stopped");
                 } catch (Exception e) {
                     report.user(stage, "stage failed to stop: " + e.getMessage());
-                    e.printStackTrace(session.console.verbose);
+                    logging.verbose(e.getMessage(), e);
                 }
             }
             if (session.configuration.autoRemove >= 0 && stage.configuration.expire.expiredDays() >= 0) {
@@ -88,7 +87,7 @@ public class Validation {
                         server.remove(reference);
                     } catch (Exception e) {
                         report.user(stage, "failed to remove expired stage: " + e.getMessage());
-                        e.printStackTrace(session.console.verbose);
+                        logging.verbose(e.getMessage(), e);
                     }
                 } else {
                     report.user(stage, "CAUTION: This stage will be removed automatically in "
@@ -107,22 +106,22 @@ public class Validation {
     private void email(Report report) throws MessagingException, NamingException {
         String hostname;
         Mailer mailer;
-        Console console;
+        Logging logging;
         String user;
         String email;
         String body;
 
         hostname = session.configuration.hostname;
         mailer = session.configuration.mailer();
-        console = session.console;
+        logging = session.logging;
         for (Map.Entry<String, List<String>> entry : report.users.entrySet()) {
             user = entry.getKey();
             body = Separator.RAW_LINE.join(entry.getValue());
             email = email(session, user);
             if (email == null) {
-                console.error.println("cannot send email, there's nobody to send it to.");
+                logging.error("cannot send email, there's nobody to send it to.");
             } else {
-                console.info.println("sending email to " + email);
+                logging.info("sending email to " + email);
                 mailer.send("stool@" + hostname, new String[] { email }, "Validation of your stage(s) on " + hostname + " failed", body);
             }
         }
@@ -154,7 +153,7 @@ public class Validation {
             session.dockerEngine().imageList(Collections.emptyMap());
         } catch (IOException e) {
             report.admin("cannot access docker: " + e.getMessage());
-            e.printStackTrace(session.console.verbose);
+            session.logging.verbose("cannot access docker", e);
         }
     }
 
@@ -182,7 +181,7 @@ public class Validation {
             socket.close();
         } catch (IOException e) {
             report.admin("cannot open socket on machine " + session.configuration.hostname + ", port " + port + ". Check the configured hostname.");
-            e.printStackTrace(session.console.verbose);
+            session.logging.verbose("cannot open socket", e);
         }
 
         subDomain = digIp("foo." + session.configuration.hostname);

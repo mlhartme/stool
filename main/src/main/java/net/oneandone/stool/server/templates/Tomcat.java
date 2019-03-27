@@ -16,7 +16,6 @@
 package net.oneandone.stool.server.templates;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.inline.Console;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.Session;
@@ -41,7 +40,6 @@ public class Tomcat {
     private final FileNode context;
     private final StageConfiguration configuration;
     private final Session session;
-    private final Console console;
 
     public Tomcat(String app, FileNode war, Stage stage, FileNode context, Session session) {
         this.app = app;
@@ -50,7 +48,6 @@ public class Tomcat {
         this.context = context;
         this.configuration = stage.configuration;
         this.session = session;
-        this.console = session.console;
     }
 
     //-- public interface
@@ -175,7 +172,7 @@ public class Tomcat {
         String sha512Expected;
         String sha512Found;
 
-        console.info.println("downloading " + url + " ...");
+        session.logging.info("downloading " + url + " ...");
         try {
             dest.getWorld().validNode(url).copyFile(dest);
         } catch (IOException e) {
