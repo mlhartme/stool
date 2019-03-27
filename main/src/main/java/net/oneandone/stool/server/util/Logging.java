@@ -59,8 +59,6 @@ public class Logging {
     private final FileNode file;
     private final String user;
 
-    private String command;
-
     private String stageId;
     private FileNode stageFile;
 
@@ -78,7 +76,6 @@ public class Logging {
     //--
 
     public void command(String command) {
-        this.command = command;
         log("COMMAND", command);
     }
 

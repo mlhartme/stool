@@ -38,7 +38,7 @@ public class Restart extends StageCommand {
 
 
         state = state(reference);
-        if (state == State.UP || state == State.WORKING) {
+        if (state == State.UP) {
             new Stop(world, console, server, new ArrayList<>(selection(selection).keySet())).doRun(reference);
         } else {
             console.info.println("Container is not running - starting a new instance.");
