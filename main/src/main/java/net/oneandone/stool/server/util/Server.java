@@ -474,7 +474,7 @@ public class Server {
     }
 
     private void openStage(Reference reference) throws MkdirException {
-        session.logging.openStage(reference.getId(), "TODO");
+        session.logging.openStage(reference.getId());
         session.logging.command(session.command);
     }
 

@@ -62,7 +62,6 @@ public class Logging {
     private String command;
 
     private String stageId;
-    private String stageName;
     private FileNode stageFile;
 
     public Logging(String id, FileNode file, String user) throws IOException {
@@ -70,7 +69,6 @@ public class Logging {
         this.file = file;
         this.user = user;
         this.stageId = "";
-        this.stageName = "";
         this.stageFile = null;
         if (!file.exists()) {
             file.writeBytes();
@@ -109,12 +107,11 @@ public class Logging {
 
     //--
 
-    public void openStage(String id, String name) throws MkdirException {
+    public void openStage(String id) throws MkdirException {
         if (stageFile != null) {
             throw new IllegalStateException("stage already open: " + stageFile.getAbsolute());
         }
         stageId = id;
-        stageName = name;
         stageFile = logFile(directory().join(id).mkdirOpt(), "stool");
     }
 
@@ -131,7 +128,6 @@ public class Logging {
         }
         stageFile = null;
         stageId = "";
-        stageName = "";
     }
 
     /** this is the counter-part of the LogEntry.parse method */
@@ -151,7 +147,6 @@ public class Logging {
         writer.append(logger).append('|');
         writer.append(user).append('|');
         writer.append(stageId).append('|');
-        writer.append(stageName).append('|');
         for (int i = 0, max = message.length(); i < max; i++) {
             c = message.charAt(i);
             switch (c) {
