@@ -150,7 +150,7 @@ public class Validation {
 
     private void validateDocker(Report report) {
         try {
-            session.dockerEngine().imageList(Collections.emptyMap());
+            session.dockerEngine().imageList();
         } catch (IOException e) {
             report.admin("cannot access docker: " + e.getMessage());
             session.logging.verbose("cannot access docker", e);

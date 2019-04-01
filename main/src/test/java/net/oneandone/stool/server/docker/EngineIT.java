@@ -79,7 +79,7 @@ public class EngineIT {
         engine = open();
         assertTrue(engine.imageList(labels).isEmpty());
         engine.imageBuild("sometag", Collections.emptyMap(), labels, df("FROM debian:stretch-slim\nRUN touch abc\nCMD sleep 2\n"), false,null);
-        ids = engine.imageList(labels);
+        ids = new ArrayList<>(engine.imageList(labels).keySet());
         assertEquals(1, ids.size());
         image = ids.get(0);
         assertTrue(engine.containerListForImage(image).isEmpty());
@@ -123,7 +123,7 @@ public class EngineIT {
         engine.containerRemove(container);
         assertTrue(engine.containerListForImage(image).isEmpty());
         engine.imageRemove(image, false);
-        assertEquals(Arrays.asList(), engine.imageList(labels));
+        assertEquals(new HashMap<>(), engine.imageList(labels));
     }
 
     @Test

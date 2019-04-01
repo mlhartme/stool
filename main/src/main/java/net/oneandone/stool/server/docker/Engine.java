@@ -156,6 +156,11 @@ public class Engine implements AutoCloseable {
 
     /** @return image ids */
     public Map<String, ImageListInfo> imageList() throws IOException {
+        return imageList(Collections.emptyMap());
+
+    }
+
+    public Map<String, ImageListInfo> imageList(Map<String, String> labels) throws IOException {
         HttpNode node;
         JsonArray array;
         Map<String, ImageListInfo> result;
@@ -164,6 +169,9 @@ public class Engine implements AutoCloseable {
 
         node = root.join("images/json");
         node = node.withParameter("all", "true");
+        if (!labels.isEmpty()) {
+            node = node.withParameter("filters", "{\"label\" : [" + labelsToJsonArray(labels) + "] }");
+        }
         array = parser.parse(node.readString()).getAsJsonArray();
         result = new HashMap<>(array.size());
         for (JsonElement element : array) {
@@ -181,27 +189,6 @@ public class Engine implements AutoCloseable {
         result = new ArrayList<>(array.size());
         for (JsonElement element : array) {
             result.add(element.getAsString());
-        }
-        return result;
-    }
-
-    /** @return image ids */
-    public List<String> imageList(Map<String, String> labels) throws IOException {
-        String filters;
-        Node node;
-        JsonArray array;
-        List<String> result;
-        String id;
-
-        node = root.join("images/json");
-        filters = labels.isEmpty()? "" : "&filters=" + enc("{\"label\" : [" + labelsToJsonArray(labels) + "] }");
-        node = node.getRoot().node(node.getPath(), "all=true" + filters);
-        array = parser.parse(node.readString()).getAsJsonArray();
-        result = new ArrayList<>(array.size());
-        for (JsonElement element : array) {
-            id = element.getAsJsonObject().get("Id").getAsString();
-            id = Strings.removeLeft(id, "sha256:");
-            result.add(id);
         }
         return result;
     }
