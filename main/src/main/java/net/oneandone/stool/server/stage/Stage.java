@@ -276,7 +276,7 @@ public class Stage {
     }
 
     public void wipeImages(Engine engine) throws IOException {
-        for (String image : engine.imageList(stageLabel())) {
+        for (String image : engine.imageList(Strings.toMap(LABEL_STOOL, session.configuration.id, LABEL_STAGE, reference.getId()))) {
             session.logging.verbose("remove image: " + image);
             engine.imageRemove(image, true /* because the might be multiple tags */);
         }
@@ -289,7 +289,7 @@ public class Stage {
         List<Image> list;
 
         result = new HashMap<>();
-        for (String id : engine.imageList(stageLabel())) {
+        for (String id : engine.imageList(Strings.toMap(LABEL_STOOL, session.configuration.id, LABEL_STAGE, reference.getId()))) {
             image = Image.load(engine, id);
             list = result.get(image.app);
             if (list == null) {
@@ -323,7 +323,7 @@ public class Stage {
     }
 
     public void wipeContainer(Engine engine) throws IOException {
-        for (String image : engine.imageList(stageLabel())) {
+        for (String image : engine.imageList(Strings.toMap(LABEL_STOOL, session.configuration.id, LABEL_STAGE, reference.getId()))) {
             for (String container : engine.containerListForImage(image).keySet()) {
                 session.logging.verbose("remove container: " + container);
                 engine.containerRemove(container);
@@ -363,10 +363,6 @@ public class Stage {
     public static final String LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
     public static final String LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
 
-    private Map<String, String> stageLabel() {
-        return Strings.toMap(LABEL_STOOL, session.configuration.id, LABEL_STAGE, reference.getId());
-    }
-
     /** @param keep 0 to keep all */
     public String build(String app, FileNode war, String comment, String origin,
                       String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
@@ -393,7 +389,9 @@ public class Stage {
         env = Variable.scanTemplate(template).values();
         buildArgs = buildArgs(env, appProperties);
         context = dockerContext(app, war, template, buildArgs);
-        labels = stageLabel();
+        labels = new HashMap<>();
+        labels.put(LABEL_STOOL, session.configuration.id);
+        labels.put(LABEL_STAGE, reference.getId());
         labels.put(LABEL_APP, app);
         labels.put(LABEL_COMMENT, comment);
         labels.put(LABEL_ORIGIN, origin);
