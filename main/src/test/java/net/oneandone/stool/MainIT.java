@@ -96,7 +96,7 @@ public class MainIT {
         HOME = IT_ROOT.join(context);
         HOME.getParent().mkdirsOpt();
         HOME.deleteTreeOpt();
-        stoolServer(HOME,"setup", "-batch", "{ \"id\": " + "\"integrationtests\", \"portFirst\": " + start + ", \"portLast\": " + end + " }");
+        stoolServer(HOME,"setup", "-batch", "{ \"registryNamespace\": " + "\"integrationtests\", \"portFirst\": " + start + ", \"portLast\": " + end + " }");
         stages = HOME.getParent().join(context + "-stages");
         stages.deleteTreeOpt();
         stages.mkdir();

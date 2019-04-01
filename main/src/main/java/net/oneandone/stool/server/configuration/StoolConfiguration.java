@@ -43,7 +43,7 @@ public class StoolConfiguration {
 
     //--
 
-    public String id;
+    public String registryNamespace;
 
     public int portFirst;
 
@@ -105,7 +105,7 @@ public class StoolConfiguration {
     public Map<String, String> environment;
 
     public StoolConfiguration() {
-        id = "main";
+        registryNamespace = "main";
         portFirst = 9000;
         portLast = 9999;
         baseMemory = 400;

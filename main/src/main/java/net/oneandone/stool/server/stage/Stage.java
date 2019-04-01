@@ -299,7 +299,7 @@ public class Stage {
             info = entry.getValue();
             if (info.tags.size() == 1) {
                 tag = info.tags.get(0);
-                if (tag.startsWith(session.configuration.id + "/" + reference.getId() + "/")) {
+                if (tag.startsWith(session.configuration.registryNamespace + "/" + reference.getId() + "/")) {
                     result.add(entry.getKey());
                 }
             }
@@ -403,7 +403,7 @@ public class Stage {
         if (keep > 0) {
             wipeOldImages(engine,keep - 1);
         }
-        tag = session.configuration.id + "/" + reference.getId() + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
+        tag = session.configuration.registryNamespace + "/" + reference.getId() + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
         appProperties = properties(war);
         template = template(appProperties);
         env = Variable.scanTemplate(template).values();
@@ -463,7 +463,7 @@ public class Stage {
             }
             hostPorts = session.pool().allocate(this, image.app, http, https);
             labels = hostPorts.toUsedLabels();
-            labels.put(CONTAINER_LABEL_STOOL, session.configuration.id);
+            labels.put(CONTAINER_LABEL_STOOL, session.configuration.registryNamespace);
             labels.put(CONTAINER_LABEL_APP, image.app);
             labels.put(CONTAINER_LABEL_STAGE, reference.getId());
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,

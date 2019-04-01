@@ -49,6 +49,7 @@ public class Autoconf {
 
         tools = cisoTools(environment);
         if (tools != null) {
+            dest.registryNamespace = "contargo.server.lan/mhm";
             dest.ldapUnit = "cisostages";
             dest.certificate = home.getWorld().file(tools).join("stool/templates-5/selfsigned.sh"); // TODO
             dest.admin = "michael.hartmeier@1und1.de";
