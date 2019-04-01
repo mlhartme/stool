@@ -353,13 +353,13 @@ public class Stage {
     public static final String IMAGE_LABEL_PORT_DECLARED_PREFIX = LABEL_PREFIX + "port.declared.";
     public static final String IMAGE_LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
     public static final String IMAGE_LABEL_STAGE = LABEL_PREFIX + "stage";
-    public static final String IMAGE_LABEL_APP = LABEL_PREFIX + "app";
     public static final String IMAGE_LABEL_COMMENT = LABEL_PREFIX + "comment";
     public static final String IMAGE_LABEL_ORIGIN = LABEL_PREFIX + "origin";
     public static final String IMAGE_LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
     public static final String IMAGE_LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
 
     public static final String CONTAINER_LABEL_STOOL = LABEL_PREFIX + "stool";
+    public static final String CONTAINER_LABEL_APP = LABEL_PREFIX + "app";
     public static final String CONTAINER_LABEL_PORT_USED_PREFIX = LABEL_PREFIX + "port.used.";
 
 
@@ -383,7 +383,7 @@ public class Stage {
         if (keep > 0) {
             wipeOldImages(engine,keep - 1);
         }
-        tag = reference.getId() + ":" + TAG_FORMAT.format(LocalDateTime.now());
+        tag = app + ":" + TAG_FORMAT.format(LocalDateTime.now());
         appProperties = properties(war);
         template = template(appProperties);
         env = Variable.scanTemplate(template).values();
@@ -391,7 +391,6 @@ public class Stage {
         context = dockerContext(app, war, template, buildArgs);
         labels = new HashMap<>();
         labels.put(IMAGE_LABEL_STAGE, reference.getId());
-        labels.put(IMAGE_LABEL_APP, app);
         labels.put(IMAGE_LABEL_COMMENT, comment);
         labels.put(IMAGE_LABEL_ORIGIN, origin);
         labels.put(IMAGE_LABEL_CREATED_BY, createdBy);
@@ -446,6 +445,7 @@ public class Stage {
             hostPorts = session.pool().allocate(this, image.app, http, https);
             labels = hostPorts.toUsedLabels();
             labels.put(CONTAINER_LABEL_STOOL, session.configuration.id);
+            labels.put(CONTAINER_LABEL_APP, image.app);
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * configuration.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts));

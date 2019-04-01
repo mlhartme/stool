@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.stage;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.server.docker.Engine;
@@ -30,17 +31,34 @@ public class Image implements Comparable<Image> {
         JsonObject inspect;
         JsonObject labels;
         LocalDateTime created;
+        String app;
 
         inspect = engine.imageInspect(id);
         created = LocalDateTime.parse(inspect.get("Created").getAsString(), Engine.CREATED_FMT);
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
+        app = app(inspect.get("RepoTags").getAsJsonArray());
         return new Image(id, created, Ports.fromDeclaredLabels(labels),
-                labels.get(Stage.IMAGE_LABEL_APP).getAsString(),
+                app,
                 labels.get(Stage.IMAGE_LABEL_COMMENT).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_ORIGIN).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_CREATED_BY).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_CREATED_ON).getAsString(),
                 secrets(labels));
+    }
+
+    private static String app(JsonArray array) {
+        String result;
+        int idx;
+
+        if (array.size() != 1) {
+            throw new IllegalStateException(array.toString());
+        }
+        result = array.get(0).getAsString();
+        idx = result.indexOf(':');
+        if (idx == -1) {
+            throw new IllegalStateException(result);
+        }
+        return result.substring(0, idx);
     }
 
     private static Map<String, String> secrets(JsonObject labels) {
