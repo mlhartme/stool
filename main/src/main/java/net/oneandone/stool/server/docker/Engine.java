@@ -144,6 +144,47 @@ public class Engine implements AutoCloseable {
     //-- images
 
 
+    public static class ImageListInfo {
+        public final String id;
+        public final List<String> tags;
+
+        public ImageListInfo(String id, List<String> tags) {
+            this.id = id;
+            this.tags = tags;
+        }
+    }
+
+    /** @return image ids */
+    public Map<String, ImageListInfo> imageList() throws IOException {
+        HttpNode node;
+        JsonArray array;
+        Map<String, ImageListInfo> result;
+        String id;
+        List<String> tags;
+
+        node = root.join("images/json");
+        node = node.withParameter("all", "true");
+        array = parser.parse(node.readString()).getAsJsonArray();
+        result = new HashMap<>(array.size());
+        for (JsonElement element : array) {
+            id = element.getAsJsonObject().get("Id").getAsString();
+            id = Strings.removeLeft(id, "sha256:");
+            tags = stringList(element.getAsJsonObject().get("RepoTags").getAsJsonArray());
+            result.put(id, new ImageListInfo(id, tags));
+        }
+        return result;
+    }
+
+    private static List<String> stringList(JsonArray array) {
+        List<String> result;
+
+        result = new ArrayList<>(array.size());
+        for (JsonElement element : array) {
+            result.add(element.getAsString());
+        }
+        return result;
+    }
+
     /** @return image ids */
     public List<String> imageList(Map<String, String> labels) throws IOException {
         String filters;

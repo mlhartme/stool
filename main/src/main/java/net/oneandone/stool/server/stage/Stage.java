@@ -270,13 +270,31 @@ public class Stage {
 
     //-- docker
 
+    private List<String> listImages(Engine engine) throws IOException {
+        Engine.ImageListInfo info;
+        String tag;
+        List<String> result;
+
+        result = new ArrayList<>();
+        for (Map.Entry<String, Engine.ImageListInfo> entry : engine.imageList().entrySet()) {
+            info = entry.getValue();
+            if (info.tags.size() == 1) {
+                tag = info.tags.get(0);
+                if (tag.startsWith(reference.getId() + "/")) {
+                    result.add(entry.getKey());
+                }
+            }
+        }
+        return result;
+    }
+
     public void wipeDocker(Engine engine) throws IOException {
         wipeContainer(engine);
         wipeImages(engine);
     }
 
     public void wipeImages(Engine engine) throws IOException {
-        for (String image : engine.imageList(Strings.toMap(IMAGE_LABEL_STAGE, reference.getId()))) {
+        for (String image : listImages(engine)) {
             session.logging.verbose("remove image: " + image);
             engine.imageRemove(image, true /* because the might be multiple tags */);
         }
@@ -289,7 +307,7 @@ public class Stage {
         List<Image> list;
 
         result = new HashMap<>();
-        for (String id : engine.imageList(Strings.toMap(IMAGE_LABEL_STAGE, reference.getId()))) {
+        for (String id :listImages(engine)) {
             image = Image.load(engine, id);
             list = result.get(image.app);
             if (list == null) {
@@ -323,7 +341,7 @@ public class Stage {
     }
 
     public void wipeContainer(Engine engine) throws IOException {
-        for (String image : engine.imageList(Strings.toMap(IMAGE_LABEL_STAGE, reference.getId()))) {
+        for (String image : listImages(engine)) {
             for (String container : engine.containerListForImage(image).keySet()) {
                 session.logging.verbose("remove container: " + container);
                 engine.containerRemove(container);
@@ -352,13 +370,13 @@ public class Stage {
 
     public static final String IMAGE_LABEL_PORT_DECLARED_PREFIX = LABEL_PREFIX + "port.declared.";
     public static final String IMAGE_LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
-    public static final String IMAGE_LABEL_STAGE = LABEL_PREFIX + "stage";
     public static final String IMAGE_LABEL_COMMENT = LABEL_PREFIX + "comment";
     public static final String IMAGE_LABEL_ORIGIN = LABEL_PREFIX + "origin";
     public static final String IMAGE_LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
     public static final String IMAGE_LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
 
     public static final String CONTAINER_LABEL_STOOL = LABEL_PREFIX + "stool";
+    public static final String CONTAINER_LABEL_STAGE = LABEL_PREFIX + "stage";
     public static final String CONTAINER_LABEL_APP = LABEL_PREFIX + "app";
     public static final String CONTAINER_LABEL_PORT_USED_PREFIX = LABEL_PREFIX + "port.used.";
 
@@ -383,14 +401,13 @@ public class Stage {
         if (keep > 0) {
             wipeOldImages(engine,keep - 1);
         }
-        tag = app + ":" + TAG_FORMAT.format(LocalDateTime.now());
+        tag = reference.getId() + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
         appProperties = properties(war);
         template = template(appProperties);
         env = Variable.scanTemplate(template).values();
         buildArgs = buildArgs(env, appProperties);
         context = dockerContext(app, war, template, buildArgs);
         labels = new HashMap<>();
-        labels.put(IMAGE_LABEL_STAGE, reference.getId());
         labels.put(IMAGE_LABEL_COMMENT, comment);
         labels.put(IMAGE_LABEL_ORIGIN, origin);
         labels.put(IMAGE_LABEL_CREATED_BY, createdBy);
@@ -446,6 +463,7 @@ public class Stage {
             labels = hostPorts.toUsedLabels();
             labels.put(CONTAINER_LABEL_STOOL, session.configuration.id);
             labels.put(CONTAINER_LABEL_APP, image.app);
+            labels.put(CONTAINER_LABEL_STAGE, reference.getId());
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * configuration.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts));
@@ -712,7 +730,7 @@ public class Stage {
         Engine engine;
 
         engine = session.dockerEngine();
-        return new ArrayList<>(engine.containerListRunning(IMAGE_LABEL_STAGE, reference.getId()).keySet());
+        return new ArrayList<>(engine.containerListRunning(CONTAINER_LABEL_STAGE, reference.getId()).keySet());
     }
 
     public Map<String, Current> currentMap() throws IOException {
