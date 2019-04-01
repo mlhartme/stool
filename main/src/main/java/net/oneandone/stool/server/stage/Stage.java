@@ -71,6 +71,25 @@ import java.util.Properties;
 
 /** Represents the former backstage directory. From a Docker perspective, a stage roughly represents a Repository */
 public class Stage {
+    private static final DateTimeFormatter TAG_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-HHmmss");
+
+    private static final String LABEL_PREFIX = "net.oneandone.stool-";
+
+    public static final String IMAGE_LABEL_PORT_DECLARED_PREFIX = LABEL_PREFIX + "port.declared.";
+    public static final String IMAGE_LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
+    public static final String IMAGE_LABEL_COMMENT = LABEL_PREFIX + "comment";
+    public static final String IMAGE_LABEL_ORIGIN = LABEL_PREFIX + "origin";
+    public static final String IMAGE_LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
+    public static final String IMAGE_LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
+
+    public static final String CONTAINER_LABEL_STOOL = LABEL_PREFIX + "stool";
+    public static final String CONTAINER_LABEL_STAGE = LABEL_PREFIX + "stage";
+    public static final String CONTAINER_LABEL_APP = LABEL_PREFIX + "app";
+    public static final String CONTAINER_LABEL_PORT_USED_PREFIX = LABEL_PREFIX + "port.used.";
+
+
+    //--
+
     public final Session session;
     public final Reference reference;
     private final FileNode directory;
@@ -280,7 +299,7 @@ public class Stage {
             info = entry.getValue();
             if (info.tags.size() == 1) {
                 tag = info.tags.get(0);
-                if (tag.startsWith(reference.getId() + "/")) {
+                if (tag.startsWith(session.configuration.id + "/" + reference.getId() + "/")) {
                     result.add(entry.getKey());
                 }
             }
@@ -364,23 +383,6 @@ public class Stage {
         }*/
     }
 
-    private static final DateTimeFormatter TAG_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-HHmmss");
-
-    private static final String LABEL_PREFIX = "net.oneandone.stool-";
-
-    public static final String IMAGE_LABEL_PORT_DECLARED_PREFIX = LABEL_PREFIX + "port.declared.";
-    public static final String IMAGE_LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
-    public static final String IMAGE_LABEL_COMMENT = LABEL_PREFIX + "comment";
-    public static final String IMAGE_LABEL_ORIGIN = LABEL_PREFIX + "origin";
-    public static final String IMAGE_LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
-    public static final String IMAGE_LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
-
-    public static final String CONTAINER_LABEL_STOOL = LABEL_PREFIX + "stool";
-    public static final String CONTAINER_LABEL_STAGE = LABEL_PREFIX + "stage";
-    public static final String CONTAINER_LABEL_APP = LABEL_PREFIX + "app";
-    public static final String CONTAINER_LABEL_PORT_USED_PREFIX = LABEL_PREFIX + "port.used.";
-
-
     /** @param keep 0 to keep all */
     public String build(String app, FileNode war, String comment, String origin,
                       String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
@@ -401,7 +403,7 @@ public class Stage {
         if (keep > 0) {
             wipeOldImages(engine,keep - 1);
         }
-        tag = reference.getId() + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
+        tag = session.configuration.id + "/" + reference.getId() + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
         appProperties = properties(war);
         template = template(appProperties);
         env = Variable.scanTemplate(template).values();
