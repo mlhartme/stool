@@ -58,7 +58,12 @@ public class Image implements Comparable<Image> {
         if (idx == -1) {
             throw new IllegalStateException(result);
         }
-        return result.substring(0, idx);
+        result = result.substring(0, idx);
+        idx = result.lastIndexOf('/');
+        if (idx == -1) {
+            throw new IllegalStateException(result);
+        }
+        return result.substring(idx + 1);
     }
 
     private static Map<String, String> secrets(JsonObject labels) {
