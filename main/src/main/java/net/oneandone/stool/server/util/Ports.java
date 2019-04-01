@@ -42,7 +42,7 @@ public class Ports {
     }
 
     public static Ports fromContainerLabels(JsonObject labels) {
-        return fromLabels(labels, Stage.LABEL_CONTAINER_PORT_PREFIX);
+        return fromLabels(labels, Stage.CONTAINER_LABEL_PORT_PREFIX);
     }
 
     public static Ports fromHostLabels(JsonObject labels) {
