@@ -351,18 +351,17 @@ public class Stage {
     private static final String LABEL_PREFIX = "net.onetandone.stool-";
 
     public static final String IMAGE_LABEL_PORT_PREFIX = LABEL_PREFIX + "host.port.";
-    public static final String CONTAINER_LABEL_PORT_PREFIX = LABEL_PREFIX + "container.port.";
-
     public static final String IMAGE_LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
-
-    public static final String CONTAINER_LABEL_STOOL = LABEL_PREFIX + "stool";
-
     public static final String IMAGE_LABEL_STAGE = LABEL_PREFIX + "stage";
     public static final String IMAGE_LABEL_APP = LABEL_PREFIX + "app";
     public static final String IMAGE_LABEL_COMMENT = LABEL_PREFIX + "comment";
     public static final String IMAGE_LABEL_ORIGIN = LABEL_PREFIX + "origin";
     public static final String IMAGE_LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
     public static final String IMAGE_LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
+
+    public static final String CONTAINER_LABEL_STOOL = LABEL_PREFIX + "stool";
+    public static final String CONTAINER_LABEL_PORT_PREFIX = LABEL_PREFIX + "container.port.";
+
 
     /** @param keep 0 to keep all */
     public String build(String app, FileNode war, String comment, String origin,
