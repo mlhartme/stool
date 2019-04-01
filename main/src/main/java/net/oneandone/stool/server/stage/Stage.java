@@ -348,9 +348,9 @@ public class Stage {
 
     private static final DateTimeFormatter TAG_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-HHmmss");
 
-    private static final String LABEL_PREFIX = "net.onetandone.stool-";
+    private static final String LABEL_PREFIX = "net.oneandone.stool-";
 
-    public static final String IMAGE_LABEL_PORT_PREFIX = LABEL_PREFIX + "host.port.";
+    public static final String IMAGE_LABEL_PORT_DECLARED_PREFIX = LABEL_PREFIX + "port.declared.";
     public static final String IMAGE_LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
     public static final String IMAGE_LABEL_STAGE = LABEL_PREFIX + "stage";
     public static final String IMAGE_LABEL_APP = LABEL_PREFIX + "app";
@@ -360,7 +360,7 @@ public class Stage {
     public static final String IMAGE_LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
 
     public static final String CONTAINER_LABEL_STOOL = LABEL_PREFIX + "stool";
-    public static final String CONTAINER_LABEL_PORT_PREFIX = LABEL_PREFIX + "container.port.";
+    public static final String CONTAINER_LABEL_PORT_USED_PREFIX = LABEL_PREFIX + "port.used.";
 
 
     /** @param keep 0 to keep all */
@@ -444,7 +444,7 @@ public class Stage {
                 session.logging.verbose("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
             hostPorts = session.pool().allocate(this, image.app, http, https);
-            labels = hostPorts.toHostLabels();
+            labels = hostPorts.toUsedLabels();
             labels.put(CONTAINER_LABEL_STOOL, session.configuration.id);
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * configuration.memory, null, null,

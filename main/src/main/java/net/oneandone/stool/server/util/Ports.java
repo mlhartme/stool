@@ -41,12 +41,12 @@ public class Ports {
         }
     }
 
-    public static Ports fromContainerLabels(JsonObject labels) {
-        return fromLabels(labels, Stage.CONTAINER_LABEL_PORT_PREFIX);
+    public static Ports fromUsedLabels(JsonObject labels) {
+        return fromLabels(labels, Stage.CONTAINER_LABEL_PORT_USED_PREFIX);
     }
 
-    public static Ports fromHostLabels(JsonObject labels) {
-        return fromLabels(labels, Stage.IMAGE_LABEL_PORT_PREFIX);
+    public static Ports fromDeclaredLabels(JsonObject labels) {
+        return fromLabels(labels, Stage.IMAGE_LABEL_PORT_DECLARED_PREFIX);
     }
 
     public static Ports fromLabels(JsonObject labels, String prefix) {
@@ -96,8 +96,8 @@ public class Ports {
         return http == port || https == port || jmxmp == port || debug == port;
     }
 
-    public Map<String, String> toHostLabels() {
-        return toLabels(Stage.IMAGE_LABEL_PORT_PREFIX);
+    public Map<String, String> toUsedLabels() {
+        return toLabels(Stage.CONTAINER_LABEL_PORT_USED_PREFIX);
     }
 
     private Map<String, String> toLabels(String prefix) {

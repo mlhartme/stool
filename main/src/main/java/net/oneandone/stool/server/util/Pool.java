@@ -39,7 +39,7 @@ public class Pool {
             labels = engine.containerInspect(container, false).get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
             stage = labels.get(Stage.IMAGE_LABEL_STAGE).getAsString();
             app = labels.get(Stage.IMAGE_LABEL_APP).getAsString();
-            result.datas.add(new Data(stage, app, Ports.fromHostLabels(labels)));
+            result.datas.add(new Data(stage, app, Ports.fromUsedLabels(labels)));
         }
         return result;
     }
