@@ -276,7 +276,7 @@ public class Session {
 
         reserved = 0;
         engine = dockerEngine();
-        for (String container : engine.containerListRunning(Stage.LABEL_STOOL).keySet()) {
+        for (String container : engine.containerListRunning(Stage.CONTAINER_LABEL_STOOL).keySet()) {
             json = engine.containerInspect(container, false);
             image = Image.load(engine, Strings.removeLeft(json.get("Image").getAsString(), "sha256:"));
             directory = stages.join(image.id);

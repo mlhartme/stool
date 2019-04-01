@@ -276,7 +276,7 @@ public class Stage {
     }
 
     public void wipeImages(Engine engine) throws IOException {
-        for (String image : engine.imageList(Strings.toMap(LABEL_STOOL, session.configuration.id, LABEL_STAGE, reference.getId()))) {
+        for (String image : engine.imageList(Strings.toMap(LABEL_STAGE, reference.getId()))) {
             session.logging.verbose("remove image: " + image);
             engine.imageRemove(image, true /* because the might be multiple tags */);
         }
@@ -289,7 +289,7 @@ public class Stage {
         List<Image> list;
 
         result = new HashMap<>();
-        for (String id : engine.imageList(Strings.toMap(LABEL_STOOL, session.configuration.id, LABEL_STAGE, reference.getId()))) {
+        for (String id : engine.imageList(Strings.toMap(LABEL_STAGE, reference.getId()))) {
             image = Image.load(engine, id);
             list = result.get(image.app);
             if (list == null) {
@@ -323,7 +323,7 @@ public class Stage {
     }
 
     public void wipeContainer(Engine engine) throws IOException {
-        for (String image : engine.imageList(Strings.toMap(LABEL_STOOL, session.configuration.id, LABEL_STAGE, reference.getId()))) {
+        for (String image : engine.imageList(Strings.toMap(LABEL_STAGE, reference.getId()))) {
             for (String container : engine.containerListForImage(image).keySet()) {
                 session.logging.verbose("remove container: " + container);
                 engine.containerRemove(container);
@@ -355,7 +355,7 @@ public class Stage {
 
     public static final String LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
 
-    public static final String LABEL_STOOL = LABEL_PREFIX + "stool";
+    public static final String CONTAINER_LABEL_STOOL = LABEL_PREFIX + "stool";
     public static final String LABEL_STAGE = LABEL_PREFIX + "stage";
     public static final String LABEL_APP = LABEL_PREFIX + "app";
     public static final String LABEL_COMMENT = LABEL_PREFIX + "comment";
@@ -390,7 +390,6 @@ public class Stage {
         buildArgs = buildArgs(env, appProperties);
         context = dockerContext(app, war, template, buildArgs);
         labels = new HashMap<>();
-        labels.put(LABEL_STOOL, session.configuration.id);
         labels.put(LABEL_STAGE, reference.getId());
         labels.put(LABEL_APP, app);
         labels.put(LABEL_COMMENT, comment);
@@ -430,6 +429,7 @@ public class Stage {
         Engine.Status status;
         Ports hostPorts;
         Map<FileNode, String> mounts;
+        Map<String, String> labels;
 
         checkMemory();
         engine = session.dockerEngine();
@@ -444,9 +444,11 @@ public class Stage {
                 session.logging.verbose("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
             hostPorts = session.pool().allocate(this, image.app, http, https);
+            labels = hostPorts.toHostLabels();
+            labels.put(CONTAINER_LABEL_STOOL, session.configuration.id);
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * configuration.memory, null, null,
-                    hostPorts.toHostLabels(), environment, mounts, image.ports.map(hostPorts));
+                    labels, environment, mounts, image.ports.map(hostPorts));
             session.logging.verbose("created container " + container);
             engine.containerStart(container);
             status = engine.containerStatus(container);
