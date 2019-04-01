@@ -50,8 +50,8 @@ public class Image implements Comparable<Image> {
         secrets = new HashMap<>();
         for (Map.Entry<String, JsonElement> entry : labels.entrySet()) {
             key = entry.getKey();
-            if (key.startsWith(Stage.LABEL_MOUNT_SECRETS_PREFIX)) {
-                secrets.put(key.substring(Stage.LABEL_MOUNT_SECRETS_PREFIX.length()), entry.getValue().getAsString());
+            if (key.startsWith(Stage.IMAGE_LABEL_MOUNT_SECRETS_PREFIX)) {
+                secrets.put(key.substring(Stage.IMAGE_LABEL_MOUNT_SECRETS_PREFIX.length()), entry.getValue().getAsString());
             }
 
         }

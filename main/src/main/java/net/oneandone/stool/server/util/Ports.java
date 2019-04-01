@@ -46,7 +46,7 @@ public class Ports {
     }
 
     public static Ports fromHostLabels(JsonObject labels) {
-        return fromLabels(labels, Stage.LABEL_HOST_PORT_PREFIX);
+        return fromLabels(labels, Stage.IMAGE_LABEL_PORT_PREFIX);
     }
 
     public static Ports fromLabels(JsonObject labels, String prefix) {
@@ -97,7 +97,7 @@ public class Ports {
     }
 
     public Map<String, String> toHostLabels() {
-        return toLabels(Stage.LABEL_HOST_PORT_PREFIX);
+        return toLabels(Stage.IMAGE_LABEL_PORT_PREFIX);
     }
 
     private Map<String, String> toLabels(String prefix) {

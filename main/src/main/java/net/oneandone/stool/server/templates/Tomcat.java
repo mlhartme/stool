@@ -67,7 +67,7 @@ public class Tomcat {
 
         result = new StringBuilder();
         for (String project : Separator.COMMA.split(faultProjects)) {
-            result.append("LABEL " + Stage.LABEL_MOUNT_SECRETS_PREFIX + project + "=" + basedir + "/" + project + "\n");
+            result.append("LABEL " + Stage.IMAGE_LABEL_MOUNT_SECRETS_PREFIX + project + "=" + basedir + "/" + project + "\n");
         }
         return result.toString();
     }

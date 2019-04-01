@@ -350,10 +350,10 @@ public class Stage {
 
     private static final String LABEL_PREFIX = "net.onetandone.stool-";
 
-    public static final String LABEL_HOST_PORT_PREFIX = LABEL_PREFIX + "host.port.";
+    public static final String IMAGE_LABEL_PORT_PREFIX = LABEL_PREFIX + "host.port.";
     public static final String LABEL_CONTAINER_PORT_PREFIX = LABEL_PREFIX + "container.port.";
 
-    public static final String LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
+    public static final String IMAGE_LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
 
     public static final String CONTAINER_LABEL_STOOL = LABEL_PREFIX + "stool";
 
