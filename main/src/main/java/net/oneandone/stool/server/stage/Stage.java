@@ -276,7 +276,7 @@ public class Stage {
     }
 
     public void wipeImages(Engine engine) throws IOException {
-        for (String image : engine.imageList(Strings.toMap(LABEL_STAGE, reference.getId()))) {
+        for (String image : engine.imageList(Strings.toMap(IMAGE_LABEL_STAGE, reference.getId()))) {
             session.logging.verbose("remove image: " + image);
             engine.imageRemove(image, true /* because the might be multiple tags */);
         }
@@ -289,7 +289,7 @@ public class Stage {
         List<Image> list;
 
         result = new HashMap<>();
-        for (String id : engine.imageList(Strings.toMap(LABEL_STAGE, reference.getId()))) {
+        for (String id : engine.imageList(Strings.toMap(IMAGE_LABEL_STAGE, reference.getId()))) {
             image = Image.load(engine, id);
             list = result.get(image.app);
             if (list == null) {
@@ -323,7 +323,7 @@ public class Stage {
     }
 
     public void wipeContainer(Engine engine) throws IOException {
-        for (String image : engine.imageList(Strings.toMap(LABEL_STAGE, reference.getId()))) {
+        for (String image : engine.imageList(Strings.toMap(IMAGE_LABEL_STAGE, reference.getId()))) {
             for (String container : engine.containerListForImage(image).keySet()) {
                 session.logging.verbose("remove container: " + container);
                 engine.containerRemove(container);
@@ -356,12 +356,13 @@ public class Stage {
     public static final String LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
 
     public static final String CONTAINER_LABEL_STOOL = LABEL_PREFIX + "stool";
-    public static final String LABEL_STAGE = LABEL_PREFIX + "stage";
-    public static final String LABEL_APP = LABEL_PREFIX + "app";
-    public static final String LABEL_COMMENT = LABEL_PREFIX + "comment";
-    public static final String LABEL_ORIGIN = LABEL_PREFIX + "origin";
-    public static final String LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
-    public static final String LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
+
+    public static final String IMAGE_LABEL_STAGE = LABEL_PREFIX + "stage";
+    public static final String IMAGE_LABEL_APP = LABEL_PREFIX + "app";
+    public static final String IMAGE_LABEL_COMMENT = LABEL_PREFIX + "comment";
+    public static final String IMAGE_LABEL_ORIGIN = LABEL_PREFIX + "origin";
+    public static final String IMAGE_LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
+    public static final String IMAGE_LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
 
     /** @param keep 0 to keep all */
     public String build(String app, FileNode war, String comment, String origin,
@@ -390,12 +391,12 @@ public class Stage {
         buildArgs = buildArgs(env, appProperties);
         context = dockerContext(app, war, template, buildArgs);
         labels = new HashMap<>();
-        labels.put(LABEL_STAGE, reference.getId());
-        labels.put(LABEL_APP, app);
-        labels.put(LABEL_COMMENT, comment);
-        labels.put(LABEL_ORIGIN, origin);
-        labels.put(LABEL_CREATED_BY, createdBy);
-        labels.put(LABEL_CREATED_ON, createdOn);
+        labels.put(IMAGE_LABEL_STAGE, reference.getId());
+        labels.put(IMAGE_LABEL_APP, app);
+        labels.put(IMAGE_LABEL_COMMENT, comment);
+        labels.put(IMAGE_LABEL_ORIGIN, origin);
+        labels.put(IMAGE_LABEL_CREATED_BY, createdBy);
+        labels.put(IMAGE_LABEL_CREATED_ON, createdOn);
         session.logging.verbose("building image ... ");
         output = new StringWriter();
         try {
@@ -712,7 +713,7 @@ public class Stage {
         Engine engine;
 
         engine = session.dockerEngine();
-        return new ArrayList<>(engine.containerListRunning(LABEL_STAGE, reference.getId()).keySet());
+        return new ArrayList<>(engine.containerListRunning(IMAGE_LABEL_STAGE, reference.getId()).keySet());
     }
 
     public Map<String, Current> currentMap() throws IOException {

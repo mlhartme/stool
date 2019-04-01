@@ -37,8 +37,8 @@ public class Pool {
         for (String container : engine.containerList(Stage.CONTAINER_LABEL_STOOL).keySet()) {
             // TODO: check stool id in CONTAINER_LABEL_STOOL?
             labels = engine.containerInspect(container, false).get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
-            stage = labels.get(Stage.LABEL_STAGE).getAsString();
-            app = labels.get(Stage.LABEL_APP).getAsString();
+            stage = labels.get(Stage.IMAGE_LABEL_STAGE).getAsString();
+            app = labels.get(Stage.IMAGE_LABEL_APP).getAsString();
             result.datas.add(new Data(stage, app, Ports.fromHostLabels(labels)));
         }
         return result;
