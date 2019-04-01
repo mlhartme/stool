@@ -24,7 +24,6 @@ import com.google.gson.JsonPrimitive;
 import jnr.posix.POSIXFactory;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
-import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
@@ -193,38 +192,39 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    public static class ListInfo {
+    public static class ContainerListInfo {
         public final String id;
         public final Map<Integer, Integer> ports;
 
-        public ListInfo(String id, Map<Integer, Integer> ports) {
+        public ContainerListInfo(String id, Map<Integer, Integer> ports) {
             this.id = id;
             this.ports = ports;
         }
     }
+    
     /**
      * @param image may be null
      * @return container ids
      */
-    public Map<String, ListInfo> containerListForImage(String image) throws IOException {
+    public Map<String, ContainerListInfo> containerListForImage(String image) throws IOException {
         return doContainerList("{\"ancestor\" : [\"" + image + "\"] }", true);
     }
 
-    public Map<String, ListInfo> containerListRunning(String key, String value) throws IOException {
+    public Map<String, ContainerListInfo> containerListRunning(String key, String value) throws IOException {
         return doContainerList("{\"label\" : [\"" + key + "=" + value + "\"], \"status\" : [\"running\"] }", false);
     }
 
-    public Map<String, ListInfo> containerListRunning(String key) throws IOException {
+    public Map<String, ContainerListInfo> containerListRunning(String key) throws IOException {
         return doContainerList("{\"label\" : [\"" + key + "\"], \"status\" : [\"running\"] }", false);
     }
-    public Map<String, ListInfo> containerList(String key) throws IOException {
+    public Map<String, ContainerListInfo> containerList(String key) throws IOException {
         return doContainerList("{\"label\" : [\"" + key + "\"] }", true);
     }
 
-    private Map<String, ListInfo> doContainerList(String filters, boolean all) throws IOException {
+    private Map<String, ContainerListInfo> doContainerList(String filters, boolean all) throws IOException {
         HttpNode node;
         JsonArray array;
-        Map<String, ListInfo> result;
+        Map<String, ContainerListInfo> result;
         String id;
 
         node = root.join("containers/json");
@@ -238,7 +238,7 @@ public class Engine implements AutoCloseable {
         result = new HashMap<>(array.size());
         for (JsonElement element : array) {
             id = element.getAsJsonObject().get("Id").getAsString();
-            result.put(id, new ListInfo(id, ports(element.getAsJsonObject().get("Ports").getAsJsonArray())));
+            result.put(id, new ContainerListInfo(id, ports(element.getAsJsonObject().get("Ports").getAsJsonArray())));
         }
         return result;
     }

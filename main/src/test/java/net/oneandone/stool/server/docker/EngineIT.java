@@ -71,7 +71,7 @@ public class EngineIT {
         String image;
         String container;
         Map<Integer, Integer> ports;
-        Map<String, Engine.ListInfo> map;
+        Map<String, Engine.ContainerListInfo> map;
         JsonObject obj;
         JsonObject cmp;
 
