@@ -2,16 +2,14 @@ package net.oneandone.stool.common;
 
 /** client part of a Stage */
 public class Reference {
-    private final String id;
     private final String name;
 
-    public Reference(String id, String name) {
-        this.id = id;
+    public Reference(String name) {
         this.name = name;
     }
 
     public String getId() {
-        return id;
+        return name;
     }
 
     public String getName() {
@@ -20,7 +18,7 @@ public class Reference {
 
     public boolean equals(Object obj) {
         if (obj instanceof Reference) {
-            return ((Reference) obj).id.equals(id);
+            return ((Reference) obj).name.equals(name);
         }
         return false;
     }

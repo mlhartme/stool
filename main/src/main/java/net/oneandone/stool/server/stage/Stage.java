@@ -99,7 +99,7 @@ public class Stage {
 
     public Stage(Session session, FileNode directory, StageConfiguration configuration) {
         this.session = session;
-        this.reference = new Reference(directory.getName(), configuration.name);
+        this.reference = new Reference(directory.getName());
         this.directory = directory;
         this.configuration = configuration;
     }
