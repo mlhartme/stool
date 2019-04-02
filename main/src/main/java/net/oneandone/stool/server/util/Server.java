@@ -66,7 +66,6 @@ public class Server {
             }
             property.set(entry.getValue());
         }
-        stage.configuration.name = name;
         stage.saveConfig();
 
         openStage(stage.reference);
@@ -174,7 +173,7 @@ public class Server {
         stage = session.load(reference);
         if (selected.isEmpty()) {
             if (selected.isEmpty()) {
-                for (Info info : stage.fieldsAndName()) {
+                for (Info info : stage.fields()) {
                     selected.add(info.name());
                 }
             }

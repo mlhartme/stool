@@ -71,7 +71,7 @@ public abstract class StageCommand extends ClientCommand {
         }
         width = 0;
         for (Reference reference : lst) {
-            width = Math.max(width, getName(reference).length());
+            width = Math.max(width, reference.getName().length());
         }
         width += 5;
         withPrefix = doBefore(lst, width);
@@ -219,7 +219,7 @@ public abstract class StageCommand extends ClientCommand {
         private void run(Reference reference, boolean main) throws Exception {
             String name;
 
-            name = getName(reference);
+            name = reference.getName();
             if (withPrefix) {
                 ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + name + "} ", width));
             }

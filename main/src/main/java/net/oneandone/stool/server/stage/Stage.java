@@ -109,7 +109,7 @@ public class Stage {
     }
 
     public String getName() {
-        return configuration.name;
+        return reference.getName();
     }
 
     //-- state
@@ -131,15 +131,6 @@ public class Stage {
             }
         }
         return null;
-    }
-
-    public List<Info> fieldsAndName() {
-        List<Info> result;
-
-        result = new ArrayList<>();
-        result.add(propertyOpt("name"));
-        result.addAll(fields());
-        return result;
     }
 
     public Info info(String str) {
@@ -802,7 +793,7 @@ public class Stage {
 
     public int contentHash() throws IOException {
         return ("StageInfo{"
-                + "name='" + configuration.name + '\''
+                + "name='" + reference.getName() + '\''
                 + ", comment='" + configuration.comment + '\''
                 // TODO: current immage, container?
                 + ", urls=" + urlMap(null)

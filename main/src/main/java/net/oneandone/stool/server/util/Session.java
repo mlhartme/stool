@@ -151,14 +151,12 @@ public class Session {
 
     public List<String> stageNames() throws IOException {
         List<FileNode> directories;
-        StageConfiguration config;
-        List<String> result;
+         List<String> result;
 
         directories = stages.list();
         result = new ArrayList<>(directories.size());
         for (FileNode directory : directories) {
-            config = StageConfiguration.load(gson, StageConfiguration.file(directory));
-            result.add(config.name);
+            result.add(directory.getName());
         }
         return result;
     }

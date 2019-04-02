@@ -43,9 +43,6 @@ public class StageConfiguration {
 
     //--
 
-    @Option(key = "name")
-    public String name;
-
     @Option(key = "quota")
     public int quota;
 
@@ -60,7 +57,6 @@ public class StageConfiguration {
     public String comment;
 
     public StageConfiguration() {
-        this.name = "noname";
         this.notify = new ArrayList<>();
         this.notify.add(NOTIFY_CREATED_BY);
         this.quota = 10000;
