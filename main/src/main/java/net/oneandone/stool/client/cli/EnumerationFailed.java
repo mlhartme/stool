@@ -33,7 +33,7 @@ public class EnumerationFailed extends Exception {
     }
 
     public void add(String name, Reference reference, Exception cause) {
-        add(name + " (" + reference.getId() + ")", cause);
+        add(name + " (" + reference.getName() + ")", cause);
     }
 
     public void add(String stage, Exception cause) {

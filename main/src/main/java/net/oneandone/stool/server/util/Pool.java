@@ -45,12 +45,12 @@ public class Pool {
     }
 
     public static class Data {
-        public final String id;
+        public final String stage;
         public final String app;
         public final Ports ports;
 
-        public Data(String id, String app, Ports ports) {
-            this.id = id;
+        public Data(String stage, String app, Ports ports) {
+            this.stage = stage;
             this.app = app;
             this.ports = ports;
         }
@@ -70,38 +70,38 @@ public class Pool {
     }
 
     public Ports allocate(Stage stage, String app, int http, int https) throws IOException {
-        String id;
+        String name;
         Ports previous;
 
-        id = stage.reference.getId();
-        previous = lookup(id, app);
+        name = stage.reference.getName();
+        previous = lookup(name, app);
         if (previous != null) {
             if ((http != -1 && http != previous.http) || (https != -1 && https != previous.http)) {
                 previous = null;
-                remove(id, app);
+                remove(name, app);
             }
         }
         if (previous != null) {
             return previous;
         } else {
-            return allocate(startPortForApp(app, stage.getName()), app, id, http, https);
+            return allocate(startPortForApp(app, stage.getName()), app, name, http, https);
         }
     }
 
-    private Ports lookup(String id, String app) {
+    private Ports lookup(String name, String app) {
         for (Data data : datas) {
-            if (id.equals(data.id) && app.equals(data.app)) {
+            if (name.equals(data.stage) && app.equals(data.app)) {
                 return data.ports;
             }
         }
         return null;
     }
-    private boolean remove(String id, String app) {
+    private boolean remove(String name, String app) {
         Data data;
 
         for (int i = 0; i < datas.size(); i++) {
             data = datas.get(i);
-            if (id.equals(data.id) && app.equals(data.app)) {
+            if (name.equals(data.stage) && app.equals(data.app)) {
                 datas.remove(i);
                 return true;
             }
@@ -110,7 +110,7 @@ public class Pool {
     }
 
     /** @return ports with all ports allocated */
-    private Ports allocate(int start, String app, String id, int fixedHttp, int fixedHttps) throws IOException {
+    private Ports allocate(int start, String app, String stage, int fixedHttp, int fixedHttps) throws IOException {
         Ports ports;
         List<Integer> ignores;
         int http;
@@ -141,7 +141,7 @@ public class Pool {
         debug = one(start, ignores);
 
         ports = new Ports(http, https, jmxmp, debug);
-        datas.add(new Data(id, app, ports));
+        datas.add(new Data(stage, app, ports));
         return ports;
     }
 
@@ -227,12 +227,12 @@ public class Pool {
         }
     }
 
-    public Map<String, Ports> stage(String id) {
+    public Map<String, Ports> stage(String name) {
         Map<String, Ports> result;
 
         result = new HashMap<>();
         for (Data data : datas) {
-            if (id.equals(data.id)) {
+            if (name.equals(data.stage)) {
                 result.put(data.app, data.ports);
             }
         }

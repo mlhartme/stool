@@ -176,25 +176,11 @@ public class Session {
     }
 
     public Stage load(Reference reference) throws IOException {
-        return loadById(reference.getId());
+        return loadByName(reference.getName());
     }
 
-    public Stage loadById(String id) throws IOException {
-        return load(stages.join(id).checkDirectory());
-    }
-
-    public Stage loadByName(String stageName) throws IOException {
-        List<FileNode> directories;
-        StageConfiguration config;
-
-        directories = stages.list();
-        for (FileNode directory : directories) {
-            config = StageConfiguration.load(gson, StageConfiguration.file(directory));
-            if (stageName.equals(config.name)) {
-                return load(directory);
-            }
-        }
-        throw new IllegalArgumentException("stage not found: " + stageName);
+    public Stage loadByName(String name) throws IOException {
+        return load(stages.join(name).checkDirectory());
     }
 
     private StageConfiguration loadStageConfiguration(FileNode stage) throws IOException {

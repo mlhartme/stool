@@ -75,7 +75,7 @@ public class StoolCallable implements Callable<Failure> {
         launcher.env(Environment.STOOL_HOME, home.getAbsolute());
         launcher.arg(stool.getAbsolute());
         launcher.arg("-e");
-        launcher.arg(command, "-stage", "id=" + stage.reference.getId());
+        launcher.arg(command, "-stage", stage.reference.getName());
         launcher.arg(arguments);
         try (PrintWriter writer = new PrintWriter(logDir.join(id + ".log").newWriter())) {
             writer.println(launcher.toString());

@@ -187,10 +187,10 @@ public class Stage {
         List<Field> fields;
 
         fields = new ArrayList<>();
-        fields.add(new Field("id") {
+        fields.add(new Field("name") {
             @Override
             public Object get() {
-                return reference.getId();
+                return reference.getName();
             }
         });
         fields.add(new Field("stage") {
@@ -276,7 +276,7 @@ public class Stage {
     //-- logs
 
     public LogReader logReader() throws IOException {
-        return LogReader.create(session.logging.directory().join(reference.getId()));
+        return LogReader.create(session.logging.directory().join(reference.getName()));
     }
 
     public Logs logs() {
@@ -301,7 +301,7 @@ public class Stage {
             info = entry.getValue();
             if (info.tags.size() == 1) {
                 tag = info.tags.get(0);
-                if (tag.startsWith(session.configuration.registryNamespace + "/" + reference.getId() + "/")) {
+                if (tag.startsWith(session.configuration.registryNamespace + "/" + reference.getName() + "/")) {
                     result.add(entry.getKey());
                 }
             }
@@ -404,7 +404,7 @@ public class Stage {
         if (keep > 0) {
             wipeOldImages(engine,keep - 1);
         }
-        tag = session.configuration.registryNamespace + "/" + reference.getId() + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
+        tag = session.configuration.registryNamespace + "/" + reference.getName() + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
         appProperties = properties(war);
         template = template(appProperties);
         env = Variable.scanTemplate(template).values();
@@ -475,7 +475,7 @@ public class Stage {
             labels = hostPorts.toUsedLabels();
             labels.put(CONTAINER_LABEL_STOOL, session.configuration.registryNamespace);
             labels.put(CONTAINER_LABEL_APP, image.app);
-            labels.put(CONTAINER_LABEL_STAGE, reference.getId());
+            labels.put(CONTAINER_LABEL_STAGE, reference.getName());
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * image.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts));
@@ -679,7 +679,7 @@ public class Stage {
 
     /** maps app to its ports; empty map if not ports allocated yet */
     public Map<String, Ports> loadPorts() throws IOException {
-        return session.pool().stage(reference.getId());
+        return session.pool().stage(reference.getName());
     }
 
     /**
@@ -696,7 +696,7 @@ public class Stage {
         engine = session.dockerEngine();
         images = new HashMap<>();
         for (Engine.ContainerListInfo info : engine.containerList(Stage.CONTAINER_LABEL_STOOL).values()) {
-            if (reference.getId().equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
+            if (reference.getName().equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
                 images.put(info.labels.get(Stage.CONTAINER_LABEL_APP), Image.load(engine, info.imageId));
             }
         }
@@ -779,7 +779,7 @@ public class Stage {
         Engine engine;
 
         engine = session.dockerEngine();
-        return new ArrayList<>(engine.containerListRunning(CONTAINER_LABEL_STAGE, reference.getId()).keySet());
+        return new ArrayList<>(engine.containerListRunning(CONTAINER_LABEL_STAGE, reference.getName()).keySet());
     }
 
     public Map<String, Current> currentMap() throws IOException {
@@ -803,7 +803,6 @@ public class Stage {
     public int contentHash() throws IOException {
         return ("StageInfo{"
                 + "name='" + configuration.name + '\''
-                + ", id='" + reference.getId() + '\''
                 + ", comment='" + configuration.comment + '\''
                 // TODO: current immage, container?
                 + ", urls=" + urlMap(null)

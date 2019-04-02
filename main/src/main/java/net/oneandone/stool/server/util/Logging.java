@@ -104,12 +104,12 @@ public class Logging {
 
     //--
 
-    public void openStage(String id) throws MkdirException {
+    public void openStage(String name) throws MkdirException {
         if (stageFile != null) {
             throw new IllegalStateException("stage already open: " + stageFile.getAbsolute());
         }
-        stageId = id;
-        stageFile = logFile(directory().join(id).mkdirOpt(), "stool");
+        stageId = name;
+        stageFile = logFile(directory().join(name).mkdirOpt(), "stool");
     }
 
     private static FileNode logFile(FileNode dir, String base) {

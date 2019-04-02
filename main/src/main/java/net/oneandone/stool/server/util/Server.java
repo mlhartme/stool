@@ -188,7 +188,7 @@ public class Server {
     }
 
     public List<String> history(Reference reference, boolean details, int max) throws IOException {
-        String stageId;
+        String stageName;
         LogEntry entry;
         Map<String, List<LogEntry>> detailsMap; /* id to it's details */
         LogReader reader;
@@ -197,7 +197,7 @@ public class Server {
         List<String> result;
 
         result = new ArrayList<>();
-        stageId = reference.getId();
+        stageName = reference.getName();
         counter = 0;
         detailsMap = new HashMap<>();
         reader = session.load(reference).logReader();
@@ -214,7 +214,7 @@ public class Server {
             if (entry.logger.equals("COMMAND")) {
                 detailsMap.remove(entry.requestId);
                 lst.add(entry);
-                if (forStage(stageId, lst)) {
+                if (forStage(stageName, lst)) {
                     counter++;
                     result.add("[" + LogEntry.FULL_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.message);
                     if (details) {
@@ -234,9 +234,9 @@ public class Server {
         return result;
     }
 
-    private static boolean forStage(String stageId, List<LogEntry> lst) {
+    private static boolean forStage(String stageName, List<LogEntry> lst) {
         for (LogEntry entry : lst) {
-            if (stageId.equals(entry.stageId)) {
+            if (stageName.equals(entry.stageName)) {
                 return true;
             }
         }
@@ -475,7 +475,7 @@ public class Server {
     }
 
     private void openStage(Reference reference) throws MkdirException {
-        session.logging.openStage(reference.getId());
+        session.logging.openStage(reference.getName());
         session.logging.command(session.command);
     }
 

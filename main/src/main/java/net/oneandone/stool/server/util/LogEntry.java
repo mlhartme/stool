@@ -31,7 +31,7 @@ public class LogEntry {
         int len;
         int time;
         int requestId;
-        String idStr;
+        String nameStr;
         int logger;
         int user;
         int stageId;
@@ -50,9 +50,9 @@ public class LogEntry {
 
         // TODO: doesn't work for commands running during midnight ...
         timeObj = LocalTime.parse(line.substring(0, time), TIME_FMT);
-        idStr = line.substring(time + 1, requestId);
-        dateObj = LocalDate.parse(idStr.substring(0, idStr.indexOf(".")), Logging.DATE_FORMAT);
-        return new LogEntry(LocalDateTime.of(dateObj, timeObj), idStr,
+        nameStr = line.substring(time + 1, requestId);
+        dateObj = LocalDate.parse(nameStr.substring(0, nameStr.indexOf(".")), Logging.DATE_FORMAT);
+        return new LogEntry(LocalDateTime.of(dateObj, timeObj), nameStr,
                 line.substring(requestId + 1, logger),
                 line.substring(logger + 1, user),
                 line.substring(user + 1, stageId),
@@ -99,15 +99,15 @@ public class LogEntry {
     public final String requestId;
     public final String logger;
     public final String user;
-    public final String stageId;
+    public final String stageName;
     public final String message;
 
-    public LogEntry(LocalDateTime dateTime, String requestId, String logger, String user, String stageId, String message) {
+    public LogEntry(LocalDateTime dateTime, String requestId, String logger, String user, String stageName, String message) {
         this.dateTime = dateTime;
         this.requestId = requestId;
         this.logger = logger;
         this.user = user;
-        this.stageId = stageId;
+        this.stageName = stageName;
         this.message = message;
     }
 
