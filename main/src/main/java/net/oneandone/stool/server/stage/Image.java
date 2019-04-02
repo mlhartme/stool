@@ -64,18 +64,20 @@ public class Image implements Comparable<Image> {
         if (result.startsWith("/")) {
             throw new ArithmeticException("context must not start with '/': " + result);
         }
-        if (result.isEmpty() || !result.endsWith("/")) {
+        if (!result.isEmpty() && !result.endsWith("/")) {
             throw new ArithmeticException("context has to end with '/': " + result);
         }
         return result;
     }
+
+    private static final Separator SUFFIXES_SEP = Separator.on(',').trim();
 
     private static List<String> suffixes(JsonElement element) {
         List<String> result;
 
         result = new ArrayList<>();
         if (element != null) {
-            result.addAll(Separator.COMMA.split(element.getAsString()));
+            result.addAll(SUFFIXES_SEP.split(element.getAsString()));
         }
         if (result.isEmpty()) {
             result.add("");
