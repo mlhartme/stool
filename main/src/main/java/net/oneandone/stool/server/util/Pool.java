@@ -35,7 +35,7 @@ public class Pool {
 
         result = new Pool(first, last);
         for (String container : engine.containerList(Stage.CONTAINER_LABEL_STOOL).keySet()) {
-            // TODO: check stool id in CONTAINER_LABEL_STOOL?
+            // TODO: check stool name in CONTAINER_LABEL_STOOL?
             labels = engine.containerInspect(container, false).get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
             stage = labels.get(Stage.CONTAINER_LABEL_STAGE).getAsString();
             app = labels.get(Stage.CONTAINER_LABEL_APP).getAsString();

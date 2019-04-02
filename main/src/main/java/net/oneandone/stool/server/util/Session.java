@@ -68,8 +68,6 @@ public class Session {
 
     private final FileNode stages;
 
-    private final String stageIdPrefix;
-    private int nextStageId;
     public final Users users;
 
     private Map<String, Accessor> lazyAccessors;
@@ -84,8 +82,6 @@ public class Session {
         this.home = home;
         this.configuration = configuration;
         this.stages = home.join("stages");
-        this.stageIdPrefix = logging.id + ".";
-        this.nextStageId = 0;
         if (configuration.ldapUrl.isEmpty()) {
             this.users = Users.fromLogin();
         } else {

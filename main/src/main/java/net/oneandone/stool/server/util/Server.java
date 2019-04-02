@@ -189,7 +189,7 @@ public class Server {
     public List<String> history(Reference reference, boolean details, int max) throws IOException {
         String stageName;
         LogEntry entry;
-        Map<String, List<LogEntry>> detailsMap; /* id to it's details */
+        Map<String, List<LogEntry>> detailsMap; /* maps id to it's details */
         LogReader reader;
         List<LogEntry> lst;
         int counter;
