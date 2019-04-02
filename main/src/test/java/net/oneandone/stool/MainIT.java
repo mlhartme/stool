@@ -71,7 +71,7 @@ public class MainIT {
         stool("create", project.getAbsolute(), "name=it");
         stool("status", "-stage", "it");
         stool("validate", "-stage", "it");
-        stool("config", "-stage", "it", "memory=300");
+        stool("config", "-stage", "it", "quota=10001");
         stool("build", "-v", project.getAbsolute());
         stool("start", "-v", "-stage", "it");
         stool("validate", "-stage", "it");

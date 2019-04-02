@@ -36,6 +36,8 @@ Stages are now the central part; multiple project can be associated with the sam
   * dumped `macros`
   * dumped `search`
 
+* replaced stage property `memory` by an build argument
+
 * stage config changes
   * dumped `autoRefresh`
 

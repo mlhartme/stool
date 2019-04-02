@@ -399,7 +399,6 @@ public class Stage {
         StringWriter output;
         String result;
 
-        checkMemory();
         engine = session.dockerEngine();
         if (keep > 0) {
             wipeOldImages(engine,keep - 1);
@@ -450,9 +449,18 @@ public class Stage {
         Map<FileNode, String> mounts;
         Map<String, String> labels;
 
-        checkMemory();
         engine = session.dockerEngine();
+
+
+        int unreserved = session.memUnreserved();
+
         for (Image image : resolve(engine, selection)) {
+            if (image.memory > unreserved) {
+                throw new ArgumentException("Cannot reserve memory for app " + image.app + " :\n"
+                        + "  unreserved: " + unreserved + "\n"
+                        + "  requested: " + image.memory + "\n"
+                        + "Consider stopping stages.");
+            }
             for (String old : engine.containerListForImage(image.id).keySet()) {
                 engine.containerRemove(old);
             }
@@ -468,7 +476,7 @@ public class Stage {
             labels.put(CONTAINER_LABEL_APP, image.app);
             labels.put(CONTAINER_LABEL_STAGE, reference.getId());
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
-                    OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * configuration.memory, null, null,
+                    OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * image.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts));
             session.logging.verbose("created container " + container);
             engine.containerStart(container);
@@ -657,19 +665,6 @@ public class Stage {
             }
         }
         return result;
-    }
-
-    private void checkMemory() throws IOException {
-        int requested;
-
-        requested = configuration.memory;
-        int unreserved = session.memUnreserved();
-        if (requested > unreserved) {
-            throw new ArgumentException("Cannot reserve memory:\n"
-                    + "  unreserved: " + unreserved + "\n"
-                    + "  requested: " + requested + "\n"
-                    + "Consider stopping stages.");
-        }
     }
 
     //--
