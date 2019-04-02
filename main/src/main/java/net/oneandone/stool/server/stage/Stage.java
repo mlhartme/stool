@@ -76,6 +76,7 @@ public class Stage {
     private static final String LABEL_PREFIX = "net.oneandone.stool-";
 
     public static final String IMAGE_LABEL_PORT_DECLARED_PREFIX = LABEL_PREFIX + "port.declared.";
+    public static final String IMAGE_LABEL_MEMORY = LABEL_PREFIX + "memory";
     public static final String IMAGE_LABEL_FAULT = LABEL_PREFIX + "fault";
     public static final String IMAGE_LABEL_COMMENT = LABEL_PREFIX + "comment";
     public static final String IMAGE_LABEL_ORIGIN = LABEL_PREFIX + "origin";

@@ -362,6 +362,7 @@ public class Server {
         for (Image image : all.get(app)) {
             marker = image.id.equals(current.image.id) ? "==>" : "   ";
             result.add(String.format("%s [%d] %s\n", marker, idx, image.id));
+            result.add("       memory:     " + image.memory);
             result.add("       comment:    " + image.comment);
             result.add("       origin:     " + image.origin);
             result.add("       created-at: " + image.created);

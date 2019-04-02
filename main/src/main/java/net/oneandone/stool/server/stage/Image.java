@@ -40,11 +40,16 @@ public class Image implements Comparable<Image> {
         app = app(inspect.get("RepoTags").getAsJsonArray());
         return new Image(id, created, Ports.fromDeclaredLabels(labels),
                 app,
+                memory(labels.get(Stage.IMAGE_LABEL_MEMORY)),
                 labels.get(Stage.IMAGE_LABEL_COMMENT).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_ORIGIN).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_CREATED_BY).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_CREATED_ON).getAsString(),
                 fault(labels.get(Stage.IMAGE_LABEL_FAULT)));
+    }
+
+    private static int memory(JsonElement element) {
+        return element == null ? 1024 : Integer.parseInt(element.getAsString());
     }
 
     private static List<String> fault(JsonElement element) {
@@ -86,6 +91,9 @@ public class Image implements Comparable<Image> {
 
     public final String app;
 
+    /** memory in megabytes */
+    public final int memory;
+
     /** docker api returns a comment field, but i didn't find documentation how to set it */
     public final String comment;
     public final String origin;
@@ -95,13 +103,14 @@ public class Image implements Comparable<Image> {
     /** maps relative host path to absolute container path */
     public final List<String> faultProjects;
 
-    public Image(String id, LocalDateTime created, Ports ports, String app, String comment, String origin, String createdBy, String createdOn,
-                 List<String> faultProjects) {
+    public Image(String id, LocalDateTime created, Ports ports, String app, int memory, String comment, String origin, String createdBy,
+                 String createdOn, List<String> faultProjects) {
         this.id = id;
         this.created = created;
 
         this.ports = ports;
         this.app = app;
+        this.memory = memory;
         this.comment = comment;
         this.origin = origin;
         this.createdBy = createdBy;
