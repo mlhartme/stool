@@ -56,7 +56,6 @@ public class Autoconf {
             dest.mailHost = "mri.server.lan";
             // note: doesn't work on local machines, only for stages ...
             // dest.certificates = "https://itca.server.lan/cgi-bin/cert.cgi?action=create%20certificate&cert-commonName=";
-            dest.defaults.put("svn:https://svn.1and1.org/svn/controlpanel_app/controlpanel/", cp());
 
             templates = home.getWorld().file(tools).join("stool/templates-5");
             if (templates.isDirectory()) {
@@ -81,15 +80,6 @@ public class Autoconf {
 
     private static String cisoTools(Environment environment) {
         return environment.getOpt("CISOTOOLS_HOME");
-    }
-
-    private static Map<String, String> cp() {
-        Map<String, String> result;
-
-        result = new LinkedHashMap<>();
-        result.put("memory", "3000");
-        result.put("url", "https://%a.%s.%h:%p/(|internal-login)");
-        return result;
     }
 
     private static String hostname() throws UnknownHostException {

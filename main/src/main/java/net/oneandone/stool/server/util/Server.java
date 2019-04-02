@@ -54,11 +54,11 @@ public class Server {
 
     //-- create, build, start, stop, remove
 
-    public Reference create(String name, String origin, Map<String, String> config, Console console) throws IOException {
+    public Reference create(String name, Map<String, String> config, Console console) throws IOException {
         Stage stage;
         Property property;
 
-        stage = session.create(origin);
+        stage = session.create();
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());
             if (property == null) {

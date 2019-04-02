@@ -64,9 +64,6 @@ public class StoolConfiguration {
      */
     public String admin;
 
-    // preserve order!  TODO: dump
-    public LinkedHashMap<String, Map<String, String>> defaults;
-
     /**
      * Base value to calculate ram per application
      */
@@ -112,8 +109,6 @@ public class StoolConfiguration {
         hostname = "localhost";
         admin = "";
         autoRemove = -1;
-        defaults = new LinkedHashMap<>();
-        defaults.put("", new HashMap<>());
         ldapUrl = "";
         ldapPrincipal = "";
         ldapCredentials = "";
@@ -142,22 +137,6 @@ public class StoolConfiguration {
 
     public void save(Gson gson, FileNode home) throws IOException {
         configurationFile(home).writeString(gson.toJson(this, StoolConfiguration.class));
-    }
-
-    public void setDefaults(Map<String, Accessor> properties, StageConfiguration configuration, String url) {
-        Accessor property;
-
-        for (Map.Entry<String, Map<String, String>> outer : defaults.entrySet()) {
-            if (url.startsWith(outer.getKey())) {
-                for (Map.Entry<String, String> inner : outer.getValue().entrySet()) {
-                    property = properties.get(inner.getKey());
-                    if (property == null) {
-                        throw new IllegalStateException("unknown property: " + inner.getKey());
-                    }
-                    property.set(configuration, inner.getValue());
-                }
-            }
-        }
     }
 
     public StoolConfiguration createPatched(Gson gson, String str) {

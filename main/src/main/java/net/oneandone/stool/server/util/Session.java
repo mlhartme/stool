@@ -165,15 +165,8 @@ public class Session {
 
     //-- Stage create
 
-    public Stage create(String origin) throws MkdirException {
-        FileNode directory;
-        StageConfiguration c;
-
-        directory = stages.join(nextStageId()).mkdir();
-
-        c = new StageConfiguration();
-        configuration.setDefaults(accessors(), c, origin);
-        return new Stage(this, directory, c);
+    public Stage create() throws MkdirException {
+        return new Stage(this, stages.join(nextStageId()).mkdir(), new StageConfiguration());
     }
 
     private String nextStageId() {
