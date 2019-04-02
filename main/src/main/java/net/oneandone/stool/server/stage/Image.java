@@ -41,6 +41,8 @@ public class Image implements Comparable<Image> {
         return new Image(id, created, Ports.fromDeclaredLabels(labels),
                 app,
                 memory(labels.get(Stage.IMAGE_LABEL_MEMORY)),
+                context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
+                suffixes(labels.get(Stage.IMAGE_LABEL_URL_SUFFIXES)),
                 labels.get(Stage.IMAGE_LABEL_COMMENT).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_ORIGIN).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_CREATED_BY).getAsString(),
@@ -50,6 +52,35 @@ public class Image implements Comparable<Image> {
 
     private static int memory(JsonElement element) {
         return element == null ? 1024 : Integer.parseInt(element.getAsString());
+    }
+
+    private static String context(JsonElement element) {
+        String result;
+
+        if (element == null) {
+            return "";
+        }
+        result = element.getAsString();
+        if (result.startsWith("/")) {
+            throw new ArithmeticException("context must not start with '/': " + result);
+        }
+        if (result.isEmpty() || !result.endsWith("/")) {
+            throw new ArithmeticException("context has to end with '/': " + result);
+        }
+        return result;
+    }
+
+    private static List<String> suffixes(JsonElement element) {
+        List<String> result;
+
+        result = new ArrayList<>();
+        if (element != null) {
+            result.addAll(Separator.COMMA.split(element.getAsString()));
+        }
+        if (result.isEmpty()) {
+            result.add("");
+        }
+        return result;
     }
 
     private static List<String> fault(JsonElement element) {
@@ -94,6 +125,9 @@ public class Image implements Comparable<Image> {
     /** memory in megabytes */
     public final int memory;
 
+    public final String urlContext;
+    public final List<String> urlSuffixes;
+
     /** docker api returns a comment field, but i didn't find documentation how to set it */
     public final String comment;
     public final String origin;
@@ -103,14 +137,16 @@ public class Image implements Comparable<Image> {
     /** maps relative host path to absolute container path */
     public final List<String> faultProjects;
 
-    public Image(String id, LocalDateTime created, Ports ports, String app, int memory, String comment, String origin, String createdBy,
-                 String createdOn, List<String> faultProjects) {
+    public Image(String id, LocalDateTime created, Ports ports, String app, int memory, String urlContext, List<String> urlSuffixes,
+                 String comment, String origin, String createdBy, String createdOn, List<String> faultProjects) {
         this.id = id;
         this.created = created;
 
         this.ports = ports;
         this.app = app;
         this.memory = memory;
+        this.urlContext = urlContext;
+        this.urlSuffixes = urlSuffixes;
         this.comment = comment;
         this.origin = origin;
         this.createdBy = createdBy;
