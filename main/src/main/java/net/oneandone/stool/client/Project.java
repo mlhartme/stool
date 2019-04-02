@@ -72,13 +72,17 @@ public class Project {
 
     public Reference getAttachedOpt() throws IOException {
         FileNode map;
+        String str;
+        int idx;
 
         map = map();
-        return map.isFile() ? new Reference(map.readString().trim()) : null;
+        str = map.readString().trim();
+        idx = str.indexOf(':');
+        return map.isFile() ? new Reference(str.substring(0, idx), str.substring(idx + 1)) : null;
     }
 
     public void setAttached(Reference stage) throws IOException {
-        map().writeString(stage.getId());
+        map().writeString(stage.getId() + ":" + stage.getName());
     }
 
     private FileNode map() {
