@@ -58,7 +58,7 @@ public class Server {
         Stage stage;
         Property property;
 
-        stage = session.create();
+        stage = session.create(name);
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());
             if (property == null) {

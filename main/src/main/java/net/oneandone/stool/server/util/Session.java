@@ -165,15 +165,9 @@ public class Session {
 
     //-- Stage create
 
-    public Stage create() throws MkdirException {
-        return new Stage(this, stages.join(nextStageId()).mkdir(), new StageConfiguration());
+    public Stage create(String name) throws MkdirException {
+        return new Stage(this, stages.join(name).mkdir(), new StageConfiguration());
     }
-
-    private String nextStageId() {
-        nextStageId++;
-        return stageIdPrefix + nextStageId;
-    }
-
 
     //-- Stage access
 
