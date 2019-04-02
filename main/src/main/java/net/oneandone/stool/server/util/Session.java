@@ -172,7 +172,6 @@ public class Session {
         directory = stages.join(nextStageId()).mkdir();
 
         c = new StageConfiguration();
-        c.url = configuration.vhosts ? "(http|https)://%a.%s.%h:%p/" : "(http|https)://%h:%p/";
         configuration.setDefaults(accessors(), c, origin);
         return new Stage(this, directory, c);
     }

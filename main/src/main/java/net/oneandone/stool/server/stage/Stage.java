@@ -35,7 +35,6 @@ import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.stool.server.util.StandardProperty;
-import net.oneandone.stool.server.util.UrlPattern;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -688,17 +687,67 @@ public class Stage {
      * @return empty map if no ports are allocated
      */
     public Map<String, String> urlMap(String oneApp) throws IOException {
+        Engine engine;
         Map<String, String> result;
         String app;
-        Ports ports;
+        Map<String, Image> images;
 
         result = new LinkedHashMap<>();
+        engine = session.dockerEngine();
+        images = new HashMap<>();
+        for (Engine.ContainerListInfo info : engine.containerList(Stage.CONTAINER_LABEL_STOOL).values()) {
+            if (reference.getId().equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
+                images.put(info.labels.get(Stage.CONTAINER_LABEL_APP), Image.load(engine, info.imageId));
+            }
+        }
         for (Map.Entry<String, Ports> entry : loadPorts().entrySet()) {
             app = entry.getKey();
             if (oneApp == null || oneApp.equals(app)) {
-                ports = entry.getValue();
-                result.putAll(UrlPattern.parse(configuration.url).urlMap(app, getName(), session.configuration.hostname, ports.http, ports.https));
+                addUrlMap(images.get(app), app, entry.getValue(), result);
             }
+        }
+        return result;
+    }
+
+    private void addUrlMap(Image image, String app, Ports ports, Map<String, String> dest) {
+        if (image == null) {
+            throw new IllegalStateException("no image for app " + app);
+        }
+        if (ports.http != -1) {
+            addNamed(app, url(image,"http", ports.http), dest);
+        }
+        if (ports.https != -1) {
+            addNamed(app + " SSL", url(image,"https", ports.https), dest);
+        }
+    }
+
+    private void addNamed(String name, List<String> urls, Map<String, String> dest) {
+        int count;
+
+        if (urls.size() == 1) {
+            dest.put(name, urls.get(0));
+        } else {
+            count = 1;
+            for (String url : urls) {
+                dest.put(name + "_" + count, url);
+                count++;
+            }
+        }
+    }
+
+    private List<String> url(Image image, String protocol, int port) {
+        String hostname;
+        String url;
+        List<String> result;
+
+        hostname = session.configuration.hostname;
+        if (session.configuration.vhosts) {
+            hostname = image.app + "." + getName() + "." + hostname;
+        }
+        url = protocol + "://" + hostname + ":" + port + "/" + image.urlContext;
+        result = new ArrayList<>();
+        for (String suffix : image.urlSuffixes) {
+            result.add(url + suffix);
         }
         return result;
     }

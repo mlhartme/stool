@@ -56,9 +56,6 @@ public class StageConfiguration {
     @Option(key = "expire")
     public Expire expire;
 
-    @Option(key = "url")
-    public String url;
-
     @Option(key = "comment")
     public String comment;
 
@@ -68,7 +65,6 @@ public class StageConfiguration {
         this.notify.add(NOTIFY_CREATED_BY);
         this.quota = 10000;
         this.expire = Expire.never();
-        this.url = "(http:https)://%h/";
         this.comment = "";
     }
 

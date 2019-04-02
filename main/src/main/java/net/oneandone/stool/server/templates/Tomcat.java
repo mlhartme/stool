@@ -19,9 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.Session;
-import net.oneandone.stool.server.util.UrlPattern;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import net.oneandone.sushi.util.Substitution;
 import net.oneandone.sushi.util.SubstitutionException;
@@ -76,7 +74,7 @@ public class Tomcat {
         download.copyFile(dest);
     }
 
-    public void serverXml(String version, String cookiesStr, String keystorePassword) throws IOException, SAXException, XmlException {
+    public void serverXml(String version, String context, String cookiesStr, String keystorePassword) throws IOException, SAXException, XmlException {
         FileNode tomcatTarGz;
         CookieMode cookies;
         ServerXml serverXml;
@@ -91,17 +89,8 @@ public class Tomcat {
 
         serverXml = ServerXml.load(serverXmlDest);
         serverXml.stripComments();
-        serverXml.configure(context(), keystorePassword, cookies, legacyVersion(version));
+        serverXml.configure(context, keystorePassword, cookies, legacyVersion(version));
         serverXml.save(serverXmlDest);
-    }
-
-    private String context() {
-        UrlPattern urlPattern;
-        String result;
-
-        urlPattern = UrlPattern.parse(configuration.url);
-        result = urlPattern.substitute(app, configuration.name, session.configuration.hostname).getContext();
-        return result == null ? "" : result;
     }
 
     public void contextParameters(boolean logroot, String ... additionals) throws IOException, SAXException, XmlException {

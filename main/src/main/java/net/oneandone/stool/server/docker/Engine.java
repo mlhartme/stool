@@ -194,10 +194,14 @@ public class Engine implements AutoCloseable {
 
     public static class ContainerListInfo {
         public final String id;
+        public final String imageId;
+        public final Map<String, String> labels;
         public final Map<Integer, Integer> ports;
 
-        public ContainerListInfo(String id, Map<Integer, Integer> ports) {
+        public ContainerListInfo(String id, String imageId, Map<String, String> labels, Map<Integer, Integer> ports) {
             this.id = id;
+            this.imageId = imageId;
+            this.labels = labels;
             this.ports = ports;
         }
     }
@@ -225,7 +229,11 @@ public class Engine implements AutoCloseable {
         HttpNode node;
         JsonArray array;
         Map<String, ContainerListInfo> result;
+        JsonObject object;
         String id;
+        String imageId;
+        Map<String, String> labels;
+        String app;
 
         node = root.join("containers/json");
         if (filters != null) {
@@ -237,8 +245,20 @@ public class Engine implements AutoCloseable {
         array = parser.parse(node.readString()).getAsJsonArray();
         result = new HashMap<>(array.size());
         for (JsonElement element : array) {
-            id = element.getAsJsonObject().get("Id").getAsString();
-            result.put(id, new ContainerListInfo(id, ports(element.getAsJsonObject().get("Ports").getAsJsonArray())));
+            object = element.getAsJsonObject();
+            id = object.get("Id").getAsString();
+            imageId = object.get("ImageID").getAsString();
+            result.put(id, new ContainerListInfo(id, imageId, toStringMap(object.get("Labels").getAsJsonObject()), ports(element.getAsJsonObject().get("Ports").getAsJsonArray())));
+        }
+        return result;
+    }
+
+    private static Map<String, String> toStringMap(JsonObject obj) {
+        Map<String, String> result;
+
+        result = new HashMap<>();
+        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().getAsString());
         }
         return result;
     }
