@@ -367,7 +367,7 @@ public class Server {
             result.add("       created-at: " + image.created);
             result.add("       created-by: " + image.createdBy);
             result.add("       created-on: " + image.createdOn);
-            result.add("       secrets:    " + Separator.SPACE.join(image.secrets.keySet()));
+            result.add("       secrets:    " + Separator.COMMA.join(image.faultProjects));
             idx++;
         }
         return result;

@@ -76,7 +76,7 @@ public class Stage {
     private static final String LABEL_PREFIX = "net.oneandone.stool-";
 
     public static final String IMAGE_LABEL_PORT_DECLARED_PREFIX = LABEL_PREFIX + "port.declared.";
-    public static final String IMAGE_LABEL_MOUNT_SECRETS_PREFIX = LABEL_PREFIX + "mount-secrets-";
+    public static final String IMAGE_LABEL_FAULT = LABEL_PREFIX + "fault";
     public static final String IMAGE_LABEL_COMMENT = LABEL_PREFIX + "comment";
     public static final String IMAGE_LABEL_ORIGIN = LABEL_PREFIX + "origin";
     public static final String IMAGE_LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
@@ -565,8 +565,8 @@ public class Stage {
             result.put(session.certificate(session.configuration.vhosts ? image.app + "." + getName() + "." + session.configuration.hostname
                     : session.configuration.hostname), "/usr/local/tomcat/conf/tomcat.p12");
         }
-        for (Map.Entry<String, String> entry : image.secrets.entrySet()) {
-            result.put(session.world.file(session.configuration.secrets).join(entry.getKey()), entry.getValue());
+        for (String project : image.faultProjects) { // TODO: authorization
+            result.put(session.world.file(session.configuration.secrets).join(project), project);
         }
         return result;
     }

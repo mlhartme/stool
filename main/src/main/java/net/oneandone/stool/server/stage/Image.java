@@ -20,11 +20,12 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.util.Ports;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Image implements Comparable<Image> {
     public static Image load(Engine engine, String id) throws IOException {
@@ -43,7 +44,17 @@ public class Image implements Comparable<Image> {
                 labels.get(Stage.IMAGE_LABEL_ORIGIN).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_CREATED_BY).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_CREATED_ON).getAsString(),
-                secrets(labels));
+                fault(labels.get(Stage.IMAGE_LABEL_FAULT)));
+    }
+
+    private static List<String> fault(JsonElement element) {
+        List<String> result;
+
+        result = new ArrayList<>();
+        if (element != null) {
+            result.addAll(Separator.COMMA.split(element.getAsString()));
+        }
+        return result;
     }
 
     private static String app(JsonArray array) {
@@ -66,21 +77,6 @@ public class Image implements Comparable<Image> {
         return result.substring(idx + 1);
     }
 
-    private static Map<String, String> secrets(JsonObject labels) {
-        Map<String, String> secrets;
-        String key;
-
-        secrets = new HashMap<>();
-        for (Map.Entry<String, JsonElement> entry : labels.entrySet()) {
-            key = entry.getKey();
-            if (key.startsWith(Stage.IMAGE_LABEL_MOUNT_SECRETS_PREFIX)) {
-                secrets.put(key.substring(Stage.IMAGE_LABEL_MOUNT_SECRETS_PREFIX.length()), entry.getValue().getAsString());
-            }
-
-        }
-        return secrets;
-    }
-
     public final String id;
     public final LocalDateTime created;
 
@@ -97,10 +93,10 @@ public class Image implements Comparable<Image> {
     public final String createdOn;
 
     /** maps relative host path to absolute container path */
-    public final Map<String, String> secrets;
+    public final List<String> faultProjects;
 
     public Image(String id, LocalDateTime created, Ports ports, String app, String comment, String origin, String createdBy, String createdOn,
-                 Map<String, String> secrets) {
+                 List<String> faultProjects) {
         this.id = id;
         this.created = created;
 
@@ -110,7 +106,7 @@ public class Image implements Comparable<Image> {
         this.origin = origin;
         this.createdBy = createdBy;
         this.createdOn = createdOn;
-        this.secrets = secrets;
+        this.faultProjects = faultProjects;
     }
 
     @Override

@@ -61,17 +61,6 @@ public class Tomcat {
         war.copyFile(context.join("webapps").mkdirOpt().join(app + ".war"));
     }
 
-    /** @return LABEL directives declaring the secrets */
-    public String fault(String basedir, String faultProjects) {
-        StringBuilder result;
-
-        result = new StringBuilder();
-        for (String project : Separator.COMMA.split(faultProjects)) {
-            result.append("LABEL " + Stage.IMAGE_LABEL_MOUNT_SECRETS_PREFIX + project + "=" + basedir + "/" + project + "\n");
-        }
-        return result.toString();
-    }
-
     /* also checks sha1 digest - https://run-jira.tool.1and1.com/browse/CISOOPS-2406 */
     public void download(String downloadUrl, String version) throws IOException {
         FileNode download;
