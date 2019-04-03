@@ -40,6 +40,8 @@ Stages are now the central part; multiple project can be associated with the sam
 * replaced stage property `memory` by an build argument
 * replaced stage property `url` by `context` and `suffixes` build arguments
 
+* dumped "Manager" tag from context
+
 * stage config changes
   * dumped `autoRefresh`
 
