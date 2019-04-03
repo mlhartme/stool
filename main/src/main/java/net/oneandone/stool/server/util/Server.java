@@ -85,12 +85,13 @@ public class Server {
     }
 
     public BuildResult build(Reference reference, String app, FileNode war, String comment,
-                      String origin, String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
+                             String origin, String createdBy, String createdOn, boolean noCache, int keep,
+                             Map<String, String> arguments) throws Exception {
         String output;
 
         openStage(reference);
         try {
-            output = session.load(reference).build(app, war, comment, origin, createdBy, createdOn, noCache, keep);
+            output = session.load(reference).build(app, war, comment, origin, createdBy, createdOn, noCache, keep, arguments);
             return new BuildResult(null, output);
         } catch (BuildError e) {
             return new BuildResult(e.error, e.output);

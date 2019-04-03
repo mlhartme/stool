@@ -24,7 +24,7 @@ import static org.junit.Assert.assertNull;
 
 public class VariableTest {
     @Test
-    public void normal() throws IOException {
+    public void normal() {
         Variable v;
 
         assertNull(Variable.scan("# foo"));
@@ -33,10 +33,10 @@ public class VariableTest {
         assertEquals("7", v.dflt);
         v = Variable.scan("ARG  b=false");
         assertEquals("b", v.name);
-        assertEquals(false, v.dflt);
+        assertEquals("false", v.dflt);
         v = Variable.scan("arg b = true");
         assertEquals("b", v.name);
-        assertEquals(true, v.dflt);
+        assertEquals("true", v.dflt);
         v = Variable.scan("Arg str");
         assertEquals("str", v.name);
         assertEquals("", v.dflt);

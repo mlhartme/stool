@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Build extends ProjectCommand {
@@ -34,13 +36,42 @@ public class Build extends ProjectCommand {
     private final int keep;
     private final boolean restart;
     private final String comment;
+    private final Map<String, String> arguments;
 
-    public Build(World world, Console console, Server server, boolean noCache, int keep, boolean restart, String comment, FileNode project) {
-        super(world, console, server, project);
+    public Build(World world, Console console, Server server, boolean noCache, int keep, boolean restart, String comment, List<String> projectOrArgs) {
+        super(world, console, server, eatProjectOpt(world, projectOrArgs));
         this.noCache = noCache;
         this.keep = keep;
         this.restart = restart;
         this.comment = comment;
+        this.arguments = argument(projectOrArgs);
+    }
+
+    private static Map<String, String> argument(List<String> args) {
+        int idx;
+        Map<String, String> result;
+
+        result = new HashMap<>();
+        for (String arg : args) {
+            idx = arg.indexOf('=');
+            if (idx == -1) {
+                throw new ArgumentException("invalid argument: <key>=<value> expected, got " + arg);
+            }
+        }
+        return result;
+    }
+
+    private static FileNode eatProjectOpt(World world, List<String> lst) {
+        String str;
+
+        if (lst.size() > 0) {
+            str = lst.get(0);
+            if (!str.contains("=")) {
+                lst.remove(0);
+                return world.file(str);
+            }
+        }
+        return null;
     }
 
     @Override
@@ -64,7 +95,8 @@ public class Build extends ProjectCommand {
         }
         for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
-            result = server.build(reference, entry.getKey(), entry.getValue(), comment, project.getOrigin(), createdBy(), createdOn(), noCache, keep);
+            result = server.build(reference, entry.getKey(), entry.getValue(), comment, project.getOrigin(),
+                    createdBy(), createdOn(), noCache, keep, arguments);
             project.imageLog().writeString(result.output);
             if (result.error != null) {
                 console.info.println("build failed: " + result.error);

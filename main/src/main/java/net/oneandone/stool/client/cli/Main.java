@@ -74,7 +74,7 @@ public class Main {
                        cli.begin("globals.server", "");
                 cli.base(ClientCommand.class, "");
                     cli.add(Create.class, "create projectAndProperties*");
-                    cli.add(Build.class, "build -nocache -keep=5 -restart -m= project?");
+                    cli.add(Build.class, "build -nocache -keep=5 -restart -m= projectOrArgs*");
                     cli.add(Attach.class, "attach stage project?");
                     cli.add(Detach.class, "detach project?");
                     cli.add(Validate.class, "validate -email -repair -stage");

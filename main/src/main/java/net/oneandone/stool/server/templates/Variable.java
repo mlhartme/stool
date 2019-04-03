@@ -46,11 +46,9 @@ public class Variable {
         return result;
     }
 
-    public static Variable scan(String line){
+    public static Variable scan(String line) {
         String name;
-        Object dflt;
-        Function<String, Object> parser;
-        String init;
+        String dflt;
         int idx;
 
         line = line.trim();
@@ -61,30 +59,12 @@ public class Variable {
         idx = line.indexOf('=');
         if (idx == -1) {
             name = line;
-            init = "";
+            dflt = "";
         } else {
             name = line.substring(0, idx).trim();
-            init = line.substring(idx + 1).trim();
+            dflt = line.substring(idx + 1).trim();
         }
-        switch (init.toLowerCase()) { // TODO: detecting boolean is a heuristic ...
-            case "true":
-            case "false":
-                parser = (String str) -> { switch (str) {
-                    case "true": return true;
-                    case "false": return false;
-                    default: throw new ArgumentException("expected 'true' or 'false', got '" + str + "'");
-                } };
-                break;
-            default:
-                parser = (String arg) -> arg;
-                break;
-        }
-        try {
-            dflt = parser.apply(init);
-        } catch (RuntimeException e) {
-            throw new ArgumentException(name + ": invalid default value", e);
-        }
-        return new Variable(name, dflt, parser);
+        return new Variable(name, dflt);
     }
 
     public static Map<String, String> defaultMap(Collection<Variable> envs) {
@@ -98,22 +78,12 @@ public class Variable {
     }
 
     public final String name;
-    public final Object dflt;
-    private final Function<String, Object> parser;
+    public final String dflt;
 
 
-    public Variable(String name, Object dflt, Function<String, Object> parser) {
+    public Variable(String name, String dflt) {
         this.name = name;
         this.dflt = dflt;
-        this.parser = parser;
-    }
-
-    public Object parse(String str) {
-        try {
-            return parser.apply(str);
-        } catch (RuntimeException e) {
-            throw new ArgumentException(name + ": invalid value '" + str + "'");
-        }
     }
 
     public String toString(Object value) {

@@ -19,6 +19,8 @@ Stages are now the central part; multiple project can be associated with the sam
 * removed client-side locking, logging and exception emails
 * remived `working` state
 
+* build arguments are strings (not objects as in Freemarker templates)
+
 * added `running` field
 * changed server.xml: set `deployXML` to false 
   (since we now have exactly one web application per Tomcat, crossContext has no meaning; 

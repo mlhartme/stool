@@ -374,7 +374,8 @@ public class Stage {
 
     /** @param keep 0 to keep all */
     public String build(String app, FileNode war, String comment, String origin,
-                      String createdBy, String createdOn, boolean noCache, int keep) throws Exception {
+                        String createdBy, String createdOn, boolean noCache, int keep,
+                        Map<String, String> arguments) throws Exception {
         Engine engine;
         String image;
         String tag;
@@ -623,7 +624,7 @@ public class Stage {
             if (value == null) {
                 result.put(env.name, env.dflt);
             } else {
-                result.put(env.name, env.parse(value));
+                result.put(env.name, value);
             }
         }
         return result;
