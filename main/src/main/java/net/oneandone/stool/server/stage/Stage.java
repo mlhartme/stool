@@ -898,10 +898,10 @@ public class Stage {
     public FileNode createContext(String app, FileNode war) throws IOException {
         FileNode result;
 
-        result = directory.join("context");
+        result = directory.join("context").mkdirsOpt().join(app);
         result.deleteTreeOpt();
         result.mkdir();
-        war.copyFile(result.join("webapps").mkdirOpt().join(app + ".war"));
+        war.copyFile(result.join("app.war"));
         return result;
     }
 }
