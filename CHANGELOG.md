@@ -15,6 +15,7 @@ Stages are now the central part; multiple project can be associated with the sam
   * dumped svn credentials handling
   * dumped macros
 
+* dumped stage id, always use the name now
 * removed client-side locking, logging and exception emails
 * remived `working` state
 
