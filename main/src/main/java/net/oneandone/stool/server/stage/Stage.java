@@ -16,9 +16,6 @@
 package net.oneandone.stool.server.stage;
 
 import com.google.gson.JsonObject;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.common.State;
@@ -399,7 +396,7 @@ public class Stage {
         template = template(appProperties);
         env = Variable.scanTemplate(template).values();
         buildArgs = buildArgs(env, appProperties);
-        context = dockerContext(app, war, template, buildArgs);
+        context = dockerContext(app, war, template);
         labels = new HashMap<>();
         labels.put(IMAGE_LABEL_COMMENT, comment);
         labels.put(IMAGE_LABEL_ORIGIN, origin);
@@ -571,18 +568,10 @@ public class Stage {
         return result;
     }
 
-    private static final String FREEMARKER_EXT = ".fm";
-
-    private FileNode dockerContext(String app, FileNode war, FileNode src, Map<String, Object> buildArgs) throws IOException, TemplateException {
-        Configuration configuration;
+    private FileNode dockerContext(String app, FileNode war, FileNode src) throws IOException {
         FileNode context;
         FileNode destparent;
         FileNode destfile;
-        Template template;
-        StringWriter tmp;
-
-        configuration = new Configuration(Configuration.VERSION_2_3_26);
-        configuration.setDefaultEncoding("UTF-8");
 
         context = createContext(app, war);
         try {
@@ -593,18 +582,9 @@ public class Stage {
                 destfile = context.join(srcfile.getRelative(src));
                 destparent = destfile.getParent();
                 destparent.mkdirsOpt();
-                if (destfile.getName().endsWith(FREEMARKER_EXT)) {
-                    configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
-                    template = configuration.getTemplate(srcfile.getName());
-                    tmp = new StringWriter();
-                    template.process(buildArgs, tmp);
-                    destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
-                    destfile.writeString(tmp.getBuffer().toString());
-                } else {
-                    srcfile.copy(destfile);
-                }
+                srcfile.copy(destfile);
             }
-        } catch (IOException | TemplateException | RuntimeException | Error e) {
+        } catch (IOException | RuntimeException | Error e) {
             // generate all or nothing
             try {
                 context.deleteTreeOpt();

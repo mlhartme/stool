@@ -24,6 +24,8 @@ Stages are now the central part; multiple project can be associated with the sam
   (since we now have exactly one web application per Tomcat, crossContext has no meaning; 
    and i checked controlpanel trunk - is doesn't contain any symlink, so we can live without `allowLinking`)
 * create one image per war file
+* dumped downloads directory
+* dumped Freemarker support - use plain docker syntax now
 * added `remote -stop` option
 * added `attach` and `detatch` commands to manage project - stage association
 * dumped vhosts bind mounts, copy war instead
