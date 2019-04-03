@@ -64,6 +64,19 @@ public class EngineIT {
     }
 
     @Test
+    public void invalidDockerfile() throws IOException {
+        Engine engine;
+
+        engine = open();
+        try {
+            engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), df("FROM debian:stretch-slim\nls -la /dev/fuse\n"), false, null);
+            fail();
+        } catch (StatusException e) {
+            assertEquals(400, e.getStatusLine().code);
+        }
+    }
+
+    @Test
     public void list() throws IOException, InterruptedException {
         Map<String, String> labels;
         Engine engine;
