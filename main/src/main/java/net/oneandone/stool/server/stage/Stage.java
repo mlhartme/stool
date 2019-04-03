@@ -26,7 +26,6 @@ import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.docker.Engine;
-import net.oneandone.stool.server.templates.Tomcat;
 import net.oneandone.stool.server.templates.Variable;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
@@ -576,7 +575,7 @@ public class Stage {
 
     private FileNode dockerContext(String app, FileNode war, FileNode src, Map<String, Object> buildArgs) throws IOException, TemplateException {
         Configuration configuration;
-        FileNode dest;
+        FileNode context;
         FileNode destparent;
         FileNode destfile;
         Template template;
@@ -585,20 +584,20 @@ public class Stage {
         configuration = new Configuration(Configuration.VERSION_2_3_26);
         configuration.setDefaultEncoding("UTF-8");
 
-        dest = createContext();
+        context = createContext(app, war);
         try {
             for (FileNode srcfile : src.find("**/*")) {
                 if (srcfile.isDirectory()) {
                     continue;
                 }
-                destfile = dest.join(srcfile.getRelative(src));
+                destfile = context.join(srcfile.getRelative(src));
                 destparent = destfile.getParent();
                 destparent.mkdirsOpt();
                 if (destfile.getName().endsWith(FREEMARKER_EXT)) {
                     configuration.setDirectoryForTemplateLoading(srcfile.getParent().toPath().toFile());
                     template = configuration.getTemplate(srcfile.getName());
                     tmp = new StringWriter();
-                    template.process(templateEnv(app, war, dest, buildArgs), tmp);
+                    template.process(buildArgs, tmp);
                     destfile = destparent.join(Strings.removeRight(destfile.getName(), FREEMARKER_EXT));
                     destfile.writeString(tmp.getBuffer().toString());
                 } else {
@@ -608,13 +607,13 @@ public class Stage {
         } catch (IOException | TemplateException | RuntimeException | Error e) {
             // generate all or nothing
             try {
-                dest.deleteTreeOpt();
+                context.deleteTreeOpt();
             } catch (IOException nested) {
                 e.addSuppressed(nested);
             }
             throw e;
         }
-        return dest;
+        return context;
     }
 
     private Properties properties(FileNode war) throws IOException {
@@ -632,15 +631,6 @@ public class Stage {
             throw new IOException("missing propertyl: template");
         }
         return session.templates().join(template).checkDirectory();
-    }
-
-    private Map<String, Object> templateEnv(String app, FileNode war, FileNode context, Map<String, Object> buildArgs) {
-        Map<String, Object> result;
-
-        result = new HashMap<>();
-        result.put("tomcat", new Tomcat(app, war,this, context, session));
-        result.putAll(buildArgs);
-        return result;
     }
 
     private Map<String, Object> buildArgs(Collection<Variable> environment, Properties appProperties) {
@@ -922,12 +912,13 @@ public class Stage {
 
     //--
 
-    public FileNode createContext() throws IOException {
+    public FileNode createContext(String app, FileNode war) throws IOException {
         FileNode result;
 
         result = directory.join("context");
         result.deleteTreeOpt();
         result.mkdir();
+        war.copyFile(result.join("webapps").mkdirOpt().join(app + ".war"));
         return result;
     }
 }

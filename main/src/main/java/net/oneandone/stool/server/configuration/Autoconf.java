@@ -44,7 +44,6 @@ public class Autoconf {
     private static void oneAndOne(Environment environment, FileNode home, StoolConfiguration dest, Writer log) throws IOException {
         String tools;
         FileNode templates;
-        FileNode downloadsCache;
         FileNode init;
 
         tools = cisoTools(environment);
@@ -68,12 +67,6 @@ public class Autoconf {
                 log.write("initializing templates\n");
                 launcher = new Launcher(init.getParent(), init.getAbsolute());
                 launcher.exec(log);
-            }
-        }
-        if (OS.CURRENT == OS.MAC) {
-            downloadsCache = home.getWorld().getHome().join("Downloads");
-            if (downloadsCache.isDirectory()) {
-                downloadsCache.link(home.join("downloads").deleteDirectory());
             }
         }
     }

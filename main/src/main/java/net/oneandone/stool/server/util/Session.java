@@ -272,10 +272,6 @@ public class Session {
                 .create();
     }
 
-    public FileNode downloads() {
-        return home.join("downloads");
-    }
-
     public void checkVersion() throws IOException {
         String homeVersion;
         String binVersion;

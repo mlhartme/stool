@@ -17,7 +17,6 @@ package net.oneandone.stool.dashboard.config;
 
 
 import net.oneandone.stool.server.stage.Stage;
-import net.oneandone.stool.server.templates.ServerXml;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Session;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
@@ -110,8 +109,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             throw new IllegalStateException(map.toString());
         }
         entry = map.entrySet().iterator().next();
-        serviceProperties.setService("https://" + ServerXml.fqdn(session.configuration.vhosts, entry.getKey(),
-                self.getName(), session.configuration.hostname) + ":" + entry.getValue().https + "/j_spring_cas_security_check");
+        serviceProperties.setService("https://TODO" + /*ServerXml.fqdn(session.configuration.vhosts, entry.getKey(),
+                self.getName(), session.configuration.hostname) + */ ":" + entry.getValue().https + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
     }
