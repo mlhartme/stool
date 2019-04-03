@@ -141,6 +141,11 @@ public class Image implements Comparable<Image> {
 
     public Image(String id, LocalDateTime created, Ports ports, String app, int memory, String urlContext, List<String> urlSuffixes,
                  String comment, String origin, String createdBy, String createdOn, List<String> faultProjects) {
+        if (!urlContext.isEmpty()) {
+            if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
+                throw new IllegalArgumentException(urlContext);
+            }
+        }
         this.id = id;
         this.created = created;
 
