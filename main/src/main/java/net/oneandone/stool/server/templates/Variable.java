@@ -15,24 +15,19 @@
  */
 package net.oneandone.stool.server.templates;
 
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 public class Variable {
-
-    public static Map<String, Variable> scanTemplate(FileNode directory) throws IOException {
-        FileNode file;
+    public static Map<String, Variable> scan(FileNode file) throws IOException {
         Map<String, Variable> result;
         Variable variable;
 
         result = new HashMap<>();
-        file = directory.join("Dockerfile.fm");
         if (file.isFile()) {
             for (String line : file.readLines()) {
                 variable = scan(line);

@@ -383,7 +383,7 @@ public class Stage {
         Map<String, String> labels;
         Properties appProperties;
         FileNode template;
-        Collection<Variable> env;
+        Map<String, Variable> env;
         Map<String, String> buildArgs;
         StringWriter output;
         String result;
@@ -395,8 +395,8 @@ public class Stage {
         tag = session.configuration.registryNamespace + "/" + reference.getName() + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
         appProperties = properties(war);
         template = template(appProperties);
-        env = Variable.scanTemplate(template).values();
-        buildArgs = buildArgs(env, appProperties);
+        env = Variable.scan(template.join("Dockerfile"));
+        buildArgs = buildArgs(env, appProperties, arguments);
         context = dockerContext(app, war, template);
         labels = new HashMap<>();
         labels.put(IMAGE_LABEL_COMMENT, comment);
@@ -418,16 +418,6 @@ public class Stage {
         session.logging.verbose("successfully built image: " + image);
         session.logging.verbose(result);
         return result;
-    }
-
-    private static Map<String, String> convert(Map<String, Object> in) {
-        Map<String, String> out;
-
-        out = new HashMap<>(in.size());
-        for (Map.Entry<String, Object> entry : in.entrySet()) {
-            out.put(entry.getKey(), entry.getValue().toString());
-        }
-        return out;
     }
 
     public void start(int http, int https, Map<String, String> environment, Map<String, Integer> selection) throws IOException {
@@ -605,27 +595,36 @@ public class Stage {
     }
 
     private FileNode template(Properties appProperies) throws IOException {
-        String template;
+        Object template;
 
-        template = appProperies.getProperty("template");
+        template = appProperies.remove("template");
         if (template == null) {
             throw new IOException("missing propertyl: template");
         }
-        return session.templates().join(template).checkDirectory();
+        return session.templates().join(template.toString()).checkDirectory();
     }
 
-    private Map<String, String> buildArgs(Collection<Variable> environment, Properties appProperties) {
+    private Map<String, String> buildArgs(Map<String, Variable> environment, Properties appProperties, Map<String, String> explicit) {
         Map<String, String> result;
-        String value;
+        String name;
 
         result = new HashMap<>();
-        for (Variable env : environment) {
-            value = appProperties.getProperty(env.name);
-            if (value == null) {
-                result.put(env.name, env.dflt);
-            } else {
-                result.put(env.name, value);
+        for (Variable env : environment.values()) {
+            result.put(env.name, env.dflt);
+        }
+        for (Map.Entry<Object, Object> entry : appProperties.entrySet()) {
+            name = entry.getKey().toString();
+            if (!result.containsKey(name)) {
+                throw new ArgumentException("unknown build argument in stool.properties: " + name);
             }
+            result.put(name, entry.getValue().toString());
+        }
+        for (Map.Entry<String, String> entry : explicit.entrySet()) {
+            name = entry.getKey();
+            if (!result.containsKey(name)) {
+                throw new ArgumentException("unknown explcit build argument: " + name);
+            }
+            result.put(name, entry.getValue());
         }
         return result;
     }
