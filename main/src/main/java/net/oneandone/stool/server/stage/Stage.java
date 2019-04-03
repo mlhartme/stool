@@ -726,6 +726,9 @@ public class Stage {
             hostname = image.app + "." + getName() + "." + hostname;
         }
         url = protocol + "://" + hostname + ":" + port + "/" + image.urlContext;
+        if (!url.endsWith("/")) {
+            url = url + "/";
+        }
         result = new ArrayList<>();
         for (String suffix : image.urlSuffixes) {
             result.add(url + suffix);
