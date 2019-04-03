@@ -384,7 +384,7 @@ public class Stage {
         Properties appProperties;
         FileNode template;
         Collection<Variable> env;
-        Map<String, Object> buildArgs;
+        Map<String, String> buildArgs;
         StringWriter output;
         String result;
 
@@ -406,7 +406,7 @@ public class Stage {
         session.logging.verbose("building image ... ");
         output = new StringWriter();
         try {
-            image = engine.imageBuild(tag, convert(buildArgs), labels, context, noCache, output);
+            image = engine.imageBuild(tag, buildArgs, labels, context, noCache, output);
         } catch (BuildError e) {
             session.logging.verbose("image build output");
             session.logging.verbose(e.output);
@@ -614,8 +614,8 @@ public class Stage {
         return session.templates().join(template).checkDirectory();
     }
 
-    private Map<String, Object> buildArgs(Collection<Variable> environment, Properties appProperties) {
-        Map<String, Object> result;
+    private Map<String, String> buildArgs(Collection<Variable> environment, Properties appProperties) {
+        Map<String, String> result;
         String value;
 
         result = new HashMap<>();
