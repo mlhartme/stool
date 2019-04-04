@@ -28,7 +28,7 @@
 
     <dependency>
       <groupId>net.oneandone.stool</groupId>
-      <artifactId>main</artifactId>
+      <artifactId>client</artifactId>
       <version>${project.version}</version>
     </dependency>
 
