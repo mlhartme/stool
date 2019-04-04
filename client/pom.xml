@@ -7,10 +7,10 @@
     <version>5.0.0-SNAPSHOT</version>
   </parent>
 
-  <name>Stool Main</name>
-  <artifactId>main</artifactId>
+  <name>Stool Client</name>
+  <artifactId>client</artifactId>
   <packaging>jar</packaging>
-  <description>Stool's main component. Command line tool and Java Library for dashboard.</description>
+  <description>Stool client to build images and cli access to the server.</description>
 
   <dependencies>
     <dependency>
@@ -56,17 +56,6 @@
   </dependencies>
 
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>false</filtering>
-      </resource>
-      <resource>
-        <directory>src/main/filtered-resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-
     <plugins>
       <plugin>
         <groupId>net.oneandone.maven.plugins</groupId>

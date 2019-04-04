@@ -58,7 +58,7 @@
   <modules>
     <module>common</module>
     <module>server</module>
-    <module>main</module>
+    <module>client</module>
     <module>dashboard</module>
   </modules>
 
