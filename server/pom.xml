@@ -17,7 +17,7 @@
   <description>Stool's server component.</description>
 
   <properties>
-    <springboot.version>2.2.0.M1</springboot.version>
+    <springboot.version>2.1.2.RELEASE</springboot.version>
   </properties>
 
   <dependencies>
