@@ -72,7 +72,9 @@
               <main>net.oneandone.stool.client.cli.Main</main>
 
               <!-- TODO: dump when server dependency is gone -->
-              <overwrite>META-INF/spring-configuration-metadata.json, META-INF/additional-spring-configuration-metadata.json</overwrite>
+              <overwrite> META-INF/services/com.fasterxml.jackson.databind.Module, META-INF/spring-autoconfigure-metadata.properties,
+                META-INF/web-fragment.xml, META-INF/spring-configuration-metadata.json, META-INF/additional-spring-configuration-metadata.json,
+                META-INF/services/javax.servlet.ServletContainerInitializer</overwrite>
 
               <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
               <remove>META-INF/maven/**/*,
