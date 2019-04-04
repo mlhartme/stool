@@ -69,7 +69,7 @@ public class Home {
         dir.mkdir();
 
         world = dir.getWorld();
-        world.resource("BOOT-INF/classes/files/home").copyDirectory(dir);
+        world.resource("files/home").copyDirectory(dir);
         for (String name : new String[]{"stages", "logs", "run", "certs", "system"}) {
             dir.join(name).mkdir();
         }
@@ -94,7 +94,7 @@ public class Home {
     }
 
     private String file(String name) throws IOException {
-        return dir.getWorld().resource("BOOT-INF/classes/" + name).readString();
+        return dir.getWorld().resource(name).readString();
     }
 
     public String version() throws IOException {
