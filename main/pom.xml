@@ -19,6 +19,11 @@
       <version>5.0.0-SNAPSHOT</version>
     </dependency>
     <dependency>
+      <groupId>net.oneandone.stool</groupId>
+      <artifactId>server</artifactId>
+      <version>5.0.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
       <groupId>net.oneandone</groupId>
       <artifactId>sushi</artifactId>
       <version>3.2.1</version>
@@ -29,12 +34,6 @@
       <version>1.2.0</version>
     </dependency>
 
-    <dependency><!-- https://java.net/projects/javamail/pages/Home -->
-      <groupId>com.sun.mail</groupId>
-      <artifactId>javax.mail</artifactId>
-      <version>1.6.2</version>
-    </dependency>
-
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
@@ -42,20 +41,9 @@
     </dependency>
 
     <dependency>
-      <groupId>com.github.jnr</groupId>
-      <artifactId>jnr-unixsocket</artifactId>
-      <version>0.21</version>
-    </dependency>
-    <dependency>
       <groupId>org.kamranzafar</groupId>
       <artifactId>jtar</artifactId>
       <version>2.3</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.glassfish.external</groupId>
-      <artifactId>opendmk_jmxremote_optional_jar</artifactId>
-      <version>1.0-b01-ea</version>
     </dependency>
 
     <!-- test -->
@@ -125,46 +113,6 @@
               <goal>generate</goal>
             </goals>
           </execution>
-          <execution>
-            <id>stool-server</id>
-            <configuration>
-              <!-- JavaSetup is used as the setup tool *and* as the Jar file for the resulting stool installation. -->
-              <path>$PATH</path>
-              <options>-Djava.awt.headless=true</options>
-              <name>stool-server</name>
-              <main>net.oneandone.stool.server.cli.Main</main>
-              <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
-              <remove>META-INF/maven/**/*,
-                META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,
-                META-INF/license.txt, META-INF/notice.txt, overview.html, META-INF/DUMMY.SF, META-INF/DUMMY.DSA, about.html,
-                readme.txt, changelog.txt, notice.txt, license.txt, licenses/*
-              </remove>
-              <concat>META-INF/sisu/javax.inject.Named, META-INF/services/org.apache.lucene.codecs.PostingsFormat, META-INF/spring.*</concat>
-              <attach>true</attach>
-              <extensions>
-                <extension>if [ -z $JAVA_MODULES ] ; then</extension>
-                <!-- auto-detect; see https://www.oracle.com/technetwork/java/javase/versioning-naming-139433.html -->
-                <!-- takes less than 1/10 of a second: -->
-                <extension>  export JAVA_VERSION=$(java -version 2&gt;&amp;1 | head -n 1 | cut -f 3 -d ' ' | cut -f 2 -d '"')</extension>
-                <extension>  # echo java ${JAVA_VERSION}</extension>
-                <extension>  case "$JAVA_VERSION" in</extension>
-                <extension>    "1."*) export JAVA_MODULES=false ;;</extension>
-                <extension>    *) export JAVA_MODULES=true ;;</extension>
-                <extension>  esac</extension>
-                <extension>fi</extension>
-                <extension>if [ "$JAVA_MODULES" != "false" ] ; then</extension>
-                <extension>  OPTIONS="--illegal-access=deny $OPTIONS"</extension>
-                <extension>fi</extension>
-              </extensions>
-
-              <!-- upload ... -->
-              <symlink>${env.CISOTOOLS_HOME}/bin/stool</symlink>
-              <target>${env.CISOTOOLS_HOME}/stool</target>
-            </configuration>
-            <goals>
-              <goal>generate</goal>
-            </goals>
-          </execution>
         </executions>
       </plugin>
       <plugin>
@@ -202,7 +150,7 @@
           </execution>
         </executions>
       </plugin>
-      <plugin>
+      <!-- TODO plugin>
         <artifactId>jdeb</artifactId>
         <groupId>org.vafer</groupId>
         <version>1.7</version>
@@ -246,7 +194,7 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
+      </plugin -->
     </plugins>
   </build>
   <profiles>

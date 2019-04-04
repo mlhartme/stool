@@ -57,6 +57,7 @@
 
   <modules>
     <module>common</module>
+    <module>server</module>
     <module>main</module>
     <module>dashboard</module>
   </modules>
