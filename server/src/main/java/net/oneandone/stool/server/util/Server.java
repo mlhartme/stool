@@ -490,7 +490,7 @@ public class Server {
         // 1) is not available in Webapps (in particular: dashboard)
         // 2) is not available in test cases
         try {
-            return world.resource("stool.version").readString().trim();
+            return world.resource("BOOT-INF/classes/stool.version").readString().trim();
         } catch (IOException e) {
             throw new IllegalStateException("cannot determine version", e);
         }

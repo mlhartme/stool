@@ -22,6 +22,9 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
+import net.oneandone.sushi.util.Strings;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -36,9 +39,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+@SpringBootApplication
 public class Main {
     public static void main(String[] args) throws IOException {
-        System.exit(run(args));
+        if (args.length == 1 && "run".equals(args[0])) {
+            SpringApplication.run(Main.class, Strings.cdr(args));
+        } else {
+            System.exit(run(args));
+        }
     }
 
     public static int run(String[] args) throws IOException {
@@ -47,13 +55,15 @@ public class Main {
 
     public static int run(World world, FileNode itHome, String[] args) throws IOException {
         Cli cli;
+        Console console;
         Globals globals;
 
+        console = Console.create();
         globals = Globals.create(world, itHome, args);
-        cli = new Cli(globals::handleException);
+        cli = new Cli(console::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
-        cli.begin(Console.create(), "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
+        cli.begin(console, "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
            cli.begin("globals", globals,  "-exception { setException(exception) }");
               cli.add(Setup.class, "setup -batch config? { config(config) }");
