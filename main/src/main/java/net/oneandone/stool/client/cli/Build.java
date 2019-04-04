@@ -57,6 +57,7 @@ public class Build extends ProjectCommand {
             if (idx == -1) {
                 throw new ArgumentException("invalid argument: <key>=<value> expected, got " + arg);
             }
+            result.put(arg.substring(0, idx), arg.substring(idx + 1));
         }
         return result;
     }

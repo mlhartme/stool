@@ -622,7 +622,7 @@ public class Stage {
         for (Map.Entry<String, String> entry : explicit.entrySet()) {
             name = entry.getKey();
             if (!result.containsKey(name)) {
-                throw new ArgumentException("unknown explcit build argument: " + name);
+                throw new ArgumentException("unknown explicit build argument: " + name);
             }
             result.put(name, entry.getValue());
         }
