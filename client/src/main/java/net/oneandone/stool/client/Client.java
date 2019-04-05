@@ -12,17 +12,13 @@ import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.Stats;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
-import net.oneandone.stool.server.util.LogEntry;
-import net.oneandone.stool.server.util.LogReader;
 import net.oneandone.stool.server.util.Ports;
-import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.util.Separator;
-import net.oneandone.sushi.util.Strings;
 
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
@@ -141,11 +137,11 @@ public class Client {
     }
 
     public void stop(Reference reference, List<String> apps) throws IOException {
-        openStage(reference);
-        try {
-            session.load(reference).stop(apps);
-        } finally {
-            closeStage();
+        String response;
+
+        response = node(reference, "stop").withParameter("apps", Separator.COMMA.join(apps)).post("");
+        if (!response.isEmpty()) {
+            throw new IOException(response);
         }
     }
 

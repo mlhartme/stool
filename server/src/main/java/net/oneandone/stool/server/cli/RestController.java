@@ -12,12 +12,14 @@ import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Server;
 import net.oneandone.stool.server.util.Session;
+import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -96,6 +98,20 @@ public class RestController {
         return result.toString();
     }
 
+    @PostMapping("stage/{stage}/stop") @ResponseBody
+    public void stop(@PathVariable(value = "stage") String stage, @RequestParam("apps") String apps) throws IOException {
+        Reference reference;
+
+        reference = new Reference(stage);
+        openStage(reference);
+        try {
+            session.load(reference).stop(Separator.COMMA.split(apps));
+        } finally {
+            closeStage();
+        }
+    }
+
+
     @GetMapping("stage/{stage}/history") @ResponseBody
     public String history(@PathVariable(value = "stage") String stage,
                           @RequestParam("details") boolean details, @RequestParam("max") int max) throws IOException {
@@ -167,5 +183,15 @@ public class RestController {
         return new JsonPrimitive(session.memUnreserved()).toString();
     }
 
+
+    //--
+    private void openStage(Reference reference) throws MkdirException {
+        session.logging.openStage(reference.getName());
+        session.logging.command(session.command);
+    }
+
+    private void closeStage() {
+        session.logging.closeStage();
+    }
 
 }
