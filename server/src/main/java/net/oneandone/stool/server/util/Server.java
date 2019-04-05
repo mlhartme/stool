@@ -40,25 +40,6 @@ public class Server {
 
     //-- create, build, start, stop, remove
 
-    public Reference create(String name, Map<String, String> config) throws IOException {
-        Stage stage;
-        Property property;
-
-        stage = session.create(name);
-        for (Map.Entry<String, String> entry : config.entrySet()) {
-            property = stage.propertyOpt(entry.getKey());
-            if (property == null) {
-                throw new ArgumentException("unknown property: " + entry.getKey());
-            }
-            property.set(entry.getValue());
-        }
-        stage.saveConfig();
-
-        openStage(stage.reference);
-        closeStage();
-        return stage.reference;
-    }
-
     public BuildResult build(Reference reference, String app, FileNode war, String comment,
                              String origin, String createdBy, String createdOn, boolean noCache, int keep,
                              Map<String, String> arguments) throws Exception {

@@ -60,22 +60,20 @@ public class Client {
     //-- create, build, start, stop, remove
 
     public Reference create(String name, Map<String, String> config) throws IOException {
-        Stage stage;
-        Property property;
+        HttpNode node;
+        String response;
 
-        stage = session.create(name);
+        node = node("create");
+        node = node.withParameter("name", name);
         for (Map.Entry<String, String> entry : config.entrySet()) {
-            property = stage.propertyOpt(entry.getKey());
-            if (property == null) {
-                throw new ArgumentException("unknown property: " + entry.getKey());
-            }
-            property.set(entry.getValue());
+            node = node.withParameter(entry.getKey(), entry.getValue());
         }
-        stage.saveConfig();
 
-        openStage(stage.reference);
-        closeStage();
-        return stage.reference;
+        response = node.post("");
+        if (!response.isEmpty()) {
+            throw new IOException(response);
+        }
+        return new Reference(name);
     }
 
     public BuildResult build(Reference reference, String app, FileNode war, String comment,

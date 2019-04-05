@@ -3,6 +3,7 @@ package net.oneandone.stool.server.cli;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.Info;
@@ -23,8 +24,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +66,43 @@ public class RestController {
             throw new IOException("nested problems: " + problems);
         }
         return result.toString();
+    }
+
+    @PostMapping("create") @ResponseBody
+    public void create(HttpServletRequest request) throws IOException {
+        String name;
+        Map<String, String> config;
+        Enumeration<String> parameters;
+        String parameter;
+        Stage stage;
+        Property property;
+
+        config = new HashMap<>();
+        parameters = request.getParameterNames();
+        name = null;
+        while (parameters.hasMoreElements()) {
+            parameter = parameters.nextElement();
+            if ("name".equals(parameter)) {
+                name = request.getParameter(parameter);
+            } else {
+                config.put(parameter, request.getParameter(parameter));
+            }
+        }
+        if (name == null) {
+            throw new IOException("missing stage name: " + name);
+        }
+        stage = session.create(name);
+        for (Map.Entry<String, String> entry : config.entrySet()) {
+            property = stage.propertyOpt(entry.getKey());
+            if (property == null) {
+                throw new ArgumentException("unknown property: " + entry.getKey());
+            }
+            property.set(entry.getValue());
+        }
+        stage.saveConfig();
+
+        openStage(stage.reference);
+        closeStage();
     }
 
     @GetMapping("/stage/{stage}/properties") @ResponseBody
