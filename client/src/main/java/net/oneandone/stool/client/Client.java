@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.common.BuildResult;
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -63,17 +62,24 @@ public class Client {
     public BuildResult build(Reference reference, String app, FileNode war, String comment,
                              String origin, String createdBy, String createdOn, boolean noCache, int keep,
                              Map<String, String> arguments) throws Exception {
-        String output;
+        HttpNode node;
+        String result;
+        JsonObject obj;
+        JsonElement error;
 
-        openStage(reference);
-        try {
-            output = session.load(reference).build(app, war, comment, origin, createdBy, createdOn, noCache, keep, arguments);
-            return new BuildResult(null, output);
-        } catch (BuildError e) {
-            return new BuildResult(e.error, e.output);
-        } finally {
-            closeStage();
-        }
+        node = node(reference, "build");
+        node = node.withParameter("app", app);
+        node = node.withParameter("war", war.getAbsolute());
+        node = node.withParameter("comment", comment);
+        node = node.withParameter("origin", origin);
+        node = node.withParameter("created-by", createdBy);
+        node = node.withParameter("created-on", createdOn);
+        node = node.withParameter("no-cache", noCache);
+        node = node.withParameter("keep", keep);
+        node = node.withParameters("arg.", arguments);
+        obj = parser.parse(node.post("")).getAsJsonObject();
+        error = obj.get("error");
+        return new BuildResult(error == null ? null : error.getAsString(), obj.get("output").getAsString());
     }
 
     public void start(Reference reference, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {

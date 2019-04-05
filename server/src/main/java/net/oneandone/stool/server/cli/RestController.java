@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.common.Reference;
+import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Info;
@@ -34,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -98,6 +98,41 @@ public class RestController {
 
         openStage(stage.reference);
         closeStage();
+    }
+
+    @PostMapping("/stage/{stage}/build") @ResponseBody
+    public String build(@PathVariable("stage") String stage, @RequestParam("app") String app,
+                        @RequestParam("war") String war, @RequestParam("comment") String comment,
+                        @RequestParam("origin") String origin, @RequestParam("created-by") String createdBy,
+                        @RequestParam("created-on") String createdOn, @RequestParam("no-cache") boolean noCache,
+                        @RequestParam("keep") int keep, HttpServletRequest request) throws Exception {
+        Reference reference;
+        String output;
+        Map<String, String> arguments;
+
+        reference = new Reference(stage);
+        arguments = map(request, "arg.");
+        openStage(reference);
+        try {
+            output = session.load(reference).build(app, session.world.file(war),
+                    comment, origin, createdBy, createdOn, noCache, keep, arguments);
+            return buildResult(null, output).toString();
+        } catch (BuildError e) {
+            return buildResult(e.error, e.output).toString();
+        } finally {
+            closeStage();
+        }
+    }
+
+    private JsonObject buildResult(String error, String output) {
+        JsonObject result;
+
+        result = new JsonObject();
+        if (error != null) {
+            result.add("error", new JsonPrimitive(error));
+        }
+        result.add("output", new JsonPrimitive(output));
+        return result;
     }
 
     @GetMapping("/stage/{stage}/properties") @ResponseBody

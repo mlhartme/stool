@@ -69,8 +69,8 @@ public class Globals {
         }
     }
 
-    public Server server() throws IOException {
-        return new Server(session());
+    public Server server() {
+        return new Server();
     }
 
     public Session session() throws IOException {
