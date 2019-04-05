@@ -50,7 +50,7 @@ public class Globals {
         return console;
     }
 
-    public Client server() throws IOException {
-        return new Client(net.oneandone.stool.server.cli.Globals.create(world, itHome, args).session());
+    public Client server() {
+        return new Client(world);
     }
 }

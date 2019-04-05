@@ -6,8 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.common.BuildResult;
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.server.util.Session;
-import net.oneandone.sushi.fs.MkdirException;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.util.Separator;
@@ -19,12 +18,12 @@ import java.util.List;
 import java.util.Map;
 
 public class Client {
+    private final World world;
     private final JsonParser parser;
-    private final Session session;
 
-    public Client(Session session) {
+    public Client(World world) {
+        this.world = world;
         this.parser = new JsonParser();
-        this.session = session;
     }
 
     //--
@@ -63,7 +62,6 @@ public class Client {
                              String origin, String createdBy, String createdOn, boolean noCache, int keep,
                              Map<String, String> arguments) throws Exception {
         HttpNode node;
-        String result;
         JsonObject obj;
         JsonElement error;
 
@@ -240,15 +238,6 @@ public class Client {
         return array(httpGet(node(reference, "appInfo").withParameter("app", app)).getAsJsonArray());
     }
 
-    private void openStage(Reference reference) throws MkdirException {
-        session.logging.openStage(reference.getName());
-        session.logging.command(session.command);
-    }
-
-    private void closeStage() {
-        session.logging.closeStage();
-    }
-
     //--
 
     private HttpNode node(Reference reference, String cmd) throws IOException {
@@ -256,7 +245,7 @@ public class Client {
     }
 
     private HttpNode node(String path) throws IOException {
-        return (HttpNode) session.world.validNode("http://localhost:8080/").join(path);
+        return (HttpNode) world.validNode("http://localhost:8080/").join(path);
     }
 
     private JsonElement httpGet(HttpNode node) throws IOException {
