@@ -104,7 +104,7 @@ public abstract class ClientCommand {
 
         map = client.status(reference, Strings.toList("state"));
         if (map.size() != 1) {
-            throw new IllegalStateException(map.toString());
+            throw new IllegalStateException("unknown state: " + map.toString());
         }
         return State.valueOf(map.values().iterator().next().toUpperCase());
     }

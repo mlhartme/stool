@@ -94,7 +94,7 @@ public abstract class StageCommand extends ClientCommand {
                     console.info.println("WARNING: " + failureMessage);
                     break;
                 default:
-                    throw new IllegalStateException(fail.toString());
+                    throw new IllegalStateException("unknown fail mode: " + fail.toString());
             }
         }
     }

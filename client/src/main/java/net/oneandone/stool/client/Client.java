@@ -11,7 +11,6 @@ import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.Stats;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
-import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.LogEntry;
 import net.oneandone.stool.server.util.LogReader;
 import net.oneandone.stool.server.util.Ports;
@@ -20,6 +19,7 @@ import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 
@@ -161,23 +161,17 @@ public class Client {
 
     //--
 
-    public Map<String, String> status(Reference reference, List<String> selected) throws IOException {
-        Stage stage;
+    public Map<String, String> status(Reference reference, List<String> select) throws IOException {
+        HttpNode node;
+        JsonObject status;
         Map<String, String> result;
-        Info i;
 
-        stage = session.load(reference);
-        if (selected.isEmpty()) {
-            if (selected.isEmpty()) {
-                for (Info info : stage.fields()) {
-                    selected.add(info.name());
-                }
-            }
-        }
+        node = node(reference, "status");
+        node = node.withParameter("select", Separator.COMMA.join(select));
+        status = httpGet(node).getAsJsonObject();
         result = new LinkedHashMap<>();
-        for (String name : selected) {
-            i = stage.info(name);
-            result.put(i.name(), i.getAsString());
+        for (String name : status.keySet()) {
+            result.put(name, status.get(name).getAsString());
         }
         return result;
     }
@@ -241,14 +235,14 @@ public class Client {
     public String quota() throws IOException {
         String result;
 
-        result = httpGet("quota").getAsString();
+        result = httpGet(node("quota")).getAsString();
         return result.isEmpty() ? null : result;
     }
 
     public int memUnreserved() throws IOException {
         String result;
 
-        result = httpGet("memUnreserved").getAsString();
+        result = httpGet(node("memUnreserved")).getAsString();
         return Integer.parseInt(result);
     }
 
@@ -269,12 +263,11 @@ public class Client {
     //-- config command
 
     public Map<String, String> getProperties(Reference reference) throws Exception {
-        String str;
         Map<String, String> result;
         JsonObject properties;
 
+        properties = httpGet(node(reference, "properties")).getAsJsonObject();
         result = new LinkedHashMap<>();
-        properties = httpGet(reference, "properties").getAsJsonObject();
         for (String name : properties.keySet()) {
             result.put(name, properties.get(name).getAsString());
         }
@@ -482,14 +475,18 @@ public class Client {
 
     //--
 
-    private JsonElement httpGet(Reference reference, String cmd) throws IOException {
-        return httpGet("stage/" + reference.getName() + "/" + cmd);
+    private HttpNode node(Reference reference, String cmd) throws IOException {
+        return node("stage/" + reference.getName() + "/" + cmd);
     }
 
-    private JsonElement httpGet(String path) throws IOException {
+    private HttpNode node(String path) throws IOException {
+        return (HttpNode) session.world.validNode("http://localhost:8080/").join(path);
+    }
+
+    private JsonElement httpGet(HttpNode node) throws IOException {
         String response;
 
-        response = session.world.validNode("http://localhost:8080/").join(path).readString();
+        response = node.readString();
         //System.out.println("path: " + path);
         //System.out.println("response: " + response);
         return new JsonParser().parse(response);

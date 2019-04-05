@@ -155,27 +155,6 @@ public class Server {
 
     //--
 
-    public Map<String, String> status(Reference reference, List<String> selected) throws IOException {
-        Stage stage;
-        Map<String, String> result;
-        Info i;
-
-        stage = session.load(reference);
-        if (selected.isEmpty()) {
-            if (selected.isEmpty()) {
-                for (Info info : stage.fields()) {
-                    selected.add(info.name());
-                }
-            }
-        }
-        result = new LinkedHashMap<>();
-        for (String name : selected) {
-            i = stage.info(name);
-            result.put(i.name(), i.getAsString());
-        }
-        return result;
-    }
-
     public List<String> history(Reference reference, boolean details, int max) throws IOException {
         String stageName;
         LogEntry entry;
