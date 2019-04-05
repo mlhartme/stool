@@ -146,15 +146,11 @@ public class Client {
     }
 
     public void remove(Reference reference) throws IOException {
-        Stage stage;
+        String response;
 
-        openStage(reference);
-        try {
-            stage = session.load(reference);
-            stage.wipeDocker(session.dockerEngine());
-            stage.getDirectory().deleteTree();
-        } finally {
-            closeStage();
+        response = node(reference, "remove").post("");
+        if (!response.isEmpty()) {
+            throw new IOException(response);
         }
     }
 

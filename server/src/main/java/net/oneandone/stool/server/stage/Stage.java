@@ -727,6 +727,11 @@ public class Stage {
         return result;
     }
 
+    public void remove() throws IOException {
+        wipeDocker(session.dockerEngine());
+        getDirectory().deleteTree();
+    }
+
     //--
 
     public static class Current {

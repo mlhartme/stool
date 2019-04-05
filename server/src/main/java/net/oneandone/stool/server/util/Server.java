@@ -13,7 +13,6 @@ import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
-import net.oneandone.sushi.util.Strings;
 
 import javax.mail.MessagingException;
 import javax.management.MBeanServerConnection;
@@ -116,28 +115,6 @@ public class Server {
             result.put(app, stage.namedUrls(app));
         }
         return result;
-    }
-
-    public void stop(Reference reference, List<String> apps) throws IOException {
-        openStage(reference);
-        try {
-            session.load(reference).stop(apps);
-        } finally {
-            closeStage();
-        }
-    }
-
-    public void remove(Reference reference) throws IOException {
-        Stage stage;
-
-        openStage(reference);
-        try {
-            stage = session.load(reference);
-            stage.wipeDocker(session.dockerEngine());
-            stage.getDirectory().deleteTree();
-        } finally {
-            closeStage();
-        }
     }
 
     //--

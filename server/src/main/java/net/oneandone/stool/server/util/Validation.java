@@ -75,7 +75,7 @@ public class Validation {
         if (repair) {
             if (!stage.dockerContainerList().isEmpty()) {
                 try {
-                    server.stop(reference, new ArrayList<>());
+                    stage.stop(new ArrayList<>());
                     report.user(stage, "stage has been stopped");
                 } catch (Exception e) {
                     report.user(stage, "stage failed to stop: " + e.getMessage());
@@ -86,7 +86,7 @@ public class Validation {
                 if (stage.configuration.expire.expiredDays() >= session.configuration.autoRemove) {
                     try {
                         report.user(stage, "removing expired stage");
-                        server.remove(reference);
+                        stage.remove();
                     } catch (Exception e) {
                         report.user(stage, "failed to remove expired stage: " + e.getMessage());
                         logging.verbose(e.getMessage(), e);

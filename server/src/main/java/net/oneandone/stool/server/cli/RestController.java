@@ -168,6 +168,19 @@ public class RestController {
         return false;
     }
 
+    @PostMapping("stage/{stage}/remove") @ResponseBody
+    public void remove(@PathVariable(value = "stage") String stage) throws IOException {
+        Reference reference;
+
+        reference = new Reference(stage);
+        openStage(reference);
+        try {
+            session.load(reference).remove();
+        } finally {
+            closeStage();
+        }
+    }
+
     //--
 
     @GetMapping("/quota") @ResponseBody
