@@ -1,5 +1,6 @@
 package net.oneandone.stool.client;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.inline.ArgumentException;
@@ -18,7 +19,6 @@ import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.MkdirException;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -239,18 +239,17 @@ public class Client {
     }
 
     public String quota() throws IOException {
-        int global;
+        String result;
 
-        global = session.configuration.quota;
-        if (global == 0) {
-            return null;
-        } else {
-            return session.quotaReserved() + "/" + global;
-        }
+        result = httpGet("quota").getAsString();
+        return result.isEmpty() ? null : result;
     }
 
     public int memUnreserved() throws IOException {
-        return session.memUnreserved();
+        String result;
+
+        result = httpGet("memUnreserved").getAsString();
+        return Integer.parseInt(result);
     }
 
     public List<String> apps(Reference reference) throws IOException {
@@ -274,10 +273,8 @@ public class Client {
         Map<String, String> result;
         JsonObject properties;
 
-        str = session.world.node("http://localhost:8080/stage").join(reference.getName(), "properties").readString();
-        System.out.println("str: " + str);
         result = new LinkedHashMap<>();
-        properties = new JsonParser().parse(str).getAsJsonObject();
+        properties = httpGet(reference, "properties").getAsJsonObject();
         for (String name : properties.keySet()) {
             result.put(name, properties.get(name).getAsString());
         }
@@ -485,14 +482,16 @@ public class Client {
 
     //--
 
-    public static String versionString(World world) {
-        // don't use class.getPackage().getSpecificationVersion() because META-INF/META.MF
-        // 1) is not available in Webapps (in particular: dashboard)
-        // 2) is not available in test cases
-        try {
-            return world.resource("stool.version").readString().trim();
-        } catch (IOException e) {
-            throw new IllegalStateException("cannot determine version", e);
-        }
+    private JsonElement httpGet(Reference reference, String cmd) throws IOException {
+        return httpGet("stage/" + reference.getName() + "/" + cmd);
+    }
+
+    private JsonElement httpGet(String path) throws IOException {
+        String response;
+
+        response = session.world.validNode("http://localhost:8080/").join(path).readString();
+        //System.out.println("path: " + path);
+        //System.out.println("response: " + response);
+        return new JsonParser().parse(response);
     }
 }

@@ -232,21 +232,6 @@ public class Server {
         return false;
     }
 
-    public String quota() throws IOException {
-        int global;
-
-        global = session.configuration.quota;
-        if (global == 0) {
-            return null;
-        } else {
-            return session.quotaReserved() + "/" + global;
-        }
-    }
-
-    public int memUnreserved() throws IOException {
-        return session.memUnreserved();
-    }
-
     public List<String> apps(Reference reference) throws IOException {
         List<String> result;
 

@@ -47,4 +47,17 @@ public class RestController {
         }
         return result.toString();
     }
+
+    @GetMapping("/quota") @ResponseBody
+    public String quota() throws IOException {
+        int global;
+
+        global = session.configuration.quota;
+        return new JsonPrimitive(global == 0 ? "" : session.quotaReserved() + "/" + global).toString();
+    }
+
+    @GetMapping("/memUnreserved") @ResponseBody
+    public String memUnreserved() throws IOException {
+        return new JsonPrimitive(session.memUnreserved()).toString();
+    }
 }
