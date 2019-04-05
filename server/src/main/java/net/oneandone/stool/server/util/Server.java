@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,34 +50,6 @@ public class Server {
             return new BuildResult(null, output);
         } catch (BuildError e) {
             return new BuildResult(e.error, e.output);
-        } finally {
-            closeStage();
-        }
-    }
-
-    public void start(Reference reference, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {
-        Stage stage;
-        int global;
-        int reserved;
-        Map<String, String> environment;
-
-        openStage(reference);
-        try {
-            environment = new HashMap<>(session.configuration.environment);
-            environment.putAll(startEnvironment);
-            global = session.configuration.quota;
-            if (global != 0) {
-                reserved = session.quotaReserved();
-                if (reserved > global) {
-                    throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
-                            + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
-                }
-            }
-
-            stage = session.load(reference);
-            stage.session.configuration.verfiyHostname();
-            stage.checkConstraints();
-            stage.start(http, https, environment, apps);
         } finally {
             closeStage();
         }

@@ -72,22 +72,11 @@ public class RestController {
     public void create(HttpServletRequest request) throws IOException {
         String name;
         Map<String, String> config;
-        Enumeration<String> parameters;
-        String parameter;
         Stage stage;
         Property property;
 
-        config = new HashMap<>();
-        parameters = request.getParameterNames();
-        name = null;
-        while (parameters.hasMoreElements()) {
-            parameter = parameters.nextElement();
-            if ("name".equals(parameter)) {
-                name = request.getParameter(parameter);
-            } else {
-                config.put(parameter, request.getParameter(parameter));
-            }
-        }
+        config = map(request, "");
+        name = config.remove("name");
         if (name == null) {
             throw new IOException("missing stage name: " + name);
         }
@@ -136,6 +125,41 @@ public class RestController {
             throw new IOException("unknown field(s): " + selection);
         }
         return result.toString();
+    }
+
+    @PostMapping("stage/{stage}/start") @ResponseBody
+    public void start(@PathVariable(value = "stage") String stageName,
+                      @RequestParam("http") int http, @RequestParam("https") int https,
+                      HttpServletRequest request) throws IOException {
+        Stage stage;
+        int global;
+        int reserved;
+        Reference reference;
+        Map<String, String> environment;
+        Map<String, Integer> apps;
+
+        reference = new Reference(stageName);
+        apps = intMap(map(request, "app."));
+        environment = new HashMap<>(session.configuration.environment);
+        environment.putAll(map(request, "env."));
+        openStage(reference);
+        try {
+            global = session.configuration.quota;
+            if (global != 0) {
+                reserved = session.quotaReserved();
+                if (reserved > global) {
+                    throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
+                            + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
+                }
+            }
+
+            stage = session.load(reference);
+            stage.session.configuration.verfiyHostname();
+            stage.checkConstraints();
+            stage.start(http, https, environment, apps);
+        } finally {
+            closeStage();
+        }
     }
 
     @GetMapping("stage/{stage}/await-startup") @ResponseBody
@@ -261,6 +285,33 @@ public class RestController {
         return new JsonPrimitive(session.memUnreserved()).toString();
     }
 
+    //--
+
+    private Map<String, String> map(HttpServletRequest request, String prefix) {
+        Map<String, String> result;
+        Enumeration<String> parameters;
+        String parameter;
+
+        result = new HashMap<>();
+        parameters = request.getParameterNames();
+        while (parameters.hasMoreElements()) {
+            parameter = parameters.nextElement();
+            if (parameter.startsWith(prefix)) {
+                result.put(parameter, request.getParameter(parameter));
+            }
+        }
+        return result;
+    }
+
+    private Map<String, Integer> intMap(Map<String, String> map) {
+        Map<String, Integer> result;
+
+        result = new HashMap<>(map.size());
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            result.put(entry.getKey(), Integer.parseInt(entry.getValue()));
+        }
+        return result;
+    }
 
     //--
     private void openStage(Reference reference) throws MkdirException {

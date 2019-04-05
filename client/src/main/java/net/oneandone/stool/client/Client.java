@@ -30,7 +30,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,10 +63,8 @@ public class Client {
         String response;
 
         node = node("create");
+        node = node.withParameters(config);
         node = node.withParameter("name", name);
-        for (Map.Entry<String, String> entry : config.entrySet()) {
-            node = node.withParameter(entry.getKey(), entry.getValue());
-        }
 
         response = node.post("");
         if (!response.isEmpty()) {
@@ -93,30 +90,17 @@ public class Client {
     }
 
     public void start(Reference reference, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {
-        Stage stage;
-        int global;
-        int reserved;
-        Map<String, String> environment;
+        HttpNode node;
+        String response;
 
-        openStage(reference);
-        try {
-            environment = new HashMap<>(session.configuration.environment);
-            environment.putAll(startEnvironment);
-            global = session.configuration.quota;
-            if (global != 0) {
-                reserved = session.quotaReserved();
-                if (reserved > global) {
-                    throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
-                            + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
-                }
-            }
-
-            stage = session.load(reference);
-            stage.session.configuration.verfiyHostname();
-            stage.checkConstraints();
-            stage.start(http, https, environment, apps);
-        } finally {
-            closeStage();
+        node = node(reference, "start");
+        node = node.withParameter("http", http);
+        node = node.withParameter("https", https);
+        node = node.withParameters("env.", startEnvironment);
+        node = node.withParameters("app.", apps);
+        response = node.post("");
+        if (!response.isEmpty()) {
+            throw new IOException(response);
         }
     }
 
@@ -184,8 +168,8 @@ public class Client {
         List<String> result;
 
         node = node(reference,"history");
-        node = node.withParameter("details", Boolean.toString(details));
-        node = node.withParameter("max", Integer.toString(max));
+        node = node.withParameter("details", details);
+        node = node.withParameter("max", max);
         references = httpGet(node).getAsJsonArray();
         result = new ArrayList<>(references.size());
         for (JsonElement element : references) {
