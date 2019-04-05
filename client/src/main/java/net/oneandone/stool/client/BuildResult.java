@@ -1,4 +1,4 @@
-package net.oneandone.stool.common;
+package net.oneandone.stool.client;
 
 public class BuildResult {
     public final String error;
