@@ -6,12 +6,15 @@ import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.Info;
+import net.oneandone.stool.server.util.LogEntry;
+import net.oneandone.stool.server.util.LogReader;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Server;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.util.Strings;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -91,6 +94,62 @@ public class RestController {
             throw new IOException("unknown field(s): " + selection);
         }
         return result.toString();
+    }
+
+    @GetMapping("stage/{stage}/history") @ResponseBody
+    public String history(@PathVariable(value = "stage") String stage,
+                          @RequestParam("details") boolean details, @RequestParam("max") int max) throws IOException {
+        LogEntry entry;
+        Map<String, List<LogEntry>> detailsMap; /* maps id to it's details */
+        LogReader reader;
+        List<LogEntry> lst;
+        int counter;
+        JsonArray result;
+
+        result = new JsonArray();
+        counter = 0;
+        detailsMap = new HashMap<>();
+        reader = session.load(new Reference(stage)).logReader();
+        while (true) {
+            entry = reader.prev();
+            if (entry == null) {
+                break;
+            }
+            lst = detailsMap.get(entry.requestId);
+            if (lst == null) {
+                lst = new ArrayList<>();
+                detailsMap.put(entry.requestId, lst);
+            }
+            if (entry.logger.equals("COMMAND")) {
+                detailsMap.remove(entry.requestId);
+                lst.add(entry);
+                if (forStage(stage, lst)) {
+                    counter++;
+                    result.add("[" + LogEntry.FULL_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.message);
+                    if (details) {
+                        for (int i = lst.size() - 1; i >= 0; i--) {
+                            result.add(Strings.indent(lst.get(i).message, "     "));
+                        }
+                    }
+                }
+                if (counter == max) {
+                    result.add("(skipping after " + max + " commands; use -max <n> to see more)");
+                    break;
+                }
+            } else {
+                lst.add(entry);
+            }
+        }
+        return result.toString();
+    }
+
+    private static boolean forStage(String stageName, List<LogEntry> lst) {
+        for (LogEntry entry : lst) {
+            if (stageName.equals(entry.stageName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     //--

@@ -142,62 +142,6 @@ public class Server {
 
     //--
 
-    public List<String> history(Reference reference, boolean details, int max) throws IOException {
-        String stageName;
-        LogEntry entry;
-        Map<String, List<LogEntry>> detailsMap; /* maps id to it's details */
-        LogReader reader;
-        List<LogEntry> lst;
-        int counter;
-        List<String> result;
-
-        result = new ArrayList<>();
-        stageName = reference.getName();
-        counter = 0;
-        detailsMap = new HashMap<>();
-        reader = session.load(reference).logReader();
-        while (true) {
-            entry = reader.prev();
-            if (entry == null) {
-                break;
-            }
-            lst = detailsMap.get(entry.requestId);
-            if (lst == null) {
-                lst = new ArrayList<>();
-                detailsMap.put(entry.requestId, lst);
-            }
-            if (entry.logger.equals("COMMAND")) {
-                detailsMap.remove(entry.requestId);
-                lst.add(entry);
-                if (forStage(stageName, lst)) {
-                    counter++;
-                    result.add("[" + LogEntry.FULL_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.message);
-                    if (details) {
-                        for (int i = lst.size() - 1; i >= 0; i--) {
-                            result.add(Strings.indent(lst.get(i).message, "     "));
-                        }
-                    }
-                }
-                if (counter == max) {
-                    result.add("(skipping after " + max + " commands; use -max <n> to see more)");
-                    break;
-                }
-            } else {
-                lst.add(entry);
-            }
-        }
-        return result;
-    }
-
-    private static boolean forStage(String stageName, List<LogEntry> lst) {
-        for (LogEntry entry : lst) {
-            if (stageName.equals(entry.stageName)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public List<String> apps(Reference reference) throws IOException {
         List<String> result;
 
