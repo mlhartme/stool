@@ -53,16 +53,6 @@ public class Server {
         }
     }
 
-    //--
-
-    public List<String> apps(Reference reference) throws IOException {
-        List<String> result;
-
-        result = new ArrayList<>(session.load(reference).images(session.dockerEngine()).keySet());
-        Collections.sort(result);
-        return result;
-    }
-
     //-- validate
 
     public List<String> validate(String stageClause, boolean email, boolean repair) throws MessagingException, IOException, NamingException {

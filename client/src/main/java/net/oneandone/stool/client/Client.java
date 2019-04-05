@@ -27,7 +27,6 @@ import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -191,11 +190,7 @@ public class Client {
     }
 
     public List<String> apps(Reference reference) throws IOException {
-        List<String> result;
-
-        result = new ArrayList<>(session.load(reference).images(session.dockerEngine()).keySet());
-        Collections.sort(result);
-        return result;
+        return array(httpGet(node(reference, "apps")).getAsJsonArray());
     }
 
     //-- validate

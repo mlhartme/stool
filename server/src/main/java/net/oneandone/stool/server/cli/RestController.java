@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -157,6 +158,16 @@ public class RestController {
         }
         return result.toString();
     }
+
+    @GetMapping("stage/{stage}/apps") @ResponseBody
+    public String apps(@PathVariable(value = "stage") String stage) throws IOException {
+        List<String> result;
+
+        result = new ArrayList<>(session.load(new Reference(stage)).images(session.dockerEngine()).keySet());
+        Collections.sort(result);
+        return array(result).toString();
+    }
+
 
     @PostMapping("stage/{stage}/start") @ResponseBody
     public void start(@PathVariable(value = "stage") String stageName,
