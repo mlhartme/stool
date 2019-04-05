@@ -38,10 +38,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Server {
+public class Client {
     private final Session session;
 
-    public Server(Session session) {
+    public Client(Session session) {
         this.session = session;
     }
 

@@ -19,7 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -31,8 +31,8 @@ import java.util.Map;
 public class Create extends ProjectCommand {
     private final Map<String, String> config;
 
-    public Create(World world, Console console, Server server, List<String> args) {
-        super(world, console, server, eatProject(world, args));
+    public Create(World world, Console console, Client client, List<String> args) {
+        super(world, console, client, eatProject(world, args));
         this.config = new LinkedHashMap<>();
         for (String arg : args) {
             property(arg);
@@ -87,7 +87,7 @@ public class Create extends ProjectCommand {
             name = project.getDirectory().getName();
         }
         Project.checkName(name);
-        reference = server.create(name, config);
+        reference = client.create(name, config);
         console.info.println("stage create: " + reference.getName());
         project.setAttached(reference);
     }

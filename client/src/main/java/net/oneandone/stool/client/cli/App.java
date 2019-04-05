@@ -18,7 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 
 import java.util.ArrayList;
@@ -29,15 +29,15 @@ import java.util.List;
 public class App extends StageCommand {
     private final List<String> names;
 
-    public App(World world, Console console, Server server, List<String> names) {
-        super(world, console, server);
+    public App(World world, Console console, Client client, List<String> names) {
+        super(world, console, client);
         this.names = names;
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        for (String app : appSelection(server.apps(reference))) {
-            for (String line : server.appInfo(reference, app)) {
+        for (String app : appSelection(client.apps(reference))) {
+            for (String line : client.appInfo(reference, app)) {
                 console.info.println(line);
             }
         }

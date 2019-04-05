@@ -17,7 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -25,8 +25,8 @@ import net.oneandone.sushi.util.Strings;
 import java.util.Map;
 
 public class Status extends InfoCommand {
-    public Status(World world, Console console, Server server, String defaults) {
-        super(world, console, server, defaults);
+    public Status(World world, Console console, Client client, String defaults) {
+        super(world, console, client, defaults);
     }
 
     private static final Separator TAB = Separator.on('\t');
@@ -38,7 +38,7 @@ public class Status extends InfoCommand {
         boolean first;
         String value;
 
-        infos = server.status(reference, selected.isEmpty() ? defaults() : selected);
+        infos = client.status(reference, selected.isEmpty() ? defaults() : selected);
         width = 0;
         for (String name : infos.keySet()) {
             width = Math.max(width, name.length());

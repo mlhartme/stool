@@ -18,15 +18,15 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 public class Attach extends ProjectCommand {
     private final String stageName;
 
-    public Attach(World world, Console console, Server server, String stageName, FileNode project) {
-        super(world, console, server, project);
+    public Attach(World world, Console console, Client client, String stageName, FileNode project) {
+        super(world, console, client, project);
 
         this.stageName = stageName;
     }

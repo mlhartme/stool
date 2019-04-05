@@ -19,7 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Strings;
@@ -36,8 +36,8 @@ public abstract class StageCommand extends ClientCommand {
     private boolean all;
     private Fail fail = Fail.NORMAL;
 
-    public StageCommand(World world, Console console, Server server) {
-        super(world, console, server);
+    public StageCommand(World world, Console console, Client client) {
+        super(world, console, client);
     }
 
     public void setStage(String stageClause) {
@@ -114,12 +114,12 @@ public abstract class StageCommand extends ClientCommand {
             case 1:
                 if (all) {
                     serverProblems = new HashMap<>();
-                    result = server.search(null, serverProblems);
+                    result = client.search(null, serverProblems);
                     problems.addAll(serverProblems);
                     return result;
                 } else if (stageClause != null) {
                     serverProblems = new HashMap<>();
-                    result = server.search(stageClause, serverProblems);
+                    result = client.search(stageClause, serverProblems);
                     problems.addAll(serverProblems);
                     return result;
                 } else {

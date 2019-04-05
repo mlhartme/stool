@@ -17,7 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
@@ -33,12 +33,12 @@ public class Start extends StageCommand {
     private final Map<String, String> environment;
     private final Map<String, Integer> selection;
 
-    public Start(World world, Console console, Server server, boolean tail, List<String> selection) {
-        this(world, console, server, tail, -1, -1, selection);
+    public Start(World world, Console console, Client client, boolean tail, List<String> selection) {
+        this(world, console, client, tail, -1, -1, selection);
     }
 
-    public Start(World world, Console console, Server server, boolean tail, int http, int https, List<String> selection) {
-        super(world, console, server);
+    public Start(World world, Console console, Client client, boolean tail, int http, int https, List<String> selection) {
+        super(world, console, client);
         this.tail = tail;
         this.http = http;
         this.https = https;
@@ -68,14 +68,14 @@ public class Start extends StageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        server.start(reference, http, https, environment, selection);
+        client.start(reference, http, https, environment, selection);
     }
 
     @Override
     public void doFinish(Reference reference) throws Exception {
         Map<String, List<String>> running;
 
-        running = server.awaitStartup(reference);
+        running = client.awaitStartup(reference);
         console.info.println("Applications available:");
         for (String app : running.keySet()) {
             for (String url : running.get(app)) {

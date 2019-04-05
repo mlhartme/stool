@@ -16,15 +16,15 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 public abstract class ProjectCommand extends ClientCommand {
     private final FileNode project;
 
-    public ProjectCommand(World world, Console console, Server server, FileNode project) {
-        super(world, console, server);
+    public ProjectCommand(World world, Console console, Client client, FileNode project) {
+        super(world, console, client);
         this.project = project == null ? world.getWorking() : project;
     }
 

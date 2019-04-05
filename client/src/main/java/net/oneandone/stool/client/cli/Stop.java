@@ -17,7 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 
 import java.util.ArrayList;
@@ -26,11 +26,11 @@ import java.util.List;
 public class Stop extends StageCommand {
     private final List<String> apps;
 
-    public Stop(World world, Console console, Server server) {
-        this(world, console, server, new ArrayList<>());
+    public Stop(World world, Console console, Client client) {
+        this(world, console, client, new ArrayList<>());
     }
-    public Stop(World world, Console console, Server server, List<String> apps) {
-        super(world, console, server);
+    public Stop(World world, Console console, Client client, List<String> apps) {
+        super(world, console, client);
         this.apps = apps;
     }
 
@@ -40,7 +40,7 @@ public class Stop extends StageCommand {
     }
 
     public void doNormal(Reference reference) throws Exception {
-        server.stop(reference, apps);
+        client.stop(reference, apps);
     }
 
     @Override

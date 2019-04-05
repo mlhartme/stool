@@ -16,7 +16,7 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 
 import java.util.List;
@@ -30,8 +30,8 @@ public class Validate extends ClientCommand {
     private final boolean repair;
     private final String stageClause;
 
-    public Validate(World world, Console console, Server server, boolean email, boolean repair, String stageClause) {
-        super(world, console, server);
+    public Validate(World world, Console console, Client client, boolean email, boolean repair, String stageClause) {
+        super(world, console, client);
         this.email = email;
         this.repair = repair;
         this.stageClause = stageClause;
@@ -41,7 +41,7 @@ public class Validate extends ClientCommand {
     public void doRun() throws Exception {
         List<String> result;
 
-        result = server.validate(stageClause, email, repair);
+        result = client.validate(stageClause, email, repair);
         if (result.isEmpty()) {
             console.info.println("validate ok");
         } else {

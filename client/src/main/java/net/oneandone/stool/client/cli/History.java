@@ -17,22 +17,22 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 
 public class History extends StageCommand {
     private final boolean details;
     private final int max;
 
-    public History(World world, Console console, Server server, boolean details, int max) {
-        super(world, console, server);
+    public History(World world, Console console, Client client, boolean details, int max) {
+        super(world, console, client);
         this.details = details;
         this.max = max;
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        for (String line : server.history(reference, details, max)) {
+        for (String line : client.history(reference, details, max)) {
             console.info.println(line);
         }
     }

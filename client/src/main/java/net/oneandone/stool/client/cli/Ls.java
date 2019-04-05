@@ -17,7 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
 
@@ -30,8 +30,8 @@ import java.util.Map;
 public class Ls extends InfoCommand {
     private final List<List<String>> lines;
 
-    public Ls(World world, Console console, Server server, String defaults) {
-        super(world, console, server, defaults);
+    public Ls(World world, Console console, Client client, String defaults) {
+        super(world, console, client, defaults);
         lines = new ArrayList<>();
     }
 
@@ -61,7 +61,7 @@ public class Ls extends InfoCommand {
 
         line = new ArrayList<>();
         lines.add(line);
-        for (Map.Entry<String, String> entry : server.status(reference, selected).entrySet()) {
+        for (Map.Entry<String, String> entry : client.status(reference, selected).entrySet()) {
             line.add(entry.getValue().replace("\t", " "));
         }
     }
@@ -88,7 +88,7 @@ public class Ls extends InfoCommand {
         }
         message("");
         header("storage");
-        message("        mem: " + Strings.padLeft("~" + server.memUnreserved() + " mb free", padStorage));
+        message("        mem: " + Strings.padLeft("~" + client.memUnreserved() + " mb free", padStorage));
         quota();
         message("");
     }
@@ -96,7 +96,7 @@ public class Ls extends InfoCommand {
     private void quota() throws IOException {
         String quota;
 
-        quota = server.quota();
+        quota = client.quota();
         if (quota == null) {
             message(" disk: quota disabled");
         } else {
@@ -120,6 +120,6 @@ public class Ls extends InfoCommand {
     }
 
     protected List<Reference> defaultSelected(Map<String, IOException> problems) throws IOException {
-        return server.search(null, problems);
+        return client.search(null, problems);
     }
 }

@@ -16,7 +16,7 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -50,7 +50,7 @@ public class Globals {
         return console;
     }
 
-    public Server server() throws IOException {
-        return new Server(net.oneandone.stool.server.cli.Globals.create(world, itHome, args).session());
+    public Client server() throws IOException {
+        return new Client(net.oneandone.stool.server.cli.Globals.create(world, itHome, args).session());
     }
 }

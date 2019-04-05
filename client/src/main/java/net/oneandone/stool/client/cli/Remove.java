@@ -19,7 +19,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.common.State;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
@@ -28,8 +28,8 @@ public class Remove extends StageCommand {
     private final boolean batch;
     private final boolean stop;
 
-    public Remove(World world, Console console, Server server, boolean batch, boolean stop) {
-        super(world, console, server);
+    public Remove(World world, Console console, Client client, boolean batch, boolean stop) {
+        super(world, console, client);
         this.batch = batch;
         this.stop = stop;
     }
@@ -41,7 +41,7 @@ public class Remove extends StageCommand {
 
         state = state(reference);
         if (stop && state == State.UP) {
-            new Stop(world, console, (Server) server).doRun(reference);
+            new Stop(world, console, (Client) client).doRun(reference);
             state = state(reference);
         }
         if (state == State.UP) {
@@ -52,7 +52,7 @@ public class Remove extends StageCommand {
             console.pressReturn();
         }
 
-        server.remove(reference);
+        client.remove(reference);
 
         project = Project.lookup(world.getWorking());
         if (project != null && reference.equals(project.getAttachedOpt())) {

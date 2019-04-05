@@ -16,7 +16,7 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Separator;
 
@@ -29,8 +29,8 @@ public abstract class InfoCommand extends StageCommand {
 
     private final String defaults;
 
-    public InfoCommand(World world, Console console, Server server, String defaults) {
-        super(world, console, server);
+    public InfoCommand(World world, Console console, Client client, String defaults) {
+        super(world, console, client);
         this.defaults = defaults == null ? "" : defaults;
     }
 

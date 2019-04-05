@@ -18,15 +18,15 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 
 public class Detach extends ProjectCommand {
-    public Detach(World world, Console console, Server server, FileNode project) {
-        super(world, console, server, project);
+    public Detach(World world, Console console, Client client, FileNode project) {
+        super(world, console, client, project);
     }
 
     @Override

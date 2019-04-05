@@ -20,7 +20,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.common.BuildResult;
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -39,8 +39,8 @@ public class Build extends ProjectCommand {
     private final String comment;
     private final Map<String, String> arguments;
 
-    public Build(World world, Console console, Server server, boolean noCache, int keep, boolean restart, String comment, List<String> projectOrArgs) {
-        super(world, console, server, eatProjectOpt(world, projectOrArgs));
+    public Build(World world, Console console, Client client, boolean noCache, int keep, boolean restart, String comment, List<String> projectOrArgs) {
+        super(world, console, client, eatProjectOpt(world, projectOrArgs));
         this.noCache = noCache;
         this.keep = keep;
         this.restart = restart;
@@ -97,7 +97,7 @@ public class Build extends ProjectCommand {
         }
         for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
-            result = server.build(reference, entry.getKey(), entry.getValue(), comment, project.getOrigin(),
+            result = client.build(reference, entry.getKey(), entry.getValue(), comment, project.getOrigin(),
                     createdBy(), createdOn(), noCache, keep, arguments);
             project.imageLog().writeString(result.output);
             if (result.error != null) {
@@ -109,7 +109,7 @@ public class Build extends ProjectCommand {
                 console.verbose.println(result.output);
             }
             if (restart) {
-                new Restart(world, console, (Server) server, new ArrayList<>()).doRun(reference);
+                new Restart(world, console, (Client) client, new ArrayList<>()).doRun(reference);
             }
         }
     }

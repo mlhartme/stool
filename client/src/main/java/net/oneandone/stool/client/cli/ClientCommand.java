@@ -18,7 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.common.State;
-import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -35,12 +35,12 @@ import java.util.Map;
 public abstract class ClientCommand {
     protected final World world;
     protected final Console console;
-    protected final Server server;
+    protected final Client client;
 
-    public ClientCommand(World world, Console console, Server server) {
+    public ClientCommand(World world, Console console, Client client) {
         this.console = console;
         this.world = world;
-        this.server = server;
+        this.client = client;
     }
 
     public void run() throws Exception {
@@ -85,7 +85,7 @@ public abstract class ClientCommand {
         List<Reference> found;
 
         problems = new HashMap<>();
-        found = server.search(name, problems);
+        found = client.search(name, problems);
         if (!problems.isEmpty()) {
             throw new IOException("cannot resolve name: " + problems.toString());
         }
@@ -102,7 +102,7 @@ public abstract class ClientCommand {
     public State state(Reference reference) throws IOException {
         Map<String, String> map;
 
-        map = server.status(reference, Strings.toList("state"));
+        map = client.status(reference, Strings.toList("state"));
         if (map.size() != 1) {
             throw new IllegalStateException(map.toString());
         }
