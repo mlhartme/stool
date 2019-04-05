@@ -122,7 +122,7 @@ public class Client {
         }
     }
 
-    public Map<String, List<String>> awaitStartup(Reference reference) throws IOException, InterruptedException {
+    public Map<String, List<String>> awaitStartup(Reference reference) throws IOException {
         Stage stage;
         Map<String, List<String>> result;
 

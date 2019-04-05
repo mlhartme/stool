@@ -813,7 +813,7 @@ public class Stage {
 
     //--
 
-    public void awaitStartup() throws IOException, InterruptedException {
+    public void awaitStartup() throws IOException {
         String app;
         Ports ports;
         String state;
@@ -832,7 +832,11 @@ public class Stage {
                     if (count % 100 == 99) {
                         session.logging.info(app + ": waiting for tomcat startup ... ");
                     }
-                    Thread.sleep(100);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException ex) {
+                        // fall-through
+                    }
                 }
             }
             for (int count = 1; !"STARTED".equals(state); count++) {
@@ -842,7 +846,11 @@ public class Stage {
                 if (count % 100 == 99) {
                     session.logging.info(app + ": waiting for tomcat startup ... " + state);
                 }
-                Thread.sleep(100);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ex) {
+                    // fall-through
+                }
                 state = jmxEngineState(ports);
             }
         }
