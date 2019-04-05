@@ -73,7 +73,7 @@ public class Globals {
         return new Server(session());
     }
 
-    private Session session() throws IOException {
+    public Session session() throws IOException {
         Session session;
 
         if (!home.exists()) {
