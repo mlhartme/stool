@@ -64,7 +64,7 @@ public abstract class StageCommand extends ClientCommand {
         Worker worker;
 
         failures = new EnumerationFailed();
-        lst = selectedList(failures);
+        lst = selectedList();
         failureMessage = failures.getMessage();
         if (failureMessage != null && fail == Fail.NORMAL) {
             throw failures;
@@ -99,29 +99,18 @@ public abstract class StageCommand extends ClientCommand {
         }
     }
 
-    private List<Reference> selectedList(EnumerationFailed problems) throws IOException {
+    private List<Reference> selectedList() throws IOException {
         int count;
-        Map<String, IOException> serverProblems;
-        List<Reference> result;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
         switch (count) {
             case 0:
-                serverProblems = new HashMap<>();
-                result = defaultSelected(serverProblems);
-                problems.addAll(serverProblems);
-                return result;
+                return defaultSelected();
             case 1:
                 if (all) {
-                    serverProblems = new HashMap<>();
-                    result = client.search(null, serverProblems);
-                    problems.addAll(serverProblems);
-                    return result;
+                    return client.search(null);
                 } else if (stageClause != null) {
-                    serverProblems = new HashMap<>();
-                    result = client.search(stageClause, serverProblems);
-                    problems.addAll(serverProblems);
-                    return result;
+                    return client.search(stageClause);
                 } else {
                     throw new IllegalStateException();
                 }
@@ -131,7 +120,7 @@ public abstract class StageCommand extends ClientCommand {
     }
 
     /** override this to change the default */
-    protected List<Reference> defaultSelected(Map<String, IOException> notUsed) throws IOException {
+    protected List<Reference> defaultSelected() throws IOException {
         Project project;
         Reference reference;
 

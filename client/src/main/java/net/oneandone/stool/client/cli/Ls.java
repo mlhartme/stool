@@ -119,7 +119,7 @@ public class Ls extends InfoCommand {
         return result;
     }
 
-    protected List<Reference> defaultSelected(Map<String, IOException> problems) throws IOException {
-        return client.search(null, problems);
+    protected List<Reference> defaultSelected() throws IOException {
+        return client.search(null);
     }
 }

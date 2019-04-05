@@ -81,14 +81,9 @@ public abstract class ClientCommand {
     //-- utility code to simplify server api
 
     public Reference resolveName(String name) throws IOException {
-        Map<String, IOException> problems;
         List<Reference> found;
 
-        problems = new HashMap<>();
-        found = client.search(name, problems);
-        if (!problems.isEmpty()) {
-            throw new IOException("cannot resolve name: " + problems.toString());
-        }
+        found = client.search(name);
         switch (found.size()) {
             case 0:
                 throw new IOException("no such stage: " + name);
