@@ -10,7 +10,7 @@
   <name>Stool Client</name>
   <artifactId>client</artifactId>
   <packaging>jar</packaging>
-  <description>Stool client to build images and cli access to the server.</description>
+  <description>Stool client to control the server from the command line and build images (on the server, without local docker).</description>
 
   <dependencies>
     <dependency>

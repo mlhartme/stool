@@ -10,16 +10,6 @@ public interface ServerInterface {
     List<Reference> search(String stageClause, Map<String, IOException> problems) throws IOException;
     Reference create(String name, Map<String, String> config) throws IOException;
 
-    class BuildResult {
-        public final String error;
-        public final String output;
-
-        public BuildResult(String error, String output) {
-            this.error = error;
-            this.output = output;
-        }
-    }
-
     BuildResult build(Reference reference, String app, FileNode war, String comment,
                       String origin, String createdBy, String createdOn, boolean noCache, int keep,
                       Map<String, String> arguments) throws Exception;

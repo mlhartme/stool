@@ -2,7 +2,7 @@ package net.oneandone.stool.server.util;
 
 import com.google.gson.JsonObject;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.inline.Console;
+import net.oneandone.stool.common.BuildResult;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.common.ServerInterface;
 import net.oneandone.stool.server.docker.BuildError;

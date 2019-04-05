@@ -18,6 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
+import net.oneandone.stool.common.BuildResult;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.fs.World;
@@ -80,7 +81,7 @@ public class Build extends ProjectCommand {
         Project project;
         Reference reference;
         Map<String, FileNode> wars;
-        Server.BuildResult result;
+        BuildResult result;
 
         project = Project.lookup(projectDirectory);
         if (project == null) {
