@@ -1,6 +1,8 @@
 package net.oneandone.stool.client;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.common.BuildResult;
 import net.oneandone.stool.common.Reference;
@@ -266,18 +268,23 @@ public class Server implements ServerInterface {
 
     //-- validate
 
-    public List<String> validate(String stageClause, boolean email, boolean repair) throws MessagingException, IOException, NamingException {
+    public List<String> validate(String stageClause, boolean email, boolean repair) {
         return new ArrayList<>(); // TODO
     }
 
     //-- config command
 
     public Map<String, String> getProperties(Reference reference) throws Exception {
+        String str;
         Map<String, String> result;
+        JsonObject properties;
 
+        str = session.world.node("http://localhost:8080/stage").join(reference.getName(), "properties").readString();
+        System.out.println("str: " + str);
         result = new LinkedHashMap<>();
-        for (Property property : session.load(reference).properties()) {
-            result.put(property.name(), property.get());
+        properties = new JsonParser().parse(str).getAsJsonObject();
+        for (String name : properties.keySet()) {
+            result.put(name, properties.get(name).getAsString());
         }
         return result;
     }

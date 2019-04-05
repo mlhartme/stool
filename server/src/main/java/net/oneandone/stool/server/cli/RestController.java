@@ -1,5 +1,7 @@
 package net.oneandone.stool.server.cli;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.fs.World;
 import org.springframework.stereotype.Controller;
@@ -16,5 +18,15 @@ public class RestController {
 
         version = Server.versionString(World.create());
         return "<html><title>version=" + version + "</title></html>";
+    }
+
+    @GetMapping("/stage/${name}/properties") @ResponseBody
+    public String properties() throws IOException {
+        JsonObject result;
+
+        System.out.println("properties");
+        result = new JsonObject();
+        result.add("quota", new JsonPrimitive("11000"));
+        return result.toString();
     }
 }
