@@ -20,7 +20,6 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.server.configuration.Autoconf;
 import net.oneandone.stool.server.configuration.StoolConfiguration;
 import net.oneandone.stool.server.util.Environment;
-import net.oneandone.stool.server.util.Server;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -81,7 +80,7 @@ public class Home {
             conf = conf.createPatched(gson, explicitConfig);
         }
         conf.save(gson, dir);
-        versionFile().writeString(Server.versionString(world));
+        versionFile().writeString(Main.versionString(world));
         dir.join("run/locks").mkfile();
     }
 

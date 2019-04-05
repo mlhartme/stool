@@ -18,7 +18,6 @@ package net.oneandone.stool.server.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.server.util.Environment;
 import net.oneandone.stool.server.util.Logging;
-import net.oneandone.stool.server.util.Server;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -67,10 +66,6 @@ public class Globals {
         if (exception) {
             throw new RuntimeException("intentional exception");
         }
-    }
-
-    public Server server() {
-        return new Server();
     }
 
     public Session session() throws IOException {

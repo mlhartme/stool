@@ -13,7 +13,6 @@ import net.oneandone.stool.server.util.LogEntry;
 import net.oneandone.stool.server.util.LogReader;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
-import net.oneandone.stool.server.util.Server;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.stool.server.util.Validation;
 import net.oneandone.sushi.fs.MkdirException;
@@ -55,7 +54,7 @@ public class RestController {
 
     @GetMapping("/version") @ResponseBody
     public String version() throws IOException {
-        return new JsonPrimitive( Server.versionString(World.create())).toString();
+        return new JsonPrimitive( Main.versionString(session.world)).toString();
     }
 
     @GetMapping("/search") @ResponseBody
