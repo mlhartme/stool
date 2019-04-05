@@ -4,7 +4,6 @@ import com.google.gson.JsonObject;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.common.BuildResult;
 import net.oneandone.stool.common.Reference;
-import net.oneandone.stool.common.ServerInterface;
 import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.Stats;
@@ -33,7 +32,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Server implements ServerInterface {
+public class Server {
     private final Session session;
 
     public Server(Session session) {
@@ -263,16 +262,6 @@ public class Server implements ServerInterface {
     }
 
     //-- config command
-
-    public Map<String, String> getProperties(Reference reference) throws Exception {
-        Map<String, String> result;
-
-        result = new LinkedHashMap<>();
-        for (Property property : session.load(reference).properties()) {
-            result.put(property.name(), property.get());
-        }
-        return result;
-    }
 
     public Map<String, String> setProperties(Reference reference, Map<String, String> arguments) throws IOException {
         Stage stage;
