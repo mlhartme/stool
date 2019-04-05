@@ -24,12 +24,10 @@ import java.util.Map;
 import java.util.Set;
 
 public class Validation {
-    private final Server server;
     public final World world;
     private final Session session;
 
-    public Validation(Server server, Session session) {
-        this.server = server;
+    public Validation(Session session) {
         this.world = session.world;
         this.session = session;
     }

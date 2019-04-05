@@ -13,6 +13,7 @@ import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Server;
 import net.oneandone.stool.server.util.Session;
+import net.oneandone.stool.server.util.Validation;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Separator;
@@ -24,6 +25,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.mail.MessagingException;
+import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -166,6 +169,21 @@ public class RestController {
         result = new ArrayList<>(session.load(new Reference(stage)).images(session.dockerEngine()).keySet());
         Collections.sort(result);
         return array(result).toString();
+    }
+
+    @PostMapping("validate") @ResponseBody
+    public String validate(@RequestParam("stageClause") String stageClause,
+                           @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
+        List<String> output;
+
+        try {
+            output = new Validation(session).run(stageClause, email, repair);
+        } catch (MessagingException e) {
+            throw new IOException("email failure: " + e.getMessage(), e);
+        } catch (NamingException e) {
+            throw new IOException("naming exception: " + e.getMessage(), e);
+        }
+        return array(output).toString();
     }
 
 

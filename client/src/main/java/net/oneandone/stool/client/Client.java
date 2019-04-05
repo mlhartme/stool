@@ -32,9 +32,11 @@ import java.util.List;
 import java.util.Map;
 
 public class Client {
+    private final JsonParser parser;
     private final Session session;
 
     public Client(Session session) {
+        this.parser = new JsonParser();
         this.session = session;
     }
 
@@ -195,8 +197,16 @@ public class Client {
 
     //-- validate
 
-    public List<String> validate(String stageClause, boolean email, boolean repair) {
-        return new ArrayList<>(); // TODO
+    public List<String> validate(String stageClause, boolean email, boolean repair) throws IOException {
+        HttpNode node;
+        String response;
+
+        node = node("validate");
+        node = node.withParameter("stageClause", stageClause);
+        node = node.withParameter("email", email);
+        node = node.withParameter("repair", repair);
+        response = node.post("");
+        return array(parser.parse(response).getAsJsonArray());
     }
 
     //-- config command
@@ -221,7 +231,7 @@ public class Client {
         node = node(reference, "set-properties");
         node = node.withParameters(arguments);
 
-        response = new JsonParser().parse(node.post("")).getAsJsonObject();
+        response = parser.parse(node.post("")).getAsJsonObject();
 
         result = new LinkedHashMap<>();
         for (Map.Entry<String, JsonElement> entry : response.entrySet()) {
@@ -419,6 +429,6 @@ public class Client {
         response = node.readString();
         //System.out.println("path: " + path);
         //System.out.println("response: " + response);
-        return new JsonParser().parse(response);
+        return parser.parse(response);
     }
 }

@@ -13,18 +13,15 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 
-import javax.mail.MessagingException;
 import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
-import javax.naming.NamingException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -51,12 +48,6 @@ public class Server {
         } finally {
             closeStage();
         }
-    }
-
-    //-- validate
-
-    public List<String> validate(String stageClause, boolean email, boolean repair) throws MessagingException, IOException, NamingException {
-        return new Validation(this, session).run(stageClause, email, repair);
     }
 
     //-- app info
