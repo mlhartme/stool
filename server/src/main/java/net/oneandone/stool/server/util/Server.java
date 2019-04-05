@@ -39,19 +39,6 @@ public class Server {
         this.session = session;
     }
 
-    //--
-
-    /** @param stageClause null to return all stages */
-    public List<Reference> search(String stageClause, Map<String, IOException> problems) throws IOException {
-        List<Reference> result;
-
-        result = new ArrayList<>();
-        for (Stage stage : session.list(PredicateParser.parse(stageClause), problems)) {
-            result.add(stage.reference);
-        }
-        return result;
-    }
-
     //-- create, build, start, stop, remove
 
     public Reference create(String name, Map<String, String> config) throws IOException {

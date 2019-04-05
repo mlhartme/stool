@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -43,7 +42,10 @@ public class Validation {
         report = new Report();
         validateServer(report);
         problems = new HashMap<>();
-        references = server.search(stageClause, problems);
+        references = new ArrayList<>();
+        for (Stage stage : session.list(PredicateParser.parse(stageClause), problems)) {
+            references.add(stage.reference);
+        }
         if (!problems.isEmpty()) {
             throw new IOException("cannot get stages: " + problems.toString());
         }

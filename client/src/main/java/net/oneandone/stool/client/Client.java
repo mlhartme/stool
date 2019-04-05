@@ -1,5 +1,6 @@
 package net.oneandone.stool.client;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -49,12 +50,13 @@ public class Client {
 
     /** @param stageClause null to return all stages */
     public List<Reference> search(String stageClause) throws IOException {
+        JsonArray references;
         List<Reference> result;
 
-        result = new ArrayList<>();
-
-        for (Stage stage : session.list(PredicateParser.parse(stageClause), new HashMap<>())) {
-            result.add(stage.reference);
+        references = httpGet(node("search").withParameter("stageClause", stageClause)).getAsJsonArray();
+        result = new ArrayList<>(references.size());
+        for (JsonElement element : references) {
+            result.add(new Reference(element.getAsString()));
         }
         return result;
     }
