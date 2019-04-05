@@ -98,6 +98,31 @@ public class RestController {
         return result.toString();
     }
 
+    @GetMapping("stage/{stage}/await-startup") @ResponseBody
+    public String awaitStartup(@PathVariable(value = "stage") String stageName) throws IOException {
+        Stage stage;
+        JsonObject result;
+
+        stage = session.load(new Reference(stageName));
+        stage.awaitStartup();
+
+        result = new JsonObject();
+        for (String app : stage.currentMap().keySet()) {
+            result.add(app, array(stage.namedUrls(app)));
+        }
+        return result.toString();
+    }
+
+    private static JsonArray array(List<String> array) {
+        JsonArray result;
+
+        result = new JsonArray(array.size());
+        for (String str : array) {
+            result.add(new JsonPrimitive(str));
+        }
+        return result;
+    }
+
     @PostMapping("stage/{stage}/stop") @ResponseBody
     public void stop(@PathVariable(value = "stage") String stage, @RequestParam("apps") String apps) throws IOException {
         Reference reference;

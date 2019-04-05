@@ -123,15 +123,24 @@ public class Client {
     }
 
     public Map<String, List<String>> awaitStartup(Reference reference) throws IOException {
-        Stage stage;
+        JsonObject response;
         Map<String, List<String>> result;
 
-        stage = session.load(reference);
-        stage.awaitStartup();
+        response = httpGet(node(reference, "await-startup")).getAsJsonObject();
 
         result = new LinkedHashMap<>();
-        for (String app : stage.currentMap().keySet()) {
-            result.put(app, stage.namedUrls(app));
+        for (Map.Entry<String, JsonElement> entry : response.entrySet()) {
+            result.put(entry.getKey(), array(entry.getValue().getAsJsonArray()));
+        }
+        return result;
+    }
+
+    private static List<String> array(JsonArray json) {
+        List<String> result;
+
+        result = new ArrayList<>(json.size());
+        for (JsonElement element : json) {
+            result.add(element.getAsString());
         }
         return result;
     }

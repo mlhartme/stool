@@ -103,20 +103,6 @@ public class Server {
         }
     }
 
-    public Map<String, List<String>> awaitStartup(Reference reference) throws IOException, InterruptedException {
-        Stage stage;
-        Map<String, List<String>> result;
-
-        stage = session.load(reference);
-        stage.awaitStartup();
-
-        result = new LinkedHashMap<>();
-        for (String app : stage.currentMap().keySet()) {
-            result.put(app, stage.namedUrls(app));
-        }
-        return result;
-    }
-
     //--
 
     public List<String> apps(Reference reference) throws IOException {
