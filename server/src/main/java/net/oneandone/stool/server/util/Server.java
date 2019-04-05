@@ -4,6 +4,7 @@ import com.google.gson.JsonObject;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
+import net.oneandone.stool.common.ServerInterface;
 import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.Stats;
@@ -32,7 +33,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Server {
+public class Server implements ServerInterface {
     private final Session session;
 
     public Server(Session session) {
@@ -54,7 +55,7 @@ public class Server {
 
     //-- create, build, start, stop, remove
 
-    public Reference create(String name, Map<String, String> config, Console console) throws IOException {
+    public Reference create(String name, Map<String, String> config) throws IOException {
         Stage stage;
         Property property;
 
@@ -69,19 +70,8 @@ public class Server {
         stage.saveConfig();
 
         openStage(stage.reference);
-        console.info.println("stage create: " + stage.getName());
         closeStage();
         return stage.reference;
-    }
-
-    public static class BuildResult {
-        public final String error;
-        public final String output;
-
-        public BuildResult(String error, String output) {
-            this.error = error;
-            this.output = output;
-        }
     }
 
     public BuildResult build(Reference reference, String app, FileNode war, String comment,

@@ -87,7 +87,8 @@ public class Create extends ProjectCommand {
             name = project.getDirectory().getName();
         }
         Project.checkName(name);
-        reference = server.create(name, config, console);
+        reference = server.create(name, config);
+        console.info.println("stage create: " + reference.getName());
         project.setAttached(reference);
     }
 }

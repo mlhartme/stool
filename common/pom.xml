@@ -13,6 +13,11 @@
   <description>Common code.</description>
 
   <dependencies>
+    <dependency>
+      <groupId>net.oneandone</groupId>
+      <artifactId>sushi</artifactId>
+      <version>3.2.2-SNAPSHOT</version>
+    </dependency>
     <!-- test -->
     <dependency>
       <groupId>junit</groupId>
