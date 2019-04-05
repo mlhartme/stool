@@ -1,0 +1,192 @@
+package net.oneandone.stool.server.util;
+
+import com.google.gson.JsonObject;
+import net.oneandone.stool.common.Reference;
+import net.oneandone.stool.server.docker.Engine;
+import net.oneandone.stool.server.docker.Stats;
+import net.oneandone.stool.server.stage.Image;
+import net.oneandone.stool.server.stage.Stage;
+import net.oneandone.sushi.util.Separator;
+
+import javax.management.MBeanServerConnection;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.openmbean.CompositeData;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class AppInfo {
+    private final Session session;
+
+    public AppInfo(Session session) {
+        this.session = session;
+    }
+
+    public List<String> run(Reference reference, String app) throws Exception {
+        Stage stage;
+        Map<String, List<Image>> all;
+        Map<String, Stage.Current> currentMap;
+        Engine engine;
+        String marker;
+        int idx;
+        Stage.Current current;
+        Ports ports;
+        List<String> result;
+
+        result = new ArrayList<>();
+        stage = session.load(reference);
+        engine = stage.session.dockerEngine();
+        all = stage.images(engine);
+        currentMap = stage.currentMap();
+        for (Map.Entry<String, List<Image>> entry : all.entrySet()) {
+            if (!currentMap.containsKey(entry.getKey())) {
+                currentMap.put(entry.getKey(), new Stage.Current(entry.getValue().get(0), null));
+            }
+        }
+
+        current = currentMap.get(app);
+        idx = 0;
+        ports = stage.loadPorts().get(app);
+        result.add("app:       " + app);
+        result.add("cpu:       " + cpu(current));
+        result.add("mem:       " + mem(current));
+        result.add("container: " + current.container);
+        result.add("origin:    " + current.image.origin);
+        result.add("uptime:    " + uptime(current));
+        result.add("heap:      " + heap(stage, app, current));
+        result.add("disk-used: " + diskUsed(current));
+        if (ports != null) {
+            if (ports.debug != -1) {
+                result.add("debug port " + ports.debug);
+            }
+            if (ports.jmxmp != -1) {
+                String url;
+
+                result.add("jmx port:  " + ports.jmxmp);
+                url = stage.session.configuration.hostname + ":" + ports.jmxmp;
+                result.add("                 jconsole " + url);
+                result.add("                 jvisualvm --openjmx " + url);
+            }
+        }
+        result.add("");
+        for (Image image : all.get(app)) {
+            marker = image.id.equals(current.image.id) ? "==>" : "   ";
+            result.add(String.format("%s [%d] %s\n", marker, idx, image.id));
+            result.add("       memory:     " + image.memory);
+            result.add("       comment:    " + image.comment);
+            result.add("       origin:     " + image.origin);
+            result.add("       created-at: " + image.created);
+            result.add("       created-by: " + image.createdBy);
+            result.add("       created-on: " + image.createdOn);
+            result.add("       secrets:    " + Separator.COMMA.join(image.faultProjects));
+            idx++;
+        }
+        return result;
+    }
+
+    public String heap(Stage stage, String app, Stage.Current current) throws IOException {
+        String container;
+        JMXServiceURL url;
+        MBeanServerConnection connection;
+        ObjectName name;
+        CompositeData result;
+        long used;
+        long max;
+
+        container = current.container;
+        if (container == null) {
+            return "";
+        }
+        if (current.image.ports.jmxmp == -1) {
+            return "[no jmx port]";
+        }
+
+        // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
+        try {
+            url = new JMXServiceURL("service:jmx:jmxmp://" + stage.session.configuration.hostname + ":" + stage.loadPorts().get(app).jmxmp);
+        } catch (MalformedURLException e) {
+            throw new IllegalStateException(e);
+        }
+        try {
+            connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
+        } catch (IOException e) {
+            session.logging.verbose("cannot connect to jmx server", e);
+            return "[cannot connect jmx server: " + e.getMessage() + "]";
+        }
+        try {
+            name = new ObjectName("java.lang:type=Memory");
+        } catch (MalformedObjectNameException e) {
+            throw new IllegalStateException(e);
+        }
+        try {
+            result = (CompositeData) connection.getAttribute(name, "HeapMemoryUsage");
+        } catch (Exception e) {
+            return "[cannot get jmx attribute: " + e.getMessage() + "]";
+        }
+        used = (Long) result.get("used");
+        max = (Long) result.get("max");
+        return Float.toString(((float) (used * 1000 / max)) / 10);
+    }
+
+    public int diskUsed(Stage.Current current) throws IOException {
+        String container;
+        JsonObject obj;
+
+        container = current.container;
+        if (container == null) {
+            return 0;
+        }
+        obj = session.dockerEngine().containerInspect(container, true);
+        // not SizeRootFs, that's the image size plus the rw layer
+        return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
+    }
+
+    private String uptime(Stage.Current current) throws IOException {
+        String container;
+
+        container = current.container;
+        return container == null ? null : Stage.timespan(session.dockerEngine().containerStartedAt(container));
+    }
+
+    private Integer cpu(Stage.Current current) throws IOException {
+        Engine engine;
+        Stats stats;
+        String container;
+
+        container = current.container;
+        if (container == null) {
+            return null;
+        }
+        engine = session.dockerEngine();
+        stats = engine.containerStats(container);
+        if (stats != null) {
+            return stats.cpu;
+        } else {
+            // not started
+            return 0;
+        }
+    }
+
+    private Long mem(Stage.Current current) throws IOException {
+        String container;
+        Stats stats;
+
+        container = current.container;
+        if (container == null) {
+            return null;
+        }
+        stats = session.dockerEngine().containerStats(container);
+        if (stats != null) {
+            return stats.memoryUsage * 100 / stats.memoryLimit;
+        } else {
+            // not started
+            return 0L;
+        }
+    }
+
+}

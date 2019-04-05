@@ -6,6 +6,7 @@ import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.stage.Stage;
+import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.LogEntry;
 import net.oneandone.stool.server.util.LogReader;
@@ -184,6 +185,11 @@ public class RestController {
             throw new IOException("naming exception: " + e.getMessage(), e);
         }
         return array(output).toString();
+    }
+
+    @GetMapping("stage/{stage}/appInfo")
+    public String appInfo(@PathVariable("stage") String stage, @RequestParam("app") String app) throws Exception {
+        return array(new AppInfo(session).run(new Reference(stage), app)).toString();
     }
 
 
