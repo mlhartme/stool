@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.common.BuildResult;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.docker.BuildError;
@@ -13,7 +12,6 @@ import net.oneandone.stool.server.docker.Stats;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.Ports;
-import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -221,28 +219,19 @@ public class Client {
     }
 
     public Map<String, String> setProperties(Reference reference, Map<String, String> arguments) throws IOException {
-        Stage stage;
-        Property prop;
-        String value;
+        HttpNode node;
+        JsonObject response;
         Map<String, String> result;
 
+        node = node(reference, "set-properties");
+        node = node.withParameters(arguments);
+
+        response = new JsonParser().parse(node.post("")).getAsJsonObject();
+
         result = new LinkedHashMap<>();
-        stage = session.load(reference);
-        for (Map.Entry<String, String> entry : arguments.entrySet()) {
-            prop = stage.propertyOpt(entry.getKey());
-            if (prop == null) {
-                throw new ArgumentException("unknown property: " + entry.getKey());
-            }
-            value = entry.getValue();
-            value = value.replace("{}", prop.get());
-            try {
-                prop.set(value);
-                result.put(prop.name(), prop.getAsString());
-            } catch (RuntimeException e) {
-                throw new ArgumentException("invalid value for property " + prop.name() + " : " + e.getMessage());
-            }
+        for (Map.Entry<String, JsonElement> entry : response.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().getAsString());
         }
-        stage.saveConfig();
         return result;
     }
 

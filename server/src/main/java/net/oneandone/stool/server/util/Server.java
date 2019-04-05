@@ -1,7 +1,6 @@
 package net.oneandone.stool.server.util;
 
 import com.google.gson.JsonObject;
-import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.common.BuildResult;
 import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.docker.BuildError;
@@ -26,7 +25,6 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -69,34 +67,6 @@ public class Server {
 
     public List<String> validate(String stageClause, boolean email, boolean repair) throws MessagingException, IOException, NamingException {
         return new Validation(this, session).run(stageClause, email, repair);
-    }
-
-    //-- config command
-
-    public Map<String, String> setProperties(Reference reference, Map<String, String> arguments) throws IOException {
-        Stage stage;
-        Property prop;
-        String value;
-        Map<String, String> result;
-
-        result = new LinkedHashMap<>();
-        stage = session.load(reference);
-        for (Map.Entry<String, String> entry : arguments.entrySet()) {
-            prop = stage.propertyOpt(entry.getKey());
-            if (prop == null) {
-                throw new ArgumentException("unknown property: " + entry.getKey());
-            }
-            value = entry.getValue();
-            value = value.replace("{}", prop.get());
-            try {
-                prop.set(value);
-                result.put(prop.name(), prop.getAsString());
-            } catch (RuntimeException e) {
-                throw new ArgumentException("invalid value for property " + prop.name() + " : " + e.getMessage());
-            }
-        }
-        stage.saveConfig();
-        return result;
     }
 
     //-- app info

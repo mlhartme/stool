@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -104,6 +105,36 @@ public class RestController {
         }
         return result.toString();
     }
+
+    @PostMapping("/stage/{stage}/set-properties") @ResponseBody
+    public String setProperties(@PathVariable(value = "stage") String stageName, HttpServletRequest request) throws IOException {
+        Stage stage;
+        Property prop;
+        String value;
+        Map<String, String> arguments;
+        JsonObject result;
+
+        stage = session.load(new Reference(stageName));
+        arguments = map(request, "");
+        result = new JsonObject();
+        for (Map.Entry<String, String> entry : arguments.entrySet()) {
+            prop = stage.propertyOpt(entry.getKey());
+            if (prop == null) {
+                throw new ArgumentException("unknown property: " + entry.getKey());
+            }
+            value = entry.getValue();
+            value = value.replace("{}", prop.get());
+            try {
+                prop.set(value);
+                result.add(prop.name(), new JsonPrimitive(prop.getAsString()));
+            } catch (RuntimeException e) {
+                throw new ArgumentException("invalid value for property " + prop.name() + " : " + e.getMessage());
+            }
+        }
+        stage.saveConfig();
+        return result.toString();
+    }
+
 
     @GetMapping("stage/{stage}/status") @ResponseBody
     public String status(@PathVariable(value = "stage") String stage, @RequestParam("select") String select) throws IOException {
