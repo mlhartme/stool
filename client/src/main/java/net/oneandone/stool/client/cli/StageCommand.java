@@ -63,18 +63,14 @@ public abstract class StageCommand extends ClientCommand {
         boolean withPrefix;
         Worker worker;
 
-        failures = new EnumerationFailed();
         lst = selectedList();
-        failureMessage = failures.getMessage();
-        if (failureMessage != null && fail == Fail.NORMAL) {
-            throw failures;
-        }
         width = 0;
         for (Reference reference : lst) {
             width = Math.max(width, reference.getName().length());
         }
         width += 5;
         withPrefix = doBefore(lst, width);
+        failures = new EnumerationFailed();
         worker = new Worker(width, failures, withPrefix);
         for (Reference reference : lst) {
             worker.main(reference);
