@@ -109,7 +109,7 @@ public class Build extends ProjectCommand {
                 console.verbose.println(result.output);
             }
             if (restart) {
-                new Restart(world, console, server, new ArrayList<>()).doRun(reference);
+                new Restart(world, console, (Server) server, new ArrayList<>()).doRun(reference);
             }
         }
     }

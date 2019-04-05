@@ -17,6 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.common.Reference;
+import net.oneandone.stool.common.ServerInterface;
 import net.oneandone.stool.common.State;
 import net.oneandone.stool.client.Server;
 import net.oneandone.sushi.fs.Node;
@@ -35,7 +36,7 @@ import java.util.Map;
 public abstract class ClientCommand {
     protected final World world;
     protected final Console console;
-    protected final Server server;
+    protected final ServerInterface server;
 
     public ClientCommand(World world, Console console, Server server) {
         this.console = console;

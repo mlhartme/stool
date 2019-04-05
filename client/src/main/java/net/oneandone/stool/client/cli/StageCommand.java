@@ -75,7 +75,7 @@ public abstract class StageCommand extends ClientCommand {
         }
         width += 5;
         withPrefix = doBefore(lst, width);
-        worker = new Worker(server, width, failures, withPrefix);
+        worker = new Worker(width, failures, withPrefix);
         for (Reference reference : lst) {
             worker.main(reference);
         }
@@ -196,13 +196,11 @@ public abstract class StageCommand extends ClientCommand {
 
     /** executes a stage command with proper locking */
     public class Worker {
-        private final Server server;
         private final int width;
         private final EnumerationFailed failures;
         private final boolean withPrefix;
 
-        public Worker(Server server, int width, EnumerationFailed failures, boolean withPrefix) {
-            this.server = server;
+        public Worker(int width, EnumerationFailed failures, boolean withPrefix) {
             this.width = width;
             this.failures = failures;
             this.withPrefix = withPrefix;

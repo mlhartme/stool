@@ -26,6 +26,9 @@ public interface ServerInterface {
 
     List<String> history(Reference reference, boolean details, int max) throws IOException;
 
+    String quota() throws IOException;
+    int memUnreserved() throws IOException;
+
     List<String> apps(Reference reference) throws IOException;
 
     //-- validate

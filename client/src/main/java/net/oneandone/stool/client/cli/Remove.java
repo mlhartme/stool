@@ -41,7 +41,7 @@ public class Remove extends StageCommand {
 
         state = state(reference);
         if (stop && state == State.UP) {
-            new Stop(world, console, server).doRun(reference);
+            new Stop(world, console, (Server) server).doRun(reference);
             state = state(reference);
         }
         if (state == State.UP) {
