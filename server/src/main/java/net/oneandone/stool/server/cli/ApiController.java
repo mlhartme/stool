@@ -14,11 +14,10 @@ import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.stool.server.util.Validation;
-import net.oneandone.sushi.fs.MkdirException;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -43,13 +42,9 @@ import java.util.Map;
 public class ApiController {
     private final Session session;
 
-    public ApiController() throws IOException {
-        World world;
-        Globals globals;
-
-        world = World.create();
-        globals = Globals.create(world, new String[0]);
-        this.session = globals.session();
+    @Autowired
+    public ApiController(Session session) {
+        this.session = session;
     }
 
     @GetMapping("/version")
@@ -94,9 +89,6 @@ public class ApiController {
             property.set(entry.getValue());
         }
         stage.saveConfig();
-
-        openStage(stage.getName());
-        closeStage();
     }
 
     @PostMapping("/stage/{stage}/build")
@@ -110,7 +102,6 @@ public class ApiController {
         FileNode war;
 
         arguments = map(request, "arg.");
-        openStage(stage);
 
         war = session.world.getTemp().createTempFile();
         war.copyFileFrom(body);
@@ -122,7 +113,6 @@ public class ApiController {
             return buildResult(e.error, e.output).toString();
         } finally {
             war.deleteFile();
-            closeStage();
         }
     }
 
@@ -243,24 +233,19 @@ public class ApiController {
         apps = intMap(map(request, "app."));
         environment = new HashMap<>(session.configuration.environment);
         environment.putAll(map(request, "env."));
-        openStage(stageName);
-        try {
-            global = session.configuration.quota;
-            if (global != 0) {
-                reserved = session.quotaReserved();
-                if (reserved > global) {
-                    throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
-                            + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
-                }
+        global = session.configuration.quota;
+        if (global != 0) {
+            reserved = session.quotaReserved();
+            if (reserved > global) {
+                throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
+                        + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
             }
-
-            stage = session.load(stageName);
-            stage.session.configuration.verfiyHostname();
-            stage.checkConstraints();
-            stage.start(http, https, environment, apps);
-        } finally {
-            closeStage();
         }
+
+        stage = session.load(stageName);
+        stage.session.configuration.verfiyHostname();
+        stage.checkConstraints();
+        stage.start(http, https, environment, apps);
     }
 
     @GetMapping("stage/{stage}/await-startup")
@@ -290,12 +275,7 @@ public class ApiController {
 
     @PostMapping("stage/{stage}/stop")
     public void stop(@PathVariable(value = "stage") String stage, @RequestParam("apps") String apps) throws IOException {
-        openStage(stage);
-        try {
-            session.load(stage).stop(Separator.COMMA.split(apps));
-        } finally {
-            closeStage();
-        }
+        session.load(stage).stop(Separator.COMMA.split(apps));
     }
 
 
@@ -357,12 +337,7 @@ public class ApiController {
 
     @PostMapping("stage/{stage}/remove")
     public void remove(@PathVariable(value = "stage") String stage) throws IOException {
-        openStage(stage);
-        try {
-            session.load(stage).remove();
-        } finally {
-            closeStage();
-        }
+        session.load(stage).remove();
     }
 
     //--
@@ -407,16 +382,4 @@ public class ApiController {
         }
         return result;
     }
-
-    //--
-
-    private void openStage(String stage) throws MkdirException {
-        session.logging.openStage(stage);
-        session.logging.command(session.command);
-    }
-
-    private void closeStage() {
-        session.logging.closeStage();
-    }
-
 }

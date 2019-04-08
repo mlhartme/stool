@@ -28,7 +28,7 @@ import java.lang.reflect.InvocationTargetException;
 
 /** Basically a session factory */
 public class Globals {
-    public static Globals create(World world, String[] args) throws IOException {
+    public static Globals create(World world) throws IOException {
         Environment environment;
         FileNode home;
         Logging logging;
@@ -42,20 +42,18 @@ public class Globals {
             tmp = world.getTemp().createTempDirectory();
             logging = new Logging("1", tmp.join("homeless"), environment.detectUser());
         }
-        return new Globals(environment, home, logging, "stool " + Separator.SPACE.join(args), world);
+        return new Globals(environment, home, logging, world);
     }
 
     public final Environment environment;
     public final FileNode home;
     public final Logging logging;
-    private final String command;
     public final World world;
 
-    public Globals(Environment environment, FileNode home, Logging logging, String command, World world) {
+    public Globals(Environment environment, FileNode home, Logging logging, World world) {
         this.environment = environment;
         this.home = home;
         this.logging = logging;
-        this.command = command;
         this.world = world;
     }
 
@@ -72,21 +70,21 @@ public class Globals {
             throw new IOException("Stool home directory not found: " + home.getAbsolute()
                      + "\nRun 'stool setup' to create it.");
         }
-        session = Session.load(home, logging, command);
+        session = Session.load(home, logging);
         session.checkVersion();
         return session;
     }
 
     //--
 
-    public int handleException(Throwable throwable) {
+    public int handleException(String command, Throwable throwable) {
         // TODO: inline should not throw InvocationTargetException ...
         if (throwable instanceof InvocationTargetException) {
-            return handleException(((InvocationTargetException) throwable).getTargetException());
+            return handleException(command, ((InvocationTargetException) throwable).getTargetException());
         } else {
             if ((throwable instanceof RuntimeException) && (!(throwable instanceof ArgumentException))) {
                 try {
-                    session().reportException("RuntimeException", throwable);
+                    session().reportException(command, "RuntimeException", throwable);
                 } catch (IOException e) {
                     logging.error("failed to report runtine exception: " + e.getMessage(), e);
                 }

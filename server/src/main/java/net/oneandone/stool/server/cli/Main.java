@@ -59,7 +59,7 @@ public class Main {
         Globals globals;
 
         console = Console.create();
-        globals = Globals.create(world, args);
+        globals = Globals.create(world);
         cli = new Cli(console::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);

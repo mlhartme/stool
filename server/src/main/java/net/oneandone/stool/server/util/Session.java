@@ -46,11 +46,11 @@ import java.util.List;
 import java.util.Map;
 
 public class Session {
-    public static Session load(FileNode home, Logging logging, String command) throws IOException {
+    public static Session load(FileNode home, Logging logging) throws IOException {
         Gson gson;
 
         gson = gson(home.getWorld());
-        return new Session(gson, logging, command, home, StoolConfiguration.load(gson, home));
+        return new Session(gson, logging, home, StoolConfiguration.load(gson, home));
     }
 
     private static final int MEM_RESERVED_OS = 500;
@@ -62,7 +62,6 @@ public class Session {
 
     // TODO: per-request data
     public final String user;
-    public final String command;
 
     public final World world;
     public final FileNode home;
@@ -75,11 +74,10 @@ public class Session {
     private Map<String, Accessor> lazyAccessors;
     private Pool lazyPool;
 
-    public Session(Gson gson, Logging logging, String command, FileNode home, StoolConfiguration configuration) {
+    public Session(Gson gson, Logging logging, FileNode home, StoolConfiguration configuration) {
         this.gson = gson;
         this.logging = logging;
         this.user = logging.getUser();
-        this.command = command;
         this.world = home.getWorld();
         this.home = home;
         this.configuration = configuration;
@@ -142,7 +140,7 @@ public class Session {
             }
         }, problems);
         for (Map.Entry<String, IOException> entry : problems.entrySet()) {
-            reportException(entry.getKey() + ": Session.listAll", entry.getValue());
+            reportException("listAll" /* TODO */, entry.getKey() + ": Session.listAll", entry.getValue());
         }
         return result;
     }
@@ -182,7 +180,7 @@ public class Session {
     //--
 
     /** logs an error for administrators, i.e. the user is not expected to understand/fix this problem. */
-    public void reportException(String context, Throwable e) {
+    public void reportException(String command, String context, Throwable e) {
         String subject;
         StringWriter body;
         PrintWriter writer;

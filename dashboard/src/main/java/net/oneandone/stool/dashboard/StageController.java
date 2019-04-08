@@ -165,9 +165,9 @@ public class StageController {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionExport> handleApiException(Throwable e) {
+    public ResponseEntity<ExceptionExport> handleApiException(HttpServletRequest request, Throwable e) {
         // TODO: really report this? maybe it's just a 404 ...
-        session.reportException("StageController.handleApiException", e);
+        session.reportException((String) request.getAttribute("command"), "StageController.handleApiException", e);
         return new ResponseEntity<>(new ExceptionExport(e), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
