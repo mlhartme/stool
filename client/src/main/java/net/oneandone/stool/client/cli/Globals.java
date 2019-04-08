@@ -19,15 +19,22 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 
 /** Basically a session factory */
 public class Globals {
     public final World world;
     public final Console console;
+    private FileNode wirelog;
 
     public Globals(Console console, World world) {
         this.console = console;
         this.world = world;
+        this.wirelog = null;
+    }
+
+    public void setWirelog(String wirelog) {
+        this.wirelog = wirelog == null ? null : world.file(wirelog);
     }
 
     public void setException(boolean exception) {
@@ -45,6 +52,6 @@ public class Globals {
     }
 
     public Client client() throws NodeInstantiationException {
-        return Client.create(world);
+        return Client.create(world, wirelog);
     }
 }

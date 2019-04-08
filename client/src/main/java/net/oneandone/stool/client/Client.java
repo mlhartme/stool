@@ -8,6 +8,7 @@ import net.oneandone.stool.common.Reference;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.util.Separator;
 
@@ -18,7 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 public class Client {
-    public static Client create(World world) throws NodeInstantiationException {
+    public static Client create(World world, FileNode wireLog) throws NodeInstantiationException {
+        if (wireLog != null) {
+            HttpFilesystem.wireLog(wireLog.getAbsolute());
+        }
         return new Client((HttpNode) world.validNode("http://localhost:8080/api"));
     }
 
@@ -34,10 +38,15 @@ public class Client {
 
     /** @param stageClause null to return all stages */
     public List<Reference> search(String stageClause) throws IOException {
+        HttpNode node;
         JsonArray references;
         List<Reference> result;
 
-        references = httpGet(node("search").withParameter("stageClause", stageClause)).getAsJsonArray();
+        node = node("search");
+        if (stageClause != null) {
+            node = node.withParameter("stageClause", stageClause);
+        }
+        references = httpGet(node).getAsJsonArray();
         result = new ArrayList<>(references.size());
         for (JsonElement element : references) {
             result.add(new Reference(element.getAsString()));

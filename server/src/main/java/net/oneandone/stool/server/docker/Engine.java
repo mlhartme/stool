@@ -76,11 +76,11 @@ public class Engine implements AutoCloseable {
     }
 
     public static Engine open(String socketPath, String wirelog) throws IOException {
-        // local World because I need a special socket factory
         World world;
         HttpFilesystem fs;
         HttpNode root;
 
+        // CAUTION: local World because I need a special socket factory
         world = World.create();
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);

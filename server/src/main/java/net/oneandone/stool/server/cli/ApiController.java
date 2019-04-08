@@ -57,7 +57,7 @@ public class ApiController {
     }
 
     @GetMapping("/search")
-    public String search(@RequestParam("stageClause") String stageClause) throws IOException {
+    public String search(@RequestParam(value = "stageClause", required = false) String stageClause) throws IOException {
         JsonArray result;
         Map<String, IOException> problems;
 
