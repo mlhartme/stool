@@ -115,21 +115,4 @@ public class Environment {
             return world.file(value);
         }
     }
-
-    public void setHome(FileNode home) {
-        set(STOOL_HOME, home.getAbsolute());
-    }
-
-    public void save(Launcher launcher) {
-        String value;
-
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
-            value = entry.getValue();
-            if (value != null) {
-                launcher.env(entry.getKey(), value);
-            } else {
-                launcher.getBuilder().environment().remove(entry.getKey());
-            }
-        }
-    }
 }

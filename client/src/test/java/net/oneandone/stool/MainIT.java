@@ -32,6 +32,7 @@ import static org.junit.Assert.fail;
  */
 public class MainIT {
     private static final World WORLD;
+    private static final FileNode PROJECT_ROOT;
     private static final FileNode IT_ROOT;
     private static FileNode HOME = null;
     private static Process serverProcess = null;
@@ -39,7 +40,8 @@ public class MainIT {
     static {
         try {
             WORLD = Main.world();
-            IT_ROOT = WORLD.guessProjectHome(MainIT.class).join("target/it").mkdirOpt();
+            PROJECT_ROOT = WORLD.guessProjectHome(MainIT.class);
+            IT_ROOT = PROJECT_ROOT.join("target/it").mkdirOpt();
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
@@ -118,10 +120,10 @@ public class MainIT {
         serverProcess = server.launch(IT_ROOT.join("server.log").newWriter()).process;
     }
 
-    private Launcher server(FileNode home) {
+    private Launcher server(FileNode home) throws IOException {
         Launcher launcher;
 
-        launcher = IT_ROOT.launcher("java", "-jar", "/Users/mhm/Projects/github.com/net/oneandone/stool/stool/server/target/server-5.0.0-SNAPSHOT-springboot.jar");
+        launcher = IT_ROOT.launcher("java", "-jar", PROJECT_ROOT.getParent().join("server/target/").findOne("server-*-springboot.jar").getAbsolute());
         launcher.getBuilder().environment().put("STOOL_HOME", home.getAbsolute());
         return launcher;
     }

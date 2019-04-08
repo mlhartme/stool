@@ -60,6 +60,8 @@ public class Session {
 
     public final Gson gson;
     public final Logging logging;
+
+    // TODO: per-request data
     public final String user;
     public final String command;
 
