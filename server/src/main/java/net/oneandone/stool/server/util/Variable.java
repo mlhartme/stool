@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.templates;
+package net.oneandone.stool.server.util;
 
 import net.oneandone.sushi.fs.file.FileNode;
 

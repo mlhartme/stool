@@ -21,7 +21,7 @@ import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.docker.Engine;
-import net.oneandone.stool.server.templates.Variable;
+import net.oneandone.stool.server.util.Variable;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.LogReader;
