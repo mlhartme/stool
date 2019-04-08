@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.Writer;
 
 import static org.junit.Assert.fail;
 
@@ -93,31 +94,34 @@ public class MainIT {
         FileNode stages;
         Integer start = 1300;
         Integer end = 1319;
+        Writer log;
+        Launcher server;
 
         HOME = IT_ROOT.join(context);
         HOME.getParent().mkdirsOpt();
         HOME.deleteTreeOpt();
-        stoolServer(HOME,"setup", "-batch", "{ \"registryNamespace\": " + "\"integrationtests\", \"portFirst\": " + start + ", \"portLast\": " + end + " }");
-        stages = HOME.getParent().join(context + "-stages");
-        stages.deleteTreeOpt();
-        stages.mkdir();
-        WORLD.setWorking(stages);
-    }
 
-    private void stoolServer(FileNode home, String... args) throws IOException {
-        Launcher server;
+        log = IT_ROOT.join("server.log").newWriter();
 
-        server = server(home);
-        server.arg(args);
+        // setup
+        server = server(HOME);
+        server.arg("setup", "-batch", "{ \"registryNamespace\": " + "\"integrationtests\", \"portFirst\": " + start + ", \"portLast\": " + end + " }");
         try {
-            System.out.println("server" + server.exec());
+            log.write("Setup:\n");
+            log.write(server.exec());
+            log.write('\n');
         } catch (Failure e) {
             System.out.println(" -> failed: " + e);
         }
 
-        server = server(home);
+        // run
+        server = server(HOME);
         server.arg("run");
-        serverProcess = server.launch(IT_ROOT.join("server.log").newWriter()).process;
+        serverProcess = server.launch().process;
+        stages = HOME.getParent().join(context + "-stages");
+        stages.deleteTreeOpt();
+        stages.mkdir();
+        WORLD.setWorking(stages);
     }
 
     private Launcher server(FileNode home) throws IOException {
