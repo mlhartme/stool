@@ -10,9 +10,11 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
+import net.oneandone.sushi.fs.http.model.Body;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -89,9 +91,9 @@ public class Client {
         node = node.withParameter("no-cache", noCache);
         node = node.withParameter("keep", keep);
         node = node.withParameters("arg.", arguments);
-        // TODO
-        result = node.getWorld().getSettings().string(node.post(war.readBytes()));
-        System.out.println("war transmitted: " + war.size());
+        try (InputStream src = war.newInputStream()) {
+            result = node.getWorld().getSettings().string(node.post(new Body(null, null, war.size(), src, false)));
+        }
         obj = parser.parse(result).getAsJsonObject();
         error = obj.get("error");
         return new BuildResult(error == null ? null : error.getAsString(), obj.get("output").getAsString());

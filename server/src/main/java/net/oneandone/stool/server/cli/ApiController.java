@@ -117,7 +117,6 @@ public class ApiController {
 
         war = session.world.getTemp().createTempFile();
         war.copyFileFrom(body);
-        System.out.println("body received: " + war.size());
         try {
             output = session.load(reference).build(app, war,
                     comment, origin, createdBy, createdOn, noCache, keep, arguments);
