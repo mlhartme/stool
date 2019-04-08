@@ -13,34 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.templates;
+package net.oneandone.stool.server.docker;
 
 import org.junit.Test;
-
-import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class VariableTest {
+public class BuildArgumentTest {
     @Test
     public void normal() {
-        Variable v;
+        BuildArgument v;
 
-        assertNull(Variable.scan("# foo"));
-        v = Variable.scan("ARG a=7");
+        assertNull(BuildArgument.scan("# foo"));
+        v = BuildArgument.scan("ARG a=7");
         assertEquals("a", v.name);
         assertEquals("7", v.dflt);
-        v = Variable.scan("ARG  b=false");
+        v = BuildArgument.scan("ARG  b=false");
         assertEquals("b", v.name);
         assertEquals("false", v.dflt);
-        v = Variable.scan("arg b = true");
+        v = BuildArgument.scan("arg b = true");
         assertEquals("b", v.name);
         assertEquals("true", v.dflt);
-        v = Variable.scan("Arg str");
+        v = BuildArgument.scan("Arg str");
         assertEquals("str", v.name);
         assertEquals("", v.dflt);
-        v = Variable.scan("ARG str= a b c");
+        v = BuildArgument.scan("ARG str= a b c");
         assertEquals("str", v.name);
         assertEquals("a b c", v.dflt);
     }

@@ -21,14 +21,13 @@ import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.docker.Engine;
-import net.oneandone.stool.server.templates.Variable;
+import net.oneandone.stool.server.docker.BuildArgument;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.LogReader;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Session;
-import net.oneandone.stool.server.util.StandardProperty;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -154,7 +153,7 @@ public class Stage {
 
         result = new ArrayList<>();
         for (Accessor type : session.accessors().values()) {
-            result.add(new StandardProperty(type, configuration));
+            result.add(new Property(type, configuration));
         }
         return result;
     }
@@ -381,7 +380,7 @@ public class Stage {
         Map<String, String> labels;
         Properties appProperties;
         FileNode template;
-        Map<String, Variable> env;
+        Map<String, BuildArgument> env;
         Map<String, String> buildArgs;
         StringWriter output;
         String result;
@@ -393,7 +392,7 @@ public class Stage {
         tag = session.configuration.registryNamespace + "/" + name + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
         appProperties = properties(war);
         template = template(appProperties);
-        env = Variable.scan(template.join("Dockerfile"));
+        env = BuildArgument.scan(template.join("Dockerfile"));
         buildArgs = buildArgs(env, appProperties, arguments);
         context = dockerContext(app, war, template);
         labels = new HashMap<>();
@@ -602,12 +601,12 @@ public class Stage {
         return session.templates().join(template.toString()).checkDirectory();
     }
 
-    private Map<String, String> buildArgs(Map<String, Variable> environment, Properties appProperties, Map<String, String> explicit) {
+    private Map<String, String> buildArgs(Map<String, BuildArgument> environment, Properties appProperties, Map<String, String> explicit) {
         Map<String, String> result;
         String name;
 
         result = new HashMap<>();
-        for (Variable env : environment.values()) {
+        for (BuildArgument env : environment.values()) {
             result.put(env.name, env.dflt);
         }
         for (Map.Entry<Object, Object> entry : appProperties.entrySet()) {
