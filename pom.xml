@@ -61,7 +61,6 @@
   </issueManagement>
 
   <modules>
-    <module>common</module>
     <module>server</module>
     <module>client</module>
     <module>dashboard</module>
