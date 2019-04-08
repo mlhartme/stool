@@ -18,7 +18,6 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.stool.client.State;
 import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 
@@ -36,15 +35,15 @@ public class Remove extends StageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        State state;
+        boolean up;
         Project project;
 
-        state = state(reference);
-        if (stop && state == State.UP) {
-            new Stop(world, console, (Client) client).doRun(reference);
-            state = state(reference);
+        up = up(reference);
+        if (stop && up) {
+            new Stop(world, console, client).doRun(reference);
+            up = up(reference);
         }
-        if (state == State.UP) {
+        if (up) {
             throw new IOException("stage is not stopped.");
         }
         if (!batch) {

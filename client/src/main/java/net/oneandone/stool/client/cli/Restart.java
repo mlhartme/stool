@@ -17,7 +17,6 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.stool.client.State;
 import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 
@@ -34,15 +33,11 @@ public class Restart extends StageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        State state;
-
-
-        state = state(reference);
-        if (state == State.UP) {
-            new Stop(world, console, (Client) client, new ArrayList<>(selection(selection).keySet())).doRun(reference);
+        if (up(reference)) {
+            new Stop(world, console, client, new ArrayList<>(selection(selection).keySet())).doRun(reference);
         } else {
             console.info.println("Container is not running - starting a new instance.");
         }
-        new Start(world, console, (Client) client, false, selection).doRun(reference);
+        new Start(world, console, client, false, selection).doRun(reference);
     }
 }
