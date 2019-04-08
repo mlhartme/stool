@@ -17,6 +17,7 @@ import net.oneandone.stool.server.util.Session;
 import net.oneandone.stool.server.util.Validation;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,6 +31,7 @@ import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -100,24 +102,30 @@ public class ApiController {
 
     @PostMapping("/stage/{stage}/build")
     public String build(@PathVariable("stage") String stage, @RequestParam("app") String app,
-                        @RequestParam("war") String war, @RequestParam("comment") String comment,
+                        @RequestParam("comment") String comment,
                         @RequestParam("origin") String origin, @RequestParam("created-by") String createdBy,
                         @RequestParam("created-on") String createdOn, @RequestParam("no-cache") boolean noCache,
-                        @RequestParam("keep") int keep, HttpServletRequest request) throws Exception {
+                        @RequestParam("keep") int keep, InputStream body, HttpServletRequest request) throws Exception {
         Reference reference;
         String output;
         Map<String, String> arguments;
+        FileNode war;
 
         reference = new Reference(stage);
         arguments = map(request, "arg.");
         openStage(reference);
+
+        war = session.world.getTemp().createTempFile();
+        war.copyFileFrom(body);
+        System.out.println("body received: " + war.size());
         try {
-            output = session.load(reference).build(app, session.world.file(war),
+            output = session.load(reference).build(app, war,
                     comment, origin, createdBy, createdOn, noCache, keep, arguments);
             return buildResult(null, output).toString();
         } catch (BuildError e) {
             return buildResult(e.error, e.output).toString();
         } finally {
+            war.deleteFile();
             closeStage();
         }
     }

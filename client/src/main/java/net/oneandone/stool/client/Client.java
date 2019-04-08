@@ -77,6 +77,7 @@ public class Client {
         HttpNode node;
         JsonObject obj;
         JsonElement error;
+        String result;
 
         node = node(reference, "build");
         node = node.withParameter("app", app);
@@ -88,7 +89,10 @@ public class Client {
         node = node.withParameter("no-cache", noCache);
         node = node.withParameter("keep", keep);
         node = node.withParameters("arg.", arguments);
-        obj = parser.parse(node.post("")).getAsJsonObject();
+        // TODO
+        result = node.getWorld().getSettings().string(node.post(war.readBytes()));
+        System.out.println("war transmitted: " + war.size());
+        obj = parser.parse(result).getAsJsonObject();
         error = obj.get("error");
         return new BuildResult(error == null ? null : error.getAsString(), obj.get("output").getAsString());
     }
