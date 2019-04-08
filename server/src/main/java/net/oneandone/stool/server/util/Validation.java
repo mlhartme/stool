@@ -1,7 +1,6 @@
 package net.oneandone.stool.server.util;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
@@ -34,21 +33,21 @@ public class Validation {
 
     public List<String> run(String stageClause, boolean email, boolean repair) throws IOException, MessagingException, NamingException {
         Report report;
-        List<Reference> references;
+        List<String> names;
         Map<String, IOException> problems;
 
         report = new Report();
         validateServer(report);
         problems = new HashMap<>();
-        references = new ArrayList<>();
+        names = new ArrayList<>();
         for (Stage stage : session.list(PredicateParser.parse(stageClause), problems)) {
-            references.add(stage.reference);
+            names.add(stage.getName());
         }
         if (!problems.isEmpty()) {
             throw new IOException("cannot get stages: " + problems.toString());
         }
-        for (Reference reference : references) {
-            validateStage(reference, report, repair);
+        for (String name : names) {
+            validateStage(name, report, repair);
         }
         if (email) {
             email(report);
@@ -56,13 +55,13 @@ public class Validation {
         return report.messages();
     }
 
-    private void validateStage(Reference reference, Report report, boolean repair) throws IOException {
+    private void validateStage(String name, Report report, boolean repair) throws IOException {
         Logging logging;
         Stage stage;
         String message;
 
         logging = session.logging;
-        stage = session.load(reference);
+        stage = session.load(name);
         try {
             stage.checkConstraints();
             return;

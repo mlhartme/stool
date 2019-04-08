@@ -73,7 +73,7 @@ public class Pool {
         String name;
         Ports previous;
 
-        name = stage.reference.getName();
+        name = stage.getName();
         previous = lookup(name, app);
         if (previous != null) {
             if ((http != -1 && http != previous.http) || (https != -1 && https != previous.http)) {

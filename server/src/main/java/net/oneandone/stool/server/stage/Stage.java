@@ -89,13 +89,13 @@ public class Stage {
     //--
 
     public final Session session;
-    public final Reference reference;
+    private final String name;
     private final FileNode directory;
     public final StageConfiguration configuration;
 
     public Stage(Session session, FileNode directory, StageConfiguration configuration) {
         this.session = session;
-        this.reference = new Reference(directory.getName());
+        this.name = directory.getName();
         this.directory = directory;
         this.configuration = configuration;
     }
@@ -105,7 +105,7 @@ public class Stage {
     }
 
     public String getName() {
-        return reference.getName();
+        return name;
     }
 
     //-- state
@@ -177,7 +177,7 @@ public class Stage {
         fields.add(new Field("name") {
             @Override
             public Object get() {
-                return reference.getName();
+                return name;
             }
         });
         fields.add(new Field("stage") {
@@ -263,7 +263,7 @@ public class Stage {
     //-- logs
 
     public LogReader logReader() throws IOException {
-        return LogReader.create(session.logging.directory().join(reference.getName()));
+        return LogReader.create(session.logging.directory().join(name));
     }
 
     public Logs logs() {
@@ -288,7 +288,7 @@ public class Stage {
             info = entry.getValue();
             if (info.tags.size() == 1) {
                 tag = info.tags.get(0);
-                if (tag.startsWith(session.configuration.registryNamespace + "/" + reference.getName() + "/")) {
+                if (tag.startsWith(session.configuration.registryNamespace + "/" + name + "/")) {
                     result.add(entry.getKey());
                 }
             }
@@ -392,7 +392,7 @@ public class Stage {
         if (keep > 0) {
             wipeOldImages(engine,keep - 1);
         }
-        tag = session.configuration.registryNamespace + "/" + reference.getName() + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
+        tag = session.configuration.registryNamespace + "/" + name + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
         appProperties = properties(war);
         template = template(appProperties);
         env = Variable.scan(template.join("Dockerfile"));
@@ -453,7 +453,7 @@ public class Stage {
             labels = hostPorts.toUsedLabels();
             labels.put(CONTAINER_LABEL_STOOL, session.configuration.registryNamespace);
             labels.put(CONTAINER_LABEL_APP, image.app);
-            labels.put(CONTAINER_LABEL_STAGE, reference.getName());
+            labels.put(CONTAINER_LABEL_STAGE, name);
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * image.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts));
@@ -640,7 +640,7 @@ public class Stage {
 
     /** maps app to its ports; empty map if not ports allocated yet */
     public Map<String, Ports> loadPorts() throws IOException {
-        return session.pool().stage(reference.getName());
+        return session.pool().stage(name);
     }
 
     /**
@@ -657,7 +657,7 @@ public class Stage {
         engine = session.dockerEngine();
         images = new HashMap<>();
         for (Engine.ContainerListInfo info : engine.containerList(Stage.CONTAINER_LABEL_STOOL).values()) {
-            if (reference.getName().equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
+            if (name.equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
                 images.put(info.labels.get(Stage.CONTAINER_LABEL_APP), Image.load(engine, info.imageId));
             }
         }
@@ -748,7 +748,7 @@ public class Stage {
         Engine engine;
 
         engine = session.dockerEngine();
-        return new ArrayList<>(engine.containerListRunning(CONTAINER_LABEL_STAGE, reference.getName()).keySet());
+        return new ArrayList<>(engine.containerListRunning(CONTAINER_LABEL_STAGE, name).keySet());
     }
 
     public Map<String, Current> currentMap() throws IOException {
@@ -771,7 +771,7 @@ public class Stage {
 
     public int contentHash() throws IOException {
         return ("StageInfo{"
-                + "name='" + reference.getName() + '\''
+                + "name='" + name + '\''
                 + ", comment='" + configuration.comment + '\''
                 // TODO: current immage, container?
                 + ", urls=" + urlMap(null)

@@ -173,7 +173,7 @@ public class StageController {
 
     private Stage resolveStage(String stageName) throws ResourceNotFoundException {
         try {
-            return session.loadByName(stageName);
+            return session.load(stageName);
         } catch (IOException e) {
             throw (ResourceNotFoundException) new ResourceNotFoundException().initCause(e);
         }

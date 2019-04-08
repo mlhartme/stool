@@ -37,7 +37,7 @@ public class GoController {
     // /stage/app
     @RequestMapping(value = "/**", method = RequestMethod.GET)
     public ModelAndView goToStage(HttpServletRequest httpServletRequest) throws IOException {
-        String stageId;
+        String stageName;
         String appName;
         String baseurl;
         Stage stage;
@@ -45,20 +45,20 @@ public class GoController {
         Map<String, String> urlMap;
         String url;
 
-        stageId = Strings.removeLeft(httpServletRequest.getServletPath(), "/go/");
-        idx = stageId.indexOf('/');
+        stageName = Strings.removeLeft(httpServletRequest.getServletPath(), "/go/");
+        idx = stageName.indexOf('/');
         if (idx == -1) {
             appName = null;
         } else {
-            appName = stageId.substring(idx + 1);
-            stageId = stageId.substring(0, idx);
+            appName = stageName.substring(idx + 1);
+            stageName = stageName.substring(0, idx);
         }
         baseurl = httpServletRequest.getRequestURL().toString();
         baseurl = baseurl.substring(0, baseurl.indexOf('/', 8));
-        if (!session.stageNames().contains(stageId)) {
-            return new ModelAndView("redirect:" + baseurl + "/#!404:" + stageId);
+        if (!session.stageNames().contains(stageName)) {
+            return new ModelAndView("redirect:" + baseurl + "/#!404:" + stageName);
         }
-        stage = session.loadByName(stageId);
+        stage = session.load(stageName);
         switch (stage.state()) {
             case UP:
                 urlMap = stage.urlMap(null);
@@ -68,12 +68,12 @@ public class GoController {
                     url = urlMap.get(appName);
                 }
                 if (url == null) {
-                    return new ModelAndView("redirect:" + baseurl + "/#!404:" + stageId + "/" + appName);
+                    return new ModelAndView("redirect:" + baseurl + "/#!404:" + stageName + "/" + appName);
                 } else {
                     return new ModelAndView("redirect:" + url);
                 }
             default:
-                return new ModelAndView("redirect:" + baseurl + "/#!500!" + stageId + "!" + stage.state());
+                return new ModelAndView("redirect:" + baseurl + "/#!500!" + stageName + "!" + stage.state());
         }
     }
 }

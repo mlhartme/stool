@@ -1,7 +1,6 @@
 package net.oneandone.stool.server.util;
 
 import com.google.gson.JsonObject;
-import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.Stats;
 import net.oneandone.stool.server.stage.Image;
@@ -27,7 +26,7 @@ public class AppInfo {
         this.session = session;
     }
 
-    public List<String> run(Reference reference, String app) throws Exception {
+    public List<String> run(String name, String app) throws Exception {
         Stage stage;
         Map<String, List<Image>> all;
         Map<String, Stage.Current> currentMap;
@@ -39,7 +38,7 @@ public class AppInfo {
         List<String> result;
 
         result = new ArrayList<>();
-        stage = session.load(reference);
+        stage = session.load(name);
         engine = stage.session.dockerEngine();
         all = stage.images(engine);
         currentMap = stage.currentMap();

@@ -66,7 +66,7 @@ public class ApiController {
         result = new JsonArray();
         problems = new HashMap<>();
         for (Stage stage : session.list(PredicateParser.parse(stageClause), problems)) {
-            result.add(new JsonPrimitive(stage.reference.getName()));
+            result.add(new JsonPrimitive(stage.getName()));
         }
         if (!problems.isEmpty()) {
             throw new IOException("nested problems: " + problems);
@@ -96,7 +96,7 @@ public class ApiController {
         }
         stage.saveConfig();
 
-        openStage(stage.reference);
+        openStage(stage.getName());
         closeStage();
     }
 
@@ -106,19 +106,17 @@ public class ApiController {
                         @RequestParam("origin") String origin, @RequestParam("created-by") String createdBy,
                         @RequestParam("created-on") String createdOn, @RequestParam("no-cache") boolean noCache,
                         @RequestParam("keep") int keep, InputStream body, HttpServletRequest request) throws Exception {
-        Reference reference;
         String output;
         Map<String, String> arguments;
         FileNode war;
 
-        reference = new Reference(stage);
         arguments = map(request, "arg.");
-        openStage(reference);
+        openStage(stage);
 
         war = session.world.getTemp().createTempFile();
         war.copyFileFrom(body);
         try {
-            output = session.load(reference).build(app, war,
+            output = session.load(stage).build(app, war,
                     comment, origin, createdBy, createdOn, noCache, keep, arguments);
             return buildResult(null, output).toString();
         } catch (BuildError e) {
@@ -145,7 +143,7 @@ public class ApiController {
         JsonObject result;
 
         result = new JsonObject();
-        for (Property property : session.load(new Reference(stage)).properties()) {
+        for (Property property : session.load(stage).properties()) {
             result.add(property.name(), new JsonPrimitive(property.get()));
         }
         return result.toString();
@@ -159,7 +157,7 @@ public class ApiController {
         Map<String, String> arguments;
         JsonObject result;
 
-        stage = session.load(new Reference(stageName));
+        stage = session.load(stageName);
         arguments = map(request, "");
         result = new JsonObject();
         for (Map.Entry<String, String> entry : arguments.entrySet()) {
@@ -192,7 +190,7 @@ public class ApiController {
             selection = Separator.COMMA.split(select);
         }
         result = new JsonObject();
-        for (Info info : session.load(new Reference(stage)).fields()) {
+        for (Info info : session.load(stage).fields()) {
             if (selection == null || selection.remove(info.name())) {
                 result.add(info.name(), new JsonPrimitive(info.getAsString()));
             }
@@ -207,7 +205,7 @@ public class ApiController {
     public String apps(@PathVariable(value = "stage") String stage) throws IOException {
         List<String> result;
 
-        result = new ArrayList<>(session.load(new Reference(stage)).images(session.dockerEngine()).keySet());
+        result = new ArrayList<>(session.load(stage).images(session.dockerEngine()).keySet());
         Collections.sort(result);
         return array(result).toString();
     }
@@ -229,7 +227,7 @@ public class ApiController {
 
     @GetMapping("stage/{stage}/appInfo")
     public String appInfo(@PathVariable("stage") String stage, @RequestParam("app") String app) throws Exception {
-        return array(new AppInfo(session).run(new Reference(stage), app)).toString();
+        return array(new AppInfo(session).run(stage, app)).toString();
     }
 
 
@@ -240,15 +238,13 @@ public class ApiController {
         Stage stage;
         int global;
         int reserved;
-        Reference reference;
         Map<String, String> environment;
         Map<String, Integer> apps;
 
-        reference = new Reference(stageName);
         apps = intMap(map(request, "app."));
         environment = new HashMap<>(session.configuration.environment);
         environment.putAll(map(request, "env."));
-        openStage(reference);
+        openStage(stageName);
         try {
             global = session.configuration.quota;
             if (global != 0) {
@@ -259,7 +255,7 @@ public class ApiController {
                 }
             }
 
-            stage = session.load(reference);
+            stage = session.load(stageName);
             stage.session.configuration.verfiyHostname();
             stage.checkConstraints();
             stage.start(http, https, environment, apps);
@@ -273,7 +269,7 @@ public class ApiController {
         Stage stage;
         JsonObject result;
 
-        stage = session.load(new Reference(stageName));
+        stage = session.load(stageName);
         stage.awaitStartup();
 
         result = new JsonObject();
@@ -295,12 +291,9 @@ public class ApiController {
 
     @PostMapping("stage/{stage}/stop")
     public void stop(@PathVariable(value = "stage") String stage, @RequestParam("apps") String apps) throws IOException {
-        Reference reference;
-
-        reference = new Reference(stage);
-        openStage(reference);
+        openStage(stage);
         try {
-            session.load(reference).stop(Separator.COMMA.split(apps));
+            session.load(stage).stop(Separator.COMMA.split(apps));
         } finally {
             closeStage();
         }
@@ -320,7 +313,7 @@ public class ApiController {
         result = new JsonArray();
         counter = 0;
         detailsMap = new HashMap<>();
-        reader = session.load(new Reference(stage)).logReader();
+        reader = session.load(stage).logReader();
         while (true) {
             entry = reader.prev();
             if (entry == null) {
@@ -365,12 +358,9 @@ public class ApiController {
 
     @PostMapping("stage/{stage}/remove")
     public void remove(@PathVariable(value = "stage") String stage) throws IOException {
-        Reference reference;
-
-        reference = new Reference(stage);
-        openStage(reference);
+        openStage(stage);
         try {
-            session.load(reference).remove();
+            session.load(stage).remove();
         } finally {
             closeStage();
         }
@@ -420,8 +410,8 @@ public class ApiController {
     }
 
     //--
-    private void openStage(Reference reference) throws MkdirException {
-        session.logging.openStage(reference.getName());
+    private void openStage(String stage) throws MkdirException {
+        session.logging.openStage(stage);
         session.logging.command(session.command);
     }
 

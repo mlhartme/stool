@@ -172,11 +172,7 @@ public class Session {
         return new Stage(this, stage, loadStageConfiguration(stage));
     }
 
-    public Stage load(Reference reference) throws IOException {
-        return loadByName(reference.getName());
-    }
-
-    public Stage loadByName(String name) throws IOException {
+    public Stage load(String name) throws IOException {
         return load(stages.join(name).checkDirectory());
     }
 
