@@ -24,6 +24,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import static org.junit.Assert.fail;
 
@@ -33,7 +34,8 @@ import static org.junit.Assert.fail;
 public class MainIT {
     private static final World WORLD;
     private static final FileNode IT_ROOT;
-    private static FileNode HOME;
+    private static FileNode HOME = null;
+    private static Process serverProcess = null;
 
     static {
         try {
@@ -53,22 +55,21 @@ public class MainIT {
     public void after() throws Exception {
         stool("stop", "-stage" , "state=up", "-fail", "after");
         HOME = null;
+        if (serverProcess != null) {
+            serverProcess.destroy();
+        }
     }
 
     @Test
-    public void turnaroundGitSource() throws IOException {
+    public void turnaround() throws IOException {
         FileNode project;
+
+        startServer("git");
 
         project = IT_ROOT.join("stages").mkdirsOpt().join("it");
         System.out.println(project.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", project.getAbsolute()));
         System.out.println(project.exec("mvn", "clean", "package"));
-        turnaround("git", project);
-        project.deleteTree();
-    }
-
-    private void turnaround(String context, FileNode project) throws IOException {
-        System.out.println(context);
-        stoolSetup(context);
+        System.out.println("git");
         stool("create", project.getAbsolute(), "name=it");
         stool("status", "-stage", "it");
         stool("validate", "-stage", "it");
@@ -84,9 +85,10 @@ public class MainIT {
         stool("validate", "-stage", "it");
         stool("history", "-stage", "it");
         stool("remove", "-stage", "it", "-batch");
+        project.deleteTree();
     }
 
-    public void stoolSetup(String context) throws IOException {
+    public void startServer(String context) throws IOException {
         FileNode stages;
         Integer start = 1300;
         Integer end = 1319;
@@ -101,22 +103,28 @@ public class MainIT {
         WORLD.setWorking(stages);
     }
 
-    private void stoolServer(FileNode home, String... args) {
-        String command;
+    private void stoolServer(FileNode home, String... args) throws IOException {
         Launcher server;
 
-        id++;
-        command = command(args);
-        System.out.print("  " + command);
-        // TODO
-        server = home.getParent().launcher("java", "-jar", "/Users/mhm/Projects/github.com/net/oneandone/stool/stool/server/target/server-5.0.0-SNAPSHOT-springboot.jar");
+        server = server(home);
         server.arg(args);
-        server.getBuilder().environment().put("STOOL_HOME", home.getAbsolute());
         try {
             System.out.println("server" + server.exec());
         } catch (Failure e) {
-            System.out.println(" -> failed: " + e + "(id " + id + ")");
+            System.out.println(" -> failed: " + e);
         }
+
+        server = server(home);
+        server.arg("run");
+        serverProcess = server.launch(IT_ROOT.join("server.log").newWriter()).process;
+    }
+
+    private Launcher server(FileNode home) {
+        Launcher launcher;
+
+        launcher = IT_ROOT.launcher("java", "-jar", "/Users/mhm/Projects/github.com/net/oneandone/stool/stool/server/target/server-5.0.0-SNAPSHOT-springboot.jar");
+        launcher.getBuilder().environment().put("STOOL_HOME", home.getAbsolute());
+        return launcher;
     }
 
     private void stool(String... args) throws IOException {
