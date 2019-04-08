@@ -77,20 +77,6 @@ public abstract class ClientCommand {
 
     //-- utility code to simplify server api
 
-    public void resolveName(String name) throws IOException {
-        List<String> found;
-
-        found = client.search(name);
-        switch (found.size()) {
-            case 0:
-                throw new IOException("no such stage: " + name);
-            case 1:
-                return;
-            default:
-                throw new IOException("stage ambiguous: " + name);
-        }
-    }
-
     public boolean up(String stage) throws IOException {
         Map<String, String> map;
 

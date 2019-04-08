@@ -21,6 +21,9 @@ import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
+import java.io.IOException;
+import java.util.List;
+
 public class Attach extends ProjectCommand {
     private final String stage;
 
@@ -33,7 +36,17 @@ public class Attach extends ProjectCommand {
     public void doRun(FileNode project) throws Exception {
         Project backstage;
 
-        resolveName(stage);
+        List<String> found;
+
+        found = client.search(stage);
+        switch (found.size()) {
+            case 0:
+                throw new IOException("no such stage: " + stage);
+            case 1:
+                break;
+            default:
+                throw new IOException("stage ambiguous: " + stage);
+        }
         backstage = Project.lookup(project);
         if (backstage == null) {
             backstage = Project.create(project);
