@@ -69,15 +69,15 @@ public class Project {
         this.project = backstage.getParent();
     }
 
-    public Reference getAttachedOpt() throws IOException {
+    public String getAttachedOpt() throws IOException {
         FileNode map;
 
         map = map();
-        return map.isFile() ? new Reference(map.readString().trim()) : null;
+        return map.isFile() ? map.readString().trim() : null;
     }
 
-    public void setAttached(Reference stage) throws IOException {
-        map().writeString(stage.getName());
+    public void setAttached(String stage) throws IOException {
+        map().writeString(stage);
     }
 
     private FileNode map() {

@@ -17,7 +17,6 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
-import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 
@@ -34,27 +33,27 @@ public class Remove extends StageCommand {
     }
 
     @Override
-    public void doMain(Reference reference) throws Exception {
+    public void doMain(String stage) throws Exception {
         boolean up;
         Project project;
 
-        up = up(reference);
+        up = up(stage);
         if (stop && up) {
-            new Stop(world, console, client).doRun(reference);
-            up = up(reference);
+            new Stop(world, console, client).doRun(stage);
+            up = up(stage);
         }
         if (up) {
             throw new IOException("stage is not stopped.");
         }
         if (!batch) {
-            console.info.println("Ready to delete stage " + reference.getName() + "?");
+            console.info.println("Ready to delete stage " + stage + "?");
             console.pressReturn();
         }
 
-        client.remove(reference);
+        client.remove(stage);
 
         project = Project.lookup(world.getWorking());
-        if (project != null && reference.equals(project.getAttachedOpt())) {
+        if (project != null && stage.equals(project.getAttachedOpt())) {
             console.info.println("removing backstage");
             project.removeBackstage();
         }

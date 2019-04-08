@@ -16,7 +16,6 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 
@@ -31,8 +30,8 @@ public class History extends StageCommand {
     }
 
     @Override
-    public void doMain(Reference reference) throws Exception {
-        for (String line : client.history(reference, details, max)) {
+    public void doMain(String stage) throws Exception {
+        for (String line : client.history(stage, details, max)) {
             console.info.println(line);
         }
     }

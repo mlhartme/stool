@@ -16,7 +16,6 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
@@ -36,7 +35,7 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public boolean doBefore(List<Reference> referencesNotUsed, int indent) {
+    public boolean doBefore(List<String> stagesNotUsed, int indent) {
         List<String> line;
 
         if (selected.isEmpty()) {
@@ -56,12 +55,12 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public void doMain(Reference reference) throws Exception {
+    public void doMain(String stage) throws Exception {
         List<String> line;
 
         line = new ArrayList<>();
         lines.add(line);
-        for (Map.Entry<String, String> entry : client.status(reference, selected).entrySet()) {
+        for (Map.Entry<String, String> entry : client.status(stage, selected).entrySet()) {
             line.add(entry.getValue().replace("\t", " "));
         }
     }
@@ -119,7 +118,7 @@ public class Ls extends InfoCommand {
         return result;
     }
 
-    protected List<Reference> defaultSelected() throws IOException {
+    protected List<String> defaultSelected() throws IOException {
         return client.search(null);
     }
 }

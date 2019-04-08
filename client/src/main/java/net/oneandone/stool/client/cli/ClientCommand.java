@@ -16,7 +16,6 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
@@ -78,24 +77,24 @@ public abstract class ClientCommand {
 
     //-- utility code to simplify server api
 
-    public Reference resolveName(String name) throws IOException {
-        List<Reference> found;
+    public void resolveName(String name) throws IOException {
+        List<String> found;
 
         found = client.search(name);
         switch (found.size()) {
             case 0:
                 throw new IOException("no such stage: " + name);
             case 1:
-                return found.get(0);
+                return;
             default:
                 throw new IOException("stage ambiguous: " + name);
         }
     }
 
-    public boolean up(Reference reference) throws IOException {
+    public boolean up(String stage) throws IOException {
         Map<String, String> map;
 
-        map = client.status(reference, Strings.toList("up"));
+        map = client.status(stage, Strings.toList("up"));
         if (map.size() != 1) {
             throw new IllegalStateException("unknown state: " + map.toString());
         }

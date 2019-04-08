@@ -17,30 +17,27 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
-import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 public class Attach extends ProjectCommand {
-    private final String stageName;
+    private final String stage;
 
-    public Attach(World world, Console console, Client client, String stageName, FileNode project) {
+    public Attach(World world, Console console, Client client, String stage, FileNode project) {
         super(world, console, client, project);
-
-        this.stageName = stageName;
+        this.stage = stage;
     }
 
     @Override
     public void doRun(FileNode project) throws Exception {
         Project backstage;
-        Reference reference;
 
-        reference = resolveName(stageName);
+        resolveName(stage);
         backstage = Project.lookup(project);
         if (backstage == null) {
             backstage = Project.create(project);
         }
-        backstage.setAttached(reference);
+        backstage.setAttached(stage);
     }
 }

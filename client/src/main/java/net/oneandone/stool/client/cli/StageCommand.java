@@ -18,7 +18,6 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
-import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.io.PrefixWriter;
@@ -56,7 +55,7 @@ public abstract class StageCommand extends ClientCommand {
     @Override
     public void doRun() throws Exception {
         int width;
-        List<Reference> lst;
+        List<String> lst;
         EnumerationFailed failures;
         String failureMessage;
         boolean withPrefix;
@@ -64,20 +63,20 @@ public abstract class StageCommand extends ClientCommand {
 
         lst = selectedList();
         width = 0;
-        for (Reference reference : lst) {
-            width = Math.max(width, reference.getName().length());
+        for (String stage : lst) {
+            width = Math.max(width, stage.length());
         }
         width += 5;
         withPrefix = doBefore(lst, width);
         failures = new EnumerationFailed();
         worker = new Worker(width, failures, withPrefix);
-        for (Reference reference : lst) {
-            worker.main(reference);
+        for (String stage : lst) {
+            worker.main(stage);
         }
         if (this instanceof Remove) {
             // TODO - skip
-        } else for (Reference reference : lst) {
-            worker.finish(reference);
+        } else for (String stage : lst) {
+            worker.finish(stage);
         }
         doAfter();
         failureMessage = failures.getMessage();
@@ -94,7 +93,7 @@ public abstract class StageCommand extends ClientCommand {
         }
     }
 
-    private List<Reference> selectedList() throws IOException {
+    private List<String> selectedList() throws IOException {
         int count;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
@@ -115,37 +114,37 @@ public abstract class StageCommand extends ClientCommand {
     }
 
     /** override this to change the default */
-    protected List<Reference> defaultSelected() throws IOException {
+    protected List<String> defaultSelected() throws IOException {
         Project project;
-        Reference reference;
+        String stage;
 
         project = Project.lookup(world.getWorking());
         if (project != null) {
-            reference = project.getAttachedOpt();
-            if (reference != null) {
-                return Collections.singletonList(reference);
+            stage = project.getAttachedOpt();
+            if (stage != null) {
+                return Collections.singletonList(stage);
             }
         }
         return Collections.emptyList();
     }
 
     /* Note that the stage is not locked when this method is called. @return true to use prefix stream. */
-    public boolean doBefore(List<Reference> references, int indent) throws IOException {
-        return references.size() != 1;
+    public boolean doBefore(List<String> names, int indent) throws IOException {
+        return names.size() != 1;
     }
 
     //--
 
     /** main method to perform this command */
-    public abstract void doMain(Reference stage) throws Exception;
+    public abstract void doMain(String stage) throws Exception;
 
-    public void doRun(Reference reference) throws Exception {
-        doMain(reference);
-        doFinish(reference);
+    public void doRun(String stage) throws Exception {
+        doMain(stage);
+        doFinish(stage);
     }
 
     /** override this if your doMain method needs some finishing */
-    public void doFinish(Reference reference) throws Exception {
+    public void doFinish(String stage) throws Exception {
     }
 
     /* Note that the stage is not locked when this method is called. */
@@ -190,35 +189,32 @@ public abstract class StageCommand extends ClientCommand {
             this.withPrefix = withPrefix;
         }
 
-        public void main(Reference reference) throws Exception {
-            run(reference, true);
+        public void main(String stage) throws Exception {
+            run(stage, true);
         }
 
-        public void finish(Reference reference) throws Exception {
-            run(reference, false);
+        public void finish(String stage) throws Exception {
+            run(stage, false);
         }
 
-        private void run(Reference reference, boolean main) throws Exception {
-            String name;
-
-            name = reference.getName();
+        private void run(String stage, boolean main) throws Exception {
             if (withPrefix) {
-                ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + name + "} ", width));
+                ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + stage + "} ", width));
             }
             try {
                 if (main) {
-                    runMain(reference);
+                    runMain(stage);
                 } else {
-                    runFinish(reference);
+                    runFinish(stage);
                 }
             } catch (Error | RuntimeException e) {
-                console.error.println(name + ": " + e.getMessage());
+                console.error.println(stage + ": " + e.getMessage());
                 throw e;
             } catch (Exception e /* esp. ArgumentException */) {
                 if (fail == Fail.NORMAL) {
                     throw e;
                 }
-                failures.add(name, reference, e);
+                failures.add(stage, e);
             } finally {
                 if (console.info instanceof PrefixWriter) {
                     ((PrefixWriter) console.info).setPrefix("");
@@ -226,14 +222,14 @@ public abstract class StageCommand extends ClientCommand {
             }
         }
 
-        private void runMain(Reference reference) throws Exception {
+        private void runMain(String stage) throws Exception {
             console.verbose.println("*** stage main");
-            doMain(reference);
+            doMain(stage);
         }
 
-        private void runFinish(Reference reference) throws Exception {
+        private void runFinish(String stage) throws Exception {
             console.verbose.println("*** stage finish");
-            doFinish(reference);
+            doFinish(stage);
         }
     }
 }

@@ -17,7 +17,6 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 
@@ -35,9 +34,9 @@ public class App extends StageCommand {
     }
 
     @Override
-    public void doMain(Reference reference) throws Exception {
-        for (String app : appSelection(client.apps(reference))) {
-            for (String line : client.appInfo(reference, app)) {
+    public void doMain(String stage) throws Exception {
+        for (String app : appSelection(client.apps(stage))) {
+            for (String line : client.appInfo(stage, app)) {
                 console.info.println(line);
             }
         }

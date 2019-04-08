@@ -18,7 +18,6 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Project;
-import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -72,7 +71,6 @@ public class Create extends ProjectCommand {
     public void doRun(FileNode projectDirectory) throws IOException {
         Project project;
         String name;
-        Reference reference;
 
         project = Project.lookup(projectDirectory);
         if (project == null) {
@@ -87,8 +85,8 @@ public class Create extends ProjectCommand {
             name = project.getDirectory().getName();
         }
         Project.checkName(name);
-        reference = client.create(name, config);
-        console.info.println("stage create: " + reference.getName());
-        project.setAttached(reference);
+        client.create(name, config);
+        console.info.println("stage create: " + name);
+        project.setAttached(name);
     }
 }

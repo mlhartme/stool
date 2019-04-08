@@ -38,10 +38,10 @@ public class Client {
     //--
 
     /** @param stageClause null to return all stages */
-    public List<Reference> search(String stageClause) throws IOException {
+    public List<String> search(String stageClause) throws IOException {
         HttpNode node;
         JsonArray references;
-        List<Reference> result;
+        List<String> result;
 
         node = node("search");
         if (stageClause != null) {
@@ -50,14 +50,14 @@ public class Client {
         references = httpGet(node).getAsJsonArray();
         result = new ArrayList<>(references.size());
         for (JsonElement element : references) {
-            result.add(new Reference(element.getAsString()));
+            result.add(element.getAsString());
         }
         return result;
     }
 
     //-- create, build, start, stop, remove
 
-    public Reference create(String name, Map<String, String> config) throws IOException {
+    public void create(String name, Map<String, String> config) throws IOException {
         HttpNode node;
         String response;
 
@@ -69,10 +69,9 @@ public class Client {
         if (!response.isEmpty()) {
             throw new IOException(response);
         }
-        return new Reference(name);
     }
 
-    public BuildResult build(Reference reference, String app, FileNode war, String comment,
+    public BuildResult build(String stage, String app, FileNode war, String comment,
                              String origin, String createdBy, String createdOn, boolean noCache, int keep,
                              Map<String, String> arguments) throws Exception {
         HttpNode node;
@@ -80,7 +79,7 @@ public class Client {
         JsonElement error;
         String result;
 
-        node = node(reference, "build");
+        node = node(stage, "build");
         node = node.withParameter("app", app);
         node = node.withParameter("war", war.getAbsolute());
         node = node.withParameter("comment", comment);
@@ -98,11 +97,11 @@ public class Client {
         return new BuildResult(error == null ? null : error.getAsString(), obj.get("output").getAsString());
     }
 
-    public void start(Reference reference, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {
+    public void start(String stage, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {
         HttpNode node;
         String response;
 
-        node = node(reference, "start");
+        node = node(stage, "start");
         node = node.withParameter("http", http);
         node = node.withParameter("https", https);
         node = node.withParameters("env.", startEnvironment);
@@ -113,11 +112,11 @@ public class Client {
         }
     }
 
-    public Map<String, List<String>> awaitStartup(Reference reference) throws IOException {
+    public Map<String, List<String>> awaitStartup(String stage) throws IOException {
         JsonObject response;
         Map<String, List<String>> result;
 
-        response = httpGet(node(reference, "await-startup")).getAsJsonObject();
+        response = httpGet(node(stage, "await-startup")).getAsJsonObject();
 
         result = new LinkedHashMap<>();
         for (Map.Entry<String, JsonElement> entry : response.entrySet()) {
@@ -136,19 +135,19 @@ public class Client {
         return result;
     }
 
-    public void stop(Reference reference, List<String> apps) throws IOException {
+    public void stop(String stage, List<String> apps) throws IOException {
         String response;
 
-        response = node(reference, "stop").withParameter("apps", Separator.COMMA.join(apps)).post("");
+        response = node(stage, "stop").withParameter("apps", Separator.COMMA.join(apps)).post("");
         if (!response.isEmpty()) {
             throw new IOException(response);
         }
     }
 
-    public void remove(Reference reference) throws IOException {
+    public void remove(String stage) throws IOException {
         String response;
 
-        response = node(reference, "remove").post("");
+        response = node(stage, "remove").post("");
         if (!response.isEmpty()) {
             throw new IOException(response);
         }
@@ -156,12 +155,12 @@ public class Client {
 
     //--
 
-    public Map<String, String> status(Reference reference, List<String> select) throws IOException {
+    public Map<String, String> status(String stage, List<String> select) throws IOException {
         HttpNode node;
         JsonObject status;
         Map<String, String> result;
 
-        node = node(reference, "status");
+        node = node(stage, "status");
         node = node.withParameter("select", Separator.COMMA.join(select));
         status = httpGet(node).getAsJsonObject();
         result = new LinkedHashMap<>();
@@ -171,12 +170,12 @@ public class Client {
         return result;
     }
 
-    public List<String> history(Reference reference, boolean details, int max) throws IOException {
+    public List<String> history(String stage, boolean details, int max) throws IOException {
         HttpNode node;
         JsonArray references;
         List<String> result;
 
-        node = node(reference,"history");
+        node = node(stage,"history");
         node = node.withParameter("details", details);
         node = node.withParameter("max", max);
         references = httpGet(node).getAsJsonArray();
@@ -201,8 +200,8 @@ public class Client {
         return Integer.parseInt(result);
     }
 
-    public List<String> apps(Reference reference) throws IOException {
-        return array(httpGet(node(reference, "apps")).getAsJsonArray());
+    public List<String> apps(String stage) throws IOException {
+        return array(httpGet(node(stage, "apps")).getAsJsonArray());
     }
 
     //-- validate
@@ -221,11 +220,11 @@ public class Client {
 
     //-- config command
 
-    public Map<String, String> getProperties(Reference reference) throws Exception {
+    public Map<String, String> getProperties(String stage) throws Exception {
         Map<String, String> result;
         JsonObject properties;
 
-        properties = httpGet(node(reference, "properties")).getAsJsonObject();
+        properties = httpGet(node(stage, "properties")).getAsJsonObject();
         result = new LinkedHashMap<>();
         for (String name : properties.keySet()) {
             result.put(name, properties.get(name).getAsString());
@@ -233,12 +232,12 @@ public class Client {
         return result;
     }
 
-    public Map<String, String> setProperties(Reference reference, Map<String, String> arguments) throws IOException {
+    public Map<String, String> setProperties(String stage, Map<String, String> arguments) throws IOException {
         HttpNode node;
         JsonObject response;
         Map<String, String> result;
 
-        node = node(reference, "set-properties");
+        node = node(stage, "set-properties");
         node = node.withParameters(arguments);
 
         response = parser.parse(node.post("")).getAsJsonObject();
@@ -252,14 +251,14 @@ public class Client {
 
     //-- app info
 
-    public List<String> appInfo(Reference reference, String app) throws Exception {
-        return array(httpGet(node(reference, "appInfo").withParameter("app", app)).getAsJsonArray());
+    public List<String> appInfo(String stage, String app) throws Exception {
+        return array(httpGet(node(stage, "appInfo").withParameter("app", app)).getAsJsonArray());
     }
 
     //--
 
-    private HttpNode node(Reference reference, String cmd) {
-        return node("stage/" + reference.getName() + "/" + cmd);
+    private HttpNode node(String stage, String cmd) {
+        return node("stage/" + stage + "/" + cmd);
     }
 
     private HttpNode node(String path) {

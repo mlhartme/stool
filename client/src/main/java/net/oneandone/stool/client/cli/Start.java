@@ -16,7 +16,6 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.World;
 
@@ -67,15 +66,15 @@ public class Start extends StageCommand {
     }
 
     @Override
-    public void doMain(Reference reference) throws Exception {
-        client.start(reference, http, https, environment, selection);
+    public void doMain(String stage) throws Exception {
+        client.start(stage, http, https, environment, selection);
     }
 
     @Override
-    public void doFinish(Reference reference) throws Exception {
+    public void doFinish(String stage) throws Exception {
         Map<String, List<String>> running;
 
-        running = client.awaitStartup(reference);
+        running = client.awaitStartup(stage);
         console.info.println("Applications available:");
         for (String app : running.keySet()) {
             for (String url : running.get(app)) {
@@ -83,13 +82,13 @@ public class Start extends StageCommand {
             }
         }
         if (tail) {
-            doTail(reference);
+            doTail(stage);
         }
     }
 
     //--
 
-    private void doTail(Reference reference) throws IOException {
+    private void doTail(String stage) throws IOException {
         console.info.println("Tailing container output.");
         console.info.println("Press Ctrl-C to abort.");
         console.info.println();
