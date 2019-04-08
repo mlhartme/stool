@@ -19,12 +19,10 @@ import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
@@ -37,7 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@org.springframework.web.bind.annotation.RestController
 public class RestController {
     private final Session session;
 
@@ -52,12 +50,12 @@ public class RestController {
         System.out.println("session created: " + session);
     }
 
-    @GetMapping("/version") @ResponseBody
+    @GetMapping("/version")
     public String version() throws IOException {
         return new JsonPrimitive( Main.versionString(session.world)).toString();
     }
 
-    @GetMapping("/search") @ResponseBody
+    @GetMapping("/search")
     public String search(@RequestParam("stageClause") String stageClause) throws IOException {
         JsonArray result;
         Map<String, IOException> problems;
@@ -73,7 +71,7 @@ public class RestController {
         return result.toString();
     }
 
-    @PostMapping("create") @ResponseBody
+    @PostMapping("create")
     public void create(HttpServletRequest request) throws IOException {
         String name;
         Map<String, String> config;
@@ -99,7 +97,7 @@ public class RestController {
         closeStage();
     }
 
-    @PostMapping("/stage/{stage}/build") @ResponseBody
+    @PostMapping("/stage/{stage}/build")
     public String build(@PathVariable("stage") String stage, @RequestParam("app") String app,
                         @RequestParam("war") String war, @RequestParam("comment") String comment,
                         @RequestParam("origin") String origin, @RequestParam("created-by") String createdBy,
@@ -134,7 +132,7 @@ public class RestController {
         return result;
     }
 
-    @GetMapping("/stage/{stage}/properties") @ResponseBody
+    @GetMapping("/stage/{stage}/properties")
     public String properties(@PathVariable(value = "stage") String stage) throws IOException {
         JsonObject result;
 
@@ -145,7 +143,7 @@ public class RestController {
         return result.toString();
     }
 
-    @PostMapping("/stage/{stage}/set-properties") @ResponseBody
+    @PostMapping("/stage/{stage}/set-properties")
     public String setProperties(@PathVariable(value = "stage") String stageName, HttpServletRequest request) throws IOException {
         Stage stage;
         Property prop;
@@ -175,7 +173,7 @@ public class RestController {
     }
 
 
-    @GetMapping("stage/{stage}/status") @ResponseBody
+    @GetMapping("stage/{stage}/status")
     public String status(@PathVariable(value = "stage") String stage, @RequestParam("select") String select) throws IOException {
         JsonObject result;
         List<String> selection;
@@ -197,7 +195,7 @@ public class RestController {
         return result.toString();
     }
 
-    @GetMapping("stage/{stage}/apps") @ResponseBody
+    @GetMapping("stage/{stage}/apps")
     public String apps(@PathVariable(value = "stage") String stage) throws IOException {
         List<String> result;
 
@@ -206,7 +204,7 @@ public class RestController {
         return array(result).toString();
     }
 
-    @PostMapping("validate") @ResponseBody
+    @PostMapping("validate")
     public String validate(@RequestParam("stageClause") String stageClause,
                            @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
         List<String> output;
@@ -227,7 +225,7 @@ public class RestController {
     }
 
 
-    @PostMapping("stage/{stage}/start") @ResponseBody
+    @PostMapping("stage/{stage}/start")
     public void start(@PathVariable(value = "stage") String stageName,
                       @RequestParam("http") int http, @RequestParam("https") int https,
                       HttpServletRequest request) throws IOException {
@@ -262,7 +260,7 @@ public class RestController {
         }
     }
 
-    @GetMapping("stage/{stage}/await-startup") @ResponseBody
+    @GetMapping("stage/{stage}/await-startup")
     public String awaitStartup(@PathVariable(value = "stage") String stageName) throws IOException {
         Stage stage;
         JsonObject result;
@@ -287,7 +285,7 @@ public class RestController {
         return result;
     }
 
-    @PostMapping("stage/{stage}/stop") @ResponseBody
+    @PostMapping("stage/{stage}/stop")
     public void stop(@PathVariable(value = "stage") String stage, @RequestParam("apps") String apps) throws IOException {
         Reference reference;
 
@@ -301,7 +299,7 @@ public class RestController {
     }
 
 
-    @GetMapping("stage/{stage}/history") @ResponseBody
+    @GetMapping("stage/{stage}/history")
     public String history(@PathVariable(value = "stage") String stage,
                           @RequestParam("details") boolean details, @RequestParam("max") int max) throws IOException {
         LogEntry entry;
@@ -357,7 +355,7 @@ public class RestController {
         return false;
     }
 
-    @PostMapping("stage/{stage}/remove") @ResponseBody
+    @PostMapping("stage/{stage}/remove")
     public void remove(@PathVariable(value = "stage") String stage) throws IOException {
         Reference reference;
 
@@ -372,7 +370,7 @@ public class RestController {
 
     //--
 
-    @GetMapping("/quota") @ResponseBody
+    @GetMapping("/quota")
     public String quota() throws IOException {
         int global;
 
@@ -380,7 +378,7 @@ public class RestController {
         return new JsonPrimitive(global == 0 ? "" : session.quotaReserved() + "/" + global).toString();
     }
 
-    @GetMapping("/memUnreserved") @ResponseBody
+    @GetMapping("/memUnreserved")
     public String memUnreserved() throws IOException {
         return new JsonPrimitive(session.memUnreserved()).toString();
     }

@@ -18,6 +18,8 @@ package net.oneandone.stool;
 import net.oneandone.stool.client.cli.Main;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Failure;
+import net.oneandone.sushi.launcher.Launcher;
 import org.junit.After;
 import org.junit.Test;
 
@@ -99,21 +101,22 @@ public class MainIT {
         WORLD.setWorking(stages);
     }
 
-    private void stoolServer(FileNode home, String... args) throws IOException {
-        /* TODO
-        int result;
+    private void stoolServer(FileNode home, String... args) {
         String command;
+        Launcher server;
 
         id++;
         command = command(args);
         System.out.print("  " + command);
-        result = net.oneandone.stool.server.cli.Main.run(WORLD, home, args);
-        if (result == 0) {
-            System.out.println();
-        } else {
-            System.out.println(" -> failed: " + result + "(id " + id + ")");
-            fail(command + " -> " + result);
-        }*/
+        // TODO
+        server = home.getParent().launcher("java", "-jar", "/Users/mhm/Projects/github.com/net/oneandone/stool/stool/server/target/server-5.0.0-SNAPSHOT-springboot.jar");
+        server.arg(args);
+        server.getBuilder().environment().put("STOOL_HOME", home.getAbsolute());
+        try {
+            System.out.println("server" + server.exec());
+        } catch (Failure e) {
+            System.out.println(" -> failed: " + e + "(id " + id + ")");
+        }
     }
 
     private void stool(String... args) throws IOException {
