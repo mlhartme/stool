@@ -22,7 +22,9 @@ import net.oneandone.sushi.util.Strings;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
@@ -35,11 +37,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@org.springframework.web.bind.annotation.RestController
-public class RestController {
+@RestController
+@RequestMapping("/api")
+public class ApiController {
     private final Session session;
 
-    public RestController() throws IOException {
+    public ApiController() throws IOException {
         World world;
         Globals globals;
 

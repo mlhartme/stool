@@ -61,7 +61,7 @@ public class Main {
             out = new PrefixWriter(new PrintWriter(System.out));
             console = new Console(out, out, System.in);
         }
-        globals = new Globals(itHome, args, console, world);
+        globals = new Globals(console, world);
         cli = new Cli(globals.console::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
@@ -71,7 +71,7 @@ public class Main {
               cli.addDefault(Help.class, "help command?");
               cli.begin("globals.world", "");
                        cli.begin("globals.console", "");
-                       cli.begin("globals.server", "");
+                       cli.begin("globals.client", "");
                 cli.base(ClientCommand.class, "");
                     cli.add(Create.class, "create projectAndProperties*");
                     cli.add(Build.class, "build -nocache -keep=5 -restart -m= projectOrArgs*");

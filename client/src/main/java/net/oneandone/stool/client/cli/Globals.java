@@ -17,21 +17,15 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Client;
+import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.file.FileNode;
-
-import java.io.IOException;
 
 /** Basically a session factory */
 public class Globals {
-    private final FileNode itHome;
-    private final String[] args;
     public final World world;
     public final Console console;
 
-    public Globals(FileNode itHome, String[] args, Console console, World world) {
-        this.itHome = itHome;
-        this.args = args;
+    public Globals(Console console, World world) {
         this.console = console;
         this.world = world;
     }
@@ -50,7 +44,7 @@ public class Globals {
         return console;
     }
 
-    public Client server() {
-        return new Client(world);
+    public Client client() throws NodeInstantiationException {
+        return Client.create(world);
     }
 }

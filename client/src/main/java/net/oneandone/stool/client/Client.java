@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.common.Reference;
+import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpNode;
@@ -17,11 +18,15 @@ import java.util.List;
 import java.util.Map;
 
 public class Client {
-    private final World world;
+    public static Client create(World world) throws NodeInstantiationException {
+        return new Client((HttpNode) world.validNode("http://localhost:8080/api"));
+    }
+
+    private final HttpNode root;
     private final JsonParser parser;
 
-    public Client(World world) {
-        this.world = world;
+    public Client(HttpNode root) {
+        this.root = root;
         this.parser = new JsonParser();
     }
 
@@ -239,12 +244,12 @@ public class Client {
 
     //--
 
-    private HttpNode node(Reference reference, String cmd) throws IOException {
+    private HttpNode node(Reference reference, String cmd) {
         return node("stage/" + reference.getName() + "/" + cmd);
     }
 
-    private HttpNode node(String path) throws IOException {
-        return (HttpNode) world.validNode("http://localhost:8080/").join(path);
+    private HttpNode node(String path) {
+        return root.join(path);
     }
 
     private JsonElement httpGet(HttpNode node) throws IOException {
