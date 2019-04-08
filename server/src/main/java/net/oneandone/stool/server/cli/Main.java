@@ -50,16 +50,16 @@ public class Main {
     }
 
     public static int run(String[] args) throws IOException {
-        return run(world(), null, args);
+        return run(world(), args);
     }
 
-    public static int run(World world, FileNode itHome, String[] args) throws IOException {
+    public static int run(World world, String[] args) throws IOException {
         Cli cli;
         Console console;
         Globals globals;
 
         console = Console.create();
-        globals = Globals.create(world, itHome, args);
+        globals = Globals.create(world, args);
         cli = new Cli(console::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);

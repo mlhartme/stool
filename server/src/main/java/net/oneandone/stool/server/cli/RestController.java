@@ -44,14 +44,12 @@ public class RestController {
         Globals globals;
 
         world = World.create();
-        globals = Globals.create(world, world.file("/Users/mhm/Projects/github.com/net/oneandone/stool/stool/client/target/it/git"), // TODO
-                new String[0]);
+        globals = Globals.create(world, new String[0]);
         this.session = globals.session();
-        System.out.println("session created: " + session);
     }
 
     @GetMapping("/version")
-    public String version() throws IOException {
+    public String version() {
         return new JsonPrimitive( Main.versionString(session.world)).toString();
     }
 

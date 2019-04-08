@@ -24,7 +24,6 @@ import org.junit.After;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import static org.junit.Assert.fail;
 

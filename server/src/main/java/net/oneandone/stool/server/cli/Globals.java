@@ -28,16 +28,13 @@ import java.lang.reflect.InvocationTargetException;
 
 /** Basically a session factory */
 public class Globals {
-    public static Globals create(World world, FileNode itHome, String[] args) throws IOException {
+    public static Globals create(World world, String[] args) throws IOException {
         Environment environment;
         FileNode home;
         Logging logging;
         FileNode tmp;
 
         environment = Environment.loadSystem();
-        if (itHome != null) {
-            environment.setHome(itHome);
-        }
         home = environment.locateHome(world);
         if (home.exists()) {
             logging = Logging.forHome(home, environment.detectUser());
