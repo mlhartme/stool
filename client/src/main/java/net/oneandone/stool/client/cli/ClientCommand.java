@@ -17,7 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.stool.common.State;
+import net.oneandone.stool.client.State;
 import net.oneandone.stool.client.Client;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
@@ -95,12 +95,13 @@ public abstract class ClientCommand {
 
     public State state(Reference reference) throws IOException {
         Map<String, String> map;
+        boolean up;
 
-        map = client.status(reference, Strings.toList("state"));
+        map = client.status(reference, Strings.toList("up"));
         if (map.size() != 1) {
             throw new IllegalStateException("unknown state: " + map.toString());
         }
-        return State.valueOf(map.values().iterator().next().toUpperCase());
+        up = Boolean.valueOf(map.values().iterator().next().toUpperCase());
+        return up ? State.UP : State.DOWN;
     }
-
 }

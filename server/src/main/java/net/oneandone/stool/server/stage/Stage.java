@@ -17,7 +17,6 @@ package net.oneandone.stool.server.stage;
 
 import com.google.gson.JsonObject;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.common.State;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.docker.BuildError;
@@ -109,12 +108,12 @@ public class Stage {
 
     //-- state
 
-    public State state() throws IOException {
-        if (dockerContainerList().isEmpty()) {
-            return State.DOWN;
-        } else {
-            return State.UP;
-        }
+    public boolean isUp() throws IOException {
+        return !isDown();
+    }
+
+    public boolean isDown() throws IOException {
+        return dockerContainerList().isEmpty();
     }
 
     //-- fields and properties
@@ -185,10 +184,10 @@ public class Stage {
                 return directory.getAbsolute();
             }
         });
-        fields.add(new Field("state") {
+        fields.add(new Field("up") {
             @Override
             public Object get() throws IOException {
-                return state().toString();
+                return isUp();
             }
         });
         fields.add(new Field("running") {
@@ -774,8 +773,7 @@ public class Stage {
                 + ", comment='" + configuration.comment + '\''
                 // TODO: current immage, container?
                 + ", urls=" + urlMap(null)
-                + ", state=" + state()
-                + ", displayState=" + state().display
+                + ", up=" + isUp()
                 + '}').hashCode();
     }
 

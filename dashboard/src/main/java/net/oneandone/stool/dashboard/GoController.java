@@ -59,21 +59,20 @@ public class GoController {
             return new ModelAndView("redirect:" + baseurl + "/#!404:" + stageName);
         }
         stage = session.load(stageName);
-        switch (stage.state()) {
-            case UP:
-                urlMap = stage.urlMap(null);
-                if (appName == null) {
-                    url = urlMap.values().iterator().next();
-                } else {
-                    url = urlMap.get(appName);
-                }
-                if (url == null) {
-                    return new ModelAndView("redirect:" + baseurl + "/#!404:" + stageName + "/" + appName);
-                } else {
-                    return new ModelAndView("redirect:" + url);
-                }
-            default:
-                return new ModelAndView("redirect:" + baseurl + "/#!500!" + stageName + "!" + stage.state());
+        if (stage.isUp()) {
+            urlMap = stage.urlMap(null);
+            if (appName == null) {
+                url = urlMap.values().iterator().next();
+            } else {
+                url = urlMap.get(appName);
+            }
+            if (url == null) {
+                return new ModelAndView("redirect:" + baseurl + "/#!404:" + stageName + "/" + appName);
+            } else {
+                return new ModelAndView("redirect:" + url);
+            }
+        } else {
+            return new ModelAndView("redirect:" + baseurl + "/#!500!" + stageName + "!down");
         }
     }
 }
