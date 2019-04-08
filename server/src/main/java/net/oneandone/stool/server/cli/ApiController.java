@@ -178,7 +178,7 @@ public class ApiController {
     }
 
 
-    @GetMapping("stage/{stage}/status")
+    @GetMapping("/stage/{stage}/status")
     public String status(@PathVariable(value = "stage") String stage, @RequestParam("select") String select) throws IOException {
         JsonObject result;
         List<String> selection;
@@ -409,6 +409,7 @@ public class ApiController {
     }
 
     //--
+
     private void openStage(String stage) throws MkdirException {
         session.logging.openStage(stage);
         session.logging.command(session.command);
