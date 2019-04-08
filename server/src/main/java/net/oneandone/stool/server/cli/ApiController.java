@@ -4,7 +4,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.common.Reference;
 import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.AppInfo;

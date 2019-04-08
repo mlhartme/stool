@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.client.cli;
 
-import net.oneandone.stool.common.Reference;
+import net.oneandone.stool.client.Reference;
 
 import java.io.IOException;
 import java.util.HashMap;
