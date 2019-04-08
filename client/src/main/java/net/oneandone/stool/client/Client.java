@@ -10,6 +10,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.model.Body;
+import net.oneandone.sushi.fs.http.model.HeaderList;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
@@ -20,11 +21,15 @@ import java.util.List;
 import java.util.Map;
 
 public class Client {
-    public static Client create(World world, FileNode wireLog) throws NodeInstantiationException {
+    public static Client create(World world, FileNode wireLog, String clientContext) throws NodeInstantiationException {
+        HttpNode node;
+
         if (wireLog != null) {
             HttpFilesystem.wireLog(wireLog.getAbsolute());
         }
-        return new Client((HttpNode) world.validNode("http://localhost:8080/api"));
+        node = (HttpNode) world.validNode("http://localhost:8080/api");
+        node.getRoot().addExtraHeader("X-stool-client-context", clientContext);
+        return new Client(node);
     }
 
     private final HttpNode root;

@@ -23,13 +23,15 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 /** Basically a session factory */
 public class Globals {
-    public final World world;
     public final Console console;
+    public final World world;
+    private final String clientContext;
     private FileNode wirelog;
 
-    public Globals(Console console, World world) {
+    public Globals(Console console, World world, String clientContext) {
         this.console = console;
         this.world = world;
+        this.clientContext = clientContext;
         this.wirelog = null;
     }
 
@@ -52,6 +54,6 @@ public class Globals {
     }
 
     public Client client() throws NodeInstantiationException {
-        return Client.create(world, wirelog);
+        return Client.create(world, wirelog, clientContext);
     }
 }

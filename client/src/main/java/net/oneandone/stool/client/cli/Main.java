@@ -23,6 +23,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
 import net.oneandone.sushi.io.PrefixWriter;
+import net.oneandone.sushi.util.Separator;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -61,7 +62,7 @@ public class Main {
             out = new PrefixWriter(new PrintWriter(System.out));
             console = new Console(out, out, System.in);
         }
-        globals = new Globals(console, world);
+        globals = new Globals(console, world, "stool " + Separator.SPACE.join(args));
         cli = new Cli(globals.console::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
