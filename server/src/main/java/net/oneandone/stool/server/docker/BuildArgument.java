@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.util;
+package net.oneandone.stool.server.docker;
 
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -22,18 +22,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Variable {
-    public static Map<String, Variable> scan(FileNode file) throws IOException {
-        Map<String, Variable> result;
-        Variable variable;
+public class BuildArgument {
+    public static Map<String, BuildArgument> scan(FileNode file) throws IOException {
+        Map<String, BuildArgument> result;
+        BuildArgument buildArgument;
 
         result = new HashMap<>();
         if (file.isFile()) {
             for (String line : file.readLines()) {
-                variable = scan(line);
-                if (variable != null) {
-                    if (result.put(variable.name, variable) != null) {
-                        throw new IOException("duplicate variable: " + variable.name);
+                buildArgument = scan(line);
+                if (buildArgument != null) {
+                    if (result.put(buildArgument.name, buildArgument) != null) {
+                        throw new IOException("duplicate variable: " + buildArgument.name);
                     }
                 }
             }
@@ -41,7 +41,7 @@ public class Variable {
         return result;
     }
 
-    public static Variable scan(String line) {
+    public static BuildArgument scan(String line) {
         String name;
         String dflt;
         int idx;
@@ -59,24 +59,14 @@ public class Variable {
             name = line.substring(0, idx).trim();
             dflt = line.substring(idx + 1).trim();
         }
-        return new Variable(name, dflt);
-    }
-
-    public static Map<String, String> defaultMap(Collection<Variable> envs) {
-        Map<String, String> map;
-
-        map = new HashMap<>();
-        for (Variable env : envs) {
-            map.put(env.name, env.toString(env.dflt));
-        }
-        return map;
+        return new BuildArgument(name, dflt);
     }
 
     public final String name;
     public final String dflt;
 
 
-    public Variable(String name, String dflt) {
+    public BuildArgument(String name, String dflt) {
         this.name = name;
         this.dflt = dflt;
     }
