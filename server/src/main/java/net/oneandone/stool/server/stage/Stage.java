@@ -28,7 +28,6 @@ import net.oneandone.stool.server.util.LogReader;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Session;
-import net.oneandone.stool.server.util.StandardProperty;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -154,7 +153,7 @@ public class Stage {
 
         result = new ArrayList<>();
         for (Accessor type : session.accessors().values()) {
-            result.add(new StandardProperty(type, configuration));
+            result.add(new Property(type, configuration));
         }
         return result;
     }
