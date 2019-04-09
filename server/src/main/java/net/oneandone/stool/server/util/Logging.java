@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
@@ -31,24 +30,20 @@ public class Logging {
     private static final Logger DETAILS = LoggerFactory.getLogger("DETAILS");
     private static final String EXTENSION = ".log";
 
-    public static Logging forHome(FileNode home, String user) throws IOException {
+    public static Logging forHome(FileNode home, String user) {
         return create(Environment.locateLogs(home), "stool", user);
     }
 
-    public static Logging create(FileNode dir, String name, String user) throws IOException {
-        return new Logging(logFile(dir, name), user);
+    public static Logging create(FileNode dir, String name, String user) {
+        return new Logging(dir, logFile(dir, name), user);
     }
 
-    private final FileNode file;
+    public final FileNode directory;
     private final String user;
 
-    public Logging(FileNode file, String user) throws IOException {
-        this.file = file;
+    public Logging(FileNode directory, FileNode file, String user) {
+        this.directory = directory;
         this.user = user;
-
-        if (!file.exists()) {
-            file.writeBytes();
-        }
     }
 
     //--
@@ -111,7 +106,7 @@ public class Logging {
     //--
 
     public FileNode directory() {
-        return file.getParent();
+        return directory;
     }
 
     public String getUser() {

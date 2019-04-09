@@ -312,7 +312,7 @@ public class Session {
         if (lazyEngine == null) {
             FileNode log;
 
-            log = home.join("logs-docker/" + user + ".log");
+            log = logging.directory().join("docker/" + user + ".log");
             log.deleteFileOpt();
             log.getParent().mkdirOpt();
             log.writeBytes();

@@ -37,7 +37,7 @@ public class Globals {
             logging = Logging.forHome(home, Environment.detectUser());
         } else {
             tmp = world.getTemp().createTempDirectory();
-            logging = new Logging(tmp.join("homeless"), Environment.detectUser());
+            logging = new Logging(tmp, tmp.join("homeless"), Environment.detectUser());
         }
         return new Globals(home, logging, world);
     }
