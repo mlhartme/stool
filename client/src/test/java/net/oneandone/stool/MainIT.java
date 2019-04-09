@@ -48,8 +48,6 @@ public class MainIT {
         }
     }
 
-    private static int id = 0;
-
     public MainIT() {
     }
 
@@ -124,7 +122,7 @@ public class MainIT {
         // run
         server = server(HOME);
         server.arg("run");
-        serverProcess = server.launch().process;
+        serverProcess = server.launch(log).process;
         stages = HOME.getParent().join(context + "-stages");
         stages.deleteTreeOpt();
         stages.mkdir();
@@ -138,6 +136,8 @@ public class MainIT {
         launcher.getBuilder().environment().put("STOOL_HOME", home.getAbsolute());
         return launcher;
     }
+
+    private static int id = 0;
 
     private void stool(String... args) throws IOException {
         int result;
