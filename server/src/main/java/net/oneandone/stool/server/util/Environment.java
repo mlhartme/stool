@@ -29,13 +29,6 @@ public abstract class Environment {
     private static final String STOOL_USER = "STOOL_USER";
     private static final String STOOL_HOME = "STOOL_HOME";
 
-    public static String detectUser() {
-        String name;
-
-        name = System.getenv(Environment.STOOL_USER);
-        return name != null ? name : System.getProperty("user.name");
-    }
-
     public static FileNode locateHome(World world) {
         String value;
 
@@ -47,8 +40,21 @@ public abstract class Environment {
         }
     }
 
-    public static FileNode locateLogs(FileNode home) { // TODO
-        return home.getParent().join("stool-logs");
+    public static FileNode locateLogs(FileNode home) {
+        if (home.isDirectory()) {
+            // stool is properly set up
+            return home.join("logs");
+        } else {
+            // to run stool setup
+            return home.getParent().join("stool-logs");
+        }
+    }
+
+    public static String detectUser() {
+        String name;
+
+        name = System.getenv(Environment.STOOL_USER);
+        return name != null ? name : System.getProperty("user.name");
     }
 
     public static String cisoTools() {
