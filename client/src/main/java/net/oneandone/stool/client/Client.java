@@ -21,14 +21,15 @@ import java.util.List;
 import java.util.Map;
 
 public class Client {
-    public static Client create(World world, FileNode wireLog, String clientContext) throws NodeInstantiationException {
+    public static Client create(World world, FileNode wireLog, String clientInvocation, String clientCommand) throws NodeInstantiationException {
         HttpNode node;
 
         if (wireLog != null) {
             HttpFilesystem.wireLog(wireLog.getAbsolute());
         }
         node = (HttpNode) world.validNode("http://localhost:8080/api");
-        node.getRoot().addExtraHeader("X-stool-client-context", clientContext);
+        node.getRoot().addExtraHeader("X-stool-client-invocation", clientInvocation);
+        node.getRoot().addExtraHeader("X-stool-client-command", clientCommand);
         return new Client(node);
     }
 

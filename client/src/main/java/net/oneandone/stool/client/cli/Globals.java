@@ -25,13 +25,15 @@ import net.oneandone.sushi.fs.file.FileNode;
 public class Globals {
     public final Console console;
     public final World world;
-    private final String clientContext;
+    private final String clientInvocation;
+    private final String clientCommand;
     private FileNode wirelog;
 
-    public Globals(Console console, World world, String clientContext) {
+    public Globals(Console console, World world, String clientInvocation, String clientCommand) {
         this.console = console;
         this.world = world;
-        this.clientContext = clientContext;
+        this.clientInvocation = clientInvocation;
+        this.clientCommand = clientCommand;
         this.wirelog = null;
     }
 
@@ -54,6 +56,6 @@ public class Globals {
     }
 
     public Client client() throws NodeInstantiationException {
-        return Client.create(world, wirelog, clientContext);
+        return Client.create(world, wirelog, clientInvocation, clientCommand);
     }
 }

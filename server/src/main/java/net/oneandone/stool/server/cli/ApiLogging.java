@@ -38,8 +38,7 @@ public class ApiLogging implements HandlerInterceptor {
             stage = "none";
         }
         System.out.println("stage " + stage);
-        session.logging.openStage(stage);
-        session.logging.command(request.getHeader("X-stool-client-context"));
+        session.logging.init(stage, request.getHeader("X-stool-client-invocation"), request.getHeader("X-stool-client-command"));
         return true;
     }
 

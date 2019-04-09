@@ -38,6 +38,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -62,7 +63,7 @@ public class Main {
             out = new PrefixWriter(new PrintWriter(System.out));
             console = new Console(out, out, System.in);
         }
-        globals = new Globals(console, world, "stool " + Separator.SPACE.join(args));
+        globals = new Globals(console, world, UUID.randomUUID().toString(), "stool " + Separator.SPACE.join(args));
         cli = new Cli(globals.console::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);

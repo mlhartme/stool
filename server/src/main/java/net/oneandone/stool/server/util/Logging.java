@@ -75,10 +75,6 @@ public class Logging {
 
     //--
 
-    public void command(String command) {
-        log("COMMAND", command);
-    }
-
 
     public void info(String message) {
         log("INFO", message);
@@ -104,12 +100,14 @@ public class Logging {
 
     //--
 
-    public void openStage(String name) throws MkdirException {
+    public void init(String stage, String clientInvocation, String clientCommand) throws MkdirException {
         if (stageFile != null) {
             throw new IllegalStateException("stage already open: " + stageFile.getAbsolute());
         }
-        stageId = name;
-        stageFile = logFile(directory().join(name).mkdirOpt(), "stool");
+        stageId = stage;
+        stageFile = logFile(directory().join(stage).mkdirOpt(), "stool");
+
+        log("COMMAND", clientCommand);
     }
 
     private static FileNode logFile(FileNode dir, String base) {
