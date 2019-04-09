@@ -21,7 +21,6 @@ import net.oneandone.stool.server.util.Logging;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;

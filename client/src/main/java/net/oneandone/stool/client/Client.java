@@ -10,7 +10,6 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.model.Body;
-import net.oneandone.sushi.fs.http.model.HeaderList;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;

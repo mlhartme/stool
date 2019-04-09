@@ -17,15 +17,12 @@ package net.oneandone.stool.server.configuration;
 
 import net.oneandone.stool.server.util.Environment;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * This is the place for 1&amp;1 specific stuff ...

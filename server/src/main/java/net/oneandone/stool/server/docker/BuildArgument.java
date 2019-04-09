@@ -18,7 +18,6 @@ package net.oneandone.stool.server.docker;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 

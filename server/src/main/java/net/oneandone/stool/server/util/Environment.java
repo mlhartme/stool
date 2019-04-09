@@ -17,7 +17,6 @@ package net.oneandone.stool.server.util;
 
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.launcher.Launcher;
 
 import java.util.HashMap;
 import java.util.Map;

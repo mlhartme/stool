@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /** Simply log to a file - there's no logback or log4j involved */
