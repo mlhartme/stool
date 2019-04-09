@@ -28,29 +28,25 @@ import java.lang.reflect.InvocationTargetException;
 /** Basically a session factory */
 public class Globals {
     public static Globals create(World world) throws IOException {
-        Environment environment;
         FileNode home;
         Logging logging;
         FileNode tmp;
 
-        environment = Environment.loadSystem();
-        home = environment.locateHome(world);
+        home = Environment.locateHome(world);
         if (home.exists()) {
-            logging = Logging.forHome(home, environment.detectUser());
+            logging = Logging.forHome(home, Environment.detectUser());
         } else {
             tmp = world.getTemp().createTempDirectory();
-            logging = new Logging(tmp.join("homeless"), environment.detectUser());
+            logging = new Logging(tmp.join("homeless"), Environment.detectUser());
         }
-        return new Globals(environment, home, logging, world);
+        return new Globals(home, logging, world);
     }
 
-    public final Environment environment;
     public final FileNode home;
     public final Logging logging;
     public final World world;
 
-    public Globals(Environment environment, FileNode home, Logging logging, World world) {
-        this.environment = environment;
+    public Globals(FileNode home, Logging logging, World world) {
         this.home = home;
         this.logging = logging;
         this.world = world;

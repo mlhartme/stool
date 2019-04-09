@@ -16,7 +16,6 @@
 package net.oneandone.stool.server.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.server.util.Environment;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -29,7 +28,6 @@ import java.util.List;
 public class Setup {
     private final World world;
     private final Console console;
-    private final Environment environment;
     private final FileNode home;
     private final String version;
     private final boolean batch;
@@ -39,7 +37,6 @@ public class Setup {
     public Setup(Globals globals, Console console, boolean batch) {
         this.world = globals.world;
         this.console = console;
-        this.environment = globals.environment;
         this.home = globals.home;
         this.version = Main.versionString(world);
         this.batch = batch;
@@ -68,7 +65,7 @@ public class Setup {
             console.pressReturn();
         }
         console.info.println("Creating " + home);
-        Home.create(environment, console, home, explicitConfig);
+        Home.create(console, home, explicitConfig);
         console.info.println("Done.");
         console.info.println("Note: you can install the dashboard with");
         console.info.println("  stool create gav:net.oneandone.stool:dashboard:" + version + " " + home.getAbsolute() + "/system/dashboard");
@@ -86,7 +83,7 @@ public class Setup {
         String right;
         int count;
 
-        h = new Home(environment, console, home, null);
+        h = new Home(console, home, null);
         was = h.version();
         if (!Session.majorMinor(was).equals(Session.majorMinor(version))) {
             throw new IOException("migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
@@ -98,7 +95,7 @@ public class Setup {
         console.info.println("Updating " + home);
         fresh = world.getTemp().createTempDirectory();
         fresh.deleteDirectory();
-        Home.create(environment, console, fresh, null);
+        Home.create(console, fresh, null);
         count = 0;
         for (FileNode src : fresh.find("**/*")) {
             if (!src.isFile()) {

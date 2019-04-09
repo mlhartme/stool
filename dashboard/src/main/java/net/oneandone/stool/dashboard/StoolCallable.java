@@ -63,35 +63,6 @@ public class StoolCallable implements Callable<Failure> {
 
     @Override
     public Failure call() throws Exception {
-        Launcher launcher;
-        Failure failure;
-        long time;
-        FileNode running;
-
-        failure = null;
-        time = System.currentTimeMillis();
-        launcher = new Launcher(logDir);
-        launcher.env(Environment.STOOL_USER, runAs);
-        launcher.env(Environment.STOOL_HOME, home.getAbsolute());
-        launcher.arg(stool.getAbsolute());
-        launcher.arg("-e");
-        launcher.arg(command, "-stage", stage.getName());
-        launcher.arg(arguments);
-        try (PrintWriter writer = new PrintWriter(logDir.join(id + ".log").newWriter())) {
-            writer.println(launcher.toString());
-            running = logDir.join(id + ".running").mkfile();
-            try {
-                launcher.exec(writer);
-            } catch (Failure e) {
-                failure = e;
-                writer.println("stool failed: " + e.getMessage());
-                // it doesn't help to print a stacktrace here, it would be always in Launcher.exec()
-            } finally {
-                running.deleteFile();
-            }
-            time = System.currentTimeMillis() - time;
-            writer.println((failure == null ? "OK" : "FAILED") + " (ms= " + time + ")");
-        }
-        return failure;
+        return null; // TODO
     }
 }

@@ -28,22 +28,22 @@ import java.net.UnknownHostException;
  * This is the place for 1&amp;1 specific stuff ...
  */
 public class Autoconf {
-    public static StoolConfiguration stool(Environment environment, FileNode home, Writer log) throws IOException {
+    public static StoolConfiguration stool(FileNode home, Writer log) throws IOException {
         StoolConfiguration result;
 
         result = new StoolConfiguration();
         result.secrets = home.getWorld().getHome().join(".fault").getAbsolute();
         result.hostname = hostname();
-        oneAndOne(environment, home, result, log);
+        oneAndOne(home, result, log);
         return result;
     }
 
-    private static void oneAndOne(Environment environment, FileNode home, StoolConfiguration dest, Writer log) throws IOException {
+    private static void oneAndOne(FileNode home, StoolConfiguration dest, Writer log) throws IOException {
         String tools;
         FileNode templates;
         FileNode init;
 
-        tools = cisoTools(environment);
+        tools = Environment.cisoTools();
         if (tools != null) {
             dest.registryNamespace = "contargo.server.lan/mhm";
             dest.ldapUnit = "cisostages";
@@ -66,10 +66,6 @@ public class Autoconf {
                 launcher.exec(log);
             }
         }
-    }
-
-    private static String cisoTools(Environment environment) {
-        return environment.getOpt("CISOTOOLS_HOME");
     }
 
     private static String hostname() throws UnknownHostException {

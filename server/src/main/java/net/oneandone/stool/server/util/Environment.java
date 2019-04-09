@@ -25,93 +25,33 @@ import java.util.Map;
  * Used instead of System.getenv. This way, I can properly define the interfaces/dependencies i have.
  * And it provides a simple mocking mechanism for integration tests
  */
-public class Environment {
-    public static final String STOOL_USER = "STOOL_USER";
-    public static final String STOOL_HOME = "STOOL_HOME";
+public abstract class Environment {
+    private static final String STOOL_USER = "STOOL_USER";
+    private static final String STOOL_HOME = "STOOL_HOME";
 
-    public static Environment loadSystem() {
-        Environment result;
-        Map<String, String> system;
-        String key;
-        String value;
-        String oldValue;
-
-        result = new Environment();
-        system = System.getenv();
-        for (Map.Entry<String, String> entry : system.entrySet()) {
-            key = entry.getKey();
-            value = entry.getValue();
-            oldValue = result.set(key, value);
-            if (oldValue != null) {
-                if (!oldValue.equals(value)) {
-                    throw new IllegalStateException(key + ": " + value + " vs " + oldValue);
-                }
-                throw new IllegalStateException("duplicate assignment: " + key + "=" + value);
-            }
-        }
-        return result;
-    }
-
-    //--
-
-    private final Map<String, String> properties;
-
-    public Environment() {
-        this.properties = new HashMap<>();
-    }
-
-    public String set(String key, String value) {
-        return properties.put(key, value);
-    }
-
-    public String get(String key) {
-        String value;
-
-        value = getOpt(key);
-        if (value == null) {
-            throw new IllegalStateException("property not found: " + key);
-        }
-        return value;
-    }
-
-    public String getOpt(String key) {
-        return properties.get(key);
-    }
-
-    //--
-
-    public int hashCode() {
-        return properties.hashCode();
-    }
-
-    public boolean equals(Object obj) {
-        if (obj instanceof Environment) {
-            return properties.equals(((Environment) obj).properties);
-        }
-        return false;
-    }
-
-    public String toString() {
-        return properties.toString();
-    }
-
-    //--
-
-    public String detectUser() {
+    public static String detectUser() {
         String name;
 
-        name = getOpt(Environment.STOOL_USER);
+        name = System.getenv(Environment.STOOL_USER);
         return name != null ? name : System.getProperty("user.name");
     }
 
-    public FileNode locateHome(World world) {
+    public static FileNode locateHome(World world) {
         String value;
 
-        value = getOpt(STOOL_HOME);
+        value = System.getenv(STOOL_HOME);
         if (value == null) {
             return world.getHome().join(".stool");
         } else {
             return world.file(value);
         }
+    }
+
+    public static FileNode locateLogs(FileNode home) { // TODO
+        return home.getParent().join("stool-logs");
+    }
+
+    public static String cisoTools() {
+        return System.getenv("CISOTOOLS_HOME");
     }
 }

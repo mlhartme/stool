@@ -32,7 +32,7 @@ public class Logging {
     private static final String EXTENSION = ".log";
 
     public static Logging forHome(FileNode home, String user) throws IOException {
-        return create(home.join("logs"), "stool", user);
+        return create(Environment.locateLogs(home), "stool", user);
     }
 
     public static Logging create(FileNode dir, String name, String user) throws IOException {

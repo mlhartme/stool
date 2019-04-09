@@ -32,7 +32,7 @@ import java.io.IOException;
  * etc stuff (config.json) and log files.
  */
 public class Home {
-    public static void create(Environment environment, Console console, FileNode home, String config) throws IOException {
+    public static void create(Console console, FileNode home, String config) throws IOException {
         RmRfThread cleanup;
         Home obj;
 
@@ -40,20 +40,18 @@ public class Home {
         cleanup = new RmRfThread(console);
         cleanup.add(home);
         Runtime.getRuntime().addShutdownHook(cleanup);
-        obj = new Home(environment, console, home, config);
+        obj = new Home(console, home, config);
         obj.create();
         // ok, no exceptions - we have a proper install directory: no cleanup
         Runtime.getRuntime().removeShutdownHook(cleanup);
     }
 
-    private final Environment environment;
     private final Console console;
     public final FileNode dir;
     /** json, may be null */
     private final String explicitConfig;
 
-    public Home(Environment environment, Console console, FileNode dir, String explicitConfig) {
-        this.environment = environment;
+    public Home(Console console, FileNode dir, String explicitConfig) {
         this.console = console;
         this.dir = dir;
         this.explicitConfig = explicitConfig;
@@ -69,13 +67,13 @@ public class Home {
 
         world = dir.getWorld();
         world.resource("files/home").copyDirectory(dir);
-        for (String name : new String[]{"stages", "logs", "run", "certs", "system"}) {
+        for (String name : new String[]{"stages","run", "certs", "system"}) {
             dir.join(name).mkdir();
         }
         profile(dir.join("shell.rc"),
                 file("files/sourceBashComplete"));
         bashComplete(dir.join("bash.complete"));
-        conf = Autoconf.stool(environment, dir,console.info);
+        conf = Autoconf.stool(dir,console.info);
         if (explicitConfig != null) {
             conf = conf.createPatched(gson, explicitConfig);
         }

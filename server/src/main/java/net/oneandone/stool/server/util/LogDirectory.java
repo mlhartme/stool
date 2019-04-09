@@ -1,15 +1,10 @@
 package net.oneandone.stool.server.util;
 
 import ch.qos.logback.core.PropertyDefinerBase;
+import net.oneandone.sushi.fs.World;
 
 public class LogDirectory extends PropertyDefinerBase {
     private String dflt = null;
-
-    @Override
-    public String getPropertyValue() {
-        System.out.println("get Log directory");
-        return "/Users/mhm/.stool/logs"; // TODO
-    }
 
     public String getDefault() {
         return dflt;
@@ -17,5 +12,10 @@ public class LogDirectory extends PropertyDefinerBase {
 
     public void setDefault(String value) {
         this.dflt = value;
+    }
+
+    @Override
+    public String getPropertyValue() {
+        return Environment.locateLogs(Environment.locateHome(World.createMinimal())).getAbsolute();
     }
 }
