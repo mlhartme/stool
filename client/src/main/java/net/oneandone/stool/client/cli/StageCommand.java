@@ -102,9 +102,9 @@ public abstract class StageCommand extends ClientCommand {
                 return defaultSelected();
             case 1:
                 if (all) {
-                    return client.search(null);
+                    return client.list(null);
                 } else if (stageClause != null) {
-                    return client.search(stageClause);
+                    return client.list(stageClause);
                 } else {
                     throw new IllegalStateException();
                 }

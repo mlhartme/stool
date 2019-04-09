@@ -57,14 +57,15 @@ public class ApiController {
         return new JsonPrimitive( Main.versionString(session.world)).toString();
     }
 
+
     @GetMapping("/stages")
-    public String search(@RequestParam(value = "stageClause", required = false) String stageClause) throws IOException {
+    public String list(@RequestParam(value = "filter", required = false) String filter) throws IOException {
         JsonArray result;
         Map<String, IOException> problems;
 
         result = new JsonArray();
         problems = new HashMap<>();
-        for (Stage stage : session.list(PredicateParser.parse(stageClause), problems)) {
+        for (Stage stage : session.list(PredicateParser.parse(filter), problems)) {
             result.add(new JsonPrimitive(stage.getName()));
         }
         if (!problems.isEmpty()) {

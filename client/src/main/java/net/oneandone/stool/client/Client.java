@@ -37,15 +37,15 @@ public class Client {
 
     //--
 
-    /** @param stageClause null to return all stages */
-    public List<String> search(String stageClause) throws IOException {
+    /** @param filter null to return all stages */
+    public List<String> list(String filter) throws IOException {
         HttpNode node;
         JsonArray references;
         List<String> result;
 
         node = node("stages");
-        if (stageClause != null) {
-            node = node.withParameter("stageClause", stageClause);
+        if (filter != null) {
+            node = node.withParameter("filter", filter);
         }
         references = httpGet(node).getAsJsonArray();
         result = new ArrayList<>(references.size());
