@@ -43,15 +43,11 @@
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
       <version>1.2.3</version>
-      <!-- TODO: needed to override inherited test scope -->
-      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
       <version>1.2.3</version>
-      <!-- TODO: needed to override inherited test scope -->
-      <scope>compile</scope>
     </dependency>
 
     <!-- Dashboard -->

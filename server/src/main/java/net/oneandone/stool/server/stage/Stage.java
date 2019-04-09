@@ -211,20 +211,20 @@ public class Stage {
         fields.add(new Field("created-at") {
             @Override
             public Object get() throws IOException {
-                return logReader().first().dateTime;
+                return "TODO"; // directory.getLastModified();
             }
 
         });
         fields.add(new Field("last-modified-by") {
             @Override
             public Object get() throws IOException {
-                return session.users.checkedStatusByLogin(lastModifiedBy());
+                return "TODO"; // session.users.checkedStatusByLogin(lastModifiedBy());
             }
         });
         fields.add(new Field("last-modified-at") {
             @Override
             public Object get() throws IOException {
-                return timespan(logReader().lastModified());
+                return "TODO"; // timespan(logReader().lastModified());
             }
         });
         fields.add(new Field("apps") {
@@ -260,17 +260,11 @@ public class Stage {
     //-- logs
 
     public LogReader logReader() throws IOException {
-        return LogReader.create(session.logging.directory().join(name));
+        return LogReader.create(session.logging.directory());
     }
 
     public Logs logs() {
         return new Logs(directory.join("logs"));
-    }
-
-    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss");
-
-    private Node archiveDirectory(Node node) throws MkdirException {
-        return node.getParent().join("archive", FMT.format(LocalDateTime.now())).mkdirsOpt();
     }
 
     //-- docker
@@ -630,7 +624,7 @@ public class Stage {
 
     /** @return login name */
     public String createdBy() throws IOException {
-        return logReader().first().user;
+        return "TODO"; // logReader().first().user;
     }
 
     //--
@@ -777,7 +771,7 @@ public class Stage {
     }
 
     public String lastModifiedBy() throws IOException {
-        return logReader().prev().user;
+        return "TODO"; // logReader().prev().user;
     }
 
     //-- for dashboard

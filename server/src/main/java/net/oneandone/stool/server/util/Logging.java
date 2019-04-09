@@ -15,18 +15,22 @@
  */
 package net.oneandone.stool.server.util;
 
-import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.PrefixWriter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.time.LocalDateTime;
 
 /** Simply log to a file - there's no logback or log4j involved */
 public class Logging {
+    private static final Logger ACCESS = LoggerFactory.getLogger("ACCESS");
+    private static final Logger DETAILS = LoggerFactory.getLogger("DETAILS");
+
     private static final String EXTENSION = ".log";
 
     public static Logging forHome(FileNode home, String user) throws IOException {
@@ -40,18 +44,10 @@ public class Logging {
     private final FileNode file;
     private final String user;
 
-    /** unique id for this invocation */
-    private String clientInvocation;
-    private String stageName;
-    private FileNode stageFile;
-
     public Logging(FileNode file, String user) throws IOException {
         this.file = file;
         this.user = user;
 
-        this.clientInvocation = "";
-        this.stageName = "";
-        this.stageFile = null;
         if (!file.exists()) {
             file.writeBytes();
         }
@@ -61,39 +57,28 @@ public class Logging {
 
 
     public void info(String message) {
-        log("INFO", message);
+        details("INFO", message);
     }
 
     public void verbose(String message) {
-        log("VERBOSE", message);
+        details("VERBOSE", message);
     }
 
     public void verbose(String message, Throwable throwable) {
-        log("VERBOSE", message);
-        log("VERBOSE", stacktrace(throwable));
+        details("VERBOSE", message);
+        details("VERBOSE", stacktrace(throwable));
     }
 
     public void error(String message, Throwable throwable) {
-        log("ERROR", message);
-        log("ERROR", stacktrace(throwable));
+        details("ERROR", message);
+        details("ERROR", stacktrace(throwable));
     }
 
     public void error(String message) {
-        log("ERROR", message);
+        details("ERROR", message);
     }
 
     //--
-
-    public void init(String stage, String clientInvocation, String clientCommand) throws MkdirException {
-        if (stageFile != null) {
-            throw new IllegalStateException("stage already open: " + stageFile.getAbsolute());
-        }
-        this.clientInvocation = clientInvocation;
-        this.stageName = stage;
-        this.stageFile = logFile(directory().join(stage).mkdirOpt(), "stool");
-
-        log("COMMAND", clientCommand);
-    }
 
     private static FileNode logFile(FileNode dir, String base) {
         String date;
@@ -102,49 +87,21 @@ public class Logging {
         return dir.join(base + "-" + date + EXTENSION);
     }
 
-    public void closeStage() {
-        if (stageFile == null) {
-            throw new IllegalStateException("stage already closed");
-        }
-        stageFile = null;
-        stageName = "";
+    /** this is the counter-part of the LogEntry.parse method */
+    public static void access(String message) {
+        logEntry("COMMAND" /* TODO */, message, ACCESS);
     }
 
     /** this is the counter-part of the LogEntry.parse method */
-    public void log(String logger, String message) {
-        try (Writer writer = (stageFile != null ? stageFile : file).newAppender()) {
-            logEntry(logger, message, writer);
-        } catch (IOException e) {
-            throw new RuntimeException("cannot write log file: " + e.getMessage(), e);
-        }
+    public void details(String logger, String message) {
+        logEntry(logger, message, DETAILS);
     }
 
-    private void logEntry(String logger, String message, Writer writer) throws IOException {
-        char c;
+    private static void logEntry(String loggerName, String message, Logger logger) {
+        LogEntry entry;
 
-        writer.append(LogEntry.DATE_FMT.format(LocalDateTime.now())).append('|');
-        writer.append(clientInvocation).append('|');
-        writer.append(logger).append('|');
-        writer.append(user).append('|');
-        writer.append(stageName).append('|');
-        for (int i = 0, max = message.length(); i < max; i++) {
-            c = message.charAt(i);
-            switch (c) {
-                case '\r':
-                    writer.append("\\r");
-                    break;
-                case '\n':
-                    writer.append("\\n");
-                    break;
-                case '\\':
-                    writer.append("\\\\");
-                    break;
-                default:
-                    writer.append(c);
-                    break;
-            }
-        }
-        writer.append('\n');
+        entry = new LogEntry(LocalDateTime.now(), MDC.get("client-invocation"), loggerName, MDC.get("user"), MDC.get("stage"), message);
+        logger.info(entry.toString());
     }
 
     private static String stacktrace(Throwable throwable) {
@@ -160,84 +117,11 @@ public class Logging {
 
     //--
 
-    /**
-     * Unique id starting with 1 every day, bumped for every invocation.
-     */
-    private static int id(FileNode varRun, String prefix) throws IOException {
-        int retries;
-        FileNode lock;
-        FileNode file;
-        int id;
-        String str;
-
-        retries = 0;
-        while (true) {
-            lock = varRun.join("id.lock");
-            try {
-                lock.mkfile();
-                break;
-            } catch (IOException e) {
-                retries++;
-                if (retries > 10) {
-                    throw new IOException("cannot create " + lock);
-                }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e1) {
-                    break;
-                }
-            }
-        }
-        try {
-            file = varRun.join("id");
-            if (!file.exists()) {
-                id = 1;
-                touch(file);
-            } else {
-                str = file.readString();
-                if (str.startsWith(prefix)) {
-                    id = Integer.parseInt(str.substring(prefix.length())) + 1;
-                } else {
-                    id = 1;
-                }
-            }
-            file.writeString(prefix + id);
-            return id;
-        } finally {
-            lock.deleteFile();
-        }
-    }
-
-    private static void touch(FileNode file) throws IOException {
-        if (!file.exists()) {
-            file.mkfile();
-        }
-    }
-
     public FileNode directory() {
         return file.getParent();
     }
 
     public String getUser() {
         return user;
-    }
-
-    public void rotate() throws IOException {
-        long daymillies = 1000L * 60 * 60 * 24;
-        long manydaysmillies = daymillies * 90;
-        long now;
-
-        now = System.currentTimeMillis();
-        for (FileNode f : file.getParent().find("*.log")) {
-            if (now - f.getLastModified() > daymillies) {
-                f.gzip(f.getParent().join(f.getName() + ".gz"));
-                f.deleteFile();
-            }
-        }
-        for (FileNode f : file.getParent().find("*.log.gz")) {
-            if (now - f.getLastModified() > manydaysmillies) {
-                f.deleteFile();
-            }
-        }
     }
 }

@@ -1,8 +1,7 @@
 package net.oneandone.stool.server.cli;
 
-import net.oneandone.stool.server.util.Session;
-import net.oneandone.sushi.fs.MkdirException;
-import org.springframework.beans.factory.annotation.Autowired;
+import net.oneandone.stool.server.util.Logging;
+import org.slf4j.MDC;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -12,22 +11,19 @@ import javax.servlet.http.HttpServletResponse;
 
 @Component
 public class ApiLogging implements HandlerInterceptor {
-    private final Session session;
+    public static final String URI = "uri";
+    public static final String USER = "user";
+    public static final String STAGE = "stage";
+    public static final String CLIENT_INVOCATION = "client-invocation";
+    public static final String CLIENT_COMMAND = "client-command";
 
-    @Autowired
-    public ApiLogging(Session session) {
-        this.session = session;
-        System.out.println("apiLogging" + session);
-    }
-
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws MkdirException {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         final String prefix = "/api/stages/";
         String uri;
         String stage;
         int idx;
 
         uri = request.getRequestURI();
-        System.out.println("uri: " + uri);
         if (uri.startsWith(prefix)) {
             stage = uri.substring(prefix.length());
             idx = stage.indexOf('/');
@@ -37,12 +33,21 @@ public class ApiLogging implements HandlerInterceptor {
         } else {
             stage = "none";
         }
-        System.out.println("stage " + stage);
-        session.logging.init(stage, request.getHeader("X-stool-client-invocation"), request.getHeader("X-stool-client-command"));
+        MDC.put(URI, uri);
+        MDC.put(USER, "TODO");
+        MDC.put(STAGE, stage);
+        MDC.put(CLIENT_INVOCATION, request.getHeader("X-stool-client-invocation"));
+        MDC.put(CLIENT_COMMAND, request.getHeader("X-stool-client-command"));
+
         return true;
     }
 
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) {
-        session.logging.closeStage();
+        Logging.access(MDC.get("uri") + " " + response.getStatus());
+        MDC.remove(URI);
+        MDC.remove(USER);
+        MDC.remove(STAGE);
+        MDC.remove(CLIENT_INVOCATION);
+        MDC.remove(CLIENT_COMMAND);
     }
 }

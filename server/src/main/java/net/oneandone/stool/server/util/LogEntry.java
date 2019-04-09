@@ -105,6 +105,34 @@ public class LogEntry {
     }
 
     public String toString() {
-        return message;
+        StringBuilder result;
+
+        result = new StringBuilder();
+        char c;
+
+        result.append(LogEntry.DATE_FMT.format(LocalDateTime.now())).append('|');
+        result.append(clientInvocation).append('|');
+        result.append(logger).append('|');
+        result.append(user).append('|');
+        result.append(stageName).append('|');
+        for (int i = 0, max = message.length(); i < max; i++) {
+            c = message.charAt(i);
+            switch (c) {
+                case '\r':
+                    result.append("\\r");
+                    break;
+                case '\n':
+                    result.append("\\n");
+                    break;
+                case '\\':
+                    result.append("\\\\");
+                    break;
+                default:
+                    result.append(c);
+                    break;
+            }
+        }
+        result.append('\n');
+        return result.toString();
     }
 }

@@ -34,6 +34,7 @@ public class LogReader {
         List<FileNode> files;
         Iterator<FileNode> iter;
         FileNode file;
+        String name;
 
         files = directory.list();
         iter = files.iterator();
@@ -41,8 +42,11 @@ public class LogReader {
             file = iter.next();
             if (file.isDirectory()) {
                 iter.remove();
-            } else if (!file.getName().endsWith(".log") && !file.getName().endsWith(".log.gz")) {
-                iter.remove();
+            } else {
+                name = file.getName();
+                if (!(name.startsWith("access-") && (name.endsWith(".log") || name.endsWith(".log.gz")))) {
+                    iter.remove();
+                }
             }
         }
         Collections.sort(files, (left, right) -> left.getName().compareTo(right.getName()));

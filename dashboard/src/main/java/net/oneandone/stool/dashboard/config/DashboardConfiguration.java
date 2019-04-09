@@ -61,7 +61,7 @@ public class DashboardConfiguration {
 
         p = properties();
         logging = Logging.create(logs(), "dashboard", Environment.loadSystem().detectUser());
-        logging.log("dashboard", "startup");
+        // TODO logging.log("dashboard", "startup");
         return Session.load(home(), logging);
     }
 
