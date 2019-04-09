@@ -30,39 +30,35 @@ public abstract class Logging {
 
 
     public static void info(String message) {
-        details("INFO", message);
+        logs("INFO", message);
     }
 
     public static void verbose(String message) {
-        details("VERBOSE", message);
+        logs("VERBOSE", message);
     }
 
     public static void verbose(String message, Throwable throwable) {
-        details("VERBOSE", message);
-        details("VERBOSE", stacktrace(throwable));
+        logs("VERBOSE", message);
+        logs("VERBOSE", stacktrace(throwable));
     }
 
     public static void error(String message, Throwable throwable) {
-        details("ERROR", message);
-        details("ERROR", stacktrace(throwable));
+        logs("ERROR", message);
+        logs("ERROR", stacktrace(throwable));
     }
 
     public static void error(String message) {
-        details("ERROR", message);
+        logs("ERROR", message);
     }
 
     //--
 
     /** this is the counter-part of the LogEntry.parse method */
-    public static void details(String logger, String message) {
-        logEntry(logger, message, DETAILS);
-    }
-
-    public static void logEntry(String loggerName, String message, Logger logger) {
+    private static void logs(String logger, String message) {
         LogEntry entry;
 
-        entry = new LogEntry(LocalDateTime.now(), MDC.get("client-invocation"), loggerName, MDC.get("user"), MDC.get("stage"), message);
-        logger.info(entry.toString());
+        entry = new LogEntry(LocalDateTime.now(), MDC.get("client-invocation"), logger, MDC.get("user"), MDC.get("stage"), message);
+        DETAILS.info(entry.toString());
     }
 
     private static String stacktrace(Throwable throwable) {
