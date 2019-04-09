@@ -77,7 +77,7 @@ public class Session {
     public Session(Gson gson, Logging logging, FileNode home, StoolConfiguration configuration) {
         this.gson = gson;
         this.logging = logging;
-        this.user = logging.getUser();
+        this.user = Environment.detectUser();
         this.world = home.getWorld();
         this.home = home;
         this.configuration = configuration;

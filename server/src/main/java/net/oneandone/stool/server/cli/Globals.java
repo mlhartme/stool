@@ -34,10 +34,10 @@ public class Globals {
 
         home = Environment.locateHome(world);
         if (home.exists()) {
-            logging = Logging.forHome(home, Environment.detectUser());
+            logging = Logging.forHome(home);
         } else {
             tmp = world.getTemp().createTempDirectory();
-            logging = new Logging(tmp, tmp.join("homeless"), Environment.detectUser());
+            logging = new Logging(tmp);
         }
         return new Globals(home, logging, world);
     }

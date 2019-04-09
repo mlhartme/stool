@@ -184,7 +184,7 @@ public class StageController {
 
         id = UUID.randomUUID().toString();
         executorService.submit(StoolCallable.create(jar, session.home, id, logs, resolveStage(stage),
-                session.logging.getUser(), command, arguments));
+                "TODO", command, arguments));
         return id;
     }
 

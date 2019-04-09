@@ -28,22 +28,19 @@ import java.time.LocalDateTime;
 /** Simply log to a file - there's no logback or log4j involved */
 public class Logging {
     private static final Logger DETAILS = LoggerFactory.getLogger("DETAILS");
-    private static final String EXTENSION = ".log";
 
-    public static Logging forHome(FileNode home, String user) {
-        return create(Environment.locateLogs(home), "stool", user);
+    public static Logging forHome(FileNode home) {
+        return create(Environment.locateLogs(home));
     }
 
-    public static Logging create(FileNode dir, String name, String user) {
-        return new Logging(dir, logFile(dir, name), user);
+    public static Logging create(FileNode dir) {
+        return new Logging(dir);
     }
 
     public final FileNode directory;
-    private final String user;
 
-    public Logging(FileNode directory, FileNode file, String user) {
+    public Logging(FileNode directory) {
         this.directory = directory;
-        this.user = user;
     }
 
     //--
@@ -73,13 +70,6 @@ public class Logging {
 
     //--
 
-    private static FileNode logFile(FileNode dir, String base) {
-        String date;
-
-        date = LogEntry.DATE_FMT.format(LocalDateTime.now());
-        return dir.join(base + "-" + date + EXTENSION);
-    }
-
     /** this is the counter-part of the LogEntry.parse method */
     public void details(String logger, String message) {
         logEntry(logger, message, DETAILS);
@@ -107,9 +97,5 @@ public class Logging {
 
     public FileNode directory() {
         return directory;
-    }
-
-    public String getUser() {
-        return user;
     }
 }
