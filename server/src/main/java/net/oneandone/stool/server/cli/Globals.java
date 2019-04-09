@@ -40,7 +40,7 @@ public class Globals {
             logging = Logging.forHome(home, environment.detectUser());
         } else {
             tmp = world.getTemp().createTempDirectory();
-            logging = new Logging("1", tmp.join("homeless"), environment.detectUser());
+            logging = new Logging(tmp.join("homeless"), environment.detectUser());
         }
         return new Globals(environment, home, logging, world);
     }

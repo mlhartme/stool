@@ -15,48 +15,41 @@
  */
 package net.oneandone.stool.server.util;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 
 public class LogEntry {
-    public static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm:ss,SSS");
-    public static final DateTimeFormatter FULL_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss");
+    public static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss,SSS");
 
     /** Count-part of the Logging.log method. */
     public static LogEntry parse(String line) {
-        LocalTime timeObj;
-        LocalDate dateObj;
         int len;
-        int time;
-        int requestId;
-        String nameStr;
+
+        int date;
+        int client;
         int logger;
         int user;
-        int stageId;
+        int stage;
 
         len = line.length();
 
         // CAUTION: do not use split, because messages may contain separators
-        time = line.indexOf('|');
-        requestId = line.indexOf('|', time + 1); // invocation id
-        logger = line.indexOf('|', requestId + 1);
+        date = line.indexOf('|');
+        client = line.indexOf('|', date + 1); // invocation id
+        logger = line.indexOf('|', client + 1);
         user = line.indexOf('|', logger + 1);
-        stageId = line.indexOf('|', user + 1);
+        stage = line.indexOf('|', user + 1);
         if (line.charAt(len - 1) != '\n') {
             throw new IllegalArgumentException(line);
         }
 
-        // TODO: doesn't work for commands running during midnight ...
-        timeObj = LocalTime.parse(line.substring(0, time), TIME_FMT);
-        nameStr = line.substring(time + 1, requestId);
-        dateObj = LocalDate.parse(nameStr.substring(0, nameStr.indexOf(".")), Logging.DATE_FORMAT);
-        return new LogEntry(LocalDateTime.of(dateObj, timeObj), nameStr,
-                line.substring(requestId + 1, logger),
+        return new LogEntry(
+                LocalDateTime.parse(line.substring(0, date), LogEntry.DATE_FMT),
+                line.substring(date + 1, client),
+                line.substring(client + 1, logger),
                 line.substring(logger + 1, user),
-                line.substring(user + 1, stageId),
-                unescape(line.substring(stageId + 1, len -1)));
+                line.substring(user + 1, stage),
+                unescape(line.substring(stage + 1, len -1)));
     }
 
     private static String unescape(String message) {
@@ -96,15 +89,15 @@ public class LogEntry {
     //--
 
     public final LocalDateTime dateTime;
-    public final String requestId;
+    public final String clientInvocation;
     public final String logger;
     public final String user;
     public final String stageName;
     public final String message;
 
-    public LogEntry(LocalDateTime dateTime, String requestId, String logger, String user, String stageName, String message) {
+    public LogEntry(LocalDateTime dateTime, String clientInvocation, String logger, String user, String stageName, String message) {
         this.dateTime = dateTime;
-        this.requestId = requestId;
+        this.clientInvocation = clientInvocation;
         this.logger = logger;
         this.user = user;
         this.stageName = stageName;

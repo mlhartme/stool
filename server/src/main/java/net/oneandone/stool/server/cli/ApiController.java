@@ -299,17 +299,17 @@ public class ApiController {
             if (entry == null) {
                 break;
             }
-            lst = detailsMap.get(entry.requestId);
+            lst = detailsMap.get(entry.clientInvocation);
             if (lst == null) {
                 lst = new ArrayList<>();
-                detailsMap.put(entry.requestId, lst);
+                detailsMap.put(entry.clientInvocation, lst);
             }
             if (entry.logger.equals("COMMAND")) {
-                detailsMap.remove(entry.requestId);
+                detailsMap.remove(entry.clientInvocation);
                 lst.add(entry);
                 if (forStage(stage, lst)) {
                     counter++;
-                    result.add("[" + LogEntry.FULL_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.message);
+                    result.add("[" + LogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.message);
                     if (details) {
                         for (int i = lst.size() - 1; i >= 0; i--) {
                             result.add(Strings.indent(lst.get(i).message, "     "));

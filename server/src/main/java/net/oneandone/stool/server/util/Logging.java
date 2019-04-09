@@ -16,57 +16,42 @@
 package net.oneandone.stool.server.util;
 
 import net.oneandone.sushi.fs.MkdirException;
-import net.oneandone.sushi.fs.Settings;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.io.MultiOutputStream;
 import net.oneandone.sushi.io.PrefixWriter;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /** Simply log to a file - there's no logback or log4j involved */
 public class Logging {
     private static final String EXTENSION = ".log";
-    public static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyMMdd");
 
     public static Logging forHome(FileNode home, String user) throws IOException {
         return create(home.join("logs"), "stool", user);
     }
 
     public static Logging create(FileNode dir, String name, String user) throws IOException {
-        String date;
-        String prefix;
-        String id;
-        Logging result;
-
-        date = DATE_FORMAT.format(LocalDate.now());
-        prefix = date + ".";
-        id = prefix + Integer.toString(id(dir, prefix));
-        result = new Logging(id, logFile(dir, name), user);
-        return result;
+        return new Logging(logFile(dir, name), user);
     }
 
-    /** unique id for this invocation */
-    public final String id;
     private final FileNode file;
     private final String user;
 
-    private String stageId;
+    /** unique id for this invocation */
+    private String clientInvocation;
+    private String stageName;
     private FileNode stageFile;
 
-    public Logging(String id, FileNode file, String user) throws IOException {
-        this.id = id;
+    public Logging(FileNode file, String user) throws IOException {
         this.file = file;
         this.user = user;
-        this.stageId = "";
+
+        this.clientInvocation = "";
+        this.stageName = "";
         this.stageFile = null;
         if (!file.exists()) {
             file.writeBytes();
@@ -104,7 +89,7 @@ public class Logging {
         if (stageFile != null) {
             throw new IllegalStateException("stage already open: " + stageFile.getAbsolute());
         }
-        stageId = stage;
+        stageName = stage;
         stageFile = logFile(directory().join(stage).mkdirOpt(), "stool");
 
         log("COMMAND", clientCommand);
@@ -113,7 +98,7 @@ public class Logging {
     private static FileNode logFile(FileNode dir, String base) {
         String date;
 
-        date = DATE_FORMAT.format(LocalDate.now());
+        date = LogEntry.DATE_FMT.format(LocalDateTime.now());
         return dir.join(base + "-" + date + EXTENSION);
     }
 
@@ -122,7 +107,7 @@ public class Logging {
             throw new IllegalStateException("stage already closed");
         }
         stageFile = null;
-        stageId = "";
+        stageName = "";
     }
 
     /** this is the counter-part of the LogEntry.parse method */
@@ -137,11 +122,11 @@ public class Logging {
     private void logEntry(String logger, String message, Writer writer) throws IOException {
         char c;
 
-        writer.append(LogEntry.TIME_FMT.format(LocalDateTime.now())).append('|');
-        writer.append(id).append('|');
+        writer.append(LogEntry.DATE_FMT.format(LocalDateTime.now())).append('|');
+        writer.append(clientInvocation).append('|');
         writer.append(logger).append('|');
         writer.append(user).append('|');
-        writer.append(stageId).append('|');
+        writer.append(stageName).append('|');
         for (int i = 0, max = message.length(); i < max; i++) {
             c = message.charAt(i);
             switch (c) {
@@ -171,19 +156,6 @@ public class Logging {
         throwable.printStackTrace(pw);
         pw.close();
         return dest.toString();
-    }
-
-    public PrintWriter writer(OutputStream stream, String logger) {
-        PrintWriter result;
-
-        try {
-            result = new PrintWriter(new OutputStreamWriter(MultiOutputStream.createTeeStream(stream, new LogOutputStream(this, logger)), Settings.UTF_8), true);
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
-        // empty prefix is replaced by stage commands when iterating multiple stages:
-        result = new PrefixWriter(result);
-        return result;
     }
 
     //--
