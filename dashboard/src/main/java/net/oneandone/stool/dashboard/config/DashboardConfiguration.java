@@ -60,7 +60,7 @@ public class DashboardConfiguration {
 
         p = properties();
         // TODO logging.log("dashboard", "startup");
-        return Session.load(home(), logs());
+        return Session.load(home(), logRoot());
     }
 
     @Bean
@@ -69,7 +69,7 @@ public class DashboardConfiguration {
     }
 
     @Bean
-    public FileNode logs() throws IOException {
+    public FileNode logRoot() throws IOException {
         return world().file(System.getProperty("catalina.base")).join("logs");
     }
 

@@ -29,26 +29,26 @@ import java.lang.reflect.InvocationTargetException;
 public class Globals {
     public static Globals create(World world) throws IOException {
         FileNode home;
-        FileNode logging;
+        FileNode logRoot;
         FileNode tmp;
 
         home = Environment.locateHome(world);
         if (home.exists()) {
-            logging = Environment.locateLogs(home);
+            logRoot = Environment.locateLogs(home);
         } else {
             tmp = world.getTemp().createTempDirectory();
-            logging = tmp;
+            logRoot = tmp;
         }
-        return new Globals(home, logging, world);
+        return new Globals(home, logRoot, world);
     }
 
     public final FileNode home;
-    public final FileNode logging;
+    private final FileNode logRoot;
     public final World world;
 
-    public Globals(FileNode home, FileNode logging, World world) {
+    public Globals(FileNode home, FileNode logRoot, World world) {
         this.home = home;
-        this.logging = logging;
+        this.logRoot = logRoot;
         this.world = world;
     }
 
@@ -65,7 +65,7 @@ public class Globals {
             throw new IOException("Stool home directory not found: " + home.getAbsolute()
                      + "\nRun 'stool setup' to create it.");
         }
-        session = Session.load(home, logging);
+        session = Session.load(home, logRoot);
         session.checkVersion();
         return session;
     }

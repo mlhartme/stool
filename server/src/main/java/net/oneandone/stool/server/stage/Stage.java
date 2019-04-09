@@ -260,7 +260,7 @@ public class Stage {
     //-- logs
 
     public LogReader logReader() throws IOException {
-        return LogReader.create(session.logging);
+        return LogReader.create(session.logRoot);
     }
 
     public Logs logs() {

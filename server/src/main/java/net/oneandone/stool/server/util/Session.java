@@ -46,11 +46,11 @@ import java.util.List;
 import java.util.Map;
 
 public class Session {
-    public static Session load(FileNode home, FileNode logging) throws IOException {
+    public static Session load(FileNode home, FileNode logRoot) throws IOException {
         Gson gson;
 
         gson = gson(home.getWorld());
-        return new Session(gson, logging, home, StoolConfiguration.load(gson, home));
+        return new Session(gson, logRoot, home, StoolConfiguration.load(gson, home));
     }
 
     private static final int MEM_RESERVED_OS = 500;
@@ -58,7 +58,7 @@ public class Session {
     //--
 
     public final Gson gson;
-    public final FileNode logging;
+    public final FileNode logRoot;
 
     // TODO: per-request data
     public final String user;
@@ -74,9 +74,9 @@ public class Session {
     private Map<String, Accessor> lazyAccessors;
     private Pool lazyPool;
 
-    public Session(Gson gson, FileNode logging, FileNode home, StoolConfiguration configuration) {
+    public Session(Gson gson, FileNode logRoot, FileNode home, StoolConfiguration configuration) {
         this.gson = gson;
-        this.logging = logging;
+        this.logRoot = logRoot;
         this.user = Environment.detectUser();
         this.world = home.getWorld();
         this.home = home;
@@ -312,7 +312,7 @@ public class Session {
         if (lazyEngine == null) {
             FileNode log;
 
-            log = logging.join("docker/" + user + ".log");
+            log = logRoot.join("docker/" + user + ".log");
             log.deleteFileOpt();
             log.getParent().mkdirOpt();
             log.writeBytes();

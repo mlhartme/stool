@@ -3,7 +3,7 @@ package net.oneandone.stool.server.util;
 import ch.qos.logback.core.PropertyDefinerBase;
 import net.oneandone.sushi.fs.World;
 
-public class LogDirectory extends PropertyDefinerBase {
+public class LogRoot extends PropertyDefinerBase {
     private String dflt = null;
 
     public String getDefault() {

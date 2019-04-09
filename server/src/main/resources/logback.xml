@@ -1,6 +1,6 @@
 <configuration>
 
-  <define name="root" class="net.oneandone.stool.server.util.LogDirectory">
+  <define name="root" class="net.oneandone.stool.server.util.LogRoot">
     <default>/tmp</default>
   </define>
 
