@@ -55,10 +55,17 @@ public class MainIT {
 
     @After
     public void after() throws Exception {
-        stool("stop", "-stage" , "state=up", "-fail", "after");
-        HOME = null;
-        if (serverProcess != null) {
-            serverProcess.destroy();
+        try {
+            stool("stop", "-stage" , "state=up", "-fail", "after");
+            HOME = null;
+        } finally {
+            if (serverProcess != null) {
+                System.out.println("stopping server " + serverProcess);
+                serverProcess.destroy();
+                serverProcess = null;
+            } else {
+                System.out.println("no server to stop");
+            }
         }
     }
 
