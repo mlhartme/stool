@@ -21,7 +21,7 @@ public class ApiLogging implements HandlerInterceptor {
     }
 
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws MkdirException {
-        final String prefix = "/api/stage/";
+        final String prefix = "/api/stages/";
         String uri;
         String stage;
         int idx;
