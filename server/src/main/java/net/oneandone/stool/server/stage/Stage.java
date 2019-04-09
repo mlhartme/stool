@@ -28,7 +28,6 @@ import net.oneandone.stool.server.util.LogReader;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Session;
-import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
@@ -211,20 +210,20 @@ public class Stage {
         fields.add(new Field("created-at") {
             @Override
             public Object get() throws IOException {
-                return "TODO"; // directory.getLastModified();
+                return directory.getLastModified(); // TODO: getCreated: https://unix.stackexchange.com/questions/7562/what-file-systems-on-linux-store-the-creation-time
             }
 
         });
         fields.add(new Field("last-modified-by") {
             @Override
             public Object get() throws IOException {
-                return "TODO"; // session.users.checkedStatusByLogin(lastModifiedBy());
+                return session.users.checkedStatusByLogin(lastModifiedBy());
             }
         });
         fields.add(new Field("last-modified-at") {
             @Override
             public Object get() throws IOException {
-                return "TODO"; // timespan(logReader().lastModified());
+                return timespan(logReader().lastModified());
             }
         });
         fields.add(new Field("apps") {
@@ -624,7 +623,7 @@ public class Stage {
 
     /** @return login name */
     public String createdBy() throws IOException {
-        return "TODO"; // logReader().first().user;
+        return logReader().first().user;
     }
 
     //--
@@ -764,14 +763,14 @@ public class Stage {
         return ("StageInfo{"
                 + "name='" + name + '\''
                 + ", comment='" + configuration.comment + '\''
-                // TODO: current immage, container?
+                // TODO: current image, container?
                 + ", urls=" + urlMap(null)
                 + ", up=" + isUp()
                 + '}').hashCode();
     }
 
     public String lastModifiedBy() throws IOException {
-        return "TODO"; // logReader().prev().user;
+        return logReader().prev().user;
     }
 
     //-- for dashboard

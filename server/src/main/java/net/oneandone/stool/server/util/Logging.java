@@ -28,9 +28,7 @@ import java.time.LocalDateTime;
 
 /** Simply log to a file - there's no logback or log4j involved */
 public class Logging {
-    private static final Logger ACCESS = LoggerFactory.getLogger("ACCESS");
     private static final Logger DETAILS = LoggerFactory.getLogger("DETAILS");
-
     private static final String EXTENSION = ".log";
 
     public static Logging forHome(FileNode home, String user) throws IOException {
@@ -88,16 +86,11 @@ public class Logging {
     }
 
     /** this is the counter-part of the LogEntry.parse method */
-    public static void access(String message) {
-        logEntry("COMMAND" /* TODO */, message, ACCESS);
-    }
-
-    /** this is the counter-part of the LogEntry.parse method */
     public void details(String logger, String message) {
         logEntry(logger, message, DETAILS);
     }
 
-    private static void logEntry(String loggerName, String message, Logger logger) {
+    public static void logEntry(String loggerName, String message, Logger logger) {
         LogEntry entry;
 
         entry = new LogEntry(LocalDateTime.now(), MDC.get("client-invocation"), loggerName, MDC.get("user"), MDC.get("stage"), message);
