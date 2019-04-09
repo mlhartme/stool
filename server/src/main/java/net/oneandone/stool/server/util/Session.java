@@ -46,7 +46,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Session {
-    public static Session load(FileNode home, Logging logging) throws IOException {
+    public static Session load(FileNode home, FileNode logging) throws IOException {
         Gson gson;
 
         gson = gson(home.getWorld());
@@ -58,7 +58,7 @@ public class Session {
     //--
 
     public final Gson gson;
-    public final Logging logging;
+    public final FileNode logging;
 
     // TODO: per-request data
     public final String user;
@@ -74,7 +74,7 @@ public class Session {
     private Map<String, Accessor> lazyAccessors;
     private Pool lazyPool;
 
-    public Session(Gson gson, Logging logging, FileNode home, StoolConfiguration configuration) {
+    public Session(Gson gson, FileNode logging, FileNode home, StoolConfiguration configuration) {
         this.gson = gson;
         this.logging = logging;
         this.user = Environment.detectUser();
@@ -185,7 +185,7 @@ public class Session {
         StringWriter body;
         PrintWriter writer;
 
-        logging.error("[" + command + "] " + context + ": " + e.getMessage(), e);
+        Logging.error("[" + command + "] " + context + ": " + e.getMessage(), e);
         if (!configuration.admin.isEmpty()) {
             subject = "[stool exception] " + e.getMessage();
             body = new StringWriter();
@@ -206,7 +206,7 @@ public class Session {
             try {
                 configuration.mailer().send(configuration.admin, new String[]{configuration.admin}, subject, body.toString());
             } catch (MessagingException suppressed) {
-                logging.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
+                Logging.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
             }
         }
     }
@@ -312,7 +312,7 @@ public class Session {
         if (lazyEngine == null) {
             FileNode log;
 
-            log = logging.directory().join("docker/" + user + ".log");
+            log = logging.join("docker/" + user + ".log");
             log.deleteFileOpt();
             log.getParent().mkdirOpt();
             log.writeBytes();
@@ -323,7 +323,7 @@ public class Session {
 
     public void closeDockerEngine() { // TODO: invoke on server shut-down
         if (lazyEngine != null) {
-            logging.verbose("close docker engine");
+            Logging.verbose("close docker engine");
             lazyEngine.close();
         }
     }
@@ -341,7 +341,7 @@ public class Session {
         }
         file = home.join("certs", certname);
         tmp = world.getTemp().createTempDirectory();
-        logging.verbose(tmp.exec(script.getAbsolute(), certname, file.getAbsolute()));
+        Logging.verbose(tmp.exec(script.getAbsolute(), certname, file.getAbsolute()));
         tmp.deleteTree();
         return file;
     }

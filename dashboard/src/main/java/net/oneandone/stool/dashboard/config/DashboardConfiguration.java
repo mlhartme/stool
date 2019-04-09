@@ -57,12 +57,10 @@ public class DashboardConfiguration {
     @Bean
     public Session session() throws IOException {
         DashboardProperties p;
-        Logging logging;
 
         p = properties();
-        logging = Logging.create(logs());
         // TODO logging.log("dashboard", "startup");
-        return Session.load(home(), logging);
+        return Session.load(home(), logs());
     }
 
     @Bean

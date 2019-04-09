@@ -114,7 +114,7 @@ public class AppInfo {
         try {
             connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
         } catch (IOException e) {
-            session.logging.verbose("cannot connect to jmx server", e);
+            Logging.verbose("cannot connect to jmx server", e);
             return "[cannot connect jmx server: " + e.getMessage() + "]";
         }
         try {

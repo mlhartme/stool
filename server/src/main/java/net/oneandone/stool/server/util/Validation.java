@@ -56,11 +56,9 @@ public class Validation {
     }
 
     private void validateStage(String name, Report report, boolean repair) throws IOException {
-        Logging logging;
         Stage stage;
         String message;
 
-        logging = session.logging;
         stage = session.load(name);
         try {
             stage.checkConstraints();
@@ -76,7 +74,7 @@ public class Validation {
                     report.user(stage, "stage has been stopped");
                 } catch (Exception e) {
                     report.user(stage, "stage failed to stop: " + e.getMessage());
-                    logging.verbose(e.getMessage(), e);
+                    Logging.verbose(e.getMessage(), e);
                 }
             }
             if (session.configuration.autoRemove >= 0 && stage.configuration.expire.expiredDays() >= 0) {
@@ -86,7 +84,7 @@ public class Validation {
                         stage.remove();
                     } catch (Exception e) {
                         report.user(stage, "failed to remove expired stage: " + e.getMessage());
-                        logging.verbose(e.getMessage(), e);
+                        Logging.verbose(e.getMessage(), e);
                     }
                 } else {
                     report.user(stage, "CAUTION: This stage will be removed automatically in "
@@ -105,22 +103,20 @@ public class Validation {
     private void email(Report report) throws MessagingException, NamingException {
         String hostname;
         Mailer mailer;
-        Logging logging;
         String user;
         String email;
         String body;
 
         hostname = session.configuration.hostname;
         mailer = session.configuration.mailer();
-        logging = session.logging;
         for (Map.Entry<String, List<String>> entry : report.users.entrySet()) {
             user = entry.getKey();
             body = Separator.RAW_LINE.join(entry.getValue());
             email = email(session, user);
             if (email == null) {
-                logging.error("cannot send email, there's nobody to send it to.");
+                Logging.error("cannot send email, there's nobody to send it to.");
             } else {
-                logging.info("sending email to " + email);
+                Logging.info("sending email to " + email);
                 mailer.send("stool@" + hostname, new String[] { email }, "Validation of your stage(s) on " + hostname + " failed", body);
             }
         }
@@ -152,7 +148,7 @@ public class Validation {
             session.dockerEngine().imageList();
         } catch (IOException e) {
             report.admin("cannot access docker: " + e.getMessage());
-            session.logging.verbose("cannot access docker", e);
+            Logging.verbose("cannot access docker", e);
         }
     }
 
@@ -180,7 +176,7 @@ public class Validation {
             socket.close();
         } catch (IOException e) {
             report.admin("cannot open socket on machine " + session.configuration.hostname + ", port " + port + ". Check the configured hostname.");
-            session.logging.verbose("cannot open socket", e);
+            Logging.verbose("cannot open socket", e);
         }
 
         subDomain = digIp("foo." + session.configuration.hostname);

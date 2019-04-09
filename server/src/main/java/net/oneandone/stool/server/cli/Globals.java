@@ -29,24 +29,24 @@ import java.lang.reflect.InvocationTargetException;
 public class Globals {
     public static Globals create(World world) throws IOException {
         FileNode home;
-        Logging logging;
+        FileNode logging;
         FileNode tmp;
 
         home = Environment.locateHome(world);
         if (home.exists()) {
-            logging = Logging.forHome(home);
+            logging = Environment.locateLogs(home);
         } else {
             tmp = world.getTemp().createTempDirectory();
-            logging = new Logging(tmp);
+            logging = tmp;
         }
         return new Globals(home, logging, world);
     }
 
     public final FileNode home;
-    public final Logging logging;
+    public final FileNode logging;
     public final World world;
 
-    public Globals(FileNode home, Logging logging, World world) {
+    public Globals(FileNode home, FileNode logging, World world) {
         this.home = home;
         this.logging = logging;
         this.world = world;
@@ -81,7 +81,7 @@ public class Globals {
                 try {
                     session().reportException(command, "RuntimeException", throwable);
                 } catch (IOException e) {
-                    logging.error("failed to report runtine exception: " + e.getMessage(), e);
+                    Logging.error("failed to report runtine exception: " + e.getMessage(), e);
                 }
             }
             return -1;

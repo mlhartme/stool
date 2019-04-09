@@ -25,6 +25,7 @@ import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.LogReader;
+import net.oneandone.stool.server.util.Logging;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Session;
@@ -259,7 +260,7 @@ public class Stage {
     //-- logs
 
     public LogReader logReader() throws IOException {
-        return LogReader.create(session.logging.directory());
+        return LogReader.create(session.logging);
     }
 
     public Logs logs() {
@@ -293,7 +294,7 @@ public class Stage {
 
     public void wipeImages(Engine engine) throws IOException {
         for (String image : listImages(engine)) {
-            session.logging.verbose("remove image: " + image);
+            Logging.verbose("remove image: " + image);
             engine.imageRemove(image, true /* because the might be multiple tags */);
         }
     }
@@ -331,7 +332,7 @@ public class Stage {
             if (images.size() > keep) {
                 while (images.size() > keep) {
                     remove = images.remove(images.size() - 1).id;
-                    session.logging.verbose("remove image: " + remove);
+                    Logging.verbose("remove image: " + remove);
                     engine.imageRemove(remove, true); // TODO: 'force' could remove an image even if there's still a container running; but I need force to delete with multiple tags ...
                 }
             }
@@ -341,7 +342,7 @@ public class Stage {
     public void wipeContainer(Engine engine) throws IOException {
         for (String image : listImages(engine)) {
             for (String container : engine.containerListForImage(image).keySet()) {
-                session.logging.verbose("remove container: " + container);
+                Logging.verbose("remove container: " + container);
                 engine.containerRemove(container);
             }
         }
@@ -393,20 +394,20 @@ public class Stage {
         labels.put(IMAGE_LABEL_ORIGIN, origin);
         labels.put(IMAGE_LABEL_CREATED_BY, createdBy);
         labels.put(IMAGE_LABEL_CREATED_ON, createdOn);
-        session.logging.verbose("building image ... ");
+        Logging.verbose("building image ... ");
         output = new StringWriter();
         try {
             image = engine.imageBuild(tag, buildArgs, labels, context, noCache, output);
         } catch (BuildError e) {
-            session.logging.verbose("image build output");
-            session.logging.verbose(e.output);
+            Logging.verbose("image build output");
+            Logging.verbose(e.output);
             throw e;
         } finally {
             output.close();
         }
         result = output.toString();
-        session.logging.verbose("successfully built image: " + image);
-        session.logging.verbose(result);
+        Logging.verbose("successfully built image: " + image);
+        Logging.verbose(result);
         return result;
     }
 
@@ -433,11 +434,11 @@ public class Stage {
             for (String old : engine.containerListForImage(image.id).keySet()) {
                 engine.containerRemove(old);
             }
-            session.logging.verbose("environment: " + environment);
-            session.logging.info(image.app + ": starting container ... ");
+            Logging.verbose("environment: " + environment);
+            Logging.info(image.app + ": starting container ... ");
             mounts = bindMounts(image);
             for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
-                session.logging.verbose("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
+                Logging.verbose("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
             hostPorts = session.pool().allocate(this, image.app, http, https);
             labels = hostPorts.toUsedLabels();
@@ -447,7 +448,7 @@ public class Stage {
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * image.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts));
-            session.logging.verbose("created container " + container);
+            Logging.verbose("created container " + container);
             engine.containerStart(container);
             status = engine.containerStatus(container);
             if (status != Engine.Status.RUNNING) {
@@ -482,7 +483,7 @@ public class Stage {
         for (Map.Entry<String, Integer> entry : selection.entrySet()) {
             app = entry.getKey();
             if (running.contains(app)) {
-                session.logging.info("warning: app will not be started because it is already running: " + app);
+                Logging.info("warning: app will not be started because it is already running: " + app);
             } else {
                 idx = entry.getValue();
                 list = allImages.get(app);
@@ -522,13 +523,13 @@ public class Stage {
             }
         }
         if (!notRunning.isEmpty()) {
-            session.logging.info("warning: the following apps will not be stopped because they are not running: " + apps);
+            Logging.info("warning: the following apps will not be stopped because they are not running: " + apps);
         }
         if (containers.isEmpty()) {
             throw new IOException("stage is already stopped");
         }
         for (Map.Entry<String, String> entry : containers.entrySet()) {
-            session.logging.info(entry.getKey() + ": stopping container ...");
+            Logging.info(entry.getKey() + ": stopping container ...");
             engine = session.dockerEngine();
             engine.containerStop(entry.getValue(), 300);
         }
@@ -819,7 +820,7 @@ public class Stage {
                         throw new IOException(app + ": initial state timed out: " + e.getMessage(), e);
                     }
                     if (count % 100 == 99) {
-                        session.logging.info(app + ": waiting for tomcat startup ... ");
+                        Logging.info(app + ": waiting for tomcat startup ... ");
                     }
                     try {
                         Thread.sleep(100);
@@ -833,7 +834,7 @@ public class Stage {
                     throw new IOException(app + ": tomcat startup timed out, state" + state);
                 }
                 if (count % 100 == 99) {
-                    session.logging.info(app + ": waiting for tomcat startup ... " + state);
+                    Logging.info(app + ": waiting for tomcat startup ... " + state);
                 }
                 try {
                     Thread.sleep(100);
@@ -880,7 +881,7 @@ public class Stage {
 
         containers = dockerContainerList();
         if (containers.size() != 1) {
-            session.logging.info("ignoring -tail option because container is not unique");
+            Logging.info("ignoring -tail option because container is not unique");
         } else {
             engine = session.dockerEngine();
             engine.containerLogsFollow(containers.get(0), new OutputStream() {
