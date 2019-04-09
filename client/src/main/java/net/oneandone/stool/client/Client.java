@@ -43,7 +43,7 @@ public class Client {
         JsonArray references;
         List<String> result;
 
-        node = node("search");
+        node = node("stages");
         if (stageClause != null) {
             node = node.withParameter("stageClause", stageClause);
         }
@@ -61,7 +61,7 @@ public class Client {
         HttpNode node;
         String response;
 
-        node = node("create");
+        node = node("stages");
         node = node.withParameters(config);
         node = node.withParameter("name", name);
 
@@ -258,7 +258,7 @@ public class Client {
     //--
 
     private HttpNode node(String stage, String cmd) {
-        return node("stage/" + stage + "/" + cmd);
+        return node("stages/" + stage + "/" + cmd);
     }
 
     private HttpNode node(String path) {

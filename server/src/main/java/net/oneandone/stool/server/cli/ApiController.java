@@ -57,7 +57,7 @@ public class ApiController {
         return new JsonPrimitive( Main.versionString(session.world)).toString();
     }
 
-    @GetMapping("/search")
+    @GetMapping("/stages")
     public String search(@RequestParam(value = "stageClause", required = false) String stageClause) throws IOException {
         JsonArray result;
         Map<String, IOException> problems;
@@ -73,7 +73,7 @@ public class ApiController {
         return result.toString();
     }
 
-    @PostMapping("create")
+    @PostMapping("/stages")
     public void create(HttpServletRequest request) throws IOException {
         String name;
         Map<String, String> config;
@@ -99,7 +99,7 @@ public class ApiController {
         closeStage();
     }
 
-    @PostMapping("/stage/{stage}/build")
+    @PostMapping("/stages/{stage}/build")
     public String build(@PathVariable("stage") String stage, @RequestParam("app") String app,
                         @RequestParam("comment") String comment,
                         @RequestParam("origin") String origin, @RequestParam("created-by") String createdBy,
@@ -137,7 +137,7 @@ public class ApiController {
         return result;
     }
 
-    @GetMapping("/stage/{stage}/properties")
+    @GetMapping("/stages/{stage}/properties")
     public String properties(@PathVariable(value = "stage") String stage) throws IOException {
         JsonObject result;
 
@@ -148,7 +148,7 @@ public class ApiController {
         return result.toString();
     }
 
-    @PostMapping("/stage/{stage}/set-properties")
+    @PostMapping("/stages/{stage}/set-properties")
     public String setProperties(@PathVariable(value = "stage") String stageName, HttpServletRequest request) throws IOException {
         Stage stage;
         Property prop;
@@ -178,7 +178,7 @@ public class ApiController {
     }
 
 
-    @GetMapping("/stage/{stage}/status")
+    @GetMapping("/stages/{stage}/status")
     public String status(@PathVariable(value = "stage") String stage, @RequestParam("select") String select) throws IOException {
         JsonObject result;
         List<String> selection;
@@ -200,7 +200,7 @@ public class ApiController {
         return result.toString();
     }
 
-    @GetMapping("stage/{stage}/apps")
+    @GetMapping("/stages/{stage}/apps")
     public String apps(@PathVariable(value = "stage") String stage) throws IOException {
         List<String> result;
 
@@ -209,7 +209,7 @@ public class ApiController {
         return array(result).toString();
     }
 
-    @PostMapping("validate")
+    @PostMapping("/validate")
     public String validate(@RequestParam("stageClause") String stageClause,
                            @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
         List<String> output;
@@ -224,13 +224,13 @@ public class ApiController {
         return array(output).toString();
     }
 
-    @GetMapping("stage/{stage}/appInfo")
+    @GetMapping("/stages/{stage}/appInfo")
     public String appInfo(@PathVariable("stage") String stage, @RequestParam("app") String app) throws Exception {
         return array(new AppInfo(session).run(stage, app)).toString();
     }
 
 
-    @PostMapping("stage/{stage}/start")
+    @PostMapping("/stages/{stage}/start")
     public void start(@PathVariable(value = "stage") String stageName,
                       @RequestParam("http") int http, @RequestParam("https") int https,
                       HttpServletRequest request) throws IOException {
@@ -263,7 +263,7 @@ public class ApiController {
         }
     }
 
-    @GetMapping("stage/{stage}/await-startup")
+    @GetMapping("/stages//{stage}/await-startup")
     public String awaitStartup(@PathVariable(value = "stage") String stageName) throws IOException {
         Stage stage;
         JsonObject result;
@@ -288,7 +288,7 @@ public class ApiController {
         return result;
     }
 
-    @PostMapping("stage/{stage}/stop")
+    @PostMapping("/stages/{stage}/stop")
     public void stop(@PathVariable(value = "stage") String stage, @RequestParam("apps") String apps) throws IOException {
         openStage(stage);
         try {
@@ -299,7 +299,7 @@ public class ApiController {
     }
 
 
-    @GetMapping("stage/{stage}/history")
+    @GetMapping("/stages/{stage}/history")
     public String history(@PathVariable(value = "stage") String stage,
                           @RequestParam("details") boolean details, @RequestParam("max") int max) throws IOException {
         LogEntry entry;
@@ -355,7 +355,7 @@ public class ApiController {
         return false;
     }
 
-    @PostMapping("stage/{stage}/remove")
+    @PostMapping("/stages/{stage}/remove")
     public void remove(@PathVariable(value = "stage") String stage) throws IOException {
         openStage(stage);
         try {
