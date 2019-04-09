@@ -119,6 +119,6 @@ public class Ls extends InfoCommand {
     }
 
     protected List<String> defaultSelected() throws IOException {
-        return client.search(null);
+        return client.list(null);
     }
 }

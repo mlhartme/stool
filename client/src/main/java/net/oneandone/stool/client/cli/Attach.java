@@ -38,7 +38,7 @@ public class Attach extends ProjectCommand {
 
         List<String> found;
 
-        found = client.search(stage);
+        found = client.list(stage);
         switch (found.size()) {
             case 0:
                 throw new IOException("no such stage: " + stage);
