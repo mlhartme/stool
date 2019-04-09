@@ -89,8 +89,9 @@ public class Logging {
         if (stageFile != null) {
             throw new IllegalStateException("stage already open: " + stageFile.getAbsolute());
         }
-        stageName = stage;
-        stageFile = logFile(directory().join(stage).mkdirOpt(), "stool");
+        this.clientInvocation = clientInvocation;
+        this.stageName = stage;
+        this.stageFile = logFile(directory().join(stage).mkdirOpt(), "stool");
 
         log("COMMAND", clientCommand);
     }

@@ -67,10 +67,8 @@ public class Client {
         HttpNode node;
         String response;
 
-        node = node("stages");
+        node = node("stages/" + name);
         node = node.withParameters(config);
-        node = node.withParameter("name", name);
-
         response = node.post("");
         if (!response.isEmpty()) {
             throw new IOException(response);

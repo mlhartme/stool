@@ -69,18 +69,13 @@ public class ApiController {
         return result.toString();
     }
 
-    @PostMapping("/stages")
-    public void create(HttpServletRequest request) throws IOException {
-        String name;
+    @PostMapping("/stages/{stage}")
+    public void create(@PathVariable("stage") String name, HttpServletRequest request) throws IOException {
         Map<String, String> config;
         Stage stage;
         Property property;
 
         config = map(request, "");
-        name = config.remove("name");
-        if (name == null) {
-            throw new IOException("missing stage name: " + name);
-        }
         stage = session.create(name);
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());
