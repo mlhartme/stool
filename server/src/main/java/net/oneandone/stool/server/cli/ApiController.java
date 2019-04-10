@@ -279,52 +279,34 @@ public class ApiController {
     public String history(@PathVariable(value = "stage") String stage,
                           @RequestParam("details") boolean details, @RequestParam("max") int max) throws IOException {
         AccessLogEntry entry;
-        Map<String, List<AccessLogEntry>> detailsMap; /* maps id to it's details */
+        List<AccessLogEntry> entries;
         LogReader<AccessLogEntry> reader;
-        List<AccessLogEntry> lst;
-        int counter;
         JsonArray result;
+        String previousInvocation;
 
         result = new JsonArray();
-        counter = 0;
-        detailsMap = new HashMap<>();
+        entries = new ArrayList<>();
         reader = session.load(stage).accessLogReader();
         while (true) {
             entry = reader.prev();
             if (entry == null) {
                 break;
             }
-            lst = detailsMap.get(entry.clientInvocation);
-            if (lst == null) {
-                lst = new ArrayList<>();
-                detailsMap.put(entry.clientInvocation, lst);
+            if (stage.equals(entry.stageName)) {
+                previousInvocation = entries.isEmpty() ? "" : entries.get(entries.size() - 1).clientInvocation;
+                if (!entry.clientInvocation.equals(previousInvocation)) {
+                    entries.add(entry);
+                }
+                if (entries.size() == max) {
+                    result.add("(skipping after " + max + " commands; use -max <n> to see more)");
+                    break;
+                }
             }
-            detailsMap.remove(entry.clientInvocation);
-            lst.add(entry);
-            if (forStage(stage, lst)) {
-                counter++;
-                result.add("[" + AccessLogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.clientCommand);
-               /* TODO if (details) {
-                    for (int i = lst.size() - 1; i >= 0; i--) {
-                        result.add(Strings.indent(lst.get(i).message, "     "));
-                    }
-                }*/
-            }
-            if (counter == max) {
-                result.add("(skipping after " + max + " commands; use -max <n> to see more)");
-                break;
-            }
+        }
+        for (AccessLogEntry e : entries) {
+            result.add("[" + AccessLogEntry.DATE_FMT.format(e.dateTime) + " " + e.user + "] " + e.clientCommand);
         }
         return result.toString();
-    }
-
-    private static boolean forStage(String stageName, List<AccessLogEntry> lst) {
-        for (AccessLogEntry entry : lst) {
-            if (stageName.equals(entry.stageName)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @PostMapping("/stages/{stage}/remove")
