@@ -18,7 +18,7 @@ package net.oneandone.stool.dashboard.config;
 
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.Ports;
-import net.oneandone.stool.server.util.Session;
+import net.oneandone.stool.server.util.ApplicationContext;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -50,7 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private DashboardProperties properties;
 
     @Autowired
-    private Session session;
+    private ApplicationContext session;
 
     @Autowired
     private Stage self;

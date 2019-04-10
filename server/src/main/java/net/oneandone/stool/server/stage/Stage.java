@@ -28,7 +28,7 @@ import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
-import net.oneandone.stool.server.util.Session;
+import net.oneandone.stool.server.util.ApplicationContext;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
@@ -86,12 +86,12 @@ public class Stage {
 
     //--
 
-    public final Session session;
+    public final ApplicationContext session;
     private final String name;
     private final FileNode directory;
     public final StageConfiguration configuration;
 
-    public Stage(Session session, FileNode directory, StageConfiguration configuration) {
+    public Stage(ApplicationContext session, FileNode directory, StageConfiguration configuration) {
         this.session = session;
         this.name = directory.getName();
         this.directory = directory;
@@ -265,12 +265,6 @@ public class Stage {
         configuration.save(session.gson, StageConfiguration.file(directory));
     }
 
-    //-- logs
-
-    public LogReader<AccessLogEntry> accessLogReader() throws IOException {
-        return LogReader.accessLog(session.logRoot);
-    }
-
     //-- docker
 
     private List<String> listImages(Engine engine) throws IOException {
@@ -298,7 +292,7 @@ public class Stage {
 
     public void wipeImages(Engine engine) throws IOException {
         for (String image : listImages(engine)) {
-            Session.LOGGER.debug("remove image: " + image);
+            ApplicationContext.LOGGER.debug("remove image: " + image);
             engine.imageRemove(image, true /* because the might be multiple tags */);
         }
     }
@@ -336,7 +330,7 @@ public class Stage {
             if (images.size() > keep) {
                 while (images.size() > keep) {
                     remove = images.remove(images.size() - 1).id;
-                    Session.LOGGER.debug("remove image: " + remove);
+                    ApplicationContext.LOGGER.debug("remove image: " + remove);
                     engine.imageRemove(remove, true); // TODO: 'force' could remove an image even if there's still a container running; but I need force to delete with multiple tags ...
                 }
             }
@@ -346,7 +340,7 @@ public class Stage {
     public void wipeContainer(Engine engine) throws IOException {
         for (String image : listImages(engine)) {
             for (String container : engine.containerListForImage(image).keySet()) {
-                Session.LOGGER.debug("remove container: " + container);
+                ApplicationContext.LOGGER.debug("remove container: " + container);
                 engine.containerRemove(container);
             }
         }
@@ -398,20 +392,20 @@ public class Stage {
         labels.put(IMAGE_LABEL_ORIGIN, origin);
         labels.put(IMAGE_LABEL_CREATED_BY, createdBy);
         labels.put(IMAGE_LABEL_CREATED_ON, createdOn);
-        Session.LOGGER.debug("building image ... ");
+        ApplicationContext.LOGGER.debug("building image ... ");
         output = new StringWriter();
         try {
             image = engine.imageBuild(tag, buildArgs, labels, context, noCache, output);
         } catch (BuildError e) {
-            Session.LOGGER.debug("image build output");
-            Session.LOGGER.debug(e.output);
+            ApplicationContext.LOGGER.debug("image build output");
+            ApplicationContext.LOGGER.debug(e.output);
             throw e;
         } finally {
             output.close();
         }
         result = output.toString();
-        Session.LOGGER.debug("successfully built image: " + image);
-        Session.LOGGER.debug(result);
+        ApplicationContext.LOGGER.debug("successfully built image: " + image);
+        ApplicationContext.LOGGER.debug(result);
         return result;
     }
 
@@ -438,11 +432,11 @@ public class Stage {
             for (String old : engine.containerListForImage(image.id).keySet()) {
                 engine.containerRemove(old);
             }
-            Session.LOGGER.debug("environment: " + environment);
-            Session.LOGGER.info(image.app + ": starting container ... ");
+            ApplicationContext.LOGGER.debug("environment: " + environment);
+            ApplicationContext.LOGGER.info(image.app + ": starting container ... ");
             mounts = bindMounts(image);
             for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
-                Session.LOGGER.debug("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
+                ApplicationContext.LOGGER.debug("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
             hostPorts = session.pool().allocate(this, image.app, http, https);
             labels = hostPorts.toUsedLabels();
@@ -452,7 +446,7 @@ public class Stage {
             container = engine.containerCreate(image.id,  getName() + "." + session.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * image.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts));
-            Session.LOGGER.debug("created container " + container);
+            ApplicationContext.LOGGER.debug("created container " + container);
             engine.containerStart(container);
             status = engine.containerStatus(container);
             if (status != Engine.Status.RUNNING) {
@@ -487,7 +481,7 @@ public class Stage {
         for (Map.Entry<String, Integer> entry : selection.entrySet()) {
             app = entry.getKey();
             if (running.contains(app)) {
-                Session.LOGGER.info("warning: app will not be started because it is already running: " + app);
+                ApplicationContext.LOGGER.info("warning: app will not be started because it is already running: " + app);
             } else {
                 idx = entry.getValue();
                 list = allImages.get(app);
@@ -527,13 +521,13 @@ public class Stage {
             }
         }
         if (!notRunning.isEmpty()) {
-            Session.LOGGER.info("warning: the following apps will not be stopped because they are not running: " + apps);
+            ApplicationContext.LOGGER.info("warning: the following apps will not be stopped because they are not running: " + apps);
         }
         if (containers.isEmpty()) {
             throw new IOException("stage is already stopped");
         }
         for (Map.Entry<String, String> entry : containers.entrySet()) {
-            Session.LOGGER.info(entry.getKey() + ": stopping container ...");
+            ApplicationContext.LOGGER.info(entry.getKey() + ": stopping container ...");
             engine = session.dockerEngine();
             engine.containerStop(entry.getValue(), 300);
         }
@@ -775,7 +769,7 @@ public class Stage {
     }
 
     public String lastModifiedBy() throws IOException {
-        return accessLogReader().prev().user;
+        return session.accessLogReader().prev().user;
     }
 
     /** @return last entry first */
@@ -787,7 +781,7 @@ public class Stage {
         String previousInvocation;
 
         entries = new ArrayList<>();
-        reader = accessLogReader();
+        reader = session.accessLogReader();
         stage = getName();
         while (true) {
             entry = reader.prev();
@@ -860,7 +854,7 @@ public class Stage {
                         throw new IOException(app + ": initial state timed out: " + e.getMessage(), e);
                     }
                     if (count % 100 == 99) {
-                        Session.LOGGER.info(app + ": waiting for tomcat startup ... ");
+                        ApplicationContext.LOGGER.info(app + ": waiting for tomcat startup ... ");
                     }
                     try {
                         Thread.sleep(100);
@@ -874,7 +868,7 @@ public class Stage {
                     throw new IOException(app + ": tomcat startup timed out, state" + state);
                 }
                 if (count % 100 == 99) {
-                    Session.LOGGER.info(app + ": waiting for tomcat startup ... " + state);
+                    ApplicationContext.LOGGER.info(app + ": waiting for tomcat startup ... " + state);
                 }
                 try {
                     Thread.sleep(100);
@@ -921,7 +915,7 @@ public class Stage {
 
         containers = dockerContainerList();
         if (containers.size() != 1) {
-            Session.LOGGER.info("ignoring -tail option because container is not unique");
+            ApplicationContext.LOGGER.info("ignoring -tail option because container is not unique");
         } else {
             engine = session.dockerEngine();
             engine.containerLogsFollow(containers.get(0), new OutputStream() {

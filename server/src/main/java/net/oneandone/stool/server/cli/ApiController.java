@@ -9,14 +9,12 @@ import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.logging.AccessLogEntry;
-import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
-import net.oneandone.stool.server.util.Session;
+import net.oneandone.stool.server.util.ApplicationContext;
 import net.oneandone.stool.server.util.Validation;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
-import net.oneandone.sushi.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,10 +38,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class ApiController {
-    private final Session session;
+    private final ApplicationContext session;
 
     @Autowired
-    public ApiController(Session session) {
+    public ApiController(ApplicationContext session) {
         this.session = session;
     }
 

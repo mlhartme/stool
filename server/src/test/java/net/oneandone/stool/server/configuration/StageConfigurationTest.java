@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.configuration;
 
 import com.google.gson.Gson;
-import net.oneandone.stool.server.util.Session;
+import net.oneandone.stool.server.util.ApplicationContext;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.Test;
@@ -32,7 +32,7 @@ public class StageConfigurationTest {
         FileNode tmp;
 
         world = World.create();
-        gson = Session.gson(world);
+        gson = ApplicationContext.gson(world);
         configuration = new StageConfiguration();
         tmp = world.getTemp().createTempFile();
         configuration.save(gson, tmp);

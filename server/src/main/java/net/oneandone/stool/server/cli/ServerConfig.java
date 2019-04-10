@@ -1,6 +1,6 @@
 package net.oneandone.stool.server.cli;
 
-import net.oneandone.stool.server.util.Session;
+import net.oneandone.stool.server.util.ApplicationContext;
 import net.oneandone.sushi.fs.World;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +13,7 @@ import java.io.IOException;
 @Configuration
 public class ServerConfig implements WebMvcConfigurer {
     @Bean
-    public Session session() throws IOException {
+    public ApplicationContext session() throws IOException {
         World world;
         Globals globals;
 

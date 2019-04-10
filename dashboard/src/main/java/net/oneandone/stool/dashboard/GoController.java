@@ -16,7 +16,7 @@
 package net.oneandone.stool.dashboard;
 
 import net.oneandone.stool.server.stage.Stage;
-import net.oneandone.stool.server.util.Session;
+import net.oneandone.stool.server.util.ApplicationContext;
 import net.oneandone.sushi.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -32,7 +32,7 @@ import java.util.Map;
 @RequestMapping("/go")
 public class GoController {
     @Autowired
-    private Session session;
+    private ApplicationContext session;
 
     // /stage/app
     @RequestMapping(value = "/**", method = RequestMethod.GET)

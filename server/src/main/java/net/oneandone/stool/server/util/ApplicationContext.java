@@ -26,6 +26,8 @@ import net.oneandone.stool.server.configuration.StoolConfiguration;
 import net.oneandone.stool.server.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.server.docker.Engine;
+import net.oneandone.stool.server.logging.AccessLogEntry;
+import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.Users;
@@ -47,15 +49,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Session {
+public class ApplicationContext {
     public static final Logger LOGGER = LoggerFactory.getLogger("DETAILS");
 
 
-    public static Session load(FileNode home, FileNode logRoot) throws IOException {
+    public static ApplicationContext load(FileNode home, FileNode logRoot) throws IOException {
         Gson gson;
 
         gson = gson(home.getWorld());
-        return new Session(gson, logRoot, home, StoolConfiguration.load(gson, home));
+        return new ApplicationContext(gson, logRoot, home, StoolConfiguration.load(gson, home));
     }
 
     private static final int MEM_RESERVED_OS = 500;
@@ -79,7 +81,7 @@ public class Session {
     private Map<String, Accessor> lazyAccessors;
     private Pool lazyPool;
 
-    public Session(Gson gson, FileNode logRoot, FileNode home, StoolConfiguration configuration) {
+    public ApplicationContext(Gson gson, FileNode logRoot, FileNode home, StoolConfiguration configuration) {
         this.gson = gson;
         this.logRoot = logRoot;
         this.user = Environment.detectUser();
@@ -95,6 +97,10 @@ public class Session {
         }
         this.lazyAccessors = null;
         this.lazyPool= null;
+    }
+
+    public LogReader<AccessLogEntry> accessLogReader() throws IOException {
+        return LogReader.accessLog(logRoot);
     }
 
     public Map<String, Accessor> accessors() {

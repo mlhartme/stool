@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Map;
 
 public class AppInfo {
-    private final Session session;
+    private final ApplicationContext session;
 
-    public AppInfo(Session session) {
+    public AppInfo(ApplicationContext session) {
         this.session = session;
     }
 
@@ -114,7 +114,7 @@ public class AppInfo {
         try {
             connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
         } catch (IOException e) {
-            Session.LOGGER.debug("cannot connect to jmx server", e);
+            ApplicationContext.LOGGER.debug("cannot connect to jmx server", e);
             return "[cannot connect jmx server: " + e.getMessage() + "]";
         }
         try {

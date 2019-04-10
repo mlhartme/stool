@@ -18,7 +18,7 @@ package net.oneandone.stool.dashboard;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.StoolConfiguration;
 import net.oneandone.stool.server.util.Mailer;
-import net.oneandone.stool.server.util.Session;
+import net.oneandone.stool.server.util.ApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ public class IndexController {
     private static final Logger LOG = LoggerFactory.getLogger(IndexController.class);
 
     @Autowired
-    private Session session;
+    private ApplicationContext session;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ModelAndView index(ModelAndView modelAndView) {
