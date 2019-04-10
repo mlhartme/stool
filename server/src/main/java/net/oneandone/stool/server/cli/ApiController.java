@@ -165,7 +165,7 @@ public class ApiController {
 
 
     @GetMapping("/stages/{stage}/status")
-    public String status(@PathVariable(value = "stage") String stage, @RequestParam("select") String select) throws IOException {
+    public String status(@PathVariable(value = "stage") String stage, @RequestParam(value = "select", required = false) String select) throws IOException {
         JsonObject result;
         List<String> selection;
 
@@ -304,11 +304,11 @@ public class ApiController {
             if (forStage(stage, lst)) {
                 counter++;
                 result.add("[" + AccessLogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.clientCommand);
-                if (details) {
+               /* TODO if (details) {
                     for (int i = lst.size() - 1; i >= 0; i--) {
                         result.add(Strings.indent(lst.get(i).message, "     "));
                     }
-                }
+                }*/
             }
             if (counter == max) {
                 result.add("(skipping after " + max + " commands; use -max <n> to see more)");

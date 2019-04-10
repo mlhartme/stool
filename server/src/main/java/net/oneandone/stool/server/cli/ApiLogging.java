@@ -46,7 +46,7 @@ public class ApiLogging implements HandlerInterceptor {
     private static final Logger ACCESS = LoggerFactory.getLogger("ACCESS");
 
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) {
-        ACCESS.info("TODO-not-used-yet");
+        ACCESS.info(Integer.toString(response.getStatus()));
         MDC.remove(URI);
         MDC.remove(USER);
         MDC.remove(STAGE);

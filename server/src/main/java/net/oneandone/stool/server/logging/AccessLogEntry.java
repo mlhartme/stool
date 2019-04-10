@@ -32,7 +32,8 @@ public class AccessLogEntry {
         instant = Instant.ofEpochMilli(event.getTimeStamp());
         date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
         mdc = event.getMDCPropertyMap();
-        return new AccessLogEntry(date, mdc.get("client-invocation"), mdc.get("client-command"), mdc.get("user"), mdc.get("stage"), event.getMessage());
+        return new AccessLogEntry(date, mdc.get("client-invocation"), mdc.get("client-command"), mdc.get("user"), mdc.get("stage"), mdc.get("uri"),
+                Integer.parseInt(event.getMessage()));
     }
 
     public static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss,SSS");
@@ -46,6 +47,7 @@ public class AccessLogEntry {
         int command;
         int user;
         int stage;
+        int uri;
 
         len = line.length();
 
@@ -55,6 +57,10 @@ public class AccessLogEntry {
         command = line.indexOf('|', invocation + 1);
         user = line.indexOf('|', command + 1);
         stage = line.indexOf('|', user + 1);
+        uri = line.indexOf('|', stage + 1);
+        if (uri < 0) {
+            throw new IllegalArgumentException(line);
+        }
         if (line.charAt(len - 1) != '\n') {
             throw new IllegalArgumentException(line);
         }
@@ -65,41 +71,8 @@ public class AccessLogEntry {
                 line.substring(invocation + 1, command),
                 line.substring(command + 1, user),
                 line.substring(user + 1, stage),
-                unescape(line.substring(stage + 1, len -1)));
-    }
-
-    private static String unescape(String message) {
-        StringBuilder builder;
-        char c;
-        int max;
-
-        if (message.indexOf('\\') == -1) {
-            return message;
-        } else {
-            max = message.length();
-            builder = new StringBuilder(max);
-            for (int i = 0; i < max; i++) {
-                c = message.charAt(i);
-                if (c != '\\') {
-                    builder.append(c);
-                } else {
-                    i++;
-                    c = message.charAt(i);
-                    switch (c) {
-                        case 'n':
-                            builder.append('\n');
-                            break;
-                        case 'r':
-                            builder.append('\r');
-                            break;
-                        default:
-                            builder.append(c);
-                            break;
-                    }
-                }
-            }
-            return builder.toString();
-        }
+                line.substring(stage + 1, uri),
+                Integer.parseInt(line.substring(uri + 1, len - 1)));
     }
 
     //--
@@ -109,15 +82,17 @@ public class AccessLogEntry {
     public final String clientCommand;
     public final String user;
     public final String stageName;
-    public final String message;
+    public final String uri;
+    public final int status;
 
-    public AccessLogEntry(LocalDateTime dateTime, String clientInvocation, String clientCommand, String user, String stageName, String message) {
+    public AccessLogEntry(LocalDateTime dateTime, String clientInvocation, String clientCommand, String user, String stageName, String uri, int status) {
         this.dateTime = dateTime;
         this.clientInvocation = clientInvocation;
         this.clientCommand = clientCommand;
         this.user = user;
         this.stageName = stageName;
-        this.message = message;
+        this.uri = uri;
+        this.status = status;
     }
 
     public String toString() {
@@ -131,23 +106,8 @@ public class AccessLogEntry {
         result.append(clientCommand).append('|');
         result.append(user).append('|');
         result.append(stageName).append('|');
-        for (int i = 0, max = message.length(); i < max; i++) {
-            c = message.charAt(i);
-            switch (c) {
-                case '\r':
-                    result.append("\\r");
-                    break;
-                case '\n':
-                    result.append("\\n");
-                    break;
-                case '\\':
-                    result.append("\\\\");
-                    break;
-                default:
-                    result.append(c);
-                    break;
-            }
-        }
+        result.append(uri).append('|');
+        result.append(status);
         result.append('\n');
         return result.toString();
     }
