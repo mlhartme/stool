@@ -23,8 +23,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
-public class LogEntry {
-    public static LogEntry forEvent(ILoggingEvent event) {
+public class AccessLogEntry {
+    public static AccessLogEntry forEvent(ILoggingEvent event) {
         Instant instant;
         LocalDateTime date;
         Map<String, String> mdc;
@@ -32,13 +32,13 @@ public class LogEntry {
         instant = Instant.ofEpochMilli(event.getTimeStamp());
         date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
         mdc = event.getMDCPropertyMap();
-        return new LogEntry(date, mdc.get("client-invocation"), mdc.get("client-command"), mdc.get("user"), mdc.get("stage"), event.getMessage());
+        return new AccessLogEntry(date, mdc.get("client-invocation"), mdc.get("client-command"), mdc.get("user"), mdc.get("stage"), event.getMessage());
     }
 
     public static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss,SSS");
 
     /** Count-part of the Logging.log method. */
-    public static LogEntry parse(String line) {
+    public static AccessLogEntry parse(String line) {
         int len;
 
         int date;
@@ -59,8 +59,8 @@ public class LogEntry {
             throw new IllegalArgumentException(line);
         }
 
-        return new LogEntry(
-                LocalDateTime.parse(line.substring(0, date), LogEntry.DATE_FMT),
+        return new AccessLogEntry(
+                LocalDateTime.parse(line.substring(0, date), AccessLogEntry.DATE_FMT),
                 line.substring(date + 1, invocation),
                 line.substring(invocation + 1, command),
                 line.substring(command + 1, user),
@@ -111,7 +111,7 @@ public class LogEntry {
     public final String stageName;
     public final String message;
 
-    public LogEntry(LocalDateTime dateTime, String clientInvocation, String clientCommand, String user, String stageName, String message) {
+    public AccessLogEntry(LocalDateTime dateTime, String clientInvocation, String clientCommand, String user, String stageName, String message) {
         this.dateTime = dateTime;
         this.clientInvocation = clientInvocation;
         this.clientCommand = clientCommand;
@@ -126,7 +126,7 @@ public class LogEntry {
         result = new StringBuilder();
         char c;
 
-        result.append(LogEntry.DATE_FMT.format(LocalDateTime.now())).append('|');
+        result.append(AccessLogEntry.DATE_FMT.format(LocalDateTime.now())).append('|');
         result.append(clientInvocation).append('|');
         result.append(clientCommand).append('|');
         result.append(user).append('|');

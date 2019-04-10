@@ -8,7 +8,7 @@ import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Info;
-import net.oneandone.stool.server.logging.LogEntry;
+import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
@@ -278,10 +278,10 @@ public class ApiController {
     @GetMapping("/stages/{stage}/history")
     public String history(@PathVariable(value = "stage") String stage,
                           @RequestParam("details") boolean details, @RequestParam("max") int max) throws IOException {
-        LogEntry entry;
-        Map<String, List<LogEntry>> detailsMap; /* maps id to it's details */
+        AccessLogEntry entry;
+        Map<String, List<AccessLogEntry>> detailsMap; /* maps id to it's details */
         LogReader reader;
-        List<LogEntry> lst;
+        List<AccessLogEntry> lst;
         int counter;
         JsonArray result;
 
@@ -303,7 +303,7 @@ public class ApiController {
             lst.add(entry);
             if (forStage(stage, lst)) {
                 counter++;
-                result.add("[" + LogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.clientCommand);
+                result.add("[" + AccessLogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.clientCommand);
                 if (details) {
                     for (int i = lst.size() - 1; i >= 0; i--) {
                         result.add(Strings.indent(lst.get(i).message, "     "));
@@ -318,8 +318,8 @@ public class ApiController {
         return result.toString();
     }
 
-    private static boolean forStage(String stageName, List<LogEntry> lst) {
-        for (LogEntry entry : lst) {
+    private static boolean forStage(String stageName, List<AccessLogEntry> lst) {
+        for (AccessLogEntry entry : lst) {
             if (stageName.equals(entry.stageName)) {
                 return true;
             }

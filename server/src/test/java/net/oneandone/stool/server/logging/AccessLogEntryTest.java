@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.util;
+package net.oneandone.stool.server.logging;
 
-import net.oneandone.stool.server.logging.LogEntry;
+import net.oneandone.stool.server.logging.AccessLogEntry;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class LogEntryTest {
+public class AccessLogEntryTest {
     @Test
     public void normal() {
-        LogEntry entry;
+        AccessLogEntry entry;
 
-        entry = LogEntry.parse("19-04-30 10:12:12,948|someUUID|cmd|mabraun|stageName|message with | separator \n");
+        entry = AccessLogEntry.parse("19-04-30 10:12:12,948|someUUID|cmd|mabraun|stageName|message with | separator \n");
         assertEquals("2019-04-30T10:12:12.948", entry.dateTime.toString());
         assertEquals("someUUID", entry.clientInvocation);
         assertEquals("mabraun", entry.user);

@@ -23,9 +23,9 @@ public class AccessLogEncoder extends EncoderBase<ILoggingEvent> {
 
     @Override
     public byte[] encode(ILoggingEvent event) {
-        LogEntry entry;
+        AccessLogEntry entry;
 
-        entry = LogEntry.forEvent(event);
+        entry = AccessLogEntry.forEvent(event);
         try {
             return entry.toString().getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {

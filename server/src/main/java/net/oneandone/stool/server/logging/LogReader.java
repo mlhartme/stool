@@ -65,23 +65,23 @@ public class LogReader {
         return files.get(files.size() - 1).getLastModified();
     }
 
-    public LogEntry first() throws IOException {
+    public AccessLogEntry first() throws IOException {
         String line;
 
         for (FileNode file : files) {
             try (LineReader reader = open(file)) {
                 line = reader.next();
                 if (line != null) {
-                    return LogEntry.parse(line);
+                    return AccessLogEntry.parse(line);
                 }
             }
         }
         return null;
     }
 
-    public LogEntry prev() throws IOException {
+    public AccessLogEntry prev() throws IOException {
         String line;
-        LogEntry result;
+        AccessLogEntry result;
         int size;
 
         while (true) {
@@ -103,7 +103,7 @@ public class LogReader {
             }
             size = lines.size();
             if (size > 0) {
-                result = LogEntry.parse(lines.remove(size - 1));
+                result = AccessLogEntry.parse(lines.remove(size - 1));
                 return result;
             } else {
                 lines = null;
