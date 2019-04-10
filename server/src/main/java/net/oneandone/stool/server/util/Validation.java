@@ -24,9 +24,9 @@ import java.util.Set;
 
 public class Validation {
     public final World world;
-    private final ApplicationContext context;
+    private final Server context;
 
-    public Validation(ApplicationContext context) {
+    public Validation(Server context) {
         this.world = context.world;
         this.context = context;
     }
@@ -74,7 +74,7 @@ public class Validation {
                     report.user(stage, "stage has been stopped");
                 } catch (Exception e) {
                     report.user(stage, "stage failed to stop: " + e.getMessage());
-                    ApplicationContext.LOGGER.debug(e.getMessage(), e);
+                    Server.LOGGER.debug(e.getMessage(), e);
                 }
             }
             if (context.configuration.autoRemove >= 0 && stage.configuration.expire.expiredDays() >= 0) {
@@ -84,7 +84,7 @@ public class Validation {
                         stage.remove();
                     } catch (Exception e) {
                         report.user(stage, "failed to remove expired stage: " + e.getMessage());
-                        ApplicationContext.LOGGER.debug(e.getMessage(), e);
+                        Server.LOGGER.debug(e.getMessage(), e);
                     }
                 } else {
                     report.user(stage, "CAUTION: This stage will be removed automatically in "
@@ -114,15 +114,15 @@ public class Validation {
             body = Separator.RAW_LINE.join(entry.getValue());
             email = email(context, user);
             if (email == null) {
-                ApplicationContext.LOGGER.error("cannot send email, there's nobody to send it to.");
+                Server.LOGGER.error("cannot send email, there's nobody to send it to.");
             } else {
-                ApplicationContext.LOGGER.info("sending email to " + email);
+                Server.LOGGER.info("sending email to " + email);
                 mailer.send("stool@" + hostname, new String[] { email }, "Validation of your stage(s) on " + hostname + " failed", body);
             }
         }
     }
 
-    private static String email(ApplicationContext session, String user) throws NamingException {
+    private static String email(Server session, String user) throws NamingException {
         User userobj;
         String email;
 
@@ -148,7 +148,7 @@ public class Validation {
             context.dockerEngine().imageList();
         } catch (IOException e) {
             report.admin("cannot access docker: " + e.getMessage());
-            ApplicationContext.LOGGER.debug("cannot access docker", e);
+            Server.LOGGER.debug("cannot access docker", e);
         }
     }
 
@@ -176,7 +176,7 @@ public class Validation {
             socket.close();
         } catch (IOException e) {
             report.admin("cannot open socket on machine " + context.configuration.hostname + ", port " + port + ". Check the configured hostname.");
-            ApplicationContext.LOGGER.debug("cannot open socket", e);
+            Server.LOGGER.debug("cannot open socket", e);
         }
 
         subDomain = digIp("foo." + context.configuration.hostname);

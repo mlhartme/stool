@@ -49,15 +49,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ApplicationContext {
+public class Server {
     public static final Logger LOGGER = LoggerFactory.getLogger("DETAILS");
 
 
-    public static ApplicationContext load(FileNode home, FileNode logRoot) throws IOException {
+    public static Server load(FileNode home, FileNode logRoot) throws IOException {
         Gson gson;
 
         gson = gson(home.getWorld());
-        return new ApplicationContext(gson, logRoot, home, StoolConfiguration.load(gson, home));
+        return new Server(gson, logRoot, home, StoolConfiguration.load(gson, home));
     }
 
     private static final int MEM_RESERVED_OS = 500;
@@ -81,7 +81,7 @@ public class ApplicationContext {
     private Map<String, Accessor> lazyAccessors;
     private Pool lazyPool;
 
-    public ApplicationContext(Gson gson, FileNode logRoot, FileNode home, StoolConfiguration configuration) {
+    public Server(Gson gson, FileNode logRoot, FileNode home, StoolConfiguration configuration) {
         this.gson = gson;
         this.logRoot = logRoot;
         this.user = Environment.detectUser();

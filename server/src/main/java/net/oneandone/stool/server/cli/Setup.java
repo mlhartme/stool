@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.server.util.ApplicationContext;
+import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Diff;
@@ -85,7 +85,7 @@ public class Setup {
 
         h = new Home(console, home, null);
         was = h.version();
-        if (!ApplicationContext.majorMinor(was).equals(ApplicationContext.majorMinor(version))) {
+        if (!Server.majorMinor(was).equals(Server.majorMinor(version))) {
             throw new IOException("migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
         }
         if (!batch) {

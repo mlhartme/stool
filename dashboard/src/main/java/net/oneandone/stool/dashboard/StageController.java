@@ -17,7 +17,7 @@ package net.oneandone.stool.dashboard;
 
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.Users;
-import net.oneandone.stool.server.util.ApplicationContext;
+import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.fs.NodeNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -57,7 +57,7 @@ public class StageController {
     private World world;
 
     @Autowired
-    private ApplicationContext session;
+    private Server session;
 
     @Autowired
     private FileNode logs;
@@ -76,7 +76,7 @@ public class StageController {
         lastCacheRenew = 0L;
     }
 
-    private Collection<Stage> stages(ApplicationContext session) throws IOException {
+    private Collection<Stage> stages(Server session) throws IOException {
         List<Stage> lst;
 
         if (System.currentTimeMillis() - lastCacheRenew > 4000) {

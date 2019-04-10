@@ -19,7 +19,7 @@ import com.google.gson.Gson;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.server.configuration.Autoconf;
 import net.oneandone.stool.server.configuration.StoolConfiguration;
-import net.oneandone.stool.server.util.ApplicationContext;
+import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -106,7 +106,7 @@ public class Home {
         Gson gson;
 
         world = dir.getWorld();
-        gson = ApplicationContext.gson(world);
+        gson = Server.gson(world);
         return gson;
     }
 

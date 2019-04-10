@@ -17,7 +17,7 @@ package net.oneandone.stool.server.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.server.util.Environment;
-import net.oneandone.stool.server.util.ApplicationContext;
+import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -57,14 +57,14 @@ public class Globals {
         }
     }
 
-    public ApplicationContext context() throws IOException {
-        ApplicationContext context;
+    public Server context() throws IOException {
+        Server context;
 
         if (!home.exists()) {
             throw new IOException("Stool home directory not found: " + home.getAbsolute()
                      + "\nRun 'stool setup' to create it.");
         }
-        context = ApplicationContext.load(home, logRoot);
+        context = Server.load(home, logRoot);
         context.checkVersion();
         return context;
     }
@@ -80,7 +80,7 @@ public class Globals {
                 try {
                     context().reportException(command, "RuntimeException", throwable);
                 } catch (IOException e) {
-                    ApplicationContext.LOGGER.error("failed to report runtine exception: " + e.getMessage(), e);
+                    Server.LOGGER.error("failed to report runtine exception: " + e.getMessage(), e);
                 }
             }
             return -1;

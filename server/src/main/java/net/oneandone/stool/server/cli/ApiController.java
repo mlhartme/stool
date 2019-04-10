@@ -11,7 +11,7 @@ import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
-import net.oneandone.stool.server.util.ApplicationContext;
+import net.oneandone.stool.server.util.Server;
 import net.oneandone.stool.server.util.Validation;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -38,10 +38,10 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class ApiController {
-    private final ApplicationContext context;
+    private final Server context;
 
     @Autowired
-    public ApiController(ApplicationContext context) {
+    public ApiController(Server context) {
         this.context = context;
     }
 
