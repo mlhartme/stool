@@ -38,16 +38,16 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class ApiController {
-    private final Server context;
+    private final Server server;
 
     @Autowired
-    public ApiController(Server context) {
-        this.context = context;
+    public ApiController(Server server) {
+        this.server = server;
     }
 
     @GetMapping("/version")
     public String version() {
-        return new JsonPrimitive( Main.versionString(context.world)).toString();
+        return new JsonPrimitive( Main.versionString(server.world)).toString();
     }
 
 
@@ -58,7 +58,7 @@ public class ApiController {
 
         result = new JsonArray();
         problems = new HashMap<>();
-        for (Stage stage : context.list(PredicateParser.parse(filter), problems)) {
+        for (Stage stage : server.list(PredicateParser.parse(filter), problems)) {
             result.add(new JsonPrimitive(stage.getName()));
         }
         if (!problems.isEmpty()) {
@@ -74,7 +74,7 @@ public class ApiController {
         Property property;
 
         config = map(request, "");
-        stage = context.create(name);
+        stage = server.create(name);
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());
             if (property == null) {
@@ -97,10 +97,10 @@ public class ApiController {
 
         arguments = map(request, "arg.");
 
-        war = context.world.getTemp().createTempFile();
+        war = server.world.getTemp().createTempFile();
         war.copyFileFrom(body);
         try {
-            output = context.load(stage).build(app, war, comment, origin, createdBy, createdOn, noCache, keep, arguments);
+            output = server.load(stage).build(app, war, comment, origin, createdBy, createdOn, noCache, keep, arguments);
             return buildResult(null, output).toString();
         } catch (BuildError e) {
             return buildResult(e.error, e.output).toString();
@@ -125,7 +125,7 @@ public class ApiController {
         JsonObject result;
 
         result = new JsonObject();
-        for (Property property : context.load(stage).properties()) {
+        for (Property property : server.load(stage).properties()) {
             result.add(property.name(), new JsonPrimitive(property.get()));
         }
         return result.toString();
@@ -139,7 +139,7 @@ public class ApiController {
         Map<String, String> arguments;
         JsonObject result;
 
-        stage = context.load(stageName);
+        stage = server.load(stageName);
         arguments = map(request, "");
         result = new JsonObject();
         for (Map.Entry<String, String> entry : arguments.entrySet()) {
@@ -172,7 +172,7 @@ public class ApiController {
             selection = Separator.COMMA.split(select);
         }
         result = new JsonObject();
-        for (Info info : context.load(stage).fields()) {
+        for (Info info : server.load(stage).fields()) {
             if (selection == null || selection.remove(info.name())) {
                 result.add(info.name(), new JsonPrimitive(info.getAsString()));
             }
@@ -187,7 +187,7 @@ public class ApiController {
     public String apps(@PathVariable(value = "stage") String stage) throws IOException {
         List<String> result;
 
-        result = new ArrayList<>(context.load(stage).images(context.dockerEngine()).keySet());
+        result = new ArrayList<>(server.load(stage).images(server.dockerEngine()).keySet());
         Collections.sort(result);
         return array(result).toString();
     }
@@ -198,7 +198,7 @@ public class ApiController {
         List<String> output;
 
         try {
-            output = new Validation(context).run(stageClause, email, repair);
+            output = new Validation(server).run(stageClause, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
         } catch (NamingException e) {
@@ -209,7 +209,7 @@ public class ApiController {
 
     @GetMapping("/stages/{stage}/appInfo")
     public String appInfo(@PathVariable("stage") String stage, @RequestParam("app") String app) throws Exception {
-        return array(new AppInfo(context).run(stage, app)).toString();
+        return array(new AppInfo(server).run(stage, app)).toString();
     }
 
 
@@ -224,19 +224,19 @@ public class ApiController {
         Map<String, Integer> apps;
 
         apps = intMap(map(request, "app."));
-        environment = new HashMap<>(context.configuration.environment);
+        environment = new HashMap<>(server.configuration.environment);
         environment.putAll(map(request, "env."));
-        global = context.configuration.quota;
+        global = server.configuration.quota;
         if (global != 0) {
-            reserved = context.quotaReserved();
+            reserved = server.quotaReserved();
             if (reserved > global) {
                 throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
                         + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
             }
         }
 
-        stage = context.load(stageName);
-        stage.context.configuration.verfiyHostname();
+        stage = server.load(stageName);
+        stage.server.configuration.verfiyHostname();
         stage.checkConstraints();
         stage.start(http, https, environment, apps);
     }
@@ -246,7 +246,7 @@ public class ApiController {
         Stage stage;
         JsonObject result;
 
-        stage = context.load(stageName);
+        stage = server.load(stageName);
         stage.awaitStartup();
 
         result = new JsonObject();
@@ -268,7 +268,7 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/stop")
     public void stop(@PathVariable(value = "stage") String stage, @RequestParam("apps") String apps) throws IOException {
-        context.load(stage).stop(Separator.COMMA.split(apps));
+        server.load(stage).stop(Separator.COMMA.split(apps));
     }
 
 
@@ -279,7 +279,7 @@ public class ApiController {
         JsonArray result;
 
         result = new JsonArray();
-        entries = context.load(stage).accessLog(max);
+        entries = server.load(stage).accessLog(max);
         for (AccessLogEntry entry : entries) {
             result.add("[" + AccessLogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.clientCommand);
         }
@@ -288,7 +288,7 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/remove")
     public void remove(@PathVariable(value = "stage") String stage) throws IOException {
-        context.load(stage).remove();
+        server.load(stage).remove();
     }
 
     //--
@@ -297,13 +297,13 @@ public class ApiController {
     public String quota() throws IOException {
         int global;
 
-        global = context.configuration.quota;
-        return new JsonPrimitive(global == 0 ? "" : context.quotaReserved() + "/" + global).toString();
+        global = server.configuration.quota;
+        return new JsonPrimitive(global == 0 ? "" : server.quotaReserved() + "/" + global).toString();
     }
 
     @GetMapping("/memUnreserved")
     public String memUnreserved() throws IOException {
-        return new JsonPrimitive(context.memUnreserved()).toString();
+        return new JsonPrimitive(server.memUnreserved()).toString();
     }
 
     //--

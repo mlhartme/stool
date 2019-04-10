@@ -7,7 +7,7 @@ ARG suspend=false
 
 
 #
-# prepare context
+# prepare server
 #
 
 # ${tomcat.download(r"https://archive.apache.org/dist/tomcat/tomcat-${major}/v${version}/bin/apache-tomcat-${version}.tar.gz", version)}

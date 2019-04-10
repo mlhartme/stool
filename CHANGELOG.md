@@ -42,9 +42,9 @@ Stages are now the central part; multiple project can be associated with the sam
   * dumped `search`
 
 * replaced stage property `memory` by an build argument
-* replaced stage property `url` by `context` and `suffixes` build arguments
+* replaced stage property `url` by `server` and `suffixes` build arguments
 
-* dumped "Manager" tag from context
+* dumped "Manager" tag from server
 
 * stage config changes
   * dumped `autoRefresh`
@@ -164,7 +164,7 @@ Resulting changes:
 * *templates* replace *extensions*
   * a stage has exactly one template assigned; switch to a different template with `stool config template=othertemplate`
   * a template is a directory with a `Dockerfile.fm` and other files. When starting the stage, Stool passes all *.fm
-    files through [FreeMarker](http://freemarker.org/docs/ref_directives.html), invokes `docker build` on the resulting context
+    files through [FreeMarker](http://freemarker.org/docs/ref_directives.html), invokes `docker build` on the resulting server
     directory, and starts a container for this image
   * in addition to FreeMarker functionality, Dockerfiles can:
     * define configuration fields with `#CONFIG <type> <name>`; use `stool config <template>.<name>=<value>` to change values
@@ -270,7 +270,7 @@ Other changes:
 * added user defaults `svn.user` and `svn.password` to define defaults for `-svnuser` and `-svnpassword` (for Stefan H)
 * improved quota error message (for Andreas K)
 * fixed `stool create gav:...` for multiple artifacts - refresh directory was created more once (for Radek S)
-* fixed Tomcat configuration for non-empty context path - the initial slash was missing, which yields a Tomcat warning
+* fixed Tomcat configuration for non-empty server path - the initial slash was missing, which yields a Tomcat warning
   (thanks to Max B)
 * fixed stale stage wiper to *not* remove inaccessible stages;
   the old behaviour was very confusing: if a user created a stage in his home (and maybe started it), the stage was 
@@ -491,7 +491,7 @@ Other changes:
   * added `quota` to limit the disk spaced occupied by the stage.
   * added `notify` to configure email notifications.
   * dumped `sslUrl` 
-  * renamed `suffixes` to `url`. Changed the syntax so you can specify protocols, prefixes, suffixes and a context
+  * renamed `suffixes` to `url`. Changed the syntax so you can specify protocols, prefixes, suffixes and a server
   * renamed `until` to `expire` (and the value `reserved` to `never`)
   * removed `tomcat.perm` because it's ignored by Java 8.
   * changed default tomcat version from 8.0.26 to 8.5.3

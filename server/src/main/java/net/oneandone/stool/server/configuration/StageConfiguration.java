@@ -72,7 +72,7 @@ public class StageConfiguration {
 
     //--
 
-    /** you'll usually invoke context.accessors() instead */
+    /** you'll usually invoke server.accessors() instead */
     public static Map<String,Accessor> accessors() {
         Map<String, Accessor> result;
         Option option;

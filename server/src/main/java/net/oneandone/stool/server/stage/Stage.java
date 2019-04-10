@@ -70,7 +70,7 @@ public class Stage {
 
     public static final String IMAGE_LABEL_PORT_DECLARED_PREFIX = LABEL_PREFIX + "port.declared.";
     public static final String IMAGE_LABEL_MEMORY = LABEL_PREFIX + "memory";
-    public static final String IMAGE_LABEL_URL_CONTEXT = LABEL_PREFIX + "url.context";
+    public static final String IMAGE_LABEL_URL_CONTEXT = LABEL_PREFIX + "url.server";
     public static final String IMAGE_LABEL_URL_SUFFIXES = LABEL_PREFIX + "url.suffixes";
     public static final String IMAGE_LABEL_FAULT = LABEL_PREFIX + "fault";
     public static final String IMAGE_LABEL_COMMENT = LABEL_PREFIX + "comment";
@@ -86,13 +86,13 @@ public class Stage {
 
     //--
 
-    public final Server context;
+    public final Server server;
     private final String name;
     private final FileNode directory;
     public final StageConfiguration configuration;
 
-    public Stage(Server context, FileNode directory, StageConfiguration configuration) {
-        this.context = context;
+    public Stage(Server server, FileNode directory, StageConfiguration configuration) {
+        this.server = server;
         this.name = directory.getName();
         this.directory = directory;
         this.configuration = configuration;
@@ -153,7 +153,7 @@ public class Stage {
         List<Property> result;
 
         result = new ArrayList<>();
-        for (Accessor type : context.accessors().values()) {
+        for (Accessor type : server.accessors().values()) {
             result.add(new Property(type, configuration));
         }
         return result;
@@ -207,7 +207,7 @@ public class Stage {
         fields.add(new Field("created-by") {
             @Override
             public Object get() throws IOException {
-                return context.users.checkedStatusByLogin(createdBy());
+                return server.users.checkedStatusByLogin(createdBy());
             }
 
         });
@@ -262,7 +262,7 @@ public class Stage {
     }
 
     public void saveConfig() throws IOException {
-        configuration.save(context.gson, StageConfiguration.file(directory));
+        configuration.save(server.gson, StageConfiguration.file(directory));
     }
 
     //-- docker
@@ -277,7 +277,7 @@ public class Stage {
             info = entry.getValue();
             if (info.tags.size() == 1) {
                 tag = info.tags.get(0);
-                if (tag.startsWith(context.configuration.registryNamespace + "/" + name + "/")) {
+                if (tag.startsWith(server.configuration.registryNamespace + "/" + name + "/")) {
                     result.add(entry.getKey());
                 }
             }
@@ -377,11 +377,11 @@ public class Stage {
         StringWriter output;
         String result;
 
-        engine = this.context.dockerEngine();
+        engine = this.server.dockerEngine();
         if (keep > 0) {
             wipeOldImages(engine,keep - 1);
         }
-        tag = this.context.configuration.registryNamespace + "/" + name + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
+        tag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
         appProperties = properties(war);
         template = template(appProperties);
         env = BuildArgument.scan(template.join("Dockerfile"));
@@ -417,10 +417,10 @@ public class Stage {
         Map<FileNode, String> mounts;
         Map<String, String> labels;
 
-        engine = context.dockerEngine();
+        engine = server.dockerEngine();
 
 
-        int unreserved = context.memUnreserved();
+        int unreserved = server.memUnreserved();
 
         for (Image image : resolve(engine, selection)) {
             if (image.memory > unreserved) {
@@ -438,12 +438,12 @@ public class Stage {
             for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
                 Server.LOGGER.debug("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
-            hostPorts = context.pool().allocate(this, image.app, http, https);
+            hostPorts = server.pool().allocate(this, image.app, http, https);
             labels = hostPorts.toUsedLabels();
-            labels.put(CONTAINER_LABEL_STOOL, context.configuration.registryNamespace);
+            labels.put(CONTAINER_LABEL_STOOL, server.configuration.registryNamespace);
             labels.put(CONTAINER_LABEL_APP, image.app);
             labels.put(CONTAINER_LABEL_STAGE, name);
-            container = engine.containerCreate(image.id,  getName() + "." + context.configuration.hostname,
+            container = engine.containerCreate(image.id,  getName() + "." + server.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * image.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts));
             Server.LOGGER.debug("created container " + container);
@@ -506,7 +506,7 @@ public class Stage {
         List<String> notRunning;
 
         unknown = new ArrayList<>(apps);
-        unknown.removeAll(images(context.dockerEngine()).keySet());
+        unknown.removeAll(images(server.dockerEngine()).keySet());
         if (!unknown.isEmpty()) {
             throw new IOException("unknown app(s): " + unknown);
         }
@@ -528,7 +528,7 @@ public class Stage {
         }
         for (Map.Entry<String, String> entry : containers.entrySet()) {
             Server.LOGGER.info(entry.getKey() + ": stopping container ...");
-            engine = context.dockerEngine();
+            engine = server.dockerEngine();
             engine.containerStop(entry.getValue(), 300);
         }
     }
@@ -539,11 +539,11 @@ public class Stage {
         result = new HashMap<>();
         result.put(directory.join("logs").mkdirOpt(), "/var/log/stool");
         if (image.ports.https != -1) {
-            result.put(context.certificate(context.configuration.vhosts ? image.app + "." + getName() + "." + context.configuration.hostname
-                    : context.configuration.hostname), "/usr/local/tomcat/conf/tomcat.p12");
+            result.put(server.certificate(server.configuration.vhosts ? image.app + "." + getName() + "." + server.configuration.hostname
+                    : server.configuration.hostname), "/usr/local/tomcat/conf/tomcat.p12");
         }
         for (String project : image.faultProjects) { // TODO: authorization
-            result.put(context.world.file(context.configuration.secrets).join(project), project);
+            result.put(server.world.file(server.configuration.secrets).join(project), project);
         }
         return result;
     }
@@ -590,7 +590,7 @@ public class Stage {
         if (template == null) {
             throw new IOException("missing propertyl: template");
         }
-        return context.templates().join(template.toString()).checkDirectory();
+        return server.templates().join(template.toString()).checkDirectory();
     }
 
     private Map<String, String> buildArgs(Map<String, BuildArgument> environment, Properties appProperties, Map<String, String> explicit) {
@@ -629,7 +629,7 @@ public class Stage {
 
     /** maps app to its ports; empty map if not ports allocated yet */
     public Map<String, Ports> loadPorts() throws IOException {
-        return context.pool().stage(name);
+        return server.pool().stage(name);
     }
 
     /**
@@ -643,7 +643,7 @@ public class Stage {
         Map<String, Image> images;
 
         result = new LinkedHashMap<>();
-        engine = context.dockerEngine();
+        engine = server.dockerEngine();
         images = new HashMap<>();
         for (Engine.ContainerListInfo info : engine.containerList(Stage.CONTAINER_LABEL_STOOL).values()) {
             if (name.equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
@@ -690,8 +690,8 @@ public class Stage {
         String url;
         List<String> result;
 
-        hostname = context.configuration.hostname;
-        if (context.configuration.vhosts) {
+        hostname = server.configuration.hostname;
+        if (server.configuration.vhosts) {
             hostname = image.app + "." + getName() + "." + hostname;
         }
         url = protocol + "://" + hostname + ":" + port + "/" + image.urlContext;
@@ -717,7 +717,7 @@ public class Stage {
     }
 
     public void remove() throws IOException {
-        wipeDocker(context.dockerEngine());
+        wipeDocker(server.dockerEngine());
         getDirectory().deleteTree();
     }
 
@@ -736,7 +736,7 @@ public class Stage {
     public List<String> dockerContainerList() throws IOException {
         Engine engine;
 
-        engine = context.dockerEngine();
+        engine = server.dockerEngine();
         return new ArrayList<>(engine.containerListRunning(CONTAINER_LABEL_STAGE, name).keySet());
     }
 
@@ -747,7 +747,7 @@ public class Stage {
         Map<String, Current> result;
         Image image;
 
-        engine = context.dockerEngine();
+        engine = server.dockerEngine();
         result = new HashMap<>();
         containerList = dockerContainerList();
         for (String container : containerList) {
@@ -769,7 +769,7 @@ public class Stage {
     }
 
     public String lastModifiedBy() throws IOException {
-        return context.accessLogReader().prev().user;
+        return server.accessLogReader().prev().user;
     }
 
     /** @return last entry first */
@@ -781,7 +781,7 @@ public class Stage {
         String previousInvocation;
 
         entries = new ArrayList<>();
-        reader = context.accessLogReader();
+        reader = server.accessLogReader();
         stage = getName();
         while (true) {
             entry = reader.prev();
@@ -885,7 +885,7 @@ public class Stage {
 
         // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
         try {
-            url = new JMXServiceURL("service:jmx:jmxmp://" + context.configuration.hostname + ":" + ports.jmxmp);
+            url = new JMXServiceURL("service:jmx:jmxmp://" + server.configuration.hostname + ":" + ports.jmxmp);
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
         }
@@ -917,7 +917,7 @@ public class Stage {
         if (containers.size() != 1) {
             Server.LOGGER.info("ignoring -tail option because container is not unique");
         } else {
-            engine = context.dockerEngine();
+            engine = server.dockerEngine();
             engine.containerLogsFollow(containers.get(0), new OutputStream() {
                 @Override
                 public void write(int b) {
@@ -935,7 +935,7 @@ public class Stage {
     public FileNode createContext(String app, FileNode war) throws IOException {
         FileNode result;
 
-        result = directory.join("context").mkdirsOpt().join(app);
+        result = directory.join("server").mkdirsOpt().join(app);
         result.deleteTreeOpt();
         result.mkdir();
         war.copyFile(result.join("app.war"));

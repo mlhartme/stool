@@ -154,7 +154,7 @@ public class Ldap {
 
     private NamingEnumeration<SearchResult> searchWithoutRetry(String name, Attributes matchAttrs) throws NamingException {
         if (lazyContext == null) {
-            // caution: creating this context is expensive
+            // caution: creating this server is expensive
             lazyContext = new InitialLdapContext(environment, null);
         }
         try {

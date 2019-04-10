@@ -62,10 +62,10 @@ public class Image implements Comparable<Image> {
         }
         result = element.getAsString();
         if (result.startsWith("/")) {
-            throw new ArithmeticException("context must not start with '/': " + result);
+            throw new ArithmeticException("server must not start with '/': " + result);
         }
         if (!result.isEmpty() && result.endsWith("/")) {
-                throw new ArithmeticException("context must not end with '/': " + result);
+                throw new ArithmeticException("server must not end with '/': " + result);
         }
         return result;
     }

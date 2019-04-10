@@ -202,7 +202,7 @@ public class Server {
             body = new StringWriter();
             body.write("stool: " + Main.versionString(world) + "\n");
             body.write("command: " + command + "\n");
-            body.write("context: " + context + "\n");
+            body.write("server: " + context + "\n");
             body.write("user: " + user + "\n");
             body.write("hostname: " + configuration.hostname + "\n");
             writer = new PrintWriter(body);

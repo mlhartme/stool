@@ -109,8 +109,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             throw new IllegalStateException(map.toString());
         }
         entry = map.entrySet().iterator().next();
-        serviceProperties.setService("https://TODO" + /*ServerXml.fqdn(context.configuration.vhosts, entry.getKey(),
-                self.getName(), context.configuration.hostname) + */ ":" + entry.getValue().https + "/j_spring_cas_security_check");
+        serviceProperties.setService("https://TODO" + /*ServerXml.fqdn(server.configuration.vhosts, entry.getKey(),
+                self.getName(), server.configuration.hostname) + */ ":" + entry.getValue().https + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
     }
