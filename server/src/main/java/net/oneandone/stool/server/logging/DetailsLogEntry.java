@@ -25,47 +25,30 @@ import java.util.Map;
 
 public class DetailsLogEntry {
     public static DetailsLogEntry forEvent(ILoggingEvent event) {
-        Instant instant;
-        LocalDateTime date;
         Map<String, String> mdc;
 
-        instant = Instant.ofEpochMilli(event.getTimeStamp());
-        date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
         mdc = event.getMDCPropertyMap();
-        return new DetailsLogEntry(date, mdc.get("client-invocation"), mdc.get("client-command"), mdc.get("user"), mdc.get("stage"), event.getMessage());
+        return new DetailsLogEntry(mdc.get("client-invocation"), event.getLevel().toString(), event.getMessage());
     }
-
-    public static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss,SSS");
 
     /** Count-part of the Logging.log method. */
     public static DetailsLogEntry parse(String line) {
         int len;
 
-        int date;
         int invocation;
-        int command;
-        int user;
-        int stage;
+        int level;
 
         len = line.length();
-
-        // CAUTION: do not use split, because messages may contain separators
-        date = line.indexOf('|');
-        invocation = line.indexOf('|', date + 1); // invocation id
-        command = line.indexOf('|', invocation + 1);
-        user = line.indexOf('|', command + 1);
-        stage = line.indexOf('|', user + 1);
+        invocation = line.indexOf('|');
+        level = line.indexOf('|', invocation + 1);
         if (line.charAt(len - 1) != '\n') {
             throw new IllegalArgumentException(line);
         }
 
         return new DetailsLogEntry(
-                LocalDateTime.parse(line.substring(0, date), DetailsLogEntry.DATE_FMT),
-                line.substring(date + 1, invocation),
-                line.substring(invocation + 1, command),
-                line.substring(command + 1, user),
-                line.substring(user + 1, stage),
-                unescape(line.substring(stage + 1, len -1)));
+                line.substring(0, invocation),
+                line.substring(invocation + 1, level),
+                unescape(line.substring(level + 1, len -1)));
     }
 
     private static String unescape(String message) {
@@ -104,33 +87,23 @@ public class DetailsLogEntry {
 
     //--
 
-    public final LocalDateTime dateTime;
     public final String clientInvocation;
-    public final String clientCommand;
-    public final String user;
-    public final String stageName;
+    public final String level;
     public final String message;
 
-    public DetailsLogEntry(LocalDateTime dateTime, String clientInvocation, String clientCommand, String user, String stageName, String message) {
-        this.dateTime = dateTime;
+    public DetailsLogEntry(String clientInvocation, String level, String message) {
         this.clientInvocation = clientInvocation;
-        this.clientCommand = clientCommand;
-        this.user = user;
-        this.stageName = stageName;
+        this.level = level;
         this.message = message;
     }
 
     public String toString() {
         StringBuilder result;
-
-        result = new StringBuilder();
         char c;
 
-        result.append(DetailsLogEntry.DATE_FMT.format(LocalDateTime.now())).append('|');
+        result = new StringBuilder();
         result.append(clientInvocation).append('|');
-        result.append(clientCommand).append('|');
-        result.append(user).append('|');
-        result.append(stageName).append('|');
+        result.append(level).append('|');
         for (int i = 0, max = message.length(); i < max; i++) {
             c = message.charAt(i);
             switch (c) {
