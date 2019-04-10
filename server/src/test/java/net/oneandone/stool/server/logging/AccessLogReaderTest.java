@@ -13,26 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.util;
+package net.oneandone.stool.server.logging;
 
-import net.oneandone.stool.server.logging.AccessLogEntry;
-import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class LogReaderTest {
+public class AccessLogReaderTest {
     @Test
     public void testReadLog() throws Exception {
         World world;
-        LogReader reader;
+        AccessLogReader reader;
         int count;
         AccessLogEntry entry;
 
         world = World.create();
-        reader = LogReader.create((FileNode) world.resource("logs"));
+        reader = AccessLogReader.create((FileNode) world.resource("logs"));
         count = 0;
         while (true) {
             entry = reader.prev();

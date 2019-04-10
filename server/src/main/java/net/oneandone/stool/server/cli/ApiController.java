@@ -9,7 +9,7 @@ import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.logging.AccessLogEntry;
-import net.oneandone.stool.server.logging.LogReader;
+import net.oneandone.stool.server.logging.AccessLogReader;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Session;
@@ -280,7 +280,7 @@ public class ApiController {
                           @RequestParam("details") boolean details, @RequestParam("max") int max) throws IOException {
         AccessLogEntry entry;
         Map<String, List<AccessLogEntry>> detailsMap; /* maps id to it's details */
-        LogReader reader;
+        AccessLogReader reader;
         List<AccessLogEntry> lst;
         int counter;
         JsonArray result;

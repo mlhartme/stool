@@ -24,7 +24,7 @@ import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
-import net.oneandone.stool.server.logging.LogReader;
+import net.oneandone.stool.server.logging.AccessLogReader;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Session;
@@ -258,8 +258,8 @@ public class Stage {
 
     //-- logs
 
-    public LogReader logReader() throws IOException {
-        return LogReader.create(session.logRoot);
+    public AccessLogReader logReader() throws IOException {
+        return AccessLogReader.create(session.logRoot);
     }
 
     public Logs logs() {
