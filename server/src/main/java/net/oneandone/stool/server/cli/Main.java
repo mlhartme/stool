@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.server.cli;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.core.util.StatusPrinter;
 import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
 import net.oneandone.inline.commands.PackageVersion;
@@ -23,6 +25,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
 import net.oneandone.sushi.util.Strings;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -42,6 +45,12 @@ import java.util.Properties;
 @SpringBootApplication
 public class Main {
     public static void main(String[] args) throws IOException {
+        LoggerContext lc;
+
+        // make sure I see logging problems
+        lc = (LoggerContext) LoggerFactory.getILoggerFactory();
+        StatusPrinter.print(lc);
+
         if (args.length == 1 && "run".equals(args[0])) {
             SpringApplication.run(Main.class, Strings.cdr(args));
         } else {

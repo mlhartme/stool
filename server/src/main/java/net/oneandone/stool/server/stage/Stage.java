@@ -842,6 +842,7 @@ public class Stage {
         Ports ports;
         String state;
 
+        Server.LOGGER.info("await startup ...");
         for (Map.Entry<String, Ports> entry : loadPorts().entrySet()) {
             app = entry.getKey();
             ports = entry.getValue();
