@@ -22,6 +22,7 @@ import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.docker.BuildArgument;
 import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.docker.Engine;
+import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.logging.LogReader;
@@ -223,7 +224,7 @@ public class Stage {
         fields.add(new Field("last-modified-at") {
             @Override
             public Object get() throws IOException {
-                return timespan(logReader().lastModified());
+                return timespan(accessLogReader().lastModified());
             }
         });
         fields.add(new Field("apps") {
@@ -258,8 +259,8 @@ public class Stage {
 
     //-- logs
 
-    public LogReader logReader() throws IOException {
-        return LogReader.create(session.logRoot);
+    public LogReader<AccessLogEntry> accessLogReader() throws IOException {
+        return LogReader.accessLog(session.logRoot);
     }
 
     public Logs logs() {
@@ -623,7 +624,7 @@ public class Stage {
 
     /** @return login name */
     public String createdBy() throws IOException {
-        return logReader().first().user;
+        return accessLogReader().first().user;
     }
 
     //--
@@ -770,7 +771,7 @@ public class Stage {
     }
 
     public String lastModifiedBy() throws IOException {
-        return logReader().prev().user;
+        return accessLogReader().prev().user;
     }
 
     //-- for dashboard

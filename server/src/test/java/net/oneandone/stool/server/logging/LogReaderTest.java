@@ -30,7 +30,7 @@ public class LogReaderTest {
         AccessLogEntry entry;
 
         world = World.create();
-        reader = LogReader.create((FileNode) world.resource("logs"));
+        reader = LogReader.accessLog((FileNode) world.resource("logs"));
         count = 0;
         while (true) {
             entry = reader.prev();

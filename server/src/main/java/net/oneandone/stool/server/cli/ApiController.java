@@ -280,7 +280,7 @@ public class ApiController {
                           @RequestParam("details") boolean details, @RequestParam("max") int max) throws IOException {
         AccessLogEntry entry;
         Map<String, List<AccessLogEntry>> detailsMap; /* maps id to it's details */
-        LogReader reader;
+        LogReader<AccessLogEntry> reader;
         List<AccessLogEntry> lst;
         int counter;
         JsonArray result;
@@ -288,7 +288,7 @@ public class ApiController {
         result = new JsonArray();
         counter = 0;
         detailsMap = new HashMap<>();
-        reader = session.load(stage).logReader();
+        reader = session.load(stage).accessLogReader();
         while (true) {
             entry = reader.prev();
             if (entry == null) {

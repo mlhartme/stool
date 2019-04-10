@@ -27,10 +27,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.zip.GZIPInputStream;
 
-public class LogReader {
-    public static LogReader create(FileNode directory) throws IOException {
+public class LogReader<T> {
+    public static LogReader accessLog(FileNode directory) throws IOException {
+        return create(AccessLogEntry::parse, "access-", directory);
+    }
+
+    private static <T> LogReader<T> create(Function<String, T> parser, String prefix, FileNode directory) throws IOException {
         List<FileNode> files;
         Iterator<FileNode> iter;
         FileNode file;
@@ -44,19 +49,21 @@ public class LogReader {
                 iter.remove();
             } else {
                 name = file.getName();
-                if (!(name.startsWith("access-") && (name.endsWith(".log") || name.endsWith(".log.gz")))) {
+                if (!(name.startsWith(prefix) && (name.endsWith(".log") || name.endsWith(".log.gz")))) {
                     iter.remove();
                 }
             }
         }
         Collections.sort(files, (left, right) -> left.getName().compareTo(right.getName()));
-        return new LogReader(files);
+        return new LogReader(parser, files);
     }
 
+    private final Function<String, T> parser;
     private final List<FileNode> files;
     private List<String> lines;
 
-    public LogReader(List<FileNode> files) {
+    public LogReader(Function<String, T> parser, List<FileNode> files) {
+        this.parser = parser;
         this.files = files;
         this.lines = null;
     }
@@ -65,14 +72,14 @@ public class LogReader {
         return files.get(files.size() - 1).getLastModified();
     }
 
-    public AccessLogEntry first() throws IOException {
+    public T first() throws IOException {
         String line;
 
         for (FileNode file : files) {
             try (LineReader reader = open(file)) {
                 line = reader.next();
                 if (line != null) {
-                    return AccessLogEntry.parse(line);
+                    return parser.apply(line);
                 }
             }
         }
