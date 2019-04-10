@@ -57,16 +57,16 @@ public class Globals {
         }
     }
 
-    public Server context() throws IOException {
-        Server context;
+    public Server server() throws IOException {
+        Server server;
 
         if (!home.exists()) {
             throw new IOException("Stool home directory not found: " + home.getAbsolute()
                      + "\nRun 'stool setup' to create it.");
         }
-        context = Server.load(home, logRoot);
-        context.checkVersion();
-        return context;
+        server = Server.load(home, logRoot);
+        server.checkVersion();
+        return server;
     }
 
     //--
@@ -78,7 +78,7 @@ public class Globals {
         } else {
             if ((throwable instanceof RuntimeException) && (!(throwable instanceof ArgumentException))) {
                 try {
-                    context().reportException(command, "RuntimeException", throwable);
+                    server().reportException(command, "RuntimeException", throwable);
                 } catch (IOException e) {
                     Server.LOGGER.error("failed to report runtine exception: " + e.getMessage(), e);
                 }

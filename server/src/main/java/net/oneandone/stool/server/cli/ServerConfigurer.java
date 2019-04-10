@@ -11,15 +11,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.io.IOException;
 
 @Configuration
-public class ServerConfig implements WebMvcConfigurer {
+public class ServerConfigurer implements WebMvcConfigurer {
     @Bean
-    public Server context() throws IOException {
+    public Server server() throws IOException {
         World world;
         Globals globals;
 
         world = World.create();
         globals = Globals.create(world);
-        return globals.context();
+        return globals.server();
     }
 
     @Autowired
