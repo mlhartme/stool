@@ -21,16 +21,16 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class AccessLogReaderTest {
+public class LogReaderTest {
     @Test
     public void testReadLog() throws Exception {
         World world;
-        AccessLogReader reader;
+        LogReader reader;
         int count;
         AccessLogEntry entry;
 
         world = World.create();
-        reader = AccessLogReader.create((FileNode) world.resource("logs"));
+        reader = LogReader.create((FileNode) world.resource("logs"));
         count = 0;
         while (true) {
             entry = reader.prev();

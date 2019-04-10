@@ -29,8 +29,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-public class AccessLogReader {
-    public static AccessLogReader create(FileNode directory) throws IOException {
+public class LogReader {
+    public static LogReader create(FileNode directory) throws IOException {
         List<FileNode> files;
         Iterator<FileNode> iter;
         FileNode file;
@@ -50,13 +50,13 @@ public class AccessLogReader {
             }
         }
         Collections.sort(files, (left, right) -> left.getName().compareTo(right.getName()));
-        return new AccessLogReader(files);
+        return new LogReader(files);
     }
 
     private final List<FileNode> files;
     private List<String> lines;
 
-    public AccessLogReader(List<FileNode> files) {
+    public LogReader(List<FileNode> files) {
         this.files = files;
         this.lines = null;
     }
