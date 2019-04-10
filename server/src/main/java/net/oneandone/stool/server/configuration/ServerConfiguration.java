@@ -30,12 +30,12 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class StoolConfiguration {
+public class ServerConfiguration {
     public static Map<String, Accessor> properties() {
         Map<String, Accessor> result;
 
         result = new LinkedHashMap<>();
-        for (Field field : StoolConfiguration.class.getFields()) {
+        for (Field field : ServerConfiguration.class.getFields()) {
             result.put(field.getName(), new ReflectAccessor(field.getName(), field));
         }
         return result;
@@ -101,7 +101,7 @@ public class StoolConfiguration {
     // default environment for every container
     public Map<String, String> environment;
 
-    public StoolConfiguration() {
+    public ServerConfiguration() {
         registryNamespace = "main";
         portFirst = 9000;
         portLast = 9999;
@@ -127,19 +127,19 @@ public class StoolConfiguration {
         return home.join("config.json");
     }
 
-    public static StoolConfiguration load(Gson gson, FileNode home) throws IOException {
+    public static ServerConfiguration load(Gson gson, FileNode home) throws IOException {
         return loadFile(gson, configurationFile(home));
     }
 
-    public static StoolConfiguration loadFile(Gson gson, FileNode file) throws IOException {
-        return gson.fromJson(file.readString(), StoolConfiguration.class);
+    public static ServerConfiguration loadFile(Gson gson, FileNode file) throws IOException {
+        return gson.fromJson(file.readString(), ServerConfiguration.class);
     }
 
     public void save(Gson gson, FileNode home) throws IOException {
-        configurationFile(home).writeString(gson.toJson(this, StoolConfiguration.class));
+        configurationFile(home).writeString(gson.toJson(this, ServerConfiguration.class));
     }
 
-    public StoolConfiguration createPatched(Gson gson, String str) {
+    public ServerConfiguration createPatched(Gson gson, String str) {
         JsonObject changes;
         JsonObject dest;
 
@@ -151,7 +151,7 @@ public class StoolConfiguration {
             }
             dest.add(entry.getKey(), entry.getValue());
         }
-        return gson.fromJson(dest, StoolConfiguration.class);
+        return gson.fromJson(dest, ServerConfiguration.class);
     }
 
     public Mailer mailer() {

@@ -16,7 +16,7 @@
 package net.oneandone.stool.dashboard;
 
 import net.oneandone.stool.server.configuration.Accessor;
-import net.oneandone.stool.server.configuration.StoolConfiguration;
+import net.oneandone.stool.server.configuration.ServerConfiguration;
 import net.oneandone.stool.server.util.Mailer;
 import net.oneandone.stool.server.util.Server;
 import org.slf4j.Logger;
@@ -75,7 +75,7 @@ public class IndexController {
         Map<String, String> model;
 
         model = new HashMap<>();
-        for (Map.Entry<String, Accessor> entry : StoolConfiguration.properties().entrySet()) {
+        for (Map.Entry<String, Accessor> entry : ServerConfiguration.properties().entrySet()) {
             model.put(entry.getKey(), entry.getValue().get(session.configuration));
         }
         return model;

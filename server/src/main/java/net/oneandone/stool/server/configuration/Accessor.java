@@ -23,7 +23,7 @@ public abstract class Accessor {
         this.name = name;
     }
 
-    public String get(StoolConfiguration configuration) {
+    public String get(ServerConfiguration configuration) {
         return doGet(configuration);
     }
     public String get(StageConfiguration configuration) {
@@ -32,7 +32,7 @@ public abstract class Accessor {
 
     protected abstract String doGet(Object configuration);
 
-    public void set(StoolConfiguration configuration, String str) {
+    public void set(ServerConfiguration configuration, String str) {
         doSet(configuration, str);
     }
 

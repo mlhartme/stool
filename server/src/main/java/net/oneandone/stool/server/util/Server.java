@@ -22,7 +22,7 @@ import net.oneandone.stool.server.cli.Main;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.Expire;
 import net.oneandone.stool.server.configuration.StageConfiguration;
-import net.oneandone.stool.server.configuration.StoolConfiguration;
+import net.oneandone.stool.server.configuration.ServerConfiguration;
 import net.oneandone.stool.server.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.server.docker.Engine;
@@ -59,7 +59,7 @@ public class Server {
         Gson gson;
 
         gson = gson(home.getWorld());
-        return new Server(gson, logRoot, home, StoolConfiguration.load(gson, home));
+        return new Server(gson, logRoot, home, ServerConfiguration.load(gson, home));
     }
 
     private static final int MEM_RESERVED_OS = 500;
@@ -71,7 +71,7 @@ public class Server {
 
     public final World world;
     public final FileNode home;
-    public final StoolConfiguration configuration;
+    public final ServerConfiguration configuration;
 
     private final FileNode stages;
 
@@ -79,7 +79,7 @@ public class Server {
 
     public Map<String, Accessor> accessors;
 
-    public Server(Gson gson, FileNode logRoot, FileNode home, StoolConfiguration configuration) {
+    public Server(Gson gson, FileNode logRoot, FileNode home, ServerConfiguration configuration) {
         this.gson = gson;
         this.logRoot = logRoot;
         this.world = home.getWorld();

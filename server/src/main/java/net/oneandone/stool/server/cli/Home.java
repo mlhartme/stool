@@ -18,7 +18,7 @@ package net.oneandone.stool.server.cli;
 import com.google.gson.Gson;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.server.configuration.Autoconf;
-import net.oneandone.stool.server.configuration.StoolConfiguration;
+import net.oneandone.stool.server.configuration.ServerConfiguration;
 import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -59,7 +59,7 @@ public class Home {
     public void create() throws IOException {
         World world;
         Gson gson;
-        StoolConfiguration conf;
+        ServerConfiguration conf;
 
         gson = gson();
         dir.mkdir();

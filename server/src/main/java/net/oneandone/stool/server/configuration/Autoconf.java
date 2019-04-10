@@ -28,17 +28,17 @@ import java.net.UnknownHostException;
  * This is the place for 1&amp;1 specific stuff ...
  */
 public class Autoconf {
-    public static StoolConfiguration stool(FileNode home, Writer log) throws IOException {
-        StoolConfiguration result;
+    public static ServerConfiguration stool(FileNode home, Writer log) throws IOException {
+        ServerConfiguration result;
 
-        result = new StoolConfiguration();
+        result = new ServerConfiguration();
         result.secrets = home.getWorld().getHome().join(".fault").getAbsolute();
         result.hostname = hostname();
         oneAndOne(home, result, log);
         return result;
     }
 
-    private static void oneAndOne(FileNode home, StoolConfiguration dest, Writer log) throws IOException {
+    private static void oneAndOne(FileNode home, ServerConfiguration dest, Writer log) throws IOException {
         String tools;
         FileNode templates;
         FileNode init;
