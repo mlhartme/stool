@@ -63,7 +63,7 @@ public class DashboardConfiguration {
 
     @Bean
     public Stage self() throws IOException {
-        return null; // TODO session().load(world().file(System.getProperty("stool.idlink")));
+        return null; // TODO context().load(world().file(System.getProperty("stool.idlink")));
     }
 
     @Bean

@@ -24,7 +24,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 
-/** Basically a session factory */
+/** Basically a context factory */
 public class Globals {
     public static Globals create(World world) throws IOException {
         FileNode home;

@@ -39,7 +39,7 @@ public class AppInfo {
 
         result = new ArrayList<>();
         stage = session.load(name);
-        engine = stage.session.dockerEngine();
+        engine = stage.context.dockerEngine();
         all = stage.images(engine);
         currentMap = stage.currentMap();
         for (Map.Entry<String, List<Image>> entry : all.entrySet()) {
@@ -67,7 +67,7 @@ public class AppInfo {
                 String url;
 
                 result.add("jmx port:  " + ports.jmxmp);
-                url = stage.session.configuration.hostname + ":" + ports.jmxmp;
+                url = stage.context.configuration.hostname + ":" + ports.jmxmp;
                 result.add("                 jconsole " + url);
                 result.add("                 jvisualvm --openjmx " + url);
             }
@@ -107,7 +107,7 @@ public class AppInfo {
 
         // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
         try {
-            url = new JMXServiceURL("service:jmx:jmxmp://" + stage.session.configuration.hostname + ":" + stage.loadPorts().get(app).jmxmp);
+            url = new JMXServiceURL("service:jmx:jmxmp://" + stage.context.configuration.hostname + ":" + stage.loadPorts().get(app).jmxmp);
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
         }
