@@ -126,8 +126,13 @@ public class StageController {
         stage = resolveStage(stageName);
         baseUrl = httpServletRequest.getRequestURL().toString();
         baseUrl = baseUrl.substring(0, baseUrl.indexOf('/', 8) + 1);
-        return stage.logs().list(baseUrl + "stages/" + stageName + "/logs/");
+        return logs(stage).list(baseUrl + "stages/" + stageName + "/logs/");
     }
+
+    public Logs logs(Stage stage) {
+        return new Logs(stage.getDirectory().join("logs"));
+    }
+
 
     @RequestMapping(value = "/{name}/logs/{log}", method = RequestMethod.GET)
     public ResponseEntity<Resource> log(@PathVariable(value = "name") String stageName,
@@ -144,7 +149,7 @@ public class StageController {
 
         try {
             Resource resource;
-            resource = new FileSystemResource(stage.logs().file(logfile));
+            resource = new FileSystemResource(logs(stage).file(logfile));
 
             return new ResponseEntity<>(resource, HttpStatus.OK);
 

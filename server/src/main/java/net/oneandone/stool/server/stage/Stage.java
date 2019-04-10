@@ -51,7 +51,6 @@ import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -270,10 +269,6 @@ public class Stage {
 
     public LogReader<AccessLogEntry> accessLogReader() throws IOException {
         return LogReader.accessLog(session.logRoot);
-    }
-
-    public Logs logs() {
-        return new Logs(directory.join("logs"));
     }
 
     //-- docker
