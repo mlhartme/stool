@@ -4,8 +4,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.encoder.EncoderBase;
 
 import java.io.UnsupportedEncodingException;
-import java.time.LocalDateTime;
-import java.util.Map;
 
 
 public class AccessLogEncoder extends EncoderBase<ILoggingEvent> {
@@ -26,10 +24,8 @@ public class AccessLogEncoder extends EncoderBase<ILoggingEvent> {
     @Override
     public byte[] encode(ILoggingEvent event) {
         LogEntry entry;
-        Map<String, String> mdc;
 
-        mdc = event.getMDCPropertyMap();
-        entry = new LogEntry(LocalDateTime.now(), mdc.get("client-invocation"), "COMMAND", mdc.get("user"), mdc.get("stage"), mdc.get("client-command"));
+        entry = LogEntry.forEvent(event);
         try {
             return entry.toString().getBytes("UTF-8");
         } catch (UnsupportedEncodingException e) {

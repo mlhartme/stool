@@ -15,10 +15,26 @@
  */
 package net.oneandone.stool.server.util;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 public class LogEntry {
+    public static LogEntry forEvent(ILoggingEvent event) {
+        Instant instant;
+        LocalDateTime date;
+        Map<String, String> mdc;
+
+        instant = Instant.ofEpochMilli(event.getTimeStamp());
+        date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
+        mdc = event.getMDCPropertyMap();
+        return new LogEntry(date, mdc.get("client-invocation"), "COMMAND", mdc.get("user"), mdc.get("stage"), mdc.get("client-command"));
+    }
+
     public static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss,SSS");
 
     /** Count-part of the Logging.log method. */
