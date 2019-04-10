@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.stage;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.server.configuration.Accessor;
@@ -33,6 +34,9 @@ import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.util.Strings;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -772,6 +776,34 @@ public class Stage {
 
     public String lastModifiedBy() throws IOException {
         return accessLogReader().prev().user;
+    }
+
+    public List<AccessLogEntry> accessLog(int max) throws IOException {
+        AccessLogEntry entry;
+        List<AccessLogEntry> entries;
+        LogReader<AccessLogEntry> reader;
+        String stage;
+        String previousInvocation;
+
+        entries = new ArrayList<>();
+        reader = accessLogReader();
+        stage = getName();
+        while (true) {
+            entry = reader.prev();
+            if (entry == null) {
+                break;
+            }
+            if (stage.equals(entry.stageName)) {
+                previousInvocation = entries.isEmpty() ? "" : entries.get(entries.size() - 1).clientInvocation;
+                if (!entry.clientInvocation.equals(previousInvocation)) {
+                    entries.add(entry);
+                }
+                if (entries.size() == max) {
+                    break;
+                }
+            }
+        }
+        return entries;
     }
 
     //-- for dashboard

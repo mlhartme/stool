@@ -83,7 +83,7 @@ public class Main {
                     cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(App.class, "app name*");
                       cli.add(Config.class, "config property* { property*(property) }");
-                      cli.add(History.class, "history -details=@history.details:false -max=@history.max:50");
+                      cli.add(History.class, "history -details=@history.details:false -max=@history.max:-1");
                       cli.add(Ls.class, "list -defaults=@list.defaults info* { select*(info) }");
                       cli.add(Remove.class, "remove -batch -stop");
                       cli.add(Restart.class, "restart appIndex*");

@@ -278,33 +278,13 @@ public class ApiController {
     @GetMapping("/stages/{stage}/history")
     public String history(@PathVariable(value = "stage") String stage,
                           @RequestParam("details") boolean details, @RequestParam("max") int max) throws IOException {
-        AccessLogEntry entry;
         List<AccessLogEntry> entries;
-        LogReader<AccessLogEntry> reader;
         JsonArray result;
-        String previousInvocation;
 
         result = new JsonArray();
-        entries = new ArrayList<>();
-        reader = session.load(stage).accessLogReader();
-        while (true) {
-            entry = reader.prev();
-            if (entry == null) {
-                break;
-            }
-            if (stage.equals(entry.stageName)) {
-                previousInvocation = entries.isEmpty() ? "" : entries.get(entries.size() - 1).clientInvocation;
-                if (!entry.clientInvocation.equals(previousInvocation)) {
-                    entries.add(entry);
-                }
-                if (entries.size() == max) {
-                    result.add("(skipping after " + max + " commands; use -max <n> to see more)");
-                    break;
-                }
-            }
-        }
-        for (AccessLogEntry e : entries) {
-            result.add("[" + AccessLogEntry.DATE_FMT.format(e.dateTime) + " " + e.user + "] " + e.clientCommand);
+        entries = session.load(stage).accessLog(max);
+        for (AccessLogEntry entry : entries) {
+            result.add("[" + AccessLogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.clientCommand);
         }
         return result.toString();
     }
