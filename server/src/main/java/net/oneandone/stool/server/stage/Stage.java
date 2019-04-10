@@ -153,7 +153,7 @@ public class Stage {
         List<Property> result;
 
         result = new ArrayList<>();
-        for (Accessor type : server.accessors().values()) {
+        for (Accessor type : server.accessors.values()) {
             result.add(new Property(type, configuration));
         }
         return result;

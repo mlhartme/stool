@@ -37,6 +37,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
@@ -49,6 +50,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/** Immutable */
 public class Server {
     public static final Logger LOGGER = LoggerFactory.getLogger("DETAILS");
 
@@ -65,10 +67,7 @@ public class Server {
     //--
 
     public final Gson gson;
-    public final FileNode logRoot;
-
-    // TODO: per-request data
-    public final String user;
+    private final FileNode logRoot;
 
     public final World world;
     public final FileNode home;
@@ -78,13 +77,11 @@ public class Server {
 
     public final Users users;
 
-    private Map<String, Accessor> lazyAccessors;
-    private Pool lazyPool;
+    public Map<String, Accessor> accessors;
 
     public Server(Gson gson, FileNode logRoot, FileNode home, StoolConfiguration configuration) {
         this.gson = gson;
         this.logRoot = logRoot;
-        this.user = Environment.detectUser();
         this.world = home.getWorld();
         this.home = home;
         this.configuration = configuration;
@@ -95,19 +92,11 @@ public class Server {
             this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials,
                     "ou=users,ou=" + configuration.ldapUnit);
         }
-        this.lazyAccessors = null;
-        this.lazyPool= null;
+        this.accessors = StageConfiguration.accessors();
     }
 
     public LogReader<AccessLogEntry> accessLogReader() throws IOException {
         return LogReader.accessLog(logRoot);
-    }
-
-    public Map<String, Accessor> accessors() {
-        if (lazyAccessors == null) {
-            lazyAccessors = StageConfiguration.accessors();
-        }
-        return lazyAccessors;
     }
 
     public FileNode templates() {
@@ -203,7 +192,7 @@ public class Server {
             body.write("stool: " + Main.versionString(world) + "\n");
             body.write("command: " + command + "\n");
             body.write("server: " + context + "\n");
-            body.write("user: " + user + "\n");
+            body.write("user: " + MDC.get("USER") + "\n");
             body.write("hostname: " + configuration.hostname + "\n");
             writer = new PrintWriter(body);
             while (true) {
@@ -258,14 +247,7 @@ public class Server {
     //-- stool properties
 
     public Pool pool() throws IOException {
-        if (lazyPool == null) {
-            lazyPool = Pool.load(dockerEngine(), configuration.portFirst, configuration.portLast);
-        }
-        return lazyPool;
-    }
-
-    public void updatePool() { // TODO: hack to see updated application urls
-        lazyPool = null;
+        return Pool.load(dockerEngine(), configuration.portFirst, configuration.portLast);
     }
 
     public static Gson gson(World world) {
@@ -323,7 +305,7 @@ public class Server {
         if (lazyEngine == null) {
             FileNode log;
 
-            log = logRoot.join("docker/" + user + ".log");
+            log = logRoot.join("docker.log");
             log.deleteFileOpt();
             log.getParent().mkdirOpt();
             log.writeBytes();

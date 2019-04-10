@@ -81,7 +81,6 @@ public class StageController {
 
         if (System.currentTimeMillis() - lastCacheRenew > 4000) {
             stagesCache.clear();
-            session.updatePool();
             lst = session.listAll();
             Collections.sort(lst, new Comparator<Stage>() {
                 @Override
