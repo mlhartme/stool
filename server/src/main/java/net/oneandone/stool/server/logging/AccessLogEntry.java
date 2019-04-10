@@ -16,6 +16,7 @@
 package net.oneandone.stool.server.logging;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import net.oneandone.stool.server.cli.ApiLogging;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -32,8 +33,8 @@ public class AccessLogEntry {
         instant = Instant.ofEpochMilli(event.getTimeStamp());
         date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
         mdc = event.getMDCPropertyMap();
-        return new AccessLogEntry(date, mdc.get("client-invocation"), mdc.get("client-command"), mdc.get("user"), mdc.get("stage"), mdc.get("uri"),
-                Integer.parseInt(event.getMessage()));
+        return new AccessLogEntry(date, mdc.get(ApiLogging.CLIENT_INVOCATION), mdc.get(ApiLogging.CLIENT_COMMAND), mdc.get(ApiLogging.USER),
+                mdc.get(ApiLogging.STAGE), mdc.get(ApiLogging.REQUEST), Integer.parseInt(event.getMessage()));
     }
 
     public static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss,SSS");
@@ -47,7 +48,7 @@ public class AccessLogEntry {
         int command;
         int user;
         int stage;
-        int uri;
+        int request;
 
         len = line.length();
 
@@ -57,8 +58,8 @@ public class AccessLogEntry {
         command = line.indexOf('|', invocation + 1);
         user = line.indexOf('|', command + 1);
         stage = line.indexOf('|', user + 1);
-        uri = line.indexOf('|', stage + 1);
-        if (uri < 0) {
+        request = line.indexOf('|', stage + 1);
+        if (request < 0) {
             throw new IllegalArgumentException(line);
         }
         if (line.charAt(len - 1) != '\n') {
@@ -71,8 +72,8 @@ public class AccessLogEntry {
                 line.substring(invocation + 1, command),
                 line.substring(command + 1, user),
                 line.substring(user + 1, stage),
-                line.substring(stage + 1, uri),
-                Integer.parseInt(line.substring(uri + 1, len - 1)));
+                line.substring(stage + 1, request),
+                Integer.parseInt(line.substring(request + 1, len - 1)));
     }
 
     //--
@@ -82,16 +83,16 @@ public class AccessLogEntry {
     public final String clientCommand;
     public final String user;
     public final String stageName;
-    public final String uri;
+    public final String request;
     public final int status;
 
-    public AccessLogEntry(LocalDateTime dateTime, String clientInvocation, String clientCommand, String user, String stageName, String uri, int status) {
+    public AccessLogEntry(LocalDateTime dateTime, String clientInvocation, String clientCommand, String user, String stageName, String request, int status) {
         this.dateTime = dateTime;
         this.clientInvocation = clientInvocation;
         this.clientCommand = clientCommand;
         this.user = user;
         this.stageName = stageName;
-        this.uri = uri;
+        this.request = request;
         this.status = status;
     }
 
@@ -106,7 +107,7 @@ public class AccessLogEntry {
         result.append(clientCommand).append('|');
         result.append(user).append('|');
         result.append(stageName).append('|');
-        result.append(uri).append('|');
+        result.append(request).append('|');
         result.append(status);
         result.append('\n');
         return result.toString();

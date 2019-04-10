@@ -24,13 +24,13 @@ public class AccessLogEntryTest {
     public void normal() {
         AccessLogEntry entry;
 
-        entry = AccessLogEntry.parse("19-04-30 10:12:12,948|someUUID|cmd|mabraun|stageName|uri|404\n");
+        entry = AccessLogEntry.parse("19-04-30 10:12:12,948|someUUID|cmd|mabraun|stageName|GET uri|404\n");
         assertEquals("2019-04-30T10:12:12.948", entry.dateTime.toString());
         assertEquals("someUUID", entry.clientInvocation);
         assertEquals("mabraun", entry.user);
         assertEquals("cmd", entry.clientCommand);
         assertEquals("stageName", entry.stageName);
-        assertEquals("uri", entry.uri);
+        assertEquals("GET uri", entry.request);
         assertEquals(404, entry.status);
     }
 }
