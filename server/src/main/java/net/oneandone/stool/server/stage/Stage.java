@@ -769,7 +769,7 @@ public class Stage {
     }
 
     public String lastModifiedBy() throws IOException {
-        return server.accessLogReader().prev().user;
+        return youngest(accessLog(-1)).user;
     }
 
     /** @return last entry first */

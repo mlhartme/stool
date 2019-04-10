@@ -25,7 +25,7 @@ public class LogReaderTest {
     @Test
     public void testReadLog() throws Exception {
         World world;
-        LogReader reader;
+        LogReader<AccessLogEntry> reader;
         int count;
         AccessLogEntry entry;
 

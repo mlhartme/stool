@@ -31,8 +31,12 @@ import java.util.function.Function;
 import java.util.zip.GZIPInputStream;
 
 public class LogReader<T> {
-    public static LogReader accessLog(FileNode directory) throws IOException {
+    public static LogReader<AccessLogEntry> accessLog(FileNode directory) throws IOException {
         return create(AccessLogEntry::parse, "access-", directory);
+    }
+
+    public static LogReader<DetailsLogEntry> detailsLog(FileNode directory) throws IOException {
+        return create(DetailsLogEntry::parse, "details-", directory);
     }
 
     private static <T> LogReader<T> create(Function<String, T> parser, String prefix, FileNode directory) throws IOException {
@@ -86,9 +90,9 @@ public class LogReader<T> {
         return null;
     }
 
-    public AccessLogEntry prev() throws IOException {
+    public T prev() throws IOException {
         String line;
-        AccessLogEntry result;
+        T result;
         int size;
 
         while (true) {
@@ -110,7 +114,7 @@ public class LogReader<T> {
             }
             size = lines.size();
             if (size > 0) {
-                result = AccessLogEntry.parse(lines.remove(size - 1));
+                result = parser.apply(lines.remove(size - 1));
                 return result;
             } else {
                 lines = null;

@@ -27,6 +27,7 @@ import net.oneandone.stool.server.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.logging.AccessLogEntry;
+import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
@@ -97,6 +98,29 @@ public class Server {
 
     public LogReader<AccessLogEntry> accessLogReader() throws IOException {
         return LogReader.accessLog(logRoot);
+    }
+
+    public LogReader<DetailsLogEntry> detailsLogReader() throws IOException {
+        return LogReader.detailsLog(logRoot);
+    }
+
+    public List<DetailsLogEntry> detailsLog(String clientInvocation) throws IOException {
+        DetailsLogEntry entry;
+        List<DetailsLogEntry> entries;
+        LogReader<DetailsLogEntry> reader;
+
+        entries = new ArrayList<>();
+        reader = detailsLogReader();
+        while (true) {
+            entry = reader.prev();
+            if (entry == null) {
+                break;
+            }
+            if (clientInvocation.equals(entry.clientInvocation)) {
+                entries.add(entry);
+            }
+        }
+        return entries;
     }
 
     public FileNode templates() {

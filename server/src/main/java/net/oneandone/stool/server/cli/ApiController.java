@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.server.docker.BuildError;
+import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Info;
@@ -282,6 +283,11 @@ public class ApiController {
         entries = server.load(stage).accessLog(max);
         for (AccessLogEntry entry : entries) {
             result.add("[" + AccessLogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.clientCommand);
+            if (details) {
+                for (DetailsLogEntry detail : server.detailsLog(entry.clientInvocation)) {
+                    result.add(new JsonPrimitive("  " + detail.level + " " + detail.message));
+                }
+            }
         }
         return result.toString();
     }
