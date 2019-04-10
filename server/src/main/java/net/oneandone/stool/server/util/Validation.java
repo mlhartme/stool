@@ -24,11 +24,11 @@ import java.util.Set;
 
 public class Validation {
     public final World world;
-    private final ApplicationContext session;
+    private final ApplicationContext context;
 
-    public Validation(ApplicationContext session) {
-        this.world = session.world;
-        this.session = session;
+    public Validation(ApplicationContext context) {
+        this.world = context.world;
+        this.context = context;
     }
 
     public List<String> run(String stageClause, boolean email, boolean repair) throws IOException, MessagingException, NamingException {
@@ -40,7 +40,7 @@ public class Validation {
         validateServer(report);
         problems = new HashMap<>();
         names = new ArrayList<>();
-        for (Stage stage : session.list(PredicateParser.parse(stageClause), problems)) {
+        for (Stage stage : context.list(PredicateParser.parse(stageClause), problems)) {
             names.add(stage.getName());
         }
         if (!problems.isEmpty()) {
@@ -59,7 +59,7 @@ public class Validation {
         Stage stage;
         String message;
 
-        stage = session.load(name);
+        stage = context.load(name);
         try {
             stage.checkConstraints();
             return;
@@ -77,8 +77,8 @@ public class Validation {
                     ApplicationContext.LOGGER.debug(e.getMessage(), e);
                 }
             }
-            if (session.configuration.autoRemove >= 0 && stage.configuration.expire.expiredDays() >= 0) {
-                if (stage.configuration.expire.expiredDays() >= session.configuration.autoRemove) {
+            if (context.configuration.autoRemove >= 0 && stage.configuration.expire.expiredDays() >= 0) {
+                if (stage.configuration.expire.expiredDays() >= context.configuration.autoRemove) {
                     try {
                         report.user(stage, "removing expired stage");
                         stage.remove();
@@ -88,7 +88,7 @@ public class Validation {
                     }
                 } else {
                     report.user(stage, "CAUTION: This stage will be removed automatically in "
-                            + (session.configuration.autoRemove - stage.configuration.expire.expiredDays()) + " day(s)");
+                            + (context.configuration.autoRemove - stage.configuration.expire.expiredDays()) + " day(s)");
                 }
             }
         }
@@ -107,12 +107,12 @@ public class Validation {
         String email;
         String body;
 
-        hostname = session.configuration.hostname;
-        mailer = session.configuration.mailer();
+        hostname = context.configuration.hostname;
+        mailer = context.configuration.mailer();
         for (Map.Entry<String, List<String>> entry : report.users.entrySet()) {
             user = entry.getKey();
             body = Separator.RAW_LINE.join(entry.getValue());
-            email = email(session, user);
+            email = email(context, user);
             if (email == null) {
                 ApplicationContext.LOGGER.error("cannot send email, there's nobody to send it to.");
             } else {
@@ -145,7 +145,7 @@ public class Validation {
 
     private void validateDocker(Report report) {
         try {
-            session.dockerEngine().imageList();
+            context.dockerEngine().imageList();
         } catch (IOException e) {
             report.admin("cannot access docker: " + e.getMessage());
             ApplicationContext.LOGGER.debug("cannot access docker", e);
@@ -159,36 +159,36 @@ public class Validation {
         ServerSocket socket;
 
         try {
-            ip = digIp(session.configuration.hostname);
+            ip = digIp(context.configuration.hostname);
         } catch (Failure e) {
             report.admin("cannot validate dns entries: " + e.getMessage());
             return;
         }
         if (ip.isEmpty()) {
-            report.admin("missing dns entry for " + session.configuration.hostname);
+            report.admin("missing dns entry for " + context.configuration.hostname);
             return;
         }
 
         // make sure that hostname points to this machine. Help to detect actually adding the name of a different machine
-        port = session.pool().temp();
+        port = context.pool().temp();
         try {
-            socket = new ServerSocket(port,50, InetAddress.getByName(session.configuration.hostname));
+            socket = new ServerSocket(port,50, InetAddress.getByName(context.configuration.hostname));
             socket.close();
         } catch (IOException e) {
-            report.admin("cannot open socket on machine " + session.configuration.hostname + ", port " + port + ". Check the configured hostname.");
+            report.admin("cannot open socket on machine " + context.configuration.hostname + ", port " + port + ". Check the configured hostname.");
             ApplicationContext.LOGGER.debug("cannot open socket", e);
         }
 
-        subDomain = digIp("foo." + session.configuration.hostname);
+        subDomain = digIp("foo." + context.configuration.hostname);
         if (subDomain.isEmpty() || !subDomain.endsWith(ip)) {
-            report.admin("missing dns * entry for " + session.configuration.hostname + " (" + subDomain + ")");
+            report.admin("missing dns * entry for " + context.configuration.hostname + " (" + subDomain + ")");
         }
     }
 
     private String digIp(String name) throws Failure {
         Launcher dig;
 
-        dig = new Launcher(session.world.getWorking(), "dig", "+short", name);
+        dig = new Launcher(context.world.getWorking(), "dig", "+short", name);
         return dig.exec().trim();
     }
 

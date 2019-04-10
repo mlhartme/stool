@@ -13,13 +13,13 @@ import java.io.IOException;
 @Configuration
 public class ServerConfig implements WebMvcConfigurer {
     @Bean
-    public ApplicationContext session() throws IOException {
+    public ApplicationContext context() throws IOException {
         World world;
         Globals globals;
 
         world = World.create();
         globals = Globals.create(world);
-        return globals.session();
+        return globals.context();
     }
 
     @Autowired

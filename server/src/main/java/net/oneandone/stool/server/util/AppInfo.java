@@ -20,10 +20,10 @@ import java.util.List;
 import java.util.Map;
 
 public class AppInfo {
-    private final ApplicationContext session;
+    private final ApplicationContext context;
 
-    public AppInfo(ApplicationContext session) {
-        this.session = session;
+    public AppInfo(ApplicationContext context) {
+        this.context = context;
     }
 
     public List<String> run(String name, String app) throws Exception {
@@ -38,7 +38,7 @@ public class AppInfo {
         List<String> result;
 
         result = new ArrayList<>();
-        stage = session.load(name);
+        stage = context.load(name);
         engine = stage.context.dockerEngine();
         all = stage.images(engine);
         currentMap = stage.currentMap();
@@ -140,7 +140,7 @@ public class AppInfo {
         if (container == null) {
             return 0;
         }
-        obj = session.dockerEngine().containerInspect(container, true);
+        obj = context.dockerEngine().containerInspect(container, true);
         // not SizeRootFs, that's the image size plus the rw layer
         return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
@@ -149,7 +149,7 @@ public class AppInfo {
         String container;
 
         container = current.container;
-        return container == null ? null : Stage.timespan(session.dockerEngine().containerStartedAt(container));
+        return container == null ? null : Stage.timespan(context.dockerEngine().containerStartedAt(container));
     }
 
     private Integer cpu(Stage.Current current) throws IOException {
@@ -161,7 +161,7 @@ public class AppInfo {
         if (container == null) {
             return null;
         }
-        engine = session.dockerEngine();
+        engine = context.dockerEngine();
         stats = engine.containerStats(container);
         if (stats != null) {
             return stats.cpu;
@@ -179,7 +179,7 @@ public class AppInfo {
         if (container == null) {
             return null;
         }
-        stats = session.dockerEngine().containerStats(container);
+        stats = context.dockerEngine().containerStats(container);
         if (stats != null) {
             return stats.memoryUsage * 100 / stats.memoryLimit;
         } else {
