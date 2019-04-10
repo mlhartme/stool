@@ -11,9 +11,7 @@
         <maxHistory>90</maxHistory>
         <totalSizeCap>1GB</totalSizeCap>
       </rollingPolicy>
-      <encoder>
-        <pattern>%msg</pattern>
-      </encoder>
+      <encoder class="net.oneandone.stool.server.util.AccessLogEncoder" />
     </appender>
   </logger>
 
@@ -24,9 +22,7 @@
         <maxHistory>90</maxHistory>
         <totalSizeCap>1GB</totalSizeCap>
       </rollingPolicy>
-      <encoder>
-        <pattern>%msg</pattern>
-      </encoder>
+      <encoder class="net.oneandone.stool.server.util.AccessLogEncoder" />
     </appender>
   </logger>
 

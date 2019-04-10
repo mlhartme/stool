@@ -17,7 +17,6 @@ package net.oneandone.stool.server.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.server.util.Environment;
-import net.oneandone.stool.server.util.Logging;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -81,7 +80,7 @@ public class Globals {
                 try {
                     session().reportException(command, "RuntimeException", throwable);
                 } catch (IOException e) {
-                    Logging.error("failed to report runtine exception: " + e.getMessage(), e);
+                    Session.LOGGER.error("failed to report runtine exception: " + e.getMessage(), e);
                 }
             }
             return -1;

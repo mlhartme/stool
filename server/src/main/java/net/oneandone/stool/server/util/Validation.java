@@ -74,7 +74,7 @@ public class Validation {
                     report.user(stage, "stage has been stopped");
                 } catch (Exception e) {
                     report.user(stage, "stage failed to stop: " + e.getMessage());
-                    Logging.verbose(e.getMessage(), e);
+                    Session.LOGGER.debug(e.getMessage(), e);
                 }
             }
             if (session.configuration.autoRemove >= 0 && stage.configuration.expire.expiredDays() >= 0) {
@@ -84,7 +84,7 @@ public class Validation {
                         stage.remove();
                     } catch (Exception e) {
                         report.user(stage, "failed to remove expired stage: " + e.getMessage());
-                        Logging.verbose(e.getMessage(), e);
+                        Session.LOGGER.debug(e.getMessage(), e);
                     }
                 } else {
                     report.user(stage, "CAUTION: This stage will be removed automatically in "
@@ -114,9 +114,9 @@ public class Validation {
             body = Separator.RAW_LINE.join(entry.getValue());
             email = email(session, user);
             if (email == null) {
-                Logging.error("cannot send email, there's nobody to send it to.");
+                Session.LOGGER.error("cannot send email, there's nobody to send it to.");
             } else {
-                Logging.info("sending email to " + email);
+                Session.LOGGER.info("sending email to " + email);
                 mailer.send("stool@" + hostname, new String[] { email }, "Validation of your stage(s) on " + hostname + " failed", body);
             }
         }
@@ -148,7 +148,7 @@ public class Validation {
             session.dockerEngine().imageList();
         } catch (IOException e) {
             report.admin("cannot access docker: " + e.getMessage());
-            Logging.verbose("cannot access docker", e);
+            Session.LOGGER.debug("cannot access docker", e);
         }
     }
 
@@ -176,7 +176,7 @@ public class Validation {
             socket.close();
         } catch (IOException e) {
             report.admin("cannot open socket on machine " + session.configuration.hostname + ", port " + port + ". Check the configured hostname.");
-            Logging.verbose("cannot open socket", e);
+            Session.LOGGER.debug("cannot open socket", e);
         }
 
         subDomain = digIp("foo." + session.configuration.hostname);

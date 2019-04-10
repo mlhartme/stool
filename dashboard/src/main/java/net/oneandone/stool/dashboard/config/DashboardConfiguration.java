@@ -18,8 +18,6 @@ package net.oneandone.stool.dashboard.config;
 import net.oneandone.stool.dashboard.IndexController;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.Users;
-import net.oneandone.stool.server.util.Environment;
-import net.oneandone.stool.server.util.Logging;
 import net.oneandone.stool.server.util.Session;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;

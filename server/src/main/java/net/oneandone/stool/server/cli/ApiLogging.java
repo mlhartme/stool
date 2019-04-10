@@ -1,6 +1,5 @@
 package net.oneandone.stool.server.cli;
 
-import net.oneandone.stool.server.util.LogEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -10,7 +9,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
 
 @Component
 public class ApiLogging implements HandlerInterceptor {
@@ -48,10 +46,7 @@ public class ApiLogging implements HandlerInterceptor {
     private static final Logger ACCESS = LoggerFactory.getLogger("ACCESS");
 
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) {
-        LogEntry entry;
-
-        entry = new LogEntry(LocalDateTime.now(), MDC.get("client-invocation"), "COMMAND", MDC.get("user"), MDC.get("stage"), MDC.get("client-command"));
-        ACCESS.info(entry.toString());
+        ACCESS.info("TODO-not-used-yet");
         MDC.remove(URI);
         MDC.remove(USER);
         MDC.remove(STAGE);

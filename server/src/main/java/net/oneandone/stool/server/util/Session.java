@@ -33,6 +33,8 @@ import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
@@ -46,6 +48,9 @@ import java.util.List;
 import java.util.Map;
 
 public class Session {
+    public static final Logger LOGGER = LoggerFactory.getLogger("DETAILS");
+
+
     public static Session load(FileNode home, FileNode logRoot) throws IOException {
         Gson gson;
 
@@ -185,7 +190,7 @@ public class Session {
         StringWriter body;
         PrintWriter writer;
 
-        Logging.error("[" + command + "] " + context + ": " + e.getMessage(), e);
+        LOGGER.error("[" + command + "] " + context + ": " + e.getMessage(), e);
         if (!configuration.admin.isEmpty()) {
             subject = "[stool exception] " + e.getMessage();
             body = new StringWriter();
@@ -206,7 +211,7 @@ public class Session {
             try {
                 configuration.mailer().send(configuration.admin, new String[]{configuration.admin}, subject, body.toString());
             } catch (MessagingException suppressed) {
-                Logging.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
+                LOGGER.error("cannot send exception email: " + suppressed.getMessage(), suppressed);
             }
         }
     }
@@ -323,7 +328,7 @@ public class Session {
 
     public void closeDockerEngine() { // TODO: invoke on server shut-down
         if (lazyEngine != null) {
-            Logging.verbose("close docker engine");
+            LOGGER.debug("close docker engine");
             lazyEngine.close();
         }
     }
@@ -341,7 +346,7 @@ public class Session {
         }
         file = home.join("certs", certname);
         tmp = world.getTemp().createTempDirectory();
-        Logging.verbose(tmp.exec(script.getAbsolute(), certname, file.getAbsolute()));
+        LOGGER.debug(tmp.exec(script.getAbsolute(), certname, file.getAbsolute()));
         tmp.deleteTree();
         return file;
     }
