@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.stage;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.server.configuration.Accessor;
@@ -34,9 +33,6 @@ import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.util.Strings;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -54,6 +50,8 @@ import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -172,6 +170,8 @@ public class Stage {
     }
 
     public List<Field> fields() {
+        // TODO: expensive - reads access logs multiple times
+
         List<Field> fields;
 
         fields = new ArrayList<>();
@@ -215,20 +215,21 @@ public class Stage {
         fields.add(new Field("created-at") {
             @Override
             public Object get() throws IOException {
-                return directory.getLastModified(); // TODO: getCreated: https://unix.stackexchange.com/questions/7562/what-file-systems-on-linux-store-the-creation-time
+                // TODO: getCreated: https://unix.stackexchange.com/questions/7562/what-file-systems-on-linux-store-the-creation-time
+                return oldest(accessLog(-1)).dateTime;
             }
 
         });
         fields.add(new Field("last-modified-by") {
             @Override
             public Object get() throws IOException {
-                return session.users.checkedStatusByLogin(lastModifiedBy());
+                return youngest(accessLog(-1)).user;
             }
         });
         fields.add(new Field("last-modified-at") {
             @Override
             public Object get() throws IOException {
-                return timespan(accessLogReader().lastModified());
+                return timespan(youngest(accessLog(-1)).dateTime);
             }
         });
         fields.add(new Field("apps") {
@@ -238,6 +239,10 @@ public class Stage {
             }
         });
         return fields;
+    }
+
+    public static String timespan(LocalDateTime ldt) {
+        return timespan(ldt.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
     }
 
     public static String timespan(long since) {
@@ -628,7 +633,7 @@ public class Stage {
 
     /** @return login name */
     public String createdBy() throws IOException {
-        return accessLogReader().first().user;
+        return oldest(accessLog(-1)).user;
     }
 
     //--
@@ -778,6 +783,7 @@ public class Stage {
         return accessLogReader().prev().user;
     }
 
+    /** @return last entry first */
     public List<AccessLogEntry> accessLog(int max) throws IOException {
         AccessLogEntry entry;
         List<AccessLogEntry> entries;
@@ -804,6 +810,13 @@ public class Stage {
             }
         }
         return entries;
+    }
+
+    private static AccessLogEntry youngest(List<AccessLogEntry> accessLog) {
+        return accessLog.get(0);
+    }
+    private static AccessLogEntry oldest(List<AccessLogEntry> accessLog) {
+        return accessLog.get(accessLog.size() - 1);
     }
 
     //-- for dashboard
