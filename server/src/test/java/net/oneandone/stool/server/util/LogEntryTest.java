@@ -24,11 +24,11 @@ public class LogEntryTest {
     public void normal() {
         LogEntry entry;
 
-        entry = LogEntry.parse("19-04-30 10:12:12,948|someUUID|logger|mabraun|stageName|message with | separator \n");
+        entry = LogEntry.parse("19-04-30 10:12:12,948|someUUID|cmd|mabraun|stageName|message with | separator \n");
         assertEquals("2019-04-30T10:12:12.948", entry.dateTime.toString());
         assertEquals("someUUID", entry.clientInvocation);
         assertEquals("mabraun", entry.user);
-        assertEquals("logger", entry.logger);
+        assertEquals("cmd", entry.clientCommand);
         assertEquals("stageName", entry.stageName);
         assertEquals("message with | separator ", entry.message);
     }

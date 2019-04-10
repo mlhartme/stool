@@ -32,7 +32,7 @@ public class LogEntry {
         instant = Instant.ofEpochMilli(event.getTimeStamp());
         date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime();
         mdc = event.getMDCPropertyMap();
-        return new LogEntry(date, mdc.get("client-invocation"), "COMMAND", mdc.get("user"), mdc.get("stage"), mdc.get("client-command"));
+        return new LogEntry(date, mdc.get("client-invocation"), mdc.get("client-command"), mdc.get("user"), mdc.get("stage"), event.getMessage());
     }
 
     public static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yy-MM-dd HH:mm:ss,SSS");
@@ -42,8 +42,8 @@ public class LogEntry {
         int len;
 
         int date;
-        int client;
-        int logger;
+        int invocation;
+        int command;
         int user;
         int stage;
 
@@ -51,9 +51,9 @@ public class LogEntry {
 
         // CAUTION: do not use split, because messages may contain separators
         date = line.indexOf('|');
-        client = line.indexOf('|', date + 1); // invocation id
-        logger = line.indexOf('|', client + 1);
-        user = line.indexOf('|', logger + 1);
+        invocation = line.indexOf('|', date + 1); // invocation id
+        command = line.indexOf('|', invocation + 1);
+        user = line.indexOf('|', command + 1);
         stage = line.indexOf('|', user + 1);
         if (line.charAt(len - 1) != '\n') {
             throw new IllegalArgumentException(line);
@@ -61,9 +61,9 @@ public class LogEntry {
 
         return new LogEntry(
                 LocalDateTime.parse(line.substring(0, date), LogEntry.DATE_FMT),
-                line.substring(date + 1, client),
-                line.substring(client + 1, logger),
-                line.substring(logger + 1, user),
+                line.substring(date + 1, invocation),
+                line.substring(invocation + 1, command),
+                line.substring(command + 1, user),
                 line.substring(user + 1, stage),
                 unescape(line.substring(stage + 1, len -1)));
     }
@@ -106,15 +106,15 @@ public class LogEntry {
 
     public final LocalDateTime dateTime;
     public final String clientInvocation;
-    public final String logger;
+    public final String clientCommand;
     public final String user;
     public final String stageName;
     public final String message;
 
-    public LogEntry(LocalDateTime dateTime, String clientInvocation, String logger, String user, String stageName, String message) {
+    public LogEntry(LocalDateTime dateTime, String clientInvocation, String clientCommand, String user, String stageName, String message) {
         this.dateTime = dateTime;
         this.clientInvocation = clientInvocation;
-        this.logger = logger;
+        this.clientCommand = clientCommand;
         this.user = user;
         this.stageName = stageName;
         this.message = message;
@@ -128,7 +128,7 @@ public class LogEntry {
 
         result.append(LogEntry.DATE_FMT.format(LocalDateTime.now())).append('|');
         result.append(clientInvocation).append('|');
-        result.append(logger).append('|');
+        result.append(clientCommand).append('|');
         result.append(user).append('|');
         result.append(stageName).append('|');
         for (int i = 0, max = message.length(); i < max; i++) {

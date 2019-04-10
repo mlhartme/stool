@@ -299,24 +299,20 @@ public class ApiController {
                 lst = new ArrayList<>();
                 detailsMap.put(entry.clientInvocation, lst);
             }
-            if (entry.logger.equals("COMMAND")) {
-                detailsMap.remove(entry.clientInvocation);
-                lst.add(entry);
-                if (forStage(stage, lst)) {
-                    counter++;
-                    result.add("[" + LogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.message);
-                    if (details) {
-                        for (int i = lst.size() - 1; i >= 0; i--) {
-                            result.add(Strings.indent(lst.get(i).message, "     "));
-                        }
+            detailsMap.remove(entry.clientInvocation);
+            lst.add(entry);
+            if (forStage(stage, lst)) {
+                counter++;
+                result.add("[" + LogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.clientCommand);
+                if (details) {
+                    for (int i = lst.size() - 1; i >= 0; i--) {
+                        result.add(Strings.indent(lst.get(i).message, "     "));
                     }
                 }
-                if (counter == max) {
-                    result.add("(skipping after " + max + " commands; use -max <n> to see more)");
-                    break;
-                }
-            } else {
-                lst.add(entry);
+            }
+            if (counter == max) {
+                result.add("(skipping after " + max + " commands; use -max <n> to see more)");
+                break;
             }
         }
         return result.toString();
