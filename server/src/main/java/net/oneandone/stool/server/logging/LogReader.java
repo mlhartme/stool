@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.util;
+package net.oneandone.stool.server.logging;
 
 import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.file.FileNode;

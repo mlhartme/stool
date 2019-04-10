@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.server.util;
 
+import net.oneandone.stool.server.logging.LogEntry;
+import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.junit.Test;

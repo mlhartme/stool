@@ -1,4 +1,4 @@
-package net.oneandone.stool.server.util;
+package net.oneandone.stool.server.logging;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.encoder.EncoderBase;

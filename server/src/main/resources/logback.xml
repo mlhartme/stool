@@ -1,6 +1,6 @@
 <configuration>
 
-  <define name="root" class="net.oneandone.stool.server.util.LogRoot">
+  <define name="root" class="net.oneandone.stool.server.logging.LogRoot">
     <default>/tmp</default>
   </define>
 
@@ -11,7 +11,7 @@
         <maxHistory>90</maxHistory>
         <totalSizeCap>1GB</totalSizeCap>
       </rollingPolicy>
-      <encoder class="net.oneandone.stool.server.util.AccessLogEncoder" />
+      <encoder class="net.oneandone.stool.server.logging.AccessLogEncoder" />
     </appender>
   </logger>
 
@@ -22,7 +22,7 @@
         <maxHistory>90</maxHistory>
         <totalSizeCap>1GB</totalSizeCap>
       </rollingPolicy>
-      <encoder class="net.oneandone.stool.server.util.AccessLogEncoder" />
+      <encoder class="net.oneandone.stool.server.logging.AccessLogEncoder" />
     </appender>
   </logger>
 

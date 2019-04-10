@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.util;
 
+import net.oneandone.stool.server.logging.LogEntry;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

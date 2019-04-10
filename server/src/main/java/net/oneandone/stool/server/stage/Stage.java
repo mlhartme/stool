@@ -24,7 +24,7 @@ import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
-import net.oneandone.stool.server.util.LogReader;
+import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Session;
