@@ -22,7 +22,7 @@
         <maxHistory>90</maxHistory>
         <totalSizeCap>1GB</totalSizeCap>
       </rollingPolicy>
-      <encoder class="net.oneandone.stool.server.logging.AccessLogEncoder" />
+      <encoder class="net.oneandone.stool.server.logging.DetailsLogEncoder" />
     </appender>
   </logger>
 
