@@ -34,16 +34,32 @@
       <version>${springboot.version}</version>
       <scope>runtime</scope>
     </dependency>
+
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-web</artifactId>
       <version>${spring.security.version}</version>
     </dependency>
-
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-config</artifactId>
       <version>${spring.security.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.11</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-ldap</artifactId>
+      <version>${spring.security.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.ldap</groupId>
+      <artifactId>spring-ldap-core</artifactId>
+      <version>2.3.2.RELEASE</version>
     </dependency>
 
     <dependency>
@@ -52,6 +68,7 @@
       <version>${springboot.version}</version>
       <scope>test</scope>
     </dependency>
+
 
     <dependency>
       <groupId>org.slf4j</groupId>
