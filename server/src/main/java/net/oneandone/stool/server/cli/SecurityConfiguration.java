@@ -47,7 +47,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                .addFilterAfter(new TokenAuthenticationFilter(server.tokenManager), BasicAuthenticationFilter.class)
                .sessionManagement()
                   .disable()
-               .csrf().disable()
+               .csrf().disable() // no sessions -> no need to protect them with csrf
                .authorizeRequests()
                     .antMatchers("/api/**").hasRole("LOGIN")
                     .and()

@@ -56,7 +56,7 @@ public class ApiController {
     }
 
     @PostMapping("/auth")
-    public String auth() {
+    public String auth() throws IOException {
         Object principal;
         InetOrgPerson person;
         User user;
@@ -67,10 +67,9 @@ public class ApiController {
             person = (InetOrgPerson) principal;
             user = new User(person.getUid(), person.getDisplayName(), person.getMail());
             result = server.tokenManager.create(user);
-            System.out.println("created " + user + " -> " + result);
+            server.tokenManager.save();
         } else {
-            System.out.println("not found: " + principal);
-            result = "";
+            throw new IllegalStateException("" + principal + " " + principal.getClass());
         }
         return new JsonPrimitive(result).toString();
     }

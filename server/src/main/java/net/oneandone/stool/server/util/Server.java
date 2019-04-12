@@ -82,7 +82,7 @@ public class Server {
 
     public Map<String, Accessor> accessors;
 
-    public Server(Gson gson, FileNode logRoot, FileNode home, ServerConfiguration configuration) {
+    public Server(Gson gson, FileNode logRoot, FileNode home, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
         this.logRoot = logRoot;
         this.world = home.getWorld();
@@ -95,7 +95,7 @@ public class Server {
             this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials,
                     "ou=users,ou=" + configuration.ldapUnit);
         }
-        this.tokenManager = new TokenManager();
+        this.tokenManager = TokenManager.loadOpt(home.join("token"));
         this.accessors = StageConfiguration.accessors();
     }
 
