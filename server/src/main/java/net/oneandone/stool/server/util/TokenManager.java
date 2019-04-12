@@ -35,6 +35,6 @@ public class TokenManager {
     }
 
     private String generateToken() {
-        return Integer.toString(random.nextInt());
+        return Long.toHexString(random.nextLong()) + Long.toHexString(random.nextLong());
     }
 }
