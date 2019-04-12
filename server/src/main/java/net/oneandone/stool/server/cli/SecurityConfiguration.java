@@ -49,7 +49,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                   .disable()
                .csrf().disable()
                .authorizeRequests()
-                    .antMatchers("/api/**").fullyAuthenticated() // TODO hasRole("LOGIN")
+                    .antMatchers("/api/**").hasRole("LOGIN")
                     .and()
                .httpBasic().realmName(REALM);
         }

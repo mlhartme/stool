@@ -34,7 +34,12 @@ public class TokenAuthenticationFilter extends GenericFilterBean {
                 SecurityContextHolder.getContext().setAuthentication(new Authentication() {
                     @Override
                     public Collection<? extends GrantedAuthority> getAuthorities() {
-                        return Collections.emptyList();
+                        return Collections.singleton(new GrantedAuthority() {
+                            @Override
+                            public String getAuthority() {
+                                return "ROLE_LOGIN";
+                            }
+                        });
                     }
 
                     @Override
@@ -44,7 +49,7 @@ public class TokenAuthenticationFilter extends GenericFilterBean {
 
                     @Override
                     public Object getDetails() {
-                        return "details";
+                        return "token authentication";
                     }
 
                     @Override
