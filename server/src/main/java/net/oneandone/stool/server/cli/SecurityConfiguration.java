@@ -17,6 +17,7 @@ import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopul
 import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -43,11 +44,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             System.out.println("security disabled");
         } else {
             http
+               .addFilterAfter(new AuthenticationFilter(), BasicAuthenticationFilter.class)
                .sessionManagement()
                   .disable()
                .csrf().disable()
                .authorizeRequests()
-                    .antMatchers("/api/**").hasRole("LOGIN")
+                    .antMatchers("/api/**").fullyAuthenticated() // TODO hasRole("LOGIN")
                     .and()
                .httpBasic().realmName(REALM);
         }
