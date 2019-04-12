@@ -19,19 +19,23 @@ import org.springframework.ldap.core.DirContextAdapter;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.ldap.userdetails.InetOrgPerson;
-import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
+import org.springframework.security.ldap.LdapUtils;
+import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 
 import java.util.Collection;
 
-public class UserDetailsMapper extends InetOrgPersonContextMapper {
+public class UserDetailsMapper implements UserDetailsContextMapper {
 
 	public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
 			Collection<? extends GrantedAuthority> authorities) {
-		InetOrgPerson p;
+		String password;
 
-		p = (InetOrgPerson) super.mapUserFromContext(ctx, username, authorities);
-		return new User(p.getUid(), p.getDisplayName(), p.getMail(), p.getPassword());
+		Object object = ctx.getObjectAttribute("userPassword");
+
+		password = object != null ? LdapUtils.convertPasswordToString(object) : null;
+		return new User(ctx.getStringAttribute("uid"), ctx.getStringAttribute("displayName"),
+				ctx.getStringAttribute("mail"),
+				password);
 	}
 
 	public void mapUserToContext(UserDetails user, DirContextAdapter ctx) {
