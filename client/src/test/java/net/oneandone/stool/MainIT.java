@@ -132,7 +132,7 @@ public class MainIT {
     private Launcher server(FileNode home) throws IOException {
         Launcher launcher;
 
-        launcher = IT_ROOT.launcher("java", "-jar", PROJECT_ROOT.getParent().join("server/target/").findOne("server-*-springboot.jar").getAbsolute());
+        launcher = IT_ROOT.launcher("java", "-Djavax.net.ssl.trustStore=/Users/mhm/Projects/svn.1and1.org/com/oneandone/sales/tools/cisotools/cacerts", "-jar", PROJECT_ROOT.getParent().join("server/target/").findOne("server-*-springboot.jar").getAbsolute());
         launcher.getBuilder().environment().put("STOOL_HOME", home.getAbsolute());
         return launcher;
     }

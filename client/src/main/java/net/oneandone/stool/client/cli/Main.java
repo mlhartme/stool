@@ -57,7 +57,7 @@ public class Main {
         PrintWriter out;
 
         if (itHome != null) {
-            out = new PrefixWriter(itHome.join("client-output").newAppender());
+            out = new PrefixWriter(itHome.join("client.log").newAppender());
             console = new Console(out, out, System.in);
         } else {
             out = new PrefixWriter(new PrintWriter(System.out));

@@ -16,6 +16,7 @@ import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration
 @EnableWebSecurity
@@ -26,22 +27,30 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private Server server;
 
-    /* To allow Pre-flight [OPTIONS] request from browser */
     @Override
     public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**");
+        if (server.configuration.ldapUrl.isEmpty()) {
+            web.ignoring().anyRequest();
+        } else {
+            /* To allow Pre-flight [OPTIONS] request from browser */
+            web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**");
+        }
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http
-           .sessionManagement()
-                .disable()
-           .csrf().disable()
-           .authorizeRequests()
-              .antMatchers("/api/**").hasRole("LOGIN")
-              .and()
-           .httpBasic().realmName(REALM);
+        if (server.configuration.ldapUrl.isEmpty()) {
+            System.out.println("security disabled");
+        } else {
+            http
+               .sessionManagement()
+                  .disable()
+               .csrf().disable()
+               .authorizeRequests()
+                    .antMatchers("/api/**").hasRole("LOGIN")
+                    .and()
+               .httpBasic().realmName(REALM);
+        }
     }
 
 
@@ -54,8 +63,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         url = server.configuration.ldapUrl;
         if (url.isEmpty()) {
-            // will never be used - this is just to satisfy parameter checks in the constructor
-            url = "ldap://localhost";
+            url = "ldap://will-no-be-used";
         }
         contextSource = new DefaultSpringSecurityContextSource(url);
         contextSource.setUserDn(server.configuration.ldapPrincipal);
@@ -71,10 +79,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     @Override
     public UserDetailsService userDetailsService() {
+        String url;
         String unit;
         FilterBasedLdapUserSearch userSearch;
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
         LdapUserDetailsService result;
+
+        url = server.configuration.ldapUrl;
+        if (url.isEmpty()) {
+            return new InMemoryUserDetailsManager();
+        }
 
         unit = server.configuration.ldapUnit;
         userSearch = new FilterBasedLdapUserSearch("ou=" + unit, "(uid={0})", contextSource());
