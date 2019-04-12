@@ -1,15 +1,16 @@
 package net.oneandone.stool.server.util;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Random;
 
 public class TokenManager {
@@ -72,31 +73,25 @@ public class TokenManager {
 
 
     public void save() throws IOException {
-        Properties p;
-        User user;
+        JsonObject json;
 
-        p = new Properties();
+        json = new JsonObject();
         for (Map.Entry<String, User> entry : tokens.entrySet()) {
-            user = entry.getValue();
-            p.put(entry.getKey(), user.login + "," + user.name + "," + user.email);
+            json.add(entry.getKey(), entry.getValue().toJson());
         }
-        file.writeProperties(p);
+        file.writeString(json.toString());
     }
 
     public void load() throws IOException {
+        JsonObject obj;
+
         tokens.clear();
-        for (Map.Entry<Object, Object> entry : file.readProperties().entrySet()) {
-            tokens.put((String) entry.getKey(), user((String) entry.getValue()));
-        }
-    }
 
-    private static User user(String str) throws IOException {
-        List<String> lst;
-
-        lst = Separator.COMMA.split(str);
-        if (lst.size() != 3) {
-            throw new IOException("not a user: " + str);
+        try (Reader in = file.newReader()) {
+            obj = new JsonParser().parse(in).getAsJsonObject();
         }
-        return new User(lst.get(0), lst.get(1), lst.get(2));
+        for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
+            tokens.put(entry.getKey(), User.fromJson(entry.getValue().getAsJsonObject()));
+        }
     }
 }

@@ -25,13 +25,10 @@ import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import java.util.Collection;
 
 public class UserDetailsMapper implements UserDetailsContextMapper {
-
-	public UserDetails mapUserFromContext(DirContextOperations ctx, String username,
-			Collection<? extends GrantedAuthority> authorities) {
+	public UserDetails mapUserFromContext(DirContextOperations ctx, String username, Collection<? extends GrantedAuthority> notUsed) {
 		String password;
 
 		Object object = ctx.getObjectAttribute("userPassword");
-
 		password = object != null ? LdapUtils.convertPasswordToString(object) : null;
 		return new User(ctx.getStringAttribute("uid"), ctx.getStringAttribute("displayName"),
 				ctx.getStringAttribute("mail"),

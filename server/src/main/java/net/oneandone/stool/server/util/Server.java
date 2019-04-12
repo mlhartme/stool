@@ -95,7 +95,7 @@ public class Server {
             this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials,
                     "ou=users,ou=" + configuration.ldapUnit);
         }
-        this.tokenManager = TokenManager.loadOpt(home.join("token"));
+        this.tokenManager = TokenManager.loadOpt(home.join("token.json"));
         this.accessors = StageConfiguration.accessors();
     }
 

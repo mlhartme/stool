@@ -29,7 +29,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private Server server;
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
+    public void configure(WebSecurity web) {
         if (server.configuration.ldapUrl.isEmpty()) {
             web.ignoring().anyRequest();
         } else {
@@ -49,7 +49,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                   .disable()
                .csrf().disable() // no sessions -> no need to protect them with csrf
                .authorizeRequests()
-                    .antMatchers("/api/**").hasRole("LOGIN")
+                    .antMatchers("/api/**").fullyAuthenticated()
                     .and()
                .httpBasic().realmName(REALM);
         }

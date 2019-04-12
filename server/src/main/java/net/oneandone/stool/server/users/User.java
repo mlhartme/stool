@@ -15,6 +15,9 @@
  */
 package net.oneandone.stool.server.users;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -23,6 +26,14 @@ import java.util.Collections;
 
 /** A stool user. Not that a user does not necessarily correspond to an OS user (i.e. a user account on the current machine) */
 public class User implements UserDetails {
+    public static User fromJson(JsonObject obj) {
+        return new User(str(obj, "login"), str(obj, "name"), str(obj, "email"));
+    }
+
+    private static String str(JsonObject obj, String name) {
+        return obj.get(name).getAsString();
+    }
+
     public final String login;
     public final String name;
     public final String email;
@@ -38,6 +49,16 @@ public class User implements UserDetails {
         this.name = name;
         this.email = email;
         this.password = password;
+    }
+
+    public JsonObject toJson() {
+        JsonObject result;
+
+        result = new JsonObject();
+        result.add("login", new JsonPrimitive(login));
+        result.add("name", new JsonPrimitive(name));
+        result.add("email", new JsonPrimitive(email));
+        return result;
     }
 
     //-- Object methods
@@ -80,12 +101,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new GrantedAuthority() { // TODO
-            @Override
-            public String getAuthority() {
-                return "ROLE_LOGIN";
-            }
-        });
+        return Collections.emptyList();
     }
 
     @Override
