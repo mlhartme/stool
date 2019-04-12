@@ -17,6 +17,8 @@ import net.oneandone.stool.server.util.Validation;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.ldap.userdetails.InetOrgPerson;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,6 +51,22 @@ public class ApiController {
     @GetMapping("/version")
     public String version() {
         return new JsonPrimitive( Main.versionString(server.world)).toString();
+    }
+
+    @PostMapping("/auth")
+    public String auth() {
+        Object principal;
+        String result;
+
+        principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (principal instanceof InetOrgPerson) {
+            result = server.tokenManager.create(((InetOrgPerson) principal).getUid());
+            System.out.println("created " + result);
+        } else {
+            System.out.println("not found: " + principal);
+            result = "";
+        }
+        return new JsonPrimitive(result).toString();
     }
 
 

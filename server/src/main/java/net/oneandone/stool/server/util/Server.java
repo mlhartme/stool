@@ -78,6 +78,8 @@ public class Server {
 
     public final Users users;
 
+    public final TokenManager tokenManager;
+
     public Map<String, Accessor> accessors;
 
     public Server(Gson gson, FileNode logRoot, FileNode home, ServerConfiguration configuration) {
@@ -93,6 +95,7 @@ public class Server {
             this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials,
                     "ou=users,ou=" + configuration.ldapUnit);
         }
+        this.tokenManager = new TokenManager();
         this.accessors = StageConfiguration.accessors();
     }
 
