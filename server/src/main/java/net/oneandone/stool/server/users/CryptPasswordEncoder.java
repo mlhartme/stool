@@ -1,4 +1,4 @@
-package net.oneandone.stool.server.cli;
+package net.oneandone.stool.server.users;
 
 import net.oneandone.sushi.util.Strings;
 import org.apache.commons.codec.digest.Md5Crypt;

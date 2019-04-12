@@ -1,4 +1,4 @@
-package net.oneandone.stool.server.cli;
+package net.oneandone.stool.server.users;
 
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.TokenManager;

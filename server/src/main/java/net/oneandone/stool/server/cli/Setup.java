@@ -16,6 +16,7 @@
 package net.oneandone.stool.server.cli;
 
 import net.oneandone.inline.Console;
+import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.util.Server;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;

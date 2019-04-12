@@ -1,6 +1,5 @@
-package net.oneandone.stool.server.cli;
+package net.oneandone.stool.server.users;
 
-import net.oneandone.stool.server.users.UserDetailsMapper;
 import net.oneandone.stool.server.util.Server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

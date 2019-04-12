@@ -18,7 +18,7 @@ package net.oneandone.stool.server.util;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import net.oneandone.stool.server.cli.Main;
+import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.Expire;
 import net.oneandone.stool.server.configuration.StageConfiguration;
