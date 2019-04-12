@@ -44,7 +44,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             System.out.println("security disabled");
         } else {
             http
-               .addFilterAfter(new AuthenticationFilter(), BasicAuthenticationFilter.class)
+               .addFilterAfter(new TokenAuthenticationFilter(), BasicAuthenticationFilter.class)
                .sessionManagement()
                   .disable()
                .csrf().disable()

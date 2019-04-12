@@ -14,26 +14,22 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 
-public class AuthenticationFilter extends GenericFilterBean {
+public class TokenAuthenticationFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        System.out.println("tokenFilter");
-        if (((HttpServletRequest) request).getHeader("X-mhm") != null) {
-            System.out.println("auth");
+        String token;
+
+        token = ((HttpServletRequest) request).getHeader("X-authentication");
+        if (token != null) {
             SecurityContextHolder.getContext().setAuthentication(new Authentication() {
                 @Override
                 public Collection<? extends GrantedAuthority> getAuthorities() {
-                    return Collections.singleton(new GrantedAuthority() {
-                        @Override
-                        public String getAuthority() {
-                            return "LOGIN";
-                        }
-                    });
+                    return Collections.emptyList();
                 }
 
                 @Override
                 public Object getCredentials() {
-                    return "creads";
+                    return token;
                 }
 
                 @Override
