@@ -130,9 +130,17 @@ public class MainIT {
     }
 
     private Launcher server(FileNode home) throws IOException {
+        final String trustStoreKey = "javax.net.ssl.trustStore";
+        String trustStore;
         Launcher launcher;
 
-        launcher = IT_ROOT.launcher("java", "-Djavax.net.ssl.trustStore=/Users/mhm/Projects/svn.1and1.org/com/oneandone/sales/tools/cisotools/cacerts", "-jar", PROJECT_ROOT.getParent().join("server/target/").findOne("server-*-springboot.jar").getAbsolute());
+
+        launcher = IT_ROOT.launcher("java");
+        trustStore = System.getProperty(trustStoreKey);
+        if (trustStore == null) {
+            launcher.arg("-D" + trustStoreKey + "=" + trustStore);
+        }
+        launcher.arg("-jar", PROJECT_ROOT.getParent().join("server/target/").findOne("server-*-springboot.jar").getAbsolute());
         launcher.getBuilder().environment().put("STOOL_HOME", home.getAbsolute());
         return launcher;
     }
