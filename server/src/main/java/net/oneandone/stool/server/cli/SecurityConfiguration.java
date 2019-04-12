@@ -26,6 +26,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private Server server;
 
+    /* To allow Pre-flight [OPTIONS] request from browser */
+    @Override
+    public void configure(WebSecurity web) throws Exception {
+        web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**");
+    }
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
@@ -36,12 +42,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
               .antMatchers("/api/**").hasRole("LOGIN")
               .and()
            .httpBasic().realmName(REALM);
-    }
-
-    /* To allow Pre-flight [OPTIONS] request from browser */
-    @Override
-    public void configure(WebSecurity web) throws Exception {
-        web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**");
     }
 
 
