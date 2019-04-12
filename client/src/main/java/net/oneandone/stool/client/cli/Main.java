@@ -74,6 +74,7 @@ public class Main {
               cli.begin("globals.world", "");
                        cli.begin("globals.console", "");
                        cli.begin("globals.client", "");
+                cli.add(Auth.class, "auth");
                 cli.base(ClientCommand.class, "");
                     cli.add(Create.class, "create projectAndProperties*");
                     cli.add(Build.class, "build -nocache -keep=5 -restart -m= projectOrArgs*");

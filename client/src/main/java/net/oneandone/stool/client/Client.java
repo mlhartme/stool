@@ -20,7 +20,19 @@ import java.util.List;
 import java.util.Map;
 
 public class Client {
-    public static Client create(World world, FileNode wireLog, String clientInvocation, String clientCommand) throws NodeInstantiationException {
+    public static Client token(World world, FileNode wireLog, String clientInvocation, String clientCommand,
+                                   String token) throws NodeInstantiationException {
+        return doCreate(world, wireLog, clientInvocation, clientCommand, token, null, null);
+
+    }
+    public static Client basicAuth(World world, FileNode wireLog, String clientInvocation, String clientCommand,
+                                   String username, String password) throws NodeInstantiationException {
+        return doCreate(world, wireLog, clientInvocation, clientCommand, null, username, password);
+
+    }
+
+    private static Client doCreate(World world, FileNode wireLog, String clientInvocation, String clientCommand,
+                                   String token, String username, String password) throws NodeInstantiationException {
         HttpNode node;
 
         if (wireLog != null) {
@@ -29,6 +41,12 @@ public class Client {
         node = (HttpNode) world.validNode("http://localhost:8080/api");
         node.getRoot().addExtraHeader("X-stool-client-invocation", clientInvocation);
         node.getRoot().addExtraHeader("X-stool-client-command", clientCommand);
+        if (token != null) {
+            node.getRoot().addExtraHeader("X-authentication", token);
+        }
+        if (username != null) {
+            node.getRoot().setCredentials(username, password);
+        }
         return new Client(node);
     }
 
@@ -41,6 +59,13 @@ public class Client {
     }
 
     //--
+
+    public String auth() throws IOException {
+        HttpNode node;
+
+        node = node("auth");
+        return parser.parse(node.post("")).getAsString();
+    }
 
     /** @param filter null to return all stages */
     public List<String> list(String filter) throws IOException {
@@ -59,7 +84,6 @@ public class Client {
         }
         return result;
     }
-
     //-- create, build, start, stop, remove
 
     public void create(String name, Map<String, String> config) throws IOException {

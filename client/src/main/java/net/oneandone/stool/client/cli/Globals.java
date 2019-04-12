@@ -21,6 +21,8 @@ import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
+import java.io.IOException;
+
 /** Basically a session factory */
 public class Globals {
     public final Console console;
@@ -55,7 +57,16 @@ public class Globals {
         return console;
     }
 
-    public Client client() throws NodeInstantiationException {
-        return Client.create(world, wirelog, clientInvocation, clientCommand);
+    public Client client() throws IOException {
+        FileNode file;
+        String token;
+
+        file = world.getHome().join(".stool-token");
+        if (file.exists()) {
+            token = file.readString().trim();
+        } else {
+            token = null;
+        }
+        return Client.token(world, wirelog, clientInvocation, clientCommand, token);
     }
 }
