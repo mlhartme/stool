@@ -1,12 +1,14 @@
 package net.oneandone.stool.server.util;
 
+import net.oneandone.stool.server.users.User;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 public class TokenManager {
     /** maps user to token */
-    private Map<String, String> tokens;
+    private Map<User, String> tokens;
 
     private final Random random;
 
@@ -15,7 +17,7 @@ public class TokenManager {
         this.random = new Random();
     }
 
-    public String create(String user) {
+    public String create(User user) {
         String token;
 
         token = generateToken();
@@ -23,8 +25,8 @@ public class TokenManager {
         return token;
     }
 
-    public String authentication(String token) {
-        for (Map.Entry<String, String> entry : tokens.entrySet()) {
+    public User authentication(String token) {
+        for (Map.Entry<User, String> entry : tokens.entrySet()) {
             if (token.equals(entry.getValue())) {
                 return entry.getKey();
             }

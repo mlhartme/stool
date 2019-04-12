@@ -7,6 +7,8 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.stage.Stage;
+import net.oneandone.stool.server.users.User;
+import net.oneandone.stool.server.users.UserNotFound;
 import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.logging.AccessLogEntry;
@@ -56,12 +58,16 @@ public class ApiController {
     @PostMapping("/auth")
     public String auth() {
         Object principal;
+        InetOrgPerson person;
+        User user;
         String result;
 
         principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof InetOrgPerson) {
-            result = server.tokenManager.create(((InetOrgPerson) principal).getUid());
-            System.out.println("created " + result);
+            person = (InetOrgPerson) principal;
+            user = new User(person.getUid(), person.getDisplayName(), person.getMail());
+            result = server.tokenManager.create(user);
+            System.out.println("created " + user + " -> " + result);
         } else {
             System.out.println("not found: " + principal);
             result = "";

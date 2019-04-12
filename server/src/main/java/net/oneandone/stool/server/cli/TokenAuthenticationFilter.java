@@ -1,5 +1,6 @@
 package net.oneandone.stool.server.cli;
 
+import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.TokenManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,7 +25,7 @@ public class TokenAuthenticationFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         String token;
-        String user;
+        User user;
 
         token = ((HttpServletRequest) request).getHeader("X-authentication");
         if (token != null) {
@@ -63,7 +64,7 @@ public class TokenAuthenticationFilter extends GenericFilterBean {
 
                     @Override
                     public String getName() {
-                        return user;
+                        return user.name;
                     }
                 });
             }
