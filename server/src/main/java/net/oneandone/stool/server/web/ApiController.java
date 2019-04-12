@@ -1,4 +1,4 @@
-package net.oneandone.stool.server.cli;
+package net.oneandone.stool.server.web;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
