@@ -8,7 +8,6 @@ import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
-import net.oneandone.stool.server.users.UserNotFound;
 import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.logging.AccessLogEntry;
@@ -20,7 +19,6 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.ldap.userdetails.InetOrgPerson;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,14 +56,12 @@ public class ApiController {
     @PostMapping("/auth")
     public String auth() throws IOException {
         Object principal;
-        InetOrgPerson person;
         User user;
         String result;
 
         principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof InetOrgPerson) {
-            person = (InetOrgPerson) principal;
-            user = new User(person.getUid(), person.getDisplayName(), person.getMail());
+        if (principal instanceof User) {
+            user = (User) principal;
             result = server.tokenManager.create(user);
             server.tokenManager.save();
         } else {

@@ -1,5 +1,6 @@
 package net.oneandone.stool.server.cli;
 
+import net.oneandone.stool.server.users.UserDetailsMapper;
 import net.oneandone.stool.server.util.Server;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -14,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
-import org.springframework.security.ldap.userdetails.InetOrgPersonContextMapper;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
@@ -101,7 +101,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         authoritiesPopulator.setIgnorePartialResultException(true);
 
         result = new LdapUserDetailsService(userSearch, authoritiesPopulator);
-        result.setUserDetailsMapper(new InetOrgPersonContextMapper());
+        result.setUserDetailsMapper(new UserDetailsMapper());
         return result;
     }
 
