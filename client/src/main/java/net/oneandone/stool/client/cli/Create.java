@@ -42,12 +42,17 @@ public class Create extends ProjectCommand {
 
     private static FileNode eatProject(World world, List<String> args) {
         String arg;
+        FileNode project;
 
         if (!args.isEmpty()) {
             arg = args.get(0);
             if (!arg.contains("=")) {
                 args.remove(0);
-                return world.file(arg);
+                project = world.file(arg);
+                if (!project.isDirectory()) {
+                    throw new ArgumentException("project directory not found: " + project.getAbsolute());
+                }
+                return project;
             }
         }
         return world.getWorking();

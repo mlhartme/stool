@@ -16,36 +16,30 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.sushi.fs.World;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class Auth {
     private final Globals globals;
-    private final World world;
     private final Console console;
+    private final String server;
 
-    public Auth(Globals globals, World world, Console console) {
+    public Auth(Globals globals, String server) {
         this.globals = globals;
-        this.world = world;
-        this.console = console;
+        this.console = globals.console;
+        this.server = server;
     }
 
 
     public void run() throws Exception {
         String username;
         String password;
-        Client client;
 
         username = console.readline("username: ");
         password = new String(System.console().readPassword("password:"));
-        client = globals.servers().defaultClient(); // TODO
-        client = Client.basicAuth(world, client.getName(), globals.servers().defaultUrl(), null, "", "", username, password);
-        world.getHome().join(".stool-token").writeString(client.auth());
-        console.info.println("done");
+        globals.servers().auth(server, username, password);
     }
 
     private String createdBy() {

@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -22,11 +23,15 @@ public class Servers {
 
         public final String name;
         public final String url;
-        public final String token;
+        private String token;
 
         private Server(String name, String url, String token) {
             this.name = name;
             this.url = url;
+            this.token = token;
+        }
+
+        public void setToken(String token) {
             this.token = token;
         }
 
@@ -53,6 +58,23 @@ public class Servers {
         this.clientInvocation = clientInvocation;
         this.clientCommand = clientCommand;
         this.servers = new HashMap<>();
+    }
+
+    public void auth(String serverName, String username, String password) throws IOException {
+        World world;
+        Server server;
+        Client client;
+        String token;
+
+        world = file.getWorld();
+        server = servers.get(serverName);
+        if (server == null) {
+            throw new ArgumentException("unknown server: " + serverName);
+        }
+        client = Client.basicAuth(world, server.name, server.url, wirelog, clientInvocation, clientCommand, username, password);
+        token = client.auth();
+        server.setToken(token);
+        save();
     }
 
     public Reference reference(String str) throws IOException {

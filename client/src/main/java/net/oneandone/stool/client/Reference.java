@@ -22,6 +22,20 @@ public class Reference {
         return result;
     }
 
+    public int hashCode() {
+        return stage.hashCode();
+    }
+
+    public boolean equals(Object object) {
+        Reference reference;
+
+        if (object instanceof Reference) {
+            reference = (Reference) object;
+            return stage.equals(reference.stage) && client.getName().equals(reference.client.getName());
+        }
+        return false;
+    }
+
     public String toString() {
         return stage + "@" + client.getName();
     }

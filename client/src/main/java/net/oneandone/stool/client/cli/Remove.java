@@ -52,7 +52,7 @@ public class Remove extends StageCommand {
         reference.client.remove(reference.stage);
 
         project = Project.lookup(world.getWorking());
-        if (project != null && reference.stage.equals(project.getAttachedOpt(globals.servers()))) {
+        if (project != null && reference.equals(project.getAttachedOpt(globals.servers()))) {
             console.info.println("removing backstage");
             project.removeBackstage();
         }

@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.users;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.springframework.security.core.GrantedAuthority;
