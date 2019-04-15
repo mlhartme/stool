@@ -29,14 +29,14 @@ import java.io.Writer;
 import java.util.Map;
 
 public abstract class ClientCommand {
+    protected final Globals globals;
     protected final World world;
     protected final Console console;
-    protected final Client client;
 
-    public ClientCommand(World world, Console console, Client client) {
-        this.console = console;
+    public ClientCommand(Globals globals, World world, Console console) {
+        this.globals = globals;
         this.world = world;
-        this.client = client;
+        this.console = console;
     }
 
     public void run() throws Exception {
@@ -76,7 +76,7 @@ public abstract class ClientCommand {
 
     //-- utility code to simplify server api
 
-    public boolean up(String stage) throws IOException {
+    public boolean up(Client client, String stage) throws IOException {
         Map<String, String> map;
 
         map = client.status(stage, Strings.toList("up"));

@@ -26,21 +26,21 @@ public class Remove extends StageCommand {
     private final boolean batch;
     private final boolean stop;
 
-    public Remove(World world, Console console, Client client, boolean batch, boolean stop) {
-        super(world, console, client);
+    public Remove(Globals globals, World world, Console console, boolean batch, boolean stop) {
+        super(globals, world, console);
         this.batch = batch;
         this.stop = stop;
     }
 
     @Override
-    public void doMain(String stage) throws Exception {
+    public void doMain(Client client, String stage) throws Exception {
         boolean up;
         Project project;
 
-        up = up(stage);
+        up = up(client, stage);
         if (stop && up) {
-            new Stop(world, console, client).doRun(stage);
-            up = up(stage);
+            new Stop(globals, world, console).doRun(client, stage);
+            up = up(client, stage);
         }
         if (up) {
             throw new IOException("stage is not stopped.");

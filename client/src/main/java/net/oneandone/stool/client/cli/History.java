@@ -23,14 +23,14 @@ public class History extends StageCommand {
     private final boolean details;
     private final int max;
 
-    public History(World world, Console console, Client client, boolean details, int max) {
-        super(world, console, client);
+    public History(Globals globals, World world, Console console, boolean details, int max) {
+        super(globals, world, console);
         this.details = details;
         this.max = max;
     }
 
     @Override
-    public void doMain(String stage) throws Exception {
+    public void doMain(Client client, String stage) throws Exception {
         for (String line : client.history(stage, details, max)) {
             console.info.println(line);
         }

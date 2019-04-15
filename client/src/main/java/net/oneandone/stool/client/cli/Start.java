@@ -32,12 +32,12 @@ public class Start extends StageCommand {
     private final Map<String, String> environment;
     private final Map<String, Integer> selection;
 
-    public Start(World world, Console console, Client client, boolean tail, List<String> selection) {
-        this(world, console, client, tail, -1, -1, selection);
+    public Start(Globals globals, World world, Console console, boolean tail, List<String> selection) {
+        this(globals, world, console, tail, -1, -1, selection);
     }
 
-    public Start(World world, Console console, Client client, boolean tail, int http, int https, List<String> selection) {
-        super(world, console, client);
+    public Start(Globals globals, World world, Console console, boolean tail, int http, int https, List<String> selection) {
+        super(globals, world, console);
         this.tail = tail;
         this.http = http;
         this.https = https;
@@ -66,12 +66,12 @@ public class Start extends StageCommand {
     }
 
     @Override
-    public void doMain(String stage) throws Exception {
+    public void doMain(Client client, String stage) throws Exception {
         client.start(stage, http, https, environment, selection);
     }
 
     @Override
-    public void doFinish(String stage) throws Exception {
+    public void doFinish(Client client, String stage) throws Exception {
         Map<String, List<String>> running;
 
         running = client.awaitStartup(stage);

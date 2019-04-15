@@ -25,18 +25,18 @@ import java.util.List;
 public class Restart extends StageCommand {
     private final List<String> selection;
 
-    public Restart(World world, Console console, Client client, List<String> selection) {
-        super(world, console, client);
+    public Restart(Globals globals, World world, Console console, List<String> selection) {
+        super(globals, world, console);
         this.selection = selection;
     }
 
     @Override
-    public void doMain(String stage) throws Exception {
-        if (up(stage)) {
-            new Stop(world, console, client, new ArrayList<>(selection(selection).keySet())).doRun(stage);
+    public void doMain(Client client, String stage) throws Exception {
+        if (up(client, stage)) {
+            new Stop(globals, world, console, new ArrayList<>(selection(selection).keySet())).doRun(client, stage);
         } else {
             console.info.println("Container is not running - starting a new instance.");
         }
-        new Start(world, console, client, false, selection).doRun(stage);
+        new Start(globals, world, console, false, selection).doRun(client, stage);
     }
 }

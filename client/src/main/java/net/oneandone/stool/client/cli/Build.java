@@ -38,8 +38,8 @@ public class Build extends ProjectCommand {
     private final String comment;
     private final Map<String, String> arguments;
 
-    public Build(World world, Console console, Client client, boolean noCache, int keep, boolean restart, String comment, List<String> projectOrArgs) {
-        super(world, console, client, eatProjectOpt(world, projectOrArgs));
+    public Build(Globals globals, World world, Console console, boolean noCache, int keep, boolean restart, String comment, List<String> projectOrArgs) {
+        super(globals, world, console, eatProjectOpt(world, projectOrArgs));
         this.noCache = noCache;
         this.keep = keep;
         this.restart = restart;
@@ -78,6 +78,7 @@ public class Build extends ProjectCommand {
     @Override
     public void doRun(FileNode projectDirectory) throws Exception {
         Project project;
+        Client client;
         String stage;
         Map<String, FileNode> wars;
         BuildResult result;
@@ -94,6 +95,7 @@ public class Build extends ProjectCommand {
         if (stage == null) {
             throw new IOException("no stage attached to " + projectDirectory);
         }
+        client = globals.client();
         for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
             result = client.build(stage, entry.getKey(), entry.getValue(), comment, project.getOrigin(),
@@ -108,7 +110,7 @@ public class Build extends ProjectCommand {
                 console.verbose.println(result.output);
             }
             if (restart) {
-                new Restart(world, console, (Client) client, new ArrayList<>()).doRun(stage);
+                new Restart(globals, world, console, new ArrayList<>()).doRun(client, stage);
             }
         }
     }

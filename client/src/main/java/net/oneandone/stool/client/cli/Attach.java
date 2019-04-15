@@ -27,8 +27,8 @@ import java.util.List;
 public class Attach extends ProjectCommand {
     private final String stage;
 
-    public Attach(World world, Console console, Client client, String stage, FileNode project) {
-        super(world, console, client, project);
+    public Attach(Globals globals, World world, Console console, String stage, FileNode project) {
+        super(globals, world, console, project);
         this.stage = stage;
     }
 
@@ -38,7 +38,7 @@ public class Attach extends ProjectCommand {
 
         List<String> found;
 
-        found = client.list(stage);
+        found = globals.client().list(stage);
         switch (found.size()) {
             case 0:
                 throw new IOException("no such stage: " + stage);

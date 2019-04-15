@@ -34,8 +34,8 @@ public abstract class StageCommand extends ClientCommand {
     private boolean all;
     private Fail fail = Fail.NORMAL;
 
-    public StageCommand(World world, Console console, Client client) {
-        super(world, console, client);
+    public StageCommand(Globals globals, World world, Console console) {
+        super(globals, world, console);
     }
 
     public void setStage(String stageClause) {
@@ -60,8 +60,10 @@ public abstract class StageCommand extends ClientCommand {
         String failureMessage;
         boolean withPrefix;
         Worker worker;
+        Client client;
 
-        lst = selectedList();
+        client = globals.client();
+        lst = selectedList(client);
         width = 0;
         for (String stage : lst) {
             width = Math.max(width, stage.length());
@@ -69,7 +71,7 @@ public abstract class StageCommand extends ClientCommand {
         width += 5;
         withPrefix = doBefore(lst, width);
         failures = new EnumerationFailed();
-        worker = new Worker(width, failures, withPrefix);
+        worker = new Worker(client, width, failures, withPrefix);
         for (String stage : lst) {
             worker.main(stage);
         }
@@ -93,7 +95,7 @@ public abstract class StageCommand extends ClientCommand {
         }
     }
 
-    private List<String> selectedList() throws IOException {
+    private List<String> selectedList(Client client) throws IOException {
         int count;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
@@ -135,16 +137,16 @@ public abstract class StageCommand extends ClientCommand {
 
     //--
 
-    /** main method to perform this command */
-    public abstract void doMain(String stage) throws Exception;
-
-    public void doRun(String stage) throws Exception {
-        doMain(stage);
-        doFinish(stage);
+    public void doRun(Client client, String stage) throws Exception {
+        doMain(client, stage);
+        doFinish(client, stage);
     }
 
+    /** main method to perform this command */
+    public abstract void doMain(Client client, String stage) throws Exception;
+
     /** override this if your doMain method needs some finishing */
-    public void doFinish(String stage) throws Exception {
+    public void doFinish(Client client, String stage) throws Exception {
     }
 
     /* Note that the stage is not locked when this method is called. */
@@ -179,11 +181,13 @@ public abstract class StageCommand extends ClientCommand {
 
     /** executes a stage command with proper locking */
     public class Worker {
+        private final Client client;
         private final int width;
         private final EnumerationFailed failures;
         private final boolean withPrefix;
 
-        public Worker(int width, EnumerationFailed failures, boolean withPrefix) {
+        public Worker(Client client, int width, EnumerationFailed failures, boolean withPrefix) {
+            this.client = client;
             this.width = width;
             this.failures = failures;
             this.withPrefix = withPrefix;
@@ -224,12 +228,12 @@ public abstract class StageCommand extends ClientCommand {
 
         private void runMain(String stage) throws Exception {
             console.verbose.println("*** stage main");
-            doMain(stage);
+            doMain(client, stage);
         }
 
         private void runFinish(String stage) throws Exception {
             console.verbose.println("*** stage finish");
-            doFinish(stage);
+            doFinish(client, stage);
         }
     }
 }

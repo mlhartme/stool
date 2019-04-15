@@ -25,25 +25,25 @@ import java.util.List;
 public class Stop extends StageCommand {
     private final List<String> apps;
 
-    public Stop(World world, Console console, Client client) {
-        this(world, console, client, new ArrayList<>());
+    public Stop(Globals globals, World world, Console console) {
+        this(globals, world, console, new ArrayList<>());
     }
-    public Stop(World world, Console console, Client client, List<String> apps) {
-        super(world, console, client);
+    public Stop(Globals globals, World world, Console console, List<String> apps) {
+        super(globals, world, console);
         this.apps = apps;
     }
 
     @Override
-    public void doMain(String stage) throws Exception {
-        doNormal(stage);
+    public void doMain(Client client, String stage) throws Exception {
+        doNormal(client, stage);
     }
 
-    public void doNormal(String stage) throws Exception {
+    public void doNormal(Client client, String stage) throws Exception {
         client.stop(stage, apps);
     }
 
     @Override
-    public void doFinish(String stage) {
+    public void doFinish(Client client, String stage) {
         console.info.println("state: down");
     }
 }

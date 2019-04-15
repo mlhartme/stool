@@ -28,13 +28,13 @@ import java.util.List;
 public class App extends StageCommand {
     private final List<String> names;
 
-    public App(World world, Console console, Client client, List<String> names) {
-        super(world, console, client);
+    public App(Globals globals, World world, Console console, List<String> names) {
+        super(globals, world, console);
         this.names = names;
     }
 
     @Override
-    public void doMain(String stage) throws Exception {
+    public void doMain(Client client, String stage) throws Exception {
         for (String app : appSelection(client.apps(stage))) {
             for (String line : client.appInfo(stage, app)) {
                 console.info.println(line);

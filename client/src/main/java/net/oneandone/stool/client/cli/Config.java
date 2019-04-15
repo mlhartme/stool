@@ -30,8 +30,8 @@ public class Config extends StageCommand {
     private boolean get;
     private boolean set;
 
-    public Config(World world, Console console, Client client) {
-        super(world, console, client);
+    public Config(Globals globals, World world, Console console) {
+        super(globals, world, console);
         arguments = new LinkedHashMap<>();
     }
 
@@ -62,7 +62,7 @@ public class Config extends StageCommand {
     }
 
     @Override
-    public void doMain(String stage) throws Exception {
+    public void doMain(Client client, String stage) throws Exception {
         Map<String, String> props;
         int width;
 

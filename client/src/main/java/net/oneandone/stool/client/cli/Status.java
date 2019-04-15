@@ -24,14 +24,14 @@ import net.oneandone.sushi.util.Strings;
 import java.util.Map;
 
 public class Status extends InfoCommand {
-    public Status(World world, Console console, Client client, String defaults) {
-        super(world, console, client, defaults);
+    public Status(Globals globals, World world, Console console, String defaults) {
+        super(globals, world, console, defaults);
     }
 
     private static final Separator TAB = Separator.on('\t');
 
     @Override
-    public void doMain(String stage) throws Exception {
+    public void doMain(Client client, String stage) throws Exception {
         Map<String, String> infos;
         int width;
         boolean first;

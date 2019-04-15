@@ -29,8 +29,8 @@ import java.util.Map;
 public class Ls extends InfoCommand {
     private final List<List<String>> lines;
 
-    public Ls(World world, Console console, Client client, String defaults) {
-        super(world, console, client, defaults);
+    public Ls(Globals globals, World world, Console console, String defaults) {
+        super(globals, world, console, defaults);
         lines = new ArrayList<>();
     }
 
@@ -55,7 +55,7 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public void doMain(String stage) throws Exception {
+    public void doMain(Client client, String stage) throws Exception {
         List<String> line;
 
         line = new ArrayList<>();
@@ -69,6 +69,7 @@ public class Ls extends InfoCommand {
     public void doAfter() throws IOException {
         int padStorage = 8;
         List<Integer> widths;
+        Client client;
         boolean first;
 
         widths = widths();
@@ -87,12 +88,13 @@ public class Ls extends InfoCommand {
         }
         message("");
         header("storage");
+        client = globals.client();
         message("        mem: " + Strings.padLeft("~" + client.memUnreserved() + " mb free", padStorage));
-        quota();
+        quota(client);
         message("");
     }
 
-    private void quota() throws IOException {
+    private void quota(Client client) throws IOException {
         String quota;
 
         quota = client.quota();
@@ -118,7 +120,8 @@ public class Ls extends InfoCommand {
         return result;
     }
 
+    @Override
     protected List<String> defaultSelected() throws IOException {
-        return client.list(null);
+        return globals.client().list(null);
     }
 }

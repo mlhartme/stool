@@ -30,8 +30,8 @@ public class Validate extends ClientCommand {
     private final boolean repair;
     private final String stageClause;
 
-    public Validate(World world, Console console, Client client, boolean email, boolean repair, String stageClause) {
-        super(world, console, client);
+    public Validate(Globals globals, World world, Console console, boolean email, boolean repair, String stageClause) {
+        super(globals, world, console);
         this.email = email;
         this.repair = repair;
         this.stageClause = stageClause;
@@ -41,7 +41,7 @@ public class Validate extends ClientCommand {
     public void doRun() throws Exception {
         List<String> result;
 
-        result = client.validate(stageClause, email, repair);
+        result = globals.client().validate(stageClause, email, repair);
         if (result.isEmpty()) {
             console.info.println("validate ok");
         } else {

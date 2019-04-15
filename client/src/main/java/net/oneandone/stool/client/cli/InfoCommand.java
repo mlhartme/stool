@@ -29,8 +29,8 @@ public abstract class InfoCommand extends StageCommand {
 
     private final String defaults;
 
-    public InfoCommand(World world, Console console, Client client, String defaults) {
-        super(world, console, client);
+    public InfoCommand(Globals globals, World world, Console console, String defaults) {
+        super(globals, world, console);
         this.defaults = defaults == null ? "" : defaults;
     }
 
