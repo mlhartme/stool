@@ -17,7 +17,7 @@ package net.oneandone.stool.dashboard;
 
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.Users;
-import net.oneandone.stool.server.util.Server;
+import net.oneandone.stool.server.Server;
 import net.oneandone.sushi.fs.NodeNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;

@@ -18,9 +18,6 @@ package net.oneandone.stool.server.util;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Used instead of System.getenv. This way, I can properly define the interfaces/dependencies i have.
  * And it provides a simple mocking mechanism for integration tests

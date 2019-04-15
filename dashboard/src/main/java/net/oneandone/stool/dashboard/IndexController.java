@@ -18,7 +18,7 @@ package net.oneandone.stool.dashboard;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.ServerConfiguration;
 import net.oneandone.stool.server.util.Mailer;
-import net.oneandone.stool.server.util.Server;
+import net.oneandone.stool.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

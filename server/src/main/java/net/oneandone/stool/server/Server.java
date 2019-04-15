@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.util;
+package net.oneandone.stool.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.Expire;
-import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.configuration.ServerConfiguration;
+import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.configuration.adapter.FileNodeTypeAdapter;
 import net.oneandone.stool.server.docker.Engine;
@@ -32,6 +31,9 @@ import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.Users;
+import net.oneandone.stool.server.util.Pool;
+import net.oneandone.stool.server.util.Predicate;
+import net.oneandone.stool.server.util.TokenManager;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -219,7 +221,7 @@ public class Server {
             body.write("stool: " + Main.versionString(world) + "\n");
             body.write("command: " + command + "\n");
             body.write("context: " + context + "\n");
-            body.write("user: " + MDC.get("USER") + "\n");
+            body.write("user: " + MDC.get("USER") + "\n"); // TODO
             body.write("hostname: " + configuration.hostname + "\n");
             writer = new PrintWriter(body);
             while (true) {

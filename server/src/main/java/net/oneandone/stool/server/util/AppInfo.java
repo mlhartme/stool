@@ -1,6 +1,7 @@
 package net.oneandone.stool.server.util;
 
 import com.google.gson.JsonObject;
+import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.Stats;
 import net.oneandone.stool.server.stage.Image;
