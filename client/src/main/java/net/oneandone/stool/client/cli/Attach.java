@@ -17,6 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -34,9 +35,9 @@ public class Attach extends ProjectCommand {
     public void doRun(FileNode project) throws Exception {
         Project backstage;
 
-        List<String> found;
+        List<Reference> found;
 
-        found = globals.client().list(stage);
+        found = globals.servers().list(stage);
         switch (found.size()) {
             case 0:
                 throw new IOException("no such stage: " + stage);
@@ -49,6 +50,6 @@ public class Attach extends ProjectCommand {
         if (backstage == null) {
             backstage = Project.create(project);
         }
-        backstage.setAttached(stage);
+        backstage.setAttached(found.get(0));
     }
 }

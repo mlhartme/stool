@@ -20,6 +20,7 @@ import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
+import net.oneandone.stool.client.Servers;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Strings;
 
@@ -62,7 +63,7 @@ public abstract class StageCommand extends ClientCommand {
         boolean withPrefix;
         Worker worker;
 
-        lst = selectedList(globals.client());
+        lst = selectedList(globals.servers());
         width = 0;
         for (Reference reference : lst) {
             width = Math.max(width, reference.stage.length());
@@ -94,36 +95,30 @@ public abstract class StageCommand extends ClientCommand {
         }
     }
 
-    private List<Reference> selectedList(Client client) throws IOException {
+    private List<Reference> selectedList(Servers servers) throws IOException {
         int count;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
         switch (count) {
             case 0:
-                return defaultSelected();
+                return defaultSelected(servers);
             case 1:
-                if (all) {
-                    return Reference.list(client, client.list(null));
-                } else if (stageClause != null) {
-                    return Reference.list(client, client.list(stageClause));
-                } else {
-                    throw new IllegalStateException();
-                }
+                return servers.list(all ? null : stageClause);
             default:
                 throw new ArgumentException("too many select options");
         }
     }
 
     /** override this to change the default */
-    protected List<Reference> defaultSelected() throws IOException {
+    protected List<Reference> defaultSelected(Servers servers) throws IOException {
         Project project;
-        String stage;
+        Reference reference;
 
         project = Project.lookup(world.getWorking());
         if (project != null) {
-            stage = project.getAttachedOpt();
-            if (stage != null) {
-                return Collections.singletonList(new Reference(globals.client(), stage));
+            reference = project.getAttachedOpt(servers);
+            if (reference != null) {
+                return Collections.singletonList(reference);
             }
         }
         return Collections.emptyList();

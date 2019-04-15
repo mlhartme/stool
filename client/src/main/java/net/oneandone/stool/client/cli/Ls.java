@@ -18,6 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
+import net.oneandone.stool.client.Servers;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -67,10 +68,8 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public void doAfter() throws IOException {
-        int padStorage = 8;
+    public void doAfter() {
         List<Integer> widths;
-        Client client;
         boolean first;
 
         widths = widths();
@@ -87,11 +86,6 @@ public class Ls extends InfoCommand {
                 first = false;
             }
         }
-        message("");
-        header("storage");
-        client = globals.client();
-        message("        mem: " + Strings.padLeft("~" + client.memUnreserved() + " mb free", padStorage));
-        quota(client);
         message("");
     }
 
@@ -122,10 +116,7 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    protected List<Reference> defaultSelected() throws IOException {
-        Client client;
-
-        client = globals.client();
-        return Reference.list(client, client.list(null));
+    protected List<Reference> defaultSelected(Servers servers) throws IOException {
+        return servers.list(null);
     }
 }

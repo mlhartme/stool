@@ -20,18 +20,18 @@ import java.util.List;
 import java.util.Map;
 
 public class Client {
-    public static Client token(World world, String url, FileNode wireLog, String clientInvocation, String clientCommand,
+    public static Client token(World world, String name, String url, FileNode wireLog, String clientInvocation, String clientCommand,
                                    String token) throws NodeInstantiationException {
-        return doCreate(world, url, wireLog, clientInvocation, clientCommand, token, null, null);
+        return doCreate(world, name, url, wireLog, clientInvocation, clientCommand, token, null, null);
 
     }
-    public static Client basicAuth(World world, String url, FileNode wireLog, String clientInvocation, String clientCommand,
+    public static Client basicAuth(World world, String name, String url, FileNode wireLog, String clientInvocation, String clientCommand,
                                    String username, String password) throws NodeInstantiationException {
-        return doCreate(world, url, wireLog, clientInvocation, clientCommand, null, username, password);
+        return doCreate(world, name, url, wireLog, clientInvocation, clientCommand, null, username, password);
 
     }
 
-    private static Client doCreate(World world, String url, FileNode wireLog, String clientInvocation, String clientCommand,
+    private static Client doCreate(World world, String name, String url, FileNode wireLog, String clientInvocation, String clientCommand,
                                    String token, String username, String password) throws NodeInstantiationException {
         HttpNode node;
 
@@ -47,15 +47,21 @@ public class Client {
         if (username != null) {
             node.getRoot().setCredentials(username, password);
         }
-        return new Client(node);
+        return new Client(name, node);
     }
 
+    private final String name;
     private final HttpNode root;
     private final JsonParser parser;
 
-    public Client(HttpNode root) {
+    public Client(String name, HttpNode root) {
+        this.name = name;
         this.root = root;
         this.parser = new JsonParser();
+    }
+
+    public String getName() {
+        return name;
     }
 
     //--

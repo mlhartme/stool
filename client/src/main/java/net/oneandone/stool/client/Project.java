@@ -22,6 +22,7 @@ import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
+import java.sql.Ref;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -69,15 +70,15 @@ public class Project {
         this.project = backstage.getParent();
     }
 
-    public String getAttachedOpt() throws IOException {
+    public Reference getAttachedOpt(Servers servers) throws IOException {
         FileNode map;
 
         map = map();
-        return map.isFile() ? map.readString().trim() : null;
+        return map.exists() ? servers.reference(map.readString().trim()) : null;
     }
 
-    public void setAttached(String stage) throws IOException {
-        map().writeString(stage);
+    public void setAttached(Reference reference) throws IOException {
+        map().writeString(reference.toString());
     }
 
     private FileNode map() {

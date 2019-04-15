@@ -17,16 +17,19 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Client;
+import net.oneandone.stool.client.Globals;
 import net.oneandone.sushi.fs.World;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 public class Auth {
+    private final Globals globals;
     private final World world;
     private final Console console;
 
-    public Auth(World world, Console console) {
+    public Auth(Globals globals, World world, Console console) {
+        this.globals = globals;
         this.world = world;
         this.console = console;
     }
@@ -39,7 +42,8 @@ public class Auth {
 
         username = console.readline("username: ");
         password = new String(System.console().readPassword("password:"));
-        client = Client.basicAuth(world, null, "", "", username, password);
+        client = globals.servers().defaultClient(); // TODO
+        client = Client.basicAuth(world, client.getName(), globals.servers().defaultUrl(), null, "", "", username, password);
         world.getHome().join(".stool-token").writeString(client.auth());
         console.info.println("done");
     }

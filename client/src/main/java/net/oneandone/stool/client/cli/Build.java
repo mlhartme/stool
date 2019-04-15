@@ -79,8 +79,7 @@ public class Build extends ProjectCommand {
     @Override
     public void doRun(FileNode projectDirectory) throws Exception {
         Project project;
-        Client client;
-        String stage;
+        Reference reference;
         Map<String, FileNode> wars;
         BuildResult result;
 
@@ -92,14 +91,13 @@ public class Build extends ProjectCommand {
         if (wars.isEmpty()) {
             throw new IOException("no wars to build");
         }
-        stage = project.getAttachedOpt();
-        if (stage == null) {
+        reference = project.getAttachedOpt(globals.servers());
+        if (reference == null) {
             throw new IOException("no stage attached to " + projectDirectory);
         }
-        client = globals.client();
         for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
-            result = client.build(stage, entry.getKey(), entry.getValue(), comment, project.getOrigin(),
+            result = reference.client.build(reference.stage, entry.getKey(), entry.getValue(), comment, project.getOrigin(),
                     createdBy(), createdOn(), noCache, keep, arguments);
             project.imageLog().writeString(result.output);
             if (result.error != null) {
@@ -111,7 +109,7 @@ public class Build extends ProjectCommand {
                 console.verbose.println(result.output);
             }
             if (restart) {
-                new Restart(globals, new ArrayList<>()).doRun(new Reference(client, stage));
+                new Restart(globals, new ArrayList<>()).doRun(reference);
             }
         }
     }

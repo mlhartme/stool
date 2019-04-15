@@ -39,7 +39,8 @@ public class Validate extends ClientCommand {
     public void doRun() throws Exception {
         List<String> result;
 
-        result = globals.client().validate(stageClause, email, repair);
+        // TODO
+        result = globals.servers().defaultClient().validate(stageClause, email, repair);
         if (result.isEmpty()) {
             console.info.println("validate ok");
         } else {
