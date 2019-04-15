@@ -57,10 +57,17 @@ public class Globals {
     }
 
     public Servers servers() throws IOException {
+        FileNode file;
         Servers result;
 
-        result = new Servers(world.getHome().join(".stool-servers"), wirelog, clientInvocation, clientCommand);
-        result.load();
+        file = world.getHome().join(".stool-servers");
+        result = new Servers(file, wirelog, clientInvocation, clientCommand);
+        if (file.exists()) {
+            result.load();
+        } else {
+            result.defaultServers();
+            // TODO: save -- ITs would clash with normal local config
+        }
         return result;
     }
 }

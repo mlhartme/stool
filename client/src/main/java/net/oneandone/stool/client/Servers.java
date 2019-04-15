@@ -129,11 +129,6 @@ public class Servers {
     }
 
     // TODO
-    public String defaultUrl() {
-        return servers.get(servers.keySet().iterator().next()).url;
-    }
-
-    // TODO
     public Client defaultClient() throws IOException {
         return client(servers.keySet().iterator().next());
 
@@ -148,4 +143,14 @@ public class Servers {
         }
         return Client.token(file.getWorld(), server.name, server.url, wirelog, clientInvocation, clientCommand, server.token);
     }
+
+    public void defaultServers() {
+        String name;
+
+        name = "default";
+        servers.clear();
+        servers.put(name, new Server(name, "http://localhost:8080/api", ""));
+    }
+
+
 }

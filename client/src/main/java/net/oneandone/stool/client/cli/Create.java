@@ -30,14 +30,29 @@ import java.util.List;
 import java.util.Map;
 
 public class Create extends ProjectCommand {
+    private final String server;
     private final Map<String, String> config;
 
     public Create(Globals globals, List<String> args) {
         super(globals, eatProject(globals.world, args));
+        this.server = eatServer(args);
         this.config = new LinkedHashMap<>();
         for (String arg : args) {
             property(arg);
         }
+    }
+
+    private static String eatServer(List<String> args) {
+        String arg;
+
+        if (!args.isEmpty()) {
+            arg = args.remove(0);
+            if (!arg.contains("=")) {
+                args.remove(0);
+                return arg;
+            }
+        }
+        return "default";
     }
 
     private static FileNode eatProject(World world, List<String> args) {
@@ -96,7 +111,7 @@ public class Create extends ProjectCommand {
             name = project.getDirectory().getName();
         }
         Project.checkName(name);
-        client = servers.defaultClient();
+        client = servers.client(server);
         client.create(name, config);
         reference = new Reference(client, name);
         console.info.println("stage create: " + reference);

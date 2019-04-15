@@ -76,7 +76,7 @@ public class Main {
                        cli.begin("globals.console", "");
                 cli.add(Auth.class, "auth server");
                 cli.base(ClientCommand.class, "");
-                    cli.add(Create.class, "create projectAndProperties*");
+                    cli.add(Create.class, "create projectAndServerAndProperties*");
                     cli.add(Build.class, "build -nocache -keep=5 -restart -m= projectOrArgs*");
                     cli.add(Attach.class, "attach stage project?");
                     cli.add(Detach.class, "detach project?");
