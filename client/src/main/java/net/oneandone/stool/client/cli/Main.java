@@ -74,7 +74,6 @@ public class Main {
               cli.addDefault(Help.class, "help command?");
               cli.begin("globals.world", "");
                        cli.begin("globals.console", "");
-                       cli.begin("globals.client", "");
                 cli.add(Auth.class, "auth");
                 cli.base(ClientCommand.class, "");
                     cli.add(Create.class, "create projectAndProperties*");

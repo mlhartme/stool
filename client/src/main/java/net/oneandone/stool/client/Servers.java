@@ -68,7 +68,7 @@ public class Servers {
         if (servers.get(name) == null) {
             throw new IllegalArgumentException("unknown server: " + name);
         }
-        return new Reference(name, client(name), str.substring(0, idx));
+        return new Reference(client(name), str.substring(0, idx));
     }
 
     public List<Reference> list(String filter) throws IOException {
@@ -78,7 +78,7 @@ public class Servers {
         result = new ArrayList<>();
         for (Server server : servers.values()) {
             client = client(server.name);
-            result.addAll(Reference.list(server.name, client, client.list(filter)));
+            result.addAll(Reference.list(client, client.list(filter)));
         }
         return result;
     }

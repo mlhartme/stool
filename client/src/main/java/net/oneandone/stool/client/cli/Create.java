@@ -75,6 +75,7 @@ public class Create extends ProjectCommand {
         Project project;
         String name;
         Client client;
+        Reference reference;
 
         servers = globals.servers();
         project = Project.lookup(projectDirectory);
@@ -92,7 +93,8 @@ public class Create extends ProjectCommand {
         Project.checkName(name);
         client = servers.defaultClient();
         client.create(name, config);
-        console.info.println("stage create: " + name);
-        project.setAttached(new Reference(client.getName(), client, name));
+        reference = new Reference(client, name);
+        console.info.println("stage create: " + reference);
+        project.setAttached(reference);
     }
 }

@@ -56,7 +56,11 @@ public class Globals {
         return console;
     }
 
-    public Servers servers() {
-        return new Servers(world.getHome().join(".stool-servers"), wirelog, clientInvocation, clientCommand);
+    public Servers servers() throws IOException {
+        Servers result;
+
+        result = new Servers(world.getHome().join(".stool-servers"), wirelog, clientInvocation, clientCommand);
+        result.load();
+        return result;
     }
 }
