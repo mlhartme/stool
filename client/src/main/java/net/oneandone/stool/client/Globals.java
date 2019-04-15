@@ -26,13 +26,15 @@ import java.io.IOException;
 public class Globals {
     public final Console console;
     public final World world;
+    private final FileNode clientHome;
     private final String clientInvocation;
     private final String clientCommand;
     private FileNode wirelog;
 
-    public Globals(Console console, World world, String clientInvocation, String clientCommand) {
+    public Globals(Console console, World world, FileNode clientHome, String clientInvocation, String clientCommand) {
         this.console = console;
         this.world = world;
+        this.clientHome = clientHome;
         this.clientInvocation = clientInvocation;
         this.clientCommand = clientCommand;
         this.wirelog = null;
@@ -60,13 +62,13 @@ public class Globals {
         FileNode file;
         Servers result;
 
-        file = world.getHome().join(".stool-servers");
+        file = clientHome.join(".stool-servers");
         result = new Servers(file, wirelog, clientInvocation, clientCommand);
         if (file.exists()) {
             result.load();
         } else {
             result.defaultServers();
-            // TODO: save -- ITs would clash with normal local config
+            result.save();
         }
         return result;
     }

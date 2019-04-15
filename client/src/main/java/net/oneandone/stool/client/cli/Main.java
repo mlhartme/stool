@@ -64,7 +64,8 @@ public class Main {
             out = new PrefixWriter(new PrintWriter(System.out));
             console = new Console(out, out, System.in);
         }
-        globals = new Globals(console, world, UUID.randomUUID().toString(), "stool " + Separator.SPACE.join(args));
+        globals = new Globals(console, world, itHome == null ? world.getHome() : itHome,
+                UUID.randomUUID().toString(), "stool " + Separator.SPACE.join(args));
         cli = new Cli(globals.console::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
