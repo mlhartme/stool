@@ -17,6 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Client;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
@@ -31,13 +32,13 @@ public class Status extends InfoCommand {
     private static final Separator TAB = Separator.on('\t');
 
     @Override
-    public void doMain(Client client, String stage) throws Exception {
+    public void doMain(Reference reference) throws Exception {
         Map<String, String> infos;
         int width;
         boolean first;
         String value;
 
-        infos = client.status(stage, selected.isEmpty() ? defaults() : selected);
+        infos = reference.client.status(reference.stage, selected.isEmpty() ? defaults() : selected);
         width = 0;
         for (String name : infos.keySet()) {
             width = Math.max(width, name.length());

@@ -17,6 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Client;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -26,6 +27,7 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.sql.Ref;
 import java.util.Map;
 
 public abstract class ClientCommand {
@@ -76,10 +78,10 @@ public abstract class ClientCommand {
 
     //-- utility code to simplify server api
 
-    public boolean up(Client client, String stage) throws IOException {
+    public boolean up(Reference reference) throws IOException {
         Map<String, String> map;
 
-        map = client.status(stage, Strings.toList("up"));
+        map = reference.client.status(reference.stage, Strings.toList("up"));
         if (map.size() != 1) {
             throw new IllegalStateException("unknown state: " + map.toString());
         }

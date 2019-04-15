@@ -20,6 +20,7 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.client.BuildResult;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Project;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -110,7 +111,7 @@ public class Build extends ProjectCommand {
                 console.verbose.println(result.output);
             }
             if (restart) {
-                new Restart(globals, world, console, new ArrayList<>()).doRun(client, stage);
+                new Restart(globals, world, console, new ArrayList<>()).doRun(new Reference(client, stage));
             }
         }
     }

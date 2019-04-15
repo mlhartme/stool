@@ -18,8 +18,10 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Client;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.World;
 
+import java.sql.Ref;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,9 +36,9 @@ public class App extends StageCommand {
     }
 
     @Override
-    public void doMain(Client client, String stage) throws Exception {
-        for (String app : appSelection(client.apps(stage))) {
-            for (String line : client.appInfo(stage, app)) {
+    public void doMain(Reference reference) throws Exception {
+        for (String app : appSelection(reference.client.apps(reference.stage))) {
+            for (String line : reference.client.appInfo(reference.stage, app)) {
                 console.info.println(line);
             }
         }

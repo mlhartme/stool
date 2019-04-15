@@ -19,6 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Project;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Strings;
@@ -137,16 +138,16 @@ public abstract class StageCommand extends ClientCommand {
 
     //--
 
-    public void doRun(Client client, String stage) throws Exception {
-        doMain(client, stage);
-        doFinish(client, stage);
+    public void doRun(Reference reference) throws Exception {
+        doMain(reference);
+        doFinish(reference);
     }
 
     /** main method to perform this command */
-    public abstract void doMain(Client client, String stage) throws Exception;
+    public abstract void doMain(Reference reference) throws Exception;
 
     /** override this if your doMain method needs some finishing */
-    public void doFinish(Client client, String stage) throws Exception {
+    public void doFinish(Reference reference) throws Exception {
     }
 
     /* Note that the stage is not locked when this method is called. */
@@ -228,12 +229,12 @@ public abstract class StageCommand extends ClientCommand {
 
         private void runMain(String stage) throws Exception {
             console.verbose.println("*** stage main");
-            doMain(client, stage);
+            doMain(new Reference(client, stage));
         }
 
         private void runFinish(String stage) throws Exception {
             console.verbose.println("*** stage finish");
-            doFinish(client, stage);
+            doFinish(new Reference(client, stage));
         }
     }
 }

@@ -16,7 +16,7 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Client;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
@@ -66,15 +66,15 @@ public class Start extends StageCommand {
     }
 
     @Override
-    public void doMain(Client client, String stage) throws Exception {
-        client.start(stage, http, https, environment, selection);
+    public void doMain(Reference reference) throws Exception {
+        reference.client.start(reference.stage, http, https, environment, selection);
     }
 
     @Override
-    public void doFinish(Client client, String stage) throws Exception {
+    public void doFinish(Reference reference) throws Exception {
         Map<String, List<String>> running;
 
-        running = client.awaitStartup(stage);
+        running = reference.client.awaitStartup(reference.stage);
         console.info.println("Applications available:");
         for (String app : running.keySet()) {
             for (String url : running.get(app)) {
@@ -82,7 +82,7 @@ public class Start extends StageCommand {
             }
         }
         if (tail) {
-            doTail(stage);
+            doTail(reference.stage);
         }
     }
 

@@ -17,7 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Client;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
 
@@ -62,16 +62,16 @@ public class Config extends StageCommand {
     }
 
     @Override
-    public void doMain(Client client, String stage) throws Exception {
+    public void doMain(Reference reference) throws Exception {
         Map<String, String> props;
         int width;
 
         if (set) {
-            for (Map.Entry<String, String> entry : client.setProperties(stage, arguments).entrySet()) {
+            for (Map.Entry<String, String> entry : reference.client.setProperties(reference.stage, arguments).entrySet()) {
                 console.info.println(entry.getKey() + "=" + entry.getValue());
             }
         } else {
-            props = client.getProperties(stage);
+            props = reference.client.getProperties(reference.stage);
             if (get) {
                 props = selectedProperties(props);
             } else {

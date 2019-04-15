@@ -17,8 +17,10 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Client;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.World;
 
+import java.sql.Ref;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,12 +33,12 @@ public class Restart extends StageCommand {
     }
 
     @Override
-    public void doMain(Client client, String stage) throws Exception {
-        if (up(client, stage)) {
-            new Stop(globals, world, console, new ArrayList<>(selection(selection).keySet())).doRun(client, stage);
+    public void doMain(Reference reference) throws Exception {
+        if (up(reference)) {
+            new Stop(globals, world, console, new ArrayList<>(selection(selection).keySet())).doRun(reference);
         } else {
             console.info.println("Container is not running - starting a new instance.");
         }
-        new Start(globals, world, console, false, selection).doRun(client, stage);
+        new Start(globals, world, console, false, selection).doRun(reference);
     }
 }

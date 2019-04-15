@@ -17,6 +17,7 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Client;
+import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.World;
 
 import java.util.ArrayList;
@@ -34,16 +35,16 @@ public class Stop extends StageCommand {
     }
 
     @Override
-    public void doMain(Client client, String stage) throws Exception {
-        doNormal(client, stage);
+    public void doMain(Reference reference) throws Exception {
+        doNormal(reference);
     }
 
-    public void doNormal(Client client, String stage) throws Exception {
-        client.stop(stage, apps);
+    public void doNormal(Reference reference) throws Exception {
+        reference.client.stop(reference.stage, apps);
     }
 
     @Override
-    public void doFinish(Client client, String stage) {
+    public void doFinish(Reference reference) {
         console.info.println("state: down");
     }
 }
