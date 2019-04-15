@@ -21,6 +21,7 @@ import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
+import java.sql.Ref;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,7 +36,7 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    public boolean doBefore(List<String> stagesNotUsed, int indent) {
+    public boolean doBefore(List<Reference> stagesNotUsed, int indent) {
         List<String> line;
 
         if (selected.isEmpty()) {
@@ -121,7 +122,10 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    protected List<String> defaultSelected() throws IOException {
-        return globals.client().list(null);
+    protected List<Reference> defaultSelected() throws IOException {
+        Client client;
+
+        client = globals.client();
+        return Reference.list(client, client.list(null));
     }
 }
