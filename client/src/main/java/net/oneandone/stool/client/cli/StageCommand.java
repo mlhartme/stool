@@ -35,8 +35,8 @@ public abstract class StageCommand extends ClientCommand {
     private boolean all;
     private Fail fail = Fail.NORMAL;
 
-    public StageCommand(Globals globals, World world, Console console) {
-        super(globals, world, console);
+    public StageCommand(Globals globals) {
+        super(globals);
     }
 
     public void setStage(String stageClause) {

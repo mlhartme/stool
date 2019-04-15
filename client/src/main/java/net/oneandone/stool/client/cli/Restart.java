@@ -27,15 +27,15 @@ import java.util.List;
 public class Restart extends StageCommand {
     private final List<String> selection;
 
-    public Restart(Globals globals, World world, Console console, List<String> selection) {
-        super(globals, world, console);
+    public Restart(Globals globals, List<String> selection) {
+        super(globals);
         this.selection = selection;
     }
 
     @Override
     public void doMain(Reference reference) throws Exception {
         if (up(reference)) {
-            new Stop(globals, world, console, new ArrayList<>(selection(selection).keySet())).doRun(reference);
+            new Stop(globals, new ArrayList<>(selection(selection).keySet())).doRun(reference);
         } else {
             console.info.println("Container is not running - starting a new instance.");
         }

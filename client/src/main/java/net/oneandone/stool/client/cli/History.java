@@ -24,8 +24,8 @@ public class History extends StageCommand {
     private final boolean details;
     private final int max;
 
-    public History(Globals globals, World world, Console console, boolean details, int max) {
-        super(globals, world, console);
+    public History(Globals globals, boolean details, int max) {
+        super(globals);
         this.details = details;
         this.max = max;
     }

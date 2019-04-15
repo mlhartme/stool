@@ -33,11 +33,11 @@ public class Start extends StageCommand {
     private final Map<String, Integer> selection;
 
     public Start(Globals globals, World world, Console console, boolean tail, List<String> selection) {
-        this(globals, world, console, tail, -1, -1, selection);
+        this(globals, tail, -1, -1, selection);
     }
 
-    public Start(Globals globals, World world, Console console, boolean tail, int http, int https, List<String> selection) {
-        super(globals, world, console);
+    public Start(Globals globals, boolean tail, int http, int https, List<String> selection) {
+        super(globals);
         this.tail = tail;
         this.http = http;
         this.https = https;

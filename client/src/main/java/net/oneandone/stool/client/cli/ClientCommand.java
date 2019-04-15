@@ -35,10 +35,10 @@ public abstract class ClientCommand {
     protected final World world;
     protected final Console console;
 
-    public ClientCommand(Globals globals, World world, Console console) {
+    public ClientCommand(Globals globals) {
         this.globals = globals;
-        this.world = world;
-        this.console = console;
+        this.world = globals.world;
+        this.console = globals.console;
     }
 
     public void run() throws Exception {

@@ -25,8 +25,8 @@ import net.oneandone.sushi.util.Strings;
 import java.util.Map;
 
 public class Status extends InfoCommand {
-    public Status(Globals globals, World world, Console console, String defaults) {
-        super(globals, world, console, defaults);
+    public Status(Globals globals, String defaults) {
+        super(globals, defaults);
     }
 
     private static final Separator TAB = Separator.on('\t');

@@ -15,11 +15,8 @@
  */
 package net.oneandone.stool.client.cli;
 
-import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
 
@@ -27,8 +24,8 @@ public class Remove extends StageCommand {
     private final boolean batch;
     private final boolean stop;
 
-    public Remove(Globals globals, World world, Console console, boolean batch, boolean stop) {
-        super(globals, world, console);
+    public Remove(Globals globals, boolean batch, boolean stop) {
+        super(globals);
         this.batch = batch;
         this.stop = stop;
     }
@@ -40,7 +37,7 @@ public class Remove extends StageCommand {
 
         up = up(reference);
         if (stop && up) {
-            new Stop(globals, world, console).doRun(reference);
+            new Stop(globals).doRun(reference);
             up = up(reference);
         }
         if (up) {

@@ -27,8 +27,8 @@ import java.util.List;
 public class Attach extends ProjectCommand {
     private final String stage;
 
-    public Attach(Globals globals, World world, Console console, String stage, FileNode project) {
-        super(globals, world, console, project);
+    public Attach(Globals globals, String stage, FileNode project) {
+        super(globals, project);
         this.stage = stage;
     }
 

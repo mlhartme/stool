@@ -30,8 +30,8 @@ import java.util.Map;
 public class Ls extends InfoCommand {
     private final List<List<String>> lines;
 
-    public Ls(Globals globals, World world, Console console, String defaults) {
-        super(globals, world, console, defaults);
+    public Ls(Globals globals, String defaults) {
+        super(globals, defaults);
         lines = new ArrayList<>();
     }
 

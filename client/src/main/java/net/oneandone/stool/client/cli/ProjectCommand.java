@@ -23,8 +23,8 @@ import net.oneandone.sushi.fs.file.FileNode;
 public abstract class ProjectCommand extends ClientCommand {
     private final FileNode project;
 
-    public ProjectCommand(Globals globals, World world, Console console, FileNode project) {
-        super(globals, world, console);
+    public ProjectCommand(Globals globals, FileNode project) {
+        super(globals);
         this.project = project == null ? world.getWorking() : project;
     }
 

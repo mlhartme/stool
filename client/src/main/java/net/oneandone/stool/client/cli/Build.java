@@ -39,8 +39,8 @@ public class Build extends ProjectCommand {
     private final String comment;
     private final Map<String, String> arguments;
 
-    public Build(Globals globals, World world, Console console, boolean noCache, int keep, boolean restart, String comment, List<String> projectOrArgs) {
-        super(globals, world, console, eatProjectOpt(world, projectOrArgs));
+    public Build(Globals globals, boolean noCache, int keep, boolean restart, String comment, List<String> projectOrArgs) {
+        super(globals, eatProjectOpt(globals.world, projectOrArgs));
         this.noCache = noCache;
         this.keep = keep;
         this.restart = restart;
@@ -111,7 +111,7 @@ public class Build extends ProjectCommand {
                 console.verbose.println(result.output);
             }
             if (restart) {
-                new Restart(globals, world, console, new ArrayList<>()).doRun(new Reference(client, stage));
+                new Restart(globals, new ArrayList<>()).doRun(new Reference(client, stage));
             }
         }
     }

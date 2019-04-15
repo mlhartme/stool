@@ -30,8 +30,8 @@ import java.util.List;
 public class App extends StageCommand {
     private final List<String> names;
 
-    public App(Globals globals, World world, Console console, List<String> names) {
-        super(globals, world, console);
+    public App(Globals globals, List<String> names) {
+        super(globals);
         this.names = names;
     }
 

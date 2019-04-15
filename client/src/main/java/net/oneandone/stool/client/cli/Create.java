@@ -29,8 +29,8 @@ import java.util.Map;
 public class Create extends ProjectCommand {
     private final Map<String, String> config;
 
-    public Create(Globals globals, World world, Console console, List<String> args) {
-        super(globals, world, console, eatProject(world, args));
+    public Create(Globals globals, List<String> args) {
+        super(globals, eatProject(globals.world, args));
         this.config = new LinkedHashMap<>();
         for (String arg : args) {
             property(arg);

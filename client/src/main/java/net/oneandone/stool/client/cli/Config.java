@@ -30,8 +30,8 @@ public class Config extends StageCommand {
     private boolean get;
     private boolean set;
 
-    public Config(Globals globals, World world, Console console) {
-        super(globals, world, console);
+    public Config(Globals globals) {
+        super(globals);
         arguments = new LinkedHashMap<>();
     }
 

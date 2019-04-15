@@ -25,8 +25,8 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 
 public class Detach extends ProjectCommand {
-    public Detach(Globals globals, World world, Console console, FileNode project) {
-        super(globals, world, console, project);
+    public Detach(Globals globals, FileNode project) {
+        super(globals, project);
     }
 
     @Override

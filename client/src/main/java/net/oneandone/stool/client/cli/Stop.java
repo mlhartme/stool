@@ -26,11 +26,11 @@ import java.util.List;
 public class Stop extends StageCommand {
     private final List<String> apps;
 
-    public Stop(Globals globals, World world, Console console) {
-        this(globals, world, console, new ArrayList<>());
+    public Stop(Globals globals) {
+        this(globals, new ArrayList<>());
     }
-    public Stop(Globals globals, World world, Console console, List<String> apps) {
-        super(globals, world, console);
+    public Stop(Globals globals, List<String> apps) {
+        super(globals);
         this.apps = apps;
     }
 

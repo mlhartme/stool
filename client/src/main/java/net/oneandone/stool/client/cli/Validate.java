@@ -30,8 +30,8 @@ public class Validate extends ClientCommand {
     private final boolean repair;
     private final String stageClause;
 
-    public Validate(Globals globals, World world, Console console, boolean email, boolean repair, String stageClause) {
-        super(globals, world, console);
+    public Validate(Globals globals, boolean email, boolean repair, String stageClause) {
+        super(globals);
         this.email = email;
         this.repair = repair;
         this.stageClause = stageClause;
