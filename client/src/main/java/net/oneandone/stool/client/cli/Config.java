@@ -16,9 +16,7 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Strings;
 
 import java.util.LinkedHashMap;

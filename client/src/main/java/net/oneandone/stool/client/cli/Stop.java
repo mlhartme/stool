@@ -15,10 +15,7 @@
  */
 package net.oneandone.stool.client.cli;
 
-import net.oneandone.inline.Console;
-import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.sushi.fs.World;
 
 import java.util.ArrayList;
 import java.util.List;
