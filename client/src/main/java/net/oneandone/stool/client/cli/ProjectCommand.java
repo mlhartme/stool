@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.stool.client.Globals;
 import net.oneandone.sushi.fs.file.FileNode;
 
 public abstract class ProjectCommand extends ClientCommand {

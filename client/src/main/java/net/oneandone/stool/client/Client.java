@@ -20,25 +20,25 @@ import java.util.List;
 import java.util.Map;
 
 public class Client {
-    public static Client token(World world, FileNode wireLog, String clientInvocation, String clientCommand,
+    public static Client token(World world, String url, FileNode wireLog, String clientInvocation, String clientCommand,
                                    String token) throws NodeInstantiationException {
-        return doCreate(world, wireLog, clientInvocation, clientCommand, token, null, null);
+        return doCreate(world, url, wireLog, clientInvocation, clientCommand, token, null, null);
 
     }
-    public static Client basicAuth(World world, FileNode wireLog, String clientInvocation, String clientCommand,
+    public static Client basicAuth(World world, String url, FileNode wireLog, String clientInvocation, String clientCommand,
                                    String username, String password) throws NodeInstantiationException {
-        return doCreate(world, wireLog, clientInvocation, clientCommand, null, username, password);
+        return doCreate(world, url, wireLog, clientInvocation, clientCommand, null, username, password);
 
     }
 
-    private static Client doCreate(World world, FileNode wireLog, String clientInvocation, String clientCommand,
+    private static Client doCreate(World world, String url, FileNode wireLog, String clientInvocation, String clientCommand,
                                    String token, String username, String password) throws NodeInstantiationException {
         HttpNode node;
 
         if (wireLog != null) {
             HttpFilesystem.wireLog(wireLog.getAbsolute());
         }
-        node = (HttpNode) world.validNode("http://localhost:8080/api");
+        node = (HttpNode) world.validNode(url);
         node.getRoot().addExtraHeader("X-stool-client-invocation", clientInvocation);
         node.getRoot().addExtraHeader("X-stool-client-command", clientCommand);
         if (token != null) {

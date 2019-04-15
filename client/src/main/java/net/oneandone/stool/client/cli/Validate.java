@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.stool.client.Globals;
+
 import java.util.List;
 
 /**

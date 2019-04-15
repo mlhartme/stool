@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.client.cli;
+package net.oneandone.stool.client;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Client;
@@ -56,16 +56,7 @@ public class Globals {
         return console;
     }
 
-    public Client client() throws IOException {
-        FileNode file;
-        String token;
-
-        file = world.getHome().join(".stool-token");
-        if (file.exists()) {
-            token = file.readString().trim();
-        } else {
-            token = null;
-        }
-        return Client.token(world, wirelog, clientInvocation, clientCommand, token);
+    public Servers servers() {
+        return new Servers(world.getHome().join(".stool-servers"), wirelog, clientInvocation, clientCommand);
     }
 }

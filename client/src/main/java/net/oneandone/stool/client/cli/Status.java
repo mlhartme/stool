@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
