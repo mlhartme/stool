@@ -20,9 +20,6 @@ import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Server;
 import net.oneandone.stool.client.ServerManager;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 public class Auth {
     private final Globals globals;
     private final Console console;
@@ -48,17 +45,5 @@ public class Auth {
         dest.auth(globals.world, username, password);
         manager.save();
         console.info.println("Successfully updated token for server " + dest.url);
-    }
-
-    private String createdBy() {
-        return System.getProperty("user.name");
-    }
-
-    private String createdOn() {
-        try {
-            return InetAddress.getLocalHost().getCanonicalHostName();
-        } catch (UnknownHostException e) {
-            return "unknown host: " + e.getMessage();
-        }
     }
 }
