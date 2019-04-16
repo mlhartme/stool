@@ -41,6 +41,8 @@ Stages are now the central part; multiple project can be associated with the sam
   * dumped `macros`
   * dumped `search`
 
+* stage filter with substring, and case-insensitive
+
 * replaced stage property `memory` by an build argument
 * replaced stage property `url` by `server` and `suffixes` build arguments
 

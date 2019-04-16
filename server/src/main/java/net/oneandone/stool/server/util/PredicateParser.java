@@ -65,7 +65,7 @@ public class PredicateParser {
     }
 
 
-    private static Predicate compare(Stage stage, final String string) throws IOException {
+    private static Predicate compare(Stage stage, final String string) {
         int idx;
         String name;
         final boolean eq;
@@ -83,7 +83,7 @@ public class PredicateParser {
             return new Predicate() {
                 @Override
                 public boolean matches(Stage stage) {
-                    return stage.getName().equals(string);
+                    return stage.getName().toLowerCase().contains(string.toLowerCase());
                 }
             };
         }
