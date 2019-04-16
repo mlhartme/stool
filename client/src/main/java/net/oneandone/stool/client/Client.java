@@ -244,7 +244,7 @@ public class Client {
         String response;
 
         node = node("validate");
-        node = node.withParameter("stageClause", stageClause);
+        node = node.withParameter("filter", stageClause);
         node = node.withParameter("email", email);
         node = node.withParameter("repair", repair);
         response = node.post("");

@@ -73,7 +73,7 @@ public class ApiController {
 
 
     @GetMapping("/stages")
-    public String list(@RequestParam(value = "filter", required = false) String filter) throws IOException {
+    public String list(@RequestParam(value = "filter", required = false, defaultValue = "") String filter) throws IOException {
         JsonArray result;
         Map<String, IOException> problems;
 
@@ -214,12 +214,12 @@ public class ApiController {
     }
 
     @PostMapping("/validate")
-    public String validate(@RequestParam("stageClause") String stageClause,
+    public String validate(@RequestParam("filter") String filter,
                            @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
         List<String> output;
 
         try {
-            output = new Validation(server).run(stageClause, email, repair);
+            output = new Validation(server).run(filter, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
         } catch (NamingException e) {

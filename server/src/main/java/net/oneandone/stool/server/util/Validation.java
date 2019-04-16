@@ -32,7 +32,7 @@ public class Validation {
         this.server = server;
     }
 
-    public List<String> run(String stageClause, boolean email, boolean repair) throws IOException, MessagingException, NamingException {
+    public List<String> run(String filter, boolean email, boolean repair) throws IOException, MessagingException, NamingException {
         Report report;
         List<String> names;
         Map<String, IOException> problems;
@@ -41,7 +41,7 @@ public class Validation {
         validateServer(report);
         problems = new HashMap<>();
         names = new ArrayList<>();
-        for (Stage stage : server.list(PredicateParser.parse(stageClause), problems)) {
+        for (Stage stage : server.list(PredicateParser.parse(filter), problems)) {
             names.add(stage.getName());
         }
         if (!problems.isEmpty()) {

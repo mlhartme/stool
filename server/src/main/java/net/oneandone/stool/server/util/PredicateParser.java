@@ -13,10 +13,10 @@ public class PredicateParser {
         }
     }
 
-    public static Predicate parse(String stringOpt) {
+    public static Predicate parse(String filter) {
         List<String> args;
 
-        if (stringOpt == null) {
+        if (filter.isEmpty()) {
             return new Predicate() {
                 @Override
                 public boolean matches(Stage stage) {
@@ -24,7 +24,7 @@ public class PredicateParser {
                 }
             };
         } else {
-            args = Separator.COMMA.split(stringOpt);
+            args = Separator.COMMA.split(filter);
             return new Predicate() {
                 @Override
                 public boolean matches(Stage stage) throws IOException {
