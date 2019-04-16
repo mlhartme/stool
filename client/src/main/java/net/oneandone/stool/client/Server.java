@@ -1,0 +1,56 @@
+package net.oneandone.stool.client;
+
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
+import net.oneandone.inline.ArgumentException;
+import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
+
+import java.io.IOException;
+
+public class Server {
+    public static Server fromJson(JsonObject obj, FileNode wirelog, String clientInvocation, String clientCommand) {
+        return new Server(obj.get("name").getAsString(), obj.get("url").getAsString(), obj.get("token").getAsString(),
+                wirelog, clientInvocation, clientInvocation);
+    }
+
+    public final String name;
+    public final String url;
+    private String token;
+
+    private volatile FileNode wirelog;
+    private volatile String clientInvocation;
+    private volatile String clientCommand;
+
+    public Server(String name, String url, String token,
+                  FileNode wirelog, String clientInvocation, String clientCommand) {
+        this.name = name;
+        this.url = url;
+        this.token = token;
+
+        this.wirelog = wirelog;
+        this.clientInvocation = clientInvocation;
+        this.clientCommand = clientCommand;
+    }
+
+    public void auth(World world, String username, String password) throws IOException {
+        Client client;
+
+        client = Client.basicAuth(world, name, url, wirelog, clientInvocation, clientCommand, username, password);
+        this.token = client.auth();
+    }
+
+    public Client connect(World world) throws IOException {
+        return Client.token(world, name, url, wirelog, clientInvocation, clientCommand, token);
+    }
+
+    public JsonObject toJson() {
+        JsonObject result;
+
+        result = new JsonObject();
+        result.add("name", new JsonPrimitive(name));
+        result.add("url", new JsonPrimitive(url));
+        result.add("token", new JsonPrimitive(token));
+        return result;
+    }
+}

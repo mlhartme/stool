@@ -17,6 +17,8 @@ package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
+import net.oneandone.stool.client.Server;
+import net.oneandone.stool.client.ServerManager;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -34,12 +36,18 @@ public class Auth {
 
 
     public void run() throws Exception {
+        ServerManager manager;
         String username;
         String password;
+        Server dest;
 
+        manager = globals.servers();
+        dest = manager.get(server);
         username = console.readline("username: ");
         password = new String(System.console().readPassword("password:"));
-        globals.servers().auth(server, username, password);
+        dest.auth(globals.world, username, password);
+        manager.save();
+        console.info.println("Successfully updated token for server " + dest.url);
     }
 
     private String createdBy() {

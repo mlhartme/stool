@@ -111,7 +111,7 @@ public class Create extends ProjectCommand {
             name = project.getDirectory().getName();
         }
         Project.checkName(name);
-        client = serverManager.client(server);
+        client = serverManager.get(server).connect(world);
         client.create(name, config);
         reference = new Reference(client, name);
         console.info.println("stage create: " + reference);
