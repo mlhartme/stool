@@ -7,15 +7,11 @@ import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserNotFound;
 import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.launcher.Failure;
-import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Separator;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -143,14 +139,6 @@ public class Validation {
 
         public Report() {
             this.users = new HashMap<>();
-        }
-
-        public void admin(String problem) {
-            admin(null, problem);
-        }
-
-        public void admin(Stage stage, String problem) {
-            add(null, prefix(stage) + problem);
         }
 
         public void user(Stage stage, String problem) throws IOException {
