@@ -1,9 +1,12 @@
 package net.oneandone.stool.server.web;
 
+import net.oneandone.stool.server.users.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.lang.Nullable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -23,6 +26,7 @@ public class ApiLogging implements HandlerInterceptor {
         String uri;
         String stage;
         int idx;
+        User user;
 
         uri = request.getRequestURI();
         if (uri.startsWith(prefix)) {
@@ -37,7 +41,8 @@ public class ApiLogging implements HandlerInterceptor {
         MDC.put(CLIENT_INVOCATION, request.getHeader("X-stool-client-invocation"));
         MDC.put(CLIENT_COMMAND, request.getHeader("X-stool-client-command"));
         MDC.put(REQUEST, request.getMethod() + " \"" + uri + '"');
-        MDC.put(USER, "anonymous"); // TODO
+        user = (User) SecurityContextHolder.getContext().getAuthentication();
+        MDC.put(USER, user == null ? "anonymous" : user.login);
         MDC.put(STAGE, stage);
 
         return true;
@@ -49,8 +54,8 @@ public class ApiLogging implements HandlerInterceptor {
         ACCESS.info(Integer.toString(response.getStatus()));
         MDC.remove(CLIENT_INVOCATION);
         MDC.remove(CLIENT_COMMAND);
+        MDC.remove(REQUEST);
         MDC.remove(USER);
         MDC.remove(STAGE);
-        MDC.remove(REQUEST);
     }
 }

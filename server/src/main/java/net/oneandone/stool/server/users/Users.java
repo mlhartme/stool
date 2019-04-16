@@ -55,17 +55,9 @@ public class Users {
         return user;
     }
 
-    public String checkedStatusByLogin(String login) {
+    public String checkedByLogin(String login) {
         try {
             return byLogin(login).toStatus();
-        } catch (NamingException | UserNotFound e) {
-            return "[error: " + e.getMessage() + "]";
-        }
-    }
-
-    public String checkedNameByLogin(String login) {
-        try {
-            return byLogin(login).name;
         } catch (NamingException | UserNotFound e) {
             return "[error: " + e.getMessage() + "]";
         }

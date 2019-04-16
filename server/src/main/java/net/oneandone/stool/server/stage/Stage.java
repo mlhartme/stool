@@ -209,7 +209,7 @@ public class Stage {
         fields.add(new Field("created-by") {
             @Override
             public Object get() throws IOException {
-                return server.users.checkedStatusByLogin(createdBy());
+                return server.users.checkedByLogin(createdBy());
             }
 
         });
