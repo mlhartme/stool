@@ -22,7 +22,6 @@ import net.oneandone.stool.client.Servers;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.sql.Ref;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

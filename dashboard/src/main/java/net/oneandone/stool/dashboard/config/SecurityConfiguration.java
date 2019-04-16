@@ -16,9 +16,9 @@
 package net.oneandone.stool.dashboard.config;
 
 
+import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.Ports;
-import net.oneandone.stool.server.Server;
 import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

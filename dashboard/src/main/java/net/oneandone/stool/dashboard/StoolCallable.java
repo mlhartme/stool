@@ -16,14 +16,11 @@
 package net.oneandone.stool.dashboard;
 
 import net.oneandone.stool.server.stage.Stage;
-import net.oneandone.stool.server.util.Environment;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
-import net.oneandone.sushi.launcher.Launcher;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.ldap.userdetails.InetOrgPerson;
 
-import java.io.PrintWriter;
 import java.util.concurrent.Callable;
 
 public class StoolCallable implements Callable<Failure> {

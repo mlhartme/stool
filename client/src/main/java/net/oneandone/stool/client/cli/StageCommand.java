@@ -16,7 +16,6 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
@@ -25,7 +24,6 @@ import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.sql.Ref;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;

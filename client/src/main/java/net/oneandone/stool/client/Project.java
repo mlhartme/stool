@@ -22,7 +22,6 @@ import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.sql.Ref;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
