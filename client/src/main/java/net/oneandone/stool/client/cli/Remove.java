@@ -45,7 +45,7 @@ public class Remove extends StageCommand {
             throw new IOException("stage is not stopped.");
         }
         if (!batch) {
-            console.info.println("Ready to delete stage " + reference.stage + "?");
+            console.info.println("Ready to delete stage " + reference + "?");
             console.pressReturn();
         }
 

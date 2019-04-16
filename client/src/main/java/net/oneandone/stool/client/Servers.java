@@ -100,13 +100,18 @@ public class Servers {
         String clientFilter;
         String serverFilter;
 
-        idx = filter.lastIndexOf('@');
-        if (idx == -1) {
-            clientFilter = filter;
+        if (filter == null) {
+            clientFilter = null;
             serverFilter = "";
         } else {
-            clientFilter = filter.substring(0, idx);
-            serverFilter = filter.substring(idx + 1);
+            idx = filter.lastIndexOf('@');
+            if (idx == -1) {
+                clientFilter = filter;
+                serverFilter = "";
+            } else {
+                clientFilter = filter.substring(0, idx);
+                serverFilter = filter.substring(idx + 1);
+            }
         }
         result = new ArrayList<>();
         for (Server server : servers.values()) {

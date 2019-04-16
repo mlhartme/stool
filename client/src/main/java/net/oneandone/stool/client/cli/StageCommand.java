@@ -66,7 +66,7 @@ public abstract class StageCommand extends ClientCommand {
         lst = selectedList(globals.servers());
         width = 0;
         for (Reference reference : lst) {
-            width = Math.max(width, reference.stage.length());
+            width = Math.max(width, reference.toString().length());
         }
         width += 5;
         withPrefix = doBefore(lst, width);

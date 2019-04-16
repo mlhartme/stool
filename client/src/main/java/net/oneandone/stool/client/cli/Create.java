@@ -46,7 +46,7 @@ public class Create extends ProjectCommand {
         String arg;
 
         if (!args.isEmpty()) {
-            arg = args.remove(0);
+            arg = args.get(0);
             if (!arg.contains("=")) {
                 args.remove(0);
                 return arg;
