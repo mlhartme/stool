@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class Servers {
+public class ServerManager {
     private static class Server {
         public static Server fromJson(JsonObject obj) {
             return new Server(obj.get("name").getAsString(), obj.get("url").getAsString(), obj.get("token").getAsString());
@@ -52,7 +52,7 @@ public class Servers {
     private final String clientCommand;
     private final Map<String, Server> servers;
 
-    public Servers(FileNode file, FileNode wirelog, String clientInvocation, String clientCommand) {
+    public ServerManager(FileNode file, FileNode wirelog, String clientInvocation, String clientCommand) {
         this.file = file;
         this.wirelog = wirelog;
         this.clientInvocation = clientInvocation;

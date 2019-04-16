@@ -57,12 +57,12 @@ public class Globals {
         return console;
     }
 
-    public Servers servers() throws IOException {
+    public ServerManager servers() throws IOException {
         FileNode file;
-        Servers result;
+        ServerManager result;
 
         file = clientHome.join(".stool-servers");
-        result = new Servers(file, wirelog, clientInvocation, clientCommand);
+        result = new ServerManager(file, wirelog, clientInvocation, clientCommand);
         if (file.exists()) {
             result.load();
         } else {

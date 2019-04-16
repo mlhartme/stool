@@ -69,11 +69,11 @@ public class Project {
         this.project = backstage.getParent();
     }
 
-    public Reference getAttachedOpt(Servers servers) throws IOException {
+    public Reference getAttachedOpt(ServerManager serverManager) throws IOException {
         FileNode map;
 
         map = map();
-        return map.exists() ? servers.reference(map.readString().trim()) : null;
+        return map.exists() ? serverManager.reference(map.readString().trim()) : null;
     }
 
     public void setAttached(Reference reference) throws IOException {

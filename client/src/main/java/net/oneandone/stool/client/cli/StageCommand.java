@@ -19,7 +19,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.stool.client.Servers;
+import net.oneandone.stool.client.ServerManager;
 import net.oneandone.sushi.io.PrefixWriter;
 import net.oneandone.sushi.util.Strings;
 
@@ -93,28 +93,28 @@ public abstract class StageCommand extends ClientCommand {
         }
     }
 
-    private List<Reference> selectedList(Servers servers) throws IOException {
+    private List<Reference> selectedList(ServerManager serverManager) throws IOException {
         int count;
 
         count = (stageClause != null ? 1 : 0) + (all ? 1 : 0);
         switch (count) {
             case 0:
-                return defaultSelected(servers);
+                return defaultSelected(serverManager);
             case 1:
-                return servers.list(all ? null : stageClause);
+                return serverManager.list(all ? null : stageClause);
             default:
                 throw new ArgumentException("too many select options");
         }
     }
 
     /** override this to change the default */
-    protected List<Reference> defaultSelected(Servers servers) throws IOException {
+    protected List<Reference> defaultSelected(ServerManager serverManager) throws IOException {
         Project project;
         Reference reference;
 
         project = Project.lookup(world.getWorking());
         if (project != null) {
-            reference = project.getAttachedOpt(servers);
+            reference = project.getAttachedOpt(serverManager);
             if (reference != null) {
                 return Collections.singletonList(reference);
             }

@@ -18,7 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.stool.client.Servers;
+import net.oneandone.stool.client.ServerManager;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
@@ -115,7 +115,7 @@ public class Ls extends InfoCommand {
     }
 
     @Override
-    protected List<Reference> defaultSelected(Servers servers) throws IOException {
-        return servers.list(null);
+    protected List<Reference> defaultSelected(ServerManager serverManager) throws IOException {
+        return serverManager.list(null);
     }
 }

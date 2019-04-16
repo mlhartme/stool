@@ -20,7 +20,7 @@ import net.oneandone.stool.client.Client;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.stool.client.Servers;
+import net.oneandone.stool.client.ServerManager;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -91,18 +91,18 @@ public class Create extends ProjectCommand {
 
     @Override
     public void doRun(FileNode projectDirectory) throws IOException {
-        Servers servers;
+        ServerManager serverManager;
         Project project;
         String name;
         Client client;
         Reference reference;
 
-        servers = globals.servers();
+        serverManager = globals.servers();
         project = Project.lookup(projectDirectory);
         if (project == null) {
             project = Project.create(projectDirectory);
         } else {
-            if (project.getAttachedOpt(servers) != null) {
+            if (project.getAttachedOpt(serverManager) != null) {
                 throw new ArgumentException("project already has a stage");
             }
         }
@@ -111,7 +111,7 @@ public class Create extends ProjectCommand {
             name = project.getDirectory().getName();
         }
         Project.checkName(name);
-        client = servers.client(server);
+        client = serverManager.client(server);
         client.create(name, config);
         reference = new Reference(client, name);
         console.info.println("stage create: " + reference);
