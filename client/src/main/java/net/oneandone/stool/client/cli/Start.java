@@ -83,13 +83,13 @@ public class Start extends StageCommand {
             }
         }
         if (tail) {
-            doTail(reference.stage);
+            doTail(reference);
         }
     }
 
     //--
 
-    private void doTail(String stage) throws IOException {
+    private void doTail(Reference reference) throws IOException {
         console.info.println("Tailing container output.");
         console.info.println("Press Ctrl-C to abort.");
         console.info.println();

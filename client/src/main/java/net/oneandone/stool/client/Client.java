@@ -191,7 +191,7 @@ public class Client {
     public Map<String, String> status(String stage, List<String> select) throws IOException {
         HttpNode node;
         JsonObject status;
-        Map<String, String> result;
+        LinkedHashMap<String, String> result;
 
         node = node(stage, "status");
         node = node.withParameter("select", Separator.COMMA.join(select));
@@ -199,6 +199,9 @@ public class Client {
         result = new LinkedHashMap<>();
         for (String name : status.keySet()) {
             result.put(name, status.get(name).getAsString());
+        }
+        if (result.containsKey("name")) {
+            result.replace("name", new Reference(this, stage).toString());
         }
         return result;
     }

@@ -193,7 +193,7 @@ public abstract class StageCommand extends ClientCommand {
 
         private void run(Reference referece, boolean main) throws Exception {
             if (withPrefix) {
-                ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + referece.stage + "} ", width));
+                ((PrefixWriter) console.info).setPrefix(Strings.padLeft("{" + referece + "} ", width));
             }
             try {
                 if (main) {
@@ -202,13 +202,13 @@ public abstract class StageCommand extends ClientCommand {
                     runFinish(referece);
                 }
             } catch (Error | RuntimeException e) {
-                console.error.println(referece.stage + ": " + e.getMessage());
+                console.error.println(referece + ": " + e.getMessage());
                 throw e;
             } catch (Exception e /* esp. ArgumentException */) {
                 if (fail == Fail.NORMAL) {
                     throw e;
                 }
-                failures.add(referece.stage, e);
+                failures.add(referece, e);
             } finally {
                 if (console.info instanceof PrefixWriter) {
                     ((PrefixWriter) console.info).setPrefix("");
