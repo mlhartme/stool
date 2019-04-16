@@ -1,10 +1,8 @@
-package net.oneandone.stool.server.util;
+package net.oneandone.stool.server.users;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.oneandone.stool.server.users.User;
-import net.oneandone.stool.server.users.UserNotFound;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;

@@ -1,6 +1,5 @@
 package net.oneandone.stool.server.users;
 
-import net.oneandone.stool.server.util.TokenManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
