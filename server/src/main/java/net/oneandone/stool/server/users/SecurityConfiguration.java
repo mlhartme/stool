@@ -43,7 +43,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             System.out.println("security disabled");
         } else {
             http
-               .addFilterAfter(new TokenAuthenticationFilter(server.tokenManager), BasicAuthenticationFilter.class)
+               .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
                .sessionManagement()
                   .disable()
                .csrf().disable() // no sessions -> no need to protect them with csrf

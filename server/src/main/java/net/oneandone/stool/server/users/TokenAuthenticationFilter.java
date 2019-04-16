@@ -15,9 +15,9 @@ import java.util.Collection;
 import java.util.Collections;
 
 public class TokenAuthenticationFilter extends GenericFilterBean {
-    private final TokenManager manager;
+    private final UserManager manager;
 
-    public TokenAuthenticationFilter(TokenManager manager) {
+    public TokenAuthenticationFilter(UserManager manager) {
         this.manager = manager;
     }
     @Override

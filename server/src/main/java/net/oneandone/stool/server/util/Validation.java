@@ -100,7 +100,7 @@ public class Validation {
             return user;
         }
         try {
-            userobj = server.tokenManager.byLogin(user);
+            userobj = server.userManager.byLogin(user);
             email = (userobj.isGenerated() ? server.configuration.admin : userobj.email);
         } catch (UserNotFound e) {
             email = server.configuration.admin;

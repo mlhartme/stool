@@ -32,7 +32,7 @@ import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.Pool;
 import net.oneandone.stool.server.util.Predicate;
-import net.oneandone.stool.server.users.TokenManager;
+import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -84,7 +84,7 @@ public class Server {
 
     private final FileNode stages;
 
-    public final TokenManager tokenManager;
+    public final UserManager userManager;
 
     public Map<String, Accessor> accessors;
 
@@ -95,7 +95,7 @@ public class Server {
         this.home = home;
         this.configuration = configuration;
         this.stages = home.join("stages");
-        this.tokenManager = TokenManager.loadOpt(home.join("token.json"));
+        this.userManager = UserManager.loadOpt(home.join("token.json"));
         this.accessors = StageConfiguration.accessors();
     }
 

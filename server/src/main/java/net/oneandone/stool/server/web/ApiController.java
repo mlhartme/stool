@@ -63,8 +63,8 @@ public class ApiController {
         principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (principal instanceof User) {
             user = (User) principal;
-            result = server.tokenManager.create(user);
-            server.tokenManager.save();
+            result = server.userManager.create(user);
+            server.userManager.save();
         } else {
             throw new IllegalStateException("" + principal + " " + principal.getClass());
         }

@@ -12,11 +12,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
-public class TokenManager {
-    public static TokenManager loadOpt(FileNode file) throws IOException {
-        TokenManager result;
+public class UserManager {
+    public static UserManager loadOpt(FileNode file) throws IOException {
+        UserManager result;
 
-        result = new TokenManager(file);
+        result = new UserManager(file);
         if (file.exists()) {
             result.load();
         }
@@ -30,7 +30,7 @@ public class TokenManager {
 
     private final Random random;
 
-    public TokenManager(FileNode file) {
+    public UserManager(FileNode file) {
         this.file = file;
         this.tokens = new HashMap<>();
         this.random = new Random();
