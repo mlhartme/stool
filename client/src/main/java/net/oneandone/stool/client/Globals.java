@@ -66,7 +66,7 @@ public class Globals {
         if (file.exists()) {
             result.load();
         } else {
-            result.defaultServers();
+            result.setDefaults();
             result.save();
         }
         return result;

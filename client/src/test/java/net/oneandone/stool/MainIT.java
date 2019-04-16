@@ -54,7 +54,7 @@ public class MainIT {
     @After
     public void after() throws Exception {
         try {
-            stool("stop", "-stage" , "state=up", "-fail", "after");
+            stool("stop", "-stage" , "up=true", "-fail", "after");
             HOME = null;
         } finally {
             if (serverProcess != null) {

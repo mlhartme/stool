@@ -16,6 +16,7 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.stool.client.Globals;
+import net.oneandone.stool.client.Reference;
 
 import java.util.List;
 
@@ -23,24 +24,21 @@ import java.util.List;
  * From a user's perspective, this behaves like a stage command; technocally, it is not because it easier to perfrom all validation
  * in a single server call.
  */
-public class Validate extends ClientCommand {
+public class Validate extends StageCommand {
     private final boolean email;
     private final boolean repair;
-    private final String stageClause;
 
-    public Validate(Globals globals, boolean email, boolean repair, String stageClause) {
+    public Validate(Globals globals, boolean email, boolean repair) {
         super(globals);
         this.email = email;
         this.repair = repair;
-        this.stageClause = stageClause;
     }
 
     @Override
-    public void doRun() throws Exception {
+    public void doMain(Reference reference) throws Exception {
         List<String> result;
 
-        // TODO
-        result = globals.servers().defaultClient().validate(stageClause, email, repair);
+        result = reference.client.validate(reference.stage, email, repair);
         if (result.isEmpty()) {
             console.info.println("validate ok");
         } else {

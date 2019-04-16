@@ -6,7 +6,6 @@ import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserNotFound;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.util.Separator;
 
 import javax.mail.MessagingException;
@@ -20,31 +19,17 @@ import java.util.Map;
 import java.util.Set;
 
 public class Validation {
-    public final World world;
     private final Server server;
 
     public Validation(Server server) {
-        this.world = server.world;
         this.server = server;
     }
 
-    public List<String> run(String filter, boolean email, boolean repair) throws IOException, MessagingException, NamingException {
+    public List<String> run(String name, boolean email, boolean repair) throws IOException, MessagingException, NamingException {
         Report report;
-        List<String> names;
-        Map<String, IOException> problems;
 
         report = new Report();
-        problems = new HashMap<>();
-        names = new ArrayList<>();
-        for (Stage stage : server.list(PredicateParser.parse(filter), problems)) {
-            names.add(stage.getName());
-        }
-        if (!problems.isEmpty()) {
-            throw new IOException("cannot get stages: " + problems.toString());
-        }
-        for (String name : names) {
-            validateStage(name, report, repair);
-        }
+        validateStage(name, report, repair);
         if (email) {
             email(report);
         }

@@ -213,13 +213,12 @@ public class ApiController {
         return array(result).toString();
     }
 
-    @PostMapping("/validate")
-    public String validate(@RequestParam("filter") String filter,
-                           @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
+    @PostMapping("/stages/{stage}/validate")
+    public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
         List<String> output;
 
         try {
-            output = new Validation(server).run(filter, email, repair);
+            output = new Validation(server).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
         } catch (NamingException e) {

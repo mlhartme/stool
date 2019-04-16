@@ -123,6 +123,14 @@ public class Servers {
         return result;
     }
 
+    public void setDefaults() {
+        String name;
+
+        name = "default";
+        servers.clear();
+        servers.put(name, new Server(name, "http://localhost:8080/api", ""));
+    }
+
     public void load() throws IOException {
         JsonArray array;
         Server server;
@@ -146,12 +154,6 @@ public class Servers {
         file.writeString(array.toString());
     }
 
-    // TODO
-    public Client defaultClient() throws IOException {
-        return client(servers.keySet().iterator().next());
-
-    }
-
     public Client client(String name) throws IOException {
         Server server;
 
@@ -161,14 +163,4 @@ public class Servers {
         }
         return Client.token(file.getWorld(), server.name, server.url, wirelog, clientInvocation, clientCommand, server.token);
     }
-
-    public void defaultServers() {
-        String name;
-
-        name = "default";
-        servers.clear();
-        servers.put(name, new Server(name, "http://localhost:8080/api", ""));
-    }
-
-
 }

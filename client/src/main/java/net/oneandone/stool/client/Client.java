@@ -242,12 +242,11 @@ public class Client {
 
     //-- validate
 
-    public List<String> validate(String stageClause, boolean email, boolean repair) throws IOException {
+    public List<String> validate(String stage, boolean email, boolean repair) throws IOException {
         HttpNode node;
         String response;
 
-        node = node("validate");
-        node = node.withParameter("filter", stageClause);
+        node = node(stage,"validate");
         node = node.withParameter("email", email);
         node = node.withParameter("repair", repair);
         response = node.post("");
