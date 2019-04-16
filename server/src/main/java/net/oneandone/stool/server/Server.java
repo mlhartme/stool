@@ -34,9 +34,12 @@ import net.oneandone.stool.server.users.Users;
 import net.oneandone.stool.server.util.Pool;
 import net.oneandone.stool.server.util.Predicate;
 import net.oneandone.stool.server.util.TokenManager;
+import net.oneandone.stool.server.util.Validation;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Failure;
+import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +51,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.Modifier;
+import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,9 +65,12 @@ public class Server {
 
     public static Server load(FileNode home, FileNode logRoot) throws IOException {
         Gson gson;
+        Server server;
 
         gson = gson(home.getWorld());
-        return new Server(gson, logRoot, home, ServerConfiguration.load(gson, home));
+        server = new Server(gson, logRoot, home, ServerConfiguration.load(gson, home));
+        server.validate();
+        return server;
     }
 
     private static final int MEM_RESERVED_OS = 500;
@@ -366,5 +374,62 @@ public class Server {
         LOGGER.debug(tmp.exec(script.getAbsolute(), certname, file.getAbsolute()));
         tmp.deleteTree();
         return file;
+    }
+
+    //--
+
+
+    public void validate() throws IOException {
+        validateDocker();
+        validateDns();
+    }
+
+    private void validateDocker() throws IOException {
+        try {
+            dockerEngine().imageList();
+        } catch (IOException e) {
+            LOGGER.error("cannot access docker", e);
+            throw e;
+        }
+    }
+
+    private void validateDns() throws IOException {
+        int port;
+        String ip;
+        String subDomain;
+        ServerSocket socket;
+
+        try {
+            ip = digIp(configuration.hostname);
+        } catch (Failure e) {
+            LOGGER.error("cannot validate dns entries: " + e.getMessage(), e);
+            throw e;
+        }
+        if (ip.isEmpty()) {
+            LOGGER.error("missing dns entry for " + configuration.hostname);
+            throw new IOException("missing dns entry for " + configuration.hostname);
+        }
+
+        // make sure that hostname points to this machine. Help to detect actually adding the name of a different machine
+        port = pool().temp();
+        try {
+            socket = new ServerSocket(port,50, InetAddress.getByName(configuration.hostname));
+            socket.close();
+        } catch (IOException e) {
+            LOGGER.error("cannot open socket on machine " + configuration.hostname + ", port " + port + ". Check the configured hostname.");
+            throw e;
+        }
+
+        subDomain = digIp("foo." + configuration.hostname);
+        if (subDomain.isEmpty() || !subDomain.endsWith(ip)) {
+            LOGGER.warn("missing dns * entry for " + configuration.hostname + " (" + subDomain + ")");
+        }
+    }
+
+    private String digIp(String name) throws Failure {
+        Launcher dig;
+
+        dig = new Launcher(world.getWorking(), "dig", "+short", name);
+        return dig.exec().trim();
     }
 }

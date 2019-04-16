@@ -38,7 +38,6 @@ public class Validation {
         Map<String, IOException> problems;
 
         report = new Report();
-        validateServer(report);
         problems = new HashMap<>();
         names = new ArrayList<>();
         for (Stage stage : server.list(PredicateParser.parse(filter), problems)) {
@@ -95,11 +94,6 @@ public class Validation {
         }
     }
 
-    private void validateServer(Report report) throws IOException {
-        validateDocker(report);
-        validateDns(report);
-    }
-
 
     private void email(Report report) throws MessagingException, NamingException {
         String hostname;
@@ -141,56 +135,6 @@ public class Validation {
             }
         }
         return email.isEmpty() ? null : email;
-    }
-
-
-    private void validateDocker(Report report) {
-        try {
-            server.dockerEngine().imageList();
-        } catch (IOException e) {
-            report.admin("cannot access docker: " + e.getMessage());
-            Server.LOGGER.debug("cannot access docker", e);
-        }
-    }
-
-    private void validateDns(Report report) throws IOException {
-        int port;
-        String ip;
-        String subDomain;
-        ServerSocket socket;
-
-        try {
-            ip = digIp(server.configuration.hostname);
-        } catch (Failure e) {
-            report.admin("cannot validate dns entries: " + e.getMessage());
-            return;
-        }
-        if (ip.isEmpty()) {
-            report.admin("missing dns entry for " + server.configuration.hostname);
-            return;
-        }
-
-        // make sure that hostname points to this machine. Help to detect actually adding the name of a different machine
-        port = server.pool().temp();
-        try {
-            socket = new ServerSocket(port,50, InetAddress.getByName(server.configuration.hostname));
-            socket.close();
-        } catch (IOException e) {
-            report.admin("cannot open socket on machine " + server.configuration.hostname + ", port " + port + ". Check the configured hostname.");
-            Server.LOGGER.debug("cannot open socket", e);
-        }
-
-        subDomain = digIp("foo." + server.configuration.hostname);
-        if (subDomain.isEmpty() || !subDomain.endsWith(ip)) {
-            report.admin("missing dns * entry for " + server.configuration.hostname + " (" + subDomain + ")");
-        }
-    }
-
-    private String digIp(String name) throws Failure {
-        Launcher dig;
-
-        dig = new Launcher(server.world.getWorking(), "dig", "+short", name);
-        return dig.exec().trim();
     }
 
     public static class Report {
