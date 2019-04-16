@@ -57,10 +57,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Formatter;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /** Represents the former backstage directory. From a Docker perspective, a stage roughly represents a Repository */
 public class Stage {
@@ -263,6 +265,28 @@ public class Stage {
 
     public void saveConfig() throws IOException {
         configuration.save(server.gson, StageConfiguration.file(directory));
+    }
+
+    /** @return logins */
+    public Set<String> notifyLogins() throws IOException {
+        Set<String> done;
+        String login;
+
+        done = new HashSet<>();
+        for (String user : configuration.notify) {
+            switch (user) {
+                case StageConfiguration.NOTIFY_LAST_MODIFIED_BY:
+                    login = lastModifiedBy();
+                    break;
+                case StageConfiguration.NOTIFY_CREATED_BY:
+                    login = createdBy();
+                    break;
+                default:
+                    login = user;
+            }
+            done.add(login);
+        }
+        return done;
     }
 
     //-- docker
