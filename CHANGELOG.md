@@ -51,6 +51,8 @@ Stages are now the central part; multiple project can be associated with the sam
 * stage config changes
   * dumped `autoRefresh`
 
+* validate now sends emails per stage
+
 * docker changes
   * stages can have multiple images now
   * use image tags with timestamps
