@@ -224,7 +224,7 @@ public class Stage {
         fields.add(new Field("last-modified-by") {
             @Override
             public Object get() throws IOException {
-                return youngest(accessLog(-1)).user;
+                return server.users.checkedByLogin(youngest(accessLog(-1)).user);
             }
         });
         fields.add(new Field("last-modified-at") {
