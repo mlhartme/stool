@@ -96,18 +96,14 @@ public class Validation {
         User userobj;
         String email;
 
-        if (user == null) {
+        if (user.contains("@")) {
+            return user;
+        }
+        try {
+            userobj = server.users.byLogin(user);
+            email = (userobj.isGenerated() ? server.configuration.admin : userobj.email);
+        } catch (UserNotFound e) {
             email = server.configuration.admin;
-        } else {
-            if (user.contains("@")) {
-                return user;
-            }
-            try {
-                userobj = server.users.byLogin(user);
-                email = (userobj.isGenerated() ? server.configuration.admin : userobj.email);
-            } catch (UserNotFound e) {
-                email = server.configuration.admin;
-            }
         }
         return email.isEmpty() ? null : email;
     }
