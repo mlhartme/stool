@@ -18,7 +18,6 @@ package net.oneandone.stool.dashboard.config;
 import net.oneandone.stool.dashboard.IndexController;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.stage.Stage;
-import net.oneandone.stool.server.users.Users;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import org.springframework.context.annotation.Bean;
@@ -69,11 +68,6 @@ public class DashboardConfiguration {
     @Bean
     public FileNode logRoot() throws IOException {
         return world().file(System.getProperty("catalina.base")).join("logs");
-    }
-
-    @Bean
-    public Users users() throws IOException {
-        return session().users;
     }
 
     @Bean

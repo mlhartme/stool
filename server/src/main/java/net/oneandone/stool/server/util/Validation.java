@@ -72,7 +72,7 @@ public class Validation {
     }
 
 
-    private void email(Set<String> users, List<String> report) throws MessagingException, NamingException {
+    private void email(Set<String> users, List<String> report) throws MessagingException {
         String hostname;
         Mailer mailer;
         String email;
@@ -92,7 +92,7 @@ public class Validation {
         }
     }
 
-    private String email(String user) throws NamingException {
+    private String email(String user) {
         User userobj;
         String email;
 
@@ -100,7 +100,7 @@ public class Validation {
             return user;
         }
         try {
-            userobj = server.users.byLogin(user);
+            userobj = server.tokenManager.byLogin(user);
             email = (userobj.isGenerated() ? server.configuration.admin : userobj.email);
         } catch (UserNotFound e) {
             email = server.configuration.admin;

@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.stool.server.users.User;
+import net.oneandone.stool.server.users.UserNotFound;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -35,6 +36,23 @@ public class TokenManager {
         this.file = file;
         this.tokens = new HashMap<>();
         this.random = new Random();
+    }
+
+    public User byLogin(String login) throws UserNotFound {
+        for (User user : tokens.values()) {
+            if (login.equals(user.login)) {
+                return user;
+            }
+        }
+        throw new UserNotFound(login);
+    }
+
+    public String checkedByLogin(String login) {
+        try {
+            return byLogin(login).toStatus();
+        } catch (UserNotFound e) {
+            return "[error: " + e.getMessage() + "]";
+        }
     }
 
     public User authentication(String token) {

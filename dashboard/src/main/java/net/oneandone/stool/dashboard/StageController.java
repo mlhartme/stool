@@ -17,7 +17,6 @@ package net.oneandone.stool.dashboard;
 
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.stage.Stage;
-import net.oneandone.stool.server.users.Users;
 import net.oneandone.sushi.fs.NodeNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -50,9 +49,6 @@ import java.util.concurrent.ExecutorService;
 @RestController
 @RequestMapping("/stages")
 public class StageController {
-    @Autowired
-    private Users users;
-
     @Autowired
     private World world;
 
@@ -111,7 +107,6 @@ public class StageController {
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
     public ModelAndView stagesAsHtml(ModelAndView modelAndView) throws IOException {
         modelAndView.setViewName("stages");
-        modelAndView.addObject("users", users);
         modelAndView.addObject("stages", stages(session));
 
         return modelAndView;

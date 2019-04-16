@@ -209,7 +209,7 @@ public class Stage {
         fields.add(new Field("created-by") {
             @Override
             public Object get() throws IOException {
-                return server.users.checkedByLogin(createdBy());
+                return server.tokenManager.checkedByLogin(createdBy());
             }
 
         });
@@ -224,7 +224,7 @@ public class Stage {
         fields.add(new Field("last-modified-by") {
             @Override
             public Object get() throws IOException {
-                return server.users.checkedByLogin(youngest(accessLog(-1)).user);
+                return server.tokenManager.checkedByLogin(youngest(accessLog(-1)).user);
             }
         });
         fields.add(new Field("last-modified-at") {

@@ -30,11 +30,9 @@ import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
-import net.oneandone.stool.server.users.Users;
 import net.oneandone.stool.server.util.Pool;
 import net.oneandone.stool.server.util.Predicate;
 import net.oneandone.stool.server.util.TokenManager;
-import net.oneandone.stool.server.util.Validation;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -86,8 +84,6 @@ public class Server {
 
     private final FileNode stages;
 
-    public final Users users;
-
     public final TokenManager tokenManager;
 
     public Map<String, Accessor> accessors;
@@ -99,12 +95,6 @@ public class Server {
         this.home = home;
         this.configuration = configuration;
         this.stages = home.join("stages");
-        if (configuration.ldapUrl.isEmpty()) {
-            this.users = Users.fromLogin();
-        } else {
-            this.users = Users.fromLdap(configuration.ldapUrl, configuration.ldapPrincipal, configuration.ldapCredentials,
-                    "ou=users,ou=" + configuration.ldapUnit);
-        }
         this.tokenManager = TokenManager.loadOpt(home.join("token.json"));
         this.accessors = StageConfiguration.accessors();
     }
