@@ -382,6 +382,7 @@ public class Server {
     public void validate() throws IOException {
         validateDocker();
         validateDns();
+        LOGGER.info("server validation ok");
     }
 
     private void validateDocker() throws IOException {
