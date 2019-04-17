@@ -38,7 +38,7 @@ public class TokenAuthenticationFilter extends GenericFilterBean {
             if (token != null) {
                 throw new IOException("400 - use service authenticated"); // TODO
             }
-            user = User.ANONYMOUS;
+            user = UserManager.ANONYMOUS;
         }
         SecurityContextHolder.getContext().setAuthentication(new Authentication() {
             @Override

@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Random;
 
 public class UserManager {
+    public static final User ANONYMOUS = new User("anonymous", "Anonymous", null);
+
     public static UserManager loadOpt(FileNode file) throws IOException {
         UserManager result;
 
@@ -38,6 +40,9 @@ public class UserManager {
     }
 
     public User byLogin(String login) throws UserNotFound {
+        if (login.equals(ANONYMOUS.login)) {
+            return ANONYMOUS;
+        }
         for (User user : tokens.values()) {
             if (login.equals(user.login)) {
                 return user;
