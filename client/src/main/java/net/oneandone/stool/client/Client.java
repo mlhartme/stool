@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Client {
+    /** @param token null to work anonymously */
     public static Client token(World world, String name, String url, FileNode wireLog, String clientInvocation, String clientCommand,
                                    String token) throws NodeInstantiationException {
         return doCreate(world, name, url, wireLog, clientInvocation, clientCommand, token, null, null);

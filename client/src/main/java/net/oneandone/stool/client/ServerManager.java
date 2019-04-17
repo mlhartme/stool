@@ -90,7 +90,7 @@ public class ServerManager {
 
         name = "default";
         servers.clear();
-        servers.put(name, new Server(name, "http://localhost:8080/api", "", wirelog, clientInvocation, clientCommand));
+        servers.put(name, new Server(name, "http://localhost:8080/api", null, wirelog, clientInvocation, clientCommand));
     }
 
     public void load() throws IOException {
