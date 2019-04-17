@@ -26,6 +26,7 @@ public class Client {
         return doCreate(world, name, url, wireLog, clientInvocation, clientCommand, token, null, null);
 
     }
+
     public static Client basicAuth(World world, String name, String url, FileNode wireLog, String clientInvocation, String clientCommand,
                                    String username, String password) throws NodeInstantiationException {
         return doCreate(world, name, url, wireLog, clientInvocation, clientCommand, null, username, password);

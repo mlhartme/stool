@@ -101,7 +101,7 @@ public class Validation {
         }
         try {
             userobj = server.userManager.byLogin(user);
-            email = (userobj.isGenerated() ? server.configuration.admin : userobj.email);
+            email = userobj.email == null ? server.configuration.admin : userobj.email;
         } catch (UserNotFound e) {
             email = server.configuration.admin;
         }

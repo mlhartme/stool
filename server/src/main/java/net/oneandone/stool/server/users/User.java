@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.users;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,11 +23,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Objects;
 
 /** A stool user. Not that a user does not necessarily correspond to an OS user (i.e. a user account on the current machine) */
 public class User implements UserDetails {
+    public static final User ANONYMOUS = new User("anonymous", "Anonymous", null);
+
     public static User fromJson(JsonObject obj) {
-        return new User(str(obj, "login"), str(obj, "name"), str(obj, "email"));
+        JsonElement email;
+
+        email = obj.get("email");
+        return new User(str(obj, "login"), str(obj, "name"), email == null ? null : email.getAsString());
     }
 
     private static String str(JsonObject obj, String name) {
@@ -35,6 +42,8 @@ public class User implements UserDetails {
 
     public final String login;
     public final String name;
+
+    /** may be null */
     public final String email;
 
     private final String password; // because it's used for authentication
@@ -56,7 +65,9 @@ public class User implements UserDetails {
         result = new JsonObject();
         result.add("login", new JsonPrimitive(login));
         result.add("name", new JsonPrimitive(name));
-        result.add("email", new JsonPrimitive(email));
+        if (email != null) {
+            result.add("email", new JsonPrimitive(email));
+        }
         return result;
     }
 
@@ -74,21 +85,17 @@ public class User implements UserDetails {
 
         if (object instanceof User) {
             user = (User) object;
-            return login.equals(user.login) && name.equals(user.name) && email.equals(user.email);
+            return login.equals(user.login) && name.equals(user.name) && Objects.equals(email, email);
         }
         return false;
     }
 
     public String toStatus() {
-        if (isGenerated()) {
-            return login;
+        if (email == null) {
+            return name;
         } else {
             return name + " <" + email + ">";
         }
-    }
-
-    public boolean isGenerated() {
-        return login.equals(name);
     }
 
     public int hashCode() {

@@ -40,10 +40,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         if (server.configuration.ldapUrl.isEmpty()) {
-            System.out.println("security disabled");
+            http
+               .addFilterAfter(new TokenAuthenticationFilter(false, server.userManager), BasicAuthenticationFilter.class)
+               .authorizeRequests().antMatchers("/**").anonymous();
         } else {
             http
-               .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
+               .addFilterAfter(new TokenAuthenticationFilter(true, server.userManager), BasicAuthenticationFilter.class)
                .sessionManagement()
                   .disable()
                .csrf().disable() // no sessions -> no need to protect them with csrf
