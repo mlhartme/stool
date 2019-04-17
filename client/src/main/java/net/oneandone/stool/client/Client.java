@@ -4,11 +4,13 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
+import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.fs.http.model.Body;
 import net.oneandone.sushi.util.Separator;
 
@@ -72,7 +74,20 @@ public class Client {
         HttpNode node;
 
         node = node("auth");
-        return parser.parse(node.post("")).getAsString();
+        try {
+            return parser.parse(node.post("")).getAsString();
+        } catch (StatusException e) {
+            throw beautify(node, e);
+        }
+    }
+
+    private IOException beautify(HttpNode node, StatusException e) {
+        switch (e.getStatusLine().code) {
+            case 401:
+                return new IOException("401 unauthenticated - " + node.getUri(), e);
+            default:
+                return e;
+        }
     }
 
     /** @param filter null to return all stages */
@@ -305,9 +320,15 @@ public class Client {
     private JsonElement httpGet(HttpNode node) throws IOException {
         String response;
 
-        response = node.readString();
-        //System.out.println("path: " + path);
-        //System.out.println("response: " + response);
+        try {
+            response = node.readString();
+        } catch (NewInputStreamException e) {
+            if (e.getCause() instanceof StatusException) {
+                throw beautify(node, (StatusException) e.getCause());
+            } else {
+                throw e;
+            }
+        }
         return parser.parse(response);
     }
 }

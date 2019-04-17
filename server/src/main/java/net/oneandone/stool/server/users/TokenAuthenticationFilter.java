@@ -11,6 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
@@ -33,11 +34,13 @@ public class TokenAuthenticationFilter extends GenericFilterBean {
         } else {
             token = ((HttpServletRequest) request).getHeader("X-authentication");
             if (token == null) {
-                throw new IOException("403 - authentication required: " + ((HttpServletRequest) request).getRequestURI()); // TODO
+                ((HttpServletResponse) response).sendError(401, "authentication required: " + ((HttpServletRequest) request).getRequestURI());
+                return;
             }
             user = manager.authentication(token);
             if (user == null) {
-                throw new IOException("403 - authentication failed"); // TODO
+                ((HttpServletResponse) response).sendError(401, "authentication failed");
+                return;
             }
             SecurityContextHolder.getContext().setAuthentication(new Authentication() {
                 @Override

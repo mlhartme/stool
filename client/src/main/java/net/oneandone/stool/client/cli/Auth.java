@@ -19,6 +19,9 @@ import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Server;
 import net.oneandone.stool.client.ServerManager;
+import net.oneandone.sushi.fs.http.StatusException;
+
+import java.io.IOException;
 
 public class Auth {
     private final Globals globals;
@@ -42,7 +45,15 @@ public class Auth {
         dest = manager.get(server);
         username = console.readline("username: ");
         password = new String(System.console().readPassword("password:"));
-        dest.auth(globals.world, username, password);
+        try {
+            dest.auth(globals.world, username, password);
+        } catch (StatusException e) {
+            if (e.getStatusLine().code == 401) {
+                throw new IOException(dest.url + ": " + e.getMessage(), e);
+            } else {
+                throw e;
+            }
+        }
         manager.save();
         console.info.println("Successfully updated token for server " + dest.url);
     }
