@@ -7,6 +7,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -33,7 +34,7 @@ public class UserManager {
     public UserManager(FileNode file) {
         this.file = file;
         this.tokens = new HashMap<>();
-        this.random = new Random();
+        this.random = new SecureRandom();
     }
 
     public User byLogin(String login) throws UserNotFound {
@@ -84,7 +85,7 @@ public class UserManager {
     }
 
     private String generateToken() {
-        return Long.toHexString(random.nextLong()) + Long.toHexString(random.nextLong());
+        return Long.toHexString(random.nextLong()) + Long.toHexString(random.nextLong()) + Long.toHexString(random.nextLong());
     }
 
 
