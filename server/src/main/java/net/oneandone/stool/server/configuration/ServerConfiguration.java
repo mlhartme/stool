@@ -161,4 +161,8 @@ public class ServerConfiguration {
     public void verfiyHostname() throws UnknownHostException {
         InetAddress.getByName(hostname);
     }
+
+    public boolean auth() {
+        return !ldapUrl.isEmpty();
+    }
 }

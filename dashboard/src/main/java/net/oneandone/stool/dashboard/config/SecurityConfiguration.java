@@ -50,7 +50,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private DashboardProperties properties;
 
     @Autowired
-    private Server session;
+    private Server Server;
 
     @Autowired
     private Stage self;
@@ -120,14 +120,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         DefaultSpringSecurityContextSource contextSource;
         String url;
 
-        url = session.configuration.ldapUrl;
-        if (url.isEmpty()) {
+        url = Server.configuration.ldapUrl;
+        if (!Server.configuration.auth()) {
             // will never be used - this is just to satisfy parameter checks in the constructor
             url = "ldap://localhost";
         }
         contextSource = new DefaultSpringSecurityContextSource(url);
-        contextSource.setUserDn(session.configuration.ldapPrincipal);
-        contextSource.setPassword(session.configuration.ldapCredentials);
+        contextSource.setUserDn(Server.configuration.ldapPrincipal);
+        contextSource.setPassword(Server.configuration.ldapCredentials);
         return contextSource;
     }
 
@@ -138,7 +138,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
         LdapUserDetailsService result;
 
-        unit = session.configuration.ldapUnit;
+        unit = Server.configuration.ldapUnit;
         userSearch = new FilterBasedLdapUserSearch("ou=" + unit, "(uid={0})", contextSource());
         authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=roles,ou=" + unit);
         authoritiesPopulator.setGroupSearchFilter("(member=uid={1})");

@@ -29,19 +29,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     public void configure(WebSecurity web) {
-        if (server.configuration.ldapUrl.isEmpty()) {
-            web.ignoring().anyRequest();
-        } else {
+        if (server.configuration.auth()) {
             /* To allow Pre-flight [OPTIONS] request from browser */
             web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**");
+        } else {
+            web.ignoring().anyRequest();
         }
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        if (server.configuration.ldapUrl.isEmpty()) {
-            // disabled security
-        } else {
+        if (server.configuration.auth()) {
             http
                .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
                .sessionManagement()
@@ -51,6 +49,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .antMatchers("/api/**").fullyAuthenticated()
                     .and()
                .httpBasic().realmName(REALM);
+        } else {
+            // disabled security
         }
     }
 
@@ -80,14 +80,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     @Override
     public UserDetailsService userDetailsService() {
-        String url;
         String unit;
         FilterBasedLdapUserSearch userSearch;
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
         LdapUserDetailsService result;
 
-        url = server.configuration.ldapUrl;
-        if (url.isEmpty()) {
+        if (!server.configuration.auth()) {
             return new InMemoryUserDetailsManager();
         }
 
