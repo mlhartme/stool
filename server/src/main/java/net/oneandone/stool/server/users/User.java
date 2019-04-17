@@ -18,7 +18,9 @@ package net.oneandone.stool.server.users;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -27,6 +29,30 @@ import java.util.Objects;
 
 /** A stool user. Not that a user does not necessarily correspond to an OS user (i.e. a user account on the current machine) */
 public class User implements UserDetails {
+    public static User currentOrAnonymous() {
+        User user;
+
+        user = authenticatedOpt();
+        return user == null ? UserManager.ANONYMOUS : user;
+    }
+
+    /** return null if not authenticated */
+    public static User authenticatedOpt() {
+        Authentication authentication;
+        Object principal;
+
+        authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) {
+            return null;
+        }
+        principal = authentication.getPrincipal();
+        if (principal instanceof User) {
+            return (User) principal;
+        } else {
+            throw new IllegalStateException(principal + " " + principal.getClass());
+        }
+    }
+
     public static User fromJson(JsonObject obj) {
         JsonElement email;
 

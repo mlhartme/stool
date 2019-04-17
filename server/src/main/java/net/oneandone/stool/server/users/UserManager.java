@@ -63,7 +63,7 @@ public class UserManager {
         return tokens.get(token);
     }
 
-    public String create(User user) {
+    public String generateToken(User user) {
         String token;
 
         remove(user.login);

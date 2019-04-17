@@ -27,7 +27,6 @@ public class ApiLogging implements HandlerInterceptor {
         String uri;
         String stage;
         int idx;
-        Object user;
 
         uri = request.getRequestURI();
         if (uri.startsWith(prefix)) {
@@ -42,15 +41,7 @@ public class ApiLogging implements HandlerInterceptor {
         MDC.put(CLIENT_INVOCATION, request.getHeader("X-stool-client-invocation"));
         MDC.put(CLIENT_COMMAND, request.getHeader("X-stool-client-command"));
         MDC.put(REQUEST, request.getMethod() + " \"" + uri + '"');
-        user = SecurityContextHolder.getContext().getAuthentication();
-        if (user instanceof User) {
-            MDC.put(USER, ((User) user).login);
-        } else if (user instanceof org.springframework.security.authentication.UsernamePasswordAuthenticationToken) {
-            // during BasicAuthentication
-            MDC.put(USER, ((UsernamePasswordAuthenticationToken) user).getPrincipal().toString());
-        } else {
-            MDC.put(USER, "anonymous"); // TODO: why
-        }
+        MDC.put(USER, User.currentOrAnonymous().login);
         MDC.put(STAGE, stage);
 
         return true;

@@ -56,18 +56,18 @@ public class ApiController {
 
     @PostMapping("/auth")
     public String auth() throws IOException {
-        Object principal;
         User user;
         String result;
 
-        principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (principal instanceof User) {
-            user = (User) principal;
-            result = server.userManager.create(user);
-            server.userManager.save();
-        } else {
-            throw new IllegalStateException("" + principal + " " + principal.getClass());
+        if (server.configuration.ldapUrl.isEmpty()) {
+            throw new IOException("authentication is disabled");
         }
+        user = User.authenticatedOpt();
+        if (user == null) {
+            throw new IllegalStateException();
+        }
+        result = server.userManager.generateToken(user);
+        server.userManager.save();
         return new JsonPrimitive(result).toString();
     }
 
