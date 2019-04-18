@@ -306,6 +306,14 @@ public class ApiController {
         }
     }
 
+    @ExceptionHandler({ StageNotFoundException.class })
+    public void handleException(StageNotFoundException e, HttpServletResponse response) throws IOException {
+        response.setStatus(HttpStatus.NOT_FOUND.value());
+        try (PrintWriter dest = response.getWriter()) {
+            dest.println(e.getMessage());
+        }
+    }
+
 
     @GetMapping("/stages/{stage}/history")
     public String history(@PathVariable(value = "stage") String stage,

@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
@@ -87,6 +88,7 @@ public class Client {
 
         switch (e.getStatusLine().code) {
             case 400:
+            case 404:
                 body = e.getResponseBytes();
                 // feels ugly ...
                 throw new ArgumentException(body == null ? e.getMessage() : node.getWorld().getSettings().string(body), e);
@@ -345,7 +347,7 @@ public class Client {
 
         try {
             response = node.readString();
-        } catch (NewInputStreamException e) {
+        } catch (FileNotFoundException | NewInputStreamException e) {
             if (e.getCause() instanceof StatusException) {
                 throw beautify(node, (StatusException) e.getCause());
             } else {

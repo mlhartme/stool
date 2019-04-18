@@ -33,6 +33,7 @@ import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.util.Pool;
 import net.oneandone.stool.server.util.Predicate;
 import net.oneandone.stool.server.users.UserManager;
+import net.oneandone.stool.server.web.StageNotFoundException;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -197,7 +198,14 @@ public class Server {
     }
 
     public Stage load(String name) throws IOException {
-        return load(stages.join(name).checkDirectory());
+        FileNode directory;
+
+        directory = stages.join(name);
+        if (directory.exists()) {
+            return load(directory);
+        } else {
+            throw new StageNotFoundException(name);
+        }
     }
 
     private StageConfiguration loadStageConfiguration(FileNode stage) throws IOException {
