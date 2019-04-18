@@ -521,40 +521,31 @@ public class Stage {
         return result;
     }
 
-    /** Fails if container is not running */
-    public void stop(List<String> apps) throws IOException {
+    /** @return list of applications actually stopped */
+    public List<String> stop(List<String> apps) throws IOException {
         Map<String, Current> currentMap;
         Engine engine;
         Map<String, String> containers;
         List<String> unknown;
-        List<String> notRunning;
 
         unknown = new ArrayList<>(apps);
         unknown.removeAll(images(server.dockerEngine()).keySet());
         if (!unknown.isEmpty()) {
-            throw new IOException("unknown app(s): " + unknown);
+            throw new ArgumentException("unknown app(s): " + unknown);
         }
         currentMap = currentMap();
         containers = new LinkedHashMap<>();
-        notRunning = new ArrayList<>();
         for (Map.Entry<String, Current> current : currentMap.entrySet()) {
             if (apps.isEmpty() || apps.contains(current.getKey())) {
                 containers.put(current.getKey(), current.getValue().container);
-            } else {
-                notRunning.add(current.getKey());
             }
-        }
-        if (!notRunning.isEmpty()) {
-            Server.LOGGER.info("warning: the following apps will not be stopped because they are not running: " + apps);
-        }
-        if (containers.isEmpty()) {
-            throw new IOException("stage is already stopped");
         }
         for (Map.Entry<String, String> entry : containers.entrySet()) {
             Server.LOGGER.info(entry.getKey() + ": stopping container ...");
             engine = server.dockerEngine();
             engine.containerStop(entry.getValue(), 300);
         }
+        return new ArrayList<>(containers.keySet());
     }
 
     private Map<FileNode, String> bindMounts(Image image) throws IOException {

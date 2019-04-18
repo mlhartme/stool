@@ -16,10 +16,12 @@ import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Validation;
+import net.oneandone.sushi.archive.ArchiveException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -287,8 +289,15 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/stop")
-    public void stop(@PathVariable(value = "stage") String stage, @RequestParam("apps") String apps) throws IOException {
-        server.load(stage).stop(Separator.COMMA.split(apps));
+    public ResponseEntity<?> stop(@PathVariable(value = "stage") String stage, @RequestParam("apps") String apps) throws IOException {
+        List<String> result;
+
+        try {
+            result = server.load(stage).stop(Separator.COMMA.split(apps));
+        } catch (ArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(array(result).toString(), HttpStatus.OK);
     }
 
 

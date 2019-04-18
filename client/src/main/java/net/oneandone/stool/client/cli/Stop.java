@@ -38,7 +38,15 @@ public class Stop extends StageCommand {
     }
 
     public void doNormal(Reference reference) throws Exception {
-        reference.client.stop(reference.stage, apps);
+        List<String> stopped;
+
+        stopped = reference.client.stop(reference.stage, apps);
+        console.info.println("stopped " + stopped);
+        for (String app : apps) {
+            if (!stopped.contains(app)) {
+                console.info.println("note: " + app + " was already down");
+            }
+        }
     }
 
     @Override

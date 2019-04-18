@@ -185,13 +185,16 @@ public class Client {
         return result;
     }
 
-    public void stop(String stage, List<String> apps) throws IOException {
+    public List<String> stop(String stage, List<String> apps) throws IOException {
         String response;
+        List<String> stopped;
 
         response = node(stage, "stop").withParameter("apps", Separator.COMMA.join(apps)).post("");
-        if (!response.isEmpty()) {
-            throw new IOException(response);
+        stopped = array(parser.parse(response).getAsJsonArray());
+        if (stopped.isEmpty()) {
+            throw new IOException("stage is already stopped");
         }
+        return stopped;
     }
 
     public void remove(String stage) throws IOException {
