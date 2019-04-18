@@ -48,7 +48,6 @@ public class Main {
         // lc = (LoggerContext) LoggerFactory.getILoggerFactory();
         // StatusPrinter.print(lc);
 
-        // TODO System.exit(run(args));
         run(args);
     }
 
