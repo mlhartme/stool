@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
@@ -82,7 +83,13 @@ public class Client {
     }
 
     private IOException beautify(HttpNode node, StatusException e) {
+        byte[] body;
+
         switch (e.getStatusLine().code) {
+            case 400:
+                body = e.getResponseBytes();
+                // feels ugly ...
+                throw new ArgumentException(body == null ? e.getMessage() : node.getWorld().getSettings().string(body), e);
             case 401:
                 return new IOException("401 unauthenticated - " + node.getUri(), e);
             default:
@@ -188,8 +195,14 @@ public class Client {
     public List<String> stop(String stage, List<String> apps) throws IOException {
         String response;
         List<String> stopped;
+        HttpNode node;
 
-        response = node(stage, "stop").withParameter("apps", Separator.COMMA.join(apps)).post("");
+        node = node(stage, "stop").withParameter("apps", Separator.COMMA.join(apps));
+        try {
+            response = node.post("");
+        } catch (StatusException e) {
+            throw beautify(node, e);
+        }
         stopped = array(parser.parse(response).getAsJsonArray());
         if (stopped.isEmpty()) {
             throw new IOException("stage is already stopped");

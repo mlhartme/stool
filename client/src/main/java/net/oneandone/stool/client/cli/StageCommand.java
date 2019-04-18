@@ -201,10 +201,15 @@ public abstract class StageCommand extends ClientCommand {
                 } else {
                     runFinish(referece);
                 }
+            } catch (ArgumentException e) {
+                if (fail == Fail.NORMAL) {
+                    throw new ArgumentException(referece + ": " + e.getMessage(), e);
+                }
+                failures.add(referece, e);
             } catch (Error | RuntimeException e) {
                 console.error.println(referece + ": " + e.getMessage());
                 throw e;
-            } catch (Exception e /* esp. ArgumentException */) {
+            } catch (Exception e) {
                 if (fail == Fail.NORMAL) {
                     throw e;
                 }

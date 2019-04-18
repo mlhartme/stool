@@ -22,6 +22,7 @@ import net.oneandone.sushi.util.Separator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,8 +33,11 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -292,12 +296,16 @@ public class ApiController {
     public ResponseEntity<?> stop(@PathVariable(value = "stage") String stage, @RequestParam("apps") String apps) throws IOException {
         List<String> result;
 
-        try {
-            result = server.load(stage).stop(Separator.COMMA.split(apps));
-        } catch (ArgumentException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        result = server.load(stage).stop(Separator.COMMA.split(apps));
         return new ResponseEntity<>(array(result).toString(), HttpStatus.OK);
+    }
+
+    @ExceptionHandler({ ArgumentException.class })
+    public void handleException(ArgumentException e, HttpServletResponse response) throws IOException {
+        response.setStatus(HttpStatus.BAD_REQUEST.value());
+        try (PrintWriter dest = response.getWriter()) {
+            dest.println(e.getMessage());
+        }
     }
 
 
