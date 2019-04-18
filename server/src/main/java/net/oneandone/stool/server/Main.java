@@ -19,13 +19,12 @@ import net.oneandone.inline.Cli;
 import net.oneandone.inline.Console;
 import net.oneandone.inline.commands.PackageVersion;
 import net.oneandone.stool.server.cli.Globals;
+import net.oneandone.stool.server.cli.Run;
 import net.oneandone.stool.server.cli.Setup;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
-import net.oneandone.sushi.util.Strings;
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import javax.net.ssl.SSLContext;
@@ -49,11 +48,8 @@ public class Main {
         // lc = (LoggerContext) LoggerFactory.getILoggerFactory();
         // StatusPrinter.print(lc);
 
-        if (args.length == 1 && "run".equals(args[0])) {
-            SpringApplication.run(Main.class, Strings.cdr(args));
-        } else {
-            System.exit(run(args));
-        }
+        // TODO System.exit(run(args));
+        run(args);
     }
 
     public static int run(String[] args) throws IOException {
@@ -72,6 +68,7 @@ public class Main {
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
         cli.begin(console, "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
+           cli.add(Run.class, "run");
            cli.begin("globals", globals,  "-exception { setException(exception) }");
               cli.add(Setup.class, "setup -batch config? { config(config) }");
         return cli.run(args);
