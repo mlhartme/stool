@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.FileNotFoundException;
-import net.oneandone.sushi.fs.NewInputStreamException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -14,10 +13,12 @@ import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.fs.http.model.Body;
+import net.oneandone.sushi.fs.http.model.Method;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -109,7 +110,7 @@ public class Client {
         if (filter != null) {
             node = node.withParameter("filter", filter);
         }
-        references = httpGet(node).getAsJsonArray();
+        references = getJson(node).getAsJsonArray();
         result = new ArrayList<>(references.size());
         for (JsonElement element : references) {
             result.add(element.getAsString());
@@ -182,7 +183,7 @@ public class Client {
         JsonObject response;
         Map<String, List<String>> result;
 
-        response = httpGet(node(stage, "await-startup")).getAsJsonObject();
+        response = getJson(node(stage, "await-startup")).getAsJsonObject();
 
         result = new LinkedHashMap<>();
         for (Map.Entry<String, JsonElement> entry : response.entrySet()) {
@@ -237,7 +238,7 @@ public class Client {
 
         node = node(stage, "status");
         node = node.withParameter("select", Separator.COMMA.join(select));
-        status = httpGet(node).getAsJsonObject();
+        status = getJson(node).getAsJsonObject();
         result = new LinkedHashMap<>();
         for (String name : status.keySet()) {
             result.put(name, status.get(name).getAsString());
@@ -256,7 +257,7 @@ public class Client {
         node = node(stage,"history");
         node = node.withParameter("details", details);
         node = node.withParameter("max", max);
-        references = httpGet(node).getAsJsonArray();
+        references = getJson(node).getAsJsonArray();
         result = new ArrayList<>(references.size());
         for (JsonElement element : references) {
             result.add(element.getAsString());
@@ -267,19 +268,19 @@ public class Client {
     public String quota() throws IOException {
         String result;
 
-        result = httpGet(node("quota")).getAsString();
+        result = getJson(node("quota")).getAsString();
         return result.isEmpty() ? null : result;
     }
 
     public int memUnreserved() throws IOException {
         String result;
 
-        result = httpGet(node("memUnreserved")).getAsString();
+        result = getJson(node("memUnreserved")).getAsString();
         return Integer.parseInt(result);
     }
 
     public List<String> apps(String stage) throws IOException {
-        return array(httpGet(node(stage, "apps")).getAsJsonArray());
+        return array(getJson(node(stage, "apps")).getAsJsonArray());
     }
 
     //-- validate
@@ -301,7 +302,7 @@ public class Client {
         Map<String, String> result;
         JsonObject properties;
 
-        properties = httpGet(node(stage, "properties")).getAsJsonObject();
+        properties = getJson(node(stage, "properties")).getAsJsonObject();
         result = new LinkedHashMap<>();
         for (String name : properties.keySet()) {
             result.put(name, properties.get(name).getAsString());
@@ -329,7 +330,7 @@ public class Client {
     //-- app info
 
     public List<String> appInfo(String stage, String app) throws Exception {
-        return array(httpGet(node(stage, "appInfo").withParameter("app", app)).getAsJsonArray());
+        return array(getJson(node(stage, "appInfo").withParameter("app", app)).getAsJsonArray());
     }
 
     //--
@@ -342,18 +343,16 @@ public class Client {
         return root.join(path);
     }
 
-    private JsonElement httpGet(HttpNode node) throws IOException {
-        String response;
-
-        try {
-            response = node.readString();
-        } catch (FileNotFoundException | NewInputStreamException e) {
+    private JsonElement getJson(HttpNode node) throws IOException {
+        // directly invoke get because I don't want wrapper exception from Node.newInputStream or newReader
+        try (InputStream src = Method.get(node)) {
+            return parser.parse(new InputStreamReader(src));
+        } catch (FileNotFoundException e) {
             if (e.getCause() instanceof StatusException) {
                 throw beautify(node, (StatusException) e.getCause());
             } else {
                 throw e;
             }
         }
-        return parser.parse(response);
     }
 }
