@@ -78,25 +78,9 @@ public class Client {
 
         node = node("auth");
         try {
-            return parser.parse(node.post("")).getAsString();
+            return postJson(node, "").getAsString();
         } catch (StatusException e) {
             throw beautify(node, e);
-        }
-    }
-
-    private IOException beautify(HttpNode node, StatusException e) {
-        byte[] body;
-
-        switch (e.getStatusLine().code) {
-            case 400:
-            case 404:
-                body = e.getResponseBytes();
-                // feels ugly ...
-                throw new ArgumentException(body == null ? e.getMessage() : node.getWorld().getSettings().string(body), e);
-            case 401:
-                return new IOException("401 unauthenticated - " + node.getUri(), e);
-            default:
-                return e;
         }
     }
 
@@ -121,14 +105,10 @@ public class Client {
 
     public void create(String name, Map<String, String> config) throws IOException {
         HttpNode node;
-        String response;
 
         node = node("stages/" + name);
         node = node.withParameters(config);
-        response = node.post("");
-        if (!response.isEmpty()) {
-            throw new IOException(response);
-        }
+        postEmpty(node, "");
     }
 
     public BuildResult build(String stage, String app, FileNode war, String comment,
@@ -159,7 +139,6 @@ public class Client {
 
     public List<String> start(String stage, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {
         HttpNode node;
-        String response;
         List<String> started;
 
         node = node(stage, "start");
@@ -168,11 +147,10 @@ public class Client {
         node = node.withParameters("env.", startEnvironment);
         node = node.withParameters("app.", apps);
         try {
-            response = node.post("");
+            started = array(postJson(node, "").getAsJsonArray());
         } catch (StatusException e) {
             throw beautify(node, e);
         }
-        started = array(parser.parse(response).getAsJsonArray());
         if (started.isEmpty()) {
             throw new IOException("stage is already started");
         }
@@ -203,17 +181,15 @@ public class Client {
     }
 
     public List<String> stop(String stage, List<String> apps) throws IOException {
-        String response;
         List<String> stopped;
         HttpNode node;
 
         node = node(stage, "stop").withParameter("apps", Separator.COMMA.join(apps));
         try {
-            response = node.post("");
+            stopped = array(postJson(node, "").getAsJsonArray());
         } catch (StatusException e) {
             throw beautify(node, e);
         }
-        stopped = array(parser.parse(response).getAsJsonArray());
         if (stopped.isEmpty()) {
             throw new IOException("stage is already stopped");
         }
@@ -221,12 +197,7 @@ public class Client {
     }
 
     public void remove(String stage) throws IOException {
-        String response;
-
-        response = node(stage, "remove").post("");
-        if (!response.isEmpty()) {
-            throw new IOException(response);
-        }
+        postEmpty(node(stage, "remove"), "");
     }
 
     //--
@@ -287,13 +258,11 @@ public class Client {
 
     public List<String> validate(String stage, boolean email, boolean repair) throws IOException {
         HttpNode node;
-        String response;
 
         node = node(stage,"validate");
         node = node.withParameter("email", email);
         node = node.withParameter("repair", repair);
-        response = node.post("");
-        return array(parser.parse(response).getAsJsonArray());
+        return array(postJson(node,"").getAsJsonArray());
     }
 
     //-- config command
@@ -318,8 +287,7 @@ public class Client {
         node = node(stage, "set-properties");
         node = node.withParameters(arguments);
 
-        response = parser.parse(node.post("")).getAsJsonObject();
-
+        response = postJson(node, "").getAsJsonObject();
         result = new LinkedHashMap<>();
         for (Map.Entry<String, JsonElement> entry : response.entrySet()) {
             result.put(entry.getKey(), entry.getValue().getAsString());
@@ -333,6 +301,7 @@ public class Client {
         return array(getJson(node(stage, "appInfo").withParameter("app", app)).getAsJsonArray());
     }
 
+
     //--
 
     private HttpNode node(String stage, String cmd) {
@@ -341,6 +310,37 @@ public class Client {
 
     private HttpNode node(String path) {
         return root.join(path);
+    }
+
+    private IOException beautify(HttpNode node, StatusException e) {
+        byte[] body;
+
+        switch (e.getStatusLine().code) {
+            case 400:
+            case 404:
+                body = e.getResponseBytes();
+                // feels ugly ...
+                throw new ArgumentException(body == null ? e.getMessage() : node.getWorld().getSettings().string(body), e);
+            case 401:
+                return new IOException("401 unauthenticated - " + node.getUri(), e);
+            default:
+                return e;
+        }
+    }
+
+    //--
+
+    private void postEmpty(HttpNode node, String body) throws IOException {
+        String response;
+
+        response = node.post(body);
+        if (!response.isEmpty()) {
+            throw new IOException("unexpected response: " + response);
+        }
+    }
+
+    private JsonElement postJson(HttpNode node, String body) throws IOException {
+        return parser.parse(node.post(body));
     }
 
     private JsonElement getJson(HttpNode node) throws IOException {
