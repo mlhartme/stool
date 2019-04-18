@@ -48,9 +48,4 @@ public class Stop extends StageCommand {
             }
         }
     }
-
-    @Override
-    public void doFinish(Reference reference) {
-        console.info.println("state: down");
-    }
 }

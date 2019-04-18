@@ -68,7 +68,15 @@ public class Start extends StageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        reference.client.start(reference.stage, http, https, environment, selection);
+        List<String> started;
+
+        started = reference.client.start(reference.stage, http, https, environment, selection);
+        console.info.println("starting " + started + " ...");
+        for (String app : selection.keySet()) {
+            if (!started.contains(app)) {
+                console.info.println("note: " + app + " was already up");
+            }
+        }
     }
 
     @Override

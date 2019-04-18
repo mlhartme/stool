@@ -433,19 +433,20 @@ public class Stage {
         return result;
     }
 
-    public void start(int http, int https, Map<String, String> environment, Map<String, Integer> selection) throws IOException {
+    /** @return apps actually started */
+    public List<String> start(int http, int https, Map<String, String> environment, Map<String, Integer> selection) throws IOException {
         Engine engine;
         String container;
         Engine.Status status;
         Ports hostPorts;
         Map<FileNode, String> mounts;
         Map<String, String> labels;
+        int unreserved;
+        List<String> result;
 
         engine = server.dockerEngine();
-
-
-        int unreserved = server.memUnreserved();
-
+        unreserved = server.memUnreserved();
+        result = new ArrayList<>();
         for (Image image : resolve(engine, selection)) {
             if (image.memory > unreserved) {
                 throw new ArgumentException("Cannot reserve memory for app " + image.app + " :\n"
@@ -476,7 +477,9 @@ public class Stage {
             if (status != Engine.Status.RUNNING) {
                 throw new IOException("unexpected status: " + status);
             }
+            result.add(image.app);
         }
+        return result;
     }
 
     private List<Image> resolve(Engine engine, Map<String, Integer> selectionOrig) throws IOException {
@@ -490,7 +493,7 @@ public class Stage {
 
         allImages = images(engine);
         if (allImages.isEmpty()) {
-            throw new IOException("no apps to start - did you build the stage?");
+            throw new ArgumentException("no apps to start - did you build the stage?");
         }
         running = currentMap().keySet();
         if (selectionOrig.isEmpty()) {
@@ -504,16 +507,14 @@ public class Stage {
         result = new ArrayList<>();
         for (Map.Entry<String, Integer> entry : selection.entrySet()) {
             app = entry.getKey();
-            if (running.contains(app)) {
-                Server.LOGGER.info("warning: app will not be started because it is already running: " + app);
-            } else {
+            if (!running.contains(app)) {
                 idx = entry.getValue();
                 list = allImages.get(app);
                 if (list == null) {
-                    throw new IOException("app not found: " + app);
+                    throw new ArgumentException("app not found: " + app);
                 }
                 if (idx < 0 || idx >= list.size()) {
-                    throw new IOException(app + ": app index not found: " + idx);
+                    throw new ArgumentException(app + ": app index not found: " + idx);
                 }
                 result.add(list.get(idx));
             }

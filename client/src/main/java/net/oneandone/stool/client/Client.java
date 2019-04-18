@@ -154,19 +154,26 @@ public class Client {
         return new BuildResult(error == null ? null : error.getAsString(), obj.get("output").getAsString());
     }
 
-    public void start(String stage, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {
+    public List<String> start(String stage, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {
         HttpNode node;
         String response;
+        List<String> started;
 
         node = node(stage, "start");
         node = node.withParameter("http", http);
         node = node.withParameter("https", https);
         node = node.withParameters("env.", startEnvironment);
         node = node.withParameters("app.", apps);
-        response = node.post("");
-        if (!response.isEmpty()) {
-            throw new IOException(response);
+        try {
+            response = node.post("");
+        } catch (StatusException e) {
+            throw beautify(node, e);
         }
+        started = array(parser.parse(response).getAsJsonArray());
+        if (started.isEmpty()) {
+            throw new IOException("stage is already started");
+        }
+        return started;
     }
 
     public Map<String, List<String>> awaitStartup(String stage) throws IOException {

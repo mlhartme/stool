@@ -16,7 +16,6 @@ import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Validation;
-import net.oneandone.sushi.archive.ArchiveException;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -240,7 +238,7 @@ public class ApiController {
 
 
     @PostMapping("/stages/{stage}/start")
-    public void start(@PathVariable(value = "stage") String stageName,
+    public String start(@PathVariable(value = "stage") String stageName,
                       @RequestParam("http") int http, @RequestParam("https") int https,
                       HttpServletRequest request) throws IOException {
         Stage stage;
@@ -264,7 +262,7 @@ public class ApiController {
         stage = server.load(stageName);
         stage.server.configuration.verfiyHostname();
         stage.checkConstraints();
-        stage.start(http, https, environment, apps);
+        return array(stage.start(http, https, environment, apps)).toString();
     }
 
     @GetMapping("/stages//{stage}/await-startup")
@@ -360,7 +358,7 @@ public class ApiController {
         while (parameters.hasMoreElements()) {
             parameter = parameters.nextElement();
             if (parameter.startsWith(prefix)) {
-                result.put(parameter, request.getParameter(parameter));
+                result.put(parameter.substring(prefix.length()), request.getParameter(parameter));
             }
         }
         return result;
