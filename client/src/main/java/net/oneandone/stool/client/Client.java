@@ -77,11 +77,7 @@ public class Client {
         HttpNode node;
 
         node = node("auth");
-        try {
-            return postJson(node, "").getAsString();
-        } catch (StatusException e) {
-            throw beautify(node, e);
-        }
+        return postJson(node, "").getAsString();
     }
 
     /** @param filter null to return all stages */
@@ -146,11 +142,7 @@ public class Client {
         node = node.withParameter("https", https);
         node = node.withParameters("env.", startEnvironment);
         node = node.withParameters("app.", apps);
-        try {
-            started = array(postJson(node, "").getAsJsonArray());
-        } catch (StatusException e) {
-            throw beautify(node, e);
-        }
+        started = array(postJson(node, "").getAsJsonArray());
         if (started.isEmpty()) {
             throw new IOException("stage is already started");
         }
@@ -185,11 +177,7 @@ public class Client {
         HttpNode node;
 
         node = node(stage, "stop").withParameter("apps", Separator.COMMA.join(apps));
-        try {
-            stopped = array(postJson(node, "").getAsJsonArray());
-        } catch (StatusException e) {
-            throw beautify(node, e);
-        }
+        stopped = array(postJson(node, "").getAsJsonArray());
         if (stopped.isEmpty()) {
             throw new IOException("stage is already stopped");
         }
@@ -312,6 +300,43 @@ public class Client {
         return root.join(path);
     }
 
+
+    //-- http methods with exception handling
+
+    private JsonElement getJson(HttpNode node) throws IOException {
+        // directly invoke get because I don't want wrapper exception from Node.newInputStream or newReader
+        try (InputStream src = Method.get(node)) {
+            return parser.parse(new InputStreamReader(src));
+        } catch (FileNotFoundException e) {
+            if (e.getCause() instanceof StatusException) {
+                throw beautify(node, (StatusException) e.getCause());
+            } else {
+                throw e;
+            }
+        }
+    }
+
+    private void postEmpty(HttpNode node, String body) throws IOException {
+        String response;
+
+        try {
+            response = node.post(body);
+        } catch (StatusException e) {
+            throw beautify(node, e);
+        }
+        if (!response.isEmpty()) {
+            throw new IOException("unexpected response: " + response);
+        }
+    }
+
+    private JsonElement postJson(HttpNode node, String body) throws IOException {
+        try {
+            return parser.parse(node.post(body));
+        } catch (StatusException e) {
+            throw beautify(node, e);
+        }
+    }
+
     private IOException beautify(HttpNode node, StatusException e) {
         byte[] body;
 
@@ -325,34 +350,6 @@ public class Client {
                 return new IOException("401 unauthenticated - " + node.getUri(), e);
             default:
                 return e;
-        }
-    }
-
-    //--
-
-    private void postEmpty(HttpNode node, String body) throws IOException {
-        String response;
-
-        response = node.post(body);
-        if (!response.isEmpty()) {
-            throw new IOException("unexpected response: " + response);
-        }
-    }
-
-    private JsonElement postJson(HttpNode node, String body) throws IOException {
-        return parser.parse(node.post(body));
-    }
-
-    private JsonElement getJson(HttpNode node) throws IOException {
-        // directly invoke get because I don't want wrapper exception from Node.newInputStream or newReader
-        try (InputStream src = Method.get(node)) {
-            return parser.parse(new InputStreamReader(src));
-        } catch (FileNotFoundException e) {
-            if (e.getCause() instanceof StatusException) {
-                throw beautify(node, (StatusException) e.getCause());
-            } else {
-                throw e;
-            }
         }
     }
 }
