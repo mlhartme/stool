@@ -77,10 +77,10 @@ public class Main {
                        cli.begin("globals.console", "");
                 cli.add(Auth.class, "auth server");
                 cli.base(ClientCommand.class, "");
-                    cli.add(Create.class, "create projectAndServerAndProperties*");
-                    cli.add(Build.class, "build -nocache -keep=5 -restart -m= projectOrArgs*");
-                    cli.add(Attach.class, "attach stage project?");
-                    cli.add(Detach.class, "detach project?");
+                    cli.add(Create.class, "create -project serverAndProperties*");
+                    cli.add(Build.class, "build -project -nocache -keep=5 -restart -m= args*");
+                    cli.add(Attach.class, "attach -project stage");
+                    cli.add(Detach.class, "detach -project");
                     cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(App.class, "app name*");
                       cli.add(Config.class, "config property* { property*(property) }");

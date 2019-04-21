@@ -20,7 +20,6 @@ import net.oneandone.stool.client.BuildResult;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -38,13 +37,13 @@ public class Build extends ProjectCommand {
     private final String comment;
     private final Map<String, String> arguments;
 
-    public Build(Globals globals, boolean noCache, int keep, boolean restart, String comment, List<String> projectOrArgs) {
-        super(globals, eatProjectOpt(globals.world, projectOrArgs));
+    public Build(Globals globals, FileNode project, boolean noCache, int keep, boolean restart, String comment, List<String> args) {
+        super(globals, project);
         this.noCache = noCache;
         this.keep = keep;
         this.restart = restart;
         this.comment = comment;
-        this.arguments = argument(projectOrArgs);
+        this.arguments = argument(args);
     }
 
     private static Map<String, String> argument(List<String> args) {
@@ -60,19 +59,6 @@ public class Build extends ProjectCommand {
             result.put(arg.substring(0, idx), arg.substring(idx + 1));
         }
         return result;
-    }
-
-    private static FileNode eatProjectOpt(World world, List<String> lst) {
-        String str;
-
-        if (lst.size() > 0) {
-            str = lst.get(0);
-            if (!str.contains("=")) {
-                lst.remove(0);
-                return world.file(str);
-            }
-        }
-        return null;
     }
 
     @Override

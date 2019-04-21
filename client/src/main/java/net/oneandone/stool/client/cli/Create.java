@@ -21,7 +21,6 @@ import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.ServerManager;
-import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -33,8 +32,8 @@ public class Create extends ProjectCommand {
     private final String server;
     private final Map<String, String> config;
 
-    public Create(Globals globals, List<String> args) {
-        super(globals, eatProject(globals.world, args));
+    public Create(Globals globals, FileNode project, List<String> args) {
+        super(globals, project);
         this.server = eatServer(args);
         this.config = new LinkedHashMap<>();
         for (String arg : args) {
@@ -53,24 +52,6 @@ public class Create extends ProjectCommand {
             }
         }
         return "default";
-    }
-
-    private static FileNode eatProject(World world, List<String> args) {
-        String arg;
-        FileNode project;
-
-        if (!args.isEmpty()) {
-            arg = args.get(0);
-            if (!arg.contains("=")) {
-                args.remove(0);
-                project = world.file(arg);
-                if (!project.isDirectory()) {
-                    throw new ArgumentException("project directory not found: " + project.getAbsolute());
-                }
-                return project;
-            }
-        }
-        return world.getWorking();
     }
 
     private void property(String str) {
