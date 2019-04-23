@@ -428,10 +428,10 @@ public class Engine implements AutoCloseable {
         return dest.toByteArray();
     }
 
-    public void imageRemove(String id, boolean force) throws IOException {
+    public void imageRemove(String tagOrId, boolean force) throws IOException {
         HttpNode node;
 
-        node = root.join("images", id);
+        node = root.join("images", tagOrId);
         if (force) {
             node = node.withParameter("force", "true");
         }
