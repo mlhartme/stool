@@ -592,10 +592,13 @@ public class Stage {
     }
 
     private Properties properties(FileNode war) throws IOException {
-        Node<?> root;
+        Node<?> node;
 
-        root = war.openZip();
-        return root.join("WEB-INF/classes/META-INF/stool.properties").readProperties();
+        node = war.openZip().join("WEB-INF/classes/META-INF/stool.properties");
+        if (!node.exists()) {
+            throw new ArgumentException("missing 'META-INF/stool.properties' in war file");
+        }
+        return node.readProperties();
     }
 
     private FileNode template(Properties appProperies) throws IOException {
@@ -603,7 +606,7 @@ public class Stage {
 
         template = appProperies.remove("template");
         if (template == null) {
-            throw new IOException("missing propertyl: template");
+            throw new IOException("missing property: template");
         }
         return server.templates().join(template.toString()).checkDirectory();
     }
