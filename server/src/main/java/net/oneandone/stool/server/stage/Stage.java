@@ -82,6 +82,7 @@ public class Stage {
 
     public static final String CONTAINER_LABEL_STOOL = LABEL_PREFIX + "stool";
     public static final String CONTAINER_LABEL_STAGE = LABEL_PREFIX + "stage";
+    public static final String CONTAINER_LABEL_IMAGE = LABEL_PREFIX + "image";
     public static final String CONTAINER_LABEL_APP = LABEL_PREFIX + "app";
     public static final String CONTAINER_LABEL_PORT_USED_PREFIX = LABEL_PREFIX + "port.used.";
 
@@ -466,6 +467,7 @@ public class Stage {
             labels = hostPorts.toUsedLabels();
             labels.put(CONTAINER_LABEL_STOOL, server.configuration.registryNamespace);
             labels.put(CONTAINER_LABEL_APP, image.app);
+            labels.put(CONTAINER_LABEL_IMAGE, image.id);
             labels.put(CONTAINER_LABEL_STAGE, name);
             container = engine.containerCreate(image.id,  getName() + "." + server.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * image.memory, null, null,
@@ -665,7 +667,7 @@ public class Stage {
         images = new HashMap<>();
         for (Engine.ContainerListInfo info : engine.containerList(Stage.CONTAINER_LABEL_STOOL).values()) {
             if (name.equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
-                images.put(info.labels.get(Stage.CONTAINER_LABEL_APP), Image.load(engine, info.imageId));
+                images.put(info.labels.get(Stage.CONTAINER_LABEL_APP), Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE)));
             }
         }
         for (Map.Entry<String, Ports> entry : loadPorts().entrySet()) {
@@ -770,7 +772,7 @@ public class Stage {
         containerList = dockerContainerList();
         for (String container : containerList) {
             json = engine.containerInspect(container, false);
-            image = Image.load(engine, Strings.removeLeft(json.get("Image").getAsString(), "sha256:"));
+            image = Image.load(engine, Server.containerImageTag(json));
             result.put(image.app, new Current(image, container));
         }
         return result;

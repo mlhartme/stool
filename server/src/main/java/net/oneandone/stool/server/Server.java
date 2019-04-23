@@ -52,6 +52,7 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.Modifier;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -273,10 +274,14 @@ public class Server {
         engine = dockerEngine();
         for (String container : engine.containerListRunning(Stage.CONTAINER_LABEL_STOOL).keySet()) {
             json = engine.containerInspect(container, false);
-            image = Image.load(engine, Strings.removeLeft(json.get("Image").getAsString(), "sha256:"));
+            image = Image.load(engine, containerImageTag(json));
             reserved += image.memory;
         }
         return reserved;
+    }
+
+    public static String containerImageTag(JsonObject inspected) {
+        return inspected.get("Config").getAsJsonObject().get("Labels").getAsJsonObject().get(Stage.CONTAINER_LABEL_IMAGE).getAsString();
     }
 
     //-- stool properties

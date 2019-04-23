@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.stage;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.server.docker.Engine;
@@ -28,17 +27,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Image implements Comparable<Image> {
-    public static Image load(Engine engine, String id) throws IOException {
+    public static Image load(Engine engine, String tag) throws IOException {
         JsonObject inspect;
         JsonObject labels;
         LocalDateTime created;
         String app;
 
-        inspect = engine.imageInspect(id);
+        inspect = engine.imageInspect(tag);
         created = LocalDateTime.parse(inspect.get("Created").getAsString(), Engine.CREATED_FMT);
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
-        app = app(inspect.get("RepoTags").getAsJsonArray());
-        return new Image(id, created, Ports.fromDeclaredLabels(labels),
+        app = app(tag);
+        return new Image(tag, created, Ports.fromDeclaredLabels(labels),
                 app,
                 memory(labels.get(Stage.IMAGE_LABEL_MEMORY)),
                 context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
@@ -95,14 +94,11 @@ public class Image implements Comparable<Image> {
         return result;
     }
 
-    private static String app(JsonArray array) {
+    private static String app(String tag) {
         String result;
         int idx;
 
-        if (array.size() != 1) {
-            throw new IllegalStateException(array.toString());
-        }
-        result = array.get(0).getAsString();
+        result = tag;
         idx = result.indexOf(':');
         if (idx == -1) {
             throw new IllegalStateException(result);
