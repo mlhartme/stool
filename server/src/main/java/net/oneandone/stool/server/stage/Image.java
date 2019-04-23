@@ -111,7 +111,7 @@ public class Image implements Comparable<Image> {
         return result.substring(idx + 1);
     }
 
-    public final String id;
+    public final String tag;
     public final LocalDateTime created;
 
     //-- meta data
@@ -135,14 +135,14 @@ public class Image implements Comparable<Image> {
     /** maps relative host path to absolute container path */
     public final List<String> faultProjects;
 
-    public Image(String id, LocalDateTime created, Ports ports, String app, int memory, String urlContext, List<String> urlSuffixes,
+    public Image(String tag, LocalDateTime created, Ports ports, String app, int memory, String urlContext, List<String> urlSuffixes,
                  String comment, String origin, String createdBy, String createdOn, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
                 throw new IllegalArgumentException(urlContext);
             }
         }
-        this.id = id;
+        this.tag = tag;
         this.created = created;
 
         this.ports = ports;

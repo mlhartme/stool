@@ -75,8 +75,8 @@ public class AppInfo {
         }
         result.add("");
         for (Image image : all.get(app)) {
-            marker = image.id.equals(current.image.id) ? "==>" : "   ";
-            result.add(String.format("%s [%d] %s\n", marker, idx, image.id));
+            marker = image.tag.equals(current.image.tag) ? "==>" : "   ";
+            result.add(String.format("%s [%d] %s\n", marker, idx, image.tag));
             result.add("       memory:     " + image.memory);
             result.add("       comment:    " + image.comment);
             result.add("       origin:     " + image.origin);

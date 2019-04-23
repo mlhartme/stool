@@ -353,7 +353,7 @@ public class Stage {
             images = allImages.get(app);
             if (images.size() > keep) {
                 while (images.size() > keep) {
-                    remove = images.remove(images.size() - 1).id;
+                    remove = images.remove(images.size() - 1).tag;
                     Server.LOGGER.debug("remove image: " + remove);
                     engine.imageRemove(remove, true); // TODO: 'force' could remove an image even if there's still a container running; but I need force to delete with multiple tags ...
                 }
@@ -454,7 +454,7 @@ public class Stage {
                         + "  requested: " + image.memory + "\n"
                         + "Consider stopping stages.");
             }
-            for (String old : engine.containerListForImage(image.id).keySet()) {
+            for (String old : engine.containerListForImage(image.tag).keySet()) {
                 engine.containerRemove(old);
             }
             Server.LOGGER.debug("environment: " + environment);
@@ -467,9 +467,9 @@ public class Stage {
             labels = hostPorts.toUsedLabels();
             labels.put(CONTAINER_LABEL_STOOL, server.configuration.registryNamespace);
             labels.put(CONTAINER_LABEL_APP, image.app);
-            labels.put(CONTAINER_LABEL_IMAGE, image.id);
+            labels.put(CONTAINER_LABEL_IMAGE, image.tag);
             labels.put(CONTAINER_LABEL_STAGE, name);
-            container = engine.containerCreate(image.id,  getName() + "." + server.configuration.hostname,
+            container = engine.containerCreate(image.tag,  getName() + "." + server.configuration.hostname,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * image.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts));
             Server.LOGGER.debug("created container " + container);
