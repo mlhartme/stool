@@ -159,7 +159,10 @@ public class Image implements Comparable<Image> {
 
     @Override
     public int compareTo(Image o) {
-        return -created.compareTo(o.created);
+        int result;
+
+        result = -created.compareTo(o.created);  // TODO: created taken from image, which may be shared by multiple tags ...
+        return result == 0 ? tag.compareTo(o.app) : result;
     }
 
     public String toString() {
