@@ -32,7 +32,6 @@ import net.oneandone.stool.server.util.Property;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
-import net.oneandone.sushi.util.Strings;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -385,8 +384,18 @@ public class Stage {
         }*/
     }
 
+    public static class BuildResult {
+        public final String tag;
+        public final String output;
+
+        public BuildResult(String tag, String output) {
+            this.tag = tag;
+            this.output = output;
+        }
+    }
+
     /** @param keep 0 to keep all */
-    public String build(String app, FileNode war, String comment, String origin,
+    public BuildResult build(String app, FileNode war, String comment, String origin,
                         String createdBy, String createdOn, boolean noCache, int keep,
                         Map<String, String> arguments) throws Exception {
         Engine engine;
@@ -399,7 +408,7 @@ public class Stage {
         Map<String, BuildArgument> env;
         Map<String, String> buildArgs;
         StringWriter output;
-        String result;
+        String str;
 
         engine = this.server.dockerEngine();
         if (keep > 0) {
@@ -427,10 +436,10 @@ public class Stage {
         } finally {
             output.close();
         }
-        result = output.toString();
+        str = output.toString();
         Server.LOGGER.debug("successfully built image: " + image);
-        Server.LOGGER.debug(result);
-        return result;
+        Server.LOGGER.debug(str);
+        return new BuildResult(tag, str);
     }
 
     /** @return apps actually started */

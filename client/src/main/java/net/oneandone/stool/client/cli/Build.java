@@ -93,6 +93,7 @@ public class Build extends ProjectCommand {
             } else {
                 console.verbose.println(result.output);
             }
+            console.info.println("successfully built image " + result.tag);
             if (restart) {
                 new Restart(globals, new ArrayList<>()).doRun(reference);
             }

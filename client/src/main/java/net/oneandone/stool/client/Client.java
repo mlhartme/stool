@@ -130,7 +130,7 @@ public class Client {
         }
         obj = parser.parse(result).getAsJsonObject();
         error = obj.get("error");
-        return new BuildResult(error == null ? null : error.getAsString(), obj.get("output").getAsString());
+        return new BuildResult(obj.get("tag").getAsString(), error == null ? null : error.getAsString(), obj.get("output").getAsString());
     }
 
     public List<String> start(String stage, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {

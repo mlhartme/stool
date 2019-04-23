@@ -318,7 +318,7 @@ public class Engine implements AutoCloseable {
                 line = in.readLine();
                 if (line == null) {
                     if (error != null) {
-                        throw new BuildError(error, errorDetail, output.toString());
+                        throw new BuildError(nameTag, error, errorDetail, output.toString());
                     }
                     if (id == null) {
                         throw new IOException("missing id");
