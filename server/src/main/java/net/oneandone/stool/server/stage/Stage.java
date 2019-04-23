@@ -362,7 +362,7 @@ public class Stage {
 
     public void wipeContainer(Engine engine) throws IOException {
         for (String image : listImages(engine)) {
-            for (String container : engine.containerListForImage(image).keySet()) {
+            for (String container : engine.containerList(CONTAINER_LABEL_IMAGE, image).keySet()) {
                 Server.LOGGER.debug("remove container: " + container);
                 engine.containerRemove(container);
             }
@@ -463,7 +463,7 @@ public class Stage {
                         + "  requested: " + image.memory + "\n"
                         + "Consider stopping stages.");
             }
-            for (String old : engine.containerListForImage(image.tag).keySet()) {
+            for (String old : engine.containerList(Stage.CONTAINER_LABEL_IMAGE, image.tag).keySet()) {
                 engine.containerRemove(old);
             }
             Server.LOGGER.debug("environment: " + environment);
