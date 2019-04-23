@@ -291,18 +291,18 @@ public class Stage {
 
     //-- docker
 
+    /** @return list of tags */
     private List<String> listImages(Engine engine) throws IOException {
         Engine.ImageListInfo info;
-        String tag;
         List<String> result;
 
         result = new ArrayList<>();
         for (Map.Entry<String, Engine.ImageListInfo> entry : engine.imageList().entrySet()) {
             info = entry.getValue();
-            if (info.tags.size() == 1) {
-                tag = info.tags.get(0);
+            for (String tag : info.tags) {
                 if (tag.startsWith(server.configuration.registryNamespace + "/" + name + "/")) {
-                    result.add(entry.getKey());
+                    result.add(tag);
+                    System.out.println("tag " + tag);
                 }
             }
         }
@@ -317,7 +317,7 @@ public class Stage {
     public void wipeImages(Engine engine) throws IOException {
         for (String image : listImages(engine)) {
             Server.LOGGER.debug("remove image: " + image);
-            engine.imageRemove(image, true /* because the might be multiple tags */);
+            engine.imageRemove(image, false);
         }
     }
 
@@ -328,8 +328,8 @@ public class Stage {
         List<Image> list;
 
         result = new HashMap<>();
-        for (String id :listImages(engine)) {
-            image = Image.load(engine, id);
+        for (String tag : listImages(engine)) {
+            image = Image.load(engine, tag);
             list = result.get(image.app);
             if (list == null) {
                 list = new ArrayList<>();
