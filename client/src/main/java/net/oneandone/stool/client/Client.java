@@ -5,7 +5,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.inline.ArgumentException;
-import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -16,9 +15,11 @@ import net.oneandone.sushi.fs.http.model.Body;
 import net.oneandone.sushi.fs.http.model.Method;
 import net.oneandone.sushi.util.Separator;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -306,34 +307,39 @@ public class Client {
     private JsonElement getJson(HttpNode node) throws IOException {
         // directly invoke get because I don't want wrapper exception from Node.newInputStream or newReader
         try (InputStream src = Method.get(node)) {
-            return parser.parse(new InputStreamReader(src));
-        } catch (FileNotFoundException e) {
-            if (e.getCause() instanceof StatusException) {
-                throw beautify(node, (StatusException) e.getCause());
-            } else {
-                throw e;
-            }
-        }
-    }
-
-    private void postEmpty(HttpNode node, String body) throws IOException {
-        String response;
-
-        try {
-            response = node.post(body);
+            return parser.parse(reader(src));
         } catch (StatusException e) {
             throw beautify(node, e);
-        }
-        if (!response.isEmpty()) {
-            throw new IOException("unexpected response: " + response);
         }
     }
 
     private JsonElement postJson(HttpNode node, String body) throws IOException {
+        byte[] bytes;
+        Body b;
+
         try {
-            return parser.parse(node.post(body));
+            bytes = node.getWorld().getSettings().bytes(body);
+            b = new Body(null, null, (long)bytes.length, new ByteArrayInputStream(bytes), false);
+            return parser.parse(reader(Method.post(node, b)));
         } catch (StatusException e) {
             throw beautify(node, e);
+        }
+    }
+
+    private void postEmpty(HttpNode node, String body) throws IOException {
+        JsonElement e;
+
+        e = postJson(node, body);
+        if (!e.isJsonNull()) {
+            throw new IOException("unexpected response: " + e);
+        }
+    }
+
+    private InputStreamReader reader(InputStream src) {
+        try {
+            return new InputStreamReader(src, root.getWorld().getSettings().encoding);
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException(e);
         }
     }
 

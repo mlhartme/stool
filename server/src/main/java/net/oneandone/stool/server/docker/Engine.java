@@ -235,8 +235,6 @@ public class Engine implements AutoCloseable {
         JsonObject object;
         String id;
         String imageId;
-        Map<String, String> labels;
-        String app;
 
         node = root.join("containers/json");
         if (filters != null) {
