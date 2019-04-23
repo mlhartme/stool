@@ -29,29 +29,26 @@ import java.util.List;
 import java.util.Map;
 
 public class Create extends ProjectCommand {
+    private final String name;
     private final String server;
     private final Map<String, String> config;
 
-    public Create(Globals globals, FileNode project, List<String> args) {
+    public Create(Globals globals, FileNode project, String nameAndServer, List<String> args) {
         super(globals, project);
-        this.server = eatServer(args);
+
+        int idx;
+
+        idx = nameAndServer.indexOf('@');
+        if (idx == -1) {
+            throw new ArgumentException("expected <name>@<server>, got " + nameAndServer);
+        }
+        this.name = nameAndServer.substring(0, idx);
+        Project.checkName(name);
+        this.server = nameAndServer.substring(idx + 1);
         this.config = new LinkedHashMap<>();
         for (String arg : args) {
             property(arg);
         }
-    }
-
-    private static String eatServer(List<String> args) {
-        String arg;
-
-        if (!args.isEmpty()) {
-            arg = args.get(0);
-            if (!arg.contains("=")) {
-                args.remove(0);
-                return arg;
-            }
-        }
-        return "default";
     }
 
     private void property(String str) {
@@ -74,7 +71,6 @@ public class Create extends ProjectCommand {
     public void doRun(FileNode projectDirectory) throws IOException {
         ServerManager serverManager;
         Project project;
-        String name;
         Client client;
         Reference reference;
 
@@ -87,11 +83,6 @@ public class Create extends ProjectCommand {
                 throw new ArgumentException("project already has a stage");
             }
         }
-        name = config.remove("name");
-        if (name == null) {
-            name = project.getDirectory().getName();
-        }
-        Project.checkName(name);
         client = serverManager.get(server).connect(world);
         client.create(name, config);
         reference = new Reference(client, name);
