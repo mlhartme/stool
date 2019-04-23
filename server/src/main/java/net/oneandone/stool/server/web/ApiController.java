@@ -53,9 +53,15 @@ public class ApiController {
         this.server = server;
     }
 
-    @GetMapping("/version")
-    public String version() {
-        return new JsonPrimitive( Main.versionString(server.world)).toString();
+    @GetMapping("/info")
+    public String version() throws IOException {
+        JsonObject result;
+
+        result = new JsonObject();
+        result.addProperty("version", Main.versionString(server.world));
+        result.addProperty("mem-unreserved", server.memUnreserved());
+        result.addProperty("quota", (server.configuration.quota == 0 ? "" : server.quotaReserved() + "/" + server.configuration.quota));
+        return result.toString();
     }
 
     @PostMapping("/auth")
@@ -337,21 +343,6 @@ public class ApiController {
     @PostMapping("/stages/{stage}/remove")
     public void remove(@PathVariable(value = "stage") String stage) throws IOException {
         server.load(stage).remove();
-    }
-
-    //--
-
-    @GetMapping("/quota")
-    public String quota() throws IOException {
-        int global;
-
-        global = server.configuration.quota;
-        return new JsonPrimitive(global == 0 ? "" : server.quotaReserved() + "/" + global).toString();
-    }
-
-    @GetMapping("/memUnreserved")
-    public String memUnreserved() throws IOException {
-        return new JsonPrimitive(server.memUnreserved()).toString();
     }
 
     //--
