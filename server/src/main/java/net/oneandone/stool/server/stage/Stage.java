@@ -302,7 +302,6 @@ public class Stage {
             for (String tag : info.tags) {
                 if (tag.startsWith(server.configuration.registryNamespace + "/" + name + "/")) {
                     result.add(tag);
-                    System.out.println("tag " + tag);
                 }
             }
         }
