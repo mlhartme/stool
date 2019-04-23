@@ -406,7 +406,7 @@ public class Stage {
         }
         tag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
         appProperties = properties(war);
-        template = template(appProperties);
+        template = template(appProperties, "war");
         env = BuildArgument.scan(template.join("Dockerfile"));
         buildArgs = buildArgs(env, appProperties, arguments);
         context = dockerContext(app, war, template);
@@ -596,17 +596,17 @@ public class Stage {
 
         node = war.openZip().join("WEB-INF/classes/META-INF/stool.properties");
         if (!node.exists()) {
-            throw new ArgumentException("missing 'META-INF/stool.properties' in war file");
+            return new Properties();
         }
         return node.readProperties();
     }
 
-    private FileNode template(Properties appProperies) throws IOException {
+    private FileNode template(Properties appProperies, String dflt) throws IOException {
         Object template;
 
         template = appProperies.remove("template");
         if (template == null) {
-            throw new IOException("missing property: template");
+            template = dflt;
         }
         return server.templates().join(template.toString()).checkDirectory();
     }
