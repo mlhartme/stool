@@ -39,7 +39,6 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
-import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -52,7 +51,6 @@ import java.lang.management.ManagementFactory;
 import java.lang.reflect.Modifier;
 import java.net.InetAddress;
 import java.net.ServerSocket;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -79,6 +77,7 @@ public class Server {
 
     public final Gson gson;
     private final FileNode logRoot;
+    private final Engine dockerEngine;
 
     public final World world;
     public final FileNode home;
@@ -93,12 +92,23 @@ public class Server {
     public Server(Gson gson, FileNode logRoot, FileNode home, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
         this.logRoot = logRoot;
+        this.dockerEngine = Engine.open(configuration.docker, dockerLog(logRoot).getAbsolute());
         this.world = home.getWorld();
         this.home = home;
         this.configuration = configuration;
         this.stages = home.join("stages");
-        this.userManager = UserManager.loadOpt(home.join("token.json"));
+        this.userManager = UserManager.loadOpt(home.join("users.json"));
         this.accessors = StageConfiguration.accessors();
+    }
+
+    private static FileNode dockerLog(FileNode logRoot) throws IOException {
+        FileNode log;
+
+        log = logRoot.join("docker.log");
+        log.deleteFileOpt();
+        log.getParent().mkdirOpt();
+        log.writeBytes();
+        return log;
     }
 
     public LogReader<AccessLogEntry> accessLogReader() throws IOException {
@@ -339,26 +349,13 @@ public class Server {
 
     //--
 
-    private Engine lazyEngine = null;
-
     public Engine dockerEngine() throws IOException {
-        if (lazyEngine == null) {
-            FileNode log;
-
-            log = logRoot.join("docker.log");
-            log.deleteFileOpt();
-            log.getParent().mkdirOpt();
-            log.writeBytes();
-            lazyEngine = Engine.open(configuration.docker, log.getAbsolute());
-        }
-        return lazyEngine;
+        return dockerEngine;
     }
 
     public void closeDockerEngine() { // TODO: invoke on server shut-down
-        if (lazyEngine != null) {
-            LOGGER.debug("close docker engine");
-            lazyEngine.close();
-        }
+        LOGGER.debug("close docker engine");
+        dockerEngine.close();
     }
 
     //--
