@@ -128,9 +128,8 @@ public class Client {
         node = node.withParameter("keep", keep);
         node = node.withParameters("arg.", arguments);
         try (InputStream src = war.newInputStream()) {
-            result = node.getWorld().getSettings().string(node.post(new Body(null, null, war.size(), src, false)));
+            obj = postJson(node, new Body(null, null, war.size(), src, false)).getAsJsonObject();
         }
-        obj = parser.parse(result).getAsJsonObject();
         error = obj.get("error");
         return new BuildResult(obj.get("tag").getAsString(), error == null ? null : error.getAsString(), obj.get("output").getAsString());
     }
@@ -311,11 +310,13 @@ public class Client {
 
     private JsonElement postJson(HttpNode node, String body) throws IOException {
         byte[] bytes;
-        Body b;
 
         bytes = node.getWorld().getSettings().bytes(body);
-        b = new Body(null, null, (long)bytes.length, new ByteArrayInputStream(bytes), false);
-        return stream(node, b, "POST", 200, 201);
+        return postJson(node, new Body(null, null, (long)bytes.length, new ByteArrayInputStream(bytes), false));
+    }
+
+    private JsonElement postJson(HttpNode node, Body body) throws IOException {
+        return stream(node, body, "POST", 200, 201);
     }
 
     private JsonElement stream(HttpNode node, Body body, String method, int... success) throws IOException {

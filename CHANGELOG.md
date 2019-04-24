@@ -8,16 +8,23 @@ it no longer supports shared environments
 New philio: projects are the former stages, this is where your sources reside.
 Stages are now the central part; multiple project can be associated with the same stage.
 
-* stool is no long responsible to manage checkouts - use your standard tools instead; 
+* stool is no longer responsible to manage checkouts - use your standard tools instead; 
   * dumped `create`, `refresh` and `move` command
   * dumped `refresh` stage config
   * changed `remove` command to leave the project as-is; the current directory is also left as-is
   * dumped svn credentials handling
   * dumped macros
 
+* replaced the `.backstage` directory tree by a single `.backstage` file; 
+  files in this directory:
+  * config.json was moved to the server;
+  * docker context directory and `image.log` was moved to the server (use the history command to see the image.log)
+  * `container.id` is gone (instead, Stool queries the docker daemon to get running containers)  
+
+
 * dumped stage id, always use the name now
 * removed client-side locking, logging and exception emails
-* remived `working` state
+* removed `working` state
 
 * build arguments are strings (not objects as in Freemarker templates)
 
