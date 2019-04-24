@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.ConnectException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -328,7 +329,7 @@ public class Client {
                 case 401:
                     throw new IOException("unauthenticated: " + node.getUri());
                 case 404:
-                    throw new FileNotFoundException(node, "not found: " + node.getUri());
+                    throw new FileNotFoundException(node, "not found");
                 default:
                     for (int c : success) {
                         if (code == c) {
@@ -336,6 +337,12 @@ public class Client {
                         }
                     }
                     throw new IOException(node.getUri() + " returned http response code " + src.getStatusLine().code + "\n" + string(src));
+            }
+        } catch (ConnectException e) {
+            if (e.getMessage().toLowerCase().contains("connection refuse")) {
+                throw new IOException(node.getRoot() + ": " + e.getMessage(), e);
+            } else {
+                throw e;
             }
         }
     }
