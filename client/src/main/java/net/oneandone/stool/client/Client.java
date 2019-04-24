@@ -115,7 +115,6 @@ public class Client {
         HttpNode node;
         JsonObject obj;
         JsonElement error;
-        String result;
 
         node = node(stage, "build");
         node = node.withParameter("app", app);

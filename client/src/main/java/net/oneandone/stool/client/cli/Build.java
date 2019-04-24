@@ -20,6 +20,7 @@ import net.oneandone.stool.client.BuildResult;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
+import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
@@ -35,15 +36,51 @@ public class Build extends ProjectCommand {
     private final int keep;
     private final boolean restart;
     private final String comment;
+    private final Map<String, FileNode> explicitWars;
     private final Map<String, String> arguments;
 
-    public Build(Globals globals, FileNode project, boolean noCache, int keep, boolean restart, String comment, List<String> args) {
+    public Build(Globals globals, FileNode project, boolean noCache, int keep, boolean restart, String comment, List<String> warsAndArgs) throws IOException {
         super(globals, project);
         this.noCache = noCache;
         this.keep = keep;
         this.restart = restart;
         this.comment = comment;
-        this.arguments = argument(args);
+        this.explicitWars = eatWars(globals.world, warsAndArgs);
+        this.arguments = argument(warsAndArgs);
+    }
+
+    private static Map<String, FileNode> eatWars(World world, List<String> wars) throws IOException {
+        Map<String, FileNode> result;
+        String path;
+        int idx;
+        FileNode war;
+        String name;
+
+        result = new HashMap<>();
+        while (!wars.isEmpty()) {
+            if (wars.get(0).contains("=")) {
+                break;
+            }
+            path = wars.remove(0);
+            idx = path.indexOf(':');
+            if (idx == -1) {
+                war = world.file(path);
+                name = name(war.getParent());
+            } else {
+                war = world.file(path.substring(idx + 1));
+                name = path.substring(0, idx);
+            }
+            war.checkFile();
+            result.put(name, war);
+        }
+        return result;
+    }
+
+    private static String name(FileNode node) {
+        while (node.getName().equalsIgnoreCase("target")) {
+            node = node.getParent();
+        }
+        return node.getName();
     }
 
     private static Map<String, String> argument(List<String> args) {
@@ -72,7 +109,7 @@ public class Build extends ProjectCommand {
         if (project == null) {
             throw new ArgumentException("unknown stage");
         }
-        wars = project.wars();
+        wars = explicitWars.isEmpty() ? project.wars() : explicitWars;
         if (wars.isEmpty()) {
             throw new IOException("no wars to build");
         }

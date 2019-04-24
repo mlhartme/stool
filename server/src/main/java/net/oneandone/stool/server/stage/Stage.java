@@ -560,10 +560,12 @@ public class Stage {
     }
 
     private Map<FileNode, String> bindMounts(Image image) throws IOException {
+        FileNode logRoot;
         Map<FileNode, String> result;
 
+        logRoot = directory.join("logs").mkdirOpt();
         result = new HashMap<>();
-        result.put(directory.join("logs").mkdirOpt(), "/var/log/stool");
+        result.put(logRoot.join(image.app).mkdirOpt(), "/var/log/stool");
         if (image.ports.https != -1) {
             result.put(server.certificate(server.configuration.vhosts ? image.app + "." + getName() + "." + server.configuration.hostname
                     : server.configuration.hostname), "/usr/local/tomcat/conf/tomcat.p12");
