@@ -47,11 +47,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.URLEncoder;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -799,14 +797,6 @@ public class Engine implements AutoCloseable {
             builder.append('"');
         }
         return builder.toString();
-    }
-
-    private static String enc(String str) {
-        try {
-            return URLEncoder.encode(str, "utf8");
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     private static JsonObject obj(Map<String, String> obj) {

@@ -10,9 +10,8 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
-import net.oneandone.sushi.fs.http.StatusException;
 import net.oneandone.sushi.fs.http.model.Body;
-import net.oneandone.sushi.fs.http.model.Method;
+import net.oneandone.sushi.fs.http.model.Request;
 import net.oneandone.sushi.util.Separator;
 
 import java.io.ByteArrayInputStream;
@@ -305,25 +304,43 @@ public class Client {
     //-- http methods with exception handling
 
     private JsonElement getJson(HttpNode node) throws IOException {
-        // directly invoke get because I don't want wrapper exception from Node.newInputStream or newReader
-        try (InputStream src = Method.get(node)) {
-            return parser.parse(reader(src));
-        } catch (StatusException e) {
-            throw beautify(node, e);
-        }
+        return stream(node, null, "GET", 200);
     }
 
     private JsonElement postJson(HttpNode node, String body) throws IOException {
         byte[] bytes;
         Body b;
 
-        try {
-            bytes = node.getWorld().getSettings().bytes(body);
-            b = new Body(null, null, (long)bytes.length, new ByteArrayInputStream(bytes), false);
-            return parser.parse(reader(Method.post(node, b)));
-        } catch (StatusException e) {
-            throw beautify(node, e);
+        bytes = node.getWorld().getSettings().bytes(body);
+        b = new Body(null, null, (long)bytes.length, new ByteArrayInputStream(bytes), false);
+        return stream(node, b, "POST", 200, 201);
+    }
+
+    private JsonElement stream(HttpNode node, Body body, String method, int... success) throws IOException {
+        int code;
+
+        try (Request.ResponseStream src = Request.streamResponse(node, method, body, null)) {
+            code = src.getStatusLine().code;
+            switch (code) {
+                case 400:
+                    throw new ArgumentException("invalid argument: " + string(src));
+                case 401:
+                    throw new IOException("unauthenticated: " + node.getUri());
+                case 404:
+                    throw new ArgumentException("not found: " + node.getUri());
+                default:
+                    for (int c : success) {
+                        if (code == c) {
+                            return parser.parse(reader(src));
+                        }
+                    }
+                    throw new IOException(node.getUri() + " returned http response code " + src.getStatusLine().code + "\n" + string(src));
+            }
         }
+    }
+
+    private String string(InputStream src) throws IOException {
+        return root.getWorld().getBuffer().readString(src, root.getWorld().getSettings().encoding);
     }
 
     private void postEmpty(HttpNode node, String body) throws IOException {
@@ -340,22 +357,6 @@ public class Client {
             return new InputStreamReader(src, root.getWorld().getSettings().encoding);
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException(e);
-        }
-    }
-
-    private IOException beautify(HttpNode node, StatusException e) {
-        byte[] body;
-
-        switch (e.getStatusLine().code) {
-            case 400:
-            case 404:
-                body = e.getResponseBytes();
-                // feels ugly ...
-                throw new ArgumentException(body == null ? e.getMessage() : node.getWorld().getSettings().string(body), e);
-            case 401:
-                return new IOException("401 unauthenticated - " + node.getUri(), e);
-            default:
-                return e;
         }
     }
 }
