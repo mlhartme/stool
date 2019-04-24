@@ -210,7 +210,7 @@ public class ApiController {
             }
         }
         if (selection != null && !selection.isEmpty()) {
-            throw new IOException("unknown field(s): " + selection);
+            throw new ArgumentException("unknown field(s): " + selection);
         }
         return result.toString();
     }

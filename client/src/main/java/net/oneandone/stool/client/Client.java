@@ -5,6 +5,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.oneandone.inline.ArgumentException;
+import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.NodeInstantiationException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -323,11 +324,11 @@ public class Client {
             code = src.getStatusLine().code;
             switch (code) {
                 case 400:
-                    throw new ArgumentException("invalid argument: " + string(src));
+                    throw new ArgumentException(string(src));
                 case 401:
                     throw new IOException("unauthenticated: " + node.getUri());
                 case 404:
-                    throw new ArgumentException("not found: " + node.getUri());
+                    throw new FileNotFoundException(node, "not found: " + node.getUri());
                 default:
                     for (int c : success) {
                         if (code == c) {
