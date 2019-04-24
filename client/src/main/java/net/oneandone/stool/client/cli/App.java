@@ -34,7 +34,7 @@ public class App extends StageCommand {
 
     @Override
     public void doMain(Reference reference) throws Exception {
-        for (String app : appSelection(reference.client.apps(reference.stage))) {
+        for (String app : appSelection(apps(reference))) {
             for (String line : reference.client.appInfo(reference.stage, app)) {
                 console.info.println(line);
             }

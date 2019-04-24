@@ -559,7 +559,7 @@ public class Stage {
                     : server.configuration.hostname), "/usr/local/tomcat/conf/tomcat.p12");
         }
         for (String project : image.faultProjects) { // TODO: authorization
-            result.put(server.world.file(server.configuration.secrets).join(project), project);
+            result.put(server.world.file(server.configuration.secrets).join(project).checkDirectory(), "/root/.fault/" + project);
         }
         return result;
     }

@@ -238,10 +238,6 @@ public class Client {
         return Integer.parseInt(result);
     }
 
-    public List<String> apps(String stage) throws IOException {
-        return array(getJson(node(stage, "apps")).getAsJsonArray());
-    }
-
     //-- validate
 
     public List<String> validate(String stage, boolean email, boolean repair) throws IOException {
