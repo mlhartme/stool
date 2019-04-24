@@ -8,6 +8,8 @@ it no longer supports shared environments
 New philio: projects are the former stages, this is where your sources reside.
 Stages are now the central part; multiple project can be associated with the same stage.
 
+* 1 image per war
+
 * stool is no longer responsible to manage checkouts - use your standard tools instead; 
   * dumped `create`, `refresh` and `move` command
   * dumped `refresh` stage config
@@ -26,7 +28,7 @@ Stages are now the central part; multiple project can be associated with the sam
 * removed client-side locking, logging and exception emails
 * removed `working` state
 
-* build arguments are strings (not objects as in Freemarker templates)
+* build arguments are docker build arguments; removed Freemarker templates; arguments are strings now
 
 * added `running` field
 * changed server.xml: set `deployXML` to false 
