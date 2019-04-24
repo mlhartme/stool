@@ -1137,6 +1137,7 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
 ... of $STOOL_HOME (default is `~/.stool`)
 
         |- config.json (Stool configuration)
+        |- users.json (only if authentication is enabled)
         |- run
         |  |- locks       (holds all locking data)
         |  '- ports       (lists all allocated ports)
@@ -1157,9 +1158,7 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
         :
         :  (normal project files)
         :
-        '- .backstage
-              |- image.log        (Docker's image build output) 
-              '- context          (context to build docker image)
+        '- .backstage             (file containing the attached stage)
 
 
 Normal project files for source stages are simply the respective SCM files, for artifact stages they are:
