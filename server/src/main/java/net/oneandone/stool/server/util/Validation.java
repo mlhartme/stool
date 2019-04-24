@@ -45,7 +45,7 @@ public class Validation {
         }
         report.add(message);
         if (repair) {
-            if (!stage.dockerContainerList().isEmpty()) {
+            if (!stage.dockerRunningContainerList().isEmpty()) {
                 try {
                     stage.stop(new ArrayList<>());
                     report.add("stage has been stopped");

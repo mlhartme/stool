@@ -215,15 +215,6 @@ public class ApiController {
         return result.toString();
     }
 
-    @GetMapping("/stages/{stage}/apps")
-    public String apps(@PathVariable(value = "stage") String stage) throws IOException {
-        List<String> result;
-
-        result = new ArrayList<>(server.load(stage).images(server.dockerEngine()).keySet());
-        Collections.sort(result);
-        return array(result).toString();
-    }
-
     @PostMapping("/stages/{stage}/validate")
     public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
         List<String> output;

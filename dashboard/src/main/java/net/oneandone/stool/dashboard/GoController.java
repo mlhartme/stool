@@ -59,7 +59,7 @@ public class GoController {
             return new ModelAndView("redirect:" + baseurl + "/#!404:" + stageName);
         }
         stage = session.load(stageName);
-        if (stage.isUp()) {
+        if (!stage.dockerRunningContainerList().isEmpty()) {
             urlMap = stage.urlMap(null);
             if (appName == null) {
                 url = urlMap.values().iterator().next();

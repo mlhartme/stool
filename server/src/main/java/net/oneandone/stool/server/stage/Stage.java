@@ -108,16 +108,6 @@ public class Stage {
         return name;
     }
 
-    //-- state
-
-    public boolean isUp() throws IOException {
-        return !isDown();
-    }
-
-    public boolean isDown() throws IOException {
-        return dockerContainerList().isEmpty();
-    }
-
     //-- fields and properties
 
     public Field fieldOpt(String str) {
@@ -182,16 +172,14 @@ public class Stage {
                 return name;
             }
         });
-        fields.add(new Field("stage") {
-            @Override
-            public Object get() {
-                return directory.getAbsolute();
-            }
-        });
-        fields.add(new Field("up") {
+        fields.add(new Field("apps") {
             @Override
             public Object get() throws IOException {
-                return isUp();
+                List<String> result;
+
+                result = new ArrayList<>(images(server.dockerEngine()).keySet());
+                Collections.sort(result);
+                return result;
             }
         });
         fields.add(new Field("running") {
@@ -233,7 +221,7 @@ public class Stage {
                 return timespan(youngest(accessLog(-1)).dateTime);
             }
         });
-        fields.add(new Field("apps") {
+        fields.add(new Field("urls") {
             @Override
             public Object get() throws IOException {
                 return namedUrls(null);
@@ -764,7 +752,7 @@ public class Stage {
         }
     }
 
-    public List<String> dockerContainerList() throws IOException {
+    public List<String> dockerRunningContainerList() throws IOException {
         Engine engine;
 
         engine = server.dockerEngine();
@@ -780,7 +768,7 @@ public class Stage {
 
         engine = server.dockerEngine();
         result = new HashMap<>();
-        containerList = dockerContainerList();
+        containerList = dockerRunningContainerList();
         for (String container : containerList) {
             json = engine.containerInspect(container, false);
             image = Image.load(engine, Server.containerImageTag(json));
@@ -795,7 +783,7 @@ public class Stage {
                 + ", comment='" + configuration.comment + '\''
                 // TODO: current image, container?
                 + ", urls=" + urlMap(null)
-                + ", up=" + isUp()
+                + ", running=" + dockerRunningContainerList()
                 + '}').hashCode();
     }
 
@@ -945,7 +933,7 @@ public class Stage {
         List<String> containers;
         Engine engine;
 
-        containers = dockerContainerList();
+        containers = dockerRunningContainerList();
         if (containers.size() != 1) {
             Server.LOGGER.info("ignoring -tail option because container is not unique");
         } else {

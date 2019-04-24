@@ -42,7 +42,7 @@ public class Ls extends InfoCommand {
         if (selected.isEmpty()) {
             selected.addAll(defaults());
             if (selected.isEmpty()) {
-                selected.addAll(Arrays.asList("name", "up", "last-modified-by" /* TODO , "origin", "directory" */));
+                selected.addAll(Arrays.asList("name", "running", "last-modified-by" /* TODO , "origin", "directory" */));
             }
         }
         header("stages");

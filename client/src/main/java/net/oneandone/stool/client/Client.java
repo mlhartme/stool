@@ -224,14 +224,14 @@ public class Client {
         return result;
     }
 
-    public String quota() throws IOException {
+    public String quota() throws IOException { // TODO
         String result;
 
         result = getJson(node("quota")).getAsString();
         return result.isEmpty() ? null : result;
     }
 
-    public int memUnreserved() throws IOException {
+    public int memUnreserved() throws IOException { // TODO
         String result;
 
         result = getJson(node("memUnreserved")).getAsString();

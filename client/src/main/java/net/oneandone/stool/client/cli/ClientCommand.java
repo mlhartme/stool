@@ -27,6 +27,7 @@ import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 import java.util.Map;
 
 public abstract class ClientCommand {
@@ -78,12 +79,23 @@ public abstract class ClientCommand {
     //-- utility code to simplify server api
 
     public boolean up(Reference reference) throws IOException {
+        return !status(reference, "running").isEmpty();
+    }
+
+    public List<String> apps(Reference reference) throws IOException {
+        String str;
+
+        str = status(reference, "apps");
+        return Separator.COMMA.split(str);
+    }
+
+    private String status(Reference reference, String field) throws IOException {
         Map<String, String> map;
 
-        map = reference.client.status(reference.stage, Strings.toList("up"));
+        map = reference.client.status(reference.stage, Strings.toList(field));
         if (map.size() != 1) {
-            throw new IllegalStateException("unknown state: " + map.toString());
+            throw new IllegalStateException("unexpected status: " + map.toString());
         }
-        return Boolean.valueOf(map.values().iterator().next().toUpperCase());
+        return map.values().iterator().next();
     }
 }
