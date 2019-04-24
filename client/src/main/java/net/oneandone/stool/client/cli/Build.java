@@ -84,7 +84,6 @@ public class Build extends ProjectCommand {
             console.info.println(entry.getKey() + ": building image for " + entry.getValue());
             result = reference.client.build(reference.stage, entry.getKey(), entry.getValue(), comment, project.getOrigin(),
                     createdBy(), createdOn(), noCache, keep, arguments);
-            project.imageLog().writeString(result.output);
             if (result.error != null) {
                 console.info.println("build failed: " + result.error);
                 console.info.println("build output");

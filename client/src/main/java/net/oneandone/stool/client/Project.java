@@ -27,8 +27,15 @@ import java.util.List;
 import java.util.Map;
 
 public class Project {
-    public static Project create(FileNode project) throws IOException {
-        return new Project(backstage(project).mkdir());
+    public static Project create(FileNode project, Reference reference) throws IOException {
+        FileNode backstage;
+        Project result;
+
+        backstage = backstage(project);
+        backstage.checkNotExists();
+        result = new Project(backstage);
+        result.setAttached(reference);
+        return result;
     }
 
     public static Project get(FileNode dir) throws IOException {
@@ -46,7 +53,7 @@ public class Project {
 
         while (dir != null) {
             backstage = backstage(dir);
-            if (backstage.isDirectory()) {
+            if (backstage.isFile()) {
                 return new Project(backstage);
             }
             dir = dir.getParent();
@@ -70,26 +77,15 @@ public class Project {
     }
 
     public Reference getAttachedOpt(ServerManager serverManager) throws IOException {
-        FileNode map;
-
-        map = map();
-        return map.exists() ? serverManager.reference(map.readString().trim()) : null;
+        return backstage.exists() ? serverManager.reference(backstage.readString().trim()) : null;
     }
 
     public void setAttached(Reference reference) throws IOException {
-        map().writeString(reference.toString());
-    }
-
-    private FileNode map() {
-        return backstage.join("stage");
+        backstage.writeString(reference.toString());
     }
 
     public void removeBackstage() throws IOException {
-        backstage.deleteTree();
-    }
-
-    public FileNode imageLog() {
-        return backstage.join("image.log");
+        backstage.deleteFile();
     }
 
     //--

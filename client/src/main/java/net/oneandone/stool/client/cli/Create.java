@@ -75,18 +75,18 @@ public class Create extends ProjectCommand {
         Reference reference;
 
         serverManager = globals.servers();
+        client = serverManager.get(server).connect(world);
+        client.create(name, config);
         project = Project.lookup(projectDirectory);
+        reference = new Reference(client, name);
         if (project == null) {
-            project = Project.create(projectDirectory);
+            Project.create(projectDirectory, reference);
         } else {
             if (project.getAttachedOpt(serverManager) != null) {
                 throw new ArgumentException("project already has a stage");
             }
+            project.setAttached(reference);
         }
-        client = serverManager.get(server).connect(world);
-        client.create(name, config);
-        reference = new Reference(client, name);
         console.info.println("stage create: " + reference);
-        project.setAttached(reference);
     }
 }

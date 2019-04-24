@@ -48,8 +48,9 @@ public class Attach extends ProjectCommand {
         }
         backstage = Project.lookup(project);
         if (backstage == null) {
-            backstage = Project.create(project);
+            Project.create(project, found.get(0));
+        } else {
+            backstage.setAttached(found.get(0));
         }
-        backstage.setAttached(found.get(0));
     }
 }
