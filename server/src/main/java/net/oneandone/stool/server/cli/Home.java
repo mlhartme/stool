@@ -62,17 +62,16 @@ public class Home {
         Gson gson;
         ServerConfiguration conf;
 
-        gson = gson();
         dir.mkdir();
-
         world = dir.getWorld();
+        gson = Server.gson(world);
         world.resource("files/home").copyDirectory(dir);
         for (String name : new String[]{"stages","certs"}) {
             dir.join(name).mkdir();
         }
         profile(dir.join("shell.rc"), file("files/sourceBashComplete"));
         bashComplete(dir.join("bash.complete"));
-        conf = Autoconf.stool(dir,console.info);
+        conf = Autoconf.stool(dir, console.info);
         if (explicitConfig != null) {
             conf = conf.createPatched(gson, explicitConfig);
         }
@@ -98,19 +97,5 @@ public class Home {
 
     public FileNode versionFile() {
         return dir.join("version");
-    }
-
-    public Gson gson() {
-        World world;
-        Gson gson;
-
-        world = dir.getWorld();
-        gson = Server.gson(world);
-        return gson;
-    }
-
-    public void exec(String ... cmd) throws IOException {
-        console.info.println("[" + dir + "] " + Separator.SPACE.join(cmd));
-        dir.execNoOutput(cmd);
     }
 }

@@ -87,7 +87,7 @@ public class Setup {
         h = new Home(console, home, null);
         was = h.version();
         if (!Server.majorMinor(was).equals(Server.majorMinor(version))) {
-            throw new IOException("migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
+            throw new IOException("cannot update - migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
         }
         if (!batch) {
             console.info.println("Ready to update home directory " + was + " -> " + version + " : " + home.getAbsolute());
