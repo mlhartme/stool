@@ -82,8 +82,10 @@ public class MainIT {
 
         stage = "it@localhost";
 
-        stool("create", "-project=" + project.getAbsolute(), stage);
+        stool("create", "-project", project.getAbsolute(), stage);
         stool("status", "-stage", stage);
+        stool("detach", "-project", project.getAbsolute());
+        stool("attach", "-project", project.getAbsolute(), stage);
         stool("validate", "-stage", stage);
         stool("config", "-stage", stage, "quota");
         stool("config", "-stage", stage, "quota=10001");
