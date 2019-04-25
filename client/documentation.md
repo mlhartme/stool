@@ -1139,6 +1139,7 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
         |- version                (client version that created this directory)
         |- servers                (list of Stool servers to talk to)
         '- shell.inc
+        
          
 ... of $STOOL_SERVER_HOME (default is `~/.stool-server`)
 

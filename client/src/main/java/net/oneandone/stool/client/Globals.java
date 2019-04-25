@@ -41,7 +41,10 @@ public class Globals {
         }
 
         if (!home.exists()) {
-            console.info.println("creating " + home);
+            console.info.println("note: creating Stool standard configuration in " + home);
+            console.info.println("note: to enable stage indicators and bash completion add");
+            console.info.println("            . " + home.join("shell.inc").getAbsolute());
+            console.info.println("      to your bash profile (e.g. in ~/.bash_profile");
             Home.create(home);
         }
         return new Globals(console, world, home, UUID.randomUUID().toString(), command);

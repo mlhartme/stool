@@ -46,21 +46,7 @@ public class Home {
         dir.mkdir();
         world = dir.getWorld();
         world.resource("files/home").copyDirectory(dir);
-        profile(dir.join("shell.inc"), file("files/sourceBashComplete"));
-        bashComplete(dir.join("bash.complete"));
         versionFile().writeString(Main.versionString(world));
-    }
-
-    public void profile(FileNode dest, String extra) throws IOException {
-        dest.writeString(file("files/profile") + extra);
-    }
-
-    public void bashComplete(FileNode dest) throws IOException {
-        dest.writeString(file("files/bash.complete"));
-    }
-
-    private String file(String name) throws IOException {
-        return dir.getWorld().resource(name).readString();
     }
 
     public String version() throws IOException {
