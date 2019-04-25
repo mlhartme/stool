@@ -103,7 +103,7 @@ public class MainIT {
         FileNode home;
         ServerManager m;
 
-        home = HOME.join(".stool-client");
+        home = HOME.join("client-home");
         Home.create(home);
         m = new ServerManager(home.join("servers"), null, "foo", "bar");
         m.add("localhost", "http://localhost:" + port + "/api");
@@ -172,7 +172,7 @@ public class MainIT {
         id++;
         command = command(args);
         System.out.print("  " + command);
-        result = Main.run(WORLD, HOME.join(".stool-client"), args);
+        result = Main.run(WORLD, HOME.join("client-home"), args);
         if (result == 0) {
             System.out.println();
         } else {

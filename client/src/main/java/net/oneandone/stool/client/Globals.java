@@ -27,8 +27,19 @@ import java.util.UUID;
 public class Globals {
     public static Globals create(Console console, World world, FileNode homeOpt, String command) throws IOException {
         FileNode home;
+        String str;
 
-        home = homeOpt == null ? world.getHome().join(".stool-client") : homeOpt;
+        if (homeOpt != null) {
+            home = homeOpt;
+        } else {
+            str = System.getenv("STOOL_CLIENT_HOME");
+            if (str != null) {
+                home = world.file(str);
+            } else {
+                home = world.getHome().join(".stool");
+            }
+        }
+
         if (!home.exists()) {
             console.info.println("creating " + home);
             Home.create(home);
