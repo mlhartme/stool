@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.configuration;
 
-import net.oneandone.stool.server.util.Environment;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 
@@ -43,7 +42,7 @@ public class Autoconf {
         FileNode templates;
         FileNode init;
 
-        tools = Environment.cisoTools();
+        tools = System.getenv("CISOTOOLS_HOME");
         if (tools != null) {
             dest.registryNamespace = "contargo.server.lan/mhm";
             dest.ldapUnit = "cisostages";

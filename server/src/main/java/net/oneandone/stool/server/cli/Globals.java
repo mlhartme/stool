@@ -17,7 +17,6 @@ package net.oneandone.stool.server.cli;
 
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.stool.server.Server;
-import net.oneandone.stool.server.util.Environment;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -29,17 +28,37 @@ public class Globals {
     public static Globals create(World world) throws IOException {
         FileNode home;
         FileNode logRoot;
-        FileNode tmp;
 
-        home = Environment.locateHome(world);
+        home = locateHome(world);
         if (home.exists()) {
-            logRoot = Environment.locateLogs(home);
+            logRoot = locateLogs(home);
         } else {
-            tmp = world.getTemp().createTempDirectory();
-            logRoot = tmp;
+            logRoot = world.getTemp().createTempDirectory();
         }
         return new Globals(home, logRoot, world);
     }
+
+    public static FileNode locateHome(World world) {
+        String value;
+
+        value = System.getenv( "STOOL_SERVER_HOME");
+        if (value == null) {
+            return world.getHome().join(".stool-server");
+        } else {
+            return world.file(value);
+        }
+    }
+
+    public static FileNode locateLogs(FileNode home) {
+        if (home.isDirectory()) {
+            // stool is properly set up
+            return home.join("logs");
+        } else {
+            // to run stool setup
+            return home.getParent().join("stool-logs");
+        }
+    }
+
 
     public final FileNode home;
     private final FileNode logRoot;
