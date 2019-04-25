@@ -1134,27 +1134,26 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
 
 ## Directory Layout
 
-... of $STOOL_SERVER_HOME (default is `~/.stool-server`)
-
-        |- version        (server version that created this directory)
-        |- config.json    (Stool configuration)
-        |- users.json     (only if authentication is enabled)
-        |- templates      (Docker templates; may be a symlink to a directory of your choice)
-        |- logs           (Stool log files)
-        |  |- stool-YYmmDD.log(.gz)
-        |  :
-        '- stages
-           |- name (directory for the respective stage)
-           :  |- config.json      (stage configuration)
-              '- logs
-                   |- app1        (log file of appsrunning stage)
-                       :
 ... of $STOOL_CLIENT_HOME (default is `~/.stool`)
 
         |- version                (client version that created this directory)
         |- servers                (list of Stool servers to talk to)
         '- shell.inc
          
+... of $STOOL_SERVER_HOME (default is `~/.stool-server`)
+
+        |- version                (server version that created this directory)
+        |- config.json            (Stool configuration)
+        |- users.json             (only if authentication is enabled)
+        |- templates              (Docker templates; may be a symlink to a directory of your choice)
+        |- logs                   (Stool log files)
+        |  :
+        '- stages
+           |- name                (directory for the respective stage)
+           :  |- config.json      (stage configuration)
+              '- logs
+                   |- app1        (log file of appsrunning stage)
+                       :
 ... of project directories
 
         :
