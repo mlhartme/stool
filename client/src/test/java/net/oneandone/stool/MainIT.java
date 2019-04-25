@@ -37,7 +37,6 @@ public class MainIT {
     private static final World WORLD;
     private static final FileNode PROJECT_ROOT;
     private static final FileNode IT_ROOT;
-    private static FileNode HOME = null;
     private static Process serverProcess = null;
 
     static {
@@ -55,17 +54,16 @@ public class MainIT {
 
     @After
     public void after() throws Exception {
-        try {
-            stool("stop", "-stage" , "running!=", "-fail", "after");
-            HOME = null;
-        } finally {
-            if (serverProcess != null) {
+        if (serverProcess != null) {
+            try {
+                stool("stop", "-stage" , "running!=", "-fail", "after");
+            } finally {
                 System.out.println("stopping server " + serverProcess);
                 serverProcess.destroy();
                 serverProcess = null;
-            } else {
-                System.out.println("no server to stop");
             }
+        } else {
+            System.out.println("no server to stop");
         }
     }
 
@@ -73,10 +71,10 @@ public class MainIT {
     public void turnaround() throws IOException {
         FileNode project;
 
-        startServer("git");
+        startServer();
         setupClient();
 
-        project = IT_ROOT.join("stages").mkdirsOpt().join("it");
+        project = IT_ROOT.join("projects").mkdirsOpt().join("it");
         System.out.println(project.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", project.getAbsolute()));
         System.out.println(project.exec("mvn", "clean", "package"));
         System.out.println("git");
@@ -103,7 +101,7 @@ public class MainIT {
         FileNode home;
         ServerManager m;
 
-        home = HOME.join("client-home");
+        home = IT_ROOT.join("client-home").checkNotExists();
         Home.create(home);
         m = new ServerManager(home.join("servers"), null, "foo", "bar");
         m.add("localhost", "http://localhost:" + port + "/api");
@@ -112,21 +110,18 @@ public class MainIT {
 
     private static final int port = 7777;
 
-    public void startServer(String context) throws IOException {
-        FileNode stages;
+    public void startServer() throws IOException {
+        FileNode home;
         Integer start = 1300;
         Integer end = 1319;
         Writer log;
         Launcher server;
 
-        HOME = IT_ROOT.join(context);
-        HOME.getParent().mkdirsOpt();
-        HOME.deleteTreeOpt();
-
+        home = IT_ROOT.join("server-home").checkNotExists();
         log = IT_ROOT.join("server.log").newWriter();
 
         // setup
-        server = server(HOME);
+        server = server(home);
         server.arg("setup", "-batch", "{ \"registryNamespace\": " + "\"integrationtests\", \"portFirst\": " + start + ", \"portLast\": " + end + " }");
         try {
             log.write("Setup:\n");
@@ -137,13 +132,10 @@ public class MainIT {
         }
 
         // run
-        server = server(HOME);
+        server = server(home);
         server.arg("run");
         serverProcess = server.launch(log).process;
-        stages = HOME.getParent().join(context + "-stages");
-        stages.deleteTreeOpt();
-        stages.mkdir();
-        WORLD.setWorking(stages);
+        WORLD.setWorking(home.getParent().join("working").deleteTreeOpt().mkdir());
     }
 
     private Launcher server(FileNode home) throws IOException {
@@ -172,7 +164,7 @@ public class MainIT {
         id++;
         command = command(args);
         System.out.print("  " + command);
-        result = Main.run(WORLD, HOME.join("client-home"), args);
+        result = Main.run(WORLD, IT_ROOT.join("client-home"), args);
         if (result == 0) {
             System.out.println();
         } else {
