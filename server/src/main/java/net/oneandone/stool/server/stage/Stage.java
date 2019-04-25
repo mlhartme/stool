@@ -550,6 +550,8 @@ public class Stage {
     private Map<FileNode, String> bindMounts(Image image) throws IOException {
         FileNode logRoot;
         Map<FileNode, String> result;
+        List<FileNode> missing;
+        FileNode file;
 
         logRoot = directory.join("logs").mkdirOpt();
         result = new HashMap<>();
@@ -558,8 +560,17 @@ public class Stage {
             result.put(server.certificate(server.configuration.vhosts ? image.app + "." + getName() + "." + server.configuration.hostname
                     : server.configuration.hostname), "/usr/local/tomcat/conf/tomcat.p12");
         }
+        missing = new ArrayList<>();
         for (String project : image.faultProjects) { // TODO: authorization
-            result.put(server.world.file(server.configuration.secrets).join(project).checkDirectory(), "/root/.fault/" + project);
+            file = server.world.file(server.configuration.secrets).join(project);
+            if (file.isDirectory()) {
+                result.put(file, "/root/.fault/" + project);
+            } else {
+                missing.add(file);
+            }
+        }
+        if (!missing.isEmpty()) {
+            throw new ArgumentException("missing secret directories: " + missing);
         }
         return result;
     }
