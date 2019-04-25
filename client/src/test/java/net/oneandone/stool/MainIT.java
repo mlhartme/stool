@@ -77,7 +77,7 @@ public class MainIT {
         System.out.println(project.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", project.getAbsolute()));
         System.out.println(project.exec("mvn", "clean", "package"));
         System.out.println("git");
-        stool("create", "-project=" + project.getAbsolute(), "it@default");
+        stool("create", "-project=" + project.getAbsolute(), "it@localhost");
         stool("status", "-stage", "it");
         stool("validate", "-stage", "it");
         stool("config", "-stage", "it", "quota");
@@ -154,7 +154,7 @@ public class MainIT {
         id++;
         command = command(args);
         System.out.print("  " + command);
-        result = Main.run(WORLD, HOME, args);
+        result = Main.run(WORLD, HOME.join(".stool-client"), args);
         if (result == 0) {
             System.out.println();
         } else {

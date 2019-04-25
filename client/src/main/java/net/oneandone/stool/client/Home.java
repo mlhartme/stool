@@ -13,17 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.cli;
+package net.oneandone.stool.client;
 
-import com.google.gson.Gson;
-import net.oneandone.inline.Console;
-import net.oneandone.stool.server.Main;
-import net.oneandone.stool.server.Server;
-import net.oneandone.stool.server.configuration.Autoconf;
-import net.oneandone.stool.server.configuration.ServerConfiguration;
+import net.oneandone.stool.client.cli.Main;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 
@@ -32,49 +26,41 @@ import java.io.IOException;
  * etc stuff (config.json) and log files.
  */
 public class Home {
-    public static void create(Console console, FileNode home, String config) throws IOException {
-        RmRfThread cleanup;
+    public static void create(FileNode home) throws IOException {
         Home obj;
 
         home.checkNotExists();
-        cleanup = new RmRfThread(console);
-        cleanup.add(home);
-        Runtime.getRuntime().addShutdownHook(cleanup);
-        obj = new Home(console, home, config);
+        obj = new Home(home);
         obj.create();
-        // ok, no exceptions - we have a proper install directory: no cleanup
-        Runtime.getRuntime().removeShutdownHook(cleanup);
     }
 
-    private final Console console;
-    public final FileNode dir;
-    /** json, may be null */
-    private final String explicitConfig;
+    private final FileNode dir;
 
-    public Home(Console console, FileNode dir, String explicitConfig) {
-        this.console = console;
+    public Home(FileNode dir) {
         this.dir = dir;
-        this.explicitConfig = explicitConfig;
     }
 
     public void create() throws IOException {
         World world;
-        Gson gson;
-        ServerConfiguration conf;
 
         dir.mkdir();
         world = dir.getWorld();
-        gson = Server.gson(world);
         world.resource("files/home").copyDirectory(dir);
-        for (String name : new String[]{"stages","certs"}) {
-            dir.join(name).mkdir();
-        }
-        conf = Autoconf.stool(dir, console.info);
-        if (explicitConfig != null) {
-            conf = conf.createPatched(gson, explicitConfig);
-        }
-        conf.save(gson, dir);
+        profile(dir.join("shell.inc"), file("files/sourceBashComplete"));
+        bashComplete(dir.join("bash.complete"));
         versionFile().writeString(Main.versionString(world));
+    }
+
+    public void profile(FileNode dest, String extra) throws IOException {
+        dest.writeString(file("files/profile") + extra);
+    }
+
+    public void bashComplete(FileNode dest) throws IOException {
+        dest.writeString(file("files/bash.complete"));
+    }
+
+    private String file(String name) throws IOException {
+        return dir.getWorld().resource(name).readString();
     }
 
     public String version() throws IOException {

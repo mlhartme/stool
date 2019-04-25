@@ -57,7 +57,7 @@ public class Main {
         PrintWriter out;
 
         if (itHome != null) {
-            out = new PrefixWriter(itHome.join("client.log").newAppender());
+            out = new PrefixWriter(itHome.getParent().join("client.log").newAppender());
             console = new Console(out, out, System.in);
         } else {
             out = new PrefixWriter(new PrintWriter(System.out));
@@ -172,5 +172,15 @@ public class Main {
             throw new IllegalArgumentException(e);
         }
         return sc.getSocketFactory();
+    }
+
+
+    public static String versionString(World world) {
+        // don't use class.getPackage().getSpecificationVersion() because META-INF/META.MF is not available in test cases
+        try {
+            return world.resource("stool-client.version").readString().trim();
+        } catch (IOException e) {
+            throw new IllegalStateException("cannot determine version", e);
+        }
     }
 }

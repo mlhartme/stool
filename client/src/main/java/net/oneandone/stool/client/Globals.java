@@ -25,8 +25,15 @@ import java.util.UUID;
 
 /** Global client stuff */
 public class Globals {
-    public static Globals create(Console console, World world, FileNode home, String command) {
-        return new Globals(console, world, home == null ? world.getHome().join(".stool-client") : home, UUID.randomUUID().toString(), command);
+    public static Globals create(Console console, World world, FileNode homeOpt, String command) throws IOException {
+        FileNode home;
+
+        home = homeOpt == null ? world.getHome().join(".stool-client") : homeOpt;
+        if (!home.exists()) {
+            console.info.println("creating " + home);
+            Home.create(home);
+        }
+        return new Globals(console, world, home, UUID.randomUUID().toString(), command);
     }
 
     private final Console console;
@@ -67,14 +74,9 @@ public class Globals {
         FileNode file;
         ServerManager result;
 
-        file = home.join(".servers");
+        file = home.join("servers");
         result = new ServerManager(file, wirelog, invocation, command);
-        if (file.exists()) {
-            result.load();
-        } else {
-            result.setDefaults();
-            result.save();
-        }
+        result.load();
         return result;
     }
 }
