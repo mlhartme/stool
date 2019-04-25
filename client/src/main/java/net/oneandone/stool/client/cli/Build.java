@@ -45,7 +45,7 @@ public class Build extends ProjectCommand {
         this.keep = keep;
         this.restart = restart;
         this.comment = comment;
-        this.explicitWars = eatWars(globals.world, warsAndArgs);
+        this.explicitWars = eatWars(globals.getWorld(), warsAndArgs);
         this.arguments = argument(warsAndArgs);
     }
 

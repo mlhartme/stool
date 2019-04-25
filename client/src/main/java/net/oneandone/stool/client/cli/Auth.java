@@ -30,7 +30,7 @@ public class Auth {
 
     public Auth(Globals globals, String server) {
         this.globals = globals;
-        this.console = globals.console;
+        this.console = globals.getConsole();
         this.server = server;
     }
 
@@ -46,7 +46,7 @@ public class Auth {
         username = console.readline("username: ");
         password = new String(System.console().readPassword("password:"));
         try {
-            dest.auth(globals.world, username, password);
+            dest.auth(globals.getWorld(), username, password);
         } catch (StatusException e) {
             if (e.getStatusLine().code == 401) {
                 throw new IOException(dest.url + ": " + e.getMessage(), e);

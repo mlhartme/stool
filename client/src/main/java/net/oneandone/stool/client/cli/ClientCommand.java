@@ -37,8 +37,8 @@ public abstract class ClientCommand {
 
     public ClientCommand(Globals globals) {
         this.globals = globals;
-        this.world = globals.world;
-        this.console = globals.console;
+        this.world = globals.getWorld();
+        this.console = globals.getConsole();
     }
 
     public void run() throws Exception {

@@ -27,7 +27,7 @@ public class Help {
     private final String command;
 
     public Help(Globals globals, String command) {
-        this.world = globals.world;
+        this.world = globals.getWorld();
         this.command = command;
     }
 

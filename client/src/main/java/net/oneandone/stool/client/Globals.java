@@ -18,24 +18,30 @@ package net.oneandone.stool.client;
 import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
+import java.util.UUID;
 
-/** Basically a session factory */
+/** Global client stuff */
 public class Globals {
-    public final Console console;
-    public final World world;
-    private final FileNode clientHome;
-    private final String clientInvocation;
-    private final String clientCommand;
+    public static Globals create(Console console, World world, FileNode home, String command) {
+        return new Globals(console, world, home == null ? world.getHome().join(".stool-client") : home, UUID.randomUUID().toString(), command);
+    }
+
+    private final Console console;
+    private final World world;
+    private final FileNode home;
+    private final String invocation;
+    private final String command;
     private FileNode wirelog;
 
-    public Globals(Console console, World world, FileNode clientHome, String clientInvocation, String clientCommand) {
+    public Globals(Console console, World world, FileNode home, String invocation, String command) {
         this.console = console;
         this.world = world;
-        this.clientHome = clientHome;
-        this.clientInvocation = clientInvocation;
-        this.clientCommand = clientCommand;
+        this.home = home;
+        this.invocation = invocation;
+        this.command = command;
         this.wirelog = null;
     }
 
@@ -49,11 +55,11 @@ public class Globals {
         }
     }
 
-    public World world() {
+    public World getWorld() {
         return world;
     }
 
-    public Console console() {
+    public Console getConsole() {
         return console;
     }
 
@@ -61,8 +67,8 @@ public class Globals {
         FileNode file;
         ServerManager result;
 
-        file = clientHome.join(".stool-servers");
-        result = new ServerManager(file, wirelog, clientInvocation, clientCommand);
+        file = home.join(".servers");
+        result = new ServerManager(file, wirelog, invocation, command);
         if (file.exists()) {
             result.load();
         } else {

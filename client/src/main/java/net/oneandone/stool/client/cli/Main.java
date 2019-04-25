@@ -39,7 +39,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.UUID;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -64,17 +63,16 @@ public class Main {
             out = new PrefixWriter(new PrintWriter(System.out));
             console = new Console(out, out, System.in);
         }
-        globals = new Globals(console, world, itHome == null ? world.getHome() : itHome,
-                UUID.randomUUID().toString(), "stool " + Separator.SPACE.join(args));
-        cli = new Cli(globals.console::handleException);
+        globals = Globals.create(console, world, itHome, "stool " + Separator.SPACE.join(args));
+        cli = new Cli(globals.getConsole()::handleException);
         loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
-        cli.begin(globals.console, "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
+        cli.begin(globals.getConsole(), "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
            cli.begin("globals", globals,  "-wirelog -exception { setWirelog(wirelog) setException(exception) }");
               cli.addDefault(Help.class, "help command?");
-              cli.begin("globals.world", "");
-                       cli.begin("globals.console", "");
+              cli.begin("globals.getWorld", "");
+                       cli.begin("globals.getConsole", "");
                 cli.add(Auth.class, "auth server");
                 cli.base(ClientCommand.class, "");
                     cli.add(Create.class, "create -project serverAndServer properties*");
