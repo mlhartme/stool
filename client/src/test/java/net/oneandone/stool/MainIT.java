@@ -70,6 +70,7 @@ public class MainIT {
     @Test
     public void turnaround() throws IOException {
         FileNode project;
+        String stage;
 
         startServer();
         setupClient();
@@ -79,21 +80,23 @@ public class MainIT {
         System.out.println(project.exec("mvn", "clean", "package"));
         System.out.println("git");
 
-        stool("create", "-project=" + project.getAbsolute(), "it@localhost");
-        stool("status", "-stage", "it");
-        stool("validate", "-stage", "it");
-        stool("config", "-stage", "it", "quota");
-        stool("config", "-stage", "it", "quota=10001");
+        stage = "it@localhost";
+
+        stool("create", "-project=" + project.getAbsolute(), stage);
+        stool("status", "-stage", stage);
+        stool("validate", "-stage", stage);
+        stool("config", "-stage", stage, "quota");
+        stool("config", "-stage", stage, "quota=10001");
         stool("build", "-v", "-project=" + project.getAbsolute());
-        stool("start", "-v", "-stage", "it");
-        stool("validate", "-stage", "it");
-        stool("status", "-stage", "it");
-        stool("restart", "-v", "-stage", "it");
-        stool("stop", "-v",  "-stage", "it");
-        stool("list", "-stage", "it");
-        stool("validate", "-stage", "it");
-        stool("history", "-stage", "it");
-        stool("remove", "-stage", "it", "-batch");
+        stool("start", "-v", "-stage", stage);
+        stool("validate", "-stage", stage);
+        stool("status", "-stage", stage);
+        stool("restart", "-v", "-stage", stage);
+        stool("stop", "-v",  "-stage", stage);
+        stool("list", "-stage", stage);
+        stool("validate", "-stage", stage);
+        stool("history", "-stage", stage);
+        stool("remove", "-stage", stage, "-batch");
         project.deleteTree();
     }
 
@@ -135,7 +138,6 @@ public class MainIT {
         server = server(home);
         server.arg("run");
         serverProcess = server.launch(log).process;
-        WORLD.setWorking(home.getParent().join("working").deleteTreeOpt().mkdir());
     }
 
     private Launcher server(FileNode home) throws IOException {
