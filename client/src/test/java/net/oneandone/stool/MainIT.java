@@ -141,7 +141,7 @@ public class MainIT {
             launcher.arg("-D" + trustStoreKey + "=" + trustStore);
         }
         launcher.arg("-jar", PROJECT_ROOT.getParent().join("server/target/").findOne("server-*-springboot.jar").getAbsolute());
-        launcher.getBuilder().environment().put("STOOL_HOME", home.getAbsolute());
+        launcher.getBuilder().environment().put("STOOL_SERVER_HOME", home.getAbsolute());
         return launcher;
     }
 

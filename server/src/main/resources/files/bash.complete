@@ -1,16 +1,5 @@
 _stool_stageList() {
-  if [ -z $STOOL_HOME ] ; then
-    STOOL_HOME=$HOME/.stool
-  fi
-  local base=$STOOL_HOME/stages
-  # don't use ls, it's an alias on many systems:
-  local lscmd=/bin/ls
-  for dir in $($lscmd -1 $base); do
-    ls=$($lscmd -ld "$base/$dir")
-    dir=$(expr "$ls" : '.*-> \(.*\)$')
-    dir=$(dirname $dir)
-    echo $(__stageName $dir)
-  done
+  # TODO
   echo none
 }
 

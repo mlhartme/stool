@@ -9,7 +9,7 @@ New philio: projects are the former stages, this is where your sources reside.
 Stages are now the central part; multiple project can be associated with the same stage.
 
 * 1 image per war
-
+* STOOL_HOME split into STOOL_SERVER_HOME and STOOL_CLIENT_HOME 
 * stool is no longer responsible to manage checkouts - use your standard tools instead; 
   * dumped `create`, `refresh` and `move` command
   * dumped `refresh` stage config

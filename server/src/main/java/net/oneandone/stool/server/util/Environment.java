@@ -24,12 +24,12 @@ import net.oneandone.sushi.fs.file.FileNode;
  */
 public abstract class Environment {
     private static final String STOOL_USER = "STOOL_USER";
-    private static final String STOOL_HOME = "STOOL_HOME";
+    private static final String STOOL_SERVER_HOME = "STOOL_SERVER_HOME";
 
     public static FileNode locateHome(World world) {
         String value;
 
-        value = System.getenv(STOOL_HOME);
+        value = System.getenv(STOOL_SERVER_HOME);
         if (value == null) {
             return world.getHome().join(".stool");
         } else {
