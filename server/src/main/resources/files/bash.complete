@@ -20,7 +20,7 @@ _stool_complete() {
       COMPREPLY=()
       cur="${COMP_WORDS[COMP_CWORD]}"
       prev="${COMP_WORDS[COMP_CWORD-1]}"
-      cmd="stop remove build setup validate version help config import refresh move restart status select list create history start cd"
+      cmd="stop remove build setup validate version help config restart status list create history start"
       general_opts="-v -e"
       select_opts="-stage -all"
       fail_opts="before after never"
@@ -36,6 +36,11 @@ _stool_complete() {
             return 0
             ;;
         status)
+            local stages=$(_stool_stageList)
+            COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
+            return 0
+            ;;
+        build)
             local stages=$(_stool_stageList)
             COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
             return 0
