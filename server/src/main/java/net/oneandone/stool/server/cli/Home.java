@@ -67,11 +67,10 @@ public class Home {
 
         world = dir.getWorld();
         world.resource("files/home").copyDirectory(dir);
-        for (String name : new String[]{"stages","run", "certs", "system"}) {
+        for (String name : new String[]{"stages","certs"}) {
             dir.join(name).mkdir();
         }
-        profile(dir.join("shell.rc"),
-                file("files/sourceBashComplete"));
+        profile(dir.join("shell.rc"), file("files/sourceBashComplete"));
         bashComplete(dir.join("bash.complete"));
         conf = Autoconf.stool(dir,console.info);
         if (explicitConfig != null) {
@@ -79,7 +78,6 @@ public class Home {
         }
         conf.save(gson, dir);
         versionFile().writeString(Main.versionString(world));
-        dir.join("run/locks").mkfile();
     }
 
     public void profile(FileNode dest, String extra) throws IOException {

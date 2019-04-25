@@ -1138,9 +1138,6 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
 
         |- config.json (Stool configuration)
         |- users.json (only if authentication is enabled)
-        |- run
-        |  |- locks       (holds all locking data)
-        |  '- ports       (lists all allocated ports)
         |- downloads      (caches Tomcat downloads; may be a symlink to a directory of your choice)
         |- templates      (Docker templates; may be a symlink to a directory of your choice)
         |- logs           (Stool log files)
@@ -1149,9 +1146,11 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
         |- shell.rc (to initialized the users interactive shell)
         |- bash.complete
         '- stages
-           |- id (directory for the respective stage; former 'backstage')
+           |- name (directory for the respective stage)
            :  |- config.json      (stage configuration)
-              '- logs             (log file of running stage)
+              '- logs
+                   |- app1        (log file of appsrunning stage)
+                       :
            
 ... of project directories
 

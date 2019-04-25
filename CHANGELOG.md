@@ -17,6 +17,11 @@ Stages are now the central part; multiple project can be associated with the sam
   * dumped svn credentials handling
   * dumped macros
 
+* stool home layout changes
+  * system directory is gone - there are no system stages any more
+  * run directory is gone - ports and locks are implemented by asking docker and storing them in memory
+  * downloads is gone - Stool no longer performs downloads, place them in your (base) Docker file instead
+  
 * replaced the `.backstage` directory tree by a single `.backstage` file; 
   files in this directory:
   * config.json was moved to the server;
