@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool;
 
+import net.oneandone.stool.client.Home;
+import net.oneandone.stool.client.ServerManager;
 import net.oneandone.stool.client.cli.Main;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -72,11 +74,13 @@ public class MainIT {
         FileNode project;
 
         startServer("git");
+        setupClient();
 
         project = IT_ROOT.join("stages").mkdirsOpt().join("it");
         System.out.println(project.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", project.getAbsolute()));
         System.out.println(project.exec("mvn", "clean", "package"));
         System.out.println("git");
+
         stool("create", "-project=" + project.getAbsolute(), "it@localhost");
         stool("status", "-stage", "it");
         stool("validate", "-stage", "it");
@@ -94,6 +98,19 @@ public class MainIT {
         stool("remove", "-stage", "it", "-batch");
         project.deleteTree();
     }
+
+    private void setupClient() throws IOException {
+        FileNode home;
+        ServerManager m;
+
+        home = HOME.join(".stool-client");
+        Home.create(home);
+        m = new ServerManager(home.join("servers"), null, "foo", "bar");
+        m.add("localhost", "http://localhost:" + port + "/api");
+        m.save();
+    }
+
+    private static final int port = 7777;
 
     public void startServer(String context) throws IOException {
         FileNode stages;
@@ -140,6 +157,7 @@ public class MainIT {
         if (trustStore == null) {
             launcher.arg("-D" + trustStoreKey + "=" + trustStore);
         }
+        launcher.arg("-Dserver.port=" + port);
         launcher.arg("-jar", PROJECT_ROOT.getParent().join("server/target/").findOne("server-*-springboot.jar").getAbsolute());
         launcher.getBuilder().environment().put("STOOL_SERVER_HOME", home.getAbsolute());
         return launcher;

@@ -29,6 +29,10 @@ public class ServerManager {
         this.servers = new HashMap<>();
     }
 
+    public void add(String name, String url) {
+        servers.put(name, new Server(name, url, null, null, clientInvocation, clientCommand));
+    }
+
     public Reference reference(String str) throws IOException {
         int idx;
         String server;
@@ -83,14 +87,6 @@ public class ServerManager {
             }
         }
         return result;
-    }
-
-    public void setDefaults() {
-        String name;
-
-        name = "default";
-        servers.clear();
-        servers.put(name, new Server(name, "http://localhost:8080/api", null, wirelog, clientInvocation, clientCommand));
     }
 
     public void load() throws IOException {
