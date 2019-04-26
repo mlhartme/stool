@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.stage;
 
 import com.google.gson.JsonObject;
-import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.StageConfiguration;

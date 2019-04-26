@@ -1,7 +1,7 @@
 package net.oneandone.stool.server.web;
 
 import net.oneandone.stool.server.Server;
-import net.oneandone.stool.server.cli.Globals;
+import net.oneandone.stool.server.Globals;
 import net.oneandone.sushi.fs.World;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

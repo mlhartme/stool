@@ -15,16 +15,13 @@
  */
 package net.oneandone.stool.server;
 
-import net.oneandone.inline.Cli;
-import net.oneandone.inline.Console;
-import net.oneandone.inline.commands.PackageVersion;
-import net.oneandone.stool.server.cli.Globals;
-import net.oneandone.stool.server.cli.Run;
-import net.oneandone.stool.server.cli.Setup;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
+import net.oneandone.sushi.util.Diff;
+import net.oneandone.sushi.util.Strings;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import javax.net.ssl.SSLContext;
@@ -37,8 +34,6 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Properties;
 
 @SpringBootApplication
 public class Main {
@@ -48,40 +43,11 @@ public class Main {
         // lc = (LoggerContext) LoggerFactory.getILoggerFactory();
         // StatusPrinter.print(lc);
 
-        run(args);
-    }
-
-    public static int run(String[] args) throws IOException {
-        return run(world(), args);
-    }
-
-    public static int run(World world, String[] args) throws IOException {
-        Cli cli;
-        Console console;
-        Globals globals;
-
-        console = Console.create();
-        globals = Globals.create(world);
-        cli = new Cli(console::handleException);
-        loadDefaults(cli, world);
-        cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
-        cli.begin(console, "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
-           cli.add(PackageVersion.class, "version");
-           cli.add(Run.class, "run");
-           cli.begin("globals", globals,  "-exception { setException(exception) }");
-              cli.add(Setup.class, "setup -batch config? { config(config) }");
-        return cli.run(args);
-    }
-
-    private static void loadDefaults(Cli cli, World world) throws IOException {
-        FileNode file;
-        Properties p;
-
-        file = world.getHome().join(".stool.defaults");
-        if (file.exists()) {
-            p = file.readProperties();
-            cli.defaults((Map) p);
+        if (Arrays.asList(args).contains("-v")) {
+            System.setProperty("loglevel", "DEBUG");
         }
+
+        SpringApplication.run(Main.class, new String[] {});
     }
 
     //--
@@ -160,5 +126,76 @@ public class Main {
         } catch (IOException e) {
             throw new IllegalStateException("cannot determine version", e);
         }
+    }
+
+    //--
+
+    public void setup(String version, FileNode home) throws IOException {
+        Server.LOGGER.info("Setup Stool Server " + version);
+        if (home.isDirectory()) {
+            update(version, home);
+        } else {
+            initialize(home);
+        }
+    }
+
+    private void initialize(FileNode home) throws IOException {
+        Server.LOGGER.info("Initializing " + home);
+        doInitialize(home);
+        Server.LOGGER.info("Done.");
+    }
+
+    private static final List<String> CONFIG = Strings.toList();
+
+    private void update(String version, FileNode home) throws IOException {
+        String was;
+        FileNode fresh;
+        FileNode dest;
+        String path;
+        String left;
+        String right;
+        int count;
+
+        was = home.join("version").readString().trim();
+        if (!Server.majorMinor(was).equals(Server.majorMinor(version))) {
+            throw new IOException("cannot update - migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
+        }
+        Server.LOGGER.info("Updating " + home);
+        fresh = home.getWorld().getTemp().createTempDirectory();
+        fresh.deleteDirectory();
+        doInitialize(fresh);
+        count = 0;
+        for (FileNode src : fresh.find("**/*")) {
+            if (!src.isFile()) {
+                continue;
+            }
+            path = src.getRelative(fresh);
+            if (CONFIG.contains(path)) {
+                continue;
+            }
+            dest = home.join(path);
+            left = src.readString();
+            right = dest.readString();
+            if (!left.equals(right)) {
+                Server.LOGGER.info("U " + path);
+                Server.LOGGER.info(Strings.indent(Diff.diff(right, left), "  "));
+                dest.writeString(left);
+                count++;
+            }
+        }
+        fresh.deleteTree();
+        Server.LOGGER.info("Done, " + count  + " file(s) updated.");
+    }
+
+    private void doInitialize(FileNode home) throws IOException {
+        World world;
+
+        home.checkExists();
+        world = home.getWorld();
+        world.resource("files/home").copyDirectory(home);
+        for (String name : new String[]{"stages","certs"}) {
+            home.join(name).mkdir();
+        }
+        home.join("version").writeString(Main.versionString(world));
     }
 }

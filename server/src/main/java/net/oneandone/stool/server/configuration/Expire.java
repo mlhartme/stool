@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.configuration;
 
-import net.oneandone.inline.ArgumentException;
+import net.oneandone.stool.server.ArgumentException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

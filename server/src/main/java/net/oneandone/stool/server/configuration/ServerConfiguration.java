@@ -123,20 +123,35 @@ public class ServerConfiguration {
         environment = new HashMap<>();
     }
 
-    public static FileNode configurationFile(FileNode home) {
-        return home.join("config.json");
+    public void loadEnv() {
+        String name;
+        String str;
+
+        for (Map.Entry<String, Accessor> entry : properties().entrySet()) {
+            name = toUpper(entry.getKey());
+            str = System.getenv(name);
+            if (str != null) {
+                System.out.println("from env: " + entry.getKey());
+                entry.getValue().set(this, str);
+            }
+        }
     }
 
-    public static ServerConfiguration load(Gson gson, FileNode home) throws IOException {
-        return loadFile(gson, configurationFile(home));
-    }
+    private static String toUpper(String str) {
+        StringBuilder result;
+        char c;
+        char upper;
 
-    public static ServerConfiguration loadFile(Gson gson, FileNode file) throws IOException {
-        return gson.fromJson(file.readString(), ServerConfiguration.class);
-    }
-
-    public void save(Gson gson, FileNode home) throws IOException {
-        configurationFile(home).writeString(gson.toJson(this, ServerConfiguration.class));
+        result = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            c = str.charAt(i);
+            upper = Character.toUpperCase(c);
+            if (c == upper) {
+                result.append('_');
+            }
+            result.append(upper);
+        }
+        return result.toString();
     }
 
     public ServerConfiguration createPatched(Gson gson, String str) {

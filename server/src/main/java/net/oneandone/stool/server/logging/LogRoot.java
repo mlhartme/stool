@@ -1,7 +1,7 @@
 package net.oneandone.stool.server.logging;
 
 import ch.qos.logback.core.PropertyDefinerBase;
-import net.oneandone.stool.server.cli.Globals;
+import net.oneandone.stool.server.Globals;
 import net.oneandone.sushi.fs.World;
 
 public class LogRoot extends PropertyDefinerBase {

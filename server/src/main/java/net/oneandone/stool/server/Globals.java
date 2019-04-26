@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.cli;
+package net.oneandone.stool.server;
 
-import net.oneandone.inline.ArgumentException;
-import net.oneandone.stool.server.Server;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
@@ -68,12 +66,6 @@ public class Globals {
         this.home = home;
         this.logRoot = logRoot;
         this.world = world;
-    }
-
-    public void setException(boolean exception) {
-        if (exception) {
-            throw new RuntimeException("intentional exception");
-        }
     }
 
     public Server server() throws IOException {

@@ -64,9 +64,12 @@ public class Server {
     public static Server load(FileNode home, FileNode logRoot) throws IOException {
         Gson gson;
         Server server;
+        ServerConfiguration config;
 
+        config = new ServerConfiguration();
+        config.loadEnv();
         gson = gson(home.getWorld());
-        server = new Server(gson, logRoot, home, ServerConfiguration.load(gson, home));
+        server = new Server(gson, logRoot, home, config);
         server.validate();
         return server;
     }
