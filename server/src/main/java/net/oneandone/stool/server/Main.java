@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server;
 
+import net.oneandone.stool.server.configuration.ServerConfiguration;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
@@ -34,16 +35,12 @@ import java.util.List;
 
 @SpringBootApplication
 public class Main {
-    public static void main(String[] args) throws IOException {
-        // LoggerContext lc;
-        //
-        // lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-        // StatusPrinter.print(lc);
+    public static void main(String[] args){
+        ServerConfiguration config;
 
-        if (Arrays.asList(args).contains("-v")) {
-            System.setProperty("loglevel", "DEBUG");
-        }
-
+        config = ServerConfiguration.load(); // it's loaded twice, but I don't have injection here ...
+        System.setProperty("loglevel", config.loglevel);
+        System.setProperty("server.port", Integer.toString(config.portFirst));
         SpringApplication.run(Main.class, new String[] {});
     }
 

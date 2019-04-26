@@ -16,6 +16,8 @@
 package net.oneandone.stool.server.configuration;
 
 import net.oneandone.stool.server.ArgumentException;
+import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -71,6 +73,8 @@ public class ReflectAccessor extends Accessor {
                 builder.append(entry.getValue().toString());
             }
             return builder.toString();
+        } else if (obj == null) {
+            return "null";
         } else {
             return obj.toString();
         }
@@ -105,6 +109,8 @@ public class ReflectAccessor extends Accessor {
             value = map;
         } else if (type.equals(Expire.class)) {
             value = Expire.fromHuman(str);
+        } else if (type.equals(FileNode.class)) {
+            value = str.isEmpty() ? null : World.createMinimal().file(str); // TODO
         } else if (Map.class.isAssignableFrom(type)) {
             value = str;
         } else {

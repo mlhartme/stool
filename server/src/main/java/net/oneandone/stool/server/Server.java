@@ -39,6 +39,8 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Diff;
+import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -60,18 +62,113 @@ import java.util.Map;
 public class Server {
     public static final Logger LOGGER = LoggerFactory.getLogger("DETAILS");
 
-
-    public static Server load(FileNode home, FileNode logRoot) throws IOException {
-        Gson gson;
-        Server server;
+    public static Server create(World world) throws IOException {
+        FileNode home;
+        FileNode logRoot;
         ServerConfiguration config;
+        Server server;
 
-        config = new ServerConfiguration();
-        config.loadEnv();
-        gson = gson(home.getWorld());
-        server = new Server(gson, logRoot, home, config);
+        home = locateHome(world);
+        if (home.exists()) {
+            logRoot = locateLogs(home);
+        } else {
+            logRoot = world.getTemp().createTempDirectory();
+        }
+
+        home(Main.versionString(world), home);
+
+        config = ServerConfiguration.load();
+        LOGGER.info("server configuration: " + config);
+        server = new Server(gson(world), logRoot, home, config);
         server.validate();
+        server.checkVersion();
         return server;
+    }
+
+    public static FileNode locateHome(World world) {
+        return world.file("/usr/local/stool");
+    }
+
+    public static FileNode locateLogs(FileNode home) {
+        return home.join("logs");
+    }
+
+    //--
+
+    public static void home(String version, FileNode home) throws IOException {
+        FileNode homeVersionFile;
+        String was;
+
+        home.checkDirectory();
+        homeVersionFile = home.join("version");
+        if (homeVersionFile.isFile()) {
+            was = homeVersionFile.readString().trim();
+            if (was.equals(version)) {
+                Server.LOGGER.info("using server home: " + home);
+            } else {
+                if (!Server.majorMinor(was).equals(Server.majorMinor(version))) {
+                    throw new IOException("cannot update - migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
+                }
+                Server.LOGGER.info("Updating server home " + was + " -> " + version + ": " + home);
+                update(version, home);
+            }
+        } else {
+            Server.LOGGER.info("initializing server home " + home);
+            initialize(home);
+        }
+    }
+
+    private static void initialize(FileNode home) throws IOException {
+        World world;
+
+        home.checkExists();
+        world = home.getWorld();
+        world.resource("files/home").copyDirectory(home);
+        for (String name : new String[]{"stages","certs"}) {
+            home.join(name).mkdir();
+        }
+        home.join("version").writeString(Main.versionString(world));
+    }
+
+    private static final List<String> CONFIG = Strings.toList();
+
+    private static void update(String version, FileNode home) throws IOException {
+        String was;
+        FileNode fresh;
+        FileNode dest;
+        String path;
+        String left;
+        String right;
+        int count;
+
+        was = home.join("version").readString().trim();
+        if (!Server.majorMinor(was).equals(Server.majorMinor(version))) {
+            throw new IOException("cannot update - migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
+        }
+        fresh = home.getWorld().getTemp().createTempDirectory();
+        fresh.deleteDirectory();
+        initialize(fresh);
+        count = 0;
+        for (FileNode src : fresh.find("**/*")) {
+            if (!src.isFile()) {
+                continue;
+            }
+            path = src.getRelative(fresh);
+            if (CONFIG.contains(path)) {
+                continue;
+            }
+            dest = home.join(path);
+            left = src.readString();
+            right = dest.readString();
+            if (!left.equals(right)) {
+                Server.LOGGER.info("U " + path);
+                Server.LOGGER.info(Strings.indent(Diff.diff(right, left), "  "));
+                dest.writeString(left);
+                count++;
+            }
+        }
+        fresh.deleteTree();
+        Server.LOGGER.info("Done, " + count  + " file(s) updated.");
     }
 
     private static final int MEM_RESERVED_OS = 500;
@@ -95,7 +192,7 @@ public class Server {
     public Server(Gson gson, FileNode logRoot, FileNode home, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
         this.logRoot = logRoot;
-        this.dockerEngine = Engine.open(configuration.docker, dockerLog(logRoot).getAbsolute());
+        this.dockerEngine = Engine.open("/var/run/docker.sock", dockerLog(logRoot).getAbsolute());
         this.world = home.getWorld();
         this.home = home;
         this.configuration = configuration;
@@ -300,7 +397,8 @@ public class Server {
     //-- stool properties
 
     public Pool pool() throws IOException {
-        return Pool.load(dockerEngine(), configuration.portFirst, configuration.portLast);
+        return Pool.load(dockerEngine(), configuration.portFirst + 2 /* because server uses the first port, and I reserve the second */,
+                configuration.portLast);
     }
 
     public static Gson gson(World world) {

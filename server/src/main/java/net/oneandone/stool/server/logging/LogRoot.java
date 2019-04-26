@@ -1,7 +1,7 @@
 package net.oneandone.stool.server.logging;
 
 import ch.qos.logback.core.PropertyDefinerBase;
-import net.oneandone.stool.server.Globals;
+import net.oneandone.stool.server.Server;
 import net.oneandone.sushi.fs.World;
 
 public class LogRoot extends PropertyDefinerBase {
@@ -17,6 +17,6 @@ public class LogRoot extends PropertyDefinerBase {
 
     @Override
     public String getPropertyValue() {
-        return Globals.locateLogs(Globals.locateHome(World.createMinimal())).getAbsolute();
+        return Server.locateLogs(Server.locateHome(World.createMinimal())).getAbsolute();
     }
 }

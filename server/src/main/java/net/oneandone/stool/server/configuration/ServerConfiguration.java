@@ -15,14 +15,9 @@
  */
 package net.oneandone.stool.server.configuration;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import net.oneandone.stool.server.util.Mailer;
 import net.oneandone.sushi.fs.file.FileNode;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -31,6 +26,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ServerConfiguration {
+    public static ServerConfiguration load() {
+        ServerConfiguration result;
+
+        result = new ServerConfiguration();
+        result.loadEnv();
+        return result;
+    }
+
     public static Map<String, Accessor> properties() {
         Map<String, Accessor> result;
 
@@ -42,6 +45,8 @@ public class ServerConfiguration {
     }
 
     //--
+
+    public String loglevel;
 
     public String registryNamespace;
 
@@ -90,9 +95,6 @@ public class ServerConfiguration {
 
     public int quota;
 
-    /** Path to docker unix domain socket */
-    public String docker;
-
     /** absolute path to secrets root */
     public String secrets;
 
@@ -102,6 +104,7 @@ public class ServerConfiguration {
     public Map<String, String> environment;
 
     public ServerConfiguration() {
+        loglevel = "INFO";
         registryNamespace = "main";
         portFirst = 9000;
         portLast = 9999;
@@ -117,7 +120,6 @@ public class ServerConfiguration {
         mailUsername = "";
         mailPassword = "";
         quota = 0;
-        docker = "/var/run/docker.sock";
         secrets = "/etc/fault/workspace";
         certificate = null;
         environment = new HashMap<>();
@@ -131,7 +133,6 @@ public class ServerConfiguration {
             name = toUpper(entry.getKey());
             str = System.getenv(name);
             if (str != null) {
-                System.out.println("from env: " + entry.getKey());
                 entry.getValue().set(this, str);
             }
         }
@@ -154,19 +155,15 @@ public class ServerConfiguration {
         return result.toString();
     }
 
-    public ServerConfiguration createPatched(Gson gson, String str) {
-        JsonObject changes;
-        JsonObject dest;
+    public String toString() {
+        StringBuilder result;
 
-        dest = (JsonObject) gson.toJsonTree(this);
-        changes = new JsonParser().parse(str).getAsJsonObject();
-        for (Map.Entry<String, JsonElement> entry : changes.entrySet()) {
-            if (!dest.has(entry.getKey())) {
-                throw new IllegalStateException("unknown property: " + entry.getKey());
-            }
-            dest.add(entry.getKey(), entry.getValue());
+        result = new StringBuilder("ServerConfiguration {\n");
+        for (Map.Entry<String, Accessor> entry : ServerConfiguration.properties().entrySet()) {
+            result.append("  ").append(entry.getKey()).append(": ").append(entry.getValue().get(this)).append('\n');
         }
-        return gson.fromJson(dest, ServerConfiguration.class);
+        result.append("}\n");
+        return result.toString();
     }
 
     public Mailer mailer() {

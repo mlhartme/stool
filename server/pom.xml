@@ -180,7 +180,7 @@
         <executions>
           <execution>
             <id>start</id>
-            <phase>pre-integration-test</phase>
+            <phase>package</phase>
             <goals>
               <goal>build</goal>
             </goals>
