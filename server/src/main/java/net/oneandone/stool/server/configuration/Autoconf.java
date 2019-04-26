@@ -40,7 +40,6 @@ public class Autoconf {
     private static void oneAndOne(FileNode home, ServerConfiguration dest, Writer log) throws IOException {
         String tools;
         FileNode templates;
-        FileNode init;
 
         tools = System.getenv("CISOTOOLS_HOME");
         if (tools != null) {
@@ -55,14 +54,6 @@ public class Autoconf {
             templates = home.getWorld().file(tools).join("stool/templates-5");
             if (templates.isDirectory()) {
                 templates.link(home.join("templates").deleteTree());
-            }
-            init = home.getWorld().file(tools).join("stool/images/init.sh");
-            if (init.isFile()) {
-                Launcher launcher;
-
-                log.write("initializing templates\n");
-                launcher = new Launcher(init.getParent(), init.getAbsolute());
-                launcher.exec(log);
             }
         }
     }
