@@ -72,11 +72,6 @@ public class ServerConfiguration {
      */
     public String admin;
 
-    /**
-     * Base value to calculate ram per application
-     */
-    public int baseMemory;
-
     public String mailHost;
 
     public String mailUsername;
@@ -96,6 +91,8 @@ public class ServerConfiguration {
      */
     public int autoRemove;
 
+    public int memoryQuota;
+
     public int quota;
 
     /** absolute path to secrets root */
@@ -112,7 +109,6 @@ public class ServerConfiguration {
         registryNamespace = "main";
         portFirst = 9000;
         portLast = 9999;
-        baseMemory = 400;
         hostname = "localhost";
         admin = "";
         autoRemove = -1;
@@ -123,6 +119,7 @@ public class ServerConfiguration {
         mailHost = "";
         mailUsername = "";
         mailPassword = "";
+        memoryQuota = 10000;
         quota = 0;
         secrets = "/etc/fault/workspace";
         certificate = null;

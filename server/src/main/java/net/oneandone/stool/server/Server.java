@@ -156,8 +156,6 @@ public class Server {
         Server.LOGGER.info("Done, " + count  + " file(s) updated.");
     }
 
-    private static final int MEM_RESERVED_OS = 500;
-
     //--
 
     public final Gson gson;
@@ -355,7 +353,7 @@ public class Server {
 
     /** @return memory not yet reserved */
     public int memUnreserved() throws IOException {
-        return memTotal() - MEM_RESERVED_OS - memReservedContainers();
+        return configuration.memoryQuota - memReservedContainers();
     }
 
     /** used for running containers */
