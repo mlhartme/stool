@@ -64,33 +64,18 @@ public class Server {
 
     public static Server create(World world) throws IOException {
         FileNode home;
-        FileNode logRoot;
         ServerConfiguration config;
         Server server;
 
-        home = locateHome(world);
-        if (home.exists()) {
-            logRoot = locateLogs(home);
-        } else {
-            logRoot = world.getTemp().createTempDirectory();
-        }
-
+        home = world.file("/usr/local/stool");
         home(Main.versionString(world), home);
 
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
-        server = new Server(gson(world), logRoot, home, config);
+        server = new Server(gson(world), home, config);
         server.validate();
         server.checkVersion();
         return server;
-    }
-
-    public static FileNode locateHome(World world) {
-        return world.file("/usr/local/stool");
-    }
-
-    public static FileNode locateLogs(FileNode home) {
-        return home.join("logs");
     }
 
     //--
@@ -176,11 +161,11 @@ public class Server {
     //--
 
     public final Gson gson;
+    public final FileNode home;
     private final FileNode logRoot;
     private final Engine dockerEngine;
 
     public final World world;
-    public final FileNode home;
     public final ServerConfiguration configuration;
 
     private final FileNode stages;
@@ -189,12 +174,12 @@ public class Server {
 
     public Map<String, Accessor> accessors;
 
-    public Server(Gson gson, FileNode logRoot, FileNode home, ServerConfiguration configuration) throws IOException {
+    public Server(Gson gson, FileNode home, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
-        this.logRoot = logRoot;
+        this.home = home;
+        this.logRoot = home.join("logs");
         this.dockerEngine = Engine.open("/var/run/docker.sock", dockerLog(logRoot).getAbsolute());
         this.world = home.getWorld();
-        this.home = home;
         this.configuration = configuration;
         this.stages = home.join("stages");
         this.userManager = UserManager.loadOpt(home.join("users.json"));

@@ -1,8 +1,5 @@
 <configuration>
-
-  <define name="root" class="net.oneandone.stool.server.logging.LogRoot">
-    <default>/tmp</default>
-  </define>
+  <property name="root" value="/usr/local/stool/logs" />
 
   <logger name="ACCESS" additivity="false">
     <appender name="ACCESS" class="ch.qos.logback.core.rolling.RollingFileAppender">
