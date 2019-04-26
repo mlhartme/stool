@@ -172,7 +172,7 @@
         <configuration>
           <images>
             <image>
-              <name>stool-server</name>
+              <name>contargo.server.lan/cisoops-public/stool-server</name>
               <build>
                 <dockerFile>${basedir}/src/docker/Dockerfile</dockerFile>
                 <assembly>
@@ -182,7 +182,7 @@
             </image>
           </images>
         </configuration>
-        <!-- executions>
+        <executions>
           <execution>
             <id>start</id>
             <phase>pre-integration-test</phase>
@@ -190,7 +190,7 @@
               <goal>build</goal>
             </goals>
           </execution>
-        </executions-->
+        </executions>
       </plugin>
     </plugins>
   </build>
