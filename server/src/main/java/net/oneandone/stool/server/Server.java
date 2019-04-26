@@ -67,7 +67,7 @@ public class Server {
         ServerConfiguration config;
         Server server;
 
-        home = world.file("/usr/local/stool");
+        home = world.file("/var/lib/stool");
         home(Main.versionString(world), home);
 
         config = ServerConfiguration.load();

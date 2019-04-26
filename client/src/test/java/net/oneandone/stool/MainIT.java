@@ -37,7 +37,7 @@ public class MainIT {
     private static final World WORLD;
     private static final FileNode PROJECT_ROOT;
     private static final FileNode IT_ROOT;
-    private static Process serverProcess = null;
+    private static final String SERVER_CONTAINTER = "integration-server";
 
     static {
         try {
@@ -53,17 +53,11 @@ public class MainIT {
     }
 
     @After
-    public void after() throws Exception {
-        if (serverProcess != null) {
-            try {
-                stool("stop", "-stage" , "running!=", "-fail", "after");
-            } finally {
-                System.out.println("stopping server " + serverProcess);
-                serverProcess.destroy();
-                serverProcess = null;
-            }
-        } else {
-            System.out.println("no server to stop");
+    public void after() {
+        try {
+            System.out.println("stopping: " + IT_ROOT.exec("docker", "stop", SERVER_CONTAINTER));
+        } catch (IOException e) {
+            System.err.println("stop failed:" + e);
         }
     }
 
@@ -102,6 +96,8 @@ public class MainIT {
         project.deleteTree();
     }
 
+    private final int port = 1300;
+
     private void setupClient() throws IOException {
         FileNode home;
         ServerManager m;
@@ -113,50 +109,22 @@ public class MainIT {
         m.save();
     }
 
-    private static final int port = 7777;
-
     public void startServer() throws IOException {
         FileNode home;
-        Integer start = 1300;
-        Integer end = 1319;
         Writer log;
         Launcher server;
 
-        home = IT_ROOT.join("server-home").checkNotExists();
+        home = IT_ROOT.join("server-home").mkdir();
         log = IT_ROOT.join("server.log").newWriter();
-
-        // setup
-        server = server(home);
-        server.arg("setup", "-batch", "{ \"registryNamespace\": " + "\"integrationtests\", \"portFirst\": " + start + ", \"portLast\": " + end + " }");
-        try {
-            log.write("Setup:\n");
-            log.write(server.exec());
-            log.write('\n');
-        } catch (Failure e) {
-            System.out.println(" -> failed: " + e);
-        }
-
-        // run
-        server = server(home);
-        server.arg("run");
-        serverProcess = server.launch(log).process;
-    }
-
-    private Launcher server(FileNode home) throws IOException {
-        final String trustStoreKey = "javax.net.ssl.trustStore";
-        String trustStore;
-        Launcher launcher;
-
-
-        launcher = IT_ROOT.launcher("java");
-        trustStore = System.getProperty(trustStoreKey);
-        if (trustStore == null) {
-            launcher.arg("-D" + trustStoreKey + "=" + trustStore);
-        }
-        launcher.arg("-Dserver.port=" + port);
-        launcher.arg("-jar", PROJECT_ROOT.getParent().join("server/target/").findOne("server-*-springboot.jar").getAbsolute());
-        launcher.getBuilder().environment().put("STOOL_SERVER_HOME", home.getAbsolute());
-        return launcher;
+        server = home.launcher("docker", "run", "-h", "localhost",
+                "-p" + port + ":" + port, "-v", "/var/run/docker.sock:/var/run/docker.sock",
+                "-v", home.getAbsolute() + ":" + "/var/lib/stool",
+                "--env", "PORT_FIRST=" + port, "--env", "PORT_LAST=" + (port + 19),
+                "--name", SERVER_CONTAINTER, "-d",
+                "contargo.server.lan/cisoops-public/stool-server");
+        log.write(server.toString() + "\n");
+        server.exec(log);
+        log.close();
     }
 
     private static int id = 0;

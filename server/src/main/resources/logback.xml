@@ -1,5 +1,5 @@
 <configuration>
-  <property name="root" value="/usr/local/stool/logs" />
+  <property name="root" value="/var/lib/stool/logs" />
 
   <logger name="ACCESS" additivity="false">
     <appender name="ACCESS" class="ch.qos.logback.core.rolling.RollingFileAppender">
