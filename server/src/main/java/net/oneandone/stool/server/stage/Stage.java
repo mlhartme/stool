@@ -548,14 +548,15 @@ public class Stage {
     }
 
     private Map<FileNode, String> bindMounts(Image image) throws IOException {
-        FileNode logRoot;
+        FileNode hostLogRoot;
         Map<FileNode, String> result;
         List<FileNode> missing;
         FileNode file;
 
-        logRoot = directory.join("logs").mkdirOpt();
+        hostLogRoot = server.configuration.serverHome.join("stages", getName(), "logs", image.app);
+        directory.join("logs", image.app).mkdirsOpt();
         result = new HashMap<>();
-        result.put(logRoot.join(image.app).mkdirOpt(), "/var/log/stool");
+        result.put(hostLogRoot, "/var/log/stool");
         if (image.ports.https != -1) {
             result.put(server.certificate(server.configuration.vhosts ? image.app + "." + getName() + "." + server.configuration.hostname
                     : server.configuration.hostname), "/usr/local/tomcat/conf/tomcat.p12");

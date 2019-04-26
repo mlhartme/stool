@@ -46,6 +46,9 @@ public class ServerConfiguration {
 
     //--
 
+    /** path on the docker host */
+    public FileNode serverHome;
+
     public String loglevel;
 
     public String registryNamespace;
@@ -104,6 +107,7 @@ public class ServerConfiguration {
     public Map<String, String> environment;
 
     public ServerConfiguration() {
+        serverHome = null;
         loglevel = "INFO";
         registryNamespace = "main";
         portFirst = 9000;

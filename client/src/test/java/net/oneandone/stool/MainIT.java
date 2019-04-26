@@ -136,6 +136,7 @@ public class MainIT {
                 "-p" + port + ":" + port, "-v", "/var/run/docker.sock:/var/run/docker.sock",
                 "-v", home.getAbsolute() + ":" + "/var/lib/stool",
                 "--env", "PORT_FIRST=" + port, "--env", "PORT_LAST=" + (port + 19),
+                "--env", "SERVER_HOME=" + home.getAbsolute(),
                 "--name", SERVER_CONTAINTER, "-d",
                 "contargo.server.lan/cisoops-public/stool-server");
         serverLog.write(server.toString() + "\n");

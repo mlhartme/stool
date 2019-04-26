@@ -5,6 +5,9 @@ services:
     image: "contargo.server.lan/cisoops-public/stool-server"
     ports:
       - "8000:8000"
+    environment:
+      - "SERVER_HOME=/Users/mhm/.stool-server"
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "/Users/mhm/.stool-server:/var/lib/stool"
+      - "/Users/mhm/Projects/svn.1and1.org/com/oneandone/sales/tools/cisotools/stool/templates-5:/var/lib/stool/templates"
