@@ -26,6 +26,7 @@ import org.junit.After;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
 
 import static org.junit.Assert.fail;
@@ -38,6 +39,8 @@ public class MainIT {
     private static final FileNode PROJECT_ROOT;
     private static final FileNode IT_ROOT;
     private static final String SERVER_CONTAINTER = "integration-server";
+
+    private static PrintWriter serverLog;
 
     static {
         try {
@@ -54,10 +57,19 @@ public class MainIT {
 
     @After
     public void after() {
-        try {
-            System.out.println("stopping: " + IT_ROOT.exec("docker", "stop", SERVER_CONTAINTER));
-        } catch (IOException e) {
-            System.err.println("stop failed:" + e);
+        if (serverLog != null) {
+            try {
+                serverLog.println("stopping: " + IT_ROOT.exec("docker", "stop", SERVER_CONTAINTER));
+            } catch (IOException e) {
+                serverLog.println("stop failed:" + e);
+            }
+            try {
+                serverLog.println(IT_ROOT.exec("docker", "logs", SERVER_CONTAINTER));
+            } catch (IOException e) {
+                serverLog.println("cannot get logs: " + e.getMessage());
+            }
+            serverLog.close();
+            serverLog = null;
         }
     }
 
@@ -111,20 +123,23 @@ public class MainIT {
 
     public void startServer() throws IOException {
         FileNode home;
-        Writer log;
         Launcher server;
 
         home = IT_ROOT.join("server-home").mkdir();
-        log = IT_ROOT.join("server.log").newWriter();
+        serverLog = new PrintWriter(IT_ROOT.join("server.log").newWriter());
+        try {
+            serverLog.println("remove previous container: " + IT_ROOT.exec("docker", "rm", SERVER_CONTAINTER));
+        } catch (IOException e) {
+            serverLog.println("no previous container to wipe: " + e.getMessage());
+        }
         server = home.launcher("docker", "run", "-h", "localhost",
                 "-p" + port + ":" + port, "-v", "/var/run/docker.sock:/var/run/docker.sock",
                 "-v", home.getAbsolute() + ":" + "/var/lib/stool",
                 "--env", "PORT_FIRST=" + port, "--env", "PORT_LAST=" + (port + 19),
                 "--name", SERVER_CONTAINTER, "-d",
                 "contargo.server.lan/cisoops-public/stool-server");
-        log.write(server.toString() + "\n");
-        server.exec(log);
-        log.close();
+        serverLog.write(server.toString() + "\n");
+        server.exec(serverLog);
     }
 
     private static int id = 0;
