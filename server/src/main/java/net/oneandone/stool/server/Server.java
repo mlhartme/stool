@@ -449,7 +449,7 @@ public class Server {
         FileNode file;
         FileNode tmp;
 
-        script = configuration.certificate;
+        script = world.file("/var/lib/stool/cert.sh");
         if (script == null || !script.isFile()) {
             throw new IOException("don't know how to generate certifcate: " + script);
         }
@@ -457,7 +457,7 @@ public class Server {
         tmp = world.getTemp().createTempDirectory();
         LOGGER.debug(tmp.exec(script.getAbsolute(), certname, file.getAbsolute()));
         tmp.deleteTree();
-        return file;
+        return configuration.serverHome.join(file.getRelative(home));
     }
 
     //--

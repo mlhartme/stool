@@ -98,8 +98,6 @@ public class ServerConfiguration {
     /** absolute path to secrets root */
     public String secrets;
 
-    public FileNode certificate;
-
     // default environment for every container
     public Map<String, String> environment;
 
@@ -122,7 +120,6 @@ public class ServerConfiguration {
         memoryQuota = 10000;
         quota = 0;
         secrets = "/etc/fault/workspace";
-        certificate = null;
         environment = new HashMap<>();
     }
 

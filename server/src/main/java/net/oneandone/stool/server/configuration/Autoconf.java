@@ -45,7 +45,7 @@ public class Autoconf {
         if (tools != null) {
             dest.registryNamespace = "contargo.server.lan/mhm";
             dest.ldapUnit = "cisostages";
-            dest.certificate = home.getWorld().file(tools).join("stool/templates-5/selfsigned.sh"); // TODO
+            // TODO dest.certificate = home.getWorld().file(tools).join("stool/templates-5/selfsigned.sh");
             dest.admin = "michael.hartmeier@1und1.de";
             dest.mailHost = "mri.server.lan";
             // note: doesn't work on local machines, only for stages ...
