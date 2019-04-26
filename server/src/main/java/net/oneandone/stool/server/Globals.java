@@ -17,9 +17,12 @@ package net.oneandone.stool.server;
 
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Diff;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 /** Basically a server factory */
 public class Globals {
@@ -71,17 +74,96 @@ public class Globals {
     public Server server() throws IOException {
         Server server;
 
-        if (!home.exists()) {
-            throw new IOException("Stool home directory not found: " + home.getAbsolute()
-                     + "\nRun 'stool setup' to create it.");
-        }
+        setup(Main.versionString(world), home);
+
         server = Server.load(home, logRoot);
         server.checkVersion();
         return server;
     }
 
+
     //--
 
+    public void setup(String version, FileNode home) throws IOException {
+        String was;
+
+        home.checkDirectory();
+        if (home.list().isEmpty()) {
+            Server.LOGGER.info("initializing server home " + home);
+            initialize(home);
+        } else {
+            was = home.join("version").readString().trim();
+            if (was.equals(version)) {
+                Server.LOGGER.info("using server home: " + home);
+            } else {
+                Server.LOGGER.info("Updating server home " + was + " -> " + version + ": " + home);
+
+                if (!Server.majorMinor(was).equals(Server.majorMinor(version))) {
+                    throw new IOException("cannot update - migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
+                }
+                update(version, home);
+            }
+        }
+    }
+
+    private void initialize(FileNode home) throws IOException {
+        World world;
+
+        home.checkExists();
+        world = home.getWorld();
+        world.resource("files/home").copyDirectory(home);
+        for (String name : new String[]{"stages","certs"}) {
+            home.join(name).mkdir();
+        }
+        home.join("version").writeString(Main.versionString(world));
+    }
+
+    private static final List<String> CONFIG = Strings.toList();
+
+    private void update(String version, FileNode home) throws IOException {
+        String was;
+        FileNode fresh;
+        FileNode dest;
+        String path;
+        String left;
+        String right;
+        int count;
+
+        was = home.join("version").readString().trim();
+        if (!Server.majorMinor(was).equals(Server.majorMinor(version))) {
+            throw new IOException("cannot update - migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
+        }
+        fresh = home.getWorld().getTemp().createTempDirectory();
+        fresh.deleteDirectory();
+        initialize(fresh);
+        count = 0;
+        for (FileNode src : fresh.find("**/*")) {
+            if (!src.isFile()) {
+                continue;
+            }
+            path = src.getRelative(fresh);
+            if (CONFIG.contains(path)) {
+                continue;
+            }
+            dest = home.join(path);
+            left = src.readString();
+            right = dest.readString();
+            if (!left.equals(right)) {
+                Server.LOGGER.info("U " + path);
+                Server.LOGGER.info(Strings.indent(Diff.diff(right, left), "  "));
+                dest.writeString(left);
+                count++;
+            }
+        }
+        fresh.deleteTree();
+        Server.LOGGER.info("Done, " + count  + " file(s) updated.");
+    }
+
+
+    //--
+
+
+    // TODO: dead?
     public int handleException(String command, Throwable throwable) {
         // TODO: inline should not throw InvocationTargetException ...
         if (throwable instanceof InvocationTargetException) {

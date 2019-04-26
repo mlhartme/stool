@@ -16,11 +16,8 @@
 package net.oneandone.stool.server;
 
 import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
-import net.oneandone.sushi.util.Diff;
-import net.oneandone.sushi.util.Strings;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -126,76 +123,5 @@ public class Main {
         } catch (IOException e) {
             throw new IllegalStateException("cannot determine version", e);
         }
-    }
-
-    //--
-
-    public void setup(String version, FileNode home) throws IOException {
-        Server.LOGGER.info("Setup Stool Server " + version);
-        if (home.isDirectory()) {
-            update(version, home);
-        } else {
-            initialize(home);
-        }
-    }
-
-    private void initialize(FileNode home) throws IOException {
-        Server.LOGGER.info("Initializing " + home);
-        doInitialize(home);
-        Server.LOGGER.info("Done.");
-    }
-
-    private static final List<String> CONFIG = Strings.toList();
-
-    private void update(String version, FileNode home) throws IOException {
-        String was;
-        FileNode fresh;
-        FileNode dest;
-        String path;
-        String left;
-        String right;
-        int count;
-
-        was = home.join("version").readString().trim();
-        if (!Server.majorMinor(was).equals(Server.majorMinor(version))) {
-            throw new IOException("cannot update - migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
-        }
-        Server.LOGGER.info("Updating " + home);
-        fresh = home.getWorld().getTemp().createTempDirectory();
-        fresh.deleteDirectory();
-        doInitialize(fresh);
-        count = 0;
-        for (FileNode src : fresh.find("**/*")) {
-            if (!src.isFile()) {
-                continue;
-            }
-            path = src.getRelative(fresh);
-            if (CONFIG.contains(path)) {
-                continue;
-            }
-            dest = home.join(path);
-            left = src.readString();
-            right = dest.readString();
-            if (!left.equals(right)) {
-                Server.LOGGER.info("U " + path);
-                Server.LOGGER.info(Strings.indent(Diff.diff(right, left), "  "));
-                dest.writeString(left);
-                count++;
-            }
-        }
-        fresh.deleteTree();
-        Server.LOGGER.info("Done, " + count  + " file(s) updated.");
-    }
-
-    private void doInitialize(FileNode home) throws IOException {
-        World world;
-
-        home.checkExists();
-        world = home.getWorld();
-        world.resource("files/home").copyDirectory(home);
-        for (String name : new String[]{"stages","certs"}) {
-            home.join(name).mkdir();
-        }
-        home.join("version").writeString(Main.versionString(world));
     }
 }

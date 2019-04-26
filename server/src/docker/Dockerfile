@@ -5,7 +5,6 @@ ENV OPTS=
 
 COPY maven/*.jar /usr/local/bin/stool-server.jar
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends dnsutils && \
-    java -jar /usr/local/bin/stool-server.jar setup -batch '{"hostname" : "localhost" }'
+    apt-get install -y --no-install-recommends dnsutils
 
-CMD java $OPTS -jar /usr/local/bin/stool-server.jar run
+CMD java $OPTS -jar /usr/local/bin/stool-server.jar
