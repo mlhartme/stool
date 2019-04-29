@@ -32,7 +32,7 @@ public class Globals {
         if (homeOpt != null) {
             home = homeOpt;
         } else {
-            str = System.getenv("STOOL_CLIENT_HOME");
+            str = System.getenv("STOOL_HOME");
             if (str != null) {
                 home = world.file(str);
             } else {

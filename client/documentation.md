@@ -1134,42 +1134,29 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
 
 ## Directory Layout
 
-... of $STOOL_CLIENT_HOME (default is `~/.stool`)
+... of $STOOL_HOME (default is `~/.stool`)
 
-        |- version                (client version that created this directory)
-        |- servers                (list of Stool servers to talk to)
-        '- shell.inc
-        
-         
-... of $STOOL_SERVER_HOME (default is `~/.stool-server`)
+        |- version                   (client version that created this directory)
+        |- servers                   (list of Stool servers to talk to)
+        |- shell.inc
+        |- server.yml                (docker-comppose file to start local server)
+        '- server                    (empty if there's no local server)
+           |- version                (server version that created this directory)
+           |- config.json            (Stool configuration)
+           |- users.json             (only if authentication is enabled)
+           |- templates              (Docker templates; may be a symlink to a directory of your choice)
+           |- logs                   (Stool log files)
+           |  :
+           '- stages
+              |- name                (directory for the respective stage)
+              :  |- config.json      (stage configuration)
+                 '- logs
+                      |- app1        (log file of appsrunning stage)
+                          :
 
-        |- version                (server version that created this directory)
-        |- config.json            (Stool configuration)
-        |- users.json             (only if authentication is enabled)
-        |- templates              (Docker templates; may be a symlink to a directory of your choice)
-        |- logs                   (Stool log files)
-        |  :
-        '- stages
-           |- name                (directory for the respective stage)
-           :  |- config.json      (stage configuration)
-              '- logs
-                   |- app1        (log file of appsrunning stage)
-                       :
 ... of project directories
 
         :
         :  (normal project files)
         :
         '- .backstage             (file containing the attached stage)
-
-
-Normal project files for source stages are simply the respective SCM files, for artifact stages they are:
-
-     |- first-app
-     |   |- ROOT.war    (artifact was downloaded)
-     |   '– ROOT        (unpacked war, created by container)
-     :       :
-     |- second-app
-     :   |- ROOT.war
-         `- ROOT
-             :
