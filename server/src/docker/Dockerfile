@@ -10,7 +10,7 @@ ENV PORT_LAST=9999
 ENV BASE_MEMORY=400
 
 # host name of the docker host
-ENV HOSTNAME=localhost
+ENV HOSTNAME=walter.united.domain
 ENV ADMIN=
 ENV AUTO_REMOVE=-1
 ENV LDAP_URL=

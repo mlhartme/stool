@@ -451,7 +451,7 @@ public class Server {
 
         script = world.file("/var/lib/stool/cert.sh");
         if (script == null || !script.isFile()) {
-            throw new IOException("don't know how to generate certifcate: " + script);
+            throw new IOException("don't know how to generate certificate: " + script);
         }
         file = home.join("certs", certname);
         tmp = world.getTemp().createTempDirectory();
@@ -465,7 +465,7 @@ public class Server {
 
     public void validate() throws IOException {
         validateDocker();
-        validateDns();
+        // TODO: validateDns();
         LOGGER.info("server validation ok");
     }
 
