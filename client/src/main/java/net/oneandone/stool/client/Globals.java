@@ -39,14 +39,6 @@ public class Globals {
                 home = world.getHome().join(".stool");
             }
         }
-
-        if (!home.exists()) {
-            console.info.println("note: creating Stool standard configuration in " + home);
-            console.info.println("note: to enable stage indicators and bash completion add");
-            console.info.println("            . " + home.join("shell.inc").getAbsolute());
-            console.info.println("      to your bash profile (e.g. in ~/.bash_profile");
-            Home.create(home);
-        }
         return new Globals(console, world, home, UUID.randomUUID().toString(), command);
     }
 
@@ -64,6 +56,10 @@ public class Globals {
         this.invocation = invocation;
         this.command = command;
         this.wirelog = null;
+    }
+
+    public FileNode getHome() {
+        return home;
     }
 
     public void setWirelog(String wirelog) {

@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Reference;
@@ -39,6 +40,11 @@ public abstract class ClientCommand {
         this.globals = globals;
         this.world = globals.getWorld();
         this.console = globals.getConsole();
+
+        if (!globals.getHome().exists()) {
+            throw new ArgumentException("Stool home directory not found: " + globals.getHome().getAbsolute()
+                    + "\nRun 'stool setup' to create it.");
+        }
     }
 
     public void run() throws Exception {
