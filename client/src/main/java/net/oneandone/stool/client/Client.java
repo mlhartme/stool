@@ -99,6 +99,7 @@ public class Client {
         }
         return result;
     }
+
     //-- create, build, start, stop, remove
 
     public void create(String name, Map<String, String> config) throws IOException {
@@ -106,6 +107,7 @@ public class Client {
 
         node = node("stages/" + name);
         node = node.withParameters(config);
+        System.out.println("url: " + node.getUri());
         postEmpty(node, "");
     }
 

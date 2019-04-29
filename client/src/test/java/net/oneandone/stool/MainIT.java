@@ -15,20 +15,15 @@
  */
 package net.oneandone.stool;
 
-import net.oneandone.stool.client.Home;
-import net.oneandone.stool.client.ServerManager;
 import net.oneandone.stool.client.cli.Main;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
-import net.oneandone.sushi.util.Strings;
 import org.junit.After;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 
 import static org.junit.Assert.fail;
 
@@ -39,15 +34,14 @@ public class MainIT {
     private static final World WORLD;
     private static final FileNode PROJECT_ROOT;
     private static final FileNode IT_ROOT;
-    private static final String SERVER_CONTAINTER = "integration-server";
-
-    private static PrintWriter serverLog;
+    private static final FileNode HOME;
 
     static {
         try {
             WORLD = Main.world();
             PROJECT_ROOT = WORLD.guessProjectHome(MainIT.class);
             IT_ROOT = PROJECT_ROOT.join("target/it").mkdirOpt();
+            HOME = IT_ROOT.join("home");
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
@@ -57,39 +51,34 @@ public class MainIT {
     }
 
     @After
-    public void after() {
-        if (serverLog != null) {
-            try {
-                serverLog.println("stopping: " + IT_ROOT.exec("docker", "stop", SERVER_CONTAINTER));
-            } catch (IOException e) {
-                serverLog.println("stop failed:" + e);
-            }
-            try {
-                serverLog.println(IT_ROOT.exec("docker", "logs", SERVER_CONTAINTER));
-            } catch (IOException e) {
-                serverLog.println("cannot get logs: " + e.getMessage());
-            }
-            serverLog.close();
-            serverLog = null;
-        }
+    public void after() throws IOException {
+        server("logs", "--tail=all");
+        server("down");
     }
 
+    private final int port = 1300;
+
     @Test
-    public void turnaround() throws IOException {
+    public void turnaround() throws IOException, InterruptedException {
         FileNode project;
         String stage;
 
-        startServer();
-        setupClient();
 
         project = IT_ROOT.join("projects").mkdirsOpt().join("it");
         System.out.println(project.getParent().exec("git", "clone", "https://github.com/mlhartme/hellowar.git", project.getAbsolute()));
         System.out.println(project.exec("mvn", "clean", "package"));
         System.out.println("git");
 
+        stool("setup", "-batch", "PORT_FIRST=" + port, "PORT_LAST=" + (port + 20));
+
+        server("rm");
+        server("up", "-d");
+
+        Thread.sleep(10000); // TODO
+
         stage = "it@localhost";
 
-        stool("create", "-project", project.getAbsolute(), stage);
+        stool("create", "-e", "-project", project.getAbsolute(), stage);
         stool("status", "-stage", stage);
         stool("detach", "-project", project.getAbsolute());
         stool("attach", "-project", project.getAbsolute(), stage);
@@ -109,41 +98,16 @@ public class MainIT {
         project.deleteTree();
     }
 
-    private final int port = 1300;
-
-    private void setupClient() throws IOException {
-        FileNode home;
-        ServerManager m;
-
-        home = IT_ROOT.join("client-home").checkNotExists();
-        Home.create(home, Strings.toMap("PORT_FIRST", "1300", "PORT_LAST", "1320"));
-        m = new ServerManager(home.join("servers"), null, "foo", "bar");
-        m.add("localhost", "http://localhost:" + port + "/api");
-        m.save();
-    }
-
-    public void startServer() throws IOException {
-        FileNode home;
+    public void server(String ... cmd) throws IOException {
         Launcher server;
 
-        home = IT_ROOT.join("server-home").mkdir();
-        serverLog = new PrintWriter(IT_ROOT.join("server.log").newWriter());
-        try {
-            serverLog.println("remove previous container: " + IT_ROOT.exec("docker", "rm", SERVER_CONTAINTER));
-        } catch (IOException e) {
-            serverLog.println("no previous container to wipe: " + e.getMessage());
+        try (PrintWriter log = new PrintWriter(IT_ROOT.join("server.log").newAppender())) {
+            server = IT_ROOT.launcher("docker-compose", "-f", HOME.join("server.yml").getAbsolute(), "--no-ansi");
+            server.arg(cmd);
+            log.write(server.toString() + "\n");
+            server.exec(log);
         }
-        server = home.launcher("docker", "run", "-h", "localhost",
-                "-p" + port + ":" + port, "-v", "/var/run/docker.sock:/var/run/docker.sock",
-                "-v", home.getAbsolute() + ":" + "/var/lib/stool",
-                "--env", "PORT_FIRST=" + port, "--env", "PORT_LAST=" + (port + 19),
-                "--env", "SERVER_HOME=" + home.getAbsolute(),
-                "--name", SERVER_CONTAINTER, "-d",
-                "contargo.server.lan/cisoops-public/stool-server");
-        serverLog.write(server.toString() + "\n");
-        server.exec(serverLog);
     }
-
     private static int id = 0;
 
     private void stool(String... args) throws IOException {
@@ -153,7 +117,7 @@ public class MainIT {
         id++;
         command = command(args);
         System.out.print("  " + command);
-        result = Main.run(WORLD, IT_ROOT.join("client-home"), args);
+        result = Main.run(WORLD, HOME, args);
         if (result == 0) {
             System.out.println();
         } else {

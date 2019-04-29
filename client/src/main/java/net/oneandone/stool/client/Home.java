@@ -84,10 +84,12 @@ public class Home {
         StringBuilder builder;
         String serverHome;
         String cisoTools;
+        String port;
 
         builder = new StringBuilder();
         serverHome = serverDir().getAbsolute();
         cisoTools = System.getenv("CISOTOOLS_HOME");
+        port = port();
         if (cisoTools != null) {
             addIfNew("REGISTRY_NAMESPACE", "contargo.server.lan/mhm");
             addIfNew("LDAP_UNIT", "cisostages");
@@ -99,7 +101,7 @@ public class Home {
         builder.append("  stool-server:\n");
         builder.append("    image: \"contargo.server.lan/cisoops-public/stool-server\"\n");
         builder.append("    ports:\n");
-        builder.append("      - \"8000:8000\"\n");
+        builder.append("      - \"" + port + ":" + port + "\"\n");
         builder.append("    environment:\n");
         builder.append("      - \"SERVER_HOME=" + serverHome + "\"\n");
         builder.append("      - \"HOSTNAME=" + hostname() + "\"\n");
