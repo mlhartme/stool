@@ -69,7 +69,7 @@ public class Setup {
             console.pressReturn();
         }
         console.info.println("Creating " + home);
-        Home.create(home);
+        Home.create(home, opts);
         console.info.println("Done.");
         console.info.println("Make sure to add " + home.join("shell.inc") + " to your shell profile (e.g. ~/.bash_profile) and restart your terminal.");
         console.info.println("Note: to start a local server: install Docker and run");

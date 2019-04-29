@@ -22,6 +22,7 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Failure;
 import net.oneandone.sushi.launcher.Launcher;
+import net.oneandone.sushi.util.Strings;
 import org.junit.After;
 import org.junit.Test;
 
@@ -115,7 +116,7 @@ public class MainIT {
         ServerManager m;
 
         home = IT_ROOT.join("client-home").checkNotExists();
-        Home.create(home);
+        Home.create(home, Strings.toMap("PORT_FIRST", "1300", "PORT_LAST", "1320"));
         m = new ServerManager(home.join("servers"), null, "foo", "bar");
         m.add("localhost", "http://localhost:" + port + "/api");
         m.save();

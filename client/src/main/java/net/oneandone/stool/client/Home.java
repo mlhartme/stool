@@ -30,11 +30,12 @@ import java.util.Map;
  * etc stuff (config.json) and log files.
  */
 public class Home {
-    public static void create(FileNode home) throws IOException {
+    public static void create(FileNode home, Map<String, String> opts) throws IOException {
         Home obj;
 
         home.checkNotExists();
         obj = new Home(home);
+        obj.addOpts(opts);
         obj.create();
     }
 
@@ -58,13 +59,21 @@ public class Home {
 
     public void create() throws IOException {
         World world;
+        ServerManager manager;
 
         dir.mkdir();
         world = dir.getWorld();
         world.resource("files/home").copyDirectory(dir);
+        manager = new ServerManager(dir.join("servers"), null, "", "");
+        manager.add("localhost", "http://localhost:" + port() + "/api");
+        manager.save();
         serverDir().mkdir();
         dir.join("server.yml").writeString(serverYml());
         versionFile().writeString(Main.versionString(world));
+    }
+
+    private String port() {
+        return opts.getOrDefault("PORT_FIRST", "8000");
     }
 
     public String version() throws IOException {
