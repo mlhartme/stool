@@ -20,6 +20,10 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Stool home directory. In unix file system hierarchy this comes close to the lib directory - although it contains
@@ -35,9 +39,21 @@ public class Home {
     }
 
     private final FileNode dir;
+    private final Map<String, String> opts;
 
     public Home(FileNode dir) {
         this.dir = dir;
+        this.opts = new HashMap<>();
+    }
+
+    public void addOpts(Map<String, String> args) {
+        opts.putAll(args);
+    }
+
+    public void addIfNew(String name, String value) {
+        if (!opts.containsKey(name)) {
+            opts.put(name, value);
+        }
     }
 
     public void create() throws IOException {
@@ -46,11 +62,57 @@ public class Home {
         dir.mkdir();
         world = dir.getWorld();
         world.resource("files/home").copyDirectory(dir);
+        serverDir().mkdir();
+        dir.join("server.yml").writeString(serverYml());
         versionFile().writeString(Main.versionString(world));
     }
 
     public String version() throws IOException {
         return versionFile().readString().trim();
+    }
+
+    public String serverYml() throws IOException {
+        StringBuilder builder;
+        String serverHome;
+        String cisoTools;
+
+        builder = new StringBuilder();
+        serverHome = serverDir().getAbsolute();
+        cisoTools = System.getenv("CISOTOOLS_HOME");
+        if (cisoTools != null) {
+            addIfNew("REGISTRY_NAMESPACE", "contargo.server.lan/mhm");
+            addIfNew("LDAP_UNIT", "cisostages");
+            addIfNew("ADMIN", "michael.hartmeier@ionos.com");
+            addIfNew("MAIL_HOST", "mri.server.lan");
+        }
+        builder.append("version: '3.7'\n");
+        builder.append("services:\n");
+        builder.append("  stool-server:\n");
+        builder.append("    image: \"contargo.server.lan/cisoops-public/stool-server\"\n");
+        builder.append("    ports:\n");
+        builder.append("      - \"8000:8000\"\n");
+        builder.append("    environment:\n");
+        builder.append("      - \"SERVER_HOME=" + serverHome + "\"\n");
+        builder.append("      - \"HOSTNAME=" + hostname() + "\"\n");
+
+        for (Map.Entry<String, String> entry : opts.entrySet()) {
+            builder.append("      - \"" + entry.getKey() + "=" + entry.getValue() + "\"\n");
+        }
+        builder.append("    volumes:\n");
+        builder.append("      - \"/var/run/docker.sock:/var/run/docker.sock\"\n");
+        builder.append("      - \"" + serverHome + ":/var/lib/stool\"\n");
+        if (cisoTools != null) {
+            builder.append("      - \"" + dir.getWorld().file(cisoTools).join("stool/templates-5").checkDirectory().getAbsolute() + ":/var/lib/stool/templates\"\n");
+        }
+        return builder.toString();
+    }
+
+    private static String hostname() throws UnknownHostException {
+        return InetAddress.getLocalHost().getCanonicalHostName();
+    }
+
+    public FileNode serverDir() {
+        return dir.join("server");
     }
 
     public FileNode versionFile() {

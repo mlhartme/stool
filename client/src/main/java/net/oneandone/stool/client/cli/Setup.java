@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.client.cli;
 
+import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Home;
@@ -22,6 +23,9 @@ import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class Setup {
     private final World world;
@@ -29,13 +33,24 @@ public class Setup {
     private final Console console;
     private final String version;
     private final boolean batch;
+    private final Map<String, String> opts;
 
-    public Setup(Globals globals, boolean batch) {
+    public Setup(Globals globals, boolean batch, List<String> opts) {
+        int idx;
+
         this.world = globals.getWorld();
         this.home = globals.getHome();
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
         this.batch = batch;
+        this.opts = new HashMap<>();
+        for (String opt : opts) {
+            idx = opt.indexOf('=');
+            if (idx == -1) {
+                throw new ArgumentException("invalid option: " + opt);
+            }
+            this.opts.put(opt.substring(0, idx), opt.substring(idx + 1));
+        }
     }
 
     public void run() throws IOException {
@@ -56,7 +71,9 @@ public class Setup {
         console.info.println("Creating " + home);
         Home.create(home);
         console.info.println("Done.");
-        console.info.println("Make sure to add " + home.join("shell.inc") + " to your bash profile");
+        console.info.println("Make sure to add " + home.join("shell.inc") + " to your shell profile (e.g. ~/.bash_profile) and restart your terminal.");
+        console.info.println("Note: to start a local server: install Docker and run");
+        console.info.println("    docker-compose -f " + home.join("server.yml").getAbsolute() + " up");
     }
 
     private void update() throws IOException {

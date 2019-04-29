@@ -109,9 +109,11 @@ public class Server {
         home.checkExists();
         world = home.getWorld();
         world.resource("files/home").copyDirectory(home);
+        home.join("cert.sh").setPermissions("rwx--x--x"); // ugly special case ...
         for (String name : new String[]{"stages","certs"}) {
             home.join(name).mkdir();
         }
+        home.join("templates").mkdirOpt();
         home.join("version").writeString(Main.versionString(world));
     }
 
