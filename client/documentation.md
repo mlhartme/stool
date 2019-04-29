@@ -1160,3 +1160,9 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
         :  (normal project files)
         :
         '- .backstage             (file containing the attached stage)
+
+
+### Building Stool
+
+
+You need Java 8 and Docker to build Stool

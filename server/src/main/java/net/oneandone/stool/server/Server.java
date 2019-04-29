@@ -479,44 +479,4 @@ public class Server {
             throw e;
         }
     }
-
-    private void validateDns() throws IOException {
-        int port;
-        String ip;
-        String subDomain;
-        ServerSocket socket;
-
-        try {
-            ip = digIp(configuration.hostname);
-        } catch (Failure e) {
-            LOGGER.error("cannot validate dns entries: " + e.getMessage(), e);
-            throw e;
-        }
-        if (ip.isEmpty()) {
-            LOGGER.error("missing dns entry for " + configuration.hostname);
-            throw new IOException("missing dns entry for " + configuration.hostname);
-        }
-
-        // make sure that hostname points to this machine. Help to detect actually adding the name of a different machine
-        port = pool().temp();
-        try {
-            socket = new ServerSocket(port,50, InetAddress.getByName(configuration.hostname));
-            socket.close();
-        } catch (IOException e) {
-            LOGGER.error("cannot open socket on machine " + configuration.hostname + ", port " + port + ". Check the configured hostname.");
-            throw e;
-        }
-
-        subDomain = digIp("foo." + configuration.hostname);
-        if (subDomain.isEmpty() || !subDomain.endsWith(ip)) {
-            LOGGER.warn("missing dns * entry for " + configuration.hostname + " (" + subDomain + ")");
-        }
-    }
-
-    private String digIp(String name) throws Failure {
-        Launcher dig;
-
-        dig = new Launcher(world.getWorking(), "dig", "+short", name);
-        return dig.exec().trim();
-    }
 }
