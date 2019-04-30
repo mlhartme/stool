@@ -114,14 +114,16 @@ public class Setup {
     public String serverYml() throws IOException {
         StringBuilder builder;
         String serverHome;
+        String dockerHost;
         String cisoTools;
         String port;
 
         builder = new StringBuilder();
         serverHome = serverDir().getAbsolute();
+        dockerHost = hostname();
         cisoTools = System.getenv("CISOTOOLS_HOME");
         port = port();
-        addIfNew("VHOSTS", Boolean.toString(hasDnsStar(hostname())));
+        addIfNew("VHOSTS", Boolean.toString(hasDnsStar(dockerHost)));
         if (cisoTools != null) {
             addIfNew("REGISTRY_NAMESPACE", "contargo.server.lan/mhm");
             addIfNew("LDAP_UNIT", "cisostages");
@@ -136,7 +138,7 @@ public class Setup {
         builder.append("      - \"" + port + ":" + port + "\"\n");
         builder.append("    environment:\n");
         builder.append("      - \"SERVER_HOME=" + serverHome + "\"\n");
-        builder.append("      - \"HOSTNAME=" + hostname() + "\"\n");
+        builder.append("      - \"DOCKER_HOST=" + dockerHost + "\"\n");
 
         for (Map.Entry<String, String> entry : opts.entrySet()) {
             builder.append("      - \"" + entry.getKey() + "=" + entry.getValue() + "\"\n");

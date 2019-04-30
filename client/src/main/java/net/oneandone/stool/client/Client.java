@@ -107,7 +107,6 @@ public class Client {
 
         node = node("stages/" + name);
         node = node.withParameters(config);
-        System.out.println("url: " + node.getUri());
         postEmpty(node, "");
     }
 

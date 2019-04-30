@@ -466,7 +466,7 @@ public class Stage {
             labels.put(CONTAINER_LABEL_APP, image.app);
             labels.put(CONTAINER_LABEL_IMAGE, image.tag);
             labels.put(CONTAINER_LABEL_STAGE, name);
-            container = engine.containerCreate(image.tag,  getName() + "." + server.configuration.hostname,
+            container = engine.containerCreate(image.tag,  getName() + "." + server.configuration.dockerHost,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * image.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts));
             Server.LOGGER.debug("created container " + container);
@@ -558,8 +558,8 @@ public class Stage {
         result = new HashMap<>();
         result.put(hostLogRoot, "/var/log/stool");
         if (image.ports.https != -1) {
-            result.put(server.certificate(server.configuration.vhosts ? image.app + "." + getName() + "." + server.configuration.hostname
-                    : server.configuration.hostname), "/usr/local/tomcat/conf/tomcat.p12");
+            result.put(server.certificate(server.configuration.vhosts ? image.app + "." + getName() + "." + server.configuration.dockerHost
+                    : server.configuration.dockerHost), "/usr/local/tomcat/conf/tomcat.p12");
         }
         missing = new ArrayList<>();
         for (String project : image.faultProjects) { // TODO: authorization
@@ -721,7 +721,7 @@ public class Stage {
         String url;
         List<String> result;
 
-        hostname = server.configuration.hostname;
+        hostname = server.configuration.dockerHost;
         if (server.configuration.vhosts) {
             hostname = image.app + "." + getName() + "." + hostname;
         }
@@ -917,7 +917,7 @@ public class Stage {
 
         // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
         try {
-            url = new JMXServiceURL("service:jmx:jmxmp://" + server.configuration.hostname + ":" + ports.jmxmp);
+            url = new JMXServiceURL("service:jmx:jmxmp://" + server.configuration.dockerHost + ":" + ports.jmxmp);
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
         }

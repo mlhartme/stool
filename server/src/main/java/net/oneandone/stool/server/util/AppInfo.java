@@ -68,7 +68,7 @@ public class AppInfo {
                 String url;
 
                 result.add("jmx port:  " + ports.jmxmp);
-                url = stage.server.configuration.hostname + ":" + ports.jmxmp;
+                url = stage.server.configuration.dockerHost + ":" + ports.jmxmp;
                 result.add("                 jconsole " + url);
                 result.add("                 jvisualvm --openjmx " + url);
             }
@@ -108,7 +108,7 @@ public class AppInfo {
 
         // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
         try {
-            url = new JMXServiceURL("service:jmx:jmxmp://" + stage.server.configuration.hostname + ":" + stage.loadPorts().get(app).jmxmp);
+            url = new JMXServiceURL("service:jmx:jmxmp://" + stage.server.configuration.dockerHost + ":" + stage.loadPorts().get(app).jmxmp);
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
         }

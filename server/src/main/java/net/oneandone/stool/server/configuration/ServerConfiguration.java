@@ -60,7 +60,7 @@ public class ServerConfiguration {
     /**
      * used for output and application urls
      */
-    public String hostname;
+    public String dockerHost;
 
     /**
      * Use vhosts
@@ -107,7 +107,7 @@ public class ServerConfiguration {
         registryNamespace = "main";
         portFirst = 9000;
         portLast = 9999;
-        hostname = "localhost";
+        dockerHost = "localhost";
         admin = "";
         autoRemove = -1;
         ldapUrl = "";
@@ -169,7 +169,7 @@ public class ServerConfiguration {
     }
 
     public void verfiyHostname() throws UnknownHostException {
-        InetAddress.getByName(hostname);
+        InetAddress.getByName(dockerHost);
     }
 
     public boolean auth() {

@@ -78,7 +78,7 @@ public class Validation {
         String email;
         String body;
 
-        hostname = server.configuration.hostname;
+        hostname = server.configuration.dockerHost;
         mailer = server.configuration.mailer();
         for (String user : users) {
             body = Separator.RAW_LINE.join(report);
