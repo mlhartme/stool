@@ -176,7 +176,7 @@ public class Engine implements AutoCloseable {
             id = element.getAsJsonObject().get("Id").getAsString();
             id = Strings.removeLeft(id, "sha256:");
             repoTags = element.getAsJsonObject().get("RepoTags");
-            tags = repoTags == null ? new ArrayList<>() : stringList(repoTags.getAsJsonArray());
+            tags = repoTags.isJsonNull() ? new ArrayList<>() : stringList(repoTags.getAsJsonArray());
             result.put(id, new ImageListInfo(id, tags));
         }
         return result;
