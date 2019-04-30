@@ -606,12 +606,20 @@ public class Stage {
 
     private Properties properties(FileNode war) throws IOException {
         Node<?> node;
+        Properties all;
+        Properties result;
 
-        node = war.openZip().join("WEB-INF/classes/META-INF/stool.properties");
-        if (!node.exists()) {
-            return new Properties();
+        node = war.openZip().join(server.configuration.appPropertiesFile);
+        result = new Properties();
+        if (node.exists()) {
+            all = node.readProperties();
+            for (String name : all.stringPropertyNames()) {
+                if (name.startsWith(server.configuration.appPropertiesPrefix)) {
+                    result.setProperty(name, all.getProperty(name));
+                }
+            }
         }
-        return node.readProperties();
+        return result;
     }
 
     private FileNode template(Properties appProperies, String dflt) throws IOException {
