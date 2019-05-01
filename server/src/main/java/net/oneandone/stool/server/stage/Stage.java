@@ -396,7 +396,7 @@ public class Stage {
         Map<String, String> labels;
         Properties appProperties;
         FileNode template;
-        Map<String, BuildArgument> env;
+        Map<String, BuildArgument> defaults;
         Map<String, String> buildArgs;
         StringWriter output;
         String str;
@@ -409,8 +409,8 @@ public class Stage {
         template = template(appProperties, explicitArguments);
         app = app(appProperties, explicitArguments);
         tag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
-        env = BuildArgument.scan(template.join("Dockerfile"));
-        buildArgs = buildArgs(env, appProperties, explicitArguments);
+        defaults = BuildArgument.scan(template.join("Dockerfile"));
+        buildArgs = buildArgs(defaults, appProperties, explicitArguments);
         context = dockerContext(app, war, template);
         labels = new HashMap<>();
         labels.put(IMAGE_LABEL_COMMENT, comment);
@@ -612,14 +612,16 @@ public class Stage {
         Node<?> node;
         Properties all;
         Properties result;
+        String prefix;
 
+        prefix = server.configuration.appPropertiesPrefix;
         node = war.openZip().join(server.configuration.appPropertiesFile);
         result = new Properties();
         if (node.exists()) {
             all = node.readProperties();
             for (String name : all.stringPropertyNames()) {
-                if (name.startsWith(server.configuration.appPropertiesPrefix)) {
-                    result.setProperty(name, all.getProperty(name));
+                if (name.startsWith(prefix)) {
+                    result.setProperty(name.substring(prefix.length()), all.getProperty(name));
                 }
             }
         }
