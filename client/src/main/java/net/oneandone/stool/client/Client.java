@@ -130,7 +130,7 @@ public class Client {
             obj = postJson(node, new Body(null, null, war.size(), src, false)).getAsJsonObject();
         }
         error = obj.get("error");
-        return new BuildResult(obj.get("app").getAsString(), obj.get("tag").getAsString(), error == null ? null : error.getAsString(), obj.get("output").getAsString());
+        return new BuildResult(obj.get("output").getAsString(), error == null ? null : error.getAsString(), obj.get("app").getAsString(), obj.get("tag").getAsString());
     }
 
     public List<String> start(String stage, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {

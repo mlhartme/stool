@@ -373,11 +373,11 @@ public class Stage {
     }
 
     public static class BuildResult {
+        public final String output;
         public final String app;
         public final String tag;
-        public final String output;
 
-        public BuildResult(String app, String tag, String output) {
+        public BuildResult(String output, String app, String tag) {
             this.app = app;
             this.tag = tag;
             this.output = output;
@@ -431,7 +431,7 @@ public class Stage {
         str = output.toString();
         Server.LOGGER.debug("successfully built image: " + image);
         Server.LOGGER.debug(str);
-        return new BuildResult(app, tag, str);
+        return new BuildResult(str, app, tag);
     }
 
     /** @return apps actually started */
