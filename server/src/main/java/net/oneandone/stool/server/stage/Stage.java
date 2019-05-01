@@ -387,7 +387,7 @@ public class Stage {
     /** @param keep 0 to keep all */
     public BuildResult build(FileNode war, String comment, String origin,
                         String createdBy, String createdOn, boolean noCache, int keep,
-                        Map<String, String> arguments) throws Exception {
+                        Map<String, String> explicitArguments) throws Exception {
         Engine engine;
         String image;
         String app;
@@ -406,11 +406,11 @@ public class Stage {
             wipeOldImages(engine,keep - 1);
         }
         appProperties = properties(war);
-        app = app(appProperties);
-        template = template(appProperties);
+        template = template(appProperties, explicitArguments);
+        app = app(appProperties, explicitArguments);
         tag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
         env = BuildArgument.scan(template.join("Dockerfile"));
-        buildArgs = buildArgs(env, appProperties, arguments);
+        buildArgs = buildArgs(env, appProperties, explicitArguments);
         context = dockerContext(app, war, template);
         labels = new HashMap<>();
         labels.put(IMAGE_LABEL_COMMENT, comment);
@@ -626,19 +626,24 @@ public class Stage {
         return result;
     }
 
-    private FileNode template(Properties appProperies) throws IOException {
-        return server.templates().join(eat(appProperies, "_template", "war")).checkDirectory();
+    private FileNode template(Properties appProperies, Map<String, String> explicit) throws IOException {
+        return server.templates().join(eat(appProperies, explicit,"_template", "war")).checkDirectory();
     }
 
-    private String app(Properties appProperties) {
-        return eat(appProperties, "_app", "app");
+    private String app(Properties appProperties, Map<String, String> explitit) {
+        return eat(appProperties, explitit,"_app", "app");
     }
 
-    private String eat(Properties appProperties, String key, String dflt) {
-        Object value;
+    private String eat(Properties appProperties, Map<String, String> explicit, String key, String dflt) {
+        Object appValue;
+        String explicitValue;
 
-        value = appProperties.remove(key);
-        return value == null ? dflt : value.toString();
+        explicitValue = explicit.remove(key);
+        appValue = appProperties.remove(key);
+        if (explicitValue != null) {
+            return explicitValue;
+        }
+        return appValue == null ? dflt : appValue.toString();
     }
 
     private Map<String, String> buildArgs(Map<String, BuildArgument> defaults, Properties appProperties, Map<String, String> explicit) {
@@ -646,8 +651,6 @@ public class Stage {
         String name;
 
         result = new HashMap<>();
-        result.put("_app", "todo");
-        result.put("_template", "todo");
         for (BuildArgument arg : defaults.values()) {
             result.put(arg.name, arg.dflt);
         }
