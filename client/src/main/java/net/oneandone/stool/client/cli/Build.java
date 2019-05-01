@@ -36,7 +36,7 @@ public class Build extends ProjectCommand {
     private final int keep;
     private final boolean restart;
     private final String comment;
-    private final Map<String, FileNode> explicitWars;
+    private final List<FileNode> explicitWars;
     private final Map<String, String> arguments;
 
     public Build(Globals globals, FileNode project, boolean noCache, int keep, boolean restart, String comment, List<String> warsAndArgs) throws IOException {
@@ -49,38 +49,22 @@ public class Build extends ProjectCommand {
         this.arguments = argument(warsAndArgs);
     }
 
-    private static Map<String, FileNode> eatWars(World world, List<String> wars) throws IOException {
-        Map<String, FileNode> result;
+    private static List<FileNode> eatWars(World world, List<String> wars) throws IOException {
+        List<FileNode> result;
         String path;
-        int idx;
         FileNode war;
-        String name;
 
-        result = new HashMap<>();
+        result = new ArrayList<>();
         while (!wars.isEmpty()) {
             if (wars.get(0).contains("=")) {
                 break;
             }
             path = wars.remove(0);
-            idx = path.indexOf(':');
-            if (idx == -1) {
-                war = world.file(path);
-                name = name(war.getParent());
-            } else {
-                war = world.file(path.substring(idx + 1));
-                name = path.substring(0, idx);
-            }
+            war = world.file(path);
             war.checkFile();
-            result.put(name, war);
+            result.add(war);
         }
         return result;
-    }
-
-    private static String name(FileNode node) {
-        while (node.getName().equalsIgnoreCase("target")) {
-            node = node.getParent();
-        }
-        return node.getName();
     }
 
     private static Map<String, String> argument(List<String> args) {
@@ -102,7 +86,7 @@ public class Build extends ProjectCommand {
     public void doRun(FileNode projectDirectory) throws Exception {
         Project project;
         Reference reference;
-        Map<String, FileNode> wars;
+        List<FileNode> wars;
         BuildResult result;
 
         project = Project.lookup(projectDirectory);
@@ -117,7 +101,7 @@ public class Build extends ProjectCommand {
         if (reference == null) {
             throw new IOException("no stage attached to " + projectDirectory);
         }
-        for (FileNode war : wars.values()) {
+        for (FileNode war : wars) {
             console.info.println("building image for " + war);
             result = reference.client.build(reference.stage, war, comment, project.getOrigin(),
                     createdBy(), createdOn(), noCache, keep, arguments);

@@ -22,9 +22,8 @@ import net.oneandone.sushi.launcher.Launcher;
 import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class Project {
     public static Project create(FileNode project, Reference reference) throws IOException {
@@ -139,7 +138,7 @@ public class Project {
 
     //--
 
-    protected void addWars(FileNode directory, Map<String, FileNode> result) throws IOException {
+    protected void addWars(FileNode directory, List<FileNode> result) throws IOException {
         List<FileNode> files;
         List<FileNode> wars;
 
@@ -154,7 +153,7 @@ public class Project {
                 // do nothing
                 break;
             case 1:
-                result.put(directory.getName(), wars.get(0));
+                result.add(wars.get(0));
                 break;
             default:
                 throw new IOException(directory + ": wars ambiguous: " + wars);
@@ -178,11 +177,11 @@ public class Project {
         return false;
     }
 
-    private Map<String, FileNode> lazyWars;
+    private List<FileNode> lazyWars;
 
-    public Map<String, FileNode> wars() throws IOException {
+    public List<FileNode> wars() throws IOException {
         if (lazyWars == null) {
-            lazyWars = new HashMap<>();
+            lazyWars = new ArrayList<>();
             addWars(project, lazyWars);
         }
         return lazyWars;
