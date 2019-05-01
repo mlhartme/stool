@@ -117,9 +117,9 @@ public class Build extends ProjectCommand {
         if (reference == null) {
             throw new IOException("no stage attached to " + projectDirectory);
         }
-        for (Map.Entry<String, FileNode> entry : wars.entrySet()) {
-            console.info.println(entry.getKey() + ": building image for " + entry.getValue());
-            result = reference.client.build(reference.stage, entry.getKey(), entry.getValue(), comment, project.getOrigin(),
+        for (FileNode war : wars.values()) {
+            console.info.println("building image for " + war);
+            result = reference.client.build(reference.stage, war, comment, project.getOrigin(),
                     createdBy(), createdOn(), noCache, keep, arguments);
             if (result.error != null) {
                 console.info.println("build failed: " + result.error);

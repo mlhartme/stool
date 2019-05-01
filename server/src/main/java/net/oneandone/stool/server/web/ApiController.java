@@ -115,7 +115,7 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/build")
-    public String build(@PathVariable("stage") String stage, @RequestParam("app") String app,
+    public String build(@PathVariable("stage") String stage,
                         @RequestParam("comment") String comment,
                         @RequestParam("origin") String origin, @RequestParam("created-by") String createdBy,
                         @RequestParam("created-on") String createdOn, @RequestParam("no-cache") boolean noCache,
@@ -129,19 +129,20 @@ public class ApiController {
         war = server.world.getTemp().createTempFile();
         war.copyFileFrom(body);
         try {
-            result = server.load(stage).build(app, war, comment, origin, createdBy, createdOn, noCache, keep, arguments);
-            return buildResult(result.tag,null, result.output).toString();
+            result = server.load(stage).build(war, comment, origin, createdBy, createdOn, noCache, keep, arguments);
+            return buildResult(result.app, result.tag,null, result.output).toString();
         } catch (BuildError e) {
-            return buildResult(e.tag, e.error, e.output).toString();
+            return buildResult("someapp", e.tag, e.error, e.output).toString();
         } finally {
             war.deleteFile();
         }
     }
 
-    private JsonObject buildResult(String tag, String error, String output) {
+    private JsonObject buildResult(String app, String tag, String error, String output) {
         JsonObject result;
 
         result = new JsonObject();
+        result.add("app", new JsonPrimitive(app));
         result.add("tag", new JsonPrimitive(tag));
         if (error != null) {
             result.add("error", new JsonPrimitive(error));

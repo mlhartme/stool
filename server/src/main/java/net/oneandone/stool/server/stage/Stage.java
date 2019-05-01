@@ -373,21 +373,24 @@ public class Stage {
     }
 
     public static class BuildResult {
+        public final String app;
         public final String tag;
         public final String output;
 
-        public BuildResult(String tag, String output) {
+        public BuildResult(String app, String tag, String output) {
+            this.app = app;
             this.tag = tag;
             this.output = output;
         }
     }
 
     /** @param keep 0 to keep all */
-    public BuildResult build(String app, FileNode war, String comment, String origin,
+    public BuildResult build(FileNode war, String comment, String origin,
                         String createdBy, String createdOn, boolean noCache, int keep,
                         Map<String, String> arguments) throws Exception {
         Engine engine;
         String image;
+        String app;
         String tag;
         FileNode context;
         Map<String, String> labels;
@@ -402,9 +405,10 @@ public class Stage {
         if (keep > 0) {
             wipeOldImages(engine,keep - 1);
         }
-        tag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
         appProperties = properties(war);
-        template = template(appProperties, "war");
+        app = app(appProperties);
+        template = template(appProperties);
+        tag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
         env = BuildArgument.scan(template.join("Dockerfile"));
         buildArgs = buildArgs(env, appProperties, arguments);
         context = dockerContext(app, war, template);
@@ -427,7 +431,7 @@ public class Stage {
         str = output.toString();
         Server.LOGGER.debug("successfully built image: " + image);
         Server.LOGGER.debug(str);
-        return new BuildResult(tag, str);
+        return new BuildResult(app, tag, str);
     }
 
     /** @return apps actually started */
@@ -622,14 +626,19 @@ public class Stage {
         return result;
     }
 
-    private FileNode template(Properties appProperies, String dflt) throws IOException {
-        Object template;
+    private FileNode template(Properties appProperies) throws IOException {
+        return server.templates().join(eat(appProperies, "_template", "war")).checkDirectory();
+    }
 
-        template = appProperies.remove("template");
-        if (template == null) {
-            template = dflt;
-        }
-        return server.templates().join(template.toString()).checkDirectory();
+    private String app(Properties appProperties) {
+        return eat(appProperties, "_app", "app");
+    }
+
+    private String eat(Properties appProperties, String key, String dflt) {
+        Object value;
+
+        value = appProperties.remove(key);
+        return value == null ? dflt : value.toString();
     }
 
     private Map<String, String> buildArgs(Map<String, BuildArgument> environment, Properties appProperties, Map<String, String> explicit) {

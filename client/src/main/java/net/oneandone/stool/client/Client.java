@@ -110,7 +110,7 @@ public class Client {
         postEmpty(node, "");
     }
 
-    public BuildResult build(String stage, String app, FileNode war, String comment,
+    public BuildResult build(String stage, FileNode war, String comment,
                              String origin, String createdBy, String createdOn, boolean noCache, int keep,
                              Map<String, String> arguments) throws Exception {
         HttpNode node;
@@ -118,7 +118,6 @@ public class Client {
         JsonElement error;
 
         node = node(stage, "build");
-        node = node.withParameter("app", app);
         node = node.withParameter("war", war.getAbsolute());
         node = node.withParameter("comment", comment);
         node = node.withParameter("origin", origin);
@@ -131,7 +130,7 @@ public class Client {
             obj = postJson(node, new Body(null, null, war.size(), src, false)).getAsJsonObject();
         }
         error = obj.get("error");
-        return new BuildResult(obj.get("tag").getAsString(), error == null ? null : error.getAsString(), obj.get("output").getAsString());
+        return new BuildResult(obj.get("app").getAsString(), obj.get("tag").getAsString(), error == null ? null : error.getAsString(), obj.get("output").getAsString());
     }
 
     public List<String> start(String stage, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {
