@@ -641,15 +641,15 @@ public class Stage {
         return value == null ? dflt : value.toString();
     }
 
-    private Map<String, String> buildArgs(Map<String, BuildArgument> environment, Properties appProperties, Map<String, String> explicit) {
+    private Map<String, String> buildArgs(Map<String, BuildArgument> defaults, Properties appProperties, Map<String, String> explicit) {
         Map<String, String> result;
         String name;
 
         result = new HashMap<>();
         result.put("_app", "todo");
         result.put("_template", "todo");
-        for (BuildArgument env : environment.values()) {
-            result.put(env.name, env.dflt);
+        for (BuildArgument arg : defaults.values()) {
+            result.put(arg.name, arg.dflt);
         }
         for (Map.Entry<Object, Object> entry : appProperties.entrySet()) {
             name = entry.getKey().toString();
