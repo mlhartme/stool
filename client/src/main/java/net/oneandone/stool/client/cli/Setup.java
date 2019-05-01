@@ -118,12 +118,14 @@ public class Setup {
         String dockerHost;
         String cisoTools;
         String port;
+        String portNext;
 
         builder = new StringBuilder();
         serverHome = serverDir().getAbsolute();
         dockerHost = hostname();
         cisoTools = System.getenv("CISOTOOLS_HOME");
         port = port();
+        portNext = Integer.toString(Integer.parseInt(port) + 1);
         addIfNew("VHOSTS", Boolean.toString(hasDnsStar(dockerHost)));
         if (cisoTools != null) {
             addIfNew("REGISTRY_NAMESPACE", "contargo.server.lan/mhm");
@@ -134,21 +136,23 @@ public class Setup {
         builder.append("version: '3.7'\n");
         builder.append("services:\n");
         builder.append("  stool-server:\n");
-        builder.append("    image: \"contargo.server.lan/cisoops-public/stool-server\"\n");
+        builder.append("    image: contargo.server.lan/cisoops-public/stool-server\n");
         builder.append("    ports:\n");
-        builder.append("      - \"" + port + ":" + port + "\"\n");
+        builder.append("      - " + port + ":" + port + "\n");
+        builder.append("      - " + portNext + ":" + portNext + "\n");
         builder.append("    environment:\n");
-        builder.append("      - \"SERVER_HOME=" + serverHome + "\"\n");
-        builder.append("      - \"DOCKER_HOST=" + dockerHost + "\"\n");
+        builder.append("      - SERVER_HOME=" + serverHome + "\n");
+        builder.append("      - DOCKER_HOST=" + dockerHost + "\n");
+        builder.append("      - OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=" + portNext + "\n");
 
         for (Map.Entry<String, String> entry : opts.entrySet()) {
-            builder.append("      - \"" + entry.getKey() + "=" + entry.getValue() + "\"\n");
+            builder.append("      - " + entry.getKey() + "=" + entry.getValue() + "\n");
         }
         builder.append("    volumes:\n");
-        builder.append("      - \"/var/run/docker.sock:/var/run/docker.sock\"\n");
-        builder.append("      - \"" + serverHome + ":/var/lib/stool\"\n");
+        builder.append("      - /var/run/docker.sock:/var/run/docker.sock\n");
+        builder.append("      - " + serverHome + ":/var/lib/stool\n");
         if (cisoTools != null) {
-            builder.append("      - \"" + world.file(cisoTools).join("stool/templates-5").checkDirectory().getAbsolute() + ":/var/lib/stool/templates\"\n");
+            builder.append("      - " + world.file(cisoTools).join("stool/templates-5").checkDirectory().getAbsolute() + ":/var/lib/stool/templates\n");
         }
         return builder.toString();
     }

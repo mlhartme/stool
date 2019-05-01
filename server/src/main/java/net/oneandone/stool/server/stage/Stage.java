@@ -646,6 +646,8 @@ public class Stage {
         String name;
 
         result = new HashMap<>();
+        result.put("_app", "todo");
+        result.put("_template", "todo");
         for (BuildArgument env : environment.values()) {
             result.put(env.name, env.dflt);
         }
