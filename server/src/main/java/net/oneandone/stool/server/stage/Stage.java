@@ -279,9 +279,21 @@ public class Stage {
 
     //-- docker
 
-    /** @return list of tags */
-    private List<String> listImages(Engine engine) throws IOException {
-        Engine.ImageListInfo info;
+    public void wipeDocker(Engine engine) throws IOException {
+        wipeContainer(engine);
+        wipeImages(engine);
+    }
+
+    public void wipeImages(Engine engine) throws IOException {
+        for (String tag : imageTags(engine)) {
+            Server.LOGGER.debug("remove image: " + tag);
+            engine.imageRemove(tag, false);
+        }
+    }
+
+    private List<String> imageTags(Engine engine) throws IOException {
+        Engine.ImageListInfo info;    /** @return list of tags belonging to this stage */
+
         List<String> result;
 
         result = new ArrayList<>();
@@ -296,18 +308,6 @@ public class Stage {
         return result;
     }
 
-    public void wipeDocker(Engine engine) throws IOException {
-        wipeContainer(engine);
-        wipeImages(engine);
-    }
-
-    public void wipeImages(Engine engine) throws IOException {
-        for (String image : listImages(engine)) {
-            Server.LOGGER.debug("remove image: " + image);
-            engine.imageRemove(image, false);
-        }
-    }
-
     /** @return app mapped to sorted list */
     public Map<String, List<Image>> images(Engine engine) throws IOException {
         Map<String, List<Image>> result;
@@ -315,7 +315,7 @@ public class Stage {
         List<Image> list;
 
         result = new HashMap<>();
-        for (String tag : listImages(engine)) {
+        for (String tag : imageTags(engine)) {
             image = Image.load(engine, tag);
             list = result.get(image.app);
             if (list == null) {
@@ -342,15 +342,15 @@ public class Stage {
                 while (images.size() > keep) {
                     remove = images.remove(images.size() - 1).tag;
                     Server.LOGGER.debug("remove image: " + remove);
-                    engine.imageRemove(remove, true); // TODO: 'force' could remove an image even if there's still a container running; but I need force to delete with multiple tags ...
+                    engine.imageRemove(remove, false);
                 }
             }
         }
     }
 
     public void wipeContainer(Engine engine) throws IOException {
-        for (String image : listImages(engine)) {
-            for (String container : engine.containerList(CONTAINER_LABEL_IMAGE, image).keySet()) {
+        for (String tag : imageTags(engine)) {
+            for (String container : engine.containerList(CONTAINER_LABEL_IMAGE, tag).keySet()) {
                 Server.LOGGER.debug("remove container: " + container);
                 engine.containerRemove(container);
             }
