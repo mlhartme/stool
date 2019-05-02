@@ -88,11 +88,13 @@ public abstract class ClientCommand {
         return !status(reference, "running").isEmpty();
     }
 
+    private static final Separator TAB = Separator.on('\t');
+
     public List<String> apps(Reference reference) throws IOException {
         String str;
 
         str = status(reference, "apps");
-        return Separator.COMMA.split(str);
+        return TAB.split(str);
     }
 
     private String status(Reference reference, String field) throws IOException {
