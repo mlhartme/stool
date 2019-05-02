@@ -99,7 +99,7 @@ Stages are now the central part; multiple project can be associated with the sam
   * source bind mounts (used for fitnesse) are gone
   * remove Project.updatesAvailable
   
-* use docker api 1.39
+* use docker api 1.38, that's the version available on Alex' old Ubuntu setup
 * dumped various 'auto' options - they were disabled for all remaining commands exception `remove`
 * start now takes an image index argument
 * added "app" command
