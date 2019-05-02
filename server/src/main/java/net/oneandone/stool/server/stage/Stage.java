@@ -334,15 +334,20 @@ public class Stage {
         Map<String, List<Image>> allImages;
         List<Image> images;
         String remove;
+        int count;
 
         allImages = images(engine);
         for (String app : allImages.keySet()) {
-            images = allImages.get(app);
-            if (images.size() > keep) {
-                while (images.size() > keep) {
-                    remove = images.remove(images.size() - 1).tag;
+            images = new ArrayList<>(allImages.get(app));
+            count = images.size() - keep;
+            while (count > 0 && !images.isEmpty()) {
+                remove = images.remove(images.size() - 1).tag;
+                if (engine.containerList(CONTAINER_LABEL_IMAGE, remove).isEmpty()) {
                     Server.LOGGER.debug("remove image: " + remove);
                     engine.imageRemove(remove, false);
+                    count--;
+                } else {
+                    Server.LOGGER.debug("cannot remove image, because it's still in use: " + remove);
                 }
             }
         }
