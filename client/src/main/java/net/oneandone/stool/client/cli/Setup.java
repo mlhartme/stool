@@ -105,7 +105,7 @@ public class Setup {
     }
 
     private String port() {
-        return opts.getOrDefault("PORT_FIRST", "8000");
+        return opts.getOrDefault("PORT_FIRST", "9000");
     }
 
     public String version() throws IOException {
