@@ -67,23 +67,24 @@ import java.util.Set;
 public class Stage {
     private static final DateTimeFormatter TAG_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-HHmmss");
 
-    private static final String LABEL_PREFIX = "net.oneandone.stool-";
+    private static final String IMAGE_PREFIX = "net.oneandone.stool-";
+    private static final String CONTAINER_PREFIX = "net.oneandone.stool-container-";
 
-    public static final String IMAGE_LABEL_PORT_DECLARED_PREFIX = LABEL_PREFIX + "port.declared.";
-    public static final String IMAGE_LABEL_MEMORY = LABEL_PREFIX + "memory";
-    public static final String IMAGE_LABEL_URL_CONTEXT = LABEL_PREFIX + "url.server";
-    public static final String IMAGE_LABEL_URL_SUFFIXES = LABEL_PREFIX + "url.suffixes";
-    public static final String IMAGE_LABEL_FAULT = LABEL_PREFIX + "fault";
-    public static final String IMAGE_LABEL_COMMENT = LABEL_PREFIX + "comment";
-    public static final String IMAGE_LABEL_ORIGIN = LABEL_PREFIX + "origin";
-    public static final String IMAGE_LABEL_CREATED_BY = LABEL_PREFIX + "created-by";
-    public static final String IMAGE_LABEL_CREATED_ON = LABEL_PREFIX + "created-on";
+    public static final String IMAGE_LABEL_PORT_DECLARED_PREFIX = IMAGE_PREFIX + "port.";
+    public static final String IMAGE_LABEL_MEMORY = IMAGE_PREFIX + "memory";
+    public static final String IMAGE_LABEL_URL_CONTEXT = IMAGE_PREFIX + "url.server";
+    public static final String IMAGE_LABEL_URL_SUFFIXES = IMAGE_PREFIX + "url.suffixes";
+    public static final String IMAGE_LABEL_FAULT = IMAGE_PREFIX + "fault";
+    public static final String IMAGE_LABEL_COMMENT = IMAGE_PREFIX + "comment";
+    public static final String IMAGE_LABEL_ORIGIN = IMAGE_PREFIX + "origin";
+    public static final String IMAGE_LABEL_CREATED_BY = IMAGE_PREFIX + "created-by";
+    public static final String IMAGE_LABEL_CREATED_ON = IMAGE_PREFIX + "created-on";
 
-    public static final String CONTAINER_LABEL_STOOL = LABEL_PREFIX + "stool";
-    public static final String CONTAINER_LABEL_STAGE = LABEL_PREFIX + "stage";
-    public static final String CONTAINER_LABEL_IMAGE = LABEL_PREFIX + "image";
-    public static final String CONTAINER_LABEL_APP = LABEL_PREFIX + "app";
-    public static final String CONTAINER_LABEL_PORT_USED_PREFIX = LABEL_PREFIX + "port.used.";
+    public static final String CONTAINER_LABEL_STOOL = CONTAINER_PREFIX + "rt.stool";
+    public static final String CONTAINER_LABEL_STAGE = CONTAINER_PREFIX + "rt.stage";
+    public static final String CONTAINER_LABEL_IMAGE = CONTAINER_PREFIX + "rt.image";
+    public static final String CONTAINER_LABEL_APP = CONTAINER_PREFIX + "rt.app";
+    public static final String CONTAINER_LABEL_PORT_USED_PREFIX = CONTAINER_PREFIX + "rt.port.";
 
 
     //--
