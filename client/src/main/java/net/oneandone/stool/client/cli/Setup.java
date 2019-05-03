@@ -95,7 +95,7 @@ public class Setup {
 
         home.mkdir();
         world.resource("files/home").copyDirectory(home);
-        manager = new ServerManager(home.join("servers"), null, "", "");
+        manager = new ServerManager(home.join("servers.json"), null, "", "");
         manager.add("localhost", "http://localhost:" + port() + "/api");
         manager.add("gem1", "http://gem1.ciso.server.lan:8000/api");
         manager.save();

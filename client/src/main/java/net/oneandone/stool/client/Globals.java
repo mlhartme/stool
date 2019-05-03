@@ -84,7 +84,7 @@ public class Globals {
         FileNode file;
         ServerManager result;
 
-        file = home.join("servers");
+        file = home.join("servers.json");
         result = new ServerManager(file, wirelog, invocation, command);
         result.load();
         return result;
