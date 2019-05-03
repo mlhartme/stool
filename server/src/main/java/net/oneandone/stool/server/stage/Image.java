@@ -38,6 +38,7 @@ public class Image implements Comparable<Image> {
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
         app = app(tag);
         return new Image(tag, created, Ports.fromDeclaredLabels(labels),
+                p12(labels.get(Stage.IMAGE_LABEL_P12)),
                 app,
                 memory(labels.get(Stage.IMAGE_LABEL_MEMORY)),
                 context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
@@ -47,6 +48,10 @@ public class Image implements Comparable<Image> {
                 labels.get(Stage.IMAGE_LABEL_CREATED_BY).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_CREATED_ON).getAsString(),
                 fault(labels.get(Stage.IMAGE_LABEL_FAULT)));
+    }
+
+    private static String p12(JsonElement element) {
+        return element == null ? null : element.getAsString();
     }
 
     private static int memory(JsonElement element) {
@@ -118,6 +123,8 @@ public class Image implements Comparable<Image> {
 
     public final Ports ports;
 
+    public final String p12;
+
     public final String app;
 
     /** memory in megabytes */
@@ -135,7 +142,7 @@ public class Image implements Comparable<Image> {
     /** maps relative host path to absolute container path */
     public final List<String> faultProjects;
 
-    public Image(String tag, LocalDateTime created, Ports ports, String app, int memory, String urlContext, List<String> urlSuffixes,
+    public Image(String tag, LocalDateTime created, Ports ports, String p12, String app, int memory, String urlContext, List<String> urlSuffixes,
                  String comment, String origin, String createdBy, String createdOn, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
@@ -146,6 +153,7 @@ public class Image implements Comparable<Image> {
         this.created = created;
 
         this.ports = ports;
+        this.p12 = p12;
         this.app = app;
         this.memory = memory;
         this.urlContext = urlContext;

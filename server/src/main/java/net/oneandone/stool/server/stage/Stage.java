@@ -71,6 +71,7 @@ public class Stage {
     private static final String CONTAINER_PREFIX = "net.oneandone.stool-container-";
 
     public static final String IMAGE_LABEL_PORT_DECLARED_PREFIX = IMAGE_PREFIX + "port.";
+    public static final String IMAGE_LABEL_P12 = IMAGE_PREFIX + "certificate.p12";
     public static final String IMAGE_LABEL_MEMORY = IMAGE_PREFIX + "memory";
     public static final String IMAGE_LABEL_URL_CONTEXT = IMAGE_PREFIX + "url.server";
     public static final String IMAGE_LABEL_URL_SUFFIXES = IMAGE_PREFIX + "url.suffixes";
@@ -569,8 +570,10 @@ public class Stage {
         result = new HashMap<>();
         result.put(hostLogRoot, "/var/log/stool");
         if (image.ports.https != -1) {
-            result.put(server.certificate(server.configuration.vhosts ? image.app + "." + getName() + "." + server.configuration.dockerHost
-                    : server.configuration.dockerHost), "/usr/local/tomcat/conf/tomcat.p12");
+            if (image.p12 != null) {
+                result.put(server.certificate(server.configuration.vhosts ? image.app + "." + getName() + "." + server.configuration.dockerHost
+                        : server.configuration.dockerHost), image.p12);
+            }
         }
         missing = new ArrayList<>();
         for (String project : image.faultProjects) { // TODO: authorization
