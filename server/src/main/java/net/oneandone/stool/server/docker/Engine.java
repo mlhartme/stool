@@ -299,6 +299,7 @@ public class Engine implements AutoCloseable {
         String line;
         JsonElement aux;
         String id;
+        FileNode tar;
 
         build = root.join("build");
         build = build.withParameter("t", nameTag);
@@ -313,53 +314,58 @@ public class Engine implements AutoCloseable {
         error = null;
         errorDetail = null;
         id = null;
-        try (InputStream raw = postStream(build, tar(context))) {
-            in = new AsciiInputStream(raw, 4096);
-            while (true) {
-                line = in.readLine();
-                if (line == null) {
-                    if (error != null) {
-                        throw new BuildError(nameTag, error, errorDetail, output.toString());
+        tar = tar(context);
+        try {
+            try (InputStream raw = postStream(build, tar)) {
+                in = new AsciiInputStream(raw, 4096);
+                while (true) {
+                    line = in.readLine();
+                    if (line == null) {
+                        if (error != null) {
+                            throw new BuildError(nameTag, error, errorDetail, output.toString());
+                        }
+                        if (id == null) {
+                            throw new IOException("missing id");
+                        }
+                        return id;
                     }
-                    if (id == null) {
-                        throw new IOException("missing id");
-                    }
-                    return id;
-                }
-                object = parser.parse(line).getAsJsonObject();
+                    object = parser.parse(line).getAsJsonObject();
 
-                eatStream(object, output, log);
-                eatString(object, "status", output, log);
-                eatString(object, "id", output, log);
-                eatString(object, "progress", output, log);
-                eatObject(object, "progressDetail", output, log);
-                aux = eatObject(object, "aux", output, log);
-                if (aux != null) {
-                    if (id != null) {
-                        throw new IOException("duplicate id");
+                    eatStream(object, output, log);
+                    eatString(object, "status", output, log);
+                    eatString(object, "id", output, log);
+                    eatString(object, "progress", output, log);
+                    eatObject(object, "progressDetail", output, log);
+                    aux = eatObject(object, "aux", output, log);
+                    if (aux != null) {
+                        if (id != null) {
+                            throw new IOException("duplicate id");
+                        }
+                        id = Strings.removeLeft(aux.getAsJsonObject().get("ID").getAsString(), "sha256:");
                     }
-                    id = Strings.removeLeft(aux.getAsJsonObject().get("ID").getAsString(), "sha256:");
-                }
 
-                value = eatString(object, "error", output, log);
-                if (value != null) {
-                    if (error != null) {
-                        throw new IOException("multiple errors");
+                    value = eatString(object, "error", output, log);
+                    if (value != null) {
+                        if (error != null) {
+                            throw new IOException("multiple errors");
+                        }
+                        error = value.getAsString();
                     }
-                    error = value.getAsString();
-                }
-                value = eatObject(object, "errorDetail", output, log);
-                if (value != null) {
-                    if (errorDetail != null) {
-                        throw new IOException("multiple errors");
+                    value = eatObject(object, "errorDetail", output, log);
+                    if (value != null) {
+                        if (errorDetail != null) {
+                            throw new IOException("multiple errors");
+                        }
+                        errorDetail = value.getAsJsonObject();
                     }
-                    errorDetail = value.getAsJsonObject();
-                }
 
-                if (object.size() > 0) {
-                    throw new IOException("unknown build output: " + object);
+                    if (object.size() > 0) {
+                        throw new IOException("unknown build output: " + object);
+                    }
                 }
             }
+        } finally {
+            tar.deleteFile();
         }
     }
 
@@ -397,36 +403,41 @@ public class Engine implements AutoCloseable {
     }
 
     /** tar directory into byte array */
-    private byte[] tar(FileNode context) throws IOException {
+    private FileNode tar(FileNode context) throws IOException {
+        FileNode result;
         List<FileNode> all;
-        ByteArrayOutputStream dest;
         TarOutputStream tar;
         byte[] bytes;
         Iterator<FileNode> iter;
         FileNode file;
         long now;
 
-        dest = new ByteArrayOutputStream();
-        tar = new TarOutputStream(dest);
-        now = System.currentTimeMillis();
-        all = context.find("**/*");
-        iter = all.iterator();
-        while (iter.hasNext()) {
-            file = iter.next();
-            if (file.isDirectory()) {
-                tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), 0, now, true, 0700)));
-                iter.remove();
+        result = context.getWorld().getTemp().createTempFile();
+        try (OutputStream dest = result.newOutputStream()) {
+            tar = new TarOutputStream(dest);
+            now = System.currentTimeMillis();
+            all = context.find("**/*");
+            iter = all.iterator();
+            while (iter.hasNext()) {
+                file = iter.next();
+                if (file.isDirectory()) {
+                    tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), 0, now, true, 0700)));
+                    iter.remove();
+                }
             }
+            iter = all.iterator();
+            while (iter.hasNext()) {
+                file = iter.next();
+                bytes = file.readBytes();
+                tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), bytes.length, now, false, 0700)));
+                tar.write(bytes);
+            }
+            tar.close();
+        } catch (IOException | RuntimeException | Error e) {
+            result.deleteFile();
+            throw e;
         }
-        iter = all.iterator();
-        while (iter.hasNext()) {
-            file = iter.next();
-            bytes = file.readBytes();
-            tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), bytes.length, now, false, 0700)));
-            tar.write(bytes);
-        }
-        tar.close();
-        return dest.toByteArray();
+        return result;
     }
 
     public void imageRemove(String tagOrId, boolean force) throws IOException {
@@ -746,8 +757,10 @@ public class Engine implements AutoCloseable {
         return parser.parse(post(dest, obj.toString() + '\n')).getAsJsonObject();
     }
 
-    private InputStream postStream(HttpNode dest, byte[] body) throws IOException {
-        return dest.postStream(new Body(null, null, body.length, new ByteArrayInputStream(body), false));
+    private InputStream postStream(HttpNode dest, FileNode body) throws IOException {
+        try (InputStream src = body.newInputStream()) {
+            return dest.postStream(new Body(null, null, body.size(), src, false));
+        }
     }
 
     private String post(HttpNode dest, String body) throws IOException {

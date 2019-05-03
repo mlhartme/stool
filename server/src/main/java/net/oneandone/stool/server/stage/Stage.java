@@ -560,8 +560,9 @@ public class Stage {
     private Map<FileNode, String> bindMounts(Image image) throws IOException {
         FileNode hostLogRoot;
         Map<FileNode, String> result;
-        List<FileNode> missing;
-        FileNode file;
+        List<String> missing;
+        FileNode innerFile;
+        FileNode outerFile;
 
         hostLogRoot = server.configuration.serverHome.join("stages", getName(), "logs", image.app);
         directory.join("logs", image.app).mkdirsOpt();
@@ -573,11 +574,12 @@ public class Stage {
         }
         missing = new ArrayList<>();
         for (String project : image.faultProjects) { // TODO: authorization
-            file = server.world.file(server.configuration.secrets).join(project);
-            if (file.isDirectory()) {
-                result.put(file, "/root/.fault/" + project);
+            innerFile = server.world.file("/etc/fault/workspace").join(project);
+            outerFile = server.world.file(server.configuration.secrets).join(project);
+            if (innerFile.isDirectory()) {
+                result.put(outerFile, "/root/.fault/" + project);
             } else {
-                missing.add(file);
+                missing.add(outerFile.getAbsolute());
             }
         }
         if (!missing.isEmpty()) {
