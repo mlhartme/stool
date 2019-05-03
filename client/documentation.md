@@ -1129,7 +1129,7 @@ every night. That will check for expired stages. And also rotate log files.
 
 ### Upgrading 
 
-There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all stages.
+There's no automatic upgrade from Stool 4 to Stool 5. You have to re-create all stages.
 
 
 ## Directory Layout
@@ -1137,9 +1137,9 @@ There's no automatic upgrade from Stool 3 to Stool 4. You can to re-create all s
 ... of $STOOL_HOME (default is `~/.stool`)
 
         |- version                   (client version that created this directory)
-        |- servers                   (list of Stool servers to talk to)
         |- shell.inc
         |- server.yml                (docker-comppose file to start local server)
+        |- servers.json              (list of Stool servers to talk to)
         '- server                    (empty if there's no local server)
            |- version                (server version that created this directory)
            |- config.json            (Stool configuration)
