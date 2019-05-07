@@ -801,27 +801,27 @@ public class Stage {
         }
     }
 
-    public List<String> dockerRunningContainerList() throws IOException {
+    public Map<String, Engine.ContainerListInfo> dockerRunningContainerList() throws IOException {
         Engine engine;
 
         engine = server.dockerEngine();
-        return new ArrayList<>(engine.containerListRunning(CONTAINER_LABEL_STAGE, name).keySet());
+        return engine.containerListRunning(CONTAINER_LABEL_STAGE, name);
     }
 
     public Map<String, Current> currentMap() throws IOException {
         Engine engine;
-        List<String> containerList;
+        Collection<Engine.ContainerListInfo> containerList;
         JsonObject json;
         Map<String, Current> result;
         Image image;
 
         engine = server.dockerEngine();
         result = new HashMap<>();
-        containerList = dockerRunningContainerList();
-        for (String container : containerList) {
-            json = engine.containerInspect(container, false);
+        containerList = dockerRunningContainerList().values();
+        for (Engine.ContainerListInfo info : containerList) {
+            json = engine.containerInspect(info.id, false);
             image = Image.load(engine, Server.containerImageTag(json));
-            result.put(image.app, new Current(image, container));
+            result.put(image.app, new Current(image, info.id));
         }
         return result;
     }
@@ -979,15 +979,15 @@ public class Stage {
     // CAUTION: blocks until ctrl-c.
     // Format: https://docs.docker.com/engine/api/v1.33/#operation/ContainerAttach
     public void tailF(PrintWriter dest) throws IOException {
-        List<String> containers;
+        Collection<String> containers;
         Engine engine;
 
-        containers = dockerRunningContainerList();
+        containers = dockerRunningContainerList().keySet();
         if (containers.size() != 1) {
             Server.LOGGER.info("ignoring -tail option because container is not unique");
         } else {
             engine = server.dockerEngine();
-            engine.containerLogsFollow(containers.get(0), new OutputStream() {
+            engine.containerLogsFollow(containers.iterator().next(), new OutputStream() {
                 @Override
                 public void write(int b) {
                     dest.write(b);
