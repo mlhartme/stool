@@ -24,7 +24,9 @@ import net.oneandone.sushi.util.Separator;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Image implements Comparable<Image> {
     public static Image load(Engine engine, String tag) throws IOException {
@@ -47,7 +49,22 @@ public class Image implements Comparable<Image> {
                 labels.get(Stage.IMAGE_LABEL_ORIGIN).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_CREATED_BY).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_CREATED_ON).getAsString(),
+                args(labels),
                 fault(labels.get(Stage.IMAGE_LABEL_FAULT)));
+    }
+
+    private static Map<String, String> args(JsonObject labels) {
+        Map<String, String> result;
+        String key;
+
+        result = new HashMap<>();
+        for (Map.Entry<String, JsonElement> entry : labels.entrySet()) {
+            key = entry.getKey();
+            if (key.startsWith(Stage.IMAGE_LABEL_ARG_PREFIX)) {
+                result.put(key.substring(Stage.IMAGE_LABEL_ARG_PREFIX.length()), entry.getValue().getAsString());
+            }
+        }
+        return result;
     }
 
     private static String p12(JsonElement element) {
@@ -138,12 +155,13 @@ public class Image implements Comparable<Image> {
     public final String origin;
     public final String createdBy;
     public final String createdOn;
+    public final Map<String, String> args;
 
     /** maps relative host path to absolute container path */
     public final List<String> faultProjects;
 
     public Image(String tag, LocalDateTime created, Ports ports, String p12, String app, int memory, String urlContext, List<String> urlSuffixes,
-                 String comment, String origin, String createdBy, String createdOn, List<String> faultProjects) {
+                 String comment, String origin, String createdBy, String createdOn, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
                 throw new IllegalArgumentException(urlContext);
@@ -162,6 +180,7 @@ public class Image implements Comparable<Image> {
         this.origin = origin;
         this.createdBy = createdBy;
         this.createdOn = createdOn;
+        this.args = args;
         this.faultProjects = faultProjects;
     }
 

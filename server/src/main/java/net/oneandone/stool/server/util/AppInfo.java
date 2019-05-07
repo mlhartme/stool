@@ -17,6 +17,7 @@ import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +38,7 @@ public class AppInfo {
         Stage.Current current;
         Ports ports;
         List<String> result;
+        List<String> args;
 
         result = new ArrayList<>();
         stage = context.load(name);
@@ -83,6 +85,12 @@ public class AppInfo {
             result.add("       created-at: " + image.created);
             result.add("       created-by: " + image.createdBy);
             result.add("       created-on: " + image.createdOn);
+            result.add("       build args:");
+            args = new ArrayList<>(image.args.keySet());
+            Collections.sort(args);
+            for (String arg : args) {
+                result.add("           " + arg + ": \t" + image.args.get(arg));
+            }
             result.add("       secrets:    " + Separator.COMMA.join(image.faultProjects));
             idx++;
         }

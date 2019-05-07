@@ -80,6 +80,7 @@ public class Stage {
     public static final String IMAGE_LABEL_ORIGIN = IMAGE_PREFIX + "origin";
     public static final String IMAGE_LABEL_CREATED_BY = IMAGE_PREFIX + "created-by";
     public static final String IMAGE_LABEL_CREATED_ON = IMAGE_PREFIX + "created-on";
+    public static final String IMAGE_LABEL_ARG_PREFIX = IMAGE_PREFIX + "arg.";
 
     public static final String CONTAINER_LABEL_STAGE = CONTAINER_PREFIX + "rt.stage";
     public static final String CONTAINER_LABEL_IMAGE = CONTAINER_PREFIX + "rt.image";
@@ -423,6 +424,9 @@ public class Stage {
         labels.put(IMAGE_LABEL_ORIGIN, origin);
         labels.put(IMAGE_LABEL_CREATED_BY, createdBy);
         labels.put(IMAGE_LABEL_CREATED_ON, createdOn);
+        for (Map.Entry<String, String> arg : buildArgs.entrySet()) {
+            labels.put(IMAGE_LABEL_ARG_PREFIX + arg.getKey(), arg.getValue());
+        }
         Server.LOGGER.debug("building image ... ");
         output = new StringWriter();
         try {
