@@ -82,10 +82,11 @@ public class Stage {
     public static final String IMAGE_LABEL_CREATED_ON = IMAGE_PREFIX + "created-on";
     public static final String IMAGE_LABEL_ARG_PREFIX = IMAGE_PREFIX + "arg.";
 
-    public static final String CONTAINER_LABEL_STAGE = CONTAINER_PREFIX + "rt.stage";
-    public static final String CONTAINER_LABEL_IMAGE = CONTAINER_PREFIX + "rt.image";
-    public static final String CONTAINER_LABEL_APP = CONTAINER_PREFIX + "rt.app";
-    public static final String CONTAINER_LABEL_PORT_USED_PREFIX = CONTAINER_PREFIX + "rt.port.";
+    public static final String CONTAINER_LABEL_STAGE = CONTAINER_PREFIX + "stage";
+    public static final String CONTAINER_LABEL_IMAGE = CONTAINER_PREFIX + "image";
+    public static final String CONTAINER_LABEL_APP = CONTAINER_PREFIX + "app";
+    public static final String CONTAINER_LABEL_ENV_PREFIX = CONTAINER_PREFIX  + "env.";
+    public static final String CONTAINER_LABEL_PORT_USED_PREFIX = CONTAINER_PREFIX + "port.";
 
 
     //--
@@ -479,6 +480,9 @@ public class Stage {
             labels.put(CONTAINER_LABEL_APP, image.app);
             labels.put(CONTAINER_LABEL_IMAGE, image.tag);
             labels.put(CONTAINER_LABEL_STAGE, name);
+            for (Map.Entry<String, String> entry : environment.entrySet()) {
+                labels.put(CONTAINER_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
+            }
             container = engine.containerCreate(image.tag,  getName() + "." + server.configuration.dockerHost,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * image.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts));

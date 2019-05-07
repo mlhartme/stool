@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -55,13 +56,14 @@ public class AppInfo {
         idx = 0;
         ports = stage.loadPorts().get(app);
         result.add("app:       " + app);
-        result.add("cpu:       " + cpu(current));
-        result.add("mem:       " + mem(current));
-        result.add("container: " + current.container.id);
+        result.add("cpu:       " + cpu(current.container));
+        result.add("mem:       " + mem(current.container));
+        result.add("container: " + (current.container == null ? "" : current.container.id));
+        addEnv(current.container, result);
         result.add("origin:    " + current.image.origin);
-        result.add("uptime:    " + uptime(current));
+        result.add("uptime:    " + uptime(current.container));
         result.add("heap:      " + heap(stage, app, current));
-        result.add("disk-used: " + diskUsed(current));
+        result.add("disk-used: " + diskUsed(current.container));
         if (ports != null) {
             if (ports.debug != -1) {
                 result.add("debug port " + ports.debug);
@@ -97,8 +99,20 @@ public class AppInfo {
         return result;
     }
 
+    private void addEnv(Engine.ContainerListInfo info, List<String> result) {
+        Map<String, String> env;
+        List<String> keys;
+
+        result.add("environment:");
+        env = env(info);
+        keys = new ArrayList<>(env.keySet());
+        Collections.sort(keys);
+        for (String key : keys) {
+            result.add("    " + key + ": \t" + env.get(key));
+        }
+    }
+
     public String heap(Stage stage, String app, Stage.Current current) throws IOException {
-        String container;
         JMXServiceURL url;
         MBeanServerConnection connection;
         ObjectName name;
@@ -106,8 +120,7 @@ public class AppInfo {
         long used;
         long max;
 
-        container = current.container.id;
-        if (container == null) {
+        if (current.container == null) {
             return "";
         }
         if (current.image.ports.jmxmp == -1) {
@@ -141,37 +154,46 @@ public class AppInfo {
         return Float.toString(((float) (used * 1000 / max)) / 10);
     }
 
-    public int diskUsed(Stage.Current current) throws IOException {
-        String container;
+    public int diskUsed(Engine.ContainerListInfo info) throws IOException {
         JsonObject obj;
 
-        container = current.container.id;
-        if (container == null) {
+        if (info == null) {
             return 0;
         }
-        obj = context.dockerEngine().containerInspect(container, true);
+        obj = context.dockerEngine().containerInspect(info.id, true);
         // not SizeRootFs, that's the image size plus the rw layer
         return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
 
-    private String uptime(Stage.Current current) throws IOException {
-        String container;
+    private Map<String, String> env(Engine.ContainerListInfo info) {
+        Map<String, String> result;
+        String key;
 
-        container = current.container.id;
-        return container == null ? null : Stage.timespan(context.dockerEngine().containerStartedAt(container));
+        result = new HashMap<>();
+        if (info != null) {
+            for (Map.Entry<String, String> entry : info.labels.entrySet()) {
+                key = entry.getKey();
+                if (key.startsWith(Stage.CONTAINER_LABEL_ENV_PREFIX)) {
+                    result.put(key.substring(Stage.CONTAINER_LABEL_ENV_PREFIX.length()), entry.getValue());
+                }
+            }
+        }
+        return result;
     }
 
-    private Integer cpu(Stage.Current current) throws IOException {
+    private String uptime(Engine.ContainerListInfo info) throws IOException {
+        return info == null ? null : Stage.timespan(context.dockerEngine().containerStartedAt(info.id));
+    }
+
+    private Integer cpu(Engine.ContainerListInfo info) throws IOException {
         Engine engine;
         Stats stats;
-        String container;
 
-        container = current.container.id;
-        if (container == null) {
+        if (info == null) {
             return null;
         }
         engine = context.dockerEngine();
-        stats = engine.containerStats(container);
+        stats = engine.containerStats(info.id);
         if (stats != null) {
             return stats.cpu;
         } else {
@@ -180,15 +202,13 @@ public class AppInfo {
         }
     }
 
-    private Long mem(Stage.Current current) throws IOException {
-        String container;
+    private Long mem(Engine.ContainerListInfo info) throws IOException {
         Stats stats;
 
-        container = current.container.id;
-        if (container == null) {
+        if (info == null) {
             return null;
         }
-        stats = context.dockerEngine().containerStats(container);
+        stats = context.dockerEngine().containerStats(info.id);
         if (stats != null) {
             return stats.memoryUsage * 100 / stats.memoryLimit;
         } else {
