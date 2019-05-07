@@ -57,7 +57,7 @@ public class AppInfo {
         result.add("app:       " + app);
         result.add("cpu:       " + cpu(current));
         result.add("mem:       " + mem(current));
-        result.add("container: " + current.container);
+        result.add("container: " + current.container.id);
         result.add("origin:    " + current.image.origin);
         result.add("uptime:    " + uptime(current));
         result.add("heap:      " + heap(stage, app, current));
@@ -106,7 +106,7 @@ public class AppInfo {
         long used;
         long max;
 
-        container = current.container;
+        container = current.container.id;
         if (container == null) {
             return "";
         }
@@ -145,7 +145,7 @@ public class AppInfo {
         String container;
         JsonObject obj;
 
-        container = current.container;
+        container = current.container.id;
         if (container == null) {
             return 0;
         }
@@ -157,7 +157,7 @@ public class AppInfo {
     private String uptime(Stage.Current current) throws IOException {
         String container;
 
-        container = current.container;
+        container = current.container.id;
         return container == null ? null : Stage.timespan(context.dockerEngine().containerStartedAt(container));
     }
 
@@ -166,7 +166,7 @@ public class AppInfo {
         Stats stats;
         String container;
 
-        container = current.container;
+        container = current.container.id;
         if (container == null) {
             return null;
         }
@@ -184,7 +184,7 @@ public class AppInfo {
         String container;
         Stats stats;
 
-        container = current.container;
+        container = current.container.id;
         if (container == null) {
             return null;
         }

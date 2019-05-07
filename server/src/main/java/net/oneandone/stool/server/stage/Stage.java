@@ -549,7 +549,7 @@ public class Stage {
         containers = new LinkedHashMap<>();
         for (Map.Entry<String, Current> current : currentMap.entrySet()) {
             if (apps.isEmpty() || apps.contains(current.getKey())) {
-                containers.put(current.getKey(), current.getValue().container);
+                containers.put(current.getKey(), current.getValue().container.id);
             }
         }
         for (Map.Entry<String, String> entry : containers.entrySet()) {
@@ -793,9 +793,9 @@ public class Stage {
 
     public static class Current {
         public final Image image;
-        public final String container;
+        public final Engine.ContainerListInfo container;
 
-        public Current(Image image, String container) {
+        public Current(Image image, Engine.ContainerListInfo container) {
             this.image = image;
             this.container = container;
         }
@@ -821,7 +821,7 @@ public class Stage {
         for (Engine.ContainerListInfo info : containerList) {
             json = engine.containerInspect(info.id, false);
             image = Image.load(engine, Server.containerImageTag(json));
-            result.put(image.app, new Current(image, info.id));
+            result.put(image.app, new Current(image, info));
         }
         return result;
     }
