@@ -417,7 +417,7 @@ public class Server {
         return version.substring(0, minor);
     }
 
-    public int quotaReserved() throws IOException {
+    public int diskQuotaReserved() throws IOException {
         int reserved;
         StageConfiguration config;
 
@@ -431,7 +431,7 @@ public class Server {
 
     //--
 
-    public Engine dockerEngine() throws IOException {
+    public Engine dockerEngine() {
         return dockerEngine;
     }
 

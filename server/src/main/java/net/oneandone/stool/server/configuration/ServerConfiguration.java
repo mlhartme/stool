@@ -93,7 +93,7 @@ public class ServerConfiguration {
 
     public int memoryQuota;
 
-    public int quota;
+    public int diskQuota;
 
     /** absolute path to secrets root */
     public String secrets;
@@ -122,7 +122,7 @@ public class ServerConfiguration {
         mailUsername = "";
         mailPassword = "";
         memoryQuota = 10000;
-        quota = 0;
+        diskQuota = 0;
         secrets = "/etc/fault/workspace";
         appPropertiesFile = "WEB-INF/classes/META-INF/stool.properties";
         appPropertiesPrefix = "";

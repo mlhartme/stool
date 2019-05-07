@@ -58,7 +58,7 @@ public class ApiController {
         result = new JsonObject();
         result.addProperty("version", Main.versionString(server.world));
         result.addProperty("mem-unreserved", server.memUnreserved());
-        result.addProperty("quota", (server.configuration.quota == 0 ? "" : server.quotaReserved() + "/" + server.configuration.quota));
+        result.addProperty("disk-quota", (server.configuration.diskQuota == 0 ? "" : server.diskQuotaReserved() + "/" + server.configuration.diskQuota));
         return result.toString();
     }
 
@@ -247,9 +247,9 @@ public class ApiController {
         apps = intMap(map(request, "app."));
         environment = new HashMap<>(server.configuration.environment);
         environment.putAll(map(request, "env."));
-        global = server.configuration.quota;
+        global = server.configuration.diskQuota;
         if (global != 0) {
-            reserved = server.quotaReserved();
+            reserved = server.diskQuotaReserved();
             if (reserved > global) {
                 throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
                         + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
