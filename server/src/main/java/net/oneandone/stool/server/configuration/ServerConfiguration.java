@@ -121,7 +121,7 @@ public class ServerConfiguration {
         mailHost = "";
         mailUsername = "";
         mailPassword = "";
-        memoryQuota = 10000;
+        memoryQuota = 0;
         diskQuota = 0;
         secrets = "/etc/fault/workspace";
         appPropertiesFile = "WEB-INF/classes/META-INF/stool.properties";

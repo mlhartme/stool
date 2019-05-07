@@ -338,24 +338,10 @@ public class Server {
         }
     }
 
-    //-- environment handling
-
-    private static int memTotal() {
-        long result;
-
-        result = ((com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean()).getTotalPhysicalMemorySize();
-        return (int) (result / 1024 / 1024);
-    }
-
     //--
 
-    /** @return memory not yet reserved */
-    public int memUnreserved() throws IOException {
-        return configuration.memoryQuota - memReservedContainers();
-    }
-
     /** used for running containers */
-    private int memReservedContainers() throws IOException {
+    public int memoryReservedContainers() throws IOException {
         int reserved;
         Engine engine;
         JsonObject json;

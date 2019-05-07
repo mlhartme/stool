@@ -57,8 +57,8 @@ public class ApiController {
 
         result = new JsonObject();
         result.addProperty("version", Main.versionString(server.world));
-        result.addProperty("mem-unreserved", server.memUnreserved());
-        result.addProperty("disk-quota", (server.configuration.diskQuota == 0 ? "" : server.diskQuotaReserved() + "/" + server.configuration.diskQuota));
+        result.addProperty("memory-quota", server.configuration.memoryQuota == 0 ? "" : server.memoryReservedContainers() + "/" + server.configuration.memoryQuota);
+        result.addProperty("disk-quota", server.configuration.diskQuota == 0 ? "" : server.diskQuotaReserved() + "/" + server.configuration.diskQuota);
         return result.toString();
     }
 

@@ -453,19 +453,22 @@ public class Stage {
         Ports hostPorts;
         Map<FileNode, String> mounts;
         Map<String, String> labels;
-        int unreserved;
         List<String> result;
+        int memoryQuota;
+        int memoryReserved;
 
         engine = server.dockerEngine();
-        unreserved = server.memUnreserved();
+        memoryReserved = server.memoryReservedContainers();
         result = new ArrayList<>();
+        memoryQuota = server.configuration.memoryQuota;
         for (Image image : resolve(engine, selection)) {
-            if (image.memory > unreserved) {
+            if (memoryQuota != 0 && memoryReserved + image.memory > memoryQuota) {
                 throw new ArgumentException("Cannot reserve memory for app " + image.app + " :\n"
-                        + "  unreserved: " + unreserved + "\n"
+                        + "  unreserved: " + (memoryQuota - memoryReserved) + "\n"
                         + "  requested: " + image.memory + "\n"
                         + "Consider stopping stages.");
             }
+            memoryReserved += image.memory;
             for (String old : engine.containerList(Stage.CONTAINER_LABEL_IMAGE, image.tag).keySet()) {
                 engine.containerRemove(old);
             }
