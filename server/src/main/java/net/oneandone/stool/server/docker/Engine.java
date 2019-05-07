@@ -407,12 +407,14 @@ public class Engine implements AutoCloseable {
         FileNode result;
         List<FileNode> all;
         TarOutputStream tar;
-        byte[] bytes;
+        byte[] buffer;
         Iterator<FileNode> iter;
         FileNode file;
+        int count;
         long now;
 
         result = context.getWorld().getTemp().createTempFile();
+        buffer = new byte[64 * 1024];
         try (OutputStream dest = result.newOutputStream()) {
             tar = new TarOutputStream(dest);
             now = System.currentTimeMillis();
@@ -428,9 +430,16 @@ public class Engine implements AutoCloseable {
             iter = all.iterator();
             while (iter.hasNext()) {
                 file = iter.next();
-                bytes = file.readBytes();
-                tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), bytes.length, now, false, 0700)));
-                tar.write(bytes);
+                tar.putNextEntry(new TarEntry(TarHeader.createHeader(file.getRelative(context), file.size(), now, false, 0700)));
+                try (InputStream src = file.newInputStream()) {
+                    while (true) {
+                        count = src.read(buffer);
+                        if (count == -1) {
+                            break;
+                        }
+                        tar.write(buffer, 0, count);
+                    }
+                }
             }
             tar.close();
         } catch (IOException | RuntimeException | Error e) {
