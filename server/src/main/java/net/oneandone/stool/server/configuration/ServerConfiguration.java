@@ -107,6 +107,7 @@ public class ServerConfiguration {
 
     public ServerConfiguration() {
         serverHome = null;
+        vhosts = false;
         loglevel = "INFO";
         registryNamespace = "main";
         portFirst = 9000;
