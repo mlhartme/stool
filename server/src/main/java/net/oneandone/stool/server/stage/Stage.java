@@ -81,7 +81,6 @@ public class Stage {
     public static final String IMAGE_LABEL_CREATED_BY = IMAGE_PREFIX + "created-by";
     public static final String IMAGE_LABEL_CREATED_ON = IMAGE_PREFIX + "created-on";
 
-    public static final String CONTAINER_LABEL_STOOL = CONTAINER_PREFIX + "rt.stool";
     public static final String CONTAINER_LABEL_STAGE = CONTAINER_PREFIX + "rt.stage";
     public static final String CONTAINER_LABEL_IMAGE = CONTAINER_PREFIX + "rt.image";
     public static final String CONTAINER_LABEL_APP = CONTAINER_PREFIX + "rt.app";
@@ -473,7 +472,6 @@ public class Stage {
             }
             hostPorts = server.pool().allocate(this, image.app, http, https);
             labels = hostPorts.toUsedLabels();
-            labels.put(CONTAINER_LABEL_STOOL, server.configuration.registryNamespace);
             labels.put(CONTAINER_LABEL_APP, image.app);
             labels.put(CONTAINER_LABEL_IMAGE, image.tag);
             labels.put(CONTAINER_LABEL_STAGE, name);
@@ -711,7 +709,7 @@ public class Stage {
         result = new LinkedHashMap<>();
         engine = server.dockerEngine();
         images = new HashMap<>();
-        for (Engine.ContainerListInfo info : engine.containerList(Stage.CONTAINER_LABEL_STOOL).values()) {
+        for (Engine.ContainerListInfo info : engine.containerList(Stage.CONTAINER_LABEL_IMAGE).values()) {
             if (name.equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
                 images.put(info.labels.get(Stage.CONTAINER_LABEL_APP), Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE)));
             }

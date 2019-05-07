@@ -363,7 +363,7 @@ public class Server {
 
         reserved = 0;
         engine = dockerEngine();
-        for (String container : engine.containerListRunning(Stage.CONTAINER_LABEL_STOOL).keySet()) {
+        for (String container : engine.containerListRunning(Stage.CONTAINER_LABEL_IMAGE).keySet()) {
             json = engine.containerInspect(container, false);
             image = Image.load(engine, containerImageTag(json));
             reserved += image.memory;
