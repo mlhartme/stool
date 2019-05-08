@@ -261,14 +261,10 @@ Stool is a command line tool to manage stages. After creating a stage, you can b
 `stool` *global-option*... `start` *stage-option*... [`-tail`] [`-nocache`]
 
 
-`stool` *global-option*... `stop` *stage-option*...
+`stool` *global-option*... `stop` *stage-option*... [*app*...]
 
 
-`stool` *global-option*... `restart` *stage-option*... [`-nocache`]
-
-
-
-`stool` *global-option*... `refresh` *stage-option*... [`-restore`]
+`stool` *global-option*... `restart` *stage-option*... [*app*[`:`*idx*] ...]
 
 
 
@@ -278,10 +274,11 @@ Stool is a command line tool to manage stages. After creating a stage, you can b
 `stool` *global-option*... `config` *stage-option*... (*key* | *value*)...
 
 
-`stool` *global-option*... `port` *stage-option*... *application*`=`*port*...
-
-
 `stool` *global-option*... `status *stage-option*... (*field*|*property*)...
+
+
+
+`stool` *global-option*... `app *stage-option*...
 
 
 
