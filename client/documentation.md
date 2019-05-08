@@ -316,8 +316,6 @@ The following environment variables can be used to configure Stool server. This 
 * **DISK_QUOTA**
   Mb of disk spaces available for the root file system of all apps in all stages. The sum of all disk space reserved for all apps of all stages
   cannot exceed this number. 0 disables this feature. Type number, default 0.
-* **CERTIFICATE**
-  TODO
 * **DOCKER_HOST**
   Fully qualified hostname used to refer to this machine in application urls and emails. Type string.
 * **ENVIRONMENT** 
@@ -630,15 +628,15 @@ Stop a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `stop` *stage-option*...
+`stool` *global-option*... `stop` *stage-option*... [*app*...]
 
 #### DESCRIPTION
 
-Stops the Docker container for this stage. 
+Stops the specifed apps (if none is specified: all running apps). 
 
-This command sends a "kill 15" to the root process of the container. If that's not successfully within 300 seconds, the 
-process is forcibly terminated with "kill 9". If shutdown is slow, try to debug the applications running in this stage 
-and find out what's slow in their kill 15 signal handling. 
+This command sends a "kill 15" to the root process of the container. If that's not successful within 300 seconds, the process is forcibly 
+terminated with "kill 9". If shutdown is slow, try to debug the apps running in this stage and find out what's slow in their kill 15 
+signal handling. 
 
 
 [//]: # (include stageOptions.md)
@@ -653,35 +651,12 @@ Restart a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `restart` *stage-option*... [`-nocache`]
+`stool` *global-option*... `restart` *stage-option*... [*app*[`:`*idx*] ...]
 
 
 #### DESCRIPTION
 
-Shorthand for `stool stop && stool start`.
-
-[//]: # (include stageOptions.md)
-
-Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
-[//]: # (-)
-
-
-### stool-refresh
-
-Refresh a stage
-
-#### SYNOPSIS
-
-`stool` *global-option*... `refresh` *stage-option*... [`-restore`]
-
-
-#### DESCRIPTION
-
-Reports an error if the stage is up.
-
-For artifact stages: checks for new artifacts and installs them if any.
-
-For source stages: invokes the command specified by the `refresh` property. 
+Shorthand for `stool stop *app*... && stool start *app*:*idx*`.
 
 [//]: # (include stageOptions.md)
 
@@ -758,78 +733,19 @@ Note: This is a stage command, get `stool help stage-options` to see available [
 Note that the default values below might be overwritten by Stool defaults on your system.
 
 
-* **autoRefresh**
-  True if you want the dashboard to automatically refresh the stage every minute. Type boolean.
 * **comment**
-  Arbitrary comment for this stage. Stool only stores this value, it has no effect. Type string.
+  Arbitrary comment for this stage. Stool only stores and displays this value, it has no effect. Type string.
 * **expire**
   Defines when this stage [expires](#stage-expiring). Type date.
-* **name**
-  name of the stage
 * **notify**
   List of email addresses or `@last-modified-by` or `@created-by` to send notifications about
   this stage. Type list. Default value: `@created-by`.
-* **pom**
-  Path of the pom file relative to the stage directory. Type string. Default value: `pom.xml`.
-* **prepare**
-  Shell command executed after initial checkout of a source stage. Type string.
-* **refresh**
-  Shell command executed for source stage if the user invokes `stool refresh`.
-  Type string. Default value: `svn @svnCredentials@ up`
-* **quota**
-  Max disk space for this stage in mb. You cannot start stages if this space exceeded.
-  The sum of all quotas cannot exceed the Stool quota. Type number.
-* **memory**
-  Max ram for running container in mb. Restart your stage after changing this property. Type number.
-* **template**
-  Path to template directory for this stage. Relative paths are relative to $STOOL_HOME/templates. 
-  Restart your stage after changing this property. Type string.
-* **select**
-  List of selected applications. When starting a stage, Stool configures the container only for the selected
-  applications. If none is selected (which is the default), it configures all applications. Type list.
-  Default value: (empty)
-* **url**
-  A pattern that define how to build the application urls: a sequence of strings and alternatives, where
-  alternatives are strings in brackets, separated by |. Example: `(http|https)://%a.%s.%h:@p/foo//bar`
-  Strings may contain place holders: `%a` for the application name, `%s` for the stage name, `%h` for the hostname,
-  and `%p` for the port. A double slash in the path part of the url separates the web application context from a normal path
-  suffix. Thus, the above application is started in context `foo`. If the path part contains no double slash, the application
-  is started in the root context.
-
-Depending on the current template, there are more properties, prefixed with the template name.
-
 
 #### Examples
 
-`stool config memory` prints the current value for memory.
+`stool config comment` prints the current `comment` value.
 
-`stool config memory=2000` sets the memory to 2 gb.
-
-`stool config select=foo,bar` configures a list property. Do not use spaces around
-the comma because the shell would consider this as a new key-value argument -- or quote the whole argument.
-
-### stool-port
-
-Allocates ports for the current stage
-
-#### SYNOPSIS
-
-`stool` *global-option*... `port` *stage-option*... *application*`=`*port*...
-
-#### DESCRIPTION
-
-Allocates the specified port(s) for this stage. *application* specifies the application to use this port for.
-*port* is the http port, *port*+1 is automatically reserved for https. When starting a stage, unused allocated 
-ports are freed.
-
-This command is useful if you have to explicitly assign specific ports to a given stage. You'll normally not use it
-and instead get random ports automatically allocated when you start the stage. 
-
-
-[//]: # (include stageOptions.md)
-
-Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
-[//]: # (-)
+`stool config comment=42` sets the comment to 42.
 
 
 ### stool-status
@@ -844,6 +760,40 @@ Display stage status
 #### DESCRIPTION
 
 Prints the specified status *field*s or properties. Default: print all fields.
+
+Available fields:
+
+* **name**
+* **apps**
+  App urls of this stage. Point your browser to one fo them access your app(s).
+* **running**
+* **urls**
+* **created-by**
+  User who created this stage.
+* **created-at**
+  When this stage was created.
+* **last-modified-by**
+  User who last modified this stage.
+* **last-modified-at**
+  Last modified date of this stage.
+
+[//]: # (include stageOptions.md)
+
+Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
+[//]: # (-)
+
+
+### stool-app
+
+Display app status
+
+#### SYNOPSIS
+
+`stool` *global-option*... `app *stage-option*...
+
+
+#### DESCRIPTION
+
 
 Available fields:
 
@@ -887,12 +837,6 @@ Available fields:
 * **origin**
   Origin of this stage. Type string.
   
-  
-Typical template fields
-* **tomcat.jmx**
-  Some jmx tool invocations for this stage.
-* **tomcat.jmxHeap** 
-  Heap usage for this stage as reported by Jmx. Percentage of used heap in relation to max heap.
 
 [//]: # (include stageOptions.md)
 
