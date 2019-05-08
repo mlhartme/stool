@@ -56,14 +56,14 @@ public class AppInfo {
         idx = 0;
         ports = stage.loadPorts().get(app);
         result.add("app:       " + app);
+        result.add("container: " + (current.container == null ? "" : current.container.id));
+        result.add("uptime:    " + uptime(current.container));
+        result.add("disk-used: " + diskUsed(engine, current.container));
         result.add("cpu:       " + cpu(current.container));
         result.add("mem:       " + mem(current.container));
-        result.add("container: " + (current.container == null ? "" : current.container.id));
+        result.add("heap:      " + heap(stage, app, current));
         addEnv(current.container, result);
         result.add("origin:    " + current.image.origin);
-        result.add("uptime:    " + uptime(current.container));
-        result.add("heap:      " + heap(stage, app, current));
-        result.add("disk-used: " + diskUsed(engine, current.container));
         if (ports != null) {
             if (ports.debug != -1) {
                 result.add("debug port " + ports.debug);
@@ -82,6 +82,7 @@ public class AppInfo {
             marker = image.tag.equals(current.image.tag) ? "==>" : "   ";
             result.add(String.format("%s [%d] %s\n", marker, idx, image.tag));
             result.add("       memory:     " + image.memory);
+            result.add("       disk:       " + image.disk);
             result.add("       comment:    " + image.comment);
             result.add("       origin:     " + image.origin);
             result.add("       created-at: " + image.created);
