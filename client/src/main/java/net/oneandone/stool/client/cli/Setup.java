@@ -148,11 +148,11 @@ public class Setup {
             builder.append("      - " + entry.getKey() + "=" + entry.getValue() + "\n");
         }
         builder.append("    volumes:\n");
-        builder.append("      - " + world.getHome().join(".fault").getAbsolute() + ":" + "/etc/fault/workspace\n");
-        builder.append("      - /var/run/docker.sock:/var/run/docker.sock\n");
-        builder.append("      - " + serverHome + ":/var/lib/stool\n");
+        builder.append("      - /var/run/docker.sock:/var/run/docker.sock:rw\n");
+        builder.append("      - " + serverHome + ":/var/lib/stool:rw\n");
+        builder.append("      - " + world.getHome().join(".fault").getAbsolute() + ":" + "/etc/fault/workspace:ro\n");
         if (cisoTools != null) {
-            builder.append("      - " + world.file(cisoTools).join("stool/templates-5").checkDirectory().getAbsolute() + ":/var/lib/stool/templates\n");
+            builder.append("      - " + world.file(cisoTools).join("stool/templates-5").checkDirectory().getAbsolute() + ":/var/lib/stool/templates:ro\n");
         }
         return builder.toString();
     }
