@@ -139,51 +139,6 @@
           </execution>
         </executions>
       </plugin>
-      <!-- TODO plugin>
-        <artifactId>jdeb</artifactId>
-        <groupId>org.vafer</groupId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <id>jdeb</id>
-            <phase>package</phase>
-            <goals>
-              <goal>jdeb</goal>
-            </goals>
-            <configuration>
-              <name>stool</name>
-              <snapshotExpand>true</snapshotExpand>
-              <deb>${basedir}/target/stool_[[version]]_all.deb</deb>
-              <compression>bz2</compression>
-              <dataSet>
-                <data>
-                  <type>file</type>
-                  <src>${basedir}/target/stool</src>
-                  <dst>/usr/bin/stool</dst>
-                  <mapper>
-                    <type>perm</type>
-                    <user>root</user>
-                    <group>root</group>
-                    <filemode>755</filemode>
-                  </mapper>
-                </data>
-                <data>
-                  <src>${project.build.directory}/debfiles</src>
-                  <dst>/</dst>
-                  <type>directory</type>
-                  <mapper>
-                    <type>perm</type>
-                    <prefix>/</prefix>
-                    <user>root</user>
-                    <group>root</group>
-                    <filemode>644</filemode>
-                  </mapper>
-                </data>
-              </dataSet>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin -->
     </plugins>
   </build>
   <profiles>
