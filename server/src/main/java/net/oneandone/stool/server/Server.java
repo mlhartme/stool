@@ -64,16 +64,87 @@ public class Server {
         FileNode home;
         ServerConfiguration config;
         Server server;
+        Engine engine;
+        FileNode serverHome;
+        FileNode secrets;
+        Map<String, String> binds;
 
         home = world.file("/var/lib/stool");
         home(Main.versionString(world), home);
 
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
-        server = new Server(gson(world), home, config);
+
+        engine = Engine.open("/var/run/docker.sock", null /* TODO dockerLog(logRoot).getAbsolute() */);
+
+        binds = binds(engine);
+        serverHome = toHostFile(binds, world.file("/var/lib/stool"));
+        secrets = toHostFile(binds, world.file("/etc/fault/workspace"));
+
+        server = new Server(gson(world), home, engine, serverHome, secrets, config);
         server.validate();
         server.checkVersion();
         return server;
+    }
+
+    private static FileNode toHostFile(Map<String, String> binds, FileNode container) throws IOException {
+        String hostPath;
+
+        hostPath = binds.get(container.getAbsolute());
+        if (hostPath == null) {
+            throw new IOException("no mapping found for " + container.getAbsolute() + ": " + binds);
+        }
+        return container.getWorld().file(hostPath);
+    }
+
+    /** @return container- to host path mapping with absolute paths without tailing / */
+    private static Map<String, String> binds(Engine engine) throws IOException {
+        List<String> modes = Strings.toList("ro", "rw");
+        String container;
+        JsonObject inspected;
+        JsonArray binds;
+        String str;
+        int idx;
+        Map<String, String> result;
+
+        // container id is the default hostname for a Docker contaier
+        container = InetAddress.getLocalHost().getCanonicalHostName();
+        LOGGER.info("server container id: " + container);
+        try {
+            inspected = engine.containerInspect(container, false);
+        } catch (IOException e) {
+            throw new IOException("cannot inspect server container' " + container + ": " + e.getMessage(), e);
+        }
+        binds = inspected.get("HostConfig").getAsJsonObject().get("Binds").getAsJsonArray();
+        result = new HashMap<>();
+        for (JsonElement element : binds) {
+            str = element.getAsString();
+            LOGGER.info("bind: " + str);
+            idx = str.lastIndexOf(':');
+            if (idx == -1) {
+                throw new IOException("unexpected bind: " + str);
+            }
+            if (!modes.contains(str.substring(idx + 1).toLowerCase())) {
+                throw new IOException("unexpected mode in bind: " + str);
+            }
+            str = str.substring(0, idx);
+            idx = str.indexOf(':');
+            if (idx == -1) {
+                throw new IOException("unexpected bind: " + str);
+            }
+            result.put(canonical(str.substring(idx + 1)), canonical(str.substring(0, idx)));
+        }
+        return result;
+    }
+
+    private static String canonical(String str) throws IOException {
+        if (!str.startsWith("/")) {
+            throw new IOException("absolute path expeccted: " + str);
+        }
+        if (str.endsWith("/")) {
+            str = str.substring(0, str.length() - 1);
+        }
+        return str;
     }
 
     //--
@@ -166,6 +237,7 @@ public class Server {
 
     /** path so /var/lib/stool ON THE DOCKER HOST */
     public final FileNode serverHome;
+    public final FileNode secrets;
 
     public final ServerConfiguration configuration;
 
@@ -175,53 +247,18 @@ public class Server {
 
     public Map<String, Accessor> accessors;
 
-    public Server(Gson gson, FileNode home, ServerConfiguration configuration) throws IOException {
+    public Server(Gson gson, FileNode home, Engine engine, FileNode serverHome, FileNode secrets, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
         this.home = home;
         this.logRoot = home.join("logs");
         this.world = home.getWorld();
-        this.dockerEngine = Engine.open("/var/run/docker.sock", null /* TODO dockerLog(logRoot).getAbsolute() */);
-        this.serverHome = serverHome(world, dockerEngine);
+        this.dockerEngine = engine;
+        this.serverHome = serverHome;
+        this.secrets = secrets;
         this.configuration = configuration;
         this.stages = home.join("stages");
         this.userManager = UserManager.loadOpt(home.join("users.json"));
         this.accessors = StageConfiguration.accessors();
-    }
-
-    private static FileNode serverHome(World world, Engine engine) throws IOException {
-        Map<String, String> binds;
-        String home;
-
-        binds = binds(engine);
-        home = binds.get("/var/lib/stool");
-        if (home == null) {
-            throw new IOException("no mapping found for /var/lib/stool: " + binds);
-        }
-        return world.file(home);
-    }
-
-    /** returns container- to host path mapping */
-    private static Map<String, String> binds(Engine engine) throws IOException {
-        String container;
-        JsonObject inspected;
-        JsonArray binds;
-        String str;
-        int idx;
-        Map<String, String> result;
-
-        container = InetAddress.getLocalHost().getCanonicalHostName();
-        LOGGER.info("server container id: " + container);
-        inspected = engine.containerInspect(container, false);
-        binds = inspected.get("HostConfig").getAsJsonObject().get("Binds").getAsJsonArray();
-        result = new HashMap<>();
-        for (JsonElement element : binds) {
-            str = element.getAsString();
-            LOGGER.info("bind: " + str);
-            str = Strings.removeRight(str, ":rw");
-            idx = str.indexOf(':');
-            result.put(str.substring(idx + 1), str.substring(0, idx));
-        }
-        return result;
     }
 
     private static FileNode dockerLog(FileNode logRoot) throws IOException {
@@ -497,7 +534,6 @@ public class Server {
 
     public void validate() throws IOException {
         validateDocker();
-        // TODO: validateDns();
         LOGGER.info("server validation ok");
     }
 

@@ -91,9 +91,6 @@ public class ServerConfiguration {
 
     public int diskQuota;
 
-    /** absolute path to secrets root */
-    public String secrets;
-
     public String appPropertiesFile;
 
     public String appPropertiesPrefix;
@@ -119,7 +116,6 @@ public class ServerConfiguration {
         mailPassword = "";
         memoryQuota = 0;
         diskQuota = 0;
-        secrets = "/etc/fault/workspace";
         appPropertiesFile = "WEB-INF/classes/META-INF/stool.properties";
         appPropertiesPrefix = "";
         environment = new HashMap<>();

@@ -628,7 +628,7 @@ public class Stage {
         missing = new ArrayList<>();
         for (String project : image.faultProjects) { // TODO: authorization
             innerFile = server.world.file("/etc/fault/workspace").join(project);
-            outerFile = server.world.file(server.configuration.secrets).join(project);
+            outerFile = server.secrets.join(project);
             if (innerFile.isDirectory()) {
                 result.put(outerFile, "/root/.fault/" + project);
             } else {

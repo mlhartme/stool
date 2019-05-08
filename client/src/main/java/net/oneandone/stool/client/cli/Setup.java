@@ -142,14 +142,13 @@ public class Setup {
         builder.append("      - " + portNext + ":" + portNext + "\n");
         builder.append("    environment:\n");
         builder.append("      - DOCKER_HOST=" + dockerHost + "\n");
-        builder.append("      - SECRETS="  + world.getHome().join(".fault").getAbsolute() + "\n");
         builder.append("      - OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=" + portNext + "\n");
 
         for (Map.Entry<String, String> entry : opts.entrySet()) {
             builder.append("      - " + entry.getKey() + "=" + entry.getValue() + "\n");
         }
         builder.append("    volumes:\n");
-        builder.append("      - " + world.getHome().getAbsolute() + "/.fault" + ":" + "/etc/fault/workspace\n");
+        builder.append("      - " + world.getHome().join(".fault").getAbsolute() + ":" + "/etc/fault/workspace\n");
         builder.append("      - /var/run/docker.sock:/var/run/docker.sock\n");
         builder.append("      - " + serverHome + ":/var/lib/stool\n");
         if (cisoTools != null) {
