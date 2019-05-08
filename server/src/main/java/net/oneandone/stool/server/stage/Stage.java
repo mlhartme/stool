@@ -615,7 +615,7 @@ public class Stage {
         FileNode innerFile;
         FileNode outerFile;
 
-        hostLogRoot = server.configuration.serverHome.join("stages", getName(), "logs", image.app);
+        hostLogRoot = server.serverHome.join("stages", getName(), "logs", image.app);
         directory.join("logs", image.app).mkdirsOpt();
         result = new HashMap<>();
         result.put(hostLogRoot, "/var/log/stool");

@@ -17,6 +17,8 @@ package net.oneandone.stool.server;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.Expire;
@@ -48,6 +50,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Modifier;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -158,9 +161,12 @@ public class Server {
     public final Gson gson;
     public final FileNode home;
     private final FileNode logRoot;
+    public final World world;
     private final Engine dockerEngine;
 
-    public final World world;
+    /** path so /var/lib/stool ON THE DOCKER HOST */
+    public final FileNode serverHome;
+
     public final ServerConfiguration configuration;
 
     private final FileNode stages;
@@ -173,12 +179,49 @@ public class Server {
         this.gson = gson;
         this.home = home;
         this.logRoot = home.join("logs");
-        this.dockerEngine = Engine.open("/var/run/docker.sock", null /* TODO dockerLog(logRoot).getAbsolute() */);
         this.world = home.getWorld();
+        this.dockerEngine = Engine.open("/var/run/docker.sock", null /* TODO dockerLog(logRoot).getAbsolute() */);
+        this.serverHome = serverHome(world, dockerEngine);
         this.configuration = configuration;
         this.stages = home.join("stages");
         this.userManager = UserManager.loadOpt(home.join("users.json"));
         this.accessors = StageConfiguration.accessors();
+    }
+
+    private static FileNode serverHome(World world, Engine engine) throws IOException {
+        Map<String, String> binds;
+        String home;
+
+        binds = binds(engine);
+        home = binds.get("/var/lib/stool");
+        if (home == null) {
+            throw new IOException("no mapping found for /var/lib/stool: " + binds);
+        }
+        return world.file(home);
+    }
+
+    /** returns container- to host path mapping */
+    private static Map<String, String> binds(Engine engine) throws IOException {
+        String container;
+        JsonObject inspected;
+        JsonArray binds;
+        String str;
+        int idx;
+        Map<String, String> result;
+
+        container = InetAddress.getLocalHost().getCanonicalHostName();
+        LOGGER.info("server container id: " + container);
+        inspected = engine.containerInspect(container, false);
+        binds = inspected.get("HostConfig").getAsJsonObject().get("Binds").getAsJsonArray();
+        result = new HashMap<>();
+        for (JsonElement element : binds) {
+            str = element.getAsString();
+            LOGGER.info("bind: " + str);
+            str = Strings.removeRight(str, ":rw");
+            idx = str.indexOf(':');
+            result.put(str.substring(idx + 1), str.substring(0, idx));
+        }
+        return result;
     }
 
     private static FileNode dockerLog(FileNode logRoot) throws IOException {
@@ -446,7 +489,7 @@ public class Server {
         tmp = world.getTemp().createTempDirectory();
         LOGGER.debug(tmp.exec(script.getAbsolute(), certname, file.getAbsolute()));
         tmp.deleteTree();
-        return configuration.serverHome.join(file.getRelative(home));
+        return serverHome.join(file.getRelative(home));
     }
 
     //--

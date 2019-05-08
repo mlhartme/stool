@@ -16,7 +16,6 @@
 package net.oneandone.stool.server.configuration;
 
 import net.oneandone.stool.server.util.Mailer;
-import net.oneandone.sushi.fs.file.FileNode;
 
 import java.lang.reflect.Field;
 import java.net.InetAddress;
@@ -45,9 +44,6 @@ public class ServerConfiguration {
     }
 
     //--
-
-    /** path on the docker host */
-    public FileNode serverHome;
 
     public String loglevel;
 
@@ -106,7 +102,6 @@ public class ServerConfiguration {
     public Map<String, String> environment;
 
     public ServerConfiguration() {
-        serverHome = null;
         vhosts = false;
         loglevel = "INFO";
         registryNamespace = "main";

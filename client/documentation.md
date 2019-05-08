@@ -348,8 +348,6 @@ The following environment variables can be used to configure Stool server. This 
   Absolute path of the secrets directory on the stage host. Type string. TODO: determine automatically.
 * **REGISTRY_NAMESPACE**
   Prefix for all stage tags. Type string.
-* **SERVER_HOME**
-  TODO: determine automatically.
 * **VHOSTS**
   `true` to create urls with vhosts for app and stage name.
   `false` to create urls without vhosts. (Note that urls always contain the port to

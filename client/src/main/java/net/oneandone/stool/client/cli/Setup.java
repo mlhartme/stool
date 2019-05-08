@@ -141,7 +141,6 @@ public class Setup {
         builder.append("      - " + port + ":" + port + "\n");
         builder.append("      - " + portNext + ":" + portNext + "\n");
         builder.append("    environment:\n");
-        builder.append("      - SERVER_HOME=" + serverHome + "\n");
         builder.append("      - DOCKER_HOST=" + dockerHost + "\n");
         builder.append("      - SECRETS="  + world.getHome().join(".fault").getAbsolute() + "\n");
         builder.append("      - OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=" + portNext + "\n");

@@ -1,8 +1,5 @@
 FROM contargo.server.lan/cisoops-public/java-8
 
-# path on docker host
-ENV SERVER_HOME=
-
 ENV LOGLEVEL=INFO
 ENV REGISTRY_NAMESPACE=main
 ENV PORT_FIRST=9000
