@@ -63,7 +63,7 @@ public class AppInfo {
         result.add("origin:    " + current.image.origin);
         result.add("uptime:    " + uptime(current.container));
         result.add("heap:      " + heap(stage, app, current));
-        result.add("disk-used: " + diskUsed(current.container));
+        result.add("disk-used: " + diskUsed(engine, current.container));
         if (ports != null) {
             if (ports.debug != -1) {
                 result.add("debug port " + ports.debug);
@@ -154,13 +154,13 @@ public class AppInfo {
         return Float.toString(((float) (used * 1000 / max)) / 10);
     }
 
-    public int diskUsed(Engine.ContainerListInfo info) throws IOException {
+    public static int diskUsed(Engine engine, Engine.ContainerListInfo info) throws IOException {
         JsonObject obj;
 
         if (info == null) {
             return 0;
         }
-        obj = context.dockerEngine().containerInspect(info.id, true);
+        obj = engine.containerInspect(info.id, true);
         // not SizeRootFs, that's the image size plus the rw layer
         return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }

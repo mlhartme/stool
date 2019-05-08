@@ -38,7 +38,7 @@ public class Validation {
         String message;
 
         try {
-            stage.checkConstraints();
+            stage.checkConstraints(server.dockerEngine());
             return;
         } catch (ArgumentException e) {
             message = e.getMessage();

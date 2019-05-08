@@ -258,7 +258,7 @@ public class ApiController {
 
         stage = server.load(stageName);
         stage.server.configuration.verfiyHostname();
-        stage.checkConstraints();
+        stage.checkConstraints(server.dockerEngine());
         return array(stage.start(http, https, environment, apps)).toString();
     }
 

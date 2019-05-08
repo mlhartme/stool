@@ -25,6 +25,7 @@ import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.LogReader;
+import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Ports;
@@ -365,7 +366,7 @@ public class Stage {
         }
     }
 
-    public void checkConstraints() throws IOException {
+    public void checkConstraints(Engine engine) throws IOException {
         int used;
         int quota;
 
@@ -373,11 +374,27 @@ public class Stage {
             throw new ArgumentException("Stage expired " + configuration.expire + ". To start it, you have to adjust the 'expire' date.");
         }
         quota = configuration.quota;
-        /* TODO: used = diskUsed();
+        used = diskUsed(engine);
         if (used > quota) {
             throw new ArgumentException("Stage quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n" +
                     "Consider running 'stool cleanup'.");
-        }*/
+        }
+    }
+
+    public int diskUsed(Engine engine) throws IOException {
+        int result;
+        Map<String, Current> map;
+        Engine.ContainerListInfo info;
+
+        result = 0;
+        map = currentMap();
+        for (Map.Entry<String, Current> entry : map.entrySet()) {
+            info = entry.getValue().container;
+            if (info != null) {
+                result += AppInfo.diskUsed(engine, info);
+            }
+        }
+        return result;
     }
 
     public static class BuildResult {
