@@ -314,9 +314,8 @@ The following environment variables can be used to configure Stool server. This 
 * **AUTO_REMOVE**
   Days to wait before removing an expired stage. -1 to disable this feature. Type number, default -1. 
 * **DISK_QUOTA**
-  Mb of disk spaces available for stages. The sum of all stage quota properties cannot exceed this number. 0 disables this
-  feature. You'll usually set this to the size of the partition that will store your stages. Note that this quota cannot always
-  prevent disk full problem because stages can be placed on arbitrary partitions. Type number, default 0.
+  Mb of disk spaces available for the root file system of all apps in all stages. The sum of all disk space reserved for all apps of all stages
+  cannot exceed this number. 0 disables this feature. Type number, default 0.
 * **CERTIFICATE**
   TODO
 * **DOCKER_HOST**

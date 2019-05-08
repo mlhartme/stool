@@ -73,6 +73,7 @@ public class Stage {
 
     public static final String IMAGE_LABEL_PORT_DECLARED_PREFIX = IMAGE_PREFIX + "port.";
     public static final String IMAGE_LABEL_P12 = IMAGE_PREFIX + "certificate.p12";
+    public static final String IMAGE_LABEL_DISK = IMAGE_PREFIX + "disk";
     public static final String IMAGE_LABEL_MEMORY = IMAGE_PREFIX + "memory";
     public static final String IMAGE_LABEL_URL_CONTEXT = IMAGE_PREFIX + "url.server";
     public static final String IMAGE_LABEL_URL_SUFFIXES = IMAGE_PREFIX + "url.suffixes";
@@ -366,36 +367,30 @@ public class Stage {
         }
     }
 
-    public void checkConstraints(Engine engine) throws IOException {
-        int used;
-        int quota;
-
+    public void checkExpired() {
         if (configuration.expire.isExpired()) {
             throw new ArgumentException("Stage expired " + configuration.expire + ". To start it, you have to adjust the 'expire' date.");
         }
-        // --storage-opt size=42m could limit disk space, but it's only available for certain storage drivers (with certain mount options) ...
-        quota = configuration.quota;
-        used = diskUsed(engine);
-        if (used > quota) {
-            throw new ArgumentException("Stage quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n" +
-                    "Consider running 'stool cleanup'.");
-        }
     }
 
-    public int diskUsed(Engine engine) throws IOException {
-        int result;
+    // --storage-opt size=42m could limit disk space, but it's only available for certain storage drivers (with certain mount options) ...
+    public void checkDiskQuota(Engine engine) throws IOException {
+        int used;
+        int quota;
         Map<String, Current> map;
-        Engine.ContainerListInfo info;
+        Engine.ContainerInfo info;
 
-        result = 0;
         map = currentMap();
         for (Map.Entry<String, Current> entry : map.entrySet()) {
             info = entry.getValue().container;
             if (info != null) {
-                result += AppInfo.diskUsed(engine, info);
+                used = AppInfo.diskUsed(engine, info);
+                quota = entry.getValue().image.disk;
+                if (used > entry.getValue().image.disk) {
+                    throw new ArgumentException("Stage disk quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n");
+                }
             }
         }
-        return result;
     }
 
     public static class BuildResult {
@@ -766,7 +761,7 @@ public class Stage {
         result = new LinkedHashMap<>();
         engine = server.dockerEngine();
         images = new HashMap<>();
-        for (Engine.ContainerListInfo info : engine.containerList(Stage.CONTAINER_LABEL_IMAGE).values()) {
+        for (Engine.ContainerInfo info : engine.containerList(Stage.CONTAINER_LABEL_IMAGE).values()) {
             if (name.equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
                 images.put(info.labels.get(Stage.CONTAINER_LABEL_APP), Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE)));
             }
@@ -846,15 +841,15 @@ public class Stage {
 
     public static class Current {
         public final Image image;
-        public final Engine.ContainerListInfo container;
+        public final Engine.ContainerInfo container;
 
-        public Current(Image image, Engine.ContainerListInfo container) {
+        public Current(Image image, Engine.ContainerInfo container) {
             this.image = image;
             this.container = container;
         }
     }
 
-    public Map<String, Engine.ContainerListInfo> dockerRunningContainerList() throws IOException {
+    public Map<String, Engine.ContainerInfo> dockerRunningContainerList() throws IOException {
         Engine engine;
 
         engine = server.dockerEngine();
@@ -863,7 +858,7 @@ public class Stage {
 
     public Map<String, Current> currentMap() throws IOException {
         Engine engine;
-        Collection<Engine.ContainerListInfo> containerList;
+        Collection<Engine.ContainerInfo> containerList;
         JsonObject json;
         Map<String, Current> result;
         Image image;
@@ -871,7 +866,7 @@ public class Stage {
         engine = server.dockerEngine();
         result = new HashMap<>();
         containerList = dockerRunningContainerList().values();
-        for (Engine.ContainerListInfo info : containerList) {
+        for (Engine.ContainerInfo info : containerList) {
             json = engine.containerInspect(info.id, false);
             image = Image.load(engine, Server.containerImageTag(json));
             result.put(image.app, new Current(image, info));

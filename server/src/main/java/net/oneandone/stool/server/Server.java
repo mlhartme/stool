@@ -405,12 +405,18 @@ public class Server {
 
     public int diskQuotaReserved() throws IOException {
         int reserved;
-        StageConfiguration config;
+        Stage stage;
+        Engine.ContainerInfo info;
 
         reserved = 0;
         for (FileNode directory : stages.list()) {
-            config = loadStageConfiguration(directory);
-            reserved += Math.max(0, config.quota);
+            stage = load(directory);
+            for (Map.Entry<String, Stage.Current> entry : stage.currentMap().entrySet()) {
+                info = entry.getValue().container;
+                if (info != null) {
+                    reserved += entry.getValue().image.disk;
+                }
+            }
         }
         return reserved;
     }

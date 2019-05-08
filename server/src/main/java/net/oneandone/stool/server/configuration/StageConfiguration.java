@@ -43,9 +43,6 @@ public class StageConfiguration {
 
     //--
 
-    @Option(key = "quota")
-    public int quota;
-
     /** login names or email addresses, or "@last-modified-by" or "@created-by" */
     @Option(key = "notify")
     public List<String> notify;
@@ -59,7 +56,6 @@ public class StageConfiguration {
     public StageConfiguration() {
         this.notify = new ArrayList<>();
         this.notify.add(NOTIFY_CREATED_BY);
-        this.quota = 10000;
         this.expire = Expire.never();
         this.comment = "";
     }

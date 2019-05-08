@@ -251,14 +251,15 @@ public class ApiController {
         if (global != 0) {
             reserved = server.diskQuotaReserved();
             if (reserved > global) {
-                throw new IOException("Sum of all stage quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
+                throw new IOException("Sum of all stage disk quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
                         + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
             }
         }
 
         stage = server.load(stageName);
         stage.server.configuration.verfiyHostname();
-        stage.checkConstraints(server.dockerEngine());
+        stage.checkExpired();
+        stage.checkDiskQuota(server.dockerEngine());
         return array(stage.start(http, https, environment, apps)).toString();
     }
 

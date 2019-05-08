@@ -83,8 +83,8 @@ public class MainIT {
         stool("detach", "-project", project.getAbsolute());
         stool("attach", "-project", project.getAbsolute(), stage);
         stool("validate", "-stage", stage);
-        stool("config", "-stage", stage, "quota");
-        stool("config", "-stage", stage, "quota=10001");
+        stool("config", "-stage", stage, "comment");
+        stool("config", "-stage", stage, "comment=42");
         stool("build", "-v", "-project=" + project.getAbsolute());
         stool("app", stage);
         stool("start", "-v", "-stage", stage);

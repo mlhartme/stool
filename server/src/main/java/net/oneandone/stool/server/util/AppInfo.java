@@ -99,7 +99,7 @@ public class AppInfo {
         return result;
     }
 
-    private void addEnv(Engine.ContainerListInfo info, List<String> result) {
+    private void addEnv(Engine.ContainerInfo info, List<String> result) {
         Map<String, String> env;
         List<String> keys;
 
@@ -154,7 +154,7 @@ public class AppInfo {
         return Float.toString(((float) (used * 1000 / max)) / 10);
     }
 
-    public static int diskUsed(Engine engine, Engine.ContainerListInfo info) throws IOException {
+    public static int diskUsed(Engine engine, Engine.ContainerInfo info) throws IOException {
         JsonObject obj;
 
         if (info == null) {
@@ -165,7 +165,7 @@ public class AppInfo {
         return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
 
-    private Map<String, String> env(Engine.ContainerListInfo info) {
+    private Map<String, String> env(Engine.ContainerInfo info) {
         Map<String, String> result;
         String key;
 
@@ -181,11 +181,11 @@ public class AppInfo {
         return result;
     }
 
-    private String uptime(Engine.ContainerListInfo info) throws IOException {
+    private String uptime(Engine.ContainerInfo info) throws IOException {
         return info == null ? null : Stage.timespan(context.dockerEngine().containerStartedAt(info.id));
     }
 
-    private Integer cpu(Engine.ContainerListInfo info) throws IOException {
+    private Integer cpu(Engine.ContainerInfo info) throws IOException {
         Engine engine;
         Stats stats;
 
@@ -202,7 +202,7 @@ public class AppInfo {
         }
     }
 
-    private Long mem(Engine.ContainerListInfo info) throws IOException {
+    private Long mem(Engine.ContainerInfo info) throws IOException {
         Stats stats;
 
         if (info == null) {

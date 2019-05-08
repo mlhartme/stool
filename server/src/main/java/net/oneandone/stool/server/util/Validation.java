@@ -38,7 +38,8 @@ public class Validation {
         String message;
 
         try {
-            stage.checkConstraints(server.dockerEngine());
+            stage.checkExpired();
+            stage.checkDiskQuota(server.dockerEngine());
             return;
         } catch (ArgumentException e) {
             message = e.getMessage();

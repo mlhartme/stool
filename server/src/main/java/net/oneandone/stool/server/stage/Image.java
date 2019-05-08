@@ -42,6 +42,7 @@ public class Image implements Comparable<Image> {
         return new Image(tag, created, Ports.fromDeclaredLabels(labels),
                 p12(labels.get(Stage.IMAGE_LABEL_P12)),
                 app,
+                disk(labels.get(Stage.IMAGE_LABEL_DISK)),
                 memory(labels.get(Stage.IMAGE_LABEL_MEMORY)),
                 context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(Stage.IMAGE_LABEL_URL_SUFFIXES)),
@@ -73,6 +74,10 @@ public class Image implements Comparable<Image> {
 
     private static int memory(JsonElement element) {
         return element == null ? 1024 : Integer.parseInt(element.getAsString());
+    }
+
+    private static int disk(JsonElement element) {
+        return element == null ? 1024 * 42 : Integer.parseInt(element.getAsString());
     }
 
     private static String context(JsonElement element) {
@@ -144,6 +149,9 @@ public class Image implements Comparable<Image> {
 
     public final String app;
 
+    /** in megabytes */
+    public final int disk;
+
     /** memory in megabytes */
     public final int memory;
 
@@ -160,7 +168,7 @@ public class Image implements Comparable<Image> {
     /** maps relative host path to absolute container path */
     public final List<String> faultProjects;
 
-    public Image(String tag, LocalDateTime created, Ports ports, String p12, String app, int memory, String urlContext, List<String> urlSuffixes,
+    public Image(String tag, LocalDateTime created, Ports ports, String p12, String app, int disk, int memory, String urlContext, List<String> urlSuffixes,
                  String comment, String origin, String createdBy, String createdOn, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
@@ -173,6 +181,7 @@ public class Image implements Comparable<Image> {
         this.ports = ports;
         this.p12 = p12;
         this.app = app;
+        this.disk = disk;
         this.memory = memory;
         this.urlContext = urlContext;
         this.urlSuffixes = urlSuffixes;
