@@ -373,6 +373,7 @@ public class Stage {
         if (configuration.expire.isExpired()) {
             throw new ArgumentException("Stage expired " + configuration.expire + ". To start it, you have to adjust the 'expire' date.");
         }
+        // --storage-opt size=42m could limit disk space, but it's only available for certain storage drivers (with certain mount options) ...
         quota = configuration.quota;
         used = diskUsed(engine);
         if (used > quota) {

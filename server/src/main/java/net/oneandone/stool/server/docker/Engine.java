@@ -38,8 +38,6 @@ import org.kamranzafar.jtar.TarHeader;
 import org.kamranzafar.jtar.TarOutputStream;
 
 import javax.net.SocketFactory;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.File;
@@ -489,9 +487,9 @@ public class Engine implements AutoCloseable {
             node = node.withParameter("name", name);
         }
         if (priviledged) {
-            body = body("Image", image, "Hostname", hostname);
+            body = object("Image", image, "Hostname", hostname);
         } else {
-            body = body("Image", image, "Hostname", hostname, "User", Long.toString(geteuid()), "Group", Long.toString(getegid()));
+            body = object("Image", image, "Hostname", hostname, "User", Long.toString(geteuid()), "Group", Long.toString(getegid()));
         }
         if (!labels.isEmpty()) {
             body.add("Labels", obj(labels));
@@ -519,7 +517,7 @@ public class Engine implements AutoCloseable {
         mounts = new JsonArray();
         hostConfig.add("Mounts", mounts);
         for (Map.Entry<FileNode, String> entry : bindMounts.entrySet()) {
-            mounts.add(body("type", "bind", "source", entry.getKey().getAbsolute(), "target", entry.getValue()));
+            mounts.add(object("type", "bind", "source", entry.getKey().getAbsolute(), "target", entry.getValue()));
         }
         drops = new JsonArray(); // added security - not sure if I really need this
         drops.add(new JsonPrimitive("setuid"));
@@ -549,15 +547,6 @@ public class Engine implements AutoCloseable {
         return response.get("Id").getAsString();
     }
 
-    private static JsonObject fuseDevice() { // https://gist.github.com/dims/0d1ac1a5598e0b8a72e0
-        JsonObject result;
-
-        result = new JsonObject();
-        result.add("PathOnHost", new JsonPrimitive("/dev/fuse"));
-        result.add("PathInContainer", new JsonPrimitive("/dev/fuse"));
-        result.add("CgroupPermissions", new JsonPrimitive("mrw"));
-        return result;
-    }
     private static JsonArray env(Map<String, String> env) {
         JsonArray result;
 
@@ -653,7 +642,7 @@ public class Engine implements AutoCloseable {
     public int containerWait(String id) throws IOException {
         JsonObject response;
 
-        response = post(root.join("containers", id, "wait"), body());
+        response = post(root.join("containers", id, "wait"), object());
         return response.get("StatusCode").getAsInt();
     }
 
@@ -789,7 +778,7 @@ public class Engine implements AutoCloseable {
         }
     }
 
-    private static JsonObject body(Object... keyvalues) {
+    private static JsonObject object(Object... keyvalues) {
         JsonObject body;
         Object arg;
 
@@ -810,6 +799,17 @@ public class Engine implements AutoCloseable {
         }
         return body;
     }
+
+    private static JsonArray array(JsonElement ... elements) {
+        JsonArray result;
+
+        result = new JsonArray();
+        for (JsonElement e : elements) {
+            result.add(e);
+        }
+        return result;
+    }
+
 
     private static String labelsToJsonArray(Map<String, String> map) {
         StringBuilder builder;
