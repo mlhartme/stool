@@ -99,7 +99,7 @@ public class EngineIT {
         assertTrue(engine.containerListRunning("stooltest").isEmpty());
         ports = new HashMap<>();
         ports.put(1301, 1302);
-        container = engine.containerCreate(image, "somehost", false, null, null, null,
+        container = engine.containerCreate(null, image, "somehost", false, null, null, null,
                 Strings.toMap("containerLabel", "bla"), Collections.emptyMap(), Collections.emptyMap(), ports);
 
         assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
@@ -155,7 +155,7 @@ public class EngineIT {
         image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"),false,null);
         assertNotNull(image);
 
-        container = engine.containerCreate(image, "foo", false,
+        container = engine.containerCreate(null, image, "foo", false,
                 limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         assertNotNull(container);
         assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
@@ -208,7 +208,7 @@ public class EngineIT {
 
         engine = open();
         image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false,null);
-        container = engine.containerCreate(image, "foo", false,
+        container = engine.containerCreate(null, image, "foo", false,
                 limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         engine.containerStart(container);
         engine = open();
@@ -219,7 +219,7 @@ public class EngineIT {
 
         engine = open();
         image = engine.imageBuild("sometag", Collections.emptyMap(),  Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false,null);
-        container = engine.containerCreate(image, "foo", false,
+        container = engine.containerCreate(null, image, "foo", false,
                 limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         engine.containerStart(container);
         engine = open();
@@ -241,7 +241,7 @@ public class EngineIT {
         output = engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\nCMD [\"/bin/sleep\", \"30\"]\n"));
         assertNotNull(output);
 
-        container = engine.containerCreate(image, "foo", false, null, /*"SIGQUIT"*/ null, 3,
+        container = engine.containerCreate(null, image, "foo", false, null, /*"SIGQUIT"*/ null, 3,
                 Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         engine.containerStart(container);
         assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
@@ -265,7 +265,7 @@ public class EngineIT {
         engine = open();
         output = engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\nCMD echo $foo $notfound $xxx\n"));
         assertNotNull(output);
-        container = engine.containerCreate(image, "foo", false, null, /*"SIGQUIT"*/ null, 3,
+        container = engine.containerCreate(null, image, "foo", false, null, /*"SIGQUIT"*/ null, 3,
                 Collections.emptyMap(), Strings.toMap("foo", "bar", "xxx", "after"), Collections.emptyMap(), Collections.emptyMap());
         engine.containerStart(container);
         assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
@@ -291,7 +291,7 @@ public class EngineIT {
         output = engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "\n"));
         assertNotNull(output);
 
-        container = engine.containerCreate(image, "foo", false, null, null, null,
+        container = engine.containerCreate(null, image, "foo", false, null, null, null,
                 Collections.emptyMap(), Collections.emptyMap(), Collections.singletonMap(home, home.getAbsolute()), Collections.emptyMap());
         assertNotNull(container);
         assertEquals(Engine.Status.CREATED, engine.containerStatus(container));

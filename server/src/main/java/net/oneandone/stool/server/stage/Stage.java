@@ -486,7 +486,7 @@ public class Stage {
             for (Map.Entry<String, String> entry : environment.entrySet()) {
                 labels.put(CONTAINER_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
             }
-            container = engine.containerCreate(image.tag,  getName() + "." + server.configuration.dockerHost,
+            container = engine.containerCreate(toName(image.tag), image.tag,  getName() + "." + server.configuration.dockerHost,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * image.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts));
             Server.LOGGER.debug("created container " + container);
@@ -498,6 +498,33 @@ public class Stage {
             result.add(image.app);
         }
         return result;
+    }
+
+    private static String toName(String str) {
+        StringBuilder result;
+        char c;
+
+        result = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            c = str.charAt(i);
+            switch (c) {
+                case '-':
+                case '_':
+                    result.append(c);
+                    break;
+                case '.':
+                case ':':
+                    result.append('_');
+                    break;
+                default:
+                    if ((c >= 'a' && c <='z') || (c >= 'A' && c <='Z') || (c >= '0' && c <='9')) {
+                        result.append(c);
+                    } else {
+                        result.append(Integer.toString(c));
+                    }
+            }
+        }
+        return result.toString();
     }
 
     private List<Image> resolve(Engine engine, Map<String, Integer> selectionOrig) throws IOException {

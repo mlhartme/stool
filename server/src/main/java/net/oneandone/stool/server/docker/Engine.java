@@ -463,7 +463,7 @@ public class Engine implements AutoCloseable {
     //-- containers
 
     public String containerCreate(String image, String hostname) throws IOException {
-        return containerCreate(image, hostname, false, null, null, null,
+        return containerCreate(null, image, hostname, false, null, null, null,
                 Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
     }
 
@@ -474,7 +474,7 @@ public class Engine implements AutoCloseable {
      * @param stopTimeout default timeout when stopping this container without explicit timeout value; null to use default (10 seconds)
      * @return container id
      */
-    public String containerCreate(String image, String hostname, boolean priviledged, Long memory, String stopSignal, Integer stopTimeout,
+    public String containerCreate(String name, String image, String hostname, boolean priviledged, Long memory, String stopSignal, Integer stopTimeout,
                                   Map<String, String> labels, Map<String, String> env, Map<FileNode, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
         JsonObject body;
         JsonObject response;
@@ -482,7 +482,12 @@ public class Engine implements AutoCloseable {
         JsonArray mounts;
         JsonObject portBindings;
         JsonArray drops;
+        HttpNode node;
 
+        node = root.join("containers/create");
+        if (name != null) {
+            node = node.withParameter("name", name);
+        }
         if (priviledged) {
             body = body("Image", image, "Hostname", hostname);
         } else {
@@ -539,7 +544,7 @@ public class Engine implements AutoCloseable {
         hostConfig.add("PortBindings", portBindings);
         body.add("ExposedPorts", exposedPorts(ports.keySet()));
 
-        response = post(root.join("containers/create"), body);
+        response = post(node, body);
         checWarnings(response);
         return response.get("Id").getAsString();
     }
