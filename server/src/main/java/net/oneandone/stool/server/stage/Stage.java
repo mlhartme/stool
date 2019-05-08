@@ -514,6 +514,7 @@ public class Stage {
                     break;
                 case '.':
                 case ':':
+                case '/':
                     result.append('_');
                     break;
                 default:
