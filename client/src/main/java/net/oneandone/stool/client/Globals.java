@@ -18,7 +18,6 @@ package net.oneandone.stool.client;
 import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
 
 import java.io.IOException;
 import java.util.UUID;
