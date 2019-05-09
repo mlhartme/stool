@@ -1,4 +1,4 @@
-package net.oneandone.stool.server.web;
+package net.oneandone.stool.server.api;
 
 import net.oneandone.stool.server.Server;
 import net.oneandone.sushi.fs.World;

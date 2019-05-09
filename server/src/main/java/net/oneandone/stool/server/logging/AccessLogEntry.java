@@ -16,7 +16,7 @@
 package net.oneandone.stool.server.logging;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import net.oneandone.stool.server.web.ApiLogging;
+import net.oneandone.stool.server.api.ApiLogging;
 
 import java.time.Instant;
 import java.time.LocalDateTime;

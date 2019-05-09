@@ -35,7 +35,7 @@ import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.server.util.Pool;
 import net.oneandone.stool.server.util.Predicate;
-import net.oneandone.stool.server.web.StageNotFoundException;
+import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
