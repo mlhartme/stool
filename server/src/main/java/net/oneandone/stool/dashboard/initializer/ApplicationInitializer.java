@@ -23,9 +23,10 @@ import org.springframework.web.servlet.DispatcherServlet;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
 
+// TODO: why?
 public class ApplicationInitializer extends AbstractSecurityWebApplicationInitializer {
-    // TODO @Override
-    public void todoAfterSpringSecurityFilterChain(ServletContext servletContext) {
+    @Override
+    public void afterSpringSecurityFilterChain(ServletContext servletContext) {
         AnnotationConfigWebApplicationContext context;
         ServletRegistration.Dynamic dispatcher;
 
