@@ -73,8 +73,7 @@ public class AppInfo {
 
                 result.add("jmx port:  " + ports.jmxmp);
                 url = stage.server.configuration.dockerHost + ":" + ports.jmxmp;
-                result.add("                 jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/*.jar " + url); // TODO: configurable jmx example
-                result.add("                 jvisualvm --openjmx " + url);
+                result.add("                 jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://" + url); // TODO: configurable jmx example
             }
         }
         result.add("");
