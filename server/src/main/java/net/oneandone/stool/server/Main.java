@@ -41,7 +41,7 @@ public class Main {
         config = ServerConfiguration.load(); // it's loaded twice, but I don't have injection here ...
         System.setProperty("loglevel", config.loglevel);
         System.setProperty("server.port", Integer.toString(config.portFirst));
-        SpringApplication.run(Main.class, new String[] {});
+        SpringApplication.run(Main.class, args);
     }
 
     //--
