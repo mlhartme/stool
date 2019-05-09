@@ -55,6 +55,10 @@ Stages are now the central part; multiple project can be associated with the sam
   * dumped `macros`
   * dumped `search`
 
+* use jmxmp
+  - https://stackoverflow.com/questions/11412560/where-to-download-jmxmp
+  - https://stackoverflow.com/questions/11413178/how-to-enable-jmxmp-in-tomcat
+  
 * stage filter with substring, and case-insensitive
 
 * replaced stage property `memory` by an build argument
