@@ -2,20 +2,44 @@ package net.oneandone.stool.server.web;
 
 import net.oneandone.stool.server.Server;
 import net.oneandone.sushi.fs.World;
+import net.oneandone.sushi.fs.file.FileNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jmx.support.ConnectorServerFactoryBean;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.thymeleaf.spring5.SpringTemplateEngine;
+import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
+import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import java.io.IOException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Configuration
 public class ServerConfigurer implements WebMvcConfigurer {
     @Bean
-    public Server server() throws IOException {
-        return Server.create(World.create());
+    public World world() throws IOException {
+        return World.create();
+    }
+
+    @Bean
+    public Server server(World world) throws IOException {
+        return Server.create(world);
+    }
+
+    @Bean  // TODO: still needed?
+    public ExecutorService executorService() {
+        return Executors.newCachedThreadPool();
+    }
+
+    @Bean
+    public FileNode logs(World world) {
+        return world.getWorking().join("TODO/logs");
     }
 
     @Bean
@@ -32,5 +56,47 @@ public class ServerConfigurer implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(loggingInitializer).addPathPatterns("/api/**");
+    }
+
+    //-- ui
+
+    @Autowired
+    private ApplicationContext applicationContext;
+
+    @Override
+    public void addResourceHandlers(final ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/css/**").addResourceLocations("/css/");
+        registry.addResourceHandler("/js/**").addResourceLocations("/js/");
+        registry.addResourceHandler("/webjars/**").addResourceLocations("/webjars/");
+    }
+
+    @Bean
+    public SpringResourceTemplateResolver templateResolver() {
+        SpringResourceTemplateResolver resolver;
+
+        resolver = new SpringResourceTemplateResolver();
+        resolver.setApplicationContext(applicationContext);
+        resolver.setPrefix("/WEB-INF/pages/");
+        resolver.setSuffix(".html");
+        return resolver;
+    }
+
+    @Bean
+    public SpringTemplateEngine templateEngine() {
+        SpringTemplateEngine engine;
+
+        engine = new SpringTemplateEngine();
+        engine.setTemplateResolver(templateResolver());
+        engine.setEnableSpringELCompiler(true);
+        return engine;
+    }
+
+    @Override
+    public void configureViewResolvers(ViewResolverRegistry registry) {
+        ThymeleafViewResolver resolver;
+
+        resolver = new ThymeleafViewResolver();
+        resolver.setTemplateEngine(templateEngine());
+        registry.viewResolver(resolver);
     }
 }

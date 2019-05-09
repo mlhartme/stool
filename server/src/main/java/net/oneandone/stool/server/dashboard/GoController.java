@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.dashboard;
+package net.oneandone.stool.server.dashboard;
 
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.stage.Stage;
