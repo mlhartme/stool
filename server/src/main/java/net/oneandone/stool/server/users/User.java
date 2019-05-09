@@ -29,7 +29,7 @@ import java.util.Objects;
 
 /** A stool user. Not that a user does not necessarily correspond to an OS user (i.e. a user account on the current machine) */
 public class User implements UserDetails {
-    public static User currentOrAnonymous() {
+    public static User authenticatedOrAnonymous() {
         User user;
 
         user = authenticatedOpt();

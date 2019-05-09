@@ -16,6 +16,7 @@
 package net.oneandone.stool.server.ui;
 
 import net.oneandone.stool.server.Server;
+import net.oneandone.stool.server.users.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +24,6 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.ldap.userdetails.InetOrgPerson;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -44,23 +44,20 @@ public class UiController {
     private Server server;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
-    public ModelAndView index(ModelAndView modelAndView) {
-        Object username;
+    public ModelAndView dashboard(ModelAndView modelAndView) {
+        User user;
 
-        username = "todo"; // SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if (username instanceof InetOrgPerson) {
-            username = ((InetOrgPerson) username).getDisplayName();
-        }
+        user = User.authenticatedOrAnonymous();
         modelAndView.setViewName("index");
-        modelAndView.addObject("username", username);
-        LOG.info("[" + username + "] GET /");
+        modelAndView.addObject("username", user.name);
+        LOG.info("[" + user + "] GET /");
         return modelAndView;
     }
 
     @RequestMapping(value = "whoami", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity whoAmI() {
-        return new ResponseEntity<>(SecurityContextHolder.getContext().getAuthentication().getPrincipal(), HttpStatus.OK);
+        return new ResponseEntity<>(User.authenticatedOrAnonymous(), HttpStatus.OK);
     }
 
     // pages

@@ -38,7 +38,7 @@ public class ApiLogging implements HandlerInterceptor {
         MDC.put(CLIENT_INVOCATION, request.getHeader("X-stool-client-invocation"));
         MDC.put(CLIENT_COMMAND, request.getHeader("X-stool-client-command"));
         MDC.put(REQUEST, request.getMethod() + " \"" + uri + '"');
-        MDC.put(USER, User.currentOrAnonymous().login);
+        MDC.put(USER, User.authenticatedOrAnonymous().login);
         MDC.put(STAGE, stage);
 
         return true;

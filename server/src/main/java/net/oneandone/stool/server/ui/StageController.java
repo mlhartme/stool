@@ -51,7 +51,7 @@ public class StageController {
     private World world;
 
     @Autowired
-    private Server session;
+    private Server server;
 
     @Autowired
     private FileNode logs;
@@ -96,13 +96,14 @@ public class StageController {
 
     @RequestMapping(method = RequestMethod.GET)
     public Collection<Stage> stages() throws IOException {
-        return stages(session);
+        return stages(server);
     }
 
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
     public ModelAndView stagesAsHtml(ModelAndView modelAndView) throws IOException {
         modelAndView.setViewName("stages");
-        modelAndView.addObject("stages", stages(session));
+        modelAndView.addObject("userManager", server.userManager);
+        modelAndView.addObject("stages", stages(server));
 
         return modelAndView;
     }
@@ -161,13 +162,13 @@ public class StageController {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionExport> handleApiException(HttpServletRequest request, Throwable e) {
         // TODO: really report this? maybe it's just a 404 ...
-        session.reportException((String) request.getAttribute("command"), "StageController.handleApiException", e);
+        server.reportException((String) request.getAttribute("command"), "StageController.handleApiException", e);
         return new ResponseEntity<>(new ExceptionExport(e), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private Stage resolveStage(String stageName) throws ResourceNotFoundException {
         try {
-            return session.load(stageName);
+            return server.load(stageName);
         } catch (IOException e) {
             throw (ResourceNotFoundException) new ResourceNotFoundException().initCause(e);
         }

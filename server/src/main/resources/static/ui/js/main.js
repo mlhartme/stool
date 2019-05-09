@@ -41,16 +41,16 @@ dashboard = {
                     var allStages = $('#all-stages');
                     var done = [];
                     $(data).each(function (i, newTr) {
-                        var id;
+                        var name;
                         var oldTr;
                         var actions;
 
-                        id = newTr.id;
-                        done.push(id);
-                        if (id !== undefined) {
-                            id = id.replace(/\./g, "\\.");
+                        name = newTr.name;
+                        done.push(name);
+                        if (name !== undefined) {
+                            name = name.replace(/\./g, "\\.");
                         }
-                        oldTr = allStages.find('#' + id);
+                        oldTr = allStages.find('#' + name);
                         if (oldTr.length === 0) {
                             // new stage
                             $(newTr).find('[data-action]').off('click', dashboard.stages.action);
@@ -66,10 +66,10 @@ dashboard = {
                         }
                     });
                     $(allStages).children("tr").each(function (i, tr) {
-                        var id;
+                        var name;
 
-                        id = tr.id;
-                        if (!done.includes(id)) {
+                        name = tr.name;
+                        if (!done.includes(name)) {
                             $(tr).find('[data-action]').off('click', dashboard.stages.action);
                             tr.remove();
                         }
