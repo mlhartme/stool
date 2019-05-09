@@ -1,11 +1,11 @@
 <th:block xmlns:th="http://www.thymeleaf.org" th:each="stage : ${stages}">
-    <th:block th:with="running=${!stage.currentMap().isEmpty()}, user=${userManager.checkedByLogin(stage.lastModifiedBy())}">
-    <tr class="stage" th:name="${stage.name}" th:data-user="${user}" th:data-status="${running}"
+    <th:block th:with="status=${stage.currentMap().isEmpty() ? 'down' : 'up'}, user=${userManager.checkedByLogin(stage.lastModifiedBy())}">
+    <tr class="stage" th:data-name="${stage.name}" th:data-user="${user}" th:data-status="${status}"
         th:data-content-hash="${stage.contentHash()}" th:data-updateAvailable="${stage.updateAvailable()}">
 
         <td class="status">
             <div th:class="${'status badge badge-' + stage.displayState()}">
-              <span data-container="body" data-toggle="popover" data-placement="bottom" data-trigger="hover" th:text="${running}"></span></div>
+              <span data-container="body" data-toggle="popover" data-placement="bottom" data-trigger="hover" th:text="${status}"></span></div>
         </td>
         <td class="name"><span data-container="body" data-toggle="popover" data-placement="bottom"
                                th:data-content="${stage.configuration.comment.isEmpty() ? '(no comment)' : stage.configuration.comment}"

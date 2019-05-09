@@ -45,18 +45,15 @@ dashboard = {
                         var oldTr;
                         var actions;
 
-                        name = newTr.name;
+                        name = $(newTr).attr("data-name");
                         done.push(name);
-                        if (name !== undefined) {
-                            name = name.replace(/\./g, "\\.");
-                        }
-                        oldTr = allStages.find('#' + name);
+                        oldTr = allStages.find('[data-name="' + name + '"]');
                         if (oldTr.length === 0) {
                             // new stage
                             $(newTr).find('[data-action]').off('click', dashboard.stages.action);
                             allStages.append(newTr);
                             $(newTr).find('[data-action]').on('click', dashboard.stages.action);
-                        } else if (oldTr.attr("data-content-hash") !== $(newTr).attr("data-content-hash")) {
+                        } else if ($(oldTr).attr("data-content-hash") !== $(newTr).attr("data-content-hash")) {
                             // updated stage
                             $(newTr).find('[data-action]').off('click', dashboard.stages.action);
                             oldTr.replaceWith(newTr);
@@ -68,7 +65,7 @@ dashboard = {
                     $(allStages).children("tr").each(function (i, tr) {
                         var name;
 
-                        name = tr.name;
+                        name = $(tr).attr("data-name");
                         if (!done.includes(name)) {
                             $(tr).find('[data-action]').off('click', dashboard.stages.action);
                             tr.remove();
@@ -149,13 +146,8 @@ dashboard = {
 
             found = 0;
             $('#all-stages').find('tr.stage').each(function (idx, tr) {
-                if (($(tr).attr('data-origin').toLowerCase().indexOf(category) > -1)
-                           && ($(tr).attr('data-name').toLowerCase().indexOf(search) > -1 || $(tr).attr('data-user').toLowerCase().indexOf(search) > -1)) {
-                    $(this).toggle(true);
-                    found++;
-                } else {
-                    $(this).toggle(false);
-                }
+                $(this).toggle(true);
+                found++;
             });
 
             $('#empty').toggle(found == 0);
