@@ -317,6 +317,8 @@ The following environment variables can be used to configure Stool server. This 
   Fully qualified hostname used to refer to this machine in application urls and emails. Type string.
 * **ENVIRONMENT** 
   Default environment variables to set automatically when starting apps, can be overwritten by the start command.
+* **JMX_USAGE**
+  How to invoke a jmx client in your environment. Type string, default "jconsole %s".  
 * **LDAP_CREDENTIALS**
   Password for Ldap authentication. Ignored if ldap is disabled. Type string, default empty.
 * **LDAP_PRINCIPAL**

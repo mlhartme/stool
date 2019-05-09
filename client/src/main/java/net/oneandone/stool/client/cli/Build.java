@@ -113,7 +113,7 @@ public class Build extends ProjectCommand {
             } else {
                 console.verbose.println(result.output);
             }
-            console.info.println("successfully built image " + result.tag + " for application " + result.app);
+            console.info.println("successfully built application " + result.app + " (image " + result.tag + ")");
             if (restart) {
                 new Restart(globals, new ArrayList<>()).doRun(reference);
             }

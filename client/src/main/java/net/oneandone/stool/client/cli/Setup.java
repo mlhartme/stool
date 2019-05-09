@@ -132,6 +132,7 @@ public class Setup {
             addIfNew("LDAP_UNIT", "cisostages");
             addIfNew("ADMIN", "michael.hartmeier@ionos.com");
             addIfNew("MAIL_HOST", "mri.server.lan");
+            addIfNew("JMX_USAGE", "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://%s");
         }
         builder.append("version: '3.7'\n");
         builder.append("services:\n");

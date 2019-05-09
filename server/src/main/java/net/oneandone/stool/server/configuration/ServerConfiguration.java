@@ -95,6 +95,8 @@ public class ServerConfiguration {
 
     public String appPropertiesPrefix;
 
+    public String jmxUsage;
+
     // default environment for every container
     public Map<String, String> environment;
 
@@ -118,6 +120,7 @@ public class ServerConfiguration {
         diskQuota = 0;
         appPropertiesFile = "WEB-INF/classes/META-INF/stool.properties";
         appPropertiesPrefix = "";
+        jmxUsage = "jconsole %s";
         environment = new HashMap<>();
     }
 
