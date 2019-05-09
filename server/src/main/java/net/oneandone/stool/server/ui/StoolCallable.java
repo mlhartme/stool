@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.oneandone.stool.server.dashboard;
+package net.oneandone.stool.server.ui;
 
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.sushi.fs.file.FileNode;
