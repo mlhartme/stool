@@ -11,8 +11,6 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 @Configuration
 public class ServerConfigurer implements WebMvcConfigurer {
@@ -24,11 +22,6 @@ public class ServerConfigurer implements WebMvcConfigurer {
     @Bean
     public Server server(World world) throws IOException {
         return Server.create(world);
-    }
-
-    @Bean  // TODO: still needed?
-    public ExecutorService executorService() {
-        return Executors.newCachedThreadPool();
     }
 
     @Bean

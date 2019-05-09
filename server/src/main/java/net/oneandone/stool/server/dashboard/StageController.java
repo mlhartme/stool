@@ -44,7 +44,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
 
 @RestController
 @RequestMapping("/stages")
@@ -60,9 +59,6 @@ public class StageController {
 
     @Autowired
     private FileNode jar;
-
-    @Autowired
-    private ExecutorService executorService;
 
     private final Collection<Stage> stagesCache;
     private long lastCacheRenew;
@@ -179,12 +175,7 @@ public class StageController {
     }
 
     public String execute(String stage, String command, String ... arguments) {
-        String id;
-
-        id = UUID.randomUUID().toString();
-        executorService.submit(StoolCallable.create(jar, session.home, id, logs, resolveStage(stage),
-                "TODO", command, arguments));
-        return id;
+        throw new RuntimeException("TODO");
     }
 
     private static class ExceptionExport {
