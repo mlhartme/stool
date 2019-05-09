@@ -47,10 +47,9 @@ import java.util.Map;
 @Configuration
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
-    private DashboardProperties properties;
+    private Server server;
 
-    @Autowired
-    private Server Server;
+    private final String sso = "https://login.1and1.org/ims-sso";  // TODO
 
     @Autowired
     private Stage self;
@@ -61,7 +60,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
         provider = new CasAuthenticationProvider();
         provider.setServiceProperties(serviceProperties());
-        provider.setTicketValidator(new Cas20ServiceTicketValidator(properties.sso));
+        provider.setTicketValidator(new Cas20ServiceTicketValidator(sso));
         provider.setKey("cas");
         provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsService()));
 
@@ -81,13 +80,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         filter = new CasAuthenticationFilter();
         filter.setAuthenticationManager(authenticationManager());
         entryPoint = new CasAuthenticationEntryPoint();
-        entryPoint.setLoginUrl(properties.sso + "/login/");
+        entryPoint.setLoginUrl(sso + "/login/");
         entryPoint.setServiceProperties(serviceProperties());
         http.csrf().disable()
           .exceptionHandling().authenticationEntryPoint(entryPoint)
           .and()
           .addFilter(filter);
-        if (properties.sso.isEmpty()) {
+        if (sso.isEmpty()) {
             http.authorizeRequests().antMatchers("/**").anonymous();
         } else {
             http.authorizeRequests()
@@ -120,14 +119,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         DefaultSpringSecurityContextSource contextSource;
         String url;
 
-        url = Server.configuration.ldapUrl;
-        if (!Server.configuration.auth()) {
+        url = server.configuration.ldapUrl;
+        if (!server.configuration.auth()) {
             // will never be used - this is just to satisfy parameter checks in the constructor
             url = "ldap://localhost";
         }
         contextSource = new DefaultSpringSecurityContextSource(url);
-        contextSource.setUserDn(Server.configuration.ldapPrincipal);
-        contextSource.setPassword(Server.configuration.ldapCredentials);
+        contextSource.setUserDn(server.configuration.ldapPrincipal);
+        contextSource.setPassword(server.configuration.ldapCredentials);
         return contextSource;
     }
 
@@ -138,7 +137,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
         LdapUserDetailsService result;
 
-        unit = Server.configuration.ldapUnit;
+        unit = server.configuration.ldapUnit;
         userSearch = new FilterBasedLdapUserSearch("ou=" + unit, "(uid={0})", contextSource());
         authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=roles,ou=" + unit);
         authoritiesPopulator.setGroupSearchFilter("(member=uid={1})");
