@@ -115,7 +115,7 @@
       <version>2.3</version>
     </dependency>
 
-    <dependency>
+    <dependency><!-- to use jmxmp to check app status via jmx -->
       <groupId>org.glassfish.external</groupId>
       <artifactId>opendmk_jmxremote_optional_jar</artifactId>
       <version>1.0-b01-ea</version>

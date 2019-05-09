@@ -119,6 +119,7 @@ public class Setup {
         String cisoTools;
         String port;
         String portNext;
+        String portNextNext;
 
         builder = new StringBuilder();
         serverHome = serverDir().getAbsolute();
@@ -126,6 +127,7 @@ public class Setup {
         cisoTools = System.getenv("CISOTOOLS_HOME");
         port = port();
         portNext = Integer.toString(Integer.parseInt(port) + 1);
+        portNextNext = Integer.toString(Integer.parseInt(port) + 2);
         addIfNew("VHOSTS", Boolean.toString(hasDnsStar(dockerHost)));
         if (cisoTools != null) {
             addIfNew("REGISTRY_NAMESPACE", "contargo.server.lan/mhm");
@@ -141,6 +143,7 @@ public class Setup {
         builder.append("    ports:\n");
         builder.append("      - " + port + ":" + port + "\n");
         builder.append("      - " + portNext + ":" + portNext + "\n");
+        builder.append("      - " + portNextNext + ":" + 9875 + "\n");
         builder.append("    environment:\n");
         builder.append("      - DOCKER_HOST=" + dockerHost + "\n");
         builder.append("      - OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=" + portNext + "\n");

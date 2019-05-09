@@ -443,7 +443,7 @@ public class Server {
     //-- stool properties
 
     public Pool pool() throws IOException {
-        return Pool.load(dockerEngine(), configuration.portFirst + 2 /* because server uses the first port, and I reserve the second */,
+        return Pool.load(dockerEngine(), configuration.portFirst + 4 /* 4 ports reserved for the server (http(s), debug, jmx, unused) */,
                 configuration.portLast);
     }
 
