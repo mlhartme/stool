@@ -37,22 +37,7 @@ public class DashboardConfiguration {
     }
 
     @Bean
-    public FileNode jar() throws IOException {
-        return world().file(System.getProperty("stool.cp"));
-    }
-
-    @Bean
-    public FileNode home() throws IOException {
-        return world().file(System.getProperty("stool.home"));
-    }
-
-    @Bean
-    public DashboardProperties properties() throws IOException {
-        return DashboardProperties.load(home());
-    }
-
-    @Bean
-    public Server session() throws IOException {
+    public Server server() throws IOException {
         // TODO logging.log("dashboard", "startup");
         return Server.create(world());
     }
