@@ -33,7 +33,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private Server server;
 
-    private final String sso = "https://login.1and1.org/ims-sso";  // TODO
+    private final String sso = ""; // https://login.1and1.org/ims-sso";  // TODO
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {

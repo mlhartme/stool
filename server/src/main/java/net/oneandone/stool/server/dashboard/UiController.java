@@ -16,9 +16,6 @@
 package net.oneandone.stool.server.dashboard;
 
 import net.oneandone.stool.server.Server;
-import net.oneandone.stool.server.configuration.Accessor;
-import net.oneandone.stool.server.configuration.ServerConfiguration;
-import net.oneandone.stool.server.util.Mailer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,24 +33,21 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.mail.MessagingException;
-import javax.servlet.ServletRequest;
-import java.util.HashMap;
-import java.util.Map;
 
 @Controller
 @Scope(WebApplicationContext.SCOPE_REQUEST)
-@RequestMapping("/")
-public class IndexController {
-    private static final Logger LOG = LoggerFactory.getLogger(IndexController.class);
+@RequestMapping("/ui")
+public class UiController {
+    private static final Logger LOG = LoggerFactory.getLogger(UiController.class);
 
     @Autowired
-    private Server session;
+    private Server server;
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public ModelAndView index(ModelAndView modelAndView) {
         Object username;
 
-        username = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        username = "todo"; // SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (username instanceof InetOrgPerson) {
             username = ((InetOrgPerson) username).getDisplayName();
         }
@@ -69,18 +63,6 @@ public class IndexController {
         return new ResponseEntity<>(SecurityContextHolder.getContext().getAuthentication().getPrincipal(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "configuration", method = RequestMethod.GET)
-    @ResponseBody
-    public Map<String, String> configuration() {
-        Map<String, String> model;
-
-        model = new HashMap<>();
-        for (Map.Entry<String, Accessor> entry : ServerConfiguration.properties().entrySet()) {
-            model.put(entry.getKey(), entry.getValue().get(session.configuration));
-        }
-        return model;
-    }
-
     // pages
 
     @RequestMapping(value = "feedback", method = RequestMethod.GET)
@@ -88,26 +70,15 @@ public class IndexController {
         return "feedback";
     }
 
-    @RequestMapping(value = "settings", method = RequestMethod.GET)
-    public String settings() {
-        return "settings";
-    }
-
-    @RequestMapping(value = "statistics", method = RequestMethod.GET)
-    public String statistics() {
-        return "statistics";
-    }
-
     @RequestMapping(value = "feedback", method = RequestMethod.POST)
-    public ResponseEntity sendFeedback(@ModelAttribute("message") String message, ServletRequest request) throws MessagingException {
+    public ResponseEntity sendFeedback(@ModelAttribute("message") String message) throws MessagingException {
         String subject;
+
         if (message.isEmpty()) {
             return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
         subject = "[Stool] Feedback from " + SecurityContextHolder.getContext().getAuthentication().getName();
-        new Mailer(session.configuration.mailHost, session.configuration.mailUsername,
-                session.configuration.mailPassword).send(session.configuration.admin,
-                new String[] { session.configuration.admin }, subject, message);
+        server.configuration.mailer().send(server.configuration.admin, new String[] { server.configuration.admin }, subject, message);
         return new ResponseEntity(HttpStatus.ACCEPTED);
     }
 
