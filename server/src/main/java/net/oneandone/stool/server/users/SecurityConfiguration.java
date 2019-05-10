@@ -34,7 +34,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     private Server server;
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        super.configure(auth);
+
         CasAuthenticationProvider provider;
 
         provider = new CasAuthenticationProvider();
@@ -146,8 +148,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         ServiceProperties serviceProperties;
 
         serviceProperties = new ServiceProperties();
-        // TODO: http or https
-        serviceProperties.setService("http://" + server.configuration.dockerHost + ":" + server.configuration.portFirst + "/j_spring_cas_security_check");
+        // TODO: report an error when not running https ...
+        serviceProperties.setService("https://" + server.configuration.dockerHost + ":" + server.configuration.portFirst + "/j_spring_cas_security_check");
         serviceProperties.setSendRenew(false);
         return serviceProperties;
     }
