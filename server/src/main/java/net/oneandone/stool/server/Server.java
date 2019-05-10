@@ -51,6 +51,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Modifier;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -533,16 +534,18 @@ public class Server {
 
 
     public void validate() throws IOException {
-        validateDocker();
-        LOGGER.info("server validation ok");
-    }
-
-    private void validateDocker() throws IOException {
+        try {
+            InetAddress.getByName(configuration.dockerHost);
+        } catch (UnknownHostException e) {
+            LOGGER.error("cannot resolve docker host name: " + e.getMessage(), e);
+            throw e;
+        }
         try {
             dockerEngine().imageList();
         } catch (IOException e) {
             LOGGER.error("cannot access docker", e);
             throw e;
         }
+        LOGGER.info("server validation ok");
     }
 }

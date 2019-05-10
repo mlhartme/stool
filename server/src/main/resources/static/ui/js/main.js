@@ -88,21 +88,21 @@ dashboard = {
             arguments = $(this).attr('data-arguments');
             p = $(this).parent().parent();
 
-            url = "/stages/" + stage + "/" + action;
+            url = "/api/stages/" + stage + "/" + action;
             $('#' + stage + ' a.action').addClass('disabled');
 
             $(p).find('.fa').toggle(true);
             $(p).find('.badge').attr('class', 'badge badge-primary').html('n/a');
 
             if (arguments != null) {
-                url = url + "/" + arguments;
+                url = url + "?" + arguments;
             }
             $('#console').modal();
             $.post(url).fail(function (r) {
                 $(p).find('.fa').toggle(false);
                 $(p).find('.badge').attr('class', 'badge badge-warning').html('broken: ' + r);
                 $(p).addClass('warning');
-                log.error(r);
+                console.log(r);
             }).done(function (r) {
                 var spinner;
                 $('.modal-body .shell').html("").show();

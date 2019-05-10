@@ -236,8 +236,9 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/start")
     public String start(@PathVariable(value = "stage") String stageName,
-                      @RequestParam("http") int http, @RequestParam("https") int https,
-                      HttpServletRequest request) throws IOException {
+                        @RequestParam(value = "http", required = false, defaultValue = "-1") int http,
+                        @RequestParam(value = "https", required = false, defaultValue = "-1") int https,
+                        HttpServletRequest request) throws IOException {
         Stage stage;
         int global;
         int reserved;
