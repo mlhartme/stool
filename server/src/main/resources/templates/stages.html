@@ -32,6 +32,7 @@
                     <a class="dropdown-item" href="#dashboard" data-action="config" data-arguments="expire=+7" th:data-stage="${stage.name}">Expire in 1 week</a>
                     <a class="dropdown-item" th:href="${'mailto:?subject=Stage&body=' + stage.sharedText()}" th:disabled="${stage.urlMap(null) == null}">
                         <span style="white-space: nowrap"><i class="fas fa-share"></i> Share</span></a>
+                    <a class="dropdown-item" th:href="${'/ui/stages/' + stage.name + '/logs/'}">Logs</a>
                 </div>
             </div>
         </td>

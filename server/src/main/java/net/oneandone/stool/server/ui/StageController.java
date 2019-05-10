@@ -42,10 +42,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 @RestController
-@RequestMapping("/stages")
+@RequestMapping("/ui/stages")
 public class StageController {
     @Autowired
     private World world;
@@ -109,54 +108,25 @@ public class StageController {
     }
 
     @RequestMapping(value = "/{name}/logs", method = RequestMethod.GET)
-    public Map<String, String> logs(HttpServletRequest httpServletRequest, @PathVariable(value = "name") String stageName) throws Exception {
-        Stage stage;
-        String baseUrl;
-
-        stage = resolveStage(stageName);
-        baseUrl = httpServletRequest.getRequestURL().toString();
-        baseUrl = baseUrl.substring(0, baseUrl.indexOf('/', 8) + 1);
-        return logs(stage).list(baseUrl + "stages/" + stageName + "/logs/");
-    }
-
-    public Logs logs(Stage stage) {
-        return new Logs(stage.getDirectory().join("logs"));
+    public ModelAndView logs(ModelAndView modelAndView, @PathVariable(value = "name") String stageName) throws Exception {
+        modelAndView.setViewName("logs");
+        modelAndView.addObject("logs", new Logs(resolveStage(stageName).getDirectory().join("logs")));
+        return modelAndView;
     }
 
 
     @RequestMapping(value = "/{name}/logs/{log}", method = RequestMethod.GET)
-    public ResponseEntity<Resource> log(@PathVariable(value = "name") String stageName,
-      @PathVariable(value = "log") String log) throws Exception {
+    public ResponseEntity<Resource> log(@PathVariable(value = "name") String stageName, @PathVariable(value = "log") String path) throws Exception {
         Stage stage;
-        String logfile;
+        Resource resource;
 
         stage = resolveStage(stageName);
-        if (log.endsWith(".log")) {
-            logfile = log;
-        } else {
-            logfile = log + ".log";
-        }
-
         try {
-            Resource resource;
-            resource = new FileSystemResource(logs(stage).file(logfile));
-
+            resource = new FileSystemResource(new Logs(stage.getDirectory().join("logs")).file(path));
             return new ResponseEntity<>(resource, HttpStatus.OK);
-
         } catch (NodeNotFoundException e) {
             throw new ResourceNotFoundException();
         }
-    }
-
-    @RequestMapping(value = "{name}/{action}", method = RequestMethod.POST)
-    public String action(@PathVariable(value = "name") String stageName, @PathVariable(value = "action") String action) {
-        return execute(stageName, action);
-    }
-
-    @RequestMapping(value = "{name}/{action}/{arguments}", method = RequestMethod.POST)
-    public String action(@PathVariable(value = "name") String stageName, @PathVariable(value = "action") String action,
-        @PathVariable(value = "arguments") String arguments) {
-        return execute(stageName, action, Strings.toArray(Separator.COMMA.split(arguments)));
     }
 
     @ExceptionHandler(Exception.class)
@@ -172,10 +142,6 @@ public class StageController {
         } catch (IOException e) {
             throw (ResourceNotFoundException) new ResourceNotFoundException().initCause(e);
         }
-    }
-
-    public String execute(String stage, String command, String ... arguments) {
-        throw new RuntimeException("TODO");
     }
 
     private static class ExceptionExport {

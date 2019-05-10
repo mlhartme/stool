@@ -22,7 +22,7 @@ dashboard = {
         },
 
         reload: function () {
-            $.ajax('/stages', {
+            $.ajax('/ui/stages', {
                 dataType: "html",
                 success: function (data) {
                     var allStages = $('#all-stages');

@@ -9,9 +9,11 @@ New philio: projects are the former stages, this is where your sources reside.
 Stages are now the central part; multiple project can be associated with the same stage.
 
 * dashboard
+  * dumped auto-reload of the ui
   * build and refresh are gone - use restart instead
   * is now part of the server - it's the name over the overview page
-
+  * added link to logs
+  
 * dumped debian packages
 * 1 image per war
 * stool is no longer responsible to manage checkouts - use your standard tools instead; 
