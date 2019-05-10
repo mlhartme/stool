@@ -936,19 +936,19 @@ public class Stage {
 
     public String sharedText() throws IOException {
         Map<String, String> urls;
+        String content;
+        StringBuilder builder;
 
         urls = urlMap(null);
         if (urls == null) {
             return "";
         }
-        String content;
-        StringBuilder stringBuilder;
-        stringBuilder = new StringBuilder("Hi, \n");
+        builder = new StringBuilder("Hi, \n");
         for (String url : urls.values()) {
-            stringBuilder.append(url).append("\n");
+            builder.append(url).append("\n");
         }
 
-        content = URLEncoder.encode(stringBuilder.toString(), "UTF-8");
+        content = URLEncoder.encode(builder.toString(), "UTF-8");
         content = content.replace("+", "%20").replaceAll("\\+", "%20")
                 .replaceAll("\\%21", "!")
                 .replaceAll("\\%27", "'")
