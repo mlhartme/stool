@@ -104,6 +104,7 @@ dashboard = {
                 $(p).addClass('warning');
                 console.log(r);
             }).done(function (r) {
+                console.log('success ' + r);
                 var spinner;
                 $('.modal-body .shell').html("").show();
                 spinner = '.fa-spinner';

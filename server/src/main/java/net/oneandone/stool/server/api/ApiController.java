@@ -290,7 +290,7 @@ public class ApiController {
     }
 
     @PostMapping("/stages/{stage}/stop")
-    public ResponseEntity<?> stop(@PathVariable(value = "stage") String stage, @RequestParam("apps") String apps) throws IOException {
+    public ResponseEntity<?> stop(@PathVariable(value = "stage") String stage, @RequestParam(value = "apps", required = false, defaultValue = "") String apps) throws IOException {
         List<String> result;
 
         result = server.load(stage).stop(Separator.COMMA.split(apps));
