@@ -327,6 +327,8 @@ The following environment variables can be used to configure Stool server. This 
   Specifies the "organizational unit" to search for users. Ignored if ldap is disabled. Type string, default empty.
 * **LDAP_URL**
   Ldap url for user information. Empty string to disable ldap. Type string, default empty.
+* **LDAP_SSO**
+  Url for Ldap single sign on. Type string, default empty.
 * **LOGLEVEL**
   for server logging. Type string, default INFO.
 * **MAIL_HOST**

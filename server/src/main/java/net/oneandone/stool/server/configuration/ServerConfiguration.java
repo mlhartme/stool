@@ -82,6 +82,8 @@ public class ServerConfiguration {
 
     public String ldapUnit;
 
+    public String ldapSso;
+
     /**
      * Number of days to wait before removing an expired stage.
      */
@@ -113,6 +115,7 @@ public class ServerConfiguration {
         ldapPrincipal = "";
         ldapCredentials = "";
         ldapUnit = "";
+        ldapSso = "";
         mailHost = "";
         mailUsername = "";
         mailPassword = "";

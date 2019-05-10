@@ -33,15 +33,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private Server server;
 
-    private final String sso = ""; // https://login.1and1.org/ims-sso";  // TODO
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         CasAuthenticationProvider provider;
 
         provider = new CasAuthenticationProvider();
         provider.setServiceProperties(serviceProperties());
-        provider.setTicketValidator(new Cas20ServiceTicketValidator(sso));
+        provider.setTicketValidator(new Cas20ServiceTicketValidator(server.configuration.ldapSso));
         provider.setKey("cas");
         provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsService()));
 
@@ -69,7 +67,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         filter = new CasAuthenticationFilter();
         filter.setAuthenticationManager(authenticationManager());
         entryPoint = new CasAuthenticationEntryPoint();
-        entryPoint.setLoginUrl(sso + "/login/");
+        entryPoint.setLoginUrl(server.configuration.ldapSso + "/login/");
         entryPoint.setServiceProperties(serviceProperties());
         http.csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(entryPoint)
