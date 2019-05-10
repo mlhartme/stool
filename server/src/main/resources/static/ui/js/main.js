@@ -19,16 +19,8 @@ dashboard = {
             dashboard.stages.reload();
             $('[data-action]').on('click', dashboard.stages.action);
             $('#loading').remove();
-            dashboard.stages.silentReload();
         },
 
-
-        silentReload: function () {
-            dashboard.stages.reload();
-            setTimeout(function () {
-                dashboard.stages.silentReload();
-            }, 5000);
-        },
 
         reload: function () {
             $.ajax('/stages', {
@@ -90,15 +82,16 @@ dashboard = {
             }
             box = $('#console');
             box.modal('show');
-            box.find('.modal-header').html("<p>" + stage + " " + action + "</p>");
+            box.find('.modal-header').html("<h4>" + action + " " + stage + "</h4>");
             $.post(url).fail(function (r) {
-                box.find('.modal-body').html('failed: ' + r);
-                console.log(r);
+                dashboard.stages.reload();
+                box.find('.modal-body').html('<p>failed: ' + r + '</p>');
             }).done(function (r) {
-                box.modal('hide')
-                console.log('success ' + r);
+                // TODO
+                // from https://stackoverflow.com/questions/51637199/bootstrap-4-open-modal-a-close-modal-a-open-modal-b-a-not-closing
+                setTimeout( function() { box.modal("hide"); }, 500 );
+                dashboard.stages.reload();
             });
-            dashboard.stages.reload();
             return false;
         },
 
