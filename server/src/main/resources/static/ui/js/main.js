@@ -21,7 +21,6 @@ dashboard = {
             $('#loading').remove();
         },
 
-
         reload: function () {
             $.ajax('/stages', {
                 dataType: "html",
@@ -80,7 +79,7 @@ dashboard = {
             if (arguments != null) {
                 url = url + "?" + arguments;
             }
-            box = $('#console');
+            box = $('#progress');
             box.modal('show');
             box.find('.modal-header').html("<h4>" + action + " " + stage + "</h4>");
             $.post(url).fail(function (r) {
