@@ -10,15 +10,22 @@ import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.stage.Stage;
+import net.oneandone.stool.server.ui.Logs;
+import net.oneandone.stool.server.ui.ResourceNotFoundException;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Validation;
+import net.oneandone.sushi.fs.NodeNotFoundException;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.fs.filter.Filter;
 import net.oneandone.sushi.util.Separator;
+import net.oneandone.sushi.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -26,8 +33,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.mail.MessagingException;
 import javax.naming.NamingException;
@@ -336,6 +345,37 @@ public class ApiController {
     @PostMapping("/stages/{stage}/remove")
     public void remove(@PathVariable(value = "stage") String stage) throws IOException {
         server.load(stage).remove();
+    }
+
+    @GetMapping("/stages/{name}/logs")
+    public String logs(@PathVariable(value = "name") String stageName) throws Exception {
+        JsonArray result;
+        FileNode dir;
+        Stage stage;
+
+        stage = server.load(stageName);
+        dir = stage.logs();
+        result = new JsonArray();
+        for (FileNode file : stage.getDirectory().join("logs").find("**/*")) {
+            if (!file.isDirectory()) {
+                result.add(new JsonPrimitive(file.getRelative(dir)));
+            }
+        }
+        return result.toString();
+    }
+
+    @GetMapping(value = "/stages/{name}/logs/**", produces = "text/plain")
+    public ResponseEntity<Resource> log(@PathVariable(value = "name") String stageName, HttpServletRequest request) throws Exception {
+        Stage stage;
+        Resource resource;
+        String file;
+
+        file = request.getRequestURI();
+        file = Strings.removeLeft(file, request.getContextPath());
+        file = Strings.removeLeft(file,"/api/stages/" + stageName + "/logs/");
+        stage = server.load(stageName);
+        resource = new FileSystemResource(stage.logs().join(file).toPath());
+        return new ResponseEntity<>(resource, HttpStatus.OK);
     }
 
     //--

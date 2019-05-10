@@ -86,7 +86,7 @@ dashboard = {
                 dashboard.stages.reload();
                 box.find('.modal-body').html('<p>failed: ' + r + '</p>');
             }).done(function (r) {
-                // TODO
+                // TODO: doesn't work if the browser is extremely slow (or busy)
                 // from https://stackoverflow.com/questions/51637199/bootstrap-4-open-modal-a-close-modal-a-open-modal-b-a-not-closing
                 setTimeout( function() { box.modal("hide"); }, 500 );
                 dashboard.stages.reload();

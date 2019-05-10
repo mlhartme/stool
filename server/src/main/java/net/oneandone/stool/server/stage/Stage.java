@@ -105,6 +105,10 @@ public class Stage {
         this.configuration = configuration;
     }
 
+    public FileNode logs() {
+        return directory.join("logs");
+    }
+
     public FileNode getDirectory() {
         return directory;
     }
@@ -616,7 +620,7 @@ public class Stage {
         FileNode outerFile;
 
         hostLogRoot = server.serverHome.join("stages", getName(), "logs", image.app);
-        directory.join("logs", image.app).mkdirsOpt();
+        logs().join(image.app).mkdirsOpt();
         result = new HashMap<>();
         result.put(hostLogRoot, "/var/log/stool");
         if (image.ports.https != -1) {

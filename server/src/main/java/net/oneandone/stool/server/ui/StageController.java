@@ -107,28 +107,6 @@ public class StageController {
         return modelAndView;
     }
 
-    @RequestMapping(value = "/{name}/logs", method = RequestMethod.GET)
-    public ModelAndView logs(ModelAndView modelAndView, @PathVariable(value = "name") String stageName) throws Exception {
-        modelAndView.setViewName("logs");
-        modelAndView.addObject("logs", new Logs(resolveStage(stageName).getDirectory().join("logs")));
-        return modelAndView;
-    }
-
-
-    @RequestMapping(value = "/{name}/logs/{log}", method = RequestMethod.GET)
-    public ResponseEntity<Resource> log(@PathVariable(value = "name") String stageName, @PathVariable(value = "log") String path) throws Exception {
-        Stage stage;
-        Resource resource;
-
-        stage = resolveStage(stageName);
-        try {
-            resource = new FileSystemResource(new Logs(stage.getDirectory().join("logs")).file(path));
-            return new ResponseEntity<>(resource, HttpStatus.OK);
-        } catch (NodeNotFoundException e) {
-            throw new ResourceNotFoundException();
-        }
-    }
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionExport> handleApiException(HttpServletRequest request, Throwable e) {
         // TODO: really report this? maybe it's just a 404 ...
