@@ -32,59 +32,55 @@ public class TokenAuthenticationFilter extends GenericFilterBean {
             Server.LOGGER.debug(((HttpServletRequest) request).getRequestURI() + ": already authenticated: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
         } else {
             token = ((HttpServletRequest) request).getHeader("X-authentication");
-            if (token == null) {
-                ((HttpServletResponse) response).sendError(401, "authentication required: " + ((HttpServletRequest) request).getRequestURI());
-                return;
+            if (token != null) {
+                user = manager.authentication(token);
+                if (user == null) {
+                    ((HttpServletResponse) response).sendError(401, "authentication failed");
+                    return;
+                }
+                SecurityContextHolder.getContext().setAuthentication(new Authentication() {
+                    @Override
+                    public Collection<? extends GrantedAuthority> getAuthorities() {
+                        return Collections.singleton(new GrantedAuthority() {
+                            @Override
+                            public String getAuthority() {
+                                return "ROLE_LOGIN";
+                            }
+                        });
+                    }
+
+                    @Override
+                    public Object getCredentials() {
+                        return token;
+                    }
+
+                    @Override
+                    public Object getDetails() {
+                        return "token authentication";
+                    }
+
+                    @Override
+                    public Object getPrincipal() {
+                        return user;
+                    }
+
+                    @Override
+                    public boolean isAuthenticated() {
+                        return true;
+                    }
+
+                    @Override
+                    public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
+                        throw new IllegalStateException();
+                    }
+
+                    @Override
+                    public String getName() {
+                        return user.name;
+                    }
+                });
             }
-            user = manager.authentication(token);
-            if (user == null) {
-                ((HttpServletResponse) response).sendError(401, "authentication failed");
-                return;
-            }
-            SecurityContextHolder.getContext().setAuthentication(new Authentication() {
-                @Override
-                public Collection<? extends GrantedAuthority> getAuthorities() {
-                    return Collections.singleton(new GrantedAuthority() {
-                        @Override
-                        public String getAuthority() {
-                            return "ROLE_LOGIN";
-                        }
-                    });
-                }
-
-                @Override
-                public Object getCredentials() {
-                    return token;
-                }
-
-                @Override
-                public Object getDetails() {
-                    return "token authentication";
-                }
-
-                @Override
-                public Object getPrincipal() {
-                    return user;
-                }
-
-                @Override
-                public boolean isAuthenticated() {
-                    return true;
-                }
-
-                @Override
-                public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-                    throw new IllegalStateException();
-                }
-
-                @Override
-                public String getName() {
-                    return user.name;
-                }
-            });
         }
-
-
         chain.doFilter(request, response);
     }
 }

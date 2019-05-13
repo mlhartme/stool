@@ -70,17 +70,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         if (authEnabled()) {
             http.csrf().disable();
             http
+                .addFilter(authenticationFilter())
+                .addFilterBefore(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
                 .authenticationProvider(ldapAuthenticationProvider())
                 .exceptionHandling()
                     .authenticationEntryPoint(authenticationEntryPoint())
                     .and()
-                .addFilter(authenticationFilter())
-// TODO                // .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
                 .authorizeRequests()
                     .antMatchers("/api/**").fullyAuthenticated()
                     .antMatchers("/ui/**").fullyAuthenticated();
-// TODO                    .and()
-//                .httpBasic().realmName(realmName());
         } else {
             http.authorizeRequests().antMatchers("/**").anonymous();
         }
