@@ -1,52 +1,56 @@
 package net.oneandone.stool.server.users;
 
 import net.oneandone.stool.server.Server;
-import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.cas.ServiceProperties;
-import org.springframework.security.cas.authentication.CasAuthenticationProvider;
-import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
-import org.springframework.security.cas.web.CasAuthenticationFilter;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
+import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
+import org.springframework.security.ldap.authentication.BindAuthenticator;
+import org.springframework.security.ldap.authentication.LdapAuthenticationProvider;
+import org.springframework.security.ldap.authentication.LdapAuthenticator;
 import org.springframework.security.ldap.search.FilterBasedLdapUserSearch;
+import org.springframework.security.ldap.search.LdapUserSearch;
 import org.springframework.security.ldap.userdetails.DefaultLdapAuthoritiesPopulator;
+import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
+import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+
+import javax.servlet.Filter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
-    public static String REALM = "STOOL";
-
     @Autowired
     private Server server;
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        super.configure(auth);
+    private AuthenticationProvider lazyLdapProvider;
 
-        CasAuthenticationProvider provider;
 
-        provider = new CasAuthenticationProvider();
-        provider.setServiceProperties(serviceProperties());
-        provider.setTicketValidator(new Cas20ServiceTicketValidator(server.configuration.ldapSso));
-        provider.setKey("cas");
-        provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsService()));
-
-        auth.authenticationProvider(provider);
+    protected String serviceName() {
+        return server.configuration.ldapUnit;
     }
+    protected String realmName() {
+        return "STOOL";
+    }
+
+    protected boolean authEnabled() {
+        return server.configuration.auth();
+    }
+
+    //--
 
     @Override
     public void configure(WebSecurity web) {
@@ -63,26 +67,46 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        if (server.configuration.auth()) {
+        if (authEnabled()) {
+            http.csrf().disable();
             http
-               .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
-               .addFilter(casAuthenticationFilter())
-               .sessionManagement().disable()
-               .csrf().disable() // no sessions -> no need to protect them with csrf
-               .exceptionHandling().authenticationEntryPoint(casEntryPoint()).and()
-               .authorizeRequests()
-                    .antMatchers("/api/**").fullyAuthenticated()
-                    .antMatchers("/ui/**").fullyAuthenticated()
+                .authenticationProvider(ldapAuthenticationProvider())
+                .exceptionHandling()
+                    .authenticationEntryPoint(authenticationEntryPoint())
                     .and()
-               .httpBasic().realmName(REALM);
+                .addFilter(authenticationFilter())
+// TODO                // .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
+                .authorizeRequests()
+                    .antMatchers("/api/**").fullyAuthenticated()
+                    .antMatchers("/ui/**").fullyAuthenticated();
+// TODO                    .and()
+//                .httpBasic().realmName(realmName());
         } else {
-            // disabled security
             http.authorizeRequests().antMatchers("/**").anonymous();
         }
     }
 
     //--
 
+    @Override
+    protected void configure(AuthenticationManagerBuilder auth) {
+        auth.authenticationProvider(ldapAuthenticationProvider());
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint() {
+        BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
+        entryPoint.setRealmName(realmName());
+        return entryPoint;
+    }
+
+    @Bean
+    public Filter authenticationFilter() throws Exception {
+        BasicAuthenticationFilter filter = new BasicAuthenticationFilter(authenticationManager());
+        return filter;
+    }
+
+    // LDAP
     @Bean
     public DefaultSpringSecurityContextSource contextSource() {
         DefaultSpringSecurityContextSource contextSource;
@@ -99,62 +123,60 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new CryptPasswordEncoder();
+    public LdapUserSearch ldapUserSearch() {
+        return new FilterBasedLdapUserSearch("ou=users,ou=" + serviceName(), "(uid={0})", contextSource());
     }
 
     @Bean
-    @Override
-    public UserDetailsService userDetailsService() {
-        String unit;
-        FilterBasedLdapUserSearch userSearch;
+    public LdapAuthenticator ldapAuthenticator() {
+        BindAuthenticator bindAuthenticator;
+
+        bindAuthenticator = new BindAuthenticator(contextSource());
+        bindAuthenticator.setUserSearch(ldapUserSearch());
+        return bindAuthenticator;
+    }
+
+    @Bean
+    public LdapAuthoritiesPopulator ldapAuthoritiesPopulator() {
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
-        LdapUserDetailsService result;
 
-        if (!server.configuration.auth()) {
-            return new InMemoryUserDetailsManager();
-        }
-
-        unit = server.configuration.ldapUnit;
-        userSearch = new FilterBasedLdapUserSearch("ou=" + unit, "(uid={0})", contextSource());
-        authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=roles,ou=" + unit);
+        authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=roles,ou=" + serviceName());
         authoritiesPopulator.setGroupSearchFilter("(member=uid={1})");
         authoritiesPopulator.setGroupRoleAttribute("ou");
         authoritiesPopulator.setSearchSubtree(false);
         authoritiesPopulator.setIgnorePartialResultException(true);
-
-        result = new LdapUserDetailsService(userSearch, authoritiesPopulator);
-        result.setUserDetailsMapper(new UserDetailsMapper());
-        return result;
-    }
-
-    //-- cas
-
-    private CasAuthenticationEntryPoint casEntryPoint() {
-        CasAuthenticationEntryPoint entryPoint;
-
-        entryPoint = new CasAuthenticationEntryPoint();
-        entryPoint.setLoginUrl(server.configuration.ldapSso + "/login/");
-        entryPoint.setServiceProperties(serviceProperties());
-        return entryPoint;
-    }
-
-    private CasAuthenticationFilter casAuthenticationFilter() throws Exception {
-        CasAuthenticationFilter filter;
-
-        filter = new CasAuthenticationFilter();
-        filter.setAuthenticationManager(authenticationManager());
-        return filter;
+        return authoritiesPopulator;
     }
 
     @Bean
-    public ServiceProperties serviceProperties() {
-        ServiceProperties serviceProperties;
+    public AuthenticationProvider ldapAuthenticationProvider() {
+        LdapAuthenticationProvider authenticationProvider;
+        SimpleAuthorityMapper simpleAuthorityMapper;
 
-        serviceProperties = new ServiceProperties();
-        // TODO: report an error when not running https ...
-        serviceProperties.setService("https://" + server.configuration.dockerHost + ":" + server.configuration.portFirst + "/j_spring_cas_security_check");
-        serviceProperties.setSendRenew(false);
-        return serviceProperties;
+        simpleAuthorityMapper = new SimpleAuthorityMapper();
+        simpleAuthorityMapper.setDefaultAuthority("ROLE_LOGIN");
+        authenticationProvider = new LdapAuthenticationProvider(ldapAuthenticator(), ldapAuthoritiesPopulator());
+        authenticationProvider.setAuthoritiesMapper(simpleAuthorityMapper);
+        authenticationProvider.setUserDetailsContextMapper(userDetailsContextMapper());
+        return authenticationProvider;
+    }
+
+    @Bean
+    public UserDetailsContextMapper userDetailsContextMapper() {
+        return new UserDetailsMapper();
+    }
+
+    @Override
+    @Bean
+    public UserDetailsService userDetailsServiceBean() {
+        LdapUserDetailsService result;
+
+        if (server.configuration.auth()) {
+            result = new LdapUserDetailsService(ldapUserSearch(), ldapAuthoritiesPopulator());
+            result.setUserDetailsMapper(userDetailsContextMapper());
+            return result;
+        } else {
+            return new InMemoryUserDetailsManager();
+        }
     }
 }
