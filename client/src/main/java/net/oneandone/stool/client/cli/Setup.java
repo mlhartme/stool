@@ -129,6 +129,7 @@ public class Setup {
         portNext = Integer.toString(Integer.parseInt(port) + 1);
         portNextNext = Integer.toString(Integer.parseInt(port) + 2);
         addIfNew("VHOSTS", Boolean.toString(hasDnsStar(dockerHost)));
+        addIfNew("LOGLEVEL", "INFO"); // for documentation purpose
         if (cisoTools != null) {
             addIfNew("REGISTRY_NAMESPACE", "contargo.server.lan/mhm");
             addIfNew("LDAP_UNIT", "cisostages");
