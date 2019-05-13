@@ -211,10 +211,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public ServiceProperties serviceProperties() {
         ServiceProperties serviceProperties;
+        String protocol;
+        String url;
 
         serviceProperties = new ServiceProperties();
+        protocol = System.getProperty("security.require-ssl") != null ? "https" : "http";
+        url = protocol + "://" + server.configuration.dockerHost + ":" + server.configuration.portFirst + "/j_spring_cas_security_check";
+        Server.LOGGER.info("sso service: " + url);
+
         // TODO: report an error when not running https ...
-        serviceProperties.setService("https://" + server.configuration.dockerHost + ":" + server.configuration.portFirst + "/j_spring_cas_security_check");
+        serviceProperties.setService(url);
         serviceProperties.setSendRenew(false);
         return serviceProperties;
     }
