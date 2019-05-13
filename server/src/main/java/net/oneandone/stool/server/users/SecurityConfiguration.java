@@ -84,9 +84,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
           // TODO      .addFilter(casAuthenticationFilter())
                 .authenticationProvider(ldapAuthenticationProvider())
-                .exceptionHandling()
-                    .authenticationEntryPoint(basicAuthenticationEntryPoint())
-                    .and()
                 .authorizeRequests()
                     .antMatchers("/api/**").fullyAuthenticated()
                     .antMatchers("/ui/**").fullyAuthenticated();
@@ -104,13 +101,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     //-- basic authentication against ldap
-
-    @Bean
-    public AuthenticationEntryPoint basicAuthenticationEntryPoint() {
-        BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
-        entryPoint.setRealmName(realmName());
-        return entryPoint;
-    }
 
     @Bean
     public Filter basicAuthenticationFilter() throws Exception {
