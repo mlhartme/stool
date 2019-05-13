@@ -63,30 +63,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        CasAuthenticationFilter filter;
-        CasAuthenticationEntryPoint entryPoint;
-
-        filter = new CasAuthenticationFilter();
-        filter.setAuthenticationManager(authenticationManager());
-        entryPoint = new CasAuthenticationEntryPoint();
-        entryPoint.setLoginUrl(server.configuration.ldapSso + "/login/");
-        entryPoint.setServiceProperties(serviceProperties());
-        http.csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(entryPoint)
-                .and()
-                .addFilter(filter);
-
         if (server.configuration.auth()) {
             http
                .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
-               .sessionManagement()
-                  .disable()
+               .addFilter(casAuthenticationFilter())
+               .sessionManagement().disable()
                .csrf().disable() // no sessions -> no need to protect them with csrf
+               .exceptionHandling().authenticationEntryPoint(casEntryPoint()).and()
                .authorizeRequests()
                     .antMatchers("/api/**").fullyAuthenticated()
-                    .antMatchers("/ui/whoami").fullyAuthenticated()
-                    .antMatchers("/ui/stages/").anonymous()
-                    .antMatchers("/ui/**").hasRole("LOGIN")
+                    .antMatchers("/ui/**").fullyAuthenticated()
                     .and()
                .httpBasic().realmName(REALM);
         } else {
@@ -94,7 +80,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             http.authorizeRequests().antMatchers("/**").anonymous();
         }
     }
-
 
     //--
 
@@ -141,6 +126,25 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         result = new LdapUserDetailsService(userSearch, authoritiesPopulator);
         result.setUserDetailsMapper(new UserDetailsMapper());
         return result;
+    }
+
+    //-- cas
+
+    private CasAuthenticationEntryPoint casEntryPoint() {
+        CasAuthenticationEntryPoint entryPoint;
+
+        entryPoint = new CasAuthenticationEntryPoint();
+        entryPoint.setLoginUrl(server.configuration.ldapSso + "/login/");
+        entryPoint.setServiceProperties(serviceProperties());
+        return entryPoint;
+    }
+
+    private CasAuthenticationFilter casAuthenticationFilter() throws Exception {
+        CasAuthenticationFilter filter;
+
+        filter = new CasAuthenticationFilter();
+        filter.setAuthenticationManager(authenticationManager());
+        return filter;
     }
 
     @Bean
