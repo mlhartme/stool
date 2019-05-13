@@ -1,17 +1,23 @@
 package net.oneandone.stool.server.users;
 
 import net.oneandone.stool.server.Server;
+import org.jasig.cas.client.validation.Cas20ServiceTicketValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.cas.ServiceProperties;
+import org.springframework.security.cas.authentication.CasAuthenticationProvider;
+import org.springframework.security.cas.web.CasAuthenticationEntryPoint;
+import org.springframework.security.cas.web.CasAuthenticationFilter;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
+import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.ldap.DefaultSpringSecurityContextSource;
 import org.springframework.security.ldap.authentication.BindAuthenticator;
@@ -76,6 +82,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             http
                 .addFilter(basicAuthenticationFilter())
                 .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
+          // TODO      .addFilter(casAuthenticationFilter())
                 .authenticationProvider(ldapAuthenticationProvider())
                 .exceptionHandling()
                     .authenticationEntryPoint(basicAuthenticationEntryPoint())
@@ -93,6 +100,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
         auth.authenticationProvider(ldapAuthenticationProvider());
+        // TODO auth.authenticationProvider(casAuthenticationProvider());
     }
 
     //-- basic authentication against ldap
@@ -180,5 +188,47 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         } else {
             return new InMemoryUserDetailsManager();
         }
+    }
+
+    //-- cas
+
+    private CasAuthenticationProvider casAuthenticationProvider() {
+        CasAuthenticationProvider provider;
+
+        provider = new CasAuthenticationProvider();
+        provider.setServiceProperties(serviceProperties());
+        provider.setTicketValidator(new Cas20ServiceTicketValidator(server.configuration.ldapSso));
+        provider.setKey("cas");
+        provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsService()));
+
+        return provider;
+    }
+
+    private CasAuthenticationFilter casAuthenticationFilter() throws Exception {
+        CasAuthenticationFilter filter;
+
+        filter = new CasAuthenticationFilter();
+        filter.setAuthenticationManager(authenticationManager());
+        return filter;
+    }
+
+    private CasAuthenticationEntryPoint casAuthenticationEntryPoint() {
+        CasAuthenticationEntryPoint entryPoint;
+
+        entryPoint = new CasAuthenticationEntryPoint();
+        entryPoint.setLoginUrl(server.configuration.ldapSso + "/login/");
+        entryPoint.setServiceProperties(serviceProperties());
+        return entryPoint;
+    }
+
+    @Bean
+    public ServiceProperties serviceProperties() {
+        ServiceProperties serviceProperties;
+
+        serviceProperties = new ServiceProperties();
+        // TODO: report an error when not running https ...
+        serviceProperties.setService("https://" + server.configuration.dockerHost + ":" + server.configuration.portFirst + "/j_spring_cas_security_check");
+        serviceProperties.setSendRenew(false);
+        return serviceProperties;
     }
 }
