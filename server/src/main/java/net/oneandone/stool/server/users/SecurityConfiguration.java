@@ -70,8 +70,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         if (authEnabled()) {
             http.csrf().disable();
             http
-                .addFilter(authenticationFilter())
-                .addFilterBefore(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
+                .addFilter(basicAuthenticationFilter())
+                .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
                 .authenticationProvider(ldapAuthenticationProvider())
                 .exceptionHandling()
                     .authenticationEntryPoint(authenticationEntryPoint())
@@ -99,9 +99,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public Filter authenticationFilter() throws Exception {
-        BasicAuthenticationFilter filter = new BasicAuthenticationFilter(authenticationManager());
-        return filter;
+    public Filter basicAuthenticationFilter() throws Exception {
+        return new BasicAuthenticationFilter(authenticationManager());
     }
 
     // LDAP
