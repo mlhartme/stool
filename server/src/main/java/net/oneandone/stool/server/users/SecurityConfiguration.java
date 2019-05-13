@@ -87,7 +87,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .authenticationEntryPoint(casAuthenticationEntryPoint())
                     .and()
 
-       // TODO
                 .authenticationProvider(ldapAuthenticationProvider())
                 .authenticationProvider(casAuthenticationProvider())
 
@@ -97,12 +96,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         } else {
             http.authorizeRequests().antMatchers("/**").anonymous();
         }
-    }
-
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) {
-        auth.authenticationProvider(ldapAuthenticationProvider());
-        auth.authenticationProvider(casAuthenticationProvider());
     }
 
     //-- basic authentication against ldap
