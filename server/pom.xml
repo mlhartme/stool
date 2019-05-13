@@ -81,11 +81,6 @@
       <artifactId>spring-security-cas-client</artifactId>
       <version>3.0.8.RELEASE</version>
     </dependency>
-    <dependency><!-- TODO  -->
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>1.11</version>
-    </dependency>
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
