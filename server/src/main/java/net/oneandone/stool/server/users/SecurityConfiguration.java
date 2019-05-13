@@ -82,8 +82,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             http
                 .addFilter(basicAuthenticationFilter())
                 .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
-          // TODO      .addFilter(casAuthenticationFilter())
+                .addFilter(casAuthenticationFilter())
+                .exceptionHandling()
+                    .authenticationEntryPoint(casAuthenticationEntryPoint())
+                    .and()
+
+       // TODO
                 .authenticationProvider(ldapAuthenticationProvider())
+                .authenticationProvider(casAuthenticationProvider())
+
                 .authorizeRequests()
                     .antMatchers("/api/**").fullyAuthenticated()
                     .antMatchers("/ui/**").fullyAuthenticated();
@@ -92,12 +99,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         }
     }
 
-    //--
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth) {
         auth.authenticationProvider(ldapAuthenticationProvider());
-        // TODO auth.authenticationProvider(casAuthenticationProvider());
+        auth.authenticationProvider(casAuthenticationProvider());
     }
 
     //-- basic authentication against ldap
