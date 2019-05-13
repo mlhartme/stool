@@ -30,6 +30,10 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 import javax.servlet.Filter;
 
+/**
+ * Here's an overview that helped me get started with Spring security:
+ * https://springbootdev.com/2017/08/23/spring-security-authentication-architecture/
+ */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
@@ -74,7 +78,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
                 .authenticationProvider(ldapAuthenticationProvider())
                 .exceptionHandling()
-                    .authenticationEntryPoint(authenticationEntryPoint())
+                    .authenticationEntryPoint(basicAuthenticationEntryPoint())
                     .and()
                 .authorizeRequests()
                     .antMatchers("/api/**").fullyAuthenticated()
@@ -91,8 +95,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         auth.authenticationProvider(ldapAuthenticationProvider());
     }
 
+    //-- basic authentication against ldap
+
     @Bean
-    public AuthenticationEntryPoint authenticationEntryPoint() {
+    public AuthenticationEntryPoint basicAuthenticationEntryPoint() {
         BasicAuthenticationEntryPoint entryPoint = new BasicAuthenticationEntryPoint();
         entryPoint.setRealmName(realmName());
         return entryPoint;
@@ -103,9 +109,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         return new BasicAuthenticationFilter(authenticationManager());
     }
 
-    // LDAP
     @Bean
-    public DefaultSpringSecurityContextSource contextSource() {
+    public DefaultSpringSecurityContextSource ldapContextSource() {
         DefaultSpringSecurityContextSource contextSource;
         String url;
 
@@ -121,14 +126,14 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     public LdapUserSearch ldapUserSearch() {
-        return new FilterBasedLdapUserSearch("ou=users,ou=" + serviceName(), "(uid={0})", contextSource());
+        return new FilterBasedLdapUserSearch("ou=users,ou=" + serviceName(), "(uid={0})", ldapContextSource());
     }
 
     @Bean
     public LdapAuthenticator ldapAuthenticator() {
         BindAuthenticator bindAuthenticator;
 
-        bindAuthenticator = new BindAuthenticator(contextSource());
+        bindAuthenticator = new BindAuthenticator(ldapContextSource());
         bindAuthenticator.setUserSearch(ldapUserSearch());
         return bindAuthenticator;
     }
@@ -137,7 +142,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public LdapAuthoritiesPopulator ldapAuthoritiesPopulator() {
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
 
-        authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(contextSource(), "ou=roles,ou=" + serviceName());
+        authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(ldapContextSource(), "ou=roles,ou=" + serviceName());
         authoritiesPopulator.setGroupSearchFilter("(member=uid={1})");
         authoritiesPopulator.setGroupRoleAttribute("ou");
         authoritiesPopulator.setSearchSubtree(false);
