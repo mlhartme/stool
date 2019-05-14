@@ -35,16 +35,22 @@ public class Setup {
     private final Console console;
     private final String version;
     private final boolean batch;
+    private final Boolean explicitServer; // null to ask
     private final Map<String, String> opts;
 
-    public Setup(Globals globals, boolean batch, List<String> opts) {
+    public Setup(Globals globals, boolean batch, Boolean server, List<String> opts) {
         int idx;
+
+        if (batch && server == null) {
+            throw new ArgumentException("cannot ask about localhost in batch mode");
+        }
 
         this.world = globals.getWorld();
         this.home = globals.getHome();
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
         this.batch = batch;
+        this.explicitServer = server;
         this.opts = new HashMap<>();
         for (String opt : opts) {
             idx = opt.indexOf('=');
@@ -66,16 +72,42 @@ public class Setup {
     }
 
     private void create() throws IOException {
+        boolean server;
+
+        server = explicitServer == null ? askServer() : explicitServer;
         if (!batch) {
             console.info.println("Ready to create home directory: " + home.getAbsolute());
             console.pressReturn();
         }
         console.info.println("Creating " + home);
-        doCreate();
+        doCreate(server);
         console.info.println("Done.");
         console.info.println("Make sure to add " + home.join("shell.inc") + " to your shell profile (e.g. ~/.bash_profile) and restart your terminal.");
-        console.info.println("Note: to start a local server: install Docker and run");
-        console.info.println("    docker-compose -f " + home.join("server.yml").getAbsolute() + " up");
+        if (server) {
+            console.info.println();
+            console.info.println("Stool server has been setup - start with ");
+            console.info.println("    docker-compose -f " + home.join("server.yml").getAbsolute() + " up");
+        }
+    }
+
+    private boolean askServer() {
+        String answer;
+
+        while (true) {
+            console.info.println("Stool server");
+            console.info.println("  You need Stool server if you want to run stages locally.");
+            console.info.println("  However, Stool server requires Docker installed on your machine.");
+            answer = console.readline("Setup Stool server [y/n)]? ");
+            answer = answer.toLowerCase();
+            switch (answer) {
+                case "y":
+                    return true;
+                case "n":
+                    return false;
+                default:
+                    console.info.println("invalid answer: " + answer);
+            }
+        }
     }
 
     private void update() throws IOException {
@@ -90,13 +122,15 @@ public class Setup {
         }
     }
 
-    public void doCreate() throws IOException {
+    public void doCreate(boolean server) throws IOException {
         ServerManager manager;
 
         home.mkdir();
         world.resource("files/home").copyDirectory(home);
         manager = new ServerManager(home.join("servers.json"), null, "", "");
-        manager.add("localhost", "http://localhost:" + port() + "/api");
+        if (server) {
+            manager.add("localhost", "http://localhost:" + port() + "/api");
+        }
         manager.add("gem1", "https://gem1.ciso.server.lan:8000/api");
         manager.save();
         serverDir().mkdir();

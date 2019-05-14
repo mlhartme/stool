@@ -101,17 +101,14 @@ dashboard = {
 
             if (action == "restart") {
                 $.post("/api/stages/" + stage + "/stop").fail(function (r) {
-                    dashboard.stages.reload();
                     box.find('.modal-body').html('<p>failed: ' + r + '</p>');
                 }).done(function (r) {
                     $.post("/api/stages/" + stage + "/start").fail(function (r) {
-                        dashboard.stages.reload();
                         box.find('.modal-body').html('<p>failed: ' + r + '</p>');
                     }).done(function (r) {
                         // TODO: doesn't work if the browser is extremely slow (or busy)
                         // from https://stackoverflow.com/questions/51637199/bootstrap-4-open-modal-a-close-modal-a-open-modal-b-a-not-closing
                         setTimeout( function() { box.modal("hide"); }, 500 );
-                        dashboard.stages.reload();
                     });
                 });
             } else {
@@ -120,14 +117,13 @@ dashboard = {
                     url = url + "?" + arguments;
                 }
                 $.post(url).fail(function (r) {
-                    dashboard.stages.reload();
                     box.find('.modal-body').html('<p>failed: ' + r + '</p>');
                 }).done(function (r) {
                     // TODO: doesn't work if the browser is extremely slow (or busy)
                     // from https://stackoverflow.com/questions/51637199/bootstrap-4-open-modal-a-close-modal-a-open-modal-b-a-not-closing
                     setTimeout( function() { box.modal("hide"); }, 500 );
-                    dashboard.stages.reload();
                 });
+                dashboard.stages.reload();
             }
             return false;
         },
