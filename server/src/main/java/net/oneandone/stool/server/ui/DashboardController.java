@@ -26,10 +26,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -38,30 +39,30 @@ import javax.mail.MessagingException;
 @Controller
 @Scope(WebApplicationContext.SCOPE_REQUEST)
 @RequestMapping("/ui")
-public class UiController {
-    private static final Logger LOG = LoggerFactory.getLogger(UiController.class);
+public class DashboardController {
+    private static final Logger LOG = LoggerFactory.getLogger(DashboardController.class);
 
     @Autowired
     private Server server;
 
-    @RequestMapping(value = "/", method = RequestMethod.GET)
+    @GetMapping("dashboard")
     public ModelAndView dashboard(ModelAndView modelAndView) {
         User user;
 
         user = User.authenticatedOrAnonymous();
-        modelAndView.setViewName("index");
+        modelAndView.setViewName("dashboard");
         modelAndView.addObject("version", Main.versionString(server.world));
         modelAndView.addObject("username", user.name);
-        LOG.info("[" + user.login + "] GET /");
+        LOG.info("[" + user.login + "] GET dashboard");
         return modelAndView;
     }
 
-    @RequestMapping(value = "feedback", method = RequestMethod.GET)
+    @GetMapping("feedback")
     public String feedback() {
         return "feedback";
     }
 
-    @RequestMapping(value = "feedback", method = RequestMethod.POST)
+    @PostMapping("feedback")
     public ResponseEntity sendFeedback(@ModelAttribute("message") String message) throws MessagingException {
         String subject;
 
