@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.cas.ServiceProperties;
 import org.springframework.security.cas.authentication.CasAuthenticationProvider;
@@ -30,9 +31,15 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.authentication.DelegatingAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.servlet.Filter;
+import java.util.LinkedHashMap;
 
 /**
  * Here's an overview that helped me get started with Spring security:
@@ -54,11 +61,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity web) {
         if (server.configuration.auth()) {
             /* To allow Pre-flight [OPTIONS] request from browser */
-            web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**")
-                    // TODO: resources have been moved ...
-                    .antMatchers("/ui/ressources/**")
-                    .antMatchers("/ui/favicon.ico")
-                    .antMatchers("/ui/system");
+            web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**");
         } else {
             web.ignoring().anyRequest();
         }
@@ -73,7 +76,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
                 .addFilter(casAuthenticationFilter())
                 .exceptionHandling()
-                    .authenticationEntryPoint(casAuthenticationEntryPoint())
+                    .authenticationEntryPoint(entryPoints())
                     .and()
 
                 .authorizeRequests()
@@ -81,6 +84,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         } else {
             http.authorizeRequests().antMatchers("/**").anonymous();
         }
+    }
+
+    private AuthenticationEntryPoint entryPoints() {
+        LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> map;
+
+        map = new LinkedHashMap<>();
+        map.put(new AntPathRequestMatcher("/ui/**"), casAuthenticationEntryPoint());
+        map.put(new AntPathRequestMatcher("/**"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+        return new DelegatingAuthenticationEntryPoint(map);
     }
 
     @Override // note that moving this into configure(http) doesn't work ...
