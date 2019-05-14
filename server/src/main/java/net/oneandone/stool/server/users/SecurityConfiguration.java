@@ -30,8 +30,6 @@ import org.springframework.security.ldap.userdetails.LdapAuthoritiesPopulator;
 import org.springframework.security.ldap.userdetails.LdapUserDetailsService;
 import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
-import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
 import javax.servlet.Filter;
@@ -67,6 +65,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         if (server.configuration.auth()) {
             /* To allow Pre-flight [OPTIONS] request from browser */
             web.ignoring().antMatchers(HttpMethod.OPTIONS, "/**")
+                    // TODO: resources have been moved ...
                     .antMatchers("/ui/ressources/**")
                     .antMatchers("/ui/favicon.ico")
                     .antMatchers("/ui/system");
@@ -91,10 +90,18 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .and()
 
                 .authorizeRequests()
-                    .antMatchers("/**").fullyAuthenticated();
+                    .antMatchers("/login/**").anonymous() // TODO: simplify
+                    .antMatchers("/ui/**").authenticated()
+                    .antMatchers("/api/**").authenticated();
         } else {
             http.authorizeRequests().antMatchers("/**").anonymous();
         }
+    }
+
+    @Override // TODO: duplicate!?
+    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+        auth.authenticationProvider(ldapAuthenticationProvider());
+        auth.authenticationProvider(casAuthenticationProvider());
     }
 
     //-- basic authentication against ldap
@@ -179,15 +186,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     //-- cas
 
-    private CasAuthenticationProvider casAuthenticationProvider() {
+    @Bean
+    public CasAuthenticationProvider casAuthenticationProvider() {
         CasAuthenticationProvider provider;
 
         provider = new CasAuthenticationProvider();
         provider.setServiceProperties(serviceProperties());
         provider.setTicketValidator(new Cas20ServiceTicketValidator(server.configuration.ldapSso));
         provider.setKey("cas");
-        provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsService()));
-
+        provider.setAuthenticationUserDetailsService(new UserDetailsByNameServiceWrapper(userDetailsServiceBean()));
         return provider;
     }
 
@@ -195,6 +202,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         CasAuthenticationFilter filter;
 
         filter = new CasAuthenticationFilter();
+        filter.setServiceProperties(serviceProperties());
         filter.setAuthenticationManager(authenticationManager());
         return filter;
     }
