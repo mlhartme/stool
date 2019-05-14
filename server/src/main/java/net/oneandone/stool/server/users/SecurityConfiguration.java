@@ -72,6 +72,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         if (enabled()) {
             http.csrf().disable();
             http
+//                .sessionManagement()
+  //                  .disable() // ZO
                 .addFilter(basicAuthenticationFilter())
                 .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
                 .addFilter(casAuthenticationFilter())

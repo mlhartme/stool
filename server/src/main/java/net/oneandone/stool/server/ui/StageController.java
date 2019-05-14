@@ -47,16 +47,7 @@ import java.util.List;
 @RequestMapping("/ui/stages")
 public class StageController {
     @Autowired
-    private World world;
-
-    @Autowired
     private Server server;
-
-    @Autowired
-    private FileNode logs;
-
-    @Autowired
-    private FileNode jar;
 
     private final Collection<Stage> stagesCache;
     private long lastCacheRenew;
