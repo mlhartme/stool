@@ -17,6 +17,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
 import org.springframework.security.core.userdetails.UserDetailsByNameServiceWrapper;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -70,10 +71,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         if (enabled()) {
+            // Stool server doesn't need session, but I cannot disable them here for security because cas relies on it
             http.csrf().disable();
             http
-//                .sessionManagement()
-  //                  .disable() // ZO
                 .addFilter(basicAuthenticationFilter())
                 .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
                 .addFilter(casAuthenticationFilter())
@@ -92,8 +92,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         LinkedHashMap<RequestMatcher, AuthenticationEntryPoint> map;
 
         map = new LinkedHashMap<>();
-        map.put(new AntPathRequestMatcher("/ui/**"), casAuthenticationEntryPoint());
-        map.put(new AntPathRequestMatcher("/**"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+        map.put(new AntPathRequestMatcher("/api/**"), new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED));
+        map.put(new AntPathRequestMatcher("/**"), casAuthenticationEntryPoint());
         return new DelegatingAuthenticationEntryPoint(map);
     }
 

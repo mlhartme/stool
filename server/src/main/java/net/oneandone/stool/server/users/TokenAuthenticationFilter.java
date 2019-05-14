@@ -29,7 +29,7 @@ public class TokenAuthenticationFilter extends GenericFilterBean {
         User user;
 
         if (SecurityContextHolder.getContext().getAuthentication() != null) {
-            Server.LOGGER.debug(((HttpServletRequest) request).getRequestURI() + ": already authenticated: " + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+            Server.LOGGER.debug(((HttpServletRequest) request).getRequestURI() + ": already authenticated: " + User.authenticatedOrAnonymous().login);
         } else {
             token = ((HttpServletRequest) request).getHeader("X-authentication");
             if (token != null) {
