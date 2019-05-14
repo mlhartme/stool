@@ -82,17 +82,12 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .addFilter(basicAuthenticationFilter())
                 .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
                 .addFilter(casAuthenticationFilter())
-
-                .authenticationProvider(ldapAuthenticationProvider())
-                .authenticationProvider(casAuthenticationProvider())
                 .exceptionHandling()
                     .authenticationEntryPoint(casAuthenticationEntryPoint())
                     .and()
 
                 .authorizeRequests()
-                    .antMatchers("/login/**").anonymous() // TODO: simplify
-                    .antMatchers("/ui/**").authenticated()
-                    .antMatchers("/api/**").authenticated();
+                    .antMatchers("/**").authenticated();
         } else {
             http.authorizeRequests().antMatchers("/**").anonymous();
         }
