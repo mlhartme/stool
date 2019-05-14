@@ -29,7 +29,7 @@
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="#dashboard" data-action="start" th:data-stage="${stage.name}">Start</a>
                     <a class="dropdown-item" href="#dashboard" data-action="stop" th:data-stage="${stage.name}">Stop</a>
-                    <a class="dropdown-item" href="#dashboard" data-action="config" data-arguments="expire=+7" th:data-stage="${stage.name}">Expire in 1 week</a>
+                    <a class="dropdown-item" href="#dashboard" data-action="set-properties" data-arguments="expire=%2B7" th:data-stage="${stage.name}">Expire in 1 week</a>
                     <a class="dropdown-item" th:href="${'mailto:?subject=Stage&body=' + stage.sharedText()}" th:disabled="${stage.urlMap(null) == null}">
                         <span style="white-space: nowrap"><i class="fas fa-share"></i> Share</span></a>
                     <a class="dropdown-item" data-toggle="modal" data-target="#logs" th:data-stage="${stage.name}">Log files ...</a>
