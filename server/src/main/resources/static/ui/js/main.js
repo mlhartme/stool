@@ -94,23 +94,41 @@ dashboard = {
             action = $(this).attr('data-action');
             arguments = $(this).attr('data-arguments');
 
-            url = "/api/stages/" + stage + "/" + action;
             $('#' + stage + ' a.action').addClass('disabled');
-            if (arguments != null) {
-                url = url + "?" + arguments;
-            }
             box = $('#progress');
             box.modal('show');
             box.find('.modal-header').html("<h4>" + action + " " + stage + "</h4>");
-            $.post(url).fail(function (r) {
-                dashboard.stages.reload();
-                box.find('.modal-body').html('<p>failed: ' + r + '</p>');
-            }).done(function (r) {
-                // TODO: doesn't work if the browser is extremely slow (or busy)
-                // from https://stackoverflow.com/questions/51637199/bootstrap-4-open-modal-a-close-modal-a-open-modal-b-a-not-closing
-                setTimeout( function() { box.modal("hide"); }, 500 );
-                dashboard.stages.reload();
-            });
+
+            if (action == "restart") {
+                $.post("/api/stages/" + stage + "/stop").fail(function (r) {
+                    dashboard.stages.reload();
+                    box.find('.modal-body').html('<p>failed: ' + r + '</p>');
+                }).done(function (r) {
+                    $.post("/api/stages/" + stage + "/start").fail(function (r) {
+                        dashboard.stages.reload();
+                        box.find('.modal-body').html('<p>failed: ' + r + '</p>');
+                    }).done(function (r) {
+                        // TODO: doesn't work if the browser is extremely slow (or busy)
+                        // from https://stackoverflow.com/questions/51637199/bootstrap-4-open-modal-a-close-modal-a-open-modal-b-a-not-closing
+                        setTimeout( function() { box.modal("hide"); }, 500 );
+                        dashboard.stages.reload();
+                    });
+                });
+            } else {
+                url = "/api/stages/" + stage + "/" + action;
+                if (arguments != null) {
+                    url = url + "?" + arguments;
+                }
+                $.post(url).fail(function (r) {
+                    dashboard.stages.reload();
+                    box.find('.modal-body').html('<p>failed: ' + r + '</p>');
+                }).done(function (r) {
+                    // TODO: doesn't work if the browser is extremely slow (or busy)
+                    // from https://stackoverflow.com/questions/51637199/bootstrap-4-open-modal-a-close-modal-a-open-modal-b-a-not-closing
+                    setTimeout( function() { box.modal("hide"); }, 500 );
+                    dashboard.stages.reload();
+                });
+            }
             return false;
         },
 
