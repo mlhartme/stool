@@ -534,6 +534,12 @@ public class Server {
 
 
     public void validate() throws IOException {
+        if (configuration.auth()) {
+            if (configuration.ldapSso.isEmpty()) {
+                LOGGER.error("ldapsso cannot be empty because security is enabled");
+                throw new IOException("ldapsso is empty");
+            }
+        }
         try {
             InetAddress.getByName(configuration.dockerHost);
         } catch (UnknownHostException e) {

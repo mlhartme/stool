@@ -5,7 +5,7 @@
 Stool is a tool to create containers on develop workstations and manage them on a (shared) docker host; 
 it no longer supports shared environments
 
-New philio: projects are the former stages, this is where your sources reside.
+New philo: projects are the former stages, this is where your sources reside.
 Stages are now the central part; multiple project can be associated with the same stage.
 
 * dashboard
@@ -13,6 +13,7 @@ Stages are now the central part; multiple project can be associated with the sam
   * build and refresh are gone - use restart instead
   * is now part of the server - it's the name over the overview page
   * added link to logs
+  * updated bootstrap to 4.3.1
   
 * dumped debian packages
 * 1 image per war

@@ -1,3 +1,23 @@
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})
+$('#logs').on('show.bs.modal', function (event) {
+  var link = $(event.relatedTarget);
+  var stage = link.data('stage');
+
+  $.ajax('/api/stages/' + stage + '/logs', {
+        dataType: "json",
+        success: function (array) {
+            var dest = $('#logs').find('.modal-body');
+            console.log('success ' + array);
+            $.each(array, function(index, element) {
+                dest.append($('<a href="/api/stages/' + stage + '/logs/' + element + '">' + element + '</a><br/>'));
+            });
+        }
+    });
+})
+
+
 var dashboard = dashboard || {};
 
 dashboard = {
