@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.ui;
 
+import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.users.User;
 import org.slf4j.Logger;
@@ -49,18 +50,11 @@ public class UiController {
 
         user = User.authenticatedOrAnonymous();
         modelAndView.setViewName("index");
+        modelAndView.addObject("version", Main.versionString(server.world));
         modelAndView.addObject("username", user.name);
-        LOG.info("[" + user + "] GET /");
+        LOG.info("[" + user.login + "] GET /");
         return modelAndView;
     }
-
-    @RequestMapping(value = "whoami", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity whoAmI() {
-        return new ResponseEntity<>(User.authenticatedOrAnonymous(), HttpStatus.OK);
-    }
-
-    // pages
 
     @RequestMapping(value = "feedback", method = RequestMethod.GET)
     public String feedback() {
