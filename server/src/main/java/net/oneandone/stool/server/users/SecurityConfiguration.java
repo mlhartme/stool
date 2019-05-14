@@ -44,17 +44,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Autowired
     private Server server;
 
-    private AuthenticationProvider lazyLdapProvider;
-
-
-    protected String serviceName() {
-        return server.configuration.ldapUnit;
-    }
-    protected String realmName() {
-        return "STOOL";
-    }
-
-    protected boolean authEnabled() {
+    protected boolean enabled() {
         return server.configuration.auth();
     }
 
@@ -76,7 +66,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        if (authEnabled()) {
+        if (enabled()) {
             http.csrf().disable();
             http
                 .addFilter(basicAuthenticationFilter())
@@ -93,7 +83,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         }
     }
 
-    @Override // TODO: duplicate!?
+    @Override // note that moving this into configure(http) doesn't work ...
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.authenticationProvider(ldapAuthenticationProvider());
         auth.authenticationProvider(casAuthenticationProvider());
@@ -111,10 +101,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
         DefaultSpringSecurityContextSource contextSource;
         String url;
 
-        url = server.configuration.ldapUrl;
-        if (url.isEmpty()) {
-            url = "ldap://will-no-be-used";
-        }
+        url = enabled() ? server.configuration.ldapUrl : "ldap://will-no-be-used";
         contextSource = new DefaultSpringSecurityContextSource(url);
         contextSource.setUserDn(server.configuration.ldapPrincipal);
         contextSource.setPassword(server.configuration.ldapCredentials);
@@ -123,7 +110,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     public LdapUserSearch ldapUserSearch() {
-        return new FilterBasedLdapUserSearch("ou=users,ou=" + serviceName(), "(uid={0})", ldapContextSource());
+        return new FilterBasedLdapUserSearch("ou=users,ou=" + server.configuration.ldapUnit, "(uid={0})", ldapContextSource());
     }
 
     @Bean
@@ -139,7 +126,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public LdapAuthoritiesPopulator ldapAuthoritiesPopulator() {
         DefaultLdapAuthoritiesPopulator authoritiesPopulator;
 
-        authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(ldapContextSource(), "ou=roles,ou=" + serviceName());
+        authoritiesPopulator = new DefaultLdapAuthoritiesPopulator(ldapContextSource(), "ou=roles,ou=" + server.configuration.ldapUnit);
         authoritiesPopulator.setGroupSearchFilter("(member=uid={1})");
         authoritiesPopulator.setGroupRoleAttribute("ou");
         authoritiesPopulator.setSearchSubtree(false);
@@ -170,7 +157,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     public UserDetailsService userDetailsServiceBean() {
         LdapUserDetailsService result;
 
-        if (server.configuration.auth()) {
+        if (enabled()) {
             result = new LdapUserDetailsService(ldapUserSearch(), ldapAuthoritiesPopulator());
             result.setUserDetailsMapper(userDetailsContextMapper());
             return result;
