@@ -10,11 +10,13 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class ServerManager {
+public class ServerManager implements Iterable<Server> {
     public final FileNode file;
 
     public final FileNode wirelog;
@@ -123,5 +125,10 @@ public class ServerManager {
         try (Writer writer = file.newWriter()) {
             gson.toJson(array, writer);
         }
+    }
+
+    @Override
+    public Iterator<Server> iterator() {
+        return Collections.unmodifiableCollection(servers.values()).iterator();
     }
 }

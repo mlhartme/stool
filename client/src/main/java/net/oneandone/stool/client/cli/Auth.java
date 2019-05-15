@@ -22,6 +22,8 @@ import net.oneandone.stool.client.ServerManager;
 import net.oneandone.sushi.fs.http.StatusException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Auth {
     private final Globals globals;
@@ -39,22 +41,41 @@ public class Auth {
         ServerManager manager;
         String username;
         String password;
-        Server dest;
+        List<Server> dests;
 
         manager = globals.servers();
-        dest = manager.get(server);
+        dests = new ArrayList<>();
+        if (server != null) {
+            dests.add(manager.get(server));
+        } else {
+            for (Server server : manager) {
+                if (server.hasToken()) {
+                    dests.add(server);
+                }
+            }
+            if (dests.isEmpty()) {
+                console.info.println("Nothing to do, there are no servers that need authentication.");
+                return;
+            }
+        }
+
+        for (Server server : dests) {
+            console.info.println(server.name + " " + server.url);
+        }
         username = console.readline("username: ");
         password = new String(System.console().readPassword("password:"));
-        try {
-            dest.auth(globals.getWorld(), username, password);
-        } catch (StatusException e) {
-            if (e.getStatusLine().code == 401) {
-                throw new IOException(dest.url + ": " + e.getMessage(), e);
-            } else {
-                throw e;
+        for (Server dest : dests) {
+            try {
+                dest.auth(globals.getWorld(), username, password);
+            } catch (StatusException e) {
+                if (e.getStatusLine().code == 401) {
+                    throw new IOException(dest.url + ": " + e.getMessage(), e);
+                } else {
+                    throw e;
+                }
             }
         }
         manager.save(globals.getGson());
-        console.info.println("Successfully updated token for server " + dest.url);
+        console.info.println("Successfully updated token for " + dests.size() + " server(s)");
     }
 }

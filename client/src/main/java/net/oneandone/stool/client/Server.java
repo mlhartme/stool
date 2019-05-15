@@ -37,6 +37,9 @@ public class Server {
         this.clientCommand = clientCommand;
     }
 
+    public boolean hasToken() {
+        return token != null;
+    }
     public void auth(World world, String username, String password) throws IOException {
         Client client;
 
@@ -59,4 +62,5 @@ public class Server {
         }
         return result;
     }
+
 }
