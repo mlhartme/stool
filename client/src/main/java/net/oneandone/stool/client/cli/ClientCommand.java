@@ -47,11 +47,7 @@ public abstract class ClientCommand {
         }
     }
 
-    public void run() throws Exception {  // TODO: dump
-        doRun();
-    }
-
-    public abstract void doRun() throws Exception;
+    public abstract void run() throws Exception;
 
     protected void run(Launcher l, Node output) throws IOException {
         message(l, output instanceof FileNode ? " > " + output : "");

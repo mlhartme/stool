@@ -53,7 +53,7 @@ public abstract class StageCommand extends ClientCommand {
     //--
 
     @Override
-    public void doRun() throws Exception {
+    public void run() throws Exception {
         int width;
         List<Reference> lst;
         EnumerationFailed failures;

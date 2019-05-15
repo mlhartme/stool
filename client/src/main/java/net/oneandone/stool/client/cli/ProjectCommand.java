@@ -27,7 +27,7 @@ public abstract class ProjectCommand extends ClientCommand {
     }
 
     @Override
-    public void doRun() throws Exception {
+    public void run() throws Exception {
         doRun(project);
     }
 
