@@ -21,6 +21,7 @@ import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.ServerManager;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Strings;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -80,7 +81,7 @@ public class Setup {
         server = explicitServer == null ? askServer() : explicitServer;
         environments = environments();
         if (!batch) {
-            console.info.println("Ready to create Stool Home directory: " + home.getAbsolute());
+            console.info.println("Ready to create Stool home directory: " + home.getAbsolute());
             console.pressReturn();
         }
         console.info.println("Creating " + home);
@@ -133,21 +134,26 @@ public class Setup {
 
         result = new ArrayList<>();
         for (ServerManager manager : environments) {
-            if (yesNo("Setup " + manager.file.getName() + " [y/n]? ")) {
+            if (yesNo("Setup " + Strings.removeRight(manager.file.getName(), EXT) + " environment [y/n]? ")) {
                 result.add(manager);
             }
         }
         return result;
     }
 
+    private static final String EXT = ".environment";
+
     private List<ServerManager> listEnvironments() throws IOException {
         FileNode dir;
         List<ServerManager> result;
+        ServerManager manager;
 
         dir = explicitEnvironment != null ? explicitEnvironment : implicitEnvironment();
         result = new ArrayList<>();
-        for (FileNode file : dir.find("*.environment")) {
-            result.add(new ServerManager(file));
+        for (FileNode file : dir.find("*" + EXT)) {
+            manager = new ServerManager(file);
+            manager.load();
+            result.add(manager);
         }
         return result;
     }
