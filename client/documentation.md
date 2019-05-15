@@ -259,7 +259,7 @@ Stool is a command line tool to manage stages. After creating a stage, you can b
 `stool` *global-option*... `remove` *stage-option*... [`-stop`] [`-batch`]
 
 
-`stool` *global-option*... `start` *stage-option*... [`-tail`] [`-nocache`]
+`stool` *global-option*... `start` *stage-option*... [*key*`=`*value*...][*app*`[`:`*idx*] ...]
 
 
 `stool` *global-option*... `stop` *stage-option*... [*app*...]
@@ -269,7 +269,7 @@ Stool is a command line tool to manage stages. After creating a stage, you can b
 
 
 
-`stool` *global-option*... `history` *stage-option*... [`-details`] [`-max` *n*] 
+`stool` *global-option*... `history` *stage-option*... [`-details`] [`-max` *max*] 
 
 
 `stool` *global-option*... `config` *stage-option*... (*key* | *value*)...
@@ -284,9 +284,6 @@ Stool is a command line tool to manage stages. After creating a stage, you can b
 
 
 `stool` *global-option*... `list` *stage-option*... (*field*|*property*)...
-
-
-`stool` *global-option*... `cleanup` *stage-option*...
 
 
 `stool` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`]
@@ -584,36 +581,19 @@ Start a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `start` *stage-option*... [`-tail`] [`-nocache`]
+`stool` *global-option*... `start` *stage-option*... [*key*`=`*value*...][*app*`[`:`*idx*] ...]
 
 #### Description
 
-Creates a Docker image based on the current template and starts it. Depending on your application(s), startup may take a while.
+Starts the specified *app*s (if not specified: all that are not started yet) with the environment arguments specified
+by *key*=*value* arguments. *app* can be specified with an index which denotes the actual image to be started. `0` is the newest image
+available, this is the default. Use `stool app` to see available indexes.
 
-Startup is refused if your stage has expired. In this case, use `stool config expire=`*newdate*
-to configure a new `expire` date.
+When starting an app, Stool checks if the it has previously been started. If so, the respective container is removed.
 
-Startup is also refused if the disk quota exceeded. In this case, delete some unused files, try `stool cleanup`, or use 
-`stool config quota=`*n*.
+Startup is refused if your stage has expired. In this case, use `stool config expire=`*newdate* to configure a new `expire` date.
 
-Use the `-tail` option to get container output printed to the console. Press ctrl-c to stop watching output, 
-the container will continue to run.
-
-Use the `-nocache` option to disable Dockers image cache. This will build the image from scratch, which is useful e.g.
-to re-generate certificates or to re-load secrets.
-
-`start` generates a Docker context directory in `$STAGE/.backstage/context`. This directory is populated with all file
-from the template directory. Template files with the `.fm` extension are passed through the FreeMarker template engine
-and the result is writted to a file without this extension. Image build output written
-to `$STAGE/.backstage/image.log`. The docker container is startet as the current user, not as root. The following bind
-mounts are created:
-* `/logs` -> `$stage/.backstage/logs`
-* for source stages: `/vhosts/source-app` -> exploded webapp, e.g. `$stage/target/source-app-SNAPSHOT`
-* for artifact stages: `/vhosts/artifact-app` -> directory containing the artifact, e.g. `$stage/artifact-app` 
-
-
-The Docker template is configurable `stool config template=`*template*. If you change it, you have to restart the stage.
-You can also adjust files in the template directory; make sure to restart the stage to reflect your changes.
+Startup is also refused if the disk or memory quota exceeded. In this case, stop some other, currently unused stages.
 
 
 
@@ -633,7 +613,7 @@ Stop a stage
 
 #### DESCRIPTION
 
-Stops the specifed apps (if none is specified: all running apps). 
+Stops the specified apps (if none is specified: all running apps). 
 
 This command sends a "kill 15" to the root process of the container. If that's not successful within 300 seconds, the process is forcibly 
 terminated with "kill 9". If shutdown is slow, try to debug the apps running in this stage and find out what's slow in their kill 15 
@@ -667,16 +647,16 @@ Note: This is a stage command, get `stool help stage-options` to see available [
 
 ### stool-history
 
-Display command invoked on this stage
+Display commands invoked on this stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `history` *stage-option*... [`-details`] [`-max` *n*] 
+`stool` *global-option*... `history` *stage-option*... [`-details`] [`-max` *max*] 
 
 #### DESCRIPTION
 
 Prints the Stool commands that affected the stage. Specify `-details` to also print command output. Stops after the 
-specified max number of commands (*n* defauls is 50).
+specified *max* number of commands (defauls is 50).
 
 [//]: # (include stageOptions.md)
 
@@ -765,10 +745,13 @@ Prints the specified status *field*s or properties. Default: print all fields.
 Available fields:
 
 * **name**
+  Name of the stage.
 * **apps**
   App urls of this stage. Point your browser to one fo them access your app(s).
 * **running**
+  Apps of this stage currently running.
 * **urls**
+  Urls of apps of this stage.
 * **created-by**
   User who created this stage.
 * **created-at**
@@ -795,8 +778,7 @@ Display app status
 
 #### DESCRIPTION
 
-
-Available fields:
+Available fields: TODO
 
 * **apps**
   Application urls of this stage. Point your browser to one fo them access your application(s).
@@ -805,7 +787,7 @@ Available fields:
 * **buildtime**
   Last modified date of the war files for this stage.
 * **container**
-  container id if the stage is up; otherwise empty
+  container id if the stage is running.
 * **cpu**
   Cpu usage reported by Docker: percentage of this container's cpu utilisation relative to total system utilisation.
 * **created-at**
@@ -864,24 +846,6 @@ Note: This is a stage command, get `stool help stage-options` to see available [
 [//]: # (-)
 
 
-### stool-cleanup
-
-Cleanup a stage
-
-#### SYNOPSIS
-
-`stool` *global-option*... `cleanup` *stage-option*...
-
-#### DESCRIPTION
-
-Rotates *.log into *.log.gz files.
-
-[//]: # (include stageOptions.md)
-
-Note: This is a stage command, get `stool help stage-options` to see available [stage options](#stool-stage-options)
-[//]: # (-)
-
-
 ### stool-validate
 
 Validate the stage
@@ -892,17 +856,9 @@ Validate the stage
 
 #### DESCRIPTION
 
-Checks if the `expire` date of the stage has passes or the `quota` exceeded. If so, and if
+Checks if the `expire` date of the stage has passes or the disk quota exceeded. If so, and if
 `-repair` is specified, the stage is stopped (and also removed if expired for more than autoRemove days). And
 if `-email` is specified, a notification mail is sent as configured by the notify property.
-
-Also checks if the docker container for this stage is in stage running. 
-
-Also checks DNS settings.
-
-Also performs log rotation: logs are gzipped and removed after 90 days.
-
-Also checks Stool's locking system for stale locks and, if `-repair` is specified, removed them.
 
 [//]: # (include stageOptions.md)
 
