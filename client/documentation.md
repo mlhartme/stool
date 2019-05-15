@@ -235,24 +235,25 @@ Stool is a command line tool to manage stages. After creating a stage, you can b
 `stool` *global-option*... `version`
 
 
-`stool` *global-option*... `auth` *server*
+`stool` *global-option*... `auth` [*server*]
 
 
-`stool` *global-option*... `create` [`-project` *project* ] nameAndServer [*key*`=`*value*...]
+`stool` *global-option*... `create` [`-project` *project*] nameAndServer [*key*`=`*value*...]
 
 
 
-`stool` *global-option*... `attach` [`-project` *project* ] stage
+`stool` *global-option*... `attach` [`-project` *project*] stage
 
 
 `stool` *global-option*... `detach` [`-project` *project* ]
 
 
-`stool` *global-option*... `build` [`-project` *project* ][`-nocache`][`-keep` *keep*][`-restart`] [*war* ...] [*key*`=`*value*]
+`stool` *global-option*... `build` [`-project` *project*][`-nocache`][`-keep` *keep*][`-restart`] [*war* ...] [*key*`=`*value*]
 
 
 
 `stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] *command-options*...
+
 
 
 `stool` *global-option*... `remove` *stage-option*... [`-stop`] [`-batch`]
@@ -300,7 +301,7 @@ Stool is a command line tool to manage stages. After creating a stage, you can b
 
 #### Stool Server Configuration
 
-The following environment variables can be used to configure Stool server. This is usually done by adjusting `$STOOL_HOME/server/server.yml`. 
+The following environment variables can be used to configure Stool server in `$STOOL_HOME/server/server.yml`. 
 
 
 * **ADMIN** 
@@ -314,9 +315,9 @@ The following environment variables can be used to configure Stool server. This 
   Mb of disk spaces available for the root file system of all apps in all stages. The sum of all disk space reserved for all apps of all stages
   cannot exceed this number. 0 disables this feature. Type number, default 0.
 * **DOCKER_HOST**
-  Fully qualified hostname used to refer to this machine in application urls and emails. Type string.
+  Fully qualified hostname of this machine. Used in application urls and emails. Type string.
 * **ENVIRONMENT** 
-  Default environment variables to set automatically when starting apps, can be overwritten by the start command.
+  Default environment variables to set automatically when starting apps, can be overwritten by the start command. Type map, default empty.
 * **JMX_USAGE**
   How to invoke a jmx client in your environment. Type string, default "jconsole %s".  
 * **LDAP_CREDENTIALS**
@@ -328,36 +329,33 @@ The following environment variables can be used to configure Stool server. This 
 * **LDAP_URL**
   Ldap url for user information. Empty string to disable ldap. Type string, default empty.
 * **LDAP_SSO**
-  Url for Ldap single sign on. Type string, default empty.
+  Url for ui single sign on. Type string, default empty.
 * **LOGLEVEL**
-  for server logging. Type string, default INFO.
+  for server logging. Type string, default INFO. Example value: DEBUG.
 * **MAIL_HOST**
   Smtp Host name to deliver emails. Empty to disable. Type string, default empty.
 * **MAIL_USERNAME**
-  Username for mailHost. Type string, default empty;
+  Username for MAIL_HOST. Type string, default empty;
 * **MAIL_PASSWORD**
   Password for mailHost. Type string, default empty.
 * **MEMORY_QUOTA**
-  Max memory that stages may allocate. 0 to disable. Type number, default 0.
+  Max memory that all apps may allocate. 0 to disable. Type number, default 0.
 * **PORT_FIRST**
-  First port available for stages. Has to be an even number >1023. Type number, default 9000.
+  First port available for stages. Type number, default 9000.
 * **PORT_LAST**
-  Last port available for stages. Has to be an odd number >1023. Type number, default 9999.
-* **SECRETS**
-  Absolute path of the secrets directory on the stage host. Type string. TODO: determine automatically.
+  Last port available for stages. Type number, default 9999.
 * **REGISTRY_NAMESPACE**
   Prefix for all stage tags. Type string.
 * **VHOSTS**
-  `true` to create urls with vhosts for app and stage name.
-  `false` to create urls without vhosts. (Note that urls always contain the port to
-  distinguish between stages). Type boolean. If you want to enable vhosts you have to make sure you
-  have the respective DNS * entries for your machine.
+  `true` to create urls with subdomains for app and stage name.
+  `false` to create urls without subdomains. (Note that urls always contain the port to distinguish between stages). Type boolean. 
+  If you want to enable vhosts you have to make sure you have the respective DNS * entries for your machine.
 
 
 #### Ports
 
-Stool allocates ports from the range $PORT_FIRST ... $POST_LAST. To choose a port for a given Stage, Stool computes a hash between
-portFirst and portLast. If this port if already allocated, the next higher port is checked (with roll-over to portFirst if necessary).
+Stool allocates ports from the range $PORT_FIRST ... $POST_LAST. To choose a port for a given Stage, Stool computes a hash in this range.
+If this port if already allocated, the next higher port is checked (with roll-over to portFirst if necessary).
 
 #### Environment
 
@@ -385,7 +383,7 @@ Display man page
 
 #### DESCRIPTION
 
-Prints help about the specified *command*. Or, if *command* is not specified, prints help about Stool.
+Display help about the specified *command*. Or, if *command* is not specified, display general Stool help.
 
 ### stool-version 
 
@@ -402,62 +400,63 @@ Prints Stool's version info. Use the global `-v` option to get additional diagno
 
 ### stool-auth
 
-Authenticate to a server.
+Authenticate to server(s)
 
 #### SYNOPSIS
 
-`stool` *global-option*... `auth` *server*
+`stool` *global-option*... `auth` [*server*]
 
 #### DESCRIPTION
 
-Asks for username/password to authenticate against ldap. If authentication succeeds, the respective *server* is asked for an api token
-that will be stored and used for future access to this server.
+Asks for username/password to authenticate against ldap. If authentication succeeds, the respective *server* (if not specified: all servers
+that need authentication) is asked for an api token that will be stored and used for future access to this server.
 
 
 ## Project commands
 
 ### stool-create
 
-Create a new stage.
+Create a new stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `create` [`-project` *project* ] nameAndServer [*key*`=`*value*...]
+`stool` *global-option*... `create` [`-project` *project*] nameAndServer [*key*`=`*value*...]
 
 
 #### DESCRIPTION
 
-Creates a new stage one the specified *server*, with the specified *name*. 
+Creates a new stage with the specified *name* one the specified *server*. Reports an error if this the server already hosts a stage with 
+this name.
 
-*project* specifies the directory to attach the new stage to. Default is the current directory.
+*project* specifies the directory to attach the new stage to. Default is the current project.
 
-The new stage is configured with the specified *key*/*value* pairs. Specifying a *key*/*value* pair is equivalant to running 
+The new stage is configured with the specified *key*/*value* pairs. Specifying a *key*/*value* pair is equivalent to running 
 [stool config](#stool-config) with these arguments.
 
 
 #### Examples
 
-Create a source stage from svn: `stool create hello@localhost`
+Create a stage `hello` on server `localhost`: `stool create hello@localhost`
 
 ### stool-attach
 
-Attaches a project to stage.
+Attach a project to stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `attach` [`-project` *project* ] stage
+`stool` *global-option*... `attach` [`-project` *project*] stage
 
 #### DESCRIPTION
 
 Attaches the specified *project* (default is the current directory) to the specified *stage*. 
-*project* is a directory. Technically, a `.backstage` file will be created that stores the stage.
-*stage* has the form *name*`@`*server*.
+*project* is a directory. If the project already has a stage attached, this old attachment is overwritten. 
 
-If the project already has a stage attached, this old attachment is overwritten. 
+Technically, a `.backstage` file will be created that stores the stage. *stage* has the form *name*`@`*server*.
+
 
 ### stool-detach
 
-Detaches a project to stage.
+Detach a stage from a project
 
 #### SYNOPSIS
 
@@ -470,31 +469,31 @@ Removes the attachment of the specified *project* without modifying the stage it
 
 ### stool-build
 
-Build a project.
+Build a project
 
 #### SYNOPSIS
 
-`stool` *global-option*... `build` [`-project` *project* ][`-nocache`][`-keep` *keep*][`-restart`] [*war* ...] [*key*`=`*value*]
+`stool` *global-option*... `build` [`-project` *project*][`-nocache`][`-keep` *keep*][`-restart`] [*war* ...] [*key*`=`*value*]
 
 
 #### DESCRIPTION
 
-Builds the specified wars (if not specified: all wars) on the associated stage. The war is uploaded to the respective server and a 
-Docker build is run the the specified build arguments. Available build argument depend on the template being used. More build arguments
-are loaded from a properties file in the war. You can see the build argument actually used with `stool app`.
+Builds the specified wars (if not specified: all wars) on the attached stage. The war is uploaded to the respective server and a 
+Docker build is run with the build arguments (specified by *key*`=`*value* arguments). Available build argument depend on the template 
+being used. Default build arguments are loaded from a properties file in the war. You can see the build argument actually used with 
+`stool app`.
 
-*keep* specifies the nummer of docker images that will not be exceeded, default is 3. I.e. if you already have 3 images and run `build`, 
-the oldest unreferenced of the will be removed. Unreferenced means it's not used for the current container.
+*keep* specifies the nubmer of docker images that will not be exceeded, default is 3. I.e. if you already have 3 images and run `build`, 
+the oldest unreferenced image the will be removed. Unreferenced means it's not used for the current container.
 
 
 ## Stage Commands
 
-Most Stool commands are stage commands, i.e. they operate on one or multiple stages. Typical
-stage commands are `status`, `start`, and `stop`. Note that `create` is not a stage command 
-because it does not initially have a stage to operate on (although it results in a new (and selected) 
-stage).
+Most Stool commands are stage commands, i.e. they operate on one or multiple stages. Typical stage commands are `status`, `start`, 
+and `stop`. Note that `create` is not a stage command because it does not initially have a stage to operate on (although it results 
+in a new stage).
 
-All stage commands support stage options, get `stool help stage-options` for documentation.
+All stage commands support stage options, see `stool help stage-options` for documentation.
 
 ### stool-stage-options
 
@@ -503,6 +502,7 @@ Options available for all stage commands
 #### SYNOPSIS
 
 `stool` *global-option*... *stage-command* [`-all`|`-stage` *predicate*] [`-fail` *mode*] *command-options*...
+
 
 #### Selection options
 
@@ -564,10 +564,10 @@ Remove a stage
 
 #### Description
 
-Removes the stage, i.e. deletes it from the respective server. This includes docker images, containers, and log files.
+Removes the stage, i.e. deletes it from the respective server. This includes Docker images, containers, and log files.
 If the current project it attached to this stage, the attachment is removed as well.
 
-Reports an error if the stage is up. In this case, stop the stage first or invoke with `-stop`. 
+Reports an error if the stage is up. In this case, stop the stage first or invoke the command with `-stop`. 
 
 Before actually removing anything, this command asks if you really want to remove the stage. You can suppress this interaction 
 with the `-batch` option.
