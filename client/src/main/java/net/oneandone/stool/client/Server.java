@@ -37,6 +37,11 @@ public class Server {
         this.clientCommand = clientCommand;
     }
 
+    /** looks weired, but this method allows we to keep the token field private */
+    public void addTo(ServerManager dest) {
+        dest.add(name, url, token);
+    }
+
     public boolean hasToken() {
         return token != null;
     }

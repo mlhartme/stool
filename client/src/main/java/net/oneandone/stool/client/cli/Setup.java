@@ -183,7 +183,7 @@ public class Setup {
         world.resource("files/home").copyDirectory(home);
         manager = new ServerManager(home.join("servers.json"), null, "", "");
         if (server) {
-            manager.add("localhost", "http://localhost:" + port() + "/api");
+            manager.add("localhost", "http://localhost:" + port() + "/api", null);
         }
         for (ServerManager s : servers) {
             manager.addAll(s);

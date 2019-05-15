@@ -36,13 +36,13 @@ public class ServerManager implements Iterable<Server> {
         this.servers = new HashMap<>();
     }
 
-    public void add(String name, String url) {
-        servers.put(name, new Server(name, url, null, null, clientInvocation, clientCommand));
+    public void add(String name, String url, String token) {
+        servers.put(name, new Server(name, url, token, null, clientInvocation, clientCommand));
     }
 
     public void addAll(ServerManager other) {
         for (Server server : other.servers.values()) {
-            add(server.name, server.url);
+            server.addTo(this);
         }
     }
 
