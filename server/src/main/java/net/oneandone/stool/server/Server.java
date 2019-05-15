@@ -183,7 +183,7 @@ public class Server {
         if (dest.exists()) {
             // nothing to do -- cert.sh was probably set up by the server admins
         } else {
-            world.resource("files/home/cert.sh").copyDirectory(dest);
+            world.resource("files/home/cert.sh").copyFile(dest);
             dest.setPermissions("rwx--x--x");
         }
         for (String name : new String[]{"stages","certs"}) {

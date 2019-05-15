@@ -25,11 +25,6 @@ public class ServerConfigurer implements WebMvcConfigurer {
     }
 
     @Bean
-    public FileNode logs(World world) {
-        return world.getWorking().join("TODO/logs");
-    }
-
-    @Bean
     public ConnectorServerFactoryBean serverConnector() {
         // as suggested by
         //   https://stackoverflow.com/questions/31257968/how-to-access-jmx-interface-in-docker-from-outside

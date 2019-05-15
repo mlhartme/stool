@@ -47,13 +47,8 @@ public abstract class ClientCommand {
         }
     }
 
-    public void run() throws Exception {
-        try {
-            doRun();
-        } finally {
-            // TODO: move into server shutdown:
-            //    server.session.closeDockerEngine();
-        }
+    public void run() throws Exception {  // TODO: dump
+        doRun();
     }
 
     public abstract void doRun() throws Exception;
