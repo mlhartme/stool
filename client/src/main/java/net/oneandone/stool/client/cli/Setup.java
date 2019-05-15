@@ -38,19 +38,14 @@ public class Setup {
     private final boolean batch;
     private final Boolean explicitServer; // null to ask
     private final FileNode explicitEnvironment;
-    private final boolean selectEnvironments;
     private final Map<String, String> opts;
 
-    public Setup(Globals globals, boolean batch, Boolean server, FileNode environments, boolean selectEnvironments, List<String> opts) {
+    public Setup(Globals globals, boolean batch, Boolean server, FileNode environments, List<String> opts) {
         int idx;
 
         if (batch && server == null) {
             throw new ArgumentException("cannot ask about server in batch mode");
         }
-        if (batch && selectEnvironments) {
-            throw new ArgumentException("cannot select environments in batch mode");
-        }
-
         this.world = globals.getWorld();
         this.home = globals.getHome();
         this.console = globals.getConsole();
@@ -58,7 +53,6 @@ public class Setup {
         this.batch = batch;
         this.explicitServer = server;
         this.explicitEnvironment = environments;
-        this.selectEnvironments = selectEnvironments;
         this.opts = new HashMap<>();
         for (String opt : opts) {
             idx = opt.indexOf('=');
@@ -128,7 +122,7 @@ public class Setup {
         List<ServerManager> result;
 
         result = listEnvironments();
-        if (selectEnvironments) {
+        if (!batch) {
             result = selectEnvironments(result);
         }
         return result;
