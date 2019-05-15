@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
+import net.oneandone.stool.client.Server;
 import net.oneandone.stool.client.ServerManager;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -43,7 +44,7 @@ public class Setup {
     private final FileNode explicitEnvironment;
     private final Map<String, String> opts;
 
-    public Setup(Globals globals, boolean batch, Boolean server, FileNode environments, List<String> opts) {
+    public Setup(Globals globals, boolean batch, Boolean server, FileNode environment, List<String> opts) {
         int idx;
 
         if (batch && server == null) {
@@ -56,7 +57,7 @@ public class Setup {
         this.version = Main.versionString(world);
         this.batch = batch;
         this.explicitServer = server;
-        this.explicitEnvironment = environments;
+        this.explicitEnvironment = environment;
         this.opts = new HashMap<>();
         for (String opt : opts) {
             idx = opt.indexOf('=');
@@ -68,7 +69,8 @@ public class Setup {
     }
 
     public void run() throws IOException {
-        console.info.println("Stool " + version);
+        console.info.println("Stool " + version + " setup");
+        console.info.println();
 
         if (home.isDirectory()) {
             throw new IOException("TODO: upgrade");
@@ -79,30 +81,31 @@ public class Setup {
 
     private void create() throws IOException {
         boolean server;
-        List<ServerManager> environments;
+        ServerManager environment;
 
+        environment = environment();
         server = explicitServer == null ? askServer() : explicitServer;
-        environments = environments();
         if (!batch) {
+            console.info.println();
             console.info.println("Ready to create Stool home directory: " + home.getAbsolute());
             console.pressReturn();
         }
         console.info.println("Creating " + home);
-        doCreate(server, environments);
+        doCreate(environment, server);
         console.info.println("Done.");
         console.info.println("Make sure to add " + home.join("shell.inc") + " to your shell profile (e.g. ~/.bash_profile) and restart your terminal.");
         if (server) {
             console.info.println();
-            console.info.println("Stool server has been setup - start with ");
+            console.info.println("A local Stool server has been setup - start with ");
             console.info.println("    docker-compose -f " + home.join("server.yml").getAbsolute() + " up");
         }
     }
 
     private boolean askServer() {
-        console.info.println("Stool server");
-        console.info.println("  You need Stool server if you want to run stages locally.");
-        console.info.println("  However, Stool server requires Docker installed on your machine.");
-        return yesNo("Setup Stool server [y/n)]? ");
+        console.info.println("Local server");
+        console.info.println("  You need a local Stool server if you want to run stages on this machine.");
+        console.info.println("  (Note that a local server requires Docker installed on this machine.)");
+        return yesNo("    Setup local server [y/n)]? ");
     }
 
     private boolean yesNo(String str) {
@@ -122,50 +125,47 @@ public class Setup {
         }
     }
 
-    private List<ServerManager> environments() throws IOException {
-        List<ServerManager> result;
+    private ServerManager environment() throws IOException {
+        ServerManager result;
 
-        result = listEnvironments();
-        if (!batch) {
-            result = selectEnvironments(result);
+        result = readEnvironment();
+        if (!batch && !result.isEmpty()) {
+            result = select(result);
         }
         return result;
     }
 
-    private List<ServerManager> selectEnvironments(List<ServerManager> environments) {
-        List<ServerManager> result;
+    private ServerManager select(ServerManager environment) {
+        ServerManager result;
 
-        result = new ArrayList<>();
-        for (ServerManager manager : environments) {
-            if (yesNo("Setup " + Strings.removeRight(manager.file.getName(), EXT) + " environment [y/n]? ")) {
-                result.add(manager);
+        result = new ServerManager(null);
+        console.info.println("Remote servers");
+        console.info.println("  Stages are hosted on servers. Please choose the remote servers you want to use:");
+        for (Server server : environment) {
+            if (yesNo("    " + server.name + " (" + server.url +  ") [y/n]? ")) {
+                server.addTo(result);
             }
         }
         return result;
     }
 
-    private static final String EXT = ".environment";
-
-    private List<ServerManager> listEnvironments() throws IOException {
-        FileNode dir;
-        List<ServerManager> result;
+    private ServerManager readEnvironment() throws IOException {
+        FileNode file;
         ServerManager manager;
 
-        dir = explicitEnvironment != null ? explicitEnvironment : implicitEnvironment();
-        result = new ArrayList<>();
-        for (FileNode file : dir.find("*" + EXT)) {
-            manager = new ServerManager(file);
+        file = explicitEnvironment != null ? explicitEnvironment : implicitEnvironment();
+        manager = new ServerManager(file);
+        if (file.exists()) {
             manager.load();
-            result.add(manager);
         }
-        return result;
+        return manager;
     }
 
     private FileNode implicitEnvironment() {
         FileNode cisotools;
 
         cisotools = cisotools();
-        return cisotools != null ? cisotools.join("stool/environments") : world.locateClasspathEntry(getClass());
+        return cisotools != null ? cisotools.join("stool/environment.json") : world.locateClasspathEntry(getClass()).join("environment.json");
     }
 
     //--
@@ -176,17 +176,17 @@ public class Setup {
         }
     }
 
-    public void doCreate(boolean server, List<ServerManager> servers) throws IOException {
+    public void doCreate(ServerManager envinronmnt, boolean server) throws IOException {
         ServerManager manager;
 
         home.mkdir();
         world.resource("files/home").copyDirectory(home);
-        manager = new ServerManager(home.join("servers.json"), null, "", "");
+        manager = new ServerManager(home.join("servers.json"));
         if (server) {
             manager.add("localhost", "http://localhost:" + port() + "/api", null);
         }
-        for (ServerManager s : servers) {
-            manager.addAll(s);
+        for (Server s : envinronmnt) {
+            s.addTo(manager);
         }
         manager.save(gson);
         serverDir().mkdir();

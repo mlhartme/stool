@@ -36,6 +36,10 @@ public class ServerManager implements Iterable<Server> {
         this.servers = new HashMap<>();
     }
 
+    public boolean isEmpty() {
+        return servers.isEmpty();
+    }
+
     public void add(String name, String url, String token) {
         servers.put(name, new Server(name, url, token, null, clientInvocation, clientCommand));
     }
