@@ -103,7 +103,7 @@ public class Setup {
 
     private boolean askServer() {
         console.info.println("Local server");
-        console.info.println("  You need a local Stool server if you want to run stages on this machine.");
+        console.info.println("  You need a local server if you want to run stages on this machine.");
         console.info.println("  (Note that a local server requires Docker installed on this machine.)");
         return yesNo("    Setup local server [y/n)]? ");
     }
