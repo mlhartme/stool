@@ -54,7 +54,7 @@ public class Auth {
                 throw e;
             }
         }
-        manager.save();
+        manager.save(globals.getGson());
         console.info.println("Successfully updated token for server " + dest.url);
     }
 }

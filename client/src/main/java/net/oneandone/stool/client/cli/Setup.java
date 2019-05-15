@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.client.cli;
 
+import com.google.gson.Gson;
 import net.oneandone.inline.ArgumentException;
 import net.oneandone.inline.Console;
 import net.oneandone.stool.client.Globals;
@@ -33,6 +34,7 @@ import java.util.Map;
 
 public class Setup {
     private final World world;
+    private final Gson gson;
     private final FileNode home;
     private final Console console;
     private final String version;
@@ -48,6 +50,7 @@ public class Setup {
             throw new ArgumentException("cannot ask about server in batch mode");
         }
         this.world = globals.getWorld();
+        this.gson = globals.getGson();
         this.home = globals.getHome();
         this.console = globals.getConsole();
         this.version = Main.versionString(world);
@@ -185,7 +188,7 @@ public class Setup {
         for (ServerManager s : servers) {
             manager.addAll(s);
         }
-        manager.save();
+        manager.save(gson);
         serverDir().mkdir();
         home.join("server.yml").writeString(serverYml());
         versionFile().writeString(Main.versionString(world));

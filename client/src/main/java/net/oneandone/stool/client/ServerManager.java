@@ -1,5 +1,6 @@
 package net.oneandone.stool.client;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -7,6 +8,7 @@ import net.oneandone.inline.ArgumentException;
 import net.oneandone.sushi.fs.file.FileNode;
 
 import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -111,13 +113,15 @@ public class ServerManager {
         }
     }
 
-    public void save() throws IOException {
+    public void save(Gson gson) throws IOException {
         JsonArray array;
 
         array = new JsonArray();
         for (Server server : servers.values()) {
             array.add(server.toJson());
         }
-        file.writeString(array.toString());
+        try (Writer writer = file.newWriter()) {
+            gson.toJson(array, writer);
+        }
     }
 }

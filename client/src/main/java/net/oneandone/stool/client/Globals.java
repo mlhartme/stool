@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.client;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.oneandone.inline.Console;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -43,6 +45,7 @@ public class Globals {
 
     private final Console console;
     private final World world;
+    private final Gson gson;
     private final FileNode home;
     private final String invocation;
     private final String command;
@@ -51,6 +54,7 @@ public class Globals {
     public Globals(Console console, World world, FileNode home, String invocation, String command) {
         this.console = console;
         this.world = world;
+        this.gson = new GsonBuilder().setPrettyPrinting().create();
         this.home = home;
         this.invocation = invocation;
         this.command = command;
@@ -69,6 +73,10 @@ public class Globals {
         if (exception) {
             throw new RuntimeException("intentional exception");
         }
+    }
+
+    public Gson getGson() {
+        return gson;
     }
 
     public World getWorld() {
