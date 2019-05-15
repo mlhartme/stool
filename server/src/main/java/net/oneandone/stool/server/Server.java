@@ -181,7 +181,9 @@ public class Server {
         home.checkExists();
         world = home.getWorld();
         dest = home.join("cert.sh");
-        if (!dest.exists())  {
+        if (dest.exists()) {
+            // nothing to do -- cert.sh was probably set up by the server admins
+        } else {
             world.resource("files/home/cert.sh").copyDirectory(dest);
             dest.setPermissions("rwx--x--x");
         }
