@@ -66,7 +66,7 @@ public class Main {
         globals = Globals.create(console, world, itHome, "stool " + Separator.SPACE.join(args));
         cli = new Cli(globals.getConsole()::handleException);
         loadDefaults(cli, world);
-        cli.primitive(FileNode.class, "file name", world.getWorking(), world::file);
+        cli.primitive(FileNode.class, "file name", null, world::file);
         cli.begin(globals.getConsole(), "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
            cli.begin("globals", globals,  "-wirelog -exception { setWirelog(wirelog) setException(exception) }");
@@ -74,7 +74,7 @@ public class Main {
               cli.begin("globals.getWorld", "");
                        cli.begin("globals.getConsole", "");
                 cli.add(Auth.class, "auth server");
-                cli.add(Setup.class, "setup -batch -server opts*");
+                cli.add(Setup.class, "setup -batch -server -environments -selectEnvironments opts*");
                 cli.base(ClientCommand.class, "");
                     cli.add(Create.class, "create -project nameAndServer properties*");
                     cli.add(Build.class, "build -project -nocache -keep=3 -restart -m= warsAndArgs*");

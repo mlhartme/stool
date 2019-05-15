@@ -25,6 +25,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,13 +37,18 @@ public class Setup {
     private final String version;
     private final boolean batch;
     private final Boolean explicitServer; // null to ask
+    private final FileNode explicitEnvironment;
+    private final boolean selectEnvironments;
     private final Map<String, String> opts;
 
-    public Setup(Globals globals, boolean batch, Boolean server, List<String> opts) {
+    public Setup(Globals globals, boolean batch, Boolean server, FileNode environments, boolean selectEnvironments, List<String> opts) {
         int idx;
 
         if (batch && server == null) {
-            throw new ArgumentException("cannot ask about localhost in batch mode");
+            throw new ArgumentException("cannot ask about server in batch mode");
+        }
+        if (batch && selectEnvironments) {
+            throw new ArgumentException("cannot select environments in batch mode");
         }
 
         this.world = globals.getWorld();
@@ -51,6 +57,8 @@ public class Setup {
         this.version = Main.versionString(world);
         this.batch = batch;
         this.explicitServer = server;
+        this.explicitEnvironment = environments;
+        this.selectEnvironments = selectEnvironments;
         this.opts = new HashMap<>();
         for (String opt : opts) {
             idx = opt.indexOf('=');
@@ -65,7 +73,7 @@ public class Setup {
         console.info.println("Stool " + version);
 
         if (home.isDirectory()) {
-            update();
+            throw new IOException("TODO: upgrade");
         } else {
             create();
         }
@@ -73,14 +81,16 @@ public class Setup {
 
     private void create() throws IOException {
         boolean server;
+        List<ServerManager> environments;
 
         server = explicitServer == null ? askServer() : explicitServer;
+        environments = environments();
         if (!batch) {
-            console.info.println("Ready to create home directory: " + home.getAbsolute());
+            console.info.println("Ready to create Stool Home directory: " + home.getAbsolute());
             console.pressReturn();
         }
         console.info.println("Creating " + home);
-        doCreate(server);
+        doCreate(server, environments);
         console.info.println("Done.");
         console.info.println("Make sure to add " + home.join("shell.inc") + " to your shell profile (e.g. ~/.bash_profile) and restart your terminal.");
         if (server) {
@@ -91,13 +101,17 @@ public class Setup {
     }
 
     private boolean askServer() {
+        console.info.println("Stool server");
+        console.info.println("  You need Stool server if you want to run stages locally.");
+        console.info.println("  However, Stool server requires Docker installed on your machine.");
+        return yesNo("Setup Stool server [y/n)]? ");
+    }
+
+    private boolean yesNo(String str) {
         String answer;
 
         while (true) {
-            console.info.println("Stool server");
-            console.info.println("  You need Stool server if you want to run stages locally.");
-            console.info.println("  However, Stool server requires Docker installed on your machine.");
-            answer = console.readline("Setup Stool server [y/n)]? ");
+            answer = console.readline(str);
             answer = answer.toLowerCase();
             switch (answer) {
                 case "y":
@@ -110,8 +124,45 @@ public class Setup {
         }
     }
 
-    private void update() throws IOException {
-        throw new IOException("TODO: upgrade");
+    private List<ServerManager> environments() throws IOException {
+        List<ServerManager> result;
+
+        result = listEnvironments();
+        if (selectEnvironments) {
+            result = selectEnvironments(result);
+        }
+        return result;
+    }
+
+    private List<ServerManager> selectEnvironments(List<ServerManager> environments) {
+        List<ServerManager> result;
+
+        result = new ArrayList<>();
+        for (ServerManager manager : environments) {
+            if (yesNo("Setup " + manager.file.getName() + " [y/n]? ")) {
+                result.add(manager);
+            }
+        }
+        return result;
+    }
+
+    private List<ServerManager> listEnvironments() throws IOException {
+        FileNode dir;
+        List<ServerManager> result;
+
+        dir = explicitEnvironment != null ? explicitEnvironment : implicitEnvironment();
+        result = new ArrayList<>();
+        for (FileNode file : dir.find("*.environment")) {
+            result.add(new ServerManager(file));
+        }
+        return result;
+    }
+
+    private FileNode implicitEnvironment() {
+        FileNode cisotools;
+
+        cisotools = cisotools();
+        return cisotools != null ? cisotools.join("stool/environments") : world.locateClasspathEntry(getClass());
     }
 
     //--
@@ -122,7 +173,7 @@ public class Setup {
         }
     }
 
-    public void doCreate(boolean server) throws IOException {
+    public void doCreate(boolean server, List<ServerManager> servers) throws IOException {
         ServerManager manager;
 
         home.mkdir();
@@ -131,7 +182,9 @@ public class Setup {
         if (server) {
             manager.add("localhost", "http://localhost:" + port() + "/api");
         }
-        manager.add("gem1", "https://gem1.ciso.server.lan:8000/api");
+        for (ServerManager s : servers) {
+            manager.addAll(s);
+        }
         manager.save();
         serverDir().mkdir();
         home.join("server.yml").writeString(serverYml());
@@ -150,7 +203,7 @@ public class Setup {
         StringBuilder builder;
         String serverHome;
         String dockerHost;
-        String cisoTools;
+        FileNode cisotools;
         String port;
         String portNext;
         String portNextNext;
@@ -158,13 +211,13 @@ public class Setup {
         builder = new StringBuilder();
         serverHome = serverDir().getAbsolute();
         dockerHost = hostname();
-        cisoTools = System.getenv("CISOTOOLS_HOME");
+        cisotools = cisotools();
         port = port();
         portNext = Integer.toString(Integer.parseInt(port) + 1);
         portNextNext = Integer.toString(Integer.parseInt(port) + 2);
         addIfNew("VHOSTS", Boolean.toString(hasDnsStar(dockerHost)));
         addIfNew("LOGLEVEL", "INFO"); // for documentation purpose
-        if (cisoTools != null) {
+        if (cisotools != null) {
             addIfNew("REGISTRY_NAMESPACE", "contargo.server.lan/mhm");
             addIfNew("LDAP_UNIT", "cisostages");
             addIfNew("ADMIN", "michael.hartmeier@ionos.com");
@@ -190,10 +243,17 @@ public class Setup {
         builder.append("      - /var/run/docker.sock:/var/run/docker.sock:rw\n");
         builder.append("      - " + serverHome + ":/var/lib/stool:rw\n");
         builder.append("      - " + world.getHome().join(".fault").getAbsolute() + ":" + "/etc/fault/workspace:ro\n");
-        if (cisoTools != null) {
-            builder.append("      - " + world.file(cisoTools).join("stool/templates-5").checkDirectory().getAbsolute() + ":/var/lib/stool/templates:ro\n");
+        if (cisotools != null) {
+            builder.append("      - " + cisotools.join("stool/templates-5").checkDirectory().getAbsolute() + ":/var/lib/stool/templates:ro\n");
         }
         return builder.toString();
+    }
+
+    private FileNode cisotools() {
+        String path;
+
+        path = System.getenv("CISOTOOLS_HOME");
+        return path == null ? null : world.file(path);
     }
 
     private static String hostname() throws UnknownHostException {

@@ -13,13 +13,16 @@ import java.util.List;
 import java.util.Map;
 
 public class ServerManager {
-
-    private final FileNode file;
+    public final FileNode file;
 
     public final FileNode wirelog;
     public final String clientInvocation;
     public final String clientCommand;
     public final Map<String, Server> servers;
+
+    public ServerManager(FileNode file) {
+        this(file, null, null, null);
+    }
 
     public ServerManager(FileNode file, FileNode wirelog, String clientInvocation, String clientCommand) {
         this.file = file;
@@ -31,6 +34,12 @@ public class ServerManager {
 
     public void add(String name, String url) {
         servers.put(name, new Server(name, url, null, null, clientInvocation, clientCommand));
+    }
+
+    public void addAll(ServerManager other) {
+        for (Server server : other.servers.values()) {
+            add(server.name, server.url);
+        }
     }
 
     public Reference reference(String str) throws IOException {
