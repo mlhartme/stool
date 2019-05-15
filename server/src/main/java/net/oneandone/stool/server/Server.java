@@ -37,6 +37,7 @@ import net.oneandone.stool.server.util.Pool;
 import net.oneandone.stool.server.util.Predicate;
 import net.oneandone.stool.server.api.StageNotFoundException;
 import net.oneandone.sushi.fs.MkdirException;
+import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Diff;
@@ -175,11 +176,15 @@ public class Server {
 
     private static void initialize(FileNode home) throws IOException {
         World world;
+        FileNode dest;
 
         home.checkExists();
         world = home.getWorld();
-        world.resource("files/home").copyDirectory(home);
-        home.join("cert.sh").setPermissions("rwx--x--x"); // ugly special case ...
+        dest = home.join("cert.sh");
+        if (!dest.exists())  {
+            world.resource("files/home/cert.sh").copyDirectory(dest);
+            dest.setPermissions("rwx--x--x");
+        }
         for (String name : new String[]{"stages","certs"}) {
             home.join(name).mkdir();
         }
