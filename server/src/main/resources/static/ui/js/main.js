@@ -102,6 +102,7 @@ dashboard = {
             if (action == "restart") {
                 $.post("/api/stages/" + stage + "/stop").fail(function (r) {
                     box.find('.modal-body').html('<p>failed: ' + r + '</p>');
+                    dashboard.stages.reload();
                 }).done(function (r) {
                     $.post("/api/stages/" + stage + "/start").fail(function (r) {
                         box.find('.modal-body').html('<p>failed: ' + r + '</p>');
@@ -109,6 +110,8 @@ dashboard = {
                         // TODO: doesn't work if the browser is extremely slow (or busy)
                         // from https://stackoverflow.com/questions/51637199/bootstrap-4-open-modal-a-close-modal-a-open-modal-b-a-not-closing
                         setTimeout( function() { box.modal("hide"); }, 500 );
+                    }).always(function () {
+                        dashboard.stages.reload();
                     });
                 });
             } else {
@@ -122,8 +125,9 @@ dashboard = {
                     // TODO: doesn't work if the browser is extremely slow (or busy)
                     // from https://stackoverflow.com/questions/51637199/bootstrap-4-open-modal-a-close-modal-a-open-modal-b-a-not-closing
                     setTimeout( function() { box.modal("hide"); }, 500 );
+                }).always(function () {
+                    dashboard.stages.reload();
                 });
-                dashboard.stages.reload();
             }
             return false;
         },

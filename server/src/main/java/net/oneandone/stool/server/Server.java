@@ -57,7 +57,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Immutable */
+/** Immutable. */
 public class Server {
     public static final Logger LOGGER = LoggerFactory.getLogger("DETAILS");
 
@@ -236,8 +236,9 @@ public class Server {
 
     //--
 
+    /** thread-save */
     public final Gson gson;
-    public final FileNode home;
+    private final FileNode home;
     private final FileNode logRoot;
     public final World world;
     private final Engine dockerEngine;
@@ -246,13 +247,14 @@ public class Server {
     public final FileNode serverHome;
     public final FileNode secrets;
 
+    /** used read-only */
     public final ServerConfiguration configuration;
 
     private final FileNode stages;
 
     public final UserManager userManager;
 
-    public Map<String, Accessor> accessors;
+    public final Map<String, Accessor> accessors;
 
     public Server(Gson gson, FileNode home, Engine engine, FileNode serverHome, FileNode secrets, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
