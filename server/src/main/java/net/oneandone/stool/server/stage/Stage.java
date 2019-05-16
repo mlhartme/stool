@@ -188,7 +188,9 @@ public class Stage {
             public Object get() throws IOException {
                 List<String> result;
 
-                result = new ArrayList<>(images(server.dockerEngine()).keySet());
+                try (Engine engine = Engine.create()) {  // TODO
+                    result = new ArrayList<>(images(engine).keySet());
+                }
                 Collections.sort(result);
                 return result;
             }
@@ -199,7 +201,9 @@ public class Stage {
                 Map<String, Current> map;
                 List<String> result;
 
-                map = currentMap();
+                try (Engine engine = Engine.create()) {  // TODO
+                    map = currentMap(engine);
+                }
                 result = new ArrayList<>(map.keySet());
                 Collections.sort(result);
                 return result;
@@ -235,7 +239,9 @@ public class Stage {
         fields.add(new Field("urls") {
             @Override
             public Object get() throws IOException {
-                return namedUrls(null);
+                try (Engine engine = Engine.create()) {  // TODO
+                    return namedUrls(engine, null);
+                }
             }
         });
         return fields;
@@ -386,7 +392,7 @@ public class Stage {
         Map<String, Current> map;
         ContainerInfo info;
 
-        map = currentMap();
+        map = currentMap(engine);
         for (Map.Entry<String, Current> entry : map.entrySet()) {
             info = entry.getValue().container;
             if (info != null) {
@@ -412,10 +418,9 @@ public class Stage {
     }
 
     /** @param keep 0 to keep all */
-    public BuildResult build(FileNode war, String comment, String origin,
+    public BuildResult build(Engine engine, FileNode war, String comment, String origin,
                         String createdBy, String createdOn, boolean noCache, int keep,
                         Map<String, String> explicitArguments) throws Exception {
-        Engine engine;
         String image;
         String app;
         String tag;
@@ -428,7 +433,6 @@ public class Stage {
         StringWriter output;
         String str;
 
-        engine = this.server.dockerEngine();
         if (keep > 0) {
             wipeOldImages(engine,keep - 1);
         }
@@ -465,8 +469,7 @@ public class Stage {
     }
 
     /** @return apps actually started */
-    public List<String> start(int http, int https, Map<String, String> environment, Map<String, Integer> selection) throws IOException {
-        Engine engine;
+    public List<String> start(Engine engine, int http, int https, Map<String, String> environment, Map<String, Integer> selection) throws IOException {
         String container;
         Engine.Status status;
         Ports hostPorts;
@@ -476,8 +479,7 @@ public class Stage {
         int memoryQuota;
         int memoryReserved;
 
-        engine = server.dockerEngine();
-        memoryReserved = server.memoryReservedContainers();
+        memoryReserved = server.memoryReservedContainers(engine);
         result = new ArrayList<>();
         memoryQuota = server.configuration.memoryQuota;
         for (Image image : resolve(engine, selection)) {
@@ -497,7 +499,7 @@ public class Stage {
             for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
                 Server.LOGGER.debug("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
-            hostPorts = server.pool().allocate(this, image.app, http, https);
+            hostPorts = server.pool(engine).allocate(this, image.app, http, https);
             labels = hostPorts.toUsedLabels();
             labels.put(CONTAINER_LABEL_APP, image.app);
             labels.put(CONTAINER_LABEL_IMAGE, image.tag);
@@ -560,7 +562,7 @@ public class Stage {
         if (allImages.isEmpty()) {
             throw new ArgumentException("no apps to start - did you build the stage?");
         }
-        running = currentMap().keySet();
+        running = currentMap(engine).keySet();
         if (selectionOrig.isEmpty()) {
             selection = new HashMap<>();
             for (String a : allImages.keySet()) {
@@ -588,18 +590,17 @@ public class Stage {
     }
 
     /** @return list of applications actually stopped */
-    public List<String> stop(List<String> apps) throws IOException {
+    public List<String> stop(Engine engine, List<String> apps) throws IOException {
         Map<String, Current> currentMap;
-        Engine engine;
         Map<String, String> containers;
         List<String> unknown;
 
         unknown = new ArrayList<>(apps);
-        unknown.removeAll(images(server.dockerEngine()).keySet());
+        unknown.removeAll(images(engine).keySet());
         if (!unknown.isEmpty()) {
             throw new ArgumentException("unknown app(s): " + unknown);
         }
-        currentMap = currentMap();
+        currentMap = currentMap(engine);
         containers = new LinkedHashMap<>();
         for (Map.Entry<String, Current> current : currentMap.entrySet()) {
             if (apps.isEmpty() || apps.contains(current.getKey())) {
@@ -608,7 +609,6 @@ public class Stage {
         }
         for (Map.Entry<String, String> entry : containers.entrySet()) {
             Server.LOGGER.info(entry.getKey() + ": stopping container ...");
-            engine = server.dockerEngine();
             engine.containerStop(entry.getValue(), 300);
         }
         return new ArrayList<>(containers.keySet());
@@ -699,8 +699,8 @@ public class Stage {
         return false; // TODO
     }
 
-    public String displayState() throws IOException {
-        return currentMap().isEmpty() ? "danger" : "success";
+    public String displayState(Engine engine) throws IOException {
+        return currentMap(engine).isEmpty() ? "danger" : "success";
     }
 
     private FileNode template(Properties appProperies, Map<String, String> explicit) throws IOException {
@@ -758,29 +758,27 @@ public class Stage {
     //--
 
     /** maps app to its ports; empty map if not ports allocated yet */
-    public Map<String, Ports> loadPorts() throws IOException {
-        return server.pool().stage(name);
+    public Map<String, Ports> loadPorts(Engine engine) throws IOException {
+        return server.pool(engine).stage(name);
     }
 
     /**
      * @param oneApp null for all apps
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap(String oneApp) throws IOException {
-        Engine engine;
+    public Map<String, String> urlMap(Engine engine, String oneApp) throws IOException {
         Map<String, String> result;
         String app;
         Map<String, Image> images;
 
         result = new LinkedHashMap<>();
-        engine = server.dockerEngine();
         images = new HashMap<>();
         for (ContainerInfo info : engine.containerList(Stage.CONTAINER_LABEL_IMAGE).values()) {
             if (name.equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
                 images.put(info.labels.get(Stage.CONTAINER_LABEL_APP), Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE)));
             }
         }
-        for (Map.Entry<String, Ports> entry : loadPorts().entrySet()) {
+        for (Map.Entry<String, Ports> entry : loadPorts(engine).entrySet()) {
             app = entry.getKey();
             if (oneApp == null || oneApp.equals(app)) {
                 addUrlMap(images.get(app), app, entry.getValue(), result);
@@ -836,18 +834,18 @@ public class Stage {
     }
 
     /** @return empty list of no ports are allocated */
-    public List<String> namedUrls(String oneApp) throws IOException {
+    public List<String> namedUrls(Engine engine, String oneApp) throws IOException {
         List<String> result;
 
         result = new ArrayList<>();
-        for (Map.Entry<String, String> entry : urlMap(oneApp).entrySet()) {
+        for (Map.Entry<String, String> entry : urlMap(engine, oneApp).entrySet()) {
             result.add(entry.getKey() + " " + entry.getValue());
         }
         return result;
     }
 
-    public void remove() throws IOException {
-        wipeDocker(server.dockerEngine());
+    public void remove(Engine engine) throws IOException {
+        wipeDocker(engine);
         getDirectory().deleteTree();
     }
 
@@ -863,23 +861,18 @@ public class Stage {
         }
     }
 
-    public Map<String, ContainerInfo> dockerRunningContainerList() throws IOException {
-        Engine engine;
-
-        engine = server.dockerEngine();
+    public Map<String, ContainerInfo> dockerRunningContainerList(Engine engine) throws IOException {
         return engine.containerListRunning(CONTAINER_LABEL_STAGE, name);
     }
 
-    public Map<String, Current> currentMap() throws IOException {
-        Engine engine;
+    public Map<String, Current> currentMap(Engine engine) throws IOException {
         Collection<ContainerInfo> containerList;
         JsonObject json;
         Map<String, Current> result;
         Image image;
 
-        engine = server.dockerEngine();
         result = new HashMap<>();
-        containerList = dockerRunningContainerList().values();
+        containerList = dockerRunningContainerList(engine).values();
         for (ContainerInfo info : containerList) {
             json = engine.containerInspect(info.id, false);
             image = Image.load(engine, Server.containerImageTag(json));
@@ -888,13 +881,13 @@ public class Stage {
         return result;
     }
 
-    public int contentHash() throws IOException {
+    public int contentHash(Engine engine) throws IOException {
         return ("StageInfo{"
                 + "name='" + name + '\''
                 + ", comment='" + configuration.comment + '\''
                 // TODO: current image, container?
-                + ", urls=" + urlMap(null)
-                + ", running=" + dockerRunningContainerList()
+                + ", urls=" + urlMap(engine, null)
+                + ", running=" + dockerRunningContainerList(engine)
                 + '}').hashCode();
     }
 
@@ -940,12 +933,12 @@ public class Stage {
 
     //-- for dashboard
 
-    public String sharedText() throws IOException {
+    public String sharedText(Engine engine) throws IOException {
         Map<String, String> urls;
         String content;
         StringBuilder builder;
 
-        urls = urlMap(null);
+        urls = urlMap(engine,null);
         if (urls == null) {
             return "";
         }
@@ -967,13 +960,13 @@ public class Stage {
 
     //--
 
-    public void awaitStartup() throws IOException {
+    public void awaitStartup(Engine engine) throws IOException {
         String app;
         Ports ports;
         String state;
 
         Server.LOGGER.info("await startup ...");
-        for (Map.Entry<String, Ports> entry : loadPorts().entrySet()) {
+        for (Map.Entry<String, Ports> entry : loadPorts(engine).entrySet()) {
             app = entry.getKey();
             ports = entry.getValue();
             for (int count = 0; true; count++) {
@@ -1040,15 +1033,13 @@ public class Stage {
 
     // CAUTION: blocks until ctrl-c.
     // Format: https://docs.docker.com/engine/api/v1.33/#operation/ContainerAttach
-    public void tailF(PrintWriter dest) throws IOException {
+    public void tailF(Engine engine, PrintWriter dest) throws IOException {
         Collection<String> containers;
-        Engine engine;
 
-        containers = dockerRunningContainerList().keySet();
+        containers = dockerRunningContainerList(engine).keySet();
         if (containers.size() != 1) {
             Server.LOGGER.info("ignoring -tail option because container is not unique");
         } else {
-            engine = server.dockerEngine();
             engine.containerLogsFollow(containers.iterator().next(), new OutputStream() {
                 @Override
                 public void write(int b) {

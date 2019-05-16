@@ -25,16 +25,17 @@ import java.util.Map;
 
 public class AppInfo {
     private final Server context;
+    private final Engine engine;
 
-    public AppInfo(Server context) {
+    public AppInfo(Server context, Engine engine) {
         this.context = context;
+        this.engine = engine;
     }
 
     public List<String> run(String name, String app) throws Exception {
         Stage stage;
         Map<String, List<Image>> all;
         Map<String, Stage.Current> currentMap;
-        Engine engine;
         String marker;
         int idx;
         Stage.Current current;
@@ -44,9 +45,8 @@ public class AppInfo {
 
         result = new ArrayList<>();
         stage = context.load(name);
-        engine = stage.server.dockerEngine();
         all = stage.images(engine);
-        currentMap = stage.currentMap();
+        currentMap = stage.currentMap(engine);
         for (Map.Entry<String, List<Image>> entry : all.entrySet()) {
             if (!currentMap.containsKey(entry.getKey())) {
                 currentMap.put(entry.getKey(), new Stage.Current(entry.getValue().get(0), null));
@@ -55,7 +55,7 @@ public class AppInfo {
 
         current = currentMap.get(app);
         idx = 0;
-        ports = stage.loadPorts().get(app);
+        ports = stage.loadPorts(engine).get(app);
         result.add("app:       " + app);
         result.add("container: " + (current.container == null ? "" : current.container.id));
         result.add("uptime:    " + uptime(current.container));
@@ -127,7 +127,7 @@ public class AppInfo {
 
         // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
         try {
-            url = new JMXServiceURL("service:jmx:jmxmp://" + stage.server.configuration.dockerHost + ":" + stage.loadPorts().get(app).jmxmp);
+            url = new JMXServiceURL("service:jmx:jmxmp://" + stage.server.configuration.dockerHost + ":" + stage.loadPorts(engine).get(app).jmxmp);
         } catch (MalformedURLException e) {
             throw new IllegalStateException(e);
         }
@@ -180,17 +180,15 @@ public class AppInfo {
     }
 
     private String uptime(ContainerInfo info) throws IOException {
-        return info == null ? null : Stage.timespan(context.dockerEngine().containerStartedAt(info.id));
+        return info == null ? null : Stage.timespan(engine.containerStartedAt(info.id));
     }
 
     private Integer cpu(ContainerInfo info) throws IOException {
-        Engine engine;
         Stats stats;
 
         if (info == null) {
             return null;
         }
-        engine = context.dockerEngine();
         stats = engine.containerStats(info.id);
         if (stats != null) {
             return stats.cpu;
@@ -206,7 +204,7 @@ public class AppInfo {
         if (info == null) {
             return null;
         }
-        stats = context.dockerEngine().containerStats(info.id);
+        stats = engine.containerStats(info.id);
         if (stats != null) {
             return stats.memoryUsage * 100 / stats.memoryLimit;
         } else {

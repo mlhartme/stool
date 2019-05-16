@@ -66,7 +66,6 @@ public class Server {
         FileNode home;
         ServerConfiguration config;
         Server server;
-        Engine engine;
         FileNode serverHome;
         FileNode secrets;
         Map<String, String> binds;
@@ -77,16 +76,16 @@ public class Server {
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
 
-        engine = Engine.create(/* TODO dockerLog(logRoot).getAbsolute() */);
+        try (Engine engine = Engine.create(/* TODO dockerLog(logRoot).getAbsolute() */)) {
+            binds = binds(engine);
+            serverHome = toHostFile(binds, world.file("/var/lib/stool"));
+            secrets = toHostFile(binds, world.file("/etc/fault/workspace"));
 
-        binds = binds(engine);
-        serverHome = toHostFile(binds, world.file("/var/lib/stool"));
-        secrets = toHostFile(binds, world.file("/etc/fault/workspace"));
-
-        server = new Server(gson(world), home, engine, serverHome, secrets, config);
-        server.validate();
-        server.checkVersion();
-        return server;
+            server = new Server(gson(world), home, serverHome, secrets, config);
+            server.validate(engine);
+            server.checkVersion();
+            return server;
+        }
     }
 
     private static FileNode toHostFile(Map<String, String> binds, FileNode container) throws IOException {
@@ -242,7 +241,6 @@ public class Server {
     private final FileNode home;
     private final FileNode logRoot;
     public final World world;
-    private final Engine dockerEngine;
 
     /** path so /var/lib/stool ON THE DOCKER HOST */
     public final FileNode serverHome;
@@ -257,12 +255,11 @@ public class Server {
 
     public final Map<String, Accessor> accessors;
 
-    public Server(Gson gson, FileNode home, Engine engine, FileNode serverHome, FileNode secrets, ServerConfiguration configuration) throws IOException {
+    public Server(Gson gson, FileNode home, FileNode serverHome, FileNode secrets, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
         this.home = home;
         this.logRoot = home.join("logs");
         this.world = home.getWorld();
-        this.dockerEngine = engine;
         this.serverHome = serverHome;
         this.secrets = secrets;
         this.configuration = configuration;
@@ -430,14 +427,12 @@ public class Server {
     //--
 
     /** used for running containers */
-    public int memoryReservedContainers() throws IOException {
+    public int memoryReservedContainers(Engine engine) throws IOException {
         int reserved;
-        Engine engine;
         JsonObject json;
         Image image;
 
         reserved = 0;
-        engine = dockerEngine();
         for (String container : engine.containerListRunning(Stage.CONTAINER_LABEL_IMAGE).keySet()) {
             json = engine.containerInspect(container, false);
             image = Image.load(engine, containerImageTag(json));
@@ -452,8 +447,8 @@ public class Server {
 
     //-- stool properties
 
-    public Pool pool() throws IOException {
-        return Pool.load(dockerEngine(), configuration.portFirst + 4 /* 4 ports reserved for the server (http(s), debug, jmx, unused) */,
+    public Pool pool(Engine engine) throws IOException {
+        return Pool.load(engine, configuration.portFirst + 4 /* 4 ports reserved for the server (http(s), debug, jmx, unused) */,
                 configuration.portLast);
     }
 
@@ -492,7 +487,7 @@ public class Server {
         return version.substring(0, minor);
     }
 
-    public int diskQuotaReserved() throws IOException {
+    public int diskQuotaReserved(Engine engine) throws IOException {
         int reserved;
         Stage stage;
         ContainerInfo info;
@@ -500,7 +495,7 @@ public class Server {
         reserved = 0;
         for (FileNode directory : stages.list()) {
             stage = load(directory);
-            for (Map.Entry<String, Stage.Current> entry : stage.currentMap().entrySet()) {
+            for (Map.Entry<String, Stage.Current> entry : stage.currentMap(engine).entrySet()) {
                 info = entry.getValue().container;
                 if (info != null) {
                     reserved += entry.getValue().image.disk;
@@ -508,17 +503,6 @@ public class Server {
             }
         }
         return reserved;
-    }
-
-    //--
-
-    public Engine dockerEngine() {
-        return dockerEngine;
-    }
-
-    public void closeDockerEngine() { // TODO: invoke on server shut-down
-        LOGGER.debug("close docker engine");
-        dockerEngine.close();
     }
 
     //--
@@ -542,7 +526,7 @@ public class Server {
     //--
 
 
-    public void validate() throws IOException {
+    public void validate(Engine engine) throws IOException {
         if (configuration.auth()) {
             if (configuration.ldapSso.isEmpty()) {
                 LOGGER.error("ldapsso cannot be empty because security is enabled");
@@ -556,7 +540,7 @@ public class Server {
             throw e;
         }
         try {
-            dockerEngine().imageList();
+            engine.imageList();
         } catch (IOException e) {
             LOGGER.error("cannot access docker", e);
             throw e;

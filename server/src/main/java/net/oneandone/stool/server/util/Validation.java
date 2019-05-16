@@ -2,6 +2,7 @@ package net.oneandone.stool.server.util;
 
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Server;
+import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.users.UserNotFound;
@@ -16,9 +17,11 @@ import java.util.Set;
 
 public class Validation {
     private final Server server;
+    private final Engine engine;
 
-    public Validation(Server server) {
+    public Validation(Server server, Engine engine) {
         this.server = server;
+        this.engine = engine;
     }
 
     public List<String> run(String name, boolean email, boolean repair) throws IOException, MessagingException, NamingException {
@@ -39,16 +42,16 @@ public class Validation {
 
         try {
             stage.checkExpired();
-            stage.checkDiskQuota(server.dockerEngine());
+            stage.checkDiskQuota(engine);
             return;
         } catch (ArgumentException e) {
             message = e.getMessage();
         }
         report.add(message);
         if (repair) {
-            if (!stage.dockerRunningContainerList().isEmpty()) {
+            if (!stage.dockerRunningContainerList(engine).isEmpty()) {
                 try {
-                    stage.stop(new ArrayList<>());
+                    stage.stop(engine, new ArrayList<>());
                     report.add("stage has been stopped");
                 } catch (Exception e) {
                     report.add("stage failed to stop: " + e.getMessage());
@@ -59,7 +62,7 @@ public class Validation {
                 if (stage.configuration.expire.expiredDays() >= server.configuration.autoRemove) {
                     try {
                         report.add("removing expired stage");
-                        stage.remove();
+                        stage.remove(engine);
                     } catch (Exception e) {
                         report.add("failed to remove expired stage: " + e.getMessage());
                         Server.LOGGER.debug(e.getMessage(), e);

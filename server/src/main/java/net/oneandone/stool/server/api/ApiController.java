@@ -7,6 +7,7 @@ import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.Server;
 import net.oneandone.stool.server.docker.BuildError;
+import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
 import net.oneandone.stool.server.stage.Stage;
@@ -48,10 +49,12 @@ import java.util.Map;
 @RequestMapping("/api")
 public class ApiController {
     private final Server server;
+    private final Engine engine;
 
     @Autowired
-    public ApiController(Server server) {
+    public ApiController(Server server) throws IOException {
         this.server = server;
+        this.engine = Engine.create(); // TODO
     }
 
     @GetMapping("/info")
@@ -60,8 +63,8 @@ public class ApiController {
 
         result = new JsonObject();
         result.addProperty("version", Main.versionString(server.world));
-        result.addProperty("memory-quota", server.configuration.memoryQuota == 0 ? "" : server.memoryReservedContainers() + "/" + server.configuration.memoryQuota);
-        result.addProperty("disk-quota", server.configuration.diskQuota == 0 ? "" : server.diskQuotaReserved() + "/" + server.configuration.diskQuota);
+        result.addProperty("memory-quota", server.configuration.memoryQuota == 0 ? "" : server.memoryReservedContainers(engine) + "/" + server.configuration.memoryQuota);
+        result.addProperty("disk-quota", server.configuration.diskQuota == 0 ? "" : server.diskQuotaReserved(engine) + "/" + server.configuration.diskQuota);
         return result.toString();
     }
 
@@ -132,7 +135,7 @@ public class ApiController {
         war = server.world.getTemp().createTempFile();
         war.copyFileFrom(body);
         try {
-            result = server.load(stage).build(war, comment, origin, createdBy, createdOn, noCache, keep, arguments);
+            result = server.load(stage).build(engine, war, comment, origin, createdBy, createdOn, noCache, keep, arguments);
             return buildResult(result.app, result.tag,null, result.output).toString();
         } catch (BuildError e) {
             return buildResult("someapp", e.tag, e.error, e.output).toString();
@@ -222,7 +225,7 @@ public class ApiController {
         List<String> output;
 
         try {
-            output = new Validation(server).run(stage, email, repair);
+            output = new Validation(server, engine).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
         } catch (NamingException e) {
@@ -233,7 +236,7 @@ public class ApiController {
 
     @GetMapping("/stages/{stage}/appInfo")
     public String appInfo(@PathVariable("stage") String stage, @RequestParam("app") String app) throws Exception {
-        return array(new AppInfo(server).run(stage, app)).toString();
+        return array(new AppInfo(server, engine).run(stage, app)).toString();
     }
 
 
@@ -253,7 +256,7 @@ public class ApiController {
         environment.putAll(map(request, "env."));
         global = server.configuration.diskQuota;
         if (global != 0) {
-            reserved = server.diskQuotaReserved();
+            reserved = server.diskQuotaReserved(engine);
             if (reserved > global) {
                 throw new IOException("Sum of all stage disk quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
                         + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
@@ -263,8 +266,8 @@ public class ApiController {
         stage = server.load(stageName);
         stage.server.configuration.verfiyHostname();
         stage.checkExpired();
-        stage.checkDiskQuota(server.dockerEngine());
-        return array(stage.start(http, https, environment, apps)).toString();
+        stage.checkDiskQuota(engine);
+        return array(stage.start(engine, http, https, environment, apps)).toString();
     }
 
     @GetMapping("/stages//{stage}/await-startup")
@@ -273,11 +276,11 @@ public class ApiController {
         JsonObject result;
 
         stage = server.load(stageName);
-        stage.awaitStartup();
+        stage.awaitStartup(engine);
 
         result = new JsonObject();
-        for (String app : stage.currentMap().keySet()) {
-            result.add(app, array(stage.namedUrls(app)));
+        for (String app : stage.currentMap(engine).keySet()) {
+            result.add(app, array(stage.namedUrls(engine, app)));
         }
         return result.toString();
     }
@@ -296,7 +299,7 @@ public class ApiController {
     public ResponseEntity<?> stop(@PathVariable(value = "stage") String stage, @RequestParam(value = "apps", required = false, defaultValue = "") String apps) throws IOException {
         List<String> result;
 
-        result = server.load(stage).stop(Separator.COMMA.split(apps));
+        result = server.load(stage).stop(engine, Separator.COMMA.split(apps));
         return new ResponseEntity<>(array(result).toString(), HttpStatus.OK);
     }
 
@@ -338,7 +341,7 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/remove")
     public void remove(@PathVariable(value = "stage") String stage) throws IOException {
-        server.load(stage).remove();
+        server.load(stage).remove(engine);
     }
 
     @GetMapping("/stages/{name}/logs")
