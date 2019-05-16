@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
+/** Thread safe */
 public class UserManager {
     public static final User ANONYMOUS = new User("anonymous", "Anonymous", null);
 
@@ -39,7 +40,7 @@ public class UserManager {
         this.random = new SecureRandom();
     }
 
-    public User byLogin(String login) throws UserNotFound {
+    public synchronized User byLogin(String login) throws UserNotFound {
         if (login.equals(ANONYMOUS.login)) {
             return ANONYMOUS;
         }
@@ -59,11 +60,11 @@ public class UserManager {
         }
     }
 
-    public User authentication(String token) {
+    public synchronized User authentication(String token) {
         return tokens.get(token);
     }
 
-    public String generateToken(User user) {
+    public synchronized String generateToken(User user) {
         String token;
 
         remove(user.login);
@@ -74,7 +75,7 @@ public class UserManager {
         return token;
     }
 
-    public boolean remove(String login) {
+    public synchronized boolean remove(String login) {
         Iterator<Map.Entry<String, User>> iter;
         Map.Entry<String, User> entry;
 
@@ -89,12 +90,8 @@ public class UserManager {
         return false;
     }
 
-    private String generateToken() {
-        return Long.toHexString(random.nextLong()) + Long.toHexString(random.nextLong()) + Long.toHexString(random.nextLong());
-    }
 
-
-    public void save() throws IOException {
+    public synchronized void save() throws IOException {
         JsonObject json;
 
         json = new JsonObject();
@@ -104,7 +101,7 @@ public class UserManager {
         file.writeString(json.toString());
     }
 
-    public void load() throws IOException {
+    public synchronized void load() throws IOException {
         JsonObject obj;
 
         tokens.clear();
@@ -115,5 +112,11 @@ public class UserManager {
         for (Map.Entry<String, JsonElement> entry : obj.entrySet()) {
             tokens.put(entry.getKey(), User.fromJson(entry.getValue().getAsJsonObject()));
         }
+    }
+
+    //--
+
+    private String generateToken() {
+        return Long.toHexString(random.nextLong()) + Long.toHexString(random.nextLong()) + Long.toHexString(random.nextLong());
     }
 }
