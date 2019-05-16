@@ -49,23 +49,23 @@ import java.util.Map;
 @RequestMapping("/api")
 public class ApiController {
     private final Server server;
-    private final Engine engine;
 
     @Autowired
-    public ApiController(Server server) throws IOException {
+    public ApiController(Server server) {
         this.server = server;
-        this.engine = Engine.create(); // TODO
     }
 
     @GetMapping("/info")
     public String version() throws IOException {
         JsonObject result;
 
-        result = new JsonObject();
-        result.addProperty("version", Main.versionString(server.world));
-        result.addProperty("memory-quota", server.configuration.memoryQuota == 0 ? "" : server.memoryReservedContainers(engine) + "/" + server.configuration.memoryQuota);
-        result.addProperty("disk-quota", server.configuration.diskQuota == 0 ? "" : server.diskQuotaReserved(engine) + "/" + server.configuration.diskQuota);
-        return result.toString();
+        try (Engine engine = Engine.create()) {
+            result = new JsonObject();
+            result.addProperty("version", Main.versionString(server.world));
+            result.addProperty("memory-quota", server.configuration.memoryQuota == 0 ? "" : server.memoryReservedContainers(engine) + "/" + server.configuration.memoryQuota);
+            result.addProperty("disk-quota", server.configuration.diskQuota == 0 ? "" : server.diskQuotaReserved(engine) + "/" + server.configuration.diskQuota);
+            return result.toString();
+        }
     }
 
     @PostMapping("/auth")
@@ -93,13 +93,15 @@ public class ApiController {
 
         result = new JsonArray();
         problems = new HashMap<>();
-        for (Stage stage : server.list(new PredicateParser(engine).parse(filter), problems)) {
-            result.add(new JsonPrimitive(stage.getName()));
+        try (Engine engine = Engine.create()) {
+            for (Stage stage : server.list(new PredicateParser(engine).parse(filter), problems)) {
+                result.add(new JsonPrimitive(stage.getName()));
+            }
+            if (!problems.isEmpty()) {
+                throw new IOException("nested problems: " + problems);
+            }
+            return result.toString();
         }
-        if (!problems.isEmpty()) {
-            throw new IOException("nested problems: " + problems);
-        }
-        return result.toString();
     }
 
     @PostMapping("/stages/{stage}")
@@ -134,7 +136,7 @@ public class ApiController {
 
         war = server.world.getTemp().createTempFile();
         war.copyFileFrom(body);
-        try {
+        try (Engine engine = Engine.create()) {
             result = server.load(stage).build(engine, war, comment, origin, createdBy, createdOn, noCache, keep, arguments);
             return buildResult(result.app, result.tag,null, result.output).toString();
         } catch (BuildError e) {
@@ -162,10 +164,12 @@ public class ApiController {
         JsonObject result;
 
         result = new JsonObject();
-        for (Property property : server.load(stage).properties()) {
-            result.add(property.name(), new JsonPrimitive(property.get(engine)));
+        try (Engine engine = Engine.create()) {
+            for (Property property : server.load(stage).properties()) {
+                result.add(property.name(), new JsonPrimitive(property.get(engine)));
+            }
+            return result.toString();
         }
-        return result.toString();
     }
 
     @PostMapping("/stages/{stage}/set-properties")
@@ -179,22 +183,24 @@ public class ApiController {
         stage = server.load(stageName);
         arguments = map(request, "");
         result = new JsonObject();
-        for (Map.Entry<String, String> entry : arguments.entrySet()) {
-            prop = stage.propertyOpt(entry.getKey());
-            if (prop == null) {
-                throw new ArgumentException("unknown property: " + entry.getKey());
+        try (Engine engine = Engine.create()) {
+            for (Map.Entry<String, String> entry : arguments.entrySet()) {
+                prop = stage.propertyOpt(entry.getKey());
+                if (prop == null) {
+                    throw new ArgumentException("unknown property: " + entry.getKey());
+                }
+                value = entry.getValue();
+                value = value.replace("{}", prop.get(engine));
+                try {
+                    prop.set(value);
+                    result.add(prop.name(), new JsonPrimitive(prop.getAsString(engine)));
+                } catch (RuntimeException e) {
+                    throw new ArgumentException("invalid value for property " + prop.name() + " : " + e.getMessage());
+                }
             }
-            value = entry.getValue();
-            value = value.replace("{}", prop.get(engine));
-            try {
-                prop.set(value);
-                result.add(prop.name(), new JsonPrimitive(prop.getAsString(engine)));
-            } catch (RuntimeException e) {
-                throw new ArgumentException("invalid value for property " + prop.name() + " : " + e.getMessage());
-            }
+            stage.saveConfig();
+            return result.toString();
         }
-        stage.saveConfig();
-        return result.toString();
     }
 
 
@@ -209,22 +215,24 @@ public class ApiController {
             selection = Separator.COMMA.split(select);
         }
         result = new JsonObject();
-        for (Info info : server.load(stage).fields()) {
-            if (selection == null || selection.remove(info.name())) {
-                result.add(info.name(), new JsonPrimitive(info.getAsString(engine)));
+        try (Engine engine = Engine.create()) {
+            for (Info info : server.load(stage).fields()) {
+                if (selection == null || selection.remove(info.name())) {
+                    result.add(info.name(), new JsonPrimitive(info.getAsString(engine)));
+                }
             }
+            if (selection != null && !selection.isEmpty()) {
+                throw new ArgumentException("unknown field(s): " + selection);
+            }
+            return result.toString();
         }
-        if (selection != null && !selection.isEmpty()) {
-            throw new ArgumentException("unknown field(s): " + selection);
-        }
-        return result.toString();
     }
 
     @PostMapping("/stages/{stage}/validate")
     public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
         List<String> output;
 
-        try {
+        try (Engine engine = Engine.create()) {
             output = new Validation(server, engine).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
@@ -236,7 +244,9 @@ public class ApiController {
 
     @GetMapping("/stages/{stage}/appInfo")
     public String appInfo(@PathVariable("stage") String stage, @RequestParam("app") String app) throws Exception {
-        return array(new AppInfo(server, engine).run(stage, app)).toString();
+        try (Engine engine = Engine.create()) {
+            return array(new AppInfo(server, engine).run(stage, app)).toString();
+        }
     }
 
 
@@ -255,19 +265,21 @@ public class ApiController {
         environment = new HashMap<>(server.configuration.environment);
         environment.putAll(map(request, "env."));
         global = server.configuration.diskQuota;
-        if (global != 0) {
-            reserved = server.diskQuotaReserved(engine);
-            if (reserved > global) {
-                throw new IOException("Sum of all stage disk quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
-                        + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
+        try (Engine engine = Engine.create()) {
+            if (global != 0) {
+                reserved = server.diskQuotaReserved(engine);
+                if (reserved > global) {
+                    throw new IOException("Sum of all stage disk quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
+                            + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
+                }
             }
-        }
 
-        stage = server.load(stageName);
-        stage.server.configuration.verfiyHostname();
-        stage.checkExpired();
-        stage.checkDiskQuota(engine);
-        return array(stage.start(engine, http, https, environment, apps)).toString();
+            stage = server.load(stageName);
+            stage.server.configuration.verfiyHostname();
+            stage.checkExpired();
+            stage.checkDiskQuota(engine);
+            return array(stage.start(engine, http, https, environment, apps)).toString();
+        }
     }
 
     @GetMapping("/stages//{stage}/await-startup")
@@ -275,14 +287,16 @@ public class ApiController {
         Stage stage;
         JsonObject result;
 
-        stage = server.load(stageName);
-        stage.awaitStartup(engine);
+        try (Engine engine = Engine.create()) {
+            stage = server.load(stageName);
+            stage.awaitStartup(engine);
 
-        result = new JsonObject();
-        for (String app : stage.currentMap(engine).keySet()) {
-            result.add(app, array(stage.namedUrls(engine, app)));
+            result = new JsonObject();
+            for (String app : stage.currentMap(engine).keySet()) {
+                result.add(app, array(stage.namedUrls(engine, app)));
+            }
+            return result.toString();
         }
-        return result.toString();
     }
 
     private static JsonArray array(List<String> array) {
@@ -299,8 +313,10 @@ public class ApiController {
     public ResponseEntity<?> stop(@PathVariable(value = "stage") String stage, @RequestParam(value = "apps", required = false, defaultValue = "") String apps) throws IOException {
         List<String> result;
 
-        result = server.load(stage).stop(engine, Separator.COMMA.split(apps));
-        return new ResponseEntity<>(array(result).toString(), HttpStatus.OK);
+        try (Engine engine = Engine.create()) {
+            result = server.load(stage).stop(engine, Separator.COMMA.split(apps));
+            return new ResponseEntity<>(array(result).toString(), HttpStatus.OK);
+        }
     }
 
     @ExceptionHandler({ ArgumentException.class })
@@ -341,7 +357,9 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/remove")
     public void remove(@PathVariable(value = "stage") String stage) throws IOException {
-        server.load(stage).remove(engine);
+        try (Engine engine = Engine.create()) {
+            server.load(stage).remove(engine);
+        }
     }
 
     @GetMapping("/stages/{name}/logs")
