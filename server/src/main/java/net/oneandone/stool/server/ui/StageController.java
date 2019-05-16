@@ -16,6 +16,7 @@
 package net.oneandone.stool.server.ui;
 
 import net.oneandone.stool.server.Server;
+import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.stage.Stage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,10 +42,12 @@ public class StageController {
     @Autowired
     private Server server;
 
+    private final Engine engine;
     private final Collection<Stage> stagesCache;
     private long lastCacheRenew;
 
-    public StageController() {
+    public StageController() throws IOException {
+        engine = Engine.create(); // TODO
         stagesCache = new ArrayList<>();
         lastCacheRenew = 0L;
     }
@@ -84,6 +87,7 @@ public class StageController {
     @RequestMapping(method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
     public ModelAndView stagesAsHtml(ModelAndView modelAndView) throws IOException {
         modelAndView.setViewName("stages");
+        modelAndView.addObject("engine", engine);
         modelAndView.addObject("userManager", server.userManager);
         modelAndView.addObject("stages", stages(server));
 
@@ -95,14 +99,6 @@ public class StageController {
         // TODO: really report this? maybe it's just a 404 ...
         server.reportException((String) request.getAttribute("command"), "StageController.handleApiException", e);
         return new ResponseEntity<>(new ExceptionExport(e), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    private Stage resolveStage(String stageName) throws ResourceNotFoundException {
-        try {
-            return server.load(stageName);
-        } catch (IOException e) {
-            throw (ResourceNotFoundException) new ResourceNotFoundException().initCause(e);
-        }
     }
 
     private static class ExceptionExport {
