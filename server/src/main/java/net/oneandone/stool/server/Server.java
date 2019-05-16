@@ -76,7 +76,7 @@ public class Server {
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
 
-        try (Engine engine = Engine.create(/* TODO dockerLog(logRoot).getAbsolute() */)) {
+        try (Engine engine = Engine.create()) {
             binds = binds(engine);
             serverHome = toHostFile(binds, world.file("/var/lib/stool"));
             secrets = toHostFile(binds, world.file("/etc/fault/workspace"));
@@ -266,16 +266,6 @@ public class Server {
         this.stages = home.join("stages");
         this.userManager = UserManager.loadOpt(home.join("users.json"));
         this.accessors = StageConfiguration.accessors();
-    }
-
-    private static FileNode dockerLog(FileNode logRoot) throws IOException {
-        FileNode log;
-
-        log = logRoot.join("docker.log");
-        log.deleteFileOpt();
-        log.getParent().mkdirOpt();
-        log.writeBytes();
-        return log;
     }
 
     public LogReader<AccessLogEntry> accessLogReader() throws IOException {

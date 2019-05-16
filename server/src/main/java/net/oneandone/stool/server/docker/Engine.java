@@ -75,7 +75,7 @@ public class Engine implements AutoCloseable {
     }
 
     public static Engine create() throws IOException {
-        return create("/var/run/docker.sock", null);
+        return create(null);
     }
 
     public static Engine create(String wirelog) throws IOException {
