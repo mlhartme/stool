@@ -60,7 +60,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/** Connect to local docker engine via unix socket. https://docs.docker.com/engine/api/v1.37/ */
+/**
+ * Connect to local docker engine via unix socket. https://docs.docker.com/engine/api/v1.37/
+ * Not thread-safe because the io buffer is shared.
+ */
 public class Engine implements AutoCloseable {
     public static final DateTimeFormatter CREATED_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.n'Z'");
 
@@ -76,7 +79,7 @@ public class Engine implements AutoCloseable {
         HttpFilesystem fs;
         HttpNode root;
 
-        // CAUTION: local World because I need a special socket factory
+        // CAUTION: local World because I need a special socket factory and multiple Engine instances must *not* share the same buffers
         world = World.create();
         if (wirelog != null) {
             HttpFilesystem.wireLog(wirelog);
@@ -122,7 +125,7 @@ public class Engine implements AutoCloseable {
     /** Thread safe - has no fields at all */
     private final JsonParser parser;
 
-    public Engine(HttpNode root) {
+    private Engine(HttpNode root) {
         this.root = root;
         this.parser = new JsonParser();
     }
