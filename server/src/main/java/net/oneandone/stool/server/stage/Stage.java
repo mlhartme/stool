@@ -22,7 +22,9 @@ import net.oneandone.stool.server.configuration.Accessor;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.docker.BuildArgument;
 import net.oneandone.stool.server.docker.BuildError;
+import net.oneandone.stool.server.docker.ContainerInfo;
 import net.oneandone.stool.server.docker.Engine;
+import net.oneandone.stool.server.docker.ImageInfo;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.util.AppInfo;
@@ -301,12 +303,12 @@ public class Stage {
     }
 
     private List<String> imageTags(Engine engine) throws IOException {
-        Engine.ImageListInfo info;    /** @return list of tags belonging to this stage */
+        ImageInfo info;    /** @return list of tags belonging to this stage */
 
         List<String> result;
 
         result = new ArrayList<>();
-        for (Map.Entry<String, Engine.ImageListInfo> entry : engine.imageList().entrySet()) {
+        for (Map.Entry<String, ImageInfo> entry : engine.imageList().entrySet()) {
             info = entry.getValue();
             for (String tag : info.tags) {
                 if (tag.startsWith(server.configuration.registryNamespace + "/" + name + "/")) {
@@ -382,7 +384,7 @@ public class Stage {
         int used;
         int quota;
         Map<String, Current> map;
-        Engine.ContainerInfo info;
+        ContainerInfo info;
 
         map = currentMap();
         for (Map.Entry<String, Current> entry : map.entrySet()) {
@@ -773,7 +775,7 @@ public class Stage {
         result = new LinkedHashMap<>();
         engine = server.dockerEngine();
         images = new HashMap<>();
-        for (Engine.ContainerInfo info : engine.containerList(Stage.CONTAINER_LABEL_IMAGE).values()) {
+        for (ContainerInfo info : engine.containerList(Stage.CONTAINER_LABEL_IMAGE).values()) {
             if (name.equals(info.labels.get(Stage.CONTAINER_LABEL_STAGE))) {
                 images.put(info.labels.get(Stage.CONTAINER_LABEL_APP), Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE)));
             }
@@ -853,15 +855,15 @@ public class Stage {
 
     public static class Current {
         public final Image image;
-        public final Engine.ContainerInfo container;
+        public final ContainerInfo container;
 
-        public Current(Image image, Engine.ContainerInfo container) {
+        public Current(Image image, ContainerInfo container) {
             this.image = image;
             this.container = container;
         }
     }
 
-    public Map<String, Engine.ContainerInfo> dockerRunningContainerList() throws IOException {
+    public Map<String, ContainerInfo> dockerRunningContainerList() throws IOException {
         Engine engine;
 
         engine = server.dockerEngine();
@@ -870,7 +872,7 @@ public class Stage {
 
     public Map<String, Current> currentMap() throws IOException {
         Engine engine;
-        Collection<Engine.ContainerInfo> containerList;
+        Collection<ContainerInfo> containerList;
         JsonObject json;
         Map<String, Current> result;
         Image image;
@@ -878,7 +880,7 @@ public class Stage {
         engine = server.dockerEngine();
         result = new HashMap<>();
         containerList = dockerRunningContainerList().values();
-        for (Engine.ContainerInfo info : containerList) {
+        for (ContainerInfo info : containerList) {
             json = engine.containerInspect(info.id, false);
             image = Image.load(engine, Server.containerImageTag(json));
             result.put(image.app, new Current(image, info));

@@ -2,6 +2,7 @@ package net.oneandone.stool.server.util;
 
 import com.google.gson.JsonObject;
 import net.oneandone.stool.server.Server;
+import net.oneandone.stool.server.docker.ContainerInfo;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.docker.Stats;
 import net.oneandone.stool.server.stage.Image;
@@ -96,7 +97,7 @@ public class AppInfo {
         return result;
     }
 
-    private void addEnv(Engine.ContainerInfo info, List<String> result) {
+    private void addEnv(ContainerInfo info, List<String> result) {
         Map<String, String> env;
         List<String> keys;
 
@@ -151,7 +152,7 @@ public class AppInfo {
         return Float.toString(((float) (used * 1000 / max)) / 10);
     }
 
-    public static int diskUsed(Engine engine, Engine.ContainerInfo info) throws IOException {
+    public static int diskUsed(Engine engine, ContainerInfo info) throws IOException {
         JsonObject obj;
 
         if (info == null) {
@@ -162,7 +163,7 @@ public class AppInfo {
         return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
 
-    private Map<String, String> env(Engine.ContainerInfo info) {
+    private Map<String, String> env(ContainerInfo info) {
         Map<String, String> result;
         String key;
 
@@ -178,11 +179,11 @@ public class AppInfo {
         return result;
     }
 
-    private String uptime(Engine.ContainerInfo info) throws IOException {
+    private String uptime(ContainerInfo info) throws IOException {
         return info == null ? null : Stage.timespan(context.dockerEngine().containerStartedAt(info.id));
     }
 
-    private Integer cpu(Engine.ContainerInfo info) throws IOException {
+    private Integer cpu(ContainerInfo info) throws IOException {
         Engine engine;
         Stats stats;
 
@@ -199,7 +200,7 @@ public class AppInfo {
         }
     }
 
-    private Long mem(Engine.ContainerInfo info) throws IOException {
+    private Long mem(ContainerInfo info) throws IOException {
         Stats stats;
 
         if (info == null) {

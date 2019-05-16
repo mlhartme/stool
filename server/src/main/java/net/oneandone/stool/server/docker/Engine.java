@@ -118,6 +118,8 @@ public class Engine implements AutoCloseable {
     }
 
     private final HttpNode root;
+
+    /** Thread safe - has no fields at all */
     private final JsonParser parser;
 
     public Engine(HttpNode root) {
@@ -139,26 +141,16 @@ public class Engine implements AutoCloseable {
     //-- images
 
 
-    public static class ImageListInfo {
-        public final String id;
-        public final List<String> tags;
-
-        public ImageListInfo(String id, List<String> tags) {
-            this.id = id;
-            this.tags = tags;
-        }
-    }
-
     /** @return image ids */
-    public Map<String, ImageListInfo> imageList() throws IOException {
+    public Map<String, ImageInfo> imageList() throws IOException {
         return imageList(Collections.emptyMap());
 
     }
 
-    public Map<String, ImageListInfo> imageList(Map<String, String> labels) throws IOException {
+    public Map<String, ImageInfo> imageList(Map<String, String> labels) throws IOException {
         HttpNode node;
         JsonArray array;
-        Map<String, ImageListInfo> result;
+        Map<String, ImageInfo> result;
         String id;
         JsonElement repoTags;
         List<String> tags;
@@ -175,7 +167,7 @@ public class Engine implements AutoCloseable {
             id = Strings.removeLeft(id, "sha256:");
             repoTags = element.getAsJsonObject().get("RepoTags");
             tags = repoTags.isJsonNull() ? new ArrayList<>() : stringList(repoTags.getAsJsonArray());
-            result.put(id, new ImageListInfo(id, tags));
+            result.put(id, new ImageInfo(id, tags));
         }
         return result;
     }
@@ -188,20 +180,6 @@ public class Engine implements AutoCloseable {
             result.add(element.getAsString());
         }
         return result;
-    }
-
-    public static class ContainerInfo {
-        public final String id;
-        public final String imageId;
-        public final Map<String, String> labels;
-        public final Map<Integer, Integer> ports;
-
-        public ContainerInfo(String id, String imageId, Map<String, String> labels, Map<Integer, Integer> ports) {
-            this.id = id;
-            this.imageId = imageId;
-            this.labels = labels;
-            this.ports = ports;
-        }
     }
 
     /**

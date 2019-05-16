@@ -27,6 +27,7 @@ import net.oneandone.stool.server.configuration.ServerConfiguration;
 import net.oneandone.stool.server.configuration.StageConfiguration;
 import net.oneandone.stool.server.configuration.adapter.ExpireTypeAdapter;
 import net.oneandone.stool.server.configuration.adapter.FileNodeTypeAdapter;
+import net.oneandone.stool.server.docker.ContainerInfo;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
@@ -494,7 +495,7 @@ public class Server {
     public int diskQuotaReserved() throws IOException {
         int reserved;
         Stage stage;
-        Engine.ContainerInfo info;
+        ContainerInfo info;
 
         reserved = 0;
         for (FileNode directory : stages.list()) {
