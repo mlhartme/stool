@@ -43,72 +43,40 @@ public class StageController {
     private Server server;
 
     private final Engine engine;
-    private final Collection<Stage> stagesCache;
-    private long lastCacheRenew;
 
     public StageController() throws IOException {
         engine = Engine.create(); // TODO
-        stagesCache = new ArrayList<>();
-        lastCacheRenew = 0L;
     }
 
-    private Collection<Stage> stages(Server session) throws IOException {
+    private Collection<Stage> list() throws IOException {
         List<Stage> lst;
 
-        if (System.currentTimeMillis() - lastCacheRenew > 4000) {
-            stagesCache.clear();
-            lst = session.listAll();
-            Collections.sort(lst, new Comparator<Stage>() {
-                @Override
-                public int compare(Stage left, Stage right) {
-                    boolean lr;
-                    boolean rr;
+        lst = server.listAll();
+        Collections.sort(lst, new Comparator<Stage>() {
+            @Override
+            public int compare(Stage left, Stage right) {
+                boolean lr;
+                boolean rr;
 
-                    lr = left.configuration.expire.isReserved();
-                    rr = right.configuration.expire.isReserved();
-                    if (lr == rr) {
-                        return left.getName().compareToIgnoreCase(right.getName());
-                    } else {
-                        return lr ? -1 : 1;
-                    }
+                lr = left.configuration.expire.isReserved();
+                rr = right.configuration.expire.isReserved();
+                if (lr == rr) {
+                    return left.getName().compareToIgnoreCase(right.getName());
+                } else {
+                    return lr ? -1 : 1;
                 }
-            });
-            stagesCache.addAll(lst);
-            lastCacheRenew = System.currentTimeMillis();
-        }
-        return stagesCache;
+            }
+        });
+        return lst;
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public Collection<Stage> stages() throws IOException {
-        return stages(server);
-    }
-
-    @RequestMapping(method = RequestMethod.GET, produces = MediaType.TEXT_HTML_VALUE)
     public ModelAndView stagesAsHtml(ModelAndView modelAndView) throws IOException {
         modelAndView.setViewName("stages");
         modelAndView.addObject("engine", engine);
         modelAndView.addObject("userManager", server.userManager);
-        modelAndView.addObject("stages", stages(server));
+        modelAndView.addObject("stages", list());
 
         return modelAndView;
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionExport> handleApiException(HttpServletRequest request, Throwable e) {
-        // TODO: really report this? maybe it's just a 404 ...
-        server.reportException((String) request.getAttribute("command"), "StageController.handleApiException", e);
-        return new ResponseEntity<>(new ExceptionExport(e), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    private static class ExceptionExport {
-        private final String message;
-        ExceptionExport(Throwable e) {
-            message = e.getMessage();
-        }
-
-        private String getMessage() {
-            return message;
-        }
     }
 }
