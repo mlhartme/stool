@@ -179,31 +179,27 @@ public class Stage {
         fields = new ArrayList<>();
         fields.add(new Field("name") {
             @Override
-            public Object get() {
+            public Object get(Engine engine) {
                 return name;
             }
         });
         fields.add(new Field("apps") {
             @Override
-            public Object get() throws IOException {
+            public Object get(Engine engine) throws IOException {
                 List<String> result;
 
-                try (Engine engine = Engine.create()) {  // TODO
-                    result = new ArrayList<>(images(engine).keySet());
-                }
+                result = new ArrayList<>(images(engine).keySet());
                 Collections.sort(result);
                 return result;
             }
         });
         fields.add(new Field("running") {
             @Override
-            public Object get() throws IOException {
+            public Object get(Engine engine) throws IOException {
                 Map<String, Current> map;
                 List<String> result;
 
-                try (Engine engine = Engine.create()) {  // TODO
-                    map = currentMap(engine);
-                }
+                map = currentMap(engine);
                 result = new ArrayList<>(map.keySet());
                 Collections.sort(result);
                 return result;
@@ -211,14 +207,14 @@ public class Stage {
         });
         fields.add(new Field("created-by") {
             @Override
-            public Object get() throws IOException {
+            public Object get(Engine engine) throws IOException {
                 return server.userManager.checkedByLogin(createdBy());
             }
 
         });
         fields.add(new Field("created-at") {
             @Override
-            public Object get() throws IOException {
+            public Object get(Engine engine) throws IOException {
                 // TODO: getCreated: https://unix.stackexchange.com/questions/7562/what-file-systems-on-linux-store-the-creation-time
                 return oldest(accessLog(-1)).dateTime;
             }
@@ -226,22 +222,20 @@ public class Stage {
         });
         fields.add(new Field("last-modified-by") {
             @Override
-            public Object get() throws IOException {
+            public Object get(Engine engine) throws IOException {
                 return server.userManager.checkedByLogin(youngest(accessLog(-1)).user);
             }
         });
         fields.add(new Field("last-modified-at") {
             @Override
-            public Object get() throws IOException {
+            public Object get(Engine engine) throws IOException {
                 return timespan(youngest(accessLog(-1)).dateTime);
             }
         });
         fields.add(new Field("urls") {
             @Override
-            public Object get() throws IOException {
-                try (Engine engine = Engine.create()) {  // TODO
-                    return namedUrls(engine, null);
-                }
+            public Object get(Engine engine) throws IOException {
+                return namedUrls(engine, null);
             }
         });
         return fields;

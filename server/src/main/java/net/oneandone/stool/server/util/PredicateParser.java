@@ -14,7 +14,13 @@ public class PredicateParser {
         }
     }
 
-    public static Predicate parse(String filter) {
+    private final Engine engine;
+
+    public PredicateParser(Engine engine) {
+        this.engine = engine;
+    }
+
+    public Predicate parse(String filter) {
         List<String> args;
 
         if (filter.isEmpty()) {
@@ -45,7 +51,7 @@ public class PredicateParser {
 
     private static final Separator AND = Separator.on('+');
 
-    private static Predicate and(String string) {
+    private Predicate and(String string) {
         List<String> args;
 
         args = AND.split(string);
@@ -66,7 +72,7 @@ public class PredicateParser {
     }
 
 
-    private static Predicate compare(Stage stage, final String string) {
+    private Predicate compare(Stage stage, final String string) {
         int idx;
         String name;
         final boolean eq;
@@ -126,13 +132,13 @@ public class PredicateParser {
                 Property p;
 
                 if (constField != null) {
-                    obj = field.get();
+                    obj = field.get(engine);
                 } else {
                     p = stage.propertyOpt(constProperty);
                     if (p == null) {
                         throw new PredicateException("property or status field not found: " + constProperty);
                     }
-                    obj = p.get();
+                    obj = p.get(engine);
                 }
                 if (obj == null) {
                     str = "";

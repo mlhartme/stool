@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.server.util;
 
+import net.oneandone.stool.server.docker.Engine;
+
 import java.io.IOException;
 
 /** A computable value representing one aspect of the stage status. */
@@ -27,5 +29,5 @@ public abstract class Field extends Info {
         return name();
     }
 
-    public abstract Object get() throws IOException;
+    public abstract Object get(Engine engine) throws IOException;
 }

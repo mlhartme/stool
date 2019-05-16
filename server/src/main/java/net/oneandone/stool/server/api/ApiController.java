@@ -93,7 +93,7 @@ public class ApiController {
 
         result = new JsonArray();
         problems = new HashMap<>();
-        for (Stage stage : server.list(PredicateParser.parse(filter), problems)) {
+        for (Stage stage : server.list(new PredicateParser(engine).parse(filter), problems)) {
             result.add(new JsonPrimitive(stage.getName()));
         }
         if (!problems.isEmpty()) {
@@ -163,7 +163,7 @@ public class ApiController {
 
         result = new JsonObject();
         for (Property property : server.load(stage).properties()) {
-            result.add(property.name(), new JsonPrimitive(property.get()));
+            result.add(property.name(), new JsonPrimitive(property.get(engine)));
         }
         return result.toString();
     }
@@ -185,10 +185,10 @@ public class ApiController {
                 throw new ArgumentException("unknown property: " + entry.getKey());
             }
             value = entry.getValue();
-            value = value.replace("{}", prop.get());
+            value = value.replace("{}", prop.get(engine));
             try {
                 prop.set(value);
-                result.add(prop.name(), new JsonPrimitive(prop.getAsString()));
+                result.add(prop.name(), new JsonPrimitive(prop.getAsString(engine)));
             } catch (RuntimeException e) {
                 throw new ArgumentException("invalid value for property " + prop.name() + " : " + e.getMessage());
             }
@@ -211,7 +211,7 @@ public class ApiController {
         result = new JsonObject();
         for (Info info : server.load(stage).fields()) {
             if (selection == null || selection.remove(info.name())) {
-                result.add(info.name(), new JsonPrimitive(info.getAsString()));
+                result.add(info.name(), new JsonPrimitive(info.getAsString(engine)));
             }
         }
         if (selection != null && !selection.isEmpty()) {

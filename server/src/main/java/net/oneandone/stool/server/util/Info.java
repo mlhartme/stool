@@ -15,6 +15,8 @@
  */
 package net.oneandone.stool.server.util;
 
+import net.oneandone.stool.server.docker.Engine;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -30,10 +32,10 @@ public abstract class Info {
         return name;
     }
 
-    public abstract Object get() throws IOException;
+    public abstract Object get(Engine engine) throws IOException;
 
-    public String getAsString() throws IOException {
-        return valueString(get());
+    public String getAsString(Engine engine) throws IOException {
+        return valueString(get(engine));
 
     }
 
