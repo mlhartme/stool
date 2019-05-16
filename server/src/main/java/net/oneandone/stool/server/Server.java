@@ -77,7 +77,7 @@ public class Server {
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
 
-        engine = Engine.open("/var/run/docker.sock", null /* TODO dockerLog(logRoot).getAbsolute() */);
+        engine = Engine.create(/* TODO dockerLog(logRoot).getAbsolute() */);
 
         binds = binds(engine);
         serverHome = toHostFile(binds, world.file("/var/lib/stool"));

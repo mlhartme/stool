@@ -74,7 +74,15 @@ public class Engine implements AutoCloseable {
         REMOVING
     }
 
-    public static Engine open(String socketPath, String wirelog) throws IOException {
+    public static Engine create() throws IOException {
+        return create("/var/run/docker.sock", null);
+    }
+
+    public static Engine create(String wirelog) throws IOException {
+        return create("/var/run/docker.sock", wirelog);
+    }
+
+    public static Engine create(String socketPath, String wirelog) throws IOException {
         World world;
         HttpFilesystem fs;
         HttpNode root;
