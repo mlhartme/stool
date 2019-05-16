@@ -80,6 +80,7 @@ public class Setup {
     private void create() throws IOException {
         boolean server;
         ServerManager environment;
+        String inc;
 
         environment = environment();
         server = explicitServer == null ? askServer() : explicitServer;
@@ -90,8 +91,13 @@ public class Setup {
         }
         console.info.println("Creating " + home);
         doCreate(environment, server);
+        inc = home.join("shell.inc").getAbsolute();
         console.info.println("Done.");
-        console.info.println("Make sure to add " + home.join("shell.inc") + " to your shell profile (e.g. ~/.bash_profile) and restart your terminal.");
+        console.info.println();
+        console.info.println("If you want bash completion and a stage indicator in your shell prompt: ");
+        console.info.println("  Make sure to source " + inc + " in your shell profile");
+        console.info.println("  (e.g. with 'echo \". " + inc + "\" >> ~/.bash_profile')");
+        console.info.println("  Don't forget to restart your terminal.");
         if (server) {
             console.info.println();
             console.info.println("A local Stool server has been setup - start with ");
@@ -102,7 +108,7 @@ public class Setup {
     private boolean askServer() {
         console.info.println("Local server");
         console.info.println("  You need a local server if you want to run stages on this machine.");
-        console.info.println("  (Note that a local server requires Docker installed on this machine.)");
+        console.info.println("  (Note that a local server requires Docker (with docker-compose) installed on this machine.)");
         return yesNo("    Setup local server [y/n)]? ");
     }
 

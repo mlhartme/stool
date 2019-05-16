@@ -480,6 +480,8 @@ Docker build is run with the build arguments (specified by *key*`=`*value* argum
 being used. Default build arguments are loaded from a properties file in the war. You can see the build argument actually used with 
 `stool app`.
 
+Note that you can build a stage while it's running. In this case, `stool restart` starts the newly built images. 
+
 *keep* specifies the nubmer of docker images that will not be exceeded, default is 3. I.e. if you already have 3 images and run `build`, 
 the oldest unreferenced image the will be removed. Unreferenced means it's not used for the current container.
 
