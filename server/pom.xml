@@ -220,10 +220,17 @@
         </configuration>
         <executions>
           <execution>
-            <id>start</id>
+            <id>build-image</id>
             <phase>package</phase>
             <goals>
               <goal>build</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>deploy-image</id>
+            <phase>deploy</phase>
+            <goals>
+              <goal>push</goal>
             </goals>
           </execution>
         </executions>
