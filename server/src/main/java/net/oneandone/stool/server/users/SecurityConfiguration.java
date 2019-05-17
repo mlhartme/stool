@@ -39,7 +39,9 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
 import javax.servlet.Filter;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Here's an overview that helped me get started with Spring security:
@@ -74,6 +76,9 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
             http.csrf().disable();
             http
                 .addFilter(basicAuthenticationFilter())
+                .headers()
+                    .httpStrictTransportSecurity().disable()  // because sub-domains (or different ports might include http links
+                    .and()
                 .addFilterAfter(new TokenAuthenticationFilter(server.userManager), BasicAuthenticationFilter.class)
                 .addFilter(casAuthenticationFilter())
                 .exceptionHandling()
