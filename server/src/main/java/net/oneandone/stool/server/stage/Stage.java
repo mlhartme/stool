@@ -630,7 +630,7 @@ public class Stage {
         if (server.configuration.auth()) {
             checkPermissions(image.createdBy, image.faultProjects);
         }
-        for (String project : image.faultProjects) { // TODO: authorization
+        for (String project : image.faultProjects) {
             innerFile = server.world.file("/etc/fault/workspace").join(project);
             outerFile = server.secrets.join(project);
             if (innerFile.isDirectory()) {
@@ -657,10 +657,10 @@ public class Stage {
         for (String project : projects) {
             lst = permissions.getProperty(project);
             if (lst == null) {
-                throw new IOException("unknown fault project: " + project);
+                throw new ArgumentException("unknown fault project: " + project);
             }
             if (!Separator.COMMA.split(lst).contains(user)) {
-                throw new IOException(project + ": permission denied for user " + user);
+                throw new ArgumentException(project + ": permission denied for user " + user);
             }
         }
     }

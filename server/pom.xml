@@ -207,8 +207,9 @@
         <configuration>
           <images>
             <image>
-              <name>contargo.server.lan/cisoops-public/stool-server</name>
+              <name>contargo.server.lan/cisoops-public/stool-server:%t</name>
               <build>
+                <tags><tag>latest</tag></tags>
                 <dockerFile>${basedir}/src/docker/Dockerfile</dockerFile>
                 <assembly>
                   <descriptor>${basedir}/src/docker/assembly.xml</descriptor>
