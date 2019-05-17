@@ -2,12 +2,32 @@
 
 ### 5.0.0 (pending)
 
-Stool is a tool to create containers on develop workstations and manage them on a (shared) docker host; 
-it no longer supports shared environments
+#### Introducation
 
-New philo: projects are the former stages, this is where your sources reside.
-Stages are now the central part; multiple project can be associated with the same stage.
+Stool 5 separates building from running stages: you build on your local workstation, but run on a server. 
+To implement this, Stool was split into a client and a server part: the client runs on your local machine, and the server part
+runs as a daemon on the server. Example: to create a new stage for a project on your local workstation, run:
 
+    mvn clean install   # or whatever you need to build your project
+    stool create teststage@someserver
+    stool build
+    stool start
+
+The local checkout of your application is called project.
+
+#### Changes
+ 
+* Removed all features to checkout or build projects - Stool now expects a proper checkout with a readily build project. 
+  To checkout and build project, use your standard tools like `mvn` and `git`
+  As a consequence:
+  * the former `build` command to build a project has been replaced by a new `build` command to build an image
+  * the `create` command now expects an existing checkout
+  * the `remove` command now just removes the stage, the checkout is not touched
+  * remove the `refresh` command
+  * dumped the `move` command
+  * dumped svn credentials handling
+  * dumped macros
+    
 * dashboard
   * dumped auto-reload of the ui
   * build and refresh are gone - use restart instead
@@ -16,13 +36,11 @@ Stages are now the central part; multiple project can be associated with the sam
   * updated bootstrap to 4.3.1
   
 * dumped debian packages
+
 * 1 image per war
-* stool is no longer responsible to manage checkouts - use your standard tools instead; 
-  * dumped `create`, `refresh` and `move` command
+
   * dumped `refresh` stage config
   * changed `remove` command to leave the project as-is; the current directory is also left as-is
-  * dumped svn credentials handling
-  * dumped macros
 
 * stool home layout changes
   * system directory is gone - there are no system stages any more
@@ -30,33 +48,39 @@ Stages are now the central part; multiple project can be associated with the sam
   * downloads is gone - Stool no longer performs downloads, place them in your (base) Docker file instead
   
 * replaced the `.backstage` directory tree by a single `.backstage` file; 
-  files in this directory:
+  what happened to former files in this directory:
   * config.json was moved to the server;
   * docker context directory and `image.log` was moved to the server (use the history command to see the image.log)
   * `container.id` is gone (instead, Stool queries the docker daemon to get running containers)  
 
 
 * dumped stage id, always use the name now
+* dumped the `rename` command; if you need to rename a stage, you now have to remove and re-create it now
+
 * removed client-side locking, logging and exception emails
 * removed `working` state
 
-* build arguments are docker build arguments; removed Freemarker templates; arguments are strings now
+* docker cleanup
+  * Stool creates one image per war file
+  * downloading Tomcat was moved into a Tomcat base image; Stool's download functionality was removed
+  * build arguments are docker build arguments; removed Freemarker templates; arguments are strings now
+  * dumped Freemarker support - use plain docker syntax now
+  * dumped vhosts bind mounts, copy war instead
+  * images now declare exposed ports via labels; when starting a stage, Stool set's up the respective mapping
+  * dumped port command, instead, start has http and https options now
+  * removed ports command
+  * switch keystore format from JKS to PKCS12
+  * Changes in the standard Dockerfile
+    * no longer set -Xmx (let the jvm figure out this)
+    * changed server.xml: set `deployXML` to false 
+      (since we now have exactly one web application per Tomcat, crossContext has no meaning; 
+      and i checked controlpanel trunk - is doesn't contain any symlink, so we can live without `allowLinking`)
 
 * added `running` field
-* changed server.xml: set `deployXML` to false 
-  (since we now have exactly one web application per Tomcat, crossContext has no meaning; 
-   and i checked controlpanel trunk - is doesn't contain any symlink, so we can live without `allowLinking`)
-* create one image per war file
-* dumped downloads directory
-* dumped Freemarker support - use plain docker syntax now
-* added `remote -stop` option
+
+* added `remove -stop` option
 * added `attach` and `detatch` commands to manage project - stage association
-* dumped vhosts bind mounts, copy war instead
-* switch keystore format from JKS to PKCS12
 * removed stageName column from server logs
-* dumped port command, instead, start has http and https options now
-* removed ports command
-* no longer set -Xmx (let the jvm figure out this)
 * stool config changes
   * dumped `diskMin`
   * dumped `macros`

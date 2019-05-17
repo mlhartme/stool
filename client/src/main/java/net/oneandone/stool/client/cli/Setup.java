@@ -233,7 +233,7 @@ public class Setup {
             addIfNew("MAIL_HOST", "mri.server.lan");
             addIfNew("JMX_USAGE", "jconsole -J-Djava.class.path=$CISOTOOLS_HOME/stool/opendmk_jmxremote_optional_jar-1.0-b01-ea.jar service:jmx:jmxmp://%s");
         }
-        builder.append("version: '3.7'\n");
+        builder.append("version: '3'\n");  // I started with '3.7', but Ubuntu 16.4 packages just have 3.2 ...
         builder.append("services:\n");
         builder.append("  stool-server:\n");
         builder.append("    image: contargo.server.lan/cisoops-public/stool-server\n");
