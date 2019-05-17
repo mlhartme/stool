@@ -657,7 +657,7 @@ public class Stage {
         for (String project : projects) {
             lst = permissions.getProperty(project);
             if (lst == null) {
-                throw new ArgumentException("unknown fault project: " + project);
+                throw new ArgumentException("fault project unknown or not accessible on this host: " + project);
             }
             if (!Separator.COMMA.split(lst).contains(user)) {
                 throw new ArgumentException(project + ": permission denied for user " + user);
