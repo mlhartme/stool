@@ -101,7 +101,9 @@ public class Setup {
         if (server) {
             console.info.println();
             console.info.println("A local Stool server has been setup - start with ");
-            console.info.println("    docker-compose -f " + home.join("server.yml").getAbsolute() + " up");
+            console.info.println("    docker-compose -f " + home.join("server.yml").getAbsolute() + " up -d");
+            console.info.println("Check logs with ");
+            console.info.println("    docker-compose -f " + home.join("server.yml").getAbsolute() + " logs");
         }
     }
 
