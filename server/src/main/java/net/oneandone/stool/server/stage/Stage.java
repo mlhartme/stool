@@ -35,6 +35,7 @@ import net.oneandone.stool.server.util.Property;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.io.OS;
+import net.oneandone.sushi.util.Separator;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -626,6 +627,9 @@ public class Stage {
             }
         }
         missing = new ArrayList<>();
+        if (server.configuration.auth()) {
+            checkPermissions(image.createdBy, image.faultProjects);
+        }
         for (String project : image.faultProjects) { // TODO: authorization
             innerFile = server.world.file("/etc/fault/workspace").join(project);
             outerFile = server.secrets.join(project);
@@ -639,6 +643,26 @@ public class Stage {
             throw new ArgumentException("missing secret directories: " + missing);
         }
         return result;
+
+    }
+
+    private void checkPermissions(String user, List<String> projects) throws IOException {
+        Properties permissions;
+        String lst;
+
+        if (projects.isEmpty()) {
+            return;
+        }
+        permissions = server.world.file("/etc/fault/workspace.permissions").readProperties();
+        for (String project : projects) {
+            lst = permissions.getProperty(project);
+            if (lst == null) {
+                throw new IOException("unknown fault project: " + project);
+            }
+            if (!Separator.COMMA.split(lst).contains(user)) {
+                throw new IOException(project + ": permission denied for user " + user);
+            }
+        }
     }
 
     private FileNode dockerContext(String app, FileNode war, FileNode src) throws IOException {
