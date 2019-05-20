@@ -266,8 +266,17 @@ public class Setup {
         return path == null ? null : world.file(path);
     }
 
-    private static String hostname() throws UnknownHostException {
-        return InetAddress.getLocalHost().getCanonicalHostName();
+    private static String hostname() throws IOException {
+        InetAddress address;
+
+        address = InetAddress.getLocalHost();
+        if (address.isLoopbackAddress()) {
+            // I've seen `hosts` files mapping a foo.some,domain to 127.0.1.1
+            // Since that's not reachaable from within the server docker container,
+            // I reject to create a server configuration:
+            throw new IOException("cannot setup server on a host with lookpback address: " + address);
+        }
+        return address.getCanonicalHostName();
     }
 
     public FileNode serverDir() {

@@ -522,6 +522,10 @@ public class Server {
                 LOGGER.error("ldapsso cannot be empty because security is enabled");
                 throw new IOException("ldapsso is empty");
             }
+            if (System.getProperty("server.ssl.key-store") == null) {
+                LOGGER.error("enable ssl when running authenticated");
+                throw new IOException("enable ssl when running authenticated");
+            }
         }
         try {
             InetAddress.getByName(configuration.dockerHost);
