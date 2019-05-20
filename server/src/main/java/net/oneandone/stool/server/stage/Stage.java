@@ -1075,7 +1075,7 @@ public class Stage {
     public FileNode createContext(String app, FileNode war) throws IOException {
         FileNode result;
 
-        result = directory.join("server").mkdirsOpt().join(app);
+        result = directory.join("context").mkdirsOpt().join(app);
         result.deleteTreeOpt();
         result.mkdir();
         war.copyFile(result.join("app.war"));

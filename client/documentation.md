@@ -950,6 +950,7 @@ There's no automatic upgrade from Stool 4 to Stool 5. You have to re-create all 
            '- stages
               |- name                (directory for the respective stage)
               :  |- config.json      (stage configuration)
+                 |- context          (Docker build context of the last build)
                  '- logs
                       |- app1        (log file of appsrunning stage)
                           :
