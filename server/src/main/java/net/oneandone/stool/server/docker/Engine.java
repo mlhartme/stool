@@ -450,7 +450,7 @@ public class Engine implements AutoCloseable {
     //-- containers
 
     public String containerCreate(String image, String hostname) throws IOException {
-        return containerCreate(null, image, hostname, false, null, null, null,
+        return containerCreate(null, image, hostname, null, false, null, null, null,
                 Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
     }
 
@@ -461,7 +461,7 @@ public class Engine implements AutoCloseable {
      * @param stopTimeout default timeout when stopping this container without explicit timeout value; null to use default (10 seconds)
      * @return container id
      */
-    public String containerCreate(String name, String image, String hostname, boolean priviledged, Long memory, String stopSignal, Integer stopTimeout,
+    public String containerCreate(String name, String image, String hostname, String networkMode, boolean priviledged, Long memory, String stopSignal, Integer stopTimeout,
                                   Map<String, String> labels, Map<String, String> env, Map<FileNode, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
         JsonObject body;
         JsonObject response;
@@ -502,6 +502,9 @@ public class Engine implements AutoCloseable {
         }
         if (priviledged) {
             hostConfig.add("Privileged", new JsonPrimitive(true));
+        }
+        if (networkMode != null) {
+            hostConfig.add("NetworkMode", new JsonPrimitive(networkMode));
         }
         mounts = new JsonArray();
         hostConfig.add("Mounts", mounts);

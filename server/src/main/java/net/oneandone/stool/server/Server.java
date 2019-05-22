@@ -68,20 +68,23 @@ public class Server {
         Server server;
         FileNode serverHome;
         FileNode secrets;
+        JsonObject inspected;
         Map<String, String> binds;
+        String networkMode;
 
         home = world.file("/var/lib/stool");
         home(Main.versionString(world), home);
 
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
-
         try (Engine engine = Engine.create()) {
-            binds = binds(engine);
+            inspected = inspectSelf(engine);
+            binds = binds(inspected);
             serverHome = toHostFile(binds, world.file("/var/lib/stool"));
             secrets = toHostFile(binds, world.file("/etc/fault/workspace"));
-
-            server = new Server(gson(world), home, serverHome, secrets, config);
+            networkMode = networkMode(inspected);
+            LOGGER.info("network mode: " + networkMode);
+            server = new Server(gson(world), home, serverHome, networkMode, secrets, config);
             server.validate(engine);
             server.checkVersion();
             return server;
@@ -99,23 +102,37 @@ public class Server {
     }
 
     /** @return container- to host path mapping with absolute paths without tailing / */
-    private static Map<String, String> binds(Engine engine) throws IOException {
-        List<String> modes = Strings.toList("ro", "rw");
+    private static JsonObject inspectSelf(Engine engine) throws IOException {
         String container;
-        JsonObject inspected;
-        JsonArray binds;
-        String str;
-        int idx;
-        Map<String, String> result;
 
         // container id is the default hostname for a Docker contaier
         container = InetAddress.getLocalHost().getCanonicalHostName();
         LOGGER.info("server container id: " + container);
         try {
-            inspected = engine.containerInspect(container, false);
+            return engine.containerInspect(container, false);
         } catch (IOException e) {
             throw new IOException("cannot inspect server container' " + container + ": " + e.getMessage(), e);
         }
+    }
+
+    private static String networkMode(JsonObject inspected) throws IOException {
+        JsonObject networks;
+
+        networks = inspected.get("NetworkSettings").getAsJsonObject().get("Networks").getAsJsonObject();
+        if (networks.size() != 1) {
+            throw new IOException("unexpected Networks: " + networks);
+        }
+        return networks.keySet().iterator().next();
+    }
+
+    /** @return container- to host path mapping with absolute paths without tailing / */
+    private static Map<String, String> binds(JsonObject inspected) throws IOException {
+        List<String> modes = Strings.toList("ro", "rw");
+        JsonArray binds;
+        String str;
+        int idx;
+        Map<String, String> result;
+
         binds = inspected.get("HostConfig").getAsJsonObject().get("Binds").getAsJsonArray();
         result = new HashMap<>();
         for (JsonElement element : binds) {
@@ -241,6 +258,7 @@ public class Server {
     private final FileNode home;
     private final FileNode logRoot;
     public final World world;
+    public final String networkMode;
 
     /** path so /var/lib/stool ON THE DOCKER HOST */
     public final FileNode serverHome;
@@ -255,12 +273,13 @@ public class Server {
 
     public final Map<String, Accessor> accessors;
 
-    public Server(Gson gson, FileNode home, FileNode serverHome, FileNode secrets, ServerConfiguration configuration) throws IOException {
+    public Server(Gson gson, FileNode home, FileNode serverHome, String networkMode, FileNode secrets, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
         this.home = home;
         this.logRoot = home.join("logs");
         this.world = home.getWorld();
         this.serverHome = serverHome;
+        this.networkMode = networkMode;
         this.secrets = secrets;
         this.configuration = configuration;
         this.stages = home.join("stages");
