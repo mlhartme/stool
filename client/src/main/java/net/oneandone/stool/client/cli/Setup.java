@@ -239,9 +239,11 @@ public class Setup {
         builder.append("  stool-server:\n");
         builder.append("    image: contargo.server.lan/cisoops-public/stool-server\n");
         builder.append("    ports:\n");
+
+        // bind to 127.0.0.1 to forbid access from other machines
         builder.append("      - " + port + ":" + port + "\n");
-        builder.append("      - " + portNext + ":" + portNext + "\n");
-        builder.append("      - " + portNextNext + ":" + 9875 + "\n");
+        builder.append("      - 127.0.0.1:" + portNext + ":" + portNext + "\n");
+        builder.append("      - 127.0.0.1:" + portNextNext + ":" + 9875 + "\n");
         builder.append("    environment:\n");
         builder.append("      - DOCKER_HOST=" + dockerHost + "\n");
         builder.append("      - OPTS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,quiet=n,address=" + portNext + "\n");
