@@ -240,8 +240,8 @@ public class Setup {
         builder.append("    image: contargo.server.lan/cisoops-public/stool-server\n");
         builder.append("    ports:\n");
 
+        builder.append("      - " + hostip(dockerHost) + ":" + port + ":" + port + "\n");
         // bind to 127.0.0.1 to forbid access from other machines
-        builder.append("      - " + port + ":" + port + "\n");
         builder.append("      - 127.0.0.1:" + portNext + ":" + portNext + "\n");
         builder.append("      - 127.0.0.1:" + portNextNext + ":" + 9875 + "\n");
         builder.append("    environment:\n");
@@ -279,6 +279,10 @@ public class Setup {
             throw new IOException("cannot setup server on a host with lookpback address: " + address);
         }
         return address.getCanonicalHostName();
+    }
+
+    private static String hostip(String name) throws UnknownHostException {
+        return InetAddress.getByName(name).getHostAddress();
     }
 
     public FileNode serverDir() {
