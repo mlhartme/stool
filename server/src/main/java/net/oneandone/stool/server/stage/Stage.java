@@ -979,17 +979,19 @@ public class Stage {
     //--
 
     public void awaitStartup(Engine engine) throws IOException {
+        Map<String, JMXServiceURL> jmxMap;
         String app;
-        Ports ports;
+        JMXServiceURL url;
         String state;
 
-        Server.LOGGER.info("await startup ...");
-        for (Map.Entry<String, Ports> entry : loadPorts(engine).entrySet()) {
+        jmxMap = jmxMap(engine);
+        Server.LOGGER.info("await startup ... ");
+        for (Map.Entry<String, JMXServiceURL> entry : jmxMap.entrySet()) {
             app = entry.getKey();
-            ports = entry.getValue();
+            url = entry.getValue();
             for (int count = 0; true; count++) {
                 try {
-                    state = jmxEngineState(ports);
+                    state = jmxEngineState(url);
                     break;
                 } catch (Exception e) {
                     if (count > 600) {
@@ -1017,24 +1019,52 @@ public class Stage {
                 } catch (InterruptedException ex) {
                     // fall-through
                 }
-                state = jmxEngineState(ports);
+                state = jmxEngineState(url);
             }
         }
     }
 
-    private JMXConnector jmxConnection(Ports ports) throws IOException {
-        JMXServiceURL url;
+    private Map<String, JMXServiceURL> jmxMap(Engine engine) throws IOException {
+        Map<String, JMXServiceURL> result;
+        JsonObject inspected;
+        JsonObject networks;
+        JsonObject network;
+        String app;
+        String ip;
+        String jmx;
+        Collection<ContainerInfo> containerList;
 
-        // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-        try {
-            url = new JMXServiceURL("service:jmx:jmxmp://" + server.configuration.dockerHost + ":" + ports.jmxmp);
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
+        containerList = dockerRunningContainerList(engine).values();
+        result = new HashMap<>();
+        for (ContainerInfo info : containerList) {
+            inspected = engine.containerInspect(info.id, false);
+            networks = inspected.get("NetworkSettings").getAsJsonObject().get("Networks").getAsJsonObject();
+            if (networks.size() != 1) {
+                throw new IOException("unexpected Networks: " + networks);
+            }
+            network = networks.entrySet().iterator().next().getValue().getAsJsonObject();
+            ip = network.get("IPAddress").getAsString();
+            jmx = info.labels.get(IMAGE_LABEL_PORT_DECLARED_PREFIX + Ports.Port.JMXMP.toString().toLowerCase());
+            app = info.labels.get(CONTAINER_LABEL_APP);
+
+            System.out.println(app + " " + ip + ":" + jmx);
+            // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
+            try {
+                result.put(app, new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + jmx));
+            } catch (MalformedURLException e) {
+                throw new IllegalStateException(e);
+            }
+
         }
+        return result;
+    }
+
+
+    private JMXConnector jmxConnection(JMXServiceURL url) throws IOException {
         return JMXConnectorFactory.connect(url, null);
     }
 
-    private String jmxEngineState(Ports ports) throws IOException {
+    private String jmxEngineState(JMXServiceURL url) throws IOException {
         ObjectName name;
 
         try {
@@ -1042,7 +1072,7 @@ public class Stage {
         } catch (MalformedObjectNameException e) {
             throw new IllegalStateException(e);
         }
-        try (JMXConnector connection = jmxConnection(ports)) {
+        try (JMXConnector connection = jmxConnection(url)) {
             return (String) connection.getMBeanServerConnection().getAttribute(name, "stateName");
         } catch (ReflectionException | InstanceNotFoundException | AttributeNotFoundException | MBeanException e) {
             throw new IllegalStateException();
