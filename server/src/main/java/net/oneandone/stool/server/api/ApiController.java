@@ -275,7 +275,6 @@ public class ApiController {
             }
 
             stage = server.load(stageName);
-            stage.server.configuration.verfiyHostname();
             stage.checkExpired();
             stage.checkDiskQuota(engine);
             return array(stage.start(engine, http, https, environment, apps)).toString();

@@ -190,7 +190,7 @@ public class Setup {
         world.resource("files/home").copyDirectory(home);
         manager = new ServerManager(home.join("servers.json"));
         if (server) {
-            manager.add("localhost", "http://localhost:" + port() + "/api", null);
+            manager.add("localhost", "http://" + Setup.hostname() + ":" + port() + "/api", null);
         }
         for (Server s : envinronmnt) {
             s.addTo(manager);

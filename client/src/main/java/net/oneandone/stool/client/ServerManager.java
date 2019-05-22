@@ -44,12 +44,6 @@ public class ServerManager implements Iterable<Server> {
         servers.put(name, new Server(name, url, token, null, clientInvocation, clientCommand));
     }
 
-    public void addAll(ServerManager other) {
-        for (Server server : other.servers.values()) {
-            server.addTo(this);
-        }
-    }
-
     public Reference reference(String str) throws IOException {
         int idx;
         String server;

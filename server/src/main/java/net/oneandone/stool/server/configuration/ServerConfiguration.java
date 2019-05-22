@@ -172,10 +172,6 @@ public class ServerConfiguration {
         return new Mailer(mailHost, mailUsername, mailPassword);
     }
 
-    public void verfiyHostname() throws UnknownHostException {
-        InetAddress.getByName(dockerHost);
-    }
-
     public boolean auth() {
         return !ldapUrl.isEmpty();
     }
