@@ -78,11 +78,13 @@ public class Setup {
     }
 
     private void create() throws IOException {
+        String hostname;
         boolean server;
         ServerManager environment;
         String inc;
 
         environment = environment();
+        hostname = "localhost";
         server = explicitServer == null ? askServer() : explicitServer;
         if (!batch) {
             console.info.println();
@@ -90,7 +92,7 @@ public class Setup {
             console.pressReturn();
         }
         console.info.println("Creating " + home);
-        doCreate(environment, server);
+        doCreate(environment, server, hostname);
         inc = home.join("shell.inc").getAbsolute();
         console.info.println("Done.");
         console.info.println();
@@ -183,21 +185,21 @@ public class Setup {
         }
     }
 
-    public void doCreate(ServerManager envinronmnt, boolean server) throws IOException {
+    public void doCreate(ServerManager envinronmnt, boolean server, String hostname) throws IOException {
         ServerManager manager;
 
         home.mkdir();
         world.resource("files/home").copyDirectory(home);
         manager = new ServerManager(home.join("servers.json"));
         if (server) {
-            manager.add("localhost", "http://" + Setup.hostname() + ":" + port() + "/api", null);
+            manager.add("localhost", "http://" + hostname + ":" + port() + "/api", null);
         }
         for (Server s : envinronmnt) {
             s.addTo(manager);
         }
         manager.save(gson);
         serverDir().mkdir();
-        home.join("server.yml").writeString(serverYml());
+        home.join("server.yml").writeString(serverYml(hostname));
         versionFile().writeString(Main.versionString(world));
     }
 
@@ -209,10 +211,9 @@ public class Setup {
         return versionFile().readString().trim();
     }
 
-    public String serverYml() throws IOException {
+    public String serverYml(String dockerHost) throws IOException {
         StringBuilder builder;
         String serverHome;
-        String dockerHost;
         FileNode cisotools;
         String port;
         String portNext;
@@ -220,7 +221,6 @@ public class Setup {
 
         builder = new StringBuilder();
         serverHome = serverDir().getAbsolute();
-        dockerHost = hostname();
         cisotools = cisotools();
         port = port();
         portNext = Integer.toString(Integer.parseInt(port) + 1);
@@ -266,19 +266,6 @@ public class Setup {
 
         path = System.getenv("CISOTOOLS_HOME");
         return path == null ? null : world.file(path);
-    }
-
-    private static String hostname() throws IOException {
-        InetAddress address;
-
-        address = InetAddress.getLocalHost();
-        if (address.isLoopbackAddress()) {
-            // I've seen `hosts` files mapping a foo.some,domain to 127.0.1.1
-            // Since that's not reachaable from within the server docker container,
-            // I reject to create a server configuration:
-            throw new IOException("cannot setup server on a host with lookpback address: " + address);
-        }
-        return address.getCanonicalHostName();
     }
 
     private static String hostip(String name) throws UnknownHostException {
