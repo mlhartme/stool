@@ -1024,7 +1024,7 @@ public class Stage {
         }
     }
 
-    private Map<String, JMXServiceURL> jmxMap(Engine engine) throws IOException {
+    public Map<String, JMXServiceURL> jmxMap(Engine engine) throws IOException {
         Map<String, JMXServiceURL> result;
         JsonObject inspected;
         JsonObject networks;
@@ -1046,8 +1046,6 @@ public class Stage {
             ip = network.get("IPAddress").getAsString();
             jmx = info.labels.get(IMAGE_LABEL_PORT_DECLARED_PREFIX + Ports.Port.JMXMP.toString().toLowerCase());
             app = info.labels.get(CONTAINER_LABEL_APP);
-
-            System.out.println(app + " " + ip + ":" + jmx);
             // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
             try {
                 result.put(app, new JMXServiceURL("service:jmx:jmxmp://" + ip + ":" + jmx));
@@ -1060,10 +1058,6 @@ public class Stage {
     }
 
 
-    private JMXConnector jmxConnection(JMXServiceURL url) throws IOException {
-        return JMXConnectorFactory.connect(url, null);
-    }
-
     private String jmxEngineState(JMXServiceURL url) throws IOException {
         ObjectName name;
 
@@ -1072,7 +1066,7 @@ public class Stage {
         } catch (MalformedObjectNameException e) {
             throw new IllegalStateException(e);
         }
-        try (JMXConnector connection = jmxConnection(url)) {
+        try (JMXConnector connection = JMXConnectorFactory.connect(url, null)) {
             return (String) connection.getMBeanServerConnection().getAttribute(name, "stateName");
         } catch (ReflectionException | InstanceNotFoundException | AttributeNotFoundException | MBeanException e) {
             throw new IllegalStateException();

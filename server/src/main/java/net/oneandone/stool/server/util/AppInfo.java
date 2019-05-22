@@ -13,6 +13,7 @@ import javax.management.MBeanServerConnection;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
+import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
 import java.io.IOException;
@@ -125,27 +126,22 @@ public class AppInfo {
             return "[no jmx port]";
         }
 
-        // see https://docs.oracle.com/javase/tutorial/jmx/remote/custom.html
-        try {
-            url = new JMXServiceURL("service:jmx:jmxmp://" + stage.server.configuration.dockerHost + ":" + stage.loadPorts(engine).get(app).jmxmp);
-        } catch (MalformedURLException e) {
-            throw new IllegalStateException(e);
-        }
-        try {
-            connection = JMXConnectorFactory.connect(url, null).getMBeanServerConnection();
-        } catch (IOException e) {
-            Server.LOGGER.debug("cannot connect to jmx server", e);
-            return "[cannot connect jmx server: " + e.getMessage() + "]";
-        }
+        url = stage.jmxMap(engine).get(app);
         try {
             name = new ObjectName("java.lang:type=Memory");
         } catch (MalformedObjectNameException e) {
             throw new IllegalStateException(e);
         }
-        try {
-            result = (CompositeData) connection.getAttribute(name, "HeapMemoryUsage");
-        } catch (Exception e) {
-            return "[cannot get jmx attribute: " + e.getMessage() + "]";
+        try (JMXConnector raw = JMXConnectorFactory.connect(url, null)) {
+            connection = raw.getMBeanServerConnection();
+            try {
+                result = (CompositeData) connection.getAttribute(name, "HeapMemoryUsage");
+            } catch (Exception e) {
+                return "[cannot get jmx attribute: " + e.getMessage() + "]";
+            }
+        } catch (IOException e) {
+            Server.LOGGER.debug("cannot connect to jmx server", e);
+            return "[cannot connect jmx server: " + e.getMessage() + "]";
         }
         used = (Long) result.get("used");
         max = (Long) result.get("max");

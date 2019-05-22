@@ -547,12 +547,6 @@ public class Server {
             }
         }
         try {
-            InetAddress.getByName(configuration.dockerHost);
-        } catch (UnknownHostException e) {
-            LOGGER.error("cannot resolve docker host name: " + e.getMessage(), e);
-            throw e;
-        }
-        try {
             engine.imageList();
         } catch (IOException e) {
             LOGGER.error("cannot access docker", e);
