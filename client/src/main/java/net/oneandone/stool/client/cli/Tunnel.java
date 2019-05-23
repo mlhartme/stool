@@ -18,6 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
+import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
 
@@ -33,12 +34,26 @@ public class Tunnel extends StageCommand {
         this.local = local;
     }
 
+    // http://www.netzmafia.de/skripten/internet/ssh-tunnel.html
+
     @Override
-    public void doMain(Reference reference) throws IOException {
+    public void doMain(Reference reference) throws IOException, InterruptedException {
         int remotePort;
+        int localPort;
+        Launcher launcher;
+        int result;
 
         console.info.println("tunnel " + app + " " + port + " " + local);
         remotePort = reference.client.port(reference.stage, app, port);
         console.info.println("remote: " + remotePort);
+        launcher = world.getWorking().launcher("ssh");
+        launcher.arg("stool@" + reference.client.getServer());
+        localPort = local == null ? remotePort : local;
+        launcher.arg("-L");
+        launcher.arg(localPort + ":localhost:" + remotePort);
+        console.info.println("starting " + launcher.toString() + " ...");
+        launcher.getBuilder().inheritIO();
+        result = launcher.getBuilder().start().waitFor();
+        console.info.println("result: " + result);
     }
 }

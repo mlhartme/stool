@@ -73,6 +73,10 @@ public class Client {
         return name;
     }
 
+    public String getServer() {
+        return root.getRoot().getHostname();
+    }
+
     //--
 
     public String auth() throws IOException {
