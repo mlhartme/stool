@@ -21,7 +21,7 @@ public class Server {
     public final String url;
 
     /** null to work anonymously */
-    private String token;
+    public String token;
 
     private volatile FileNode wirelog;
     private volatile String clientInvocation;

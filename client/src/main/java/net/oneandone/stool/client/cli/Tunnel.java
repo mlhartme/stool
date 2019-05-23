@@ -18,6 +18,7 @@ package net.oneandone.stool.client.cli;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
+import net.oneandone.stool.client.Server;
 import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
@@ -40,6 +41,7 @@ public class Tunnel extends StageCommand {
     public void doMain(Reference reference) throws IOException, InterruptedException {
         int remotePort;
         int localPort;
+        Server server;
         Launcher launcher;
         int result;
 
@@ -51,7 +53,14 @@ public class Tunnel extends StageCommand {
         localPort = local == null ? remotePort : local;
         launcher.arg("-L");
         launcher.arg(localPort + ":localhost:" + remotePort);
-        console.info.println("starting " + launcher.toString() + " ...");
+
+        server = globals.servers().get(reference.client.getName());
+        launcher.arg(server.token);
+        launcher.arg(reference.stage);
+        launcher.arg(app);
+        launcher.arg(port);
+
+        console.info.println("starting " + launcher.toString().replace(server.token, "***") + " ...");
         launcher.getBuilder().inheritIO();
         result = launcher.getBuilder().start().waitFor();
         console.info.println("result: " + result);
