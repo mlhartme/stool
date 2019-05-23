@@ -462,7 +462,7 @@ public class Engine implements AutoCloseable {
      * @return container id
      */
     public String containerCreate(String name, String image, String hostname, String networkMode, boolean priviledged, Long memory, String stopSignal, Integer stopTimeout,
-                                  Map<String, String> labels, Map<String, String> env, Map<FileNode, String> bindMounts, Map<Integer, Integer> ports) throws IOException {
+                                  Map<String, String> labels, Map<String, String> env, Map<FileNode, String> bindMounts, Map<Integer, String> ports) throws IOException {
         JsonObject body;
         JsonObject response;
         JsonObject hostConfig;
@@ -528,8 +528,8 @@ public class Engine implements AutoCloseable {
         hostConfig.add("CapDrop", drops);
 
         portBindings = new JsonObject();
-        for (Map.Entry<Integer, Integer> entry: ports.entrySet()) {
-            portBindings.add(Integer.toString(entry.getKey()) + "/tcp", hostPort(entry.getValue()));
+        for (Map.Entry<Integer, String> entry: ports.entrySet()) {
+            portBindings.add(Integer.toString(entry.getKey()) + "/tcp", hostMapping( entry.getValue()));
         }
         hostConfig.add("PortBindings", portBindings);
         body.add("ExposedPorts", exposedPorts(ports.keySet()));
@@ -559,11 +559,26 @@ public class Engine implements AutoCloseable {
         return obj;
     }
 
-    private static JsonArray hostPort(int port) {
+    private static JsonArray hostMapping(String ipOptPort) {
+        int idx;
+        String ip;
+        int port;
         JsonArray result;
         JsonObject obj;
 
+        idx = ipOptPort.indexOf(':');
+        if (idx == -1) {
+            ip = null;
+            port = Integer.parseInt(ipOptPort);
+        } else {
+            ip = ipOptPort.substring(0, idx);
+            port = Integer.parseInt(ipOptPort.substring(idx +1));
+        }
         obj = new JsonObject();
+        if (ip != null) {
+            obj.add("HostIp", new JsonPrimitive(ip));
+
+        }
         obj.add("HostPort", new JsonPrimitive(Integer.toString(port)));
         result = new JsonArray();
         result.add(obj);

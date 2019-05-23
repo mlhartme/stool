@@ -90,6 +90,7 @@ public class Main {
                       cli.add(Start.class, "start -tail -http=-1 -https=-1 envAppIndex*");
                       cli.add(Status.class, "status -defaults=@status.defaults info* { select*(info) }");
                       cli.add(Stop.class, "stop app*");
+                      cli.add(Tunnel.class, "tunnel app port local?");
                       cli.add(Validate.class, "validate -email -repair");
 
         return cli.run(args);

@@ -79,7 +79,7 @@ public class EngineIT {
         List<String> ids;
         String image;
         String container;
-        Map<Integer, Integer> ports;
+        Map<Integer, String> ports;
         Map<String, ContainerInfo> map;
         JsonObject obj;
         JsonObject cmp;
@@ -94,7 +94,7 @@ public class EngineIT {
             assertTrue(engine.containerListForImage(image).isEmpty());
             assertTrue(engine.containerListRunning("stooltest").isEmpty());
             ports = new HashMap<>();
-            ports.put(1301, 1302);
+            ports.put(1301, "1302");
             container = engine.containerCreate(null, image, "somehost", null, false, null, null, null,
                     Strings.toMap("containerLabel", "bla"), Collections.emptyMap(), Collections.emptyMap(), ports);
 
@@ -117,7 +117,7 @@ public class EngineIT {
             map = engine.containerListForImage(image);
             assertEquals(1, map.size());
             assertTrue(map.containsKey(container));
-            assertEquals(ports, map.get(container).ports);
+            assertEquals(ports, convert(map.get(container).ports));
 
             Thread.sleep(2500);
 
@@ -134,6 +134,16 @@ public class EngineIT {
             engine.imageRemove(image, false);
             assertEquals(new HashMap<>(), engine.imageList(labels));
         }
+    }
+
+    private static Map<Integer, String> convert(Map<Integer, Integer> map) {
+        Map<Integer, String> result;
+
+        result = new HashMap<>();
+        for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
+            result.put(entry.getKey(), Integer.toString(entry.getValue()));
+        }
+        return result;
     }
 
     @Test

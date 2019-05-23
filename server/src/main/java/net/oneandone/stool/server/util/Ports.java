@@ -58,23 +58,23 @@ public class Ports {
     }
 
 
-    public Map<Integer, Integer> map(Ports hostPorts) {
-        Map<Integer, Integer> result;
+    public Map<Integer, String> map(Ports hostPorts) {
+        Map<Integer, String> result;
 
         result = new HashMap<>();
-        addOpt(result, http, hostPorts.http);
-        addOpt(result, https, hostPorts.https);
-        addOpt(result, jmxmp, hostPorts.jmxmp);
-        addOpt(result, debug, hostPorts.debug);
+        addOpt(result, true, http, hostPorts.http);
+        addOpt(result, true, https, hostPorts.https);
+        addOpt(result, false, jmxmp, hostPorts.jmxmp);
+        addOpt(result, false, debug, debug);
         return result;
     }
 
-    private static void addOpt(Map<Integer, Integer> dest, int left, int right) {
+    private static void addOpt(Map<Integer, String> dest, boolean pblic, int left, int right) {
         if (right == -1) {
             throw new IllegalStateException();
         }
         if (left != -1) {
-            dest.put(left, right);
+            dest.put(left, (pblic ? "": "127.0.0.1:") +  right);
         }
     }
 

@@ -14,6 +14,7 @@ import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Info;
+import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.stool.server.util.Validation;
@@ -316,6 +317,29 @@ public class ApiController {
             result = server.load(stage).stop(engine, Separator.COMMA.split(apps));
             return new ResponseEntity<>(array(result).toString(), HttpStatus.OK);
         }
+    }
+
+    @GetMapping("/stages/{stage}/port")
+    public String port(@PathVariable(value = "stage") String stageName, @RequestParam("app") String app, @RequestParam("port") String port) throws IOException {
+        Stage stage;
+        Ports ports;
+        int result;
+
+        try (Engine engine = Engine.create()) {
+            stage = server.load(stageName);
+            ports = stage.loadPorts(engine).get(app);
+            switch (port) {
+                case "jmxmp":
+                    result = ports.jmxmp;
+                    break;
+                case "debug":
+                    result = ports.debug;
+                    break;
+                default:
+                    throw new ArgumentException("unknown port: " + port);
+            }
+        }
+        return new JsonPrimitive(result).toString();
     }
 
     @ExceptionHandler({ ArgumentException.class })

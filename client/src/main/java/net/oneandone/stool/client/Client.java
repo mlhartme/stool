@@ -184,6 +184,16 @@ public class Client {
         return stopped;
     }
 
+    /** remote port or permission denied */
+    public int port(String stage, String app, String port) throws IOException {
+        HttpNode node;
+
+        node = node(stage, "port");
+        node = node.withParameter("app", app);
+        node = node.withParameter("port", port);
+        return getJson(node).getAsInt();
+    }
+
     public void remove(String stage) throws IOException {
         postEmpty(node(stage, "remove"), "");
     }
