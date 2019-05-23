@@ -504,7 +504,7 @@ public class Stage {
             }
             container = engine.containerCreate(toName(image.tag), image.tag,  getName() + "." + server.configuration.dockerHost, server.networkMode,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * image.memory, null, null,
-                    labels, environment, mounts, image.ports.map(hostPorts));
+                    labels, environment, mounts, image.ports.map(hostPorts, server.localhostIp));
             Server.LOGGER.debug("created container " + container);
             engine.containerStart(container);
             status = engine.containerStatus(container);

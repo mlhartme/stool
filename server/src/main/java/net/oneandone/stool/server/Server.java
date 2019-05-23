@@ -71,6 +71,7 @@ public class Server {
         JsonObject inspected;
         Map<String, String> binds;
         String networkMode;
+        String localhostIp;
 
         home = world.file("/var/lib/stool");
         home(Main.versionString(world), home);
@@ -84,7 +85,9 @@ public class Server {
             secrets = toHostFile(binds, world.file("/etc/fault/workspace"));
             networkMode = networkMode(inspected);
             LOGGER.info("network mode: " + networkMode);
-            server = new Server(gson(world), home, serverHome, networkMode, secrets, config);
+            localhostIp = InetAddress.getByName("localhost").getHostAddress();
+            LOGGER.info("localhostIp: " + localhostIp);
+            server = new Server(gson(world), home, serverHome, networkMode, localhostIp, secrets, config);
             server.validate(engine);
             server.checkVersion();
             return server;
@@ -259,6 +262,7 @@ public class Server {
     private final FileNode logRoot;
     public final World world;
     public final String networkMode;
+    public final String localhostIp;
 
     /** path so /var/lib/stool ON THE DOCKER HOST */
     public final FileNode serverHome;
@@ -273,13 +277,15 @@ public class Server {
 
     public final Map<String, Accessor> accessors;
 
-    public Server(Gson gson, FileNode home, FileNode serverHome, String networkMode, FileNode secrets, ServerConfiguration configuration) throws IOException {
+    public Server(Gson gson, FileNode home, FileNode serverHome, String networkMode, String localhostIp,
+                  FileNode secrets, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
         this.home = home;
         this.logRoot = home.join("logs");
         this.world = home.getWorld();
         this.serverHome = serverHome;
         this.networkMode = networkMode;
+        this.localhostIp = localhostIp;
         this.secrets = secrets;
         this.configuration = configuration;
         this.stages = home.join("stages");

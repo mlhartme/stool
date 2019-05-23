@@ -328,6 +328,9 @@ public class ApiController {
         try (Engine engine = Engine.create()) {
             stage = server.load(stageName);
             ports = stage.loadPorts(engine).get(app);
+            if (ports == null) {
+                throw new ArgumentException("app not found or not running: " + app);
+            }
             switch (port) {
                 case "jmxmp":
                     result = ports.jmxmp;
