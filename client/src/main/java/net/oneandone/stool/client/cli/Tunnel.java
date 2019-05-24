@@ -49,16 +49,19 @@ public class Tunnel extends StageCommand {
         int result;
         FileNode privateKey;
 
-        console.info.println("tunnel " + app + " " + port + " " + local);
         tunnel = reference.client.tunnel(reference.stage, app, port);
         remotePort = tunnel.get("port").getAsInt();
-        privateKey = world.getTemp().createTempFile(); // TODO: 600 permissions
+        privateKey = world.getTemp().createTempFile();
+        privateKey.setPermissions("rwx------");
         privateKey.writeString(tunnel.get("privateKey").getAsString());
         try {
             console.info.println("remote: " + remotePort);
             launcher = world.getWorking().launcher("ssh");
             launcher.arg("stool@" + reference.client.getServer());
             localPort = local == null ? remotePort : local;
+            if (console.getVerbose()) {
+                launcher.arg("-v");
+            }
             launcher.arg("-i");
             launcher.arg(privateKey.getAbsolute());
             launcher.arg("-L");
@@ -66,10 +69,11 @@ public class Tunnel extends StageCommand {
 
             server = globals.servers().get(reference.client.getName());
             launcher.env("SSH_AUTH_SOCK", ""); // make sure not to save keys: disable agent
-            console.info.println("starting " + launcher.toString().replace(server.token, "***") + " ...");
+            console.verbose.println("starting " + launcher.toString().replace(server.token, "***") + " ...");
+            console.info.println("starting tunnel to localhost:" + localPort + ", press ctrl-c to stop");
             launcher.getBuilder().inheritIO();
             result = launcher.getBuilder().start().waitFor();
-            console.info.println("result: " + result);
+            console.verbose.println("result: " + result);
         } finally {
             privateKey.deleteFile();
         }

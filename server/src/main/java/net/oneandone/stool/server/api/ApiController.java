@@ -353,7 +353,7 @@ public class ApiController {
         result.add("port", new JsonPrimitive(mappedPort));
         result.add("privateKey", new JsonPrimitive(keyPair.privateKey()));
         authorizedKeys = server.world.file("/home/stool/.ssh/authorized_keys");
-        authorizedKeys.writeString("command=\"/usr/local/bin/stool-tunnel\" " + keyPair.publicKey("stool-tunnel"));
+        authorizedKeys.writeString("command=\"sleep 60; echo closing\",permitopen=\"localhost:" + mappedPort + "\" " + keyPair.publicKey("stool-tunnel"));
         return result.toString();
     }
 
