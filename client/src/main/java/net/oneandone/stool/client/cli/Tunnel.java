@@ -66,11 +66,6 @@ public class Tunnel extends StageCommand {
 
             server = globals.servers().get(reference.client.getName());
             launcher.env("SSH_AUTH_SOCK", ""); // make sure not to save keys: disable agent
-            launcher.arg(server.token);
-            launcher.arg(reference.stage);
-            launcher.arg(app);
-            launcher.arg(port);
-
             console.info.println("starting " + launcher.toString().replace(server.token, "***") + " ...");
             launcher.getBuilder().inheritIO();
             result = launcher.getBuilder().start().waitFor();
