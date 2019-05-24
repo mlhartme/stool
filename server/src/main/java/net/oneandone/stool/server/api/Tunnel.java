@@ -11,8 +11,8 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
 
 /**
  * Based on https://stackoverflow.com/questions/3706177/how-to-generate-ssh-compatible-id-rsa-pub-from-java
@@ -29,46 +29,44 @@ public class Tunnel {
         System.out.println("generating ...");
         pair = generator.genKeyPair();
         world = World.create();
-        world.file("id_rsa.pub").writeString(encodePublicRsaKey(pair.getPublic(), "stool-tunnel"));
-        world.file("id_rsa").writeString(encodePrivateRsaKey(pair.getPrivate()));
+        world.file("id_rsa.pub").writeString(encodePublicRsaKey((RSAPublicKey) pair.getPublic(), "stool-tunnel"));
+        world.file("id_rsa").writeString(encodePrivateRsaKey((RSAPrivateKey) pair.getPrivate()));
         System.out.println("done");
     }
 
 
-    public static String encodePublicRsaKey(PublicKey publicKey, String user)
-            throws IOException {
-        String publicKeyEncoded;
+    public static String encodePublicRsaKey(RSAPublicKey rsaPublicKey, String user) {
+        ByteArrayOutputStream dest;
 
-        if(!publicKey.getAlgorithm().equals("RSA")) {
-            throw new IllegalStateException();
+        dest = new ByteArrayOutputStream();
+        try (DataOutputStream data = new DataOutputStream(dest)) {
+            data.writeInt("ssh-rsa".getBytes().length);
+            data.write("ssh-rsa".getBytes());
+            data.writeInt(rsaPublicKey.getPublicExponent().toByteArray().length);
+            data.write(rsaPublicKey.getPublicExponent().toByteArray());
+            data.writeInt(rsaPublicKey.getModulus().toByteArray().length);
+            data.write(rsaPublicKey.getModulus().toByteArray());
+        } catch (IOException e) {
+            throw new IllegalStateException("ioeception on memory stream!?", e);
         }
-        RSAPublicKey rsaPublicKey = (RSAPublicKey) publicKey;
-        ByteArrayOutputStream byteOs = new ByteArrayOutputStream();
-        DataOutputStream dos = new DataOutputStream(byteOs);
-        dos.writeInt("ssh-rsa".getBytes().length);
-        dos.write("ssh-rsa".getBytes());
-        dos.writeInt(rsaPublicKey.getPublicExponent().toByteArray().length);
-        dos.write(rsaPublicKey.getPublicExponent().toByteArray());
-        dos.writeInt(rsaPublicKey.getModulus().toByteArray().length);
-        dos.write(rsaPublicKey.getModulus().toByteArray());
-        publicKeyEncoded = new String(Base64.encodeBase64(byteOs.toByteArray()));
-        return "ssh-rsa " + publicKeyEncoded + " " + user;
+        return "ssh-rsa " + Base64.encodeBase64String(dest.toByteArray()) + " " + user;
     }
 
-    public static String encodePrivateRsaKey(PrivateKey privateKey) {
+    public static String encodePrivateRsaKey(RSAPrivateKey privateKey) {
         StringBuilder result;
+        String str;
+        int width;
 
-        byte[] privateKeyEnc = privateKey.getEncoded();
-        String privateKeyPemStr = Base64.encodeBase64String(privateKeyEnc);
+        str = Base64.encodeBase64String(privateKey.getEncoded());
         result = new StringBuilder();
         result.append("-----BEGIN RSA PRIVATE KEY-----\n");
-        int column = 0;
-        for(int n = 0; n < privateKeyPemStr.length(); n ++) {
-            result.append(privateKeyPemStr.charAt(n));
-            column ++;
-            if(column == 64) {
+        width = 0;
+        for (int n = 0; n < str.length(); n ++) {
+            result.append(str.charAt(n));
+            width++;
+            if (width == 80) {
                 result.append('\n');
-                column = 0;
+                width = 0;
             }
         }
         result.append("\n-----END RSA PRIVATE KEY-----");
