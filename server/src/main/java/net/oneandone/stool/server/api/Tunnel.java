@@ -9,8 +9,6 @@ import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
@@ -49,27 +47,27 @@ public class Tunnel {
         } catch (IOException e) {
             throw new IllegalStateException("ioeception on memory stream!?", e);
         }
-        return "ssh-rsa " + Base64.encodeBase64String(dest.toByteArray()) + " " + user;
+        return "ssh-rsa " + Base64.encodeBase64String(dest.toByteArray()) + " " + user + "\n";
     }
 
     public static String encodePrivateRsaKey(RSAPrivateKey privateKey) {
         StringBuilder result;
-        String str;
+        byte[] bytes;
         int width;
 
-        str = Base64.encodeBase64String(privateKey.getEncoded());
+        bytes = Base64.encodeBase64(privateKey.getEncoded());
         result = new StringBuilder();
         result.append("-----BEGIN RSA PRIVATE KEY-----\n");
         width = 0;
-        for (int n = 0; n < str.length(); n ++) {
-            result.append(str.charAt(n));
+        for (int i = 0; i < bytes.length; i++) {
+            result.append((char) bytes[i]);
             width++;
-            if (width == 80) {
+            if (width == 64) {
                 result.append('\n');
                 width = 0;
             }
         }
-        result.append("\n-----END RSA PRIVATE KEY-----");
+        result.append("\n-----END RSA PRIVATE KEY-----\n");
         return result.toString();
     }
 }
