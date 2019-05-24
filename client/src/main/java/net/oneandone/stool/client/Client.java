@@ -189,13 +189,13 @@ public class Client {
     }
 
     /** remote port or permission denied */
-    public int port(String stage, String app, String port) throws IOException {
+    public JsonObject tunnel(String stage, String app, String port) throws IOException {
         HttpNode node;
 
-        node = node(stage, "port");
+        node = node(stage, "tunnel");
         node = node.withParameter("app", app);
         node = node.withParameter("port", port);
-        return getJson(node).getAsInt();
+        return getJson(node).getAsJsonObject();
     }
 
     public void remove(String stage) throws IOException {

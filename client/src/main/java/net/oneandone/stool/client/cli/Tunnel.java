@@ -15,10 +15,12 @@
  */
 package net.oneandone.stool.client.cli;
 
+import com.google.gson.JsonObject;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Server;
+import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.launcher.Launcher;
 
 import java.io.IOException;
@@ -39,30 +41,42 @@ public class Tunnel extends StageCommand {
 
     @Override
     public void doMain(Reference reference) throws IOException, InterruptedException {
+        JsonObject tunnel;
         int remotePort;
         int localPort;
         Server server;
         Launcher launcher;
         int result;
+        FileNode privateKey;
 
         console.info.println("tunnel " + app + " " + port + " " + local);
-        remotePort = reference.client.port(reference.stage, app, port);
-        console.info.println("remote: " + remotePort);
-        launcher = world.getWorking().launcher("ssh");
-        launcher.arg("stool@" + reference.client.getServer());
-        localPort = local == null ? remotePort : local;
-        launcher.arg("-L");
-        launcher.arg(localPort + ":localhost:" + remotePort);
+        tunnel = reference.client.tunnel(reference.stage, app, port);
+        remotePort = tunnel.get("port").getAsInt();
+        privateKey = world.getTemp().createTempFile(); // TODO: 600 permissions
+        privateKey.writeString(tunnel.get("privateKey").getAsString());
+        try {
+            console.info.println("remote: " + remotePort);
+            launcher = world.getWorking().launcher("ssh");
+            launcher.arg("stool@" + reference.client.getServer());
+            localPort = local == null ? remotePort : local;
+            launcher.arg("-i");
+            launcher.arg(privateKey.getAbsolute());
+            launcher.arg("-L");
+            launcher.arg(localPort + ":localhost:" + remotePort);
 
-        server = globals.servers().get(reference.client.getName());
-        launcher.arg(server.token);
-        launcher.arg(reference.stage);
-        launcher.arg(app);
-        launcher.arg(port);
+            server = globals.servers().get(reference.client.getName());
+            launcher.env("SSH_AUTH_SOCK", ""); // make sure not to save keys: disable agent
+            launcher.arg(server.token);
+            launcher.arg(reference.stage);
+            launcher.arg(app);
+            launcher.arg(port);
 
-        console.info.println("starting " + launcher.toString().replace(server.token, "***") + " ...");
-        launcher.getBuilder().inheritIO();
-        result = launcher.getBuilder().start().waitFor();
-        console.info.println("result: " + result);
+            console.info.println("starting " + launcher.toString().replace(server.token, "***") + " ...");
+            launcher.getBuilder().inheritIO();
+            result = launcher.getBuilder().start().waitFor();
+            console.info.println("result: " + result);
+        } finally {
+            privateKey.deleteFile();
+        }
     }
 }

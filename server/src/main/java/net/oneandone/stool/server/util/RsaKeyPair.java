@@ -1,4 +1,4 @@
-package net.oneandone.stool.server.api;
+package net.oneandone.stool.server.util;
 
 import net.oneandone.sushi.fs.World;
 import org.apache.tomcat.util.codec.binary.Base64;
@@ -9,33 +9,47 @@ import java.io.IOException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
 /**
  * Based on https://stackoverflow.com/questions/3706177/how-to-generate-ssh-compatible-id-rsa-pub-from-java
- * and https://www.programcreek.com/java-api-examples/?class=java.security.PrivateKey&method=getEncoded
  */
-public class Tunnel {
-    public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
-        KeyPairGenerator generator;
-        KeyPair pair;
+public class RsaKeyPair {
+    public static void main(String[] args) throws IOException {
+        RsaKeyPair pair;
         World world;
 
-        generator = KeyPairGenerator.getInstance("RSA");
-        generator.initialize(2048);
         System.out.println("generating ...");
-        pair = generator.genKeyPair();
+        pair = generate();
         world = World.create();
-        world.file("id_rsa.pub").writeString(encodePublicRsaKey((RSAPublicKey) pair.getPublic(), "stool-tunnel"));
-        world.file("id_rsa").writeString(encodePrivateRsaKey((RSAPrivateKey) pair.getPrivate()));
+        world.file("id_rsa.pub").writeString(pair.publicKey("stool-tunnel"));
+        world.file("id_rsa").writeString(pair.privateKey());
         System.out.println("done");
     }
 
+    public static RsaKeyPair generate() {
+        KeyPairGenerator generator;
 
-    public static String encodePublicRsaKey(RSAPublicKey rsaPublicKey, String user) {
+        try {
+            generator = KeyPairGenerator.getInstance("RSA");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException(e);
+        }
+        generator.initialize(2048);
+        return new RsaKeyPair(generator.genKeyPair());
+    }
+
+    private final KeyPair pair;
+
+    private RsaKeyPair(KeyPair pair) {
+        this.pair = pair;
+    }
+
+    public String publicKey(String user) {
+        RSAPublicKey rsaPublicKey;
         ByteArrayOutputStream dest;
 
+        rsaPublicKey = (RSAPublicKey) pair.getPublic();
         dest = new ByteArrayOutputStream();
         try (DataOutputStream data = new DataOutputStream(dest)) {
             data.writeInt("ssh-rsa".getBytes().length);
@@ -50,12 +64,12 @@ public class Tunnel {
         return "ssh-rsa " + Base64.encodeBase64String(dest.toByteArray()) + " " + user + "\n";
     }
 
-    public static String encodePrivateRsaKey(RSAPrivateKey privateKey) {
+    public String privateKey() {
         StringBuilder result;
         byte[] bytes;
         int width;
 
-        bytes = Base64.encodeBase64(privateKey.getEncoded());
+        bytes = Base64.encodeBase64(pair.getPrivate().getEncoded());
         result = new StringBuilder();
         result.append("-----BEGIN RSA PRIVATE KEY-----\n");
         width = 0;

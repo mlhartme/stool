@@ -17,6 +17,7 @@ import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
+import net.oneandone.stool.server.util.RsaKeyPair;
 import net.oneandone.stool.server.util.Validation;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -41,6 +42,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.security.KeyPair;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -319,11 +322,14 @@ public class ApiController {
         }
     }
 
-    @GetMapping("/stages/{stage}/port")
-    public String port(@PathVariable(value = "stage") String stageName, @RequestParam("app") String app, @RequestParam("port") String port) throws IOException {
+    @GetMapping("/stages/{stage}/tunnel")
+    public String tunnel(@PathVariable(value = "stage") String stageName, @RequestParam("app") String app, @RequestParam("port") String port) throws IOException {
         Stage stage;
         Ports ports;
-        int result;
+        int mappedPort;
+        JsonObject result;
+        RsaKeyPair keyPair;
+        FileNode authorizedKeys;
 
         try (Engine engine = Engine.create()) {
             stage = server.load(stageName);
@@ -333,16 +339,22 @@ public class ApiController {
             }
             switch (port) {
                 case "jmxmp":
-                    result = ports.jmxmp;
+                    mappedPort = ports.jmxmp;
                     break;
                 case "debug":
-                    result = ports.debug;
+                    mappedPort = ports.debug;
                     break;
                 default:
                     throw new ArgumentException("unknown port: " + port);
             }
+            keyPair = RsaKeyPair.generate();
         }
-        return new JsonPrimitive(result).toString();
+        result = new JsonObject();
+        result.add("port", new JsonPrimitive(mappedPort));
+        result.add("privateKey", new JsonPrimitive(keyPair.privateKey()));
+        authorizedKeys = server.world.file("/home/stool/.ssh/authorized_keys");
+        authorizedKeys.writeString("command=\"/usr/local/bin/stool-tunnel\" " + keyPair.publicKey("stool-tunnel"));
+        return result.toString();
     }
 
     @ExceptionHandler({ ArgumentException.class })
