@@ -852,6 +852,8 @@ Note: This is a stage command, get `stool help stage-options` to see available [
 
 TODO
 
+Press Ctrl-C to forcibly close the tunnel.
+
 
 ### stool-validate
 

@@ -65,7 +65,7 @@ public class Ports {
         addOpt(result, null, http, hostPorts.http);
         addOpt(result, null, https, hostPorts.https);
         addOpt(result, localhostIp, jmxmp, hostPorts.jmxmp);
-        addOpt(result, localhostIp, debug, debug);
+        addOpt(result, localhostIp, debug, hostPorts.debug);
         return result;
     }
 
