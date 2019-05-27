@@ -8,26 +8,72 @@ Stool 5 separates building from running stages: you build on your local workstat
 To implement this, Stool was split into a client and a server part: the client runs on your local machine, and the server part
 runs as a daemon on the server. Example: to create a new stage for a project on your local workstation, run:
 
-    mvn clean install   # or whatever you need to build your project
-    stool create teststage@someserver
-    stool build
-    stool start
-
-The local checkout of your application is called project.
-
-#### Changes
- 
-* Removed all features to checkout or build projects - Stool now expects a proper checkout with a readily build project. 
-  To checkout and build project, use your standard tools like `mvn` and `git`
-  As a consequence:
-  * the former `build` command to build a project has been replaced by a new `build` command to build an image
-  * the `create` command now expects an existing checkout
-  * the `remove` command now just removes the stage, the checkout is not touched
-  * remove the `refresh` command
-  * dumped the `move` command
-  * dumped svn credentials handling
-  * dumped macros
+    mvn clean install                     # or whatever you need to build your project
+    stool create teststage@someserver     # create a new stage on the server
+    stool build                           # takes the war from your workstation to build a so-called image on the server
+    stool start                           # start you app on the server
     
+Note that Stool's meaning of "build" has changed: it now assumes a readily built war file; this war file is copied to the server 
+and packaged in a so-called image (a Docker image, to be precise). So, *build* now means building an image.
+
+
+#### Checkout and build changes
+ 
+Stool is no longer responsible to manage checkouts and build wars. Instead, it now expects proper checkouts with readily built wars. 
+Use your standard tools like `git` and `mvn` for checkout and build wars. 
+
+As a consequence, all features to checkout source and build wars were removed from Stool:
+* the former `build` command to build a war for a source stage has been replaced by a new `build` command to build an image
+* the former `start` no longer builds an image - it now expects a readily built image.
+* the `create` command now expects an existing checkout
+* the `remove` command now just removes the stage, the checkout is not touched
+* dumped the `refresh` command
+  * dumped `refresh` stage config
+  * dumped `autoRefresh` stage config
+* stool is no longer responsible for building wars - use your standard build tools and configuration instead
+  * dumped `build` command
+  * dumped `refresh -build` option
+  * dumped `build` configuration
+  * dumped `pom` configuration
+  * dumped `maven.home` and `maven.opts` configration - it's picked from the environment when used for War/Pom loading now
+  * dumped `prepare` configuration; `create` for workspaces is no longer supported
+  * dumped stage directory lock - stool now assumes that the project is used exclusively by the current user
+  * dumped Maven Embedded dependency
+* dumped `committed` configuration - start no longer checks for local modifications
+* dumped the `move` command
+* dumped svn credentials handling
+* dumped macros
+* dumped the distinction between source and artifact stages; Stool now simply looks for `**/target/*.war` files 
+* stool no longer adjust the current working directory
+  * dumped cd (TODO: add this functionality to pommes)
+  * dumped select (use `pg`)
+
+#### Client Server separation
+
+TODO 
+
+
+#### Other changes
+
+* improved Docker integration
+  * dumped all bind mounts except for the log file directory and the https certificates;
+    (instead of the vhosts bind mount the war file is copied into the image now)
+  * replaced Stool config template arguments by Docker build arguments and Docker environment arguments:
+    TODO: all details
+    * replaced stage property `memory` by an build argument
+    * replaced stage property `url` by `server` and `suffixes` build arguments
+  * Stool now creates one image per war file (the previous version created one image per Stage)
+  * downloading Tomcat was moved into a Tomcat base image; Tomcat download functionality was removed from Stool
+  * removed Freemarker templates, a Stool template is a plain Dockerfile now
+  * images now declare exposed ports via labels; when starting a stage, Stool sets up the respective mapping
+  * dumped `port` command, instead, start has http and https options now
+  * switch keystore format from JKS to PKCS12
+  * changes in the standard Dockerfile
+    * no longer set `-Xmx` (let the jvm figure out this)
+    * changed server.xml: set `deployXML` to false 
+      (since we now have exactly one web application per Tomcat, crossContext has no meaning; 
+      and I checked controlpanel trunk - is doesn't contain any symlink, so we can live without `allowLinking`)
+  
 * dashboard
   * dumped auto-reload of the ui
   * build and refresh are gone - use restart instead
@@ -35,12 +81,9 @@ The local checkout of your application is called project.
   * added link to logs
   * updated bootstrap to 4.3.1
   
-* dumped debian packages
+* internal changes
+  * dumped Debian packages: use application files from Maven Central instead; they work for Mac OS as well
 
-* 1 image per war
-
-  * dumped `refresh` stage config
-  * changed `remove` command to leave the project as-is; the current directory is also left as-is
 
 * stool home layout changes
   * system directory is gone - there are no system stages any more
@@ -60,22 +103,6 @@ The local checkout of your application is called project.
 * removed client-side locking, logging and exception emails
 * removed `working` state
 
-* docker cleanup
-  * Stool creates one image per war file
-  * downloading Tomcat was moved into a Tomcat base image; Stool's download functionality was removed
-  * build arguments are docker build arguments; removed Freemarker templates; arguments are strings now
-  * dumped Freemarker support - use plain docker syntax now
-  * dumped vhosts bind mounts, copy war instead
-  * images now declare exposed ports via labels; when starting a stage, Stool set's up the respective mapping
-  * dumped port command, instead, start has http and https options now
-  * removed ports command
-  * switch keystore format from JKS to PKCS12
-  * Changes in the standard Dockerfile
-    * no longer set -Xmx (let the jvm figure out this)
-    * changed server.xml: set `deployXML` to false 
-      (since we now have exactly one web application per Tomcat, crossContext has no meaning; 
-      and i checked controlpanel trunk - is doesn't contain any symlink, so we can live without `allowLinking`)
-
 * added `running` field
 
 * added `remove -stop` option
@@ -86,43 +113,20 @@ The local checkout of your application is called project.
   * dumped `macros`
   * dumped `search`
 
+* Debug and Jmx ports of stages now bind to localhost; use the new `tunnel` command to gain remote access
 * use jmxmp
   - https://stackoverflow.com/questions/11412560/where-to-download-jmxmp
   - https://stackoverflow.com/questions/11413178/how-to-enable-jmxmp-in-tomcat
   
 * stage filter with substring, and case-insensitive
 
-* replaced stage property `memory` by an build argument
-* replaced stage property `url` by `server` and `suffixes` build arguments
-
 * dumped "Manager" tag from server
 
-* stage config changes
-  * dumped `autoRefresh`
-
 * validate now sends emails per stage
-
-* docker changes
-  * stages can have multiple images now
-  * use image tags with timestamps
-
-* stool no longer adjust the current working directory
-  * dumped cd (TODO: add this functionality to pommes)
-  * dumped select (use `pg`)
   
 * dumped isSelected field
 * dumped cleanup command: there's no m2 repository to cleanup, and log file rotation has to be part of the server configuration
 
-* stool is no longer responsible for building - use your standard build tools and configuration instead
-  * dumped `build` command
-  * dumped `refresh -build` option
-  * dumped `build` configuration
-  * dumped `pom` configuration
-  * dumped `maven.home` and `maven.opts` configration - it's picked from the environment when used for War/Pom loading now
-  * dumped `prepare` configuration; `create` for workspaces is no longer supported
-  * dumped stage directory lock - stool now assumes that the project is used exclusively by the current user
-  * dumped Maven Embedded dependency
-* dumped `committed` configuration - start no longer checks for local modifications
 * removed `sleep` state and the corresponding `stop -sleep` flag, it was never used
 * removed `shared` switch - local maven repository is now always the user's Maven repository
 * removed `system` marker for stages
