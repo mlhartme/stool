@@ -43,8 +43,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
-import java.security.KeyPair;
-import java.security.interfaces.RSAPrivateKey;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -264,9 +262,9 @@ public class ApiController {
         int global;
         int reserved;
         Map<String, String> environment;
-        Map<String, Integer> apps;
+        Map<String, String> apps;
 
-        apps = intMap(map(request, "app."));
+        apps = map(request, "app.");
         environment = new HashMap<>(server.configuration.environment);
         environment.putAll(map(request, "env."));
         global = server.configuration.diskQuota;
@@ -446,16 +444,6 @@ public class ApiController {
             if (parameter.startsWith(prefix)) {
                 result.put(parameter.substring(prefix.length()), request.getParameter(parameter));
             }
-        }
-        return result;
-    }
-
-    private Map<String, Integer> intMap(Map<String, String> map) {
-        Map<String, Integer> result;
-
-        result = new HashMap<>(map.size());
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            result.put(entry.getKey(), Integer.parseInt(entry.getValue()));
         }
         return result;
     }

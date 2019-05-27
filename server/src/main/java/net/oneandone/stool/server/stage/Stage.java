@@ -462,8 +462,8 @@ public class Stage {
         return new BuildResult(str, app, Integer.toString(tag));
     }
 
-    /** @return apps actually started */
-    public List<String> start(Engine engine, int http, int https, Map<String, String> environment, Map<String, Integer> selection) throws IOException {
+    /** @return images actually started */
+    public List<String> start(Engine engine, int http, int https, Map<String, String> environment, Map<String, String> selection) throws IOException {
         String container;
         Engine.Status status;
         Ports hostPorts;
@@ -510,7 +510,7 @@ public class Stage {
             if (status != Engine.Status.RUNNING) {
                 throw new IOException("unexpected status: " + status);
             }
-            result.add(image.app);
+            result.add(image.app + ":" + image.tag);
         }
         return result;
     }
@@ -543,14 +543,15 @@ public class Stage {
         return result.toString();
     }
 
-    private List<Image> resolve(Engine engine, Map<String, Integer> selectionOrig) throws IOException {
-        Map<String, Integer> selection;
+    private List<Image> resolve(Engine engine, Map<String, String> selectionOrig) throws IOException {
+        Map<String, String> selection;
         Map<String, List<Image>> allImages;
         Collection<String> running;
         String app;
-        int idx;
+        String tag;
         List<Image> list;
         List<Image> result;
+        Image image;
 
         allImages = images(engine);
         if (allImages.isEmpty()) {
@@ -560,27 +561,40 @@ public class Stage {
         if (selectionOrig.isEmpty()) {
             selection = new HashMap<>();
             for (String a : allImages.keySet()) {
-                selection.put(a, 0);
+                selection.put(a, "");
             }
         } else {
             selection = selectionOrig;
         }
         result = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : selection.entrySet()) {
+        for (Map.Entry<String, String> entry : selection.entrySet()) {
             app = entry.getKey();
             if (!running.contains(app)) {
-                idx = entry.getValue();
+                tag = entry.getValue();
                 list = allImages.get(app);
-                if (list == null) {
+                if (list == null || list.isEmpty()) {
                     throw new ArgumentException("app not found: " + app);
                 }
-                if (idx < 0 || idx >= list.size()) {
-                    throw new ArgumentException(app + ": app index not found: " + idx);
+                image = lookup(list, tag);
+                if (image == null) {
+                    throw new ArgumentException("image not found: " + app + ":" + tag);
                 }
-                result.add(list.get(idx));
+                result.add(image);
             }
         }
         return result;
+    }
+
+    private static Image lookup(List<Image> images, String tag) {
+        if (tag.isEmpty()) {
+            return images.get(images.size() - 1);
+        }
+        for (Image image : images) {
+            if (image.tag.equals(tag)) {
+                return image;
+            }
+        }
+        return null;
     }
 
     /** @return list of applications actually stopped */
