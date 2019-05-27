@@ -39,7 +39,7 @@ public class Image implements Comparable<Image> {
         created = LocalDateTime.parse(inspect.get("Created").getAsString(), Engine.CREATED_FMT);
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
         app = app(tag);
-        return new Image(tag, created, Ports.fromDeclaredLabels(labels),
+        return new Image(version(tag), tag, created, Ports.fromDeclaredLabels(labels),
                 p12(labels.get(Stage.IMAGE_LABEL_P12)),
                 app,
                 disk(labels.get(Stage.IMAGE_LABEL_DISK)),
@@ -138,6 +138,21 @@ public class Image implements Comparable<Image> {
         return result.substring(idx + 1);
     }
 
+    private static String version(String tag) {
+        String result;
+        int idx;
+
+        result = tag;
+        idx = result.lastIndexOf(':');
+        if (idx == -1) {
+            throw new IllegalStateException(result);
+        }
+        return result.substring(idx + 1);
+    }
+
+    public final String version;
+    /** parsed version, null if version is not a number */
+    public final Integer versionNumber;
     public final String tag;
     public final LocalDateTime created;
 
@@ -168,13 +183,15 @@ public class Image implements Comparable<Image> {
     /** maps relative host path to absolute container path */
     public final List<String> faultProjects;
 
-    public Image(String tag, LocalDateTime created, Ports ports, String p12, String app, int disk, int memory, String urlContext, List<String> urlSuffixes,
+    public Image(String version, String tag, LocalDateTime created, Ports ports, String p12, String app, int disk, int memory, String urlContext, List<String> urlSuffixes,
                  String comment, String origin, String createdBy, String createdOn, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
                 throw new IllegalArgumentException(urlContext);
             }
         }
+        this.version = version;
+        this.versionNumber = parseOpt(version);
         this.tag = tag;
         this.created = created;
 
@@ -193,12 +210,23 @@ public class Image implements Comparable<Image> {
         this.faultProjects = faultProjects;
     }
 
+    private static Integer parseOpt(String str) {
+        try {
+            return Integer.parseInt(str);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
     @Override
     public int compareTo(Image o) {
-        int result;
-
-        result = -created.compareTo(o.created);  // TODO: created taken from image, which may be shared by multiple tags ...
-        return result == 0 ? tag.compareTo(o.app) : result;
+        if (versionNumber != null && o.versionNumber != null) {
+            return versionNumber.compareTo(o.versionNumber);
+        } else if (versionNumber == null && o.versionNumber == null) {
+            return version.compareTo(o.version);
+        } else {
+            return versionNumber != null ? -1 : 1;
+        }
     }
 
     public String toString() {

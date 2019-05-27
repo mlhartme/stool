@@ -142,7 +142,7 @@ public class ApiController {
         war.copyFileFrom(body);
         try (Engine engine = Engine.create()) {
             result = server.load(stage).build(engine, war, comment, origin, createdBy, createdOn, noCache, keep, arguments);
-            return buildResult(result.app, result.tag,null, result.output).toString();
+            return buildResult(result.app, result.image,null, result.output).toString();
         } catch (BuildError e) {
             return buildResult("someapp", e.tag, e.error, e.output).toString();
         } finally {
@@ -150,12 +150,12 @@ public class ApiController {
         }
     }
 
-    private JsonObject buildResult(String app, String tag, String error, String output) {
+    private JsonObject buildResult(String app, String image, String error, String output) {
         JsonObject result;
 
         result = new JsonObject();
         result.add("app", new JsonPrimitive(app));
-        result.add("tag", new JsonPrimitive(tag));
+        result.add("image", new JsonPrimitive(image));
         if (error != null) {
             result.add("error", new JsonPrimitive(error));
         }

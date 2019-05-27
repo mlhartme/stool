@@ -69,8 +69,6 @@ import java.util.Set;
 
 /** Represents the former backstage directory. From a Docker perspective, a stage roughly represents a Repository */
 public class Stage {
-    private static final DateTimeFormatter TAG_FORMAT = DateTimeFormatter.ofPattern("yyMMdd-HHmmss");
-
     private static final String IMAGE_PREFIX = "net.oneandone.stool-";
     private static final String CONTAINER_PREFIX = "net.oneandone.stool-container-";
 
@@ -342,27 +340,39 @@ public class Stage {
         return result;
     }
 
-    public void wipeOldImages(Engine engine, int keep) throws IOException {
-        Map<String, List<Image>> allImages;
+    /** next version */
+    public int wipeOldImages(Engine engine, String app, int keep) throws IOException {
         List<Image> images;
         String remove;
         int count;
+        int result;
 
-        allImages = images(engine);
-        for (String app : allImages.keySet()) {
-            images = new ArrayList<>(allImages.get(app));
-            count = images.size() - keep;
-            while (count > 0 && !images.isEmpty()) {
-                remove = images.remove(images.size() - 1).tag;
-                if (engine.containerList(CONTAINER_LABEL_IMAGE, remove).isEmpty()) {
-                    Server.LOGGER.debug("remove image: " + remove);
-                    engine.imageRemove(remove, false);
-                    count--;
-                } else {
-                    Server.LOGGER.debug("cannot remove image, because it's still in use: " + remove);
-                }
+        images = images(engine).get(app);
+        if (images == null) {
+            return 1;
+        }
+        result = next(images);
+        count = images.size() - keep;
+        while (count > 0 && !images.isEmpty()) {
+            remove = images.remove(images.size() - 1).tag;
+            if (engine.containerList(CONTAINER_LABEL_IMAGE, remove).isEmpty()) {
+                Server.LOGGER.debug("remove image: " + remove);
+                engine.imageRemove(remove, false);
+                count--;
+            } else {
+                Server.LOGGER.debug("cannot remove image, because it's still in use: " + remove);
             }
         }
+        return result;
+    }
+
+    private static int next(List<Image> images) {
+        for (Image image : images) {
+            if (image.versionNumber != null) {
+                return image.versionNumber + 1;
+            }
+        }
+        return 1;
     }
 
     public void wipeContainer(Engine engine) throws IOException {
@@ -403,11 +413,11 @@ public class Stage {
     public static class BuildResult {
         public final String output;
         public final String app;
-        public final String tag;
+        public final String image;
 
-        public BuildResult(String output, String app, String tag) {
+        public BuildResult(String output, String app, String image) {
             this.app = app;
-            this.tag = tag;
+            this.image = image;
             this.output = output;
         }
     }
@@ -416,6 +426,7 @@ public class Stage {
     public BuildResult build(Engine engine, FileNode war, String comment, String origin,
                         String createdBy, String createdOn, boolean noCache, int keep,
                         Map<String, String> explicitArguments) throws Exception {
+        int version;
         String image;
         String app;
         String tag;
@@ -428,13 +439,11 @@ public class Stage {
         StringWriter output;
         String str;
 
-        if (keep > 0) {
-            wipeOldImages(engine,keep - 1);
-        }
         appProperties = properties(war);
         template = template(appProperties, explicitArguments);
         app = app(appProperties, explicitArguments);
-        tag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + TAG_FORMAT.format(LocalDateTime.now());
+        version = wipeOldImages(engine,app, keep - 1);
+        tag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + version;
         defaults = BuildArgument.scan(template.join("Dockerfile"));
         buildArgs = buildArgs(defaults, appProperties, explicitArguments);
         context = dockerContext(app, war, template);
@@ -460,7 +469,7 @@ public class Stage {
         str = output.toString();
         Server.LOGGER.debug("successfully built image: " + image);
         Server.LOGGER.debug(str);
-        return new BuildResult(str, app, tag);
+        return new BuildResult(str, app, Integer.toString(version));
     }
 
     /** @return apps actually started */
