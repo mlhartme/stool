@@ -77,8 +77,8 @@ public class AppInfo {
         }
         result.add("");
         for (Image image : all.get(app)) {
-            marker = image.nameAndTag.equals(current.image.nameAndTag) ? "==>" : "   ";
-            result.add(String.format("%s [%d] %s\n", marker, idx, image.nameAndTag));
+            marker = image.repositoryTag.equals(current.image.repositoryTag) ? "==>" : "   ";
+            result.add(String.format("%s [%d] %s\n", marker, idx, image.repositoryTag));
             result.add("       memory:     " + image.memory);
             result.add("       disk:       " + image.disk);
             result.add("       comment:    " + image.comment);

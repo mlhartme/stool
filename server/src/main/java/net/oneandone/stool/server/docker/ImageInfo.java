@@ -4,10 +4,10 @@ import java.util.List;
 
 public class ImageInfo {
     public final String id;
-    public final List<String> tags;
+    public final List<String> repositoryTags;
 
-    public ImageInfo(String id, List<String> tags) {
+    public ImageInfo(String id, List<String> repositoryTags) {
         this.id = id;
-        this.tags = tags;
+        this.repositoryTags = repositoryTags;
     }
 }

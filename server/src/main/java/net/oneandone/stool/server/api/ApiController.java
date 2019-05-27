@@ -145,7 +145,7 @@ public class ApiController {
             result = server.load(stage).build(engine, war, comment, origin, createdBy, createdOn, noCache, keep, arguments);
             return buildResult(result.app, result.image,null, result.output).toString();
         } catch (BuildError e) {
-            return buildResult(Image.app(e.nameAndTag), Image.version(e.nameAndTag), e.error, e.output).toString();
+            return buildResult(Image.app(e.repositoryTag), Image.version(e.repositoryTag), e.error, e.output).toString();
         } finally {
             war.deleteFile();
         }

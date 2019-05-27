@@ -29,17 +29,17 @@ import java.util.List;
 import java.util.Map;
 
 public class Image implements Comparable<Image> {
-    public static Image load(Engine engine, String nameAndTag) throws IOException {
+    public static Image load(Engine engine, String repositoryTag) throws IOException {
         JsonObject inspect;
         JsonObject labels;
         LocalDateTime created;
         String app;
 
-        inspect = engine.imageInspect(nameAndTag);
+        inspect = engine.imageInspect(repositoryTag);
         created = LocalDateTime.parse(inspect.get("Created").getAsString(), Engine.CREATED_FMT);
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
-        app = app(nameAndTag);
-        return new Image(version(nameAndTag), nameAndTag, created, Ports.fromDeclaredLabels(labels),
+        app = app(repositoryTag);
+        return new Image(version(repositoryTag), repositoryTag, created, Ports.fromDeclaredLabels(labels),
                 p12(labels.get(Stage.IMAGE_LABEL_P12)),
                 app,
                 disk(labels.get(Stage.IMAGE_LABEL_DISK)),
@@ -121,11 +121,11 @@ public class Image implements Comparable<Image> {
         return result;
     }
 
-    public static String app(String nameAndTag) {
+    public static String app(String repositoryTag) {
         String result;
         int idx;
 
-        result = nameAndTag;
+        result = repositoryTag;
         idx = result.indexOf(':');
         if (idx == -1) {
             throw new IllegalStateException(result);
@@ -138,11 +138,11 @@ public class Image implements Comparable<Image> {
         return result.substring(idx + 1);
     }
 
-    public static String version(String nameAndTag) {
+    public static String version(String repositoryTag) {
         String result;
         int idx;
 
-        result = nameAndTag;
+        result = repositoryTag;
         idx = result.lastIndexOf(':');
         if (idx == -1) {
             throw new IllegalStateException(result);
@@ -153,7 +153,7 @@ public class Image implements Comparable<Image> {
     public final String version;
     /** parsed version, null if version is not a number */
     public final Integer versionNumber;
-    public final String nameAndTag;
+    public final String repositoryTag;
     public final LocalDateTime created;
 
     //-- meta data
@@ -183,7 +183,7 @@ public class Image implements Comparable<Image> {
     /** maps relative host path to absolute container path */
     public final List<String> faultProjects;
 
-    public Image(String version, String nameAndTag, LocalDateTime created, Ports ports, String p12, String app, int disk, int memory, String urlContext, List<String> urlSuffixes,
+    public Image(String version, String repositoryTag, LocalDateTime created, Ports ports, String p12, String app, int disk, int memory, String urlContext, List<String> urlSuffixes,
                  String comment, String origin, String createdBy, String createdOn, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
@@ -192,7 +192,7 @@ public class Image implements Comparable<Image> {
         }
         this.version = version;
         this.versionNumber = parseOpt(version);
-        this.nameAndTag = nameAndTag;
+        this.repositoryTag = repositoryTag;
         this.created = created;
 
         this.ports = ports;

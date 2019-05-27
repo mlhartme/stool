@@ -164,7 +164,7 @@ public class Engine implements AutoCloseable {
         Map<String, ImageInfo> result;
         String id;
         JsonElement repoTags;
-        List<String> tags;
+        List<String> repositoryTags;
 
         node = root.join("images/json");
         node = node.withParameter("all", "true");
@@ -177,8 +177,8 @@ public class Engine implements AutoCloseable {
             id = element.getAsJsonObject().get("Id").getAsString();
             id = Strings.removeLeft(id, "sha256:");
             repoTags = element.getAsJsonObject().get("RepoTags");
-            tags = repoTags.isJsonNull() ? new ArrayList<>() : stringList(repoTags.getAsJsonArray());
-            result.put(id, new ImageInfo(id, tags));
+            repositoryTags = repoTags.isJsonNull() ? new ArrayList<>() : stringList(repoTags.getAsJsonArray());
+            result.put(id, new ImageInfo(id, repositoryTags));
         }
         return result;
     }
@@ -274,7 +274,7 @@ public class Engine implements AutoCloseable {
     /**
      * @param log may be null
      * @return image id */
-    public String imageBuild(String nameAndTag, Map<String, String> args, Map<String, String> labels,
+    public String imageBuild(String repositoryTag, Map<String, String> args, Map<String, String> labels,
                              FileNode context, boolean noCache, Writer log) throws IOException {
         HttpNode build;
         StringBuilder output;
@@ -289,7 +289,7 @@ public class Engine implements AutoCloseable {
         FileNode tar;
 
         build = root.join("build");
-        build = build.withParameter("t", nameAndTag);
+        build = build.withParameter("t", repositoryTag);
         if (!labels.isEmpty()) {
             build = build.withParameter("labels", obj(labels).toString());
         }
@@ -309,7 +309,7 @@ public class Engine implements AutoCloseable {
                     line = in.readLine();
                     if (line == null) {
                         if (error != null) {
-                            throw new BuildError(nameAndTag, error, errorDetail, output.toString());
+                            throw new BuildError(repositoryTag, error, errorDetail, output.toString());
                         }
                         if (id == null) {
                             throw new IOException("missing id");
