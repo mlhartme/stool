@@ -54,7 +54,7 @@ public class AppInfo {
         }
         current = currentMap.get(app);
         for (Image image : all.get(app)) {
-            marker = image.repositoryTag.equals(current.image.repositoryTag) ? "==>" : "   ";
+            marker = image.repositoryTag.equals(current.image.repositoryTag) ? "<==" : "";
             result.add(app + ":" + image.tag + "  " + marker);
             result.add("   comment:    " + image.comment);
             result.add("   origin:     " + image.origin);
@@ -71,7 +71,6 @@ public class AppInfo {
             }
             result.add("   secrets:    " + Separator.COMMA.join(image.faultProjects));
         }
-        result.add("");
         result.add("container: " + (current.container == null ? "" : current.container.id));
         result.add("uptime:    " + uptime(current.container));
         result.add("disk-used: " + diskUsed(engine, current.container));
