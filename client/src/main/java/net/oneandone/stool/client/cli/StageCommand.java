@@ -152,17 +152,17 @@ public abstract class StageCommand extends ClientCommand {
 
     //--
 
-    protected static Map<String, Integer> selection(List<String> selection) {
+    protected static Map<String, String> selection(List<String> selection) {
         int idx;
-        Map<String, Integer> result;
+        Map<String, String> result;
 
         result = new LinkedHashMap<>();
         for (String appIndex : selection) {
             idx = appIndex.indexOf(':');
             if (idx == -1) {
-                result.put(appIndex, 0);
+                result.put(appIndex, null);
             } else {
-                result.put(appIndex.substring(0, idx), Integer.parseInt(appIndex.substring(idx + 1)));
+                result.put(appIndex.substring(0, idx), appIndex.substring(idx + 1));
             }
         }
         return result;

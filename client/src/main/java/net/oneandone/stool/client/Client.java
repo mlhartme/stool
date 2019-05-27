@@ -137,7 +137,7 @@ public class Client {
         return new BuildResult(obj.get("output").getAsString(), error == null ? null : error.getAsString(), obj.get("app").getAsString(), obj.get("tag").getAsString());
     }
 
-    public List<String> start(String stage, int http, int https, Map<String, String> startEnvironment, Map<String, Integer> apps) throws IOException {
+    public List<String> start(String stage, int http, int https, Map<String, String> startEnvironment, Map<String, String> apps) throws IOException {
         HttpNode node;
         List<String> started;
 

@@ -38,7 +38,6 @@ public class AppInfo {
         Map<String, List<Image>> all;
         Map<String, Stage.Current> currentMap;
         String marker;
-        int idx;
         Stage.Current current;
         Ports ports;
         List<String> result;
@@ -55,7 +54,6 @@ public class AppInfo {
         }
 
         current = currentMap.get(app);
-        idx = 0;
         ports = stage.loadPorts(engine).get(app);
         result.add("app:       " + app);
         result.add("container: " + (current.container == null ? "" : current.container.id));
@@ -78,7 +76,7 @@ public class AppInfo {
         result.add("");
         for (Image image : all.get(app)) {
             marker = image.repositoryTag.equals(current.image.repositoryTag) ? "==>" : "   ";
-            result.add(String.format("%s [%d] %s\n", marker, idx, image.repositoryTag));
+            result.add(String.format("%s %s:%s", marker, app, image.tag));
             result.add("       memory:     " + image.memory);
             result.add("       disk:       " + image.disk);
             result.add("       comment:    " + image.comment);
@@ -93,7 +91,6 @@ public class AppInfo {
                 result.add("           " + arg + ": \t" + image.args.get(arg));
             }
             result.add("       secrets:    " + Separator.COMMA.join(image.faultProjects));
-            idx++;
         }
         return result;
     }

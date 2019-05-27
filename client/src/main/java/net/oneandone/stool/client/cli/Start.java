@@ -31,7 +31,7 @@ public class Start extends StageCommand {
     private final int http;
     private final int https;
     private final Map<String, String> environment;
-    private final Map<String, Integer> selection;
+    private final Map<String, String> selection;
 
     public Start(Globals globals, World world, Console console, boolean tail, List<String> selection) {
         this(globals, tail, -1, -1, selection);
