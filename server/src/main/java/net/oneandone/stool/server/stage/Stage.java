@@ -600,7 +600,7 @@ public class Stage {
     /** @return list of applications actually stopped */
     public List<String> stop(Engine engine, List<String> apps) throws IOException {
         Map<String, Current> currentMap;
-        Map<String, String> containers;
+        Map<String, String> containers; // maps app:tag to containerId
         List<String> unknown;
 
         unknown = new ArrayList<>(apps);
@@ -612,7 +612,7 @@ public class Stage {
         containers = new LinkedHashMap<>();
         for (Map.Entry<String, Current> current : currentMap.entrySet()) {
             if (apps.isEmpty() || apps.contains(current.getKey())) {
-                containers.put(current.getKey(), current.getValue().container.id);
+                containers.put(current.getKey() + ":" + current.getValue().image.tag, current.getValue().container.id);
             }
         }
         for (Map.Entry<String, String> entry : containers.entrySet()) {
