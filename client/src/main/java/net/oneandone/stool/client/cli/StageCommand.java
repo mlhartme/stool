@@ -157,12 +157,12 @@ public abstract class StageCommand extends ClientCommand {
         Map<String, String> result;
 
         result = new LinkedHashMap<>();
-        for (String appIndex : selection) {
-            idx = appIndex.indexOf(':');
+        for (String image : selection) {
+            idx = image.indexOf(':');
             if (idx == -1) {
-                result.put(appIndex, null);
+                result.put(image, "");
             } else {
-                result.put(appIndex.substring(0, idx), appIndex.substring(idx + 1));
+                result.put(image.substring(0, idx), image.substring(idx + 1));
             }
         }
         return result;
