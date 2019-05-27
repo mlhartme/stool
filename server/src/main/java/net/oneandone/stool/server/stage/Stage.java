@@ -356,7 +356,7 @@ public class Stage {
         result = Image.nextTag(images);
         count = images.size() - keep;
         while (count > 0 && !images.isEmpty()) {
-            remove = images.remove(images.size() - 1).repositoryTag;
+            remove = images.remove(0).repositoryTag;
             if (engine.containerList(CONTAINER_LABEL_IMAGE, remove).isEmpty()) {
                 Server.LOGGER.debug("remove image: " + remove);
                 engine.imageRemove(remove, false);

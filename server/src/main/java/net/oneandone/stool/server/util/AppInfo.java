@@ -49,13 +49,29 @@ public class AppInfo {
         currentMap = stage.currentMap(engine);
         for (Map.Entry<String, List<Image>> entry : all.entrySet()) {
             if (!currentMap.containsKey(entry.getKey())) {
-                currentMap.put(entry.getKey(), new Stage.Current(entry.getValue().get(0), null));
+                currentMap.put(entry.getKey(), new Stage.Current(entry.getValue().get(entry.getValue().size() - 1), null));
             }
         }
-
         current = currentMap.get(app);
-        ports = stage.loadPorts(engine).get(app);
-        result.add("app:       " + app);
+        for (Image image : all.get(app)) {
+            marker = image.repositoryTag.equals(current.image.repositoryTag) ? "==>" : "   ";
+            result.add(app + ":" + image.tag + "  " + marker);
+            result.add("   comment:    " + image.comment);
+            result.add("   origin:     " + image.origin);
+            result.add("   created-at: " + image.created);
+            result.add("   created-by: " + image.createdBy);
+            result.add("   created-on: " + image.createdOn);
+            result.add("   memory:     " + image.memory);
+            result.add("   disk:       " + image.disk);
+            result.add("   build args:");
+            args = new ArrayList<>(image.args.keySet());
+            Collections.sort(args);
+            for (String arg : args) {
+                result.add("       " + arg + ": \t" + image.args.get(arg));
+            }
+            result.add("   secrets:    " + Separator.COMMA.join(image.faultProjects));
+        }
+        result.add("");
         result.add("container: " + (current.container == null ? "" : current.container.id));
         result.add("uptime:    " + uptime(current.container));
         result.add("disk-used: " + diskUsed(engine, current.container));
@@ -64,6 +80,7 @@ public class AppInfo {
         result.add("heap:      " + heap(stage, app, current));
         addEnv(current.container, result);
         result.add("origin:    " + current.image.origin);
+        ports = stage.loadPorts(engine).get(app);
         if (ports != null) {
             if (ports.debug != -1) {
                 result.add("debug port " + ports.debug);
@@ -72,25 +89,6 @@ public class AppInfo {
                 result.add("jmx port:  " + ports.jmxmp);
                 result.add("                 " + String.format(stage.server.configuration.jmxUsage, stage.server.configuration.dockerHost + ":" + ports.jmxmp));
             }
-        }
-        result.add("");
-        for (Image image : all.get(app)) {
-            marker = image.repositoryTag.equals(current.image.repositoryTag) ? "==>" : "   ";
-            result.add(String.format("%s %s:%s", marker, app, image.tag));
-            result.add("       memory:     " + image.memory);
-            result.add("       disk:       " + image.disk);
-            result.add("       comment:    " + image.comment);
-            result.add("       origin:     " + image.origin);
-            result.add("       created-at: " + image.created);
-            result.add("       created-by: " + image.createdBy);
-            result.add("       created-on: " + image.createdOn);
-            result.add("       build args:");
-            args = new ArrayList<>(image.args.keySet());
-            Collections.sort(args);
-            for (String arg : args) {
-                result.add("           " + arg + ": \t" + image.args.get(arg));
-            }
-            result.add("       secrets:    " + Separator.COMMA.join(image.faultProjects));
         }
         return result;
     }

@@ -236,7 +236,10 @@ public class Image implements Comparable<Image> {
     //--
 
     public static int nextTag(List<Image> images) {
-        for (Image image : images) {
+        Image image;
+
+        for (int i = images.size() - 1; i >= 0; i--) {
+            image = images.get(i);
             if (image.tagNumber != null) {
                 return image.tagNumber + 1;
             }
