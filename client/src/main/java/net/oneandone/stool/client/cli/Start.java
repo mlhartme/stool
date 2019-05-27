@@ -21,6 +21,7 @@ import net.oneandone.stool.client.Reference;
 import net.oneandone.sushi.fs.World;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -72,11 +73,27 @@ public class Start extends StageCommand {
 
         started = reference.client.start(reference.stage, http, https, environment, selection);
         console.info.println("starting " + started + " ...");
+        started = removeTag(started);
         for (String app : selection.keySet()) {
             if (!started.contains(app)) {
                 console.info.println("note: " + app + " was already up");
             }
         }
+    }
+
+    public static List<String> removeTag(List<String> appsWithTag) {
+        List<String> result;
+        int idx;
+
+        result = new ArrayList<>(appsWithTag.size());
+        for (String appWithTag : appsWithTag) {
+            idx = appWithTag.indexOf(':');
+            if (idx == -1) {
+                throw new IllegalStateException("missing tag: " + appWithTag);
+            }
+            result.add(appWithTag.substring(0, idx));
+        }
+        return result;
     }
 
     @Override

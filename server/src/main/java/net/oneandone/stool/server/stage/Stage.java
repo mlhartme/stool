@@ -198,7 +198,10 @@ public class Stage {
                 List<String> result;
 
                 map = currentMap(engine);
-                result = new ArrayList<>(map.keySet());
+                result = new ArrayList<>();
+                for (Map.Entry<String, Current> entry : map.entrySet()) {
+                    result.add(entry.getKey() + ":" + entry.getValue().image.tag);
+                }
                 Collections.sort(result);
                 return result;
             }

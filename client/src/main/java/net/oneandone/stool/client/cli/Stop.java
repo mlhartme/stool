@@ -42,6 +42,7 @@ public class Stop extends StageCommand {
 
         stopped = reference.client.stop(reference.stage, apps);
         console.info.println("stopped " + stopped);
+        stopped = Start.removeTag(stopped);
         for (String app : apps) {
             if (!stopped.contains(app)) {
                 console.info.println("note: " + app + " was already down");
