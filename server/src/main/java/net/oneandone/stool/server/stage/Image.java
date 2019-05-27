@@ -39,7 +39,7 @@ public class Image implements Comparable<Image> {
         created = LocalDateTime.parse(inspect.get("Created").getAsString(), Engine.CREATED_FMT);
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
         app = app(repositoryTag);
-        return new Image(version(repositoryTag), repositoryTag, created, Ports.fromDeclaredLabels(labels),
+        return new Image(repositoryTag, version(repositoryTag), created, Ports.fromDeclaredLabels(labels),
                 p12(labels.get(Stage.IMAGE_LABEL_P12)),
                 app,
                 disk(labels.get(Stage.IMAGE_LABEL_DISK)),
@@ -150,10 +150,10 @@ public class Image implements Comparable<Image> {
         return result.substring(idx + 1);
     }
 
-    public final String version;
-    /** parsed version, null if version is not a number */
-    public final Integer versionNumber;
     public final String repositoryTag;
+    public final String tag;
+    /** parsed version, null if version is not a number */
+    public final Integer tagNumber;
     public final LocalDateTime created;
 
     //-- meta data
@@ -183,16 +183,16 @@ public class Image implements Comparable<Image> {
     /** maps relative host path to absolute container path */
     public final List<String> faultProjects;
 
-    public Image(String version, String repositoryTag, LocalDateTime created, Ports ports, String p12, String app, int disk, int memory, String urlContext, List<String> urlSuffixes,
+    public Image(String repositoryTag, String tag, LocalDateTime created, Ports ports, String p12, String app, int disk, int memory, String urlContext, List<String> urlSuffixes,
                  String comment, String origin, String createdBy, String createdOn, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
                 throw new IllegalArgumentException(urlContext);
             }
         }
-        this.version = version;
-        this.versionNumber = parseOpt(version);
         this.repositoryTag = repositoryTag;
+        this.tag = tag;
+        this.tagNumber = parseOpt(tag);
         this.created = created;
 
         this.ports = ports;
@@ -220,16 +220,29 @@ public class Image implements Comparable<Image> {
 
     @Override
     public int compareTo(Image o) {
-        if (versionNumber != null && o.versionNumber != null) {
-            return versionNumber.compareTo(o.versionNumber);
-        } else if (versionNumber == null && o.versionNumber == null) {
-            return version.compareTo(o.version);
+        if (tagNumber != null && o.tagNumber != null) {
+            return tagNumber.compareTo(o.tagNumber);
+        } else if (tagNumber == null && o.tagNumber == null) {
+            return tag.compareTo(o.tag);
         } else {
-            return versionNumber != null ? -1 : 1;
+            return tagNumber != null ? -1 : 1;
         }
     }
 
     public String toString() {
         return created.toString();
     }
+
+    //--
+
+    public static int nextTag(List<Image> images) {
+        for (Image image : images) {
+            if (image.tagNumber != null) {
+                return image.tagNumber + 1;
+            }
+        }
+        return 1;
+    }
+
+
 }

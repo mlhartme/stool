@@ -350,7 +350,7 @@ public class Stage {
         if (images == null) {
             return 1;
         }
-        result = next(images);
+        result = Image.nextTag(images);
         count = images.size() - keep;
         while (count > 0 && !images.isEmpty()) {
             remove = images.remove(images.size() - 1).repositoryTag;
@@ -363,15 +363,6 @@ public class Stage {
             }
         }
         return result;
-    }
-
-    private static int next(List<Image> images) {
-        for (Image image : images) {
-            if (image.versionNumber != null) {
-                return image.versionNumber + 1;
-            }
-        }
-        return 1;
     }
 
     public void wipeContainer(Engine engine) throws IOException {
@@ -412,11 +403,11 @@ public class Stage {
     public static class BuildResult {
         public final String output;
         public final String app;
-        public final String image;
+        public final String tag;
 
-        public BuildResult(String output, String app, String image) {
+        public BuildResult(String output, String app, String tag) {
             this.app = app;
-            this.image = image;
+            this.tag = tag;
             this.output = output;
         }
     }
@@ -425,7 +416,7 @@ public class Stage {
     public BuildResult build(Engine engine, FileNode war, String comment, String origin,
                         String createdBy, String createdOn, boolean noCache, int keep,
                         Map<String, String> explicitArguments) throws Exception {
-        int version;
+        int tag;
         String image;
         String app;
         String repositoryTag;
@@ -441,8 +432,8 @@ public class Stage {
         appProperties = properties(war);
         template = template(appProperties, explicitArguments);
         app = app(appProperties, explicitArguments);
-        version = wipeOldImages(engine,app, keep - 1);
-        repositoryTag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + version;
+        tag = wipeOldImages(engine,app, keep - 1);
+        repositoryTag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + tag;
         defaults = BuildArgument.scan(template.join("Dockerfile"));
         buildArgs = buildArgs(defaults, appProperties, explicitArguments);
         context = dockerContext(app, war, template);
@@ -468,7 +459,7 @@ public class Stage {
         str = output.toString();
         Server.LOGGER.debug("successfully built image: " + image);
         Server.LOGGER.debug(str);
-        return new BuildResult(str, app, Integer.toString(version));
+        return new BuildResult(str, app, Integer.toString(tag));
     }
 
     /** @return apps actually started */
