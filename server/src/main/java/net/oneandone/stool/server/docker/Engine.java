@@ -274,7 +274,7 @@ public class Engine implements AutoCloseable {
     /**
      * @param log may be null
      * @return image id */
-    public String imageBuild(String nameTag, Map<String, String> args, Map<String, String> labels,
+    public String imageBuild(String nameAndTag, Map<String, String> args, Map<String, String> labels,
                              FileNode context, boolean noCache, Writer log) throws IOException {
         HttpNode build;
         StringBuilder output;
@@ -289,7 +289,7 @@ public class Engine implements AutoCloseable {
         FileNode tar;
 
         build = root.join("build");
-        build = build.withParameter("t", nameTag);
+        build = build.withParameter("t", nameAndTag);
         if (!labels.isEmpty()) {
             build = build.withParameter("labels", obj(labels).toString());
         }
@@ -309,7 +309,7 @@ public class Engine implements AutoCloseable {
                     line = in.readLine();
                     if (line == null) {
                         if (error != null) {
-                            throw new BuildError(nameTag, error, errorDetail, output.toString());
+                            throw new BuildError(nameAndTag, error, errorDetail, output.toString());
                         }
                         if (id == null) {
                             throw new IOException("missing id");

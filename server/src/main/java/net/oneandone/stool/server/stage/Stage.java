@@ -295,9 +295,9 @@ public class Stage {
     }
 
     public void wipeImages(Engine engine) throws IOException {
-        for (String tag : imageTags(engine)) {
-            Server.LOGGER.debug("remove image: " + tag);
-            engine.imageRemove(tag, false);
+        for (String nameAndTag : imageTags(engine)) {
+            Server.LOGGER.debug("remove image: " + nameAndTag);
+            engine.imageRemove(nameAndTag, false);
         }
     }
 
@@ -309,9 +309,9 @@ public class Stage {
         result = new ArrayList<>();
         for (Map.Entry<String, ImageInfo> entry : engine.imageList().entrySet()) {
             info = entry.getValue();
-            for (String tag : info.tags) {
-                if (tag.startsWith(server.configuration.registryNamespace + "/" + name + "/")) {
-                    result.add(tag);
+            for (String nameAndTag : info.tags) {
+                if (nameAndTag.startsWith(server.configuration.registryNamespace + "/" + name + "/")) {
+                    result.add(nameAndTag);
                 }
             }
         }
@@ -325,8 +325,8 @@ public class Stage {
         List<Image> list;
 
         result = new HashMap<>();
-        for (String tag : imageTags(engine)) {
-            image = Image.load(engine, tag);
+        for (String nameAndTag : imageTags(engine)) {
+            image = Image.load(engine, nameAndTag);
             list = result.get(image.app);
             if (list == null) {
                 list = new ArrayList<>();
@@ -354,7 +354,7 @@ public class Stage {
         result = next(images);
         count = images.size() - keep;
         while (count > 0 && !images.isEmpty()) {
-            remove = images.remove(images.size() - 1).tag;
+            remove = images.remove(images.size() - 1).nameAndTag;
             if (engine.containerList(CONTAINER_LABEL_IMAGE, remove).isEmpty()) {
                 Server.LOGGER.debug("remove image: " + remove);
                 engine.imageRemove(remove, false);
@@ -376,8 +376,8 @@ public class Stage {
     }
 
     public void wipeContainer(Engine engine) throws IOException {
-        for (String tag : imageTags(engine)) {
-            for (String container : engine.containerList(CONTAINER_LABEL_IMAGE, tag).keySet()) {
+        for (String nameAndTag : imageTags(engine)) {
+            for (String container : engine.containerList(CONTAINER_LABEL_IMAGE, nameAndTag).keySet()) {
                 Server.LOGGER.debug("remove container: " + container);
                 engine.containerRemove(container);
             }
@@ -429,7 +429,7 @@ public class Stage {
         int version;
         String image;
         String app;
-        String tag;
+        String nameAndTag;
         FileNode context;
         Map<String, String> labels;
         Properties appProperties;
@@ -443,7 +443,7 @@ public class Stage {
         template = template(appProperties, explicitArguments);
         app = app(appProperties, explicitArguments);
         version = wipeOldImages(engine,app, keep - 1);
-        tag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + version;
+        nameAndTag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + version;
         defaults = BuildArgument.scan(template.join("Dockerfile"));
         buildArgs = buildArgs(defaults, appProperties, explicitArguments);
         context = dockerContext(app, war, template);
@@ -458,7 +458,7 @@ public class Stage {
         Server.LOGGER.debug("building image ... ");
         output = new StringWriter();
         try {
-            image = engine.imageBuild(tag, buildArgs, labels, context, noCache, output);
+            image = engine.imageBuild(nameAndTag, buildArgs, labels, context, noCache, output);
         } catch (BuildError e) {
             Server.LOGGER.debug("image build output");
             Server.LOGGER.debug(e.output);
@@ -494,7 +494,7 @@ public class Stage {
                         + "Consider stopping stages.");
             }
             memoryReserved += image.memory;
-            for (String old : engine.containerList(Stage.CONTAINER_LABEL_IMAGE, image.tag).keySet()) {
+            for (String old : engine.containerList(Stage.CONTAINER_LABEL_IMAGE, image.nameAndTag).keySet()) {
                 engine.containerRemove(old);
             }
             Server.LOGGER.debug("environment: " + environment);
@@ -506,12 +506,12 @@ public class Stage {
             hostPorts = server.pool(engine).allocate(this, image.app, http, https);
             labels = hostPorts.toUsedLabels();
             labels.put(CONTAINER_LABEL_APP, image.app);
-            labels.put(CONTAINER_LABEL_IMAGE, image.tag);
+            labels.put(CONTAINER_LABEL_IMAGE, image.nameAndTag);
             labels.put(CONTAINER_LABEL_STAGE, name);
             for (Map.Entry<String, String> entry : environment.entrySet()) {
                 labels.put(CONTAINER_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
             }
-            container = engine.containerCreate(toName(image.tag), image.tag,  getName() + "." + server.configuration.dockerHost, server.networkMode,
+            container = engine.containerCreate(toName(image.nameAndTag), image.nameAndTag,  getName() + "." + server.configuration.dockerHost, server.networkMode,
                     OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * image.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts, server.localhostIp));
             Server.LOGGER.debug("created container " + container);

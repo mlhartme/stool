@@ -10,6 +10,7 @@ import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.logging.AccessLogEntry;
 import net.oneandone.stool.server.logging.DetailsLogEntry;
+import net.oneandone.stool.server.stage.Image;
 import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.AppInfo;
@@ -144,7 +145,7 @@ public class ApiController {
             result = server.load(stage).build(engine, war, comment, origin, createdBy, createdOn, noCache, keep, arguments);
             return buildResult(result.app, result.image,null, result.output).toString();
         } catch (BuildError e) {
-            return buildResult("someapp", e.tag, e.error, e.output).toString();
+            return buildResult(Image.app(e.nameAndTag), Image.version(e.nameAndTag), e.error, e.output).toString();
         } finally {
             war.deleteFile();
         }
