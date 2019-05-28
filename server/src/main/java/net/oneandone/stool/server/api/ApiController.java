@@ -18,7 +18,6 @@ import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
-import net.oneandone.stool.server.util.RsaKeyPair;
 import net.oneandone.stool.server.util.Validation;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.util.Separator;
@@ -327,7 +326,7 @@ public class ApiController {
         Ports ports;
         int mappedPort;
         JsonObject result;
-        RsaKeyPair keyPair;
+        String privateKey;
         FileNode authorizedKeys;
 
         try (Engine engine = Engine.create()) {
@@ -346,13 +345,11 @@ public class ApiController {
                 default:
                     throw new ArgumentException("unknown port: " + port);
             }
-            keyPair = RsaKeyPair.generate();
+            privateKey = server.sshDirectory.generate(mappedPort);
         }
         result = new JsonObject();
         result.add("port", new JsonPrimitive(mappedPort));
-        result.add("privateKey", new JsonPrimitive(keyPair.privateKey()));
-        authorizedKeys = server.world.file("/home/stool/.ssh/authorized_keys");
-        authorizedKeys.writeString("command=\"sleep 60; echo closing\",permitopen=\"localhost:" + mappedPort + "\" " + keyPair.publicKey("stool-tunnel"));
+        result.add("privateKey", new JsonPrimitive(privateKey));
         return result.toString();
     }
 

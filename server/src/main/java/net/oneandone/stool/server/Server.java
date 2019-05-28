@@ -37,6 +37,7 @@ import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.UserManager;
 import net.oneandone.stool.server.util.Pool;
 import net.oneandone.stool.server.util.Predicate;
+import net.oneandone.stool.server.util.SshDirectory;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -276,6 +277,8 @@ public class Server {
 
     public final Map<String, Accessor> accessors;
 
+    public final SshDirectory sshDirectory;
+
     public Server(Gson gson, FileNode home, FileNode serverHome, String networkMode, String localhostIp,
                   FileNode secrets, ServerConfiguration configuration) throws IOException {
         this.gson = gson;
@@ -290,6 +293,7 @@ public class Server {
         this.stages = home.join("stages");
         this.userManager = UserManager.loadOpt(home.join("users.json"));
         this.accessors = StageConfiguration.accessors();
+        this.sshDirectory = SshDirectory.create(world.file("/home/stool/.ssh"));
     }
 
     public LogReader<AccessLogEntry> accessLogReader() throws IOException {

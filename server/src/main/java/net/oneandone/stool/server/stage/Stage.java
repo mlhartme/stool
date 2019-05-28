@@ -483,6 +483,7 @@ public class Stage {
         int memoryQuota;
         int memoryReserved;
 
+        server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
         memoryReserved = server.memoryReservedContainers(engine);
         result = new ArrayList<>();
         memoryQuota = server.configuration.memoryQuota;
@@ -614,6 +615,7 @@ public class Stage {
         Map<String, String> containers; // maps app:tag to containerId
         List<String> unknown;
 
+        server.sshDirectory.update(); // ports may change - make sure to wipe outdated keys
         unknown = new ArrayList<>(apps);
         unknown.removeAll(images(engine).keySet());
         if (!unknown.isEmpty()) {
