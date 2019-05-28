@@ -28,19 +28,17 @@ import java.util.List;
 import java.util.Map;
 
 public class Start extends StageCommand {
-    private final boolean tail;
     private final int http;
     private final int https;
     private final Map<String, String> environment;
     private final Map<String, String> selection;
 
-    public Start(Globals globals, World world, Console console, boolean tail, List<String> selection) {
-        this(globals, tail, -1, -1, selection);
+    public Start(Globals globals, List<String> selection) {
+        this(globals,-1, -1, selection);
     }
 
-    public Start(Globals globals, boolean tail, int http, int https, List<String> selection) {
+    public Start(Globals globals, int http, int https, List<String> selection) {
         super(globals);
-        this.tail = tail;
         this.http = http;
         this.https = https;
         this.environment = new HashMap<>();
@@ -107,17 +105,5 @@ public class Start extends StageCommand {
                 console.info.println("  " + url);
             }
         }
-        if (tail) {
-            doTail(reference);
-        }
-    }
-
-    //--
-
-    private void doTail(Reference reference) throws IOException {
-        console.info.println("Tailing container output.");
-        console.info.println("Press Ctrl-C to abort.");
-        console.info.println();
-        // TODO: stage.tailF(getConsole.info);
     }
 }

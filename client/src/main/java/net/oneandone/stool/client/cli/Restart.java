@@ -36,6 +36,6 @@ public class Restart extends StageCommand {
         } else {
             console.info.println("Container is not running - starting a new instance.");
         }
-        new Start(globals, world, console, false, selection).doRun(reference);
+        new Start(globals, selection).doRun(reference);
     }
 }

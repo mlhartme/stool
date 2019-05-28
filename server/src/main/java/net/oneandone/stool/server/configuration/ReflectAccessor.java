@@ -110,7 +110,7 @@ public class ReflectAccessor extends Accessor {
         } else if (type.equals(Expire.class)) {
             value = Expire.fromHuman(str);
         } else if (type.equals(FileNode.class)) {
-            value = str.isEmpty() ? null : World.createMinimal().file(str); // TODO
+            value = str.isEmpty() ? null : World.createMinimal().file(str);
         } else if (Map.class.isAssignableFrom(type)) {
             value = str;
         } else {

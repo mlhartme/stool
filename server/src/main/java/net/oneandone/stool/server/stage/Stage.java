@@ -504,8 +504,9 @@ public class Stage {
             for (Map.Entry<String, String> entry : environment.entrySet()) {
                 labels.put(CONTAINER_LABEL_ENV_PREFIX + entry.getKey(), entry.getValue());
             }
-            container = engine.containerCreate(toName(image.repositoryTag), image.repositoryTag,  getName() + "." + server.configuration.dockerHost, server.networkMode,
-                    OS.CURRENT == OS.MAC /* TODO: why */, 1024L * 1024 * image.memory, null, null,
+            container = engine.containerCreate(toName(image.repositoryTag), image.repositoryTag,
+                    getName() + "." + server.configuration.dockerHost, server.networkMode,
+                    false, 1024L * 1024 * image.memory, null, null,
                     labels, environment, mounts, image.ports.map(hostPorts, server.localhostIp));
             Server.LOGGER.debug("created container " + container);
             engine.containerStart(container);
