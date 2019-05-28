@@ -768,18 +768,31 @@ public class Stage {
         for (Map.Entry<Object, Object> entry : appProperties.entrySet()) {
             name = entry.getKey().toString();
             if (!result.containsKey(name)) {
-                throw new ArgumentException("unknown build argument in stool.properties: " + name);
+                throw new ArgumentException("unknown build argument in stool.properties: " + name + "\n" + available(defaults.values()));
             }
             result.put(name, entry.getValue().toString());
         }
         for (Map.Entry<String, String> entry : explicit.entrySet()) {
             name = entry.getKey();
             if (!result.containsKey(name)) {
-                throw new ArgumentException("unknown explicit build argument: " + name);
+                throw new ArgumentException("unknown explicit build argument: " + name + "\n" + available(defaults.values()));
             }
             result.put(name, entry.getValue());
         }
         return result;
+    }
+
+    private static String available(Collection<BuildArgument> args) {
+        StringBuilder result;
+
+        result = new StringBuilder();
+        result.append("(available build arguments:");
+        for (BuildArgument arg : args) {
+            result.append(' ');
+            result.append(arg.name);
+        }
+        result.append(")\n");
+        return result.toString();
     }
 
     //--
