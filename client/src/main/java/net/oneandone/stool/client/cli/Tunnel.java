@@ -17,7 +17,6 @@ package net.oneandone.stool.client.cli;
 
 import com.google.gson.JsonObject;
 import net.oneandone.stool.client.Globals;
-import net.oneandone.stool.client.Project;
 import net.oneandone.stool.client.Reference;
 import net.oneandone.stool.client.Server;
 import net.oneandone.sushi.fs.file.FileNode;

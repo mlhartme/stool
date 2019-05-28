@@ -18,8 +18,6 @@ package net.oneandone.stool.server.configuration;
 import net.oneandone.stool.server.util.Mailer;
 
 import java.lang.reflect.Field;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;

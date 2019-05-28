@@ -2,7 +2,6 @@ package net.oneandone.stool.server.api;
 
 import net.oneandone.stool.server.Server;
 import net.oneandone.sushi.fs.World;
-import net.oneandone.sushi.fs.file.FileNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
