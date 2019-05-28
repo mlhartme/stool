@@ -32,9 +32,10 @@ import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
+import net.oneandone.sushi.fs.GetLastModifiedException;
+import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.io.OS;
 import net.oneandone.sushi.util.Separator;
 
 import javax.management.AttributeNotFoundException;
@@ -57,6 +58,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -435,33 +437,38 @@ public class Stage {
         appProperties = properties(war);
         template = template(appProperties, explicitArguments);
         app = app(appProperties, explicitArguments);
-        tag = wipeOldImages(engine,app, keep - 1);
-        repositoryTag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + tag;
-        defaults = BuildArgument.scan(template.join("Dockerfile"));
-        buildArgs = buildArgs(defaults, appProperties, explicitArguments);
-        context = dockerContext(app, war, template);
-        labels = new HashMap<>();
-        labels.put(IMAGE_LABEL_COMMENT, comment);
-        labels.put(IMAGE_LABEL_ORIGIN, origin);
-        labels.put(IMAGE_LABEL_CREATED_BY, createdBy);
-        labels.put(IMAGE_LABEL_CREATED_ON, createdOn);
-        for (Map.Entry<String, String> arg : buildArgs.entrySet()) {
-            labels.put(IMAGE_LABEL_ARG_PREFIX + arg.getKey(), arg.getValue());
-        }
-        Server.LOGGER.debug("building image ... ");
-        output = new StringWriter();
+        tag = wipeOldImages(engine, app, keep - 1);
+        context = createContext(app, war);  // this is where concurrent builds are checked
         try {
-            image = engine.imageBuild(repositoryTag, buildArgs, labels, context, noCache, output);
-        } catch (BuildError e) {
-            Server.LOGGER.debug("image build output");
-            Server.LOGGER.debug(e.output);
-            throw e;
+            repositoryTag = this.server.configuration.registryNamespace + "/" + name + "/" + app + ":" + tag;
+            defaults = BuildArgument.scan(template.join("Dockerfile"));
+            buildArgs = buildArgs(defaults, appProperties, explicitArguments);
+            context = populateContext(context, app, war, template);
+            labels = new HashMap<>();
+            labels.put(IMAGE_LABEL_COMMENT, comment);
+            labels.put(IMAGE_LABEL_ORIGIN, origin);
+            labels.put(IMAGE_LABEL_CREATED_BY, createdBy);
+            labels.put(IMAGE_LABEL_CREATED_ON, createdOn);
+            for (Map.Entry<String, String> arg : buildArgs.entrySet()) {
+                labels.put(IMAGE_LABEL_ARG_PREFIX + arg.getKey(), arg.getValue());
+            }
+            Server.LOGGER.debug("building image ... ");
+            output = new StringWriter();
+            try {
+                image = engine.imageBuild(repositoryTag, buildArgs, labels, context, noCache, output);
+            } catch (BuildError e) {
+                Server.LOGGER.debug("image build output");
+                Server.LOGGER.debug(e.output);
+                throw e;
+            } finally {
+                output.close();
+            }
+            str = output.toString();
+            Server.LOGGER.debug("successfully built image: " + image);
+            Server.LOGGER.debug(str);
         } finally {
-            output.close();
+            cleanupContext(app, Integer.toString(tag), keep);
         }
-        str = output.toString();
-        Server.LOGGER.debug("successfully built image: " + image);
-        Server.LOGGER.debug(str);
         return new BuildResult(str, app, Integer.toString(tag));
     }
 
@@ -682,12 +689,10 @@ public class Stage {
         }
     }
 
-    private FileNode dockerContext(String app, FileNode war, FileNode src) throws IOException {
-        FileNode context;
+    private FileNode populateContext(FileNode context, String app, FileNode war, FileNode src) throws IOException {
         FileNode destparent;
         FileNode destfile;
 
-        context = createContext(app, war);
         try {
             for (FileNode srcfile : src.find("**/*")) {
                 if (srcfile.isDirectory()) {
@@ -1129,10 +1134,35 @@ public class Stage {
     public FileNode createContext(String app, FileNode war) throws IOException {
         FileNode result;
 
-        result = directory.join("context").mkdirsOpt().join(app);
-        result.deleteTreeOpt();
-        result.mkdir();
+        result = directory.join("context").mkdirOpt().join(app);
+        try {
+            result.mkdir();
+        } catch (MkdirException e) {
+            throw new ArgumentException("another build for app " + app + " is in progress, try again later");
+        }
         war.copyFile(result.join("app.war"));
         return result;
+    }
+
+    public void cleanupContext(String app, String tag, int keep) throws IOException {
+        FileNode dir;
+        List<FileNode> lst;
+
+        dir = directory.join("context");
+        dir.join(app).move(dir.join(app + ":" + tag));
+        lst = dir.list();
+        Collections.sort(lst, new Comparator<FileNode>() {
+            @Override
+            public int compare(FileNode left, FileNode right) {
+                try {
+                    return (int) (left.getLastModified() - right.getLastModified());
+                } catch (GetLastModifiedException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        });
+        while (lst.size() > keep) {
+            lst.remove(0).deleteTree();
+        }
     }
 }
