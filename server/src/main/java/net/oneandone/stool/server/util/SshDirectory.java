@@ -40,7 +40,7 @@ public class SshDirectory {
         count = 0;
     }
 
-    public synchronized String generate(int mappedPort) throws IOException {
+    public synchronized String add(int mappedPort) throws IOException {
         RsaKeyPair pair;
 
         pair = RsaKeyPair.generate();

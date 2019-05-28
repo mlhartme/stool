@@ -327,7 +327,6 @@ public class ApiController {
         int mappedPort;
         JsonObject result;
         String privateKey;
-        FileNode authorizedKeys;
 
         try (Engine engine = Engine.create()) {
             stage = server.load(stageName);
@@ -345,7 +344,7 @@ public class ApiController {
                 default:
                     throw new ArgumentException("unknown port: " + port);
             }
-            privateKey = server.sshDirectory.generate(mappedPort);
+            privateKey = server.sshDirectory.add(mappedPort);
         }
         result = new JsonObject();
         result.add("port", new JsonPrimitive(mappedPort));
