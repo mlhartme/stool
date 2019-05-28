@@ -16,7 +16,6 @@
 package net.oneandone.stool.client.cli;
 
 import net.oneandone.stool.client.Globals;
-import net.oneandone.sushi.util.Separator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,18 +24,11 @@ public abstract class InfoCommand extends StageCommand {
 
     protected final List<String> selected = new ArrayList<>();
 
-    private final String defaults;
-
-    public InfoCommand(Globals globals, String defaults) {
+    public InfoCommand(Globals globals) {
         super(globals);
-        this.defaults = defaults == null ? "" : defaults;
     }
 
     public void select(String str) {
         selected.add(str);
-    }
-
-    protected List<String> defaults() {
-        return Separator.COMMA.split(defaults);
     }
 }

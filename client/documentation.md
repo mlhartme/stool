@@ -2,8 +2,7 @@
 
 ## Introduction
 
-Stool is a command line tool that provides a lifecycle for stages: create, build, start, stop, remove.
-A stage is a Docker Container with web applications, built from sources or downloaded as artifacts.
+Stool is a tool to manage stages: create, build, start, stop, remove. A stage is a set of Web applications
 
 ### Quick Tour
 
@@ -11,9 +10,14 @@ For setup instructions, please read the respective section below. The following 
 
 Here's an example, what you can do with Stool. 
 
+Enter a project directory with a Web application of your - or get a sample application with
+
+    git clone ssh://git@github.com/mlhartme/hellowar.git hellowar
+    cd hellowar
+        
 Create a new stage by checking out application sources:
 
-    stool create git:ssh://git@github.com/mlhartme/hellowar.git
+    stool create hello@localhost
 
 Start it:
 
@@ -39,9 +43,7 @@ You can create an arbitrary number of stages. Invoke
 
     stool list
 
-to see what you have created and not yet removed. To switch to another stage, run
-
-    stool select otherstage
+to see what you have created and not yet removed. 
 
 Use 
 
@@ -59,6 +61,7 @@ to see a list of available commands. You can append a command to get more help o
     
 prints help about `create`.
 
+
 ### Conventions
 
 * Stool is written with a capital S)
@@ -66,145 +69,99 @@ prints help about `create`.
 * italics mark *text* to be replaced by the user
 * bold face highlights term in definition lists
 * synopsis syntax: `[]` for optional, `|` for alternatives, `...` for repeatable, `type writer` for literals, *italics* for replaceables)
-* $STAGE denotes the stage directory of the respective stage; 
-* $STOOL_HOME denotes Stools home directory 
+* $PROJECT denotes the project directory currently used 
 
 
 ## Concepts
 
 ### Stage
 
-A stage defines a Docker, typically containing a Tomcat servlet container (http://tomcat.apache.org) with one or more
-Java web applications (https://en.wikipedia.org/wiki/Java_Servlet). A stage has a
+A stage is a set of apps, where each app is typically a Tomcat servlet container (http://tomcat.apache.org) with a Java web application 
+(https://en.wikipedia.org/wiki/Java_Servlet). Apps are stored as images, and you can have different images for different versions of the 
+app. Technially, any image is a Docker image, and if you start an app, the respective Docker container is created.
 
-* **directory**
-  Where the stage is stored in your file system, it holds the source code or the artifacts of this stage.
-  This is where you usually work with your stage. The directory is specified explicitly or implicitly when you create a
-  stage. You can change the stage directory with `stool move`.
-* **id**
-  Unique identifier for a stage. The id is generated when creating a stage and it is never changed.
-  However, users normally work with the stage name instead. You can see the id with `stool status id`.
 * **name**
-  User readable identification for a stage. Usually, the name is unique. The name of the selected stage 
-  is shown in your shell prompt, you use it to switch between stages, and it's usually part of the application
-  url(s). The name is determined explicitly or implicitly when you create a stage, in most cases it's simply the name 
-  of the stage directory. You can change the name with `stool config name=`*newname*.
+  Unique identifier and user readable identification for a stage. The name of the attached stage is shown in your shell prompt, and it's 
+  usually part of the application url(s). The name is defined when you create a stage, and you cannot change it later.
+* **running**
+  true if at least on app of the stage is running; otherwise false. Running means the container is up and you can access the stage in
+  your browser. You can check the state with `stool status` or `stool list`.
+* **last-modified-by**
+  The user that last changed this stage.
+
+
+### Project
+
+The current project is a the base directory user for various Stool command, in particular for building. In most cases, the current project
+has a stage attached. 
+
+You can specify the current project with the `-project` command line option; if not specified the current directory and its parent 
+directories are searched for a `.backstage` directory. If successful, that's the project; otherwise, the current directory is the project 
+(without stage attached).
+
+
+### App
+
+A set of docker images with the same name.
+
+### Image
+
 * **origin**
-  Specifies where the web applications come from: A Subversion URL, a git url, Maven coordinates, or
+  Specifies where the image came from: A Subversion URL, a git url, Maven coordinates, or
   a file url pointing to a war file. Examples:
   
       git:ssh://git@github.com/mlhartme/hellowar.git
       svn:https://github.com/mlhartme/hellowar/trunk
       gav:net.oneandone:hellowar:1.0.2
-      file:///home/mhm/foo.war
 
-* **type**
-  How the stage contains the application(s): source - checkout of project sources, or artifact - an artifact
-  from a Maven repository. The stage origin implies the stage type.
-* **state**
-  one of
-  * **down**
-    stage is not running, applications cannot be used in a brower. This is the initial state after creation or after
-    it was stopped.
-  * **up**
-    stage is running, applications can be accessed via application url(s). This is the state after successful
-    start or restart.
-  You can check the state with `stool status` or `stool list`.
-* **last-modified-by**
-  The user that last changed this stage.
+### Attached stage and stage indicator
 
-### Selected stage and stage indicator
+The attached stage associated with the current project. Unless otherwise specified, stage commands operate on the attached stage.
 
-The selected stage is the stage the current working directory belongs to. In other words: your current working directory 
-is the stage directory or a (direct or indirect) subdirectory of it. Unless otherwise specified, stage commands operate 
-on the selected stage.
+The stage indicator `{somestage@server}` is displayed in front of your shell prompt. It shows the name of the attached stage and the server
+hosting it.
 
-The stage indicator `{somestage}` is displayed in front of your shell prompt, it shows the name of the selected stage.
+If you create a new stage, Stool attaches the current project to the newly created stage. If you `cd` into a different project, the
+stage indicator changes accordingly. You can explicitly change the attached stage with `stool attach` and `stool detach`. The stage indicator 
+is invisible if the current project has no stage attached.
 
-If you create a new stage, Stool changes the current working directory to the newly created stage directory. Thus, the new stage
-becomes the selected stage. `stool select` changes the current working directory to the respective stage directory,
-thus it is just a convenient way for cd'ing between stage directories.
-
-The stage indicator is invisible if you have no stage selected; select a stage to see a stage indicator.
 
 ### Properties
 
-Stool is configured via properties. A property is a key/value pair. Value has a type (string, number, date,
-boolean, list (of strings), or map (string to string)). Stool distinguishes Stool properties and stage
-properties. Stool properties are global settings that apply to all stages, they are usually adjusted by system
-administrators (see [server configuration](#stool-server-configuration)). Stage properties configure the
-respective stage only, every stage has its own set of stage properties. You can adjust stage properties 
-with [stool config](#stool-config). You can adjust Stool properties by editing $STOOL_HOME/config.json.
+Stool is configured via properties. A property is a key/value pair. Value has a type (string, number, date, boolean, list (of strings), 
+or map (string to string)). Stool distinguishes server properties and stage properties. Server properties are global settings that apply to 
+all stages, they are usually adjusted by system administrators (see [server configuration](#stool-server-configuration)). Stage properties 
+onfigure the respective stage only, every stage has its own set of stage properties. You can adjust stage properties 
+with [stool config](#stool-config). 
 
 Besides properties, every stage has status fields, you can view them with `stool status`. Status fields are similar to
 properties, but they are read-only.
 
+Besides properties, stages have build options and environment variables for every application image. Use `stool app` to see the current
+values.
+ 
 
 ### Backstage
 
-Every stage directory contains a backstage directory `.backstage` that stores Stool-related data, e.g. the stage 
-properties or log files of the applications. The backstage directory is created when you create or import the stage. 
-`$STOOL_HOME/backstages` contains a symlink *id*->*backstage* for every stage. Stool uses this to iterate all stages.
-
-Stool removes backstage symlinks either explicitly when you run `stool remove`, or implicitly when it detects that
-the symlink target directory has been removed. Stool checks for - and cleans - stale backstage links before every command.
-
+Projects can optionally have a `.backstage` file. If this file exists, it defines the attached stage; otherwise, the 
+project has no attached stage. The backstage file is created when you create a stage, it's created or modified by the `attach` command,
+and it's removed by `detach`. 
 
 ### Stage Expiring
 
-Every stage has an `expire` property that specifies how long the stage is needed. You can
-see the expire date with `stool config expire`. If this date has passed, the stage is called
-expired, and it is automatically stopped, a notification email is sent and you cannot start it again
-unless you specify a new date with `stool config expire=`*yyyy-mm-dd*.
+Every stage has an `expire` property that specifies how long the stage is needed. You can see the expire date with `stool config expire`. 
+If this date has passed, the stage is called expired, and it is automatically stopped, a notification email is sent and you cannot start it 
+again unless you specify a new date with `stool config expire=`*yyyy-mm-dd*.
 
-Depending on the `autoRemove` Stool property, an expired stage will automatically be removed after
-the configured number of days. Stage expiring helps to detect and remove unused stages, which is crucial for
-shared stages. If you receive an email notification that your stage has expired, please check if your stage
-is still needed. If so, adjust the expire date. Otherwise, remove the stage.
-
-### User defaults
-
-Every users can define default values for various command line option by placing a properties file `.stool.defaults` in
-her home directory. If this file exists, Stool uses the contained properties as default values for various options.
-For example, a property `refresh.build=true` causes `stool refresh` to build a stage without
-explicitly specifying the `-build` option. (Note: To override this default, use `stool refresh -build=false`).
-
-Supported user default properties:
-
-* **verbose**
-  controls the `-v` option for every command
-* **exception**
-  controls the `-e` option for every command
-* **auto.restart**
-  controls the `-autorestart` option for every stage command
-* **auto.stop**
-  controls the `-autostop` option for every stage command
-* **import.name**
-  controls the `-name` option for the `import` command
-* **import.max**
-  controls the `-max` option for the `import` command
-* **history.max**
-  controls the `-max` option for the `history` command
-* **history.details**
-  controls the `-details` option for the `history` command
-* **list.defaults**
-  controls the `-defaults` option for the `list` command
-* **status.defaults**
-  controls the `-defaults` option for the `status` command
-* **select.fuzzy**
-  controls the `-fuzzy` option for the `select` command
-* **svn.user** and **svn.password** 
-  credentials the `-svnuser` and `-svnpassword` options for every Stool command.
+Depending on the `autoRemove` Stool property, an expired stage will automatically be removed after the configured number of days. Stage 
+expiring helps to detect and remove unused stages, which is handy (and sometimes even crucial) if you are not the only user of a server. 
+If you receive an email notification that your stage has expired, please check if your stage is still needed. If so, adjust the expire date. 
+Otherwise, remove the stage.
 
 
 ### Dashboard
 
-The dashboard is a special stage you can setup with
- 
-    stool create gav:net.oneandone.stool:dashboard:4.0.0-SNAPSHOT $STOOL_HOME/system/dashboard
-    stool start
-
-to control stages via browser. Technically, this is just a web frontend to run Stool commands.
+The dashboard is the UI for Stool server. 
 
 
 ## Commands

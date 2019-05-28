@@ -115,6 +115,8 @@ TODO
   - https://stackoverflow.com/questions/11412560/where-to-download-jmxmp
   - https://stackoverflow.com/questions/11413178/how-to-enable-jmxmp-in-tomcat
   
+  
+* dumped user defaults -- only Max had used them
 * stage filter with substring, and case-insensitive
 
 * dumped "Manager" tag from server

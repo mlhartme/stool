@@ -23,8 +23,8 @@ import net.oneandone.sushi.util.Strings;
 import java.util.Map;
 
 public class Status extends InfoCommand {
-    public Status(Globals globals, String defaults) {
-        super(globals, defaults);
+    public Status(Globals globals) {
+        super(globals);
     }
 
     private static final Separator TAB = Separator.on('\t');
@@ -36,7 +36,7 @@ public class Status extends InfoCommand {
         boolean first;
         String value;
 
-        infos = reference.client.status(reference.stage, selected.isEmpty() ? defaults() : selected);
+        infos = reference.client.status(reference.stage, selected);
         width = 0;
         for (String name : infos.keySet()) {
             width = Math.max(width, name.length());

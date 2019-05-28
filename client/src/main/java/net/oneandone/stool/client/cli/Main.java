@@ -65,9 +65,8 @@ public class Main {
         }
         globals = Globals.create(console, world, itHome, "stool " + Separator.SPACE.join(args));
         cli = new Cli(globals.getConsole()::handleException);
-        loadDefaults(cli, world);
         cli.primitive(FileNode.class, "file name", null, world::file);
-        cli.begin(globals.getConsole(), "-v=@verbose -e=@exception  { setVerbose(v) setStacktraces(e) }");
+        cli.begin(globals.getConsole(), "-v -e  { setVerbose(v) setStacktraces(e) }");
            cli.add(PackageVersion.class, "version");
            cli.begin("globals", globals,  "-wirelog -exception { setWirelog(wirelog) setException(exception) }");
               cli.addDefault(Help.class, "help command?");
@@ -83,28 +82,17 @@ public class Main {
                     cli.base(StageCommand.class, "-stage -all -fail { setStage(stage) setAll(all) setFail(fail) }");
                       cli.add(App.class, "app name*");
                       cli.add(Config.class, "config property* { property*(property) }");
-                      cli.add(History.class, "history -details=@history.details:false -max=@history.max:-1");
-                      cli.add(Ls.class, "list -defaults=@list.defaults info* { select*(info) }");
+                      cli.add(History.class, "history -details=false -max=-1");
+                      cli.add(Ls.class, "list info* { select*(info) }");
                       cli.add(Remove.class, "remove -batch -stop");
                       cli.add(Restart.class, "restart appIndex*");
                       cli.add(Start.class, "start -http=-1 -https=-1 envAppIndex*");
-                      cli.add(Status.class, "status -defaults=@status.defaults info* { select*(info) }");
+                      cli.add(Status.class, "status info* { select*(info) }");
                       cli.add(Stop.class, "stop app*");
                       cli.add(Tunnel.class, "tunnel app port local?");
                       cli.add(Validate.class, "validate -email -repair");
 
         return cli.run(args);
-    }
-
-    private static void loadDefaults(Cli cli, World world) throws IOException {
-        FileNode file;
-        Properties p;
-
-        file = world.getHome().join(".stool.defaults");
-        if (file.exists()) {
-            p = file.readProperties();
-            cli.defaults((Map) p);
-        }
     }
 
     //--

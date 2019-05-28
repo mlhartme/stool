@@ -30,8 +30,8 @@ import java.util.Map;
 public class Ls extends InfoCommand {
     private final List<List<String>> lines;
 
-    public Ls(Globals globals, String defaults) {
-        super(globals, defaults);
+    public Ls(Globals globals) {
+        super(globals);
         lines = new ArrayList<>();
     }
 
@@ -40,10 +40,7 @@ public class Ls extends InfoCommand {
         List<String> line;
 
         if (selected.isEmpty()) {
-            selected.addAll(defaults());
-            if (selected.isEmpty()) {
-                selected.addAll(Arrays.asList("name", "running", "last-modified-by" /* TODO , "origin", "directory" */));
-            }
+            selected.addAll(Arrays.asList("name", "running", "last-modified-by" /* TODO , "origin", "directory" */));
         }
         header("stages");
 
