@@ -335,7 +335,7 @@ public class ApiController {
                 throw new ArgumentException("app not found or not running: " + app);
             }
             switch (port) {
-                case "jmxmp":
+                case "jmx":
                     mappedPort = ports.jmxmp;
                     break;
                 case "debug":

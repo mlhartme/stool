@@ -176,8 +176,10 @@ Stage tool
 
 #### DESCRIPTION
 
-Stool is a command line tool to manage stages. After creating a stage, you can build, start and apps for it.
-*command* defaults to `help`.
+`stool` is a command line tool to manage stages. After creating a stage, you can build, start and apps for it.
+*command* defaults to `help`. Stages can be managed on any machine that runs a Stool server daemon. Technically, `stool` is a 
+rest client for Stool server, and Stool server wraps a Docker Engine.
+
 
 #### Commands
 
@@ -262,7 +264,7 @@ The following environment variables can be used to configure Stool server in `$S
   Email of the person to receive validation failures and exception mails. Empty to disable these emails.
   Type string, default empty. Example: `Max Mustermann <max@mustermann.org>`.
 * **APP_PROPERTIES_FILE** and **APP_PROPERTIES_PREFIX** 
-  Where in a war file to locate the properties to configure build arguments.
+  Where in a war file to locate the properties file to configure build arguments.
 * **AUTO_REMOVE**
   Days to wait before removing an expired stage. -1 to disable this feature. Type number, default -1. 
 * **DISK_QUOTA**
@@ -271,7 +273,7 @@ The following environment variables can be used to configure Stool server in `$S
 * **DOCKER_HOST**
   Fully qualified hostname of this machine. Used in application urls and emails. Type string.
 * **ENVIRONMENT** 
-  Default environment variables to set automatically when starting apps, can be overwritten by the start command. Type map, default empty.
+  Default environment variables set automatically when starting apps, can be overwritten by the `start` command. Type map, default empty.
 * **JMX_USAGE**
   How to invoke a jmx client in your environment. Type string, default "jconsole %s".  
 * **LDAP_CREDENTIALS**
@@ -299,17 +301,18 @@ The following environment variables can be used to configure Stool server in `$S
 * **PORT_LAST**
   Last port available for stages. Type number, default 9999.
 * **REGISTRY_NAMESPACE**
-  Prefix for all stage tags. Type string.
+  Prefix for all stage repository tags. Type string.
 * **VHOSTS**
   `true` to create urls with subdomains for app and stage name.
   `false` to create urls without subdomains. (Note that urls always contain the port to distinguish between stages). Type boolean. 
-  If you want to enable vhosts you have to make sure you have the respective DNS * entries for your machine.
+  If you want to enable vhosts you need the respective DNS * entries for your machine.
 
 
 #### Ports
 
 Stool allocates ports from the range $PORT_FIRST ... $POST_LAST. To choose a port for a given Stage, Stool computes a hash in this range.
 If this port if already allocated, the next higher port is checked (with roll-over to portFirst if necessary).
+
 
 #### Environment
 
@@ -337,7 +340,7 @@ Display man page
 
 #### DESCRIPTION
 
-Display help about the specified *command*. Or, if *command* is not specified, display general Stool help.
+Display help about the specified *command*. Or, if *command* is not specified, display general `stool` help.
 
 ### stool-version 
 
