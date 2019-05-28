@@ -53,7 +53,6 @@ public class Tunnel extends StageCommand {
         privateKey.setPermissions("rwx------");
         privateKey.writeString(tunnel.get("privateKey").getAsString());
         try {
-            console.info.println("remote: " + remotePort);
             launcher = world.getWorking().launcher("ssh");
             launcher.arg("stool@" + reference.client.getServer());
             localPort = local == null ? remotePort : local;
