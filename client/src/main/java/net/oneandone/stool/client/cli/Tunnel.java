@@ -43,7 +43,6 @@ public class Tunnel extends StageCommand {
         JsonObject tunnel;
         int remotePort;
         int localPort;
-        Server server;
         Launcher launcher;
         int result;
         FileNode privateKey;
@@ -66,9 +65,8 @@ public class Tunnel extends StageCommand {
             launcher.arg("-L");
             launcher.arg(localPort + ":localhost:" + remotePort);
 
-            server = globals.servers().get(reference.client.getName());
             launcher.env("SSH_AUTH_SOCK", ""); // make sure not to save keys: disable agent
-            console.verbose.println("starting " + launcher.toString().replace(server.token, "***") + " ...");
+            console.verbose.println("starting " + launcher + " ...");
             console.info.println("starting tunnel to localhost:" + localPort + ", press ctrl-c to stop");
             launcher.getBuilder().inheritIO();
             result = launcher.getBuilder().start().waitFor();
