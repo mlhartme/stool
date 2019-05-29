@@ -15,10 +15,16 @@
  */
 package net.oneandone.stool.client.cli;
 
+import com.googlecode.lanterna.terminal.ansi.UnixTerminal;
 import net.oneandone.stool.client.Globals;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.launcher.Failure;
+import net.oneandone.sushi.launcher.Launcher;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.GZIPInputStream;
 
@@ -40,11 +46,16 @@ public class Help {
         builder.directory(null /* use current directory */);
         builder.command("less");
         tmp = format();
-        builder.redirectInput(tmp.toPath().toFile());
-        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-        builder.redirectError(ProcessBuilder.Redirect.INHERIT);
-        process = builder.start();
-        process.waitFor();
+        try {
+            builder.redirectInput(tmp.toPath().toFile());
+            builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+            builder.redirectError(ProcessBuilder.Redirect.INHERIT);
+            process = builder.start();
+            process.waitFor();
+        } finally {
+            tmp.deleteFile();
+        }
+        System.out.println();
     }
 
     private FileNode format() throws Exception {
@@ -55,7 +66,9 @@ public class Help {
 
         builder = new ProcessBuilder();
         builder.directory(null /* use current directory */);
-        builder.command("groff", "-man", "-Tascii");
+        builder.command("groff", "-man", "-Tascii",
+                /* explicitly configure column width because groff does not see the terminal (since I have to pipe the input stream */
+                "-rLL=" + getColumns() + "n");
         tmp = world.getTemp().createTempFile();
         builder.redirectInput(ProcessBuilder.Redirect.PIPE);
         builder.redirectOutput(tmp.toPath().toFile());
@@ -70,5 +83,16 @@ public class Help {
         process.getOutputStream().close();
         process.waitFor();
         return tmp;
+    }
+
+    // See https://stackoverflow.com/questions/1286461/can-i-find-the-console-width-with-java
+    // Jline works as well, but the jar is larger
+    // I also tried writing the ansi sequences, but I was unable to capture the reported cursor position ...
+    private int getColumns() {
+        try {
+            return new UnixTerminal().findTerminalSize().getColumns();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

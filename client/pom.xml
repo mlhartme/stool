@@ -29,6 +29,11 @@
       <artifactId>gson</artifactId>
       <version>${gson.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.googlecode.lanterna</groupId>
+      <artifactId>lanterna</artifactId>
+      <version>3.0.1</version>
+    </dependency>
 
     <!-- test -->
     <dependency>
@@ -64,7 +69,6 @@
               <options>-Djava.awt.headless=true</options>
               <name>stool</name>
               <main>net.oneandone.stool.client.cli.Main</main>
-
               <equal>com/jcraft/jsch/agentproxy/*.class, org/aopalliance/**/*, META-INF/ASL2.0</equal>
               <remove>META-INF/maven/**/*,
                   META-INF/pominfo.properties, META-INF/wsd.properties, META-INF/DEPENDENCIES, META-INF/LICENSE*, META-INF/NOTICE*,

@@ -125,7 +125,7 @@ TODO
   
 * dumped isSelected field
 * dumped cleanup command: there's no m2 repository to cleanup, and log file rotation has to be part of the server configuration
-
+* adjust help column width to terminal size
 * removed `sleep` state and the corresponding `stop -sleep` flag, it was never used
 * removed `shared` switch - local maven repository is now always the user's Maven repository
 * removed `system` marker for stages
