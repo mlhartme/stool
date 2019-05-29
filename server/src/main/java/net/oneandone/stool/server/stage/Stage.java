@@ -162,10 +162,10 @@ public class Stage {
         return result;
     }
 
-    public Property propertyOpt(String name) {
-        for (Property property : properties()) {
-            if (name.equals(property.name())) {
-                return property;
+    public Property propertyOpt(String property) {
+        for (Property candidate : properties()) {
+            if (property.equals(candidate.name())) {
+                return candidate;
             }
         }
         return null;
@@ -728,9 +728,9 @@ public class Stage {
         result = new Properties();
         if (node.exists()) {
             all = node.readProperties();
-            for (String name : all.stringPropertyNames()) {
-                if (name.startsWith(prefix)) {
-                    result.setProperty(name.substring(prefix.length()), all.getProperty(name));
+            for (String property : all.stringPropertyNames()) {
+                if (property.startsWith(prefix)) {
+                    result.setProperty(property.substring(prefix.length()), all.getProperty(property));
                 }
             }
         }
@@ -746,11 +746,11 @@ public class Stage {
     }
 
     private FileNode template(Properties appProperies, Map<String, String> explicit) throws IOException {
-        return server.templates().join(eat(appProperies, explicit,"_template", "war")).checkDirectory();
+        return server.templates().join(eat(appProperies, explicit, "_template", "war")).checkDirectory();
     }
 
     private String app(Properties appProperties, Map<String, String> explitit) {
-        return eat(appProperties, explitit,"_app", "app");
+        return eat(appProperties, explitit, "_app", "app");
     }
 
     private String eat(Properties appProperties, Map<String, String> explicit, String key, String dflt) {
@@ -767,25 +767,25 @@ public class Stage {
 
     private Map<String, String> buildArgs(Map<String, BuildArgument> defaults, Properties appProperties, Map<String, String> explicit) {
         Map<String, String> result;
-        String name;
+        String property;
 
         result = new HashMap<>();
         for (BuildArgument arg : defaults.values()) {
             result.put(arg.name, arg.dflt);
         }
         for (Map.Entry<Object, Object> entry : appProperties.entrySet()) {
-            name = entry.getKey().toString();
-            if (!result.containsKey(name)) {
-                throw new ArgumentException("unknown build argument in stool.properties: " + name + "\n" + available(defaults.values()));
+            property = entry.getKey().toString();
+            if (!result.containsKey(property)) {
+                throw new ArgumentException("unknown build argument in stool.properties: " + property + "\n" + available(defaults.values()));
             }
-            result.put(name, entry.getValue().toString());
+            result.put(property, entry.getValue().toString());
         }
         for (Map.Entry<String, String> entry : explicit.entrySet()) {
-            name = entry.getKey();
-            if (!result.containsKey(name)) {
-                throw new ArgumentException("unknown explicit build argument: " + name + "\n" + available(defaults.values()));
+            property = entry.getKey();
+            if (!result.containsKey(property)) {
+                throw new ArgumentException("unknown explicit build argument: " + property + "\n" + available(defaults.values()));
             }
-            result.put(name, entry.getValue());
+            result.put(property, entry.getValue());
         }
         return result;
     }
@@ -847,22 +847,22 @@ public class Stage {
             throw new IllegalStateException("no image for app " + app);
         }
         if (ports.http != -1) {
-            addNamed(app, url(image,"http", ports.http), dest);
+            addNamed(app, url(image, "http", ports.http), dest);
         }
         if (ports.https != -1) {
-            addNamed(app + " SSL", url(image,"https", ports.https), dest);
+            addNamed(app + " SSL", url(image, "https", ports.https), dest);
         }
     }
 
-    private void addNamed(String name, List<String> urls, Map<String, String> dest) {
+    private void addNamed(String key, List<String> urls, Map<String, String> dest) {
         int count;
 
         if (urls.size() == 1) {
-            dest.put(name, urls.get(0));
+            dest.put(key, urls.get(0));
         } else {
             count = 1;
             for (String url : urls) {
-                dest.put(name + "_" + count, url);
+                dest.put(key + "_" + count, url);
                 count++;
             }
         }
@@ -993,7 +993,7 @@ public class Stage {
         String content;
         StringBuilder builder;
 
-        urls = urlMap(engine,null);
+        urls = urlMap(engine, null);
         if (urls == null) {
             return "";
         }
@@ -1096,15 +1096,15 @@ public class Stage {
 
 
     private String jmxEngineState(JMXServiceURL url) throws IOException {
-        ObjectName name;
+        ObjectName object;
 
         try {
-            name = new ObjectName("Catalina:type=Engine");
+            object = new ObjectName("Catalina:type=Engine");
         } catch (MalformedObjectNameException e) {
             throw new IllegalStateException(e);
         }
         try (JMXConnector connection = JMXConnectorFactory.connect(url, null)) {
-            return (String) connection.getMBeanServerConnection().getAttribute(name, "stateName");
+            return (String) connection.getMBeanServerConnection().getAttribute(object, "stateName");
         } catch (ReflectionException | InstanceNotFoundException | AttributeNotFoundException | MBeanException e) {
             throw new IllegalStateException();
         }

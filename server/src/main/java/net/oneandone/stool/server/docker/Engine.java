@@ -365,7 +365,7 @@ public class Engine implements AutoCloseable {
     }
 
     private JsonElement eatObject(JsonObject object, String key, StringBuilder result, Writer log) throws IOException {
-        return eat(object, key, "[" + key + "] ", "\n",false, result, log);
+        return eat(object, key, "[" + key + "] ", "\n", false, result, log);
     }
 
     private JsonElement eat(JsonObject object, String key, String prefix, String suffix, boolean isString, StringBuilder result, Writer log) throws IOException {
@@ -461,6 +461,7 @@ public class Engine implements AutoCloseable {
      * @param stopTimeout default timeout when stopping this container without explicit timeout value; null to use default (10 seconds)
      * @return container id
      */
+    @SuppressWarnings("checkstyle:ParameterNumber")
     public String containerCreate(String name, String image, String hostname, String networkMode, boolean priviledged, Long memory, String stopSignal, Integer stopTimeout,
                                   Map<String, String> labels, Map<String, String> env, Map<FileNode, String> bindMounts, Map<Integer, String> ports) throws IOException {
         JsonObject body;
@@ -529,7 +530,7 @@ public class Engine implements AutoCloseable {
 
         portBindings = new JsonObject();
         for (Map.Entry<Integer, String> entry: ports.entrySet()) {
-            portBindings.add(Integer.toString(entry.getKey()) + "/tcp", hostMapping( entry.getValue()));
+            portBindings.add(Integer.toString(entry.getKey()) + "/tcp", hostMapping(entry.getValue()));
         }
         hostConfig.add("PortBindings", portBindings);
         body.add("ExposedPorts", exposedPorts(ports.keySet()));
@@ -807,7 +808,7 @@ public class Engine implements AutoCloseable {
         return body;
     }
 
-    private static JsonArray array(JsonElement ... elements) {
+    private static JsonArray array(JsonElement... elements) {
         JsonArray result;
 
         result = new JsonArray();

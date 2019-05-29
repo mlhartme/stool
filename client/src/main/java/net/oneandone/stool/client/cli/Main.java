@@ -115,7 +115,7 @@ public class Main {
 
         fs = (HttpFilesystem) world.getFilesystem(scheme);
         fs.setSocketFactorySelector((protocol, hostname) ->
-                protocol.equals("https") ? (LAZY_HOSTS.contains(hostname) ? lazyFactory() : SSLSocketFactory.getDefault()) : null );
+                protocol.equals("https") ? (LAZY_HOSTS.contains(hostname) ? lazyFactory() : SSLSocketFactory.getDefault()) : null);
         if (fs.getProxy(scheme) == null) {
             proxy = Proxy.forPropertiesOpt("stool." + scheme);
             if (proxy == null) {

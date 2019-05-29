@@ -34,6 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @SpringBootApplication
+@SuppressWarnings("checkstyle:HideUtilityClassConstructor") // instantiated by spring
 public class Main {
     public static void main(String[] args){
         ServerConfiguration config;
@@ -66,7 +67,7 @@ public class Main {
 
         fs = (HttpFilesystem) world.getFilesystem(scheme);
         fs.setSocketFactorySelector((protocol, hostname) ->
-                protocol.equals("https") ? (LAZY_HOSTS.contains(hostname) ? lazyFactory() : SSLSocketFactory.getDefault())  : null );
+                protocol.equals("https") ? (LAZY_HOSTS.contains(hostname) ? lazyFactory() : SSLSocketFactory.getDefault()) : null);
         if (fs.getProxy(scheme) == null) {
             proxy = Proxy.forPropertiesOpt("stool." + scheme);
             if (proxy == null) {
@@ -120,5 +121,8 @@ public class Main {
         } catch (IOException e) {
             throw new IllegalStateException("cannot determine version", e);
         }
+    }
+
+    public Main() {
     }
 }

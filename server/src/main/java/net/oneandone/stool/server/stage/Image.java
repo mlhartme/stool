@@ -183,6 +183,7 @@ public class Image implements Comparable<Image> {
     /** maps relative host path to absolute container path */
     public final List<String> faultProjects;
 
+    @SuppressWarnings("checkstyle:ParameterNumber")
     public Image(String repositoryTag, String tag, LocalDateTime created, Ports ports, String p12, String app, int disk, int memory, String urlContext, List<String> urlSuffixes,
                  String comment, String origin, String createdBy, String createdOn, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {

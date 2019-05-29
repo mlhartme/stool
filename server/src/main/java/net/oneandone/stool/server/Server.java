@@ -206,7 +206,7 @@ public class Server {
             world.resource("files/home/cert.sh").copyFile(dest);
             dest.setPermissions("rwx--x--x");
         }
-        for (String name : new String[]{"stages","certs"}) {
+        for (String name : new String[] {"stages", "certs"}) {
             home.join(name).mkdir();
         }
         home.join("templates").mkdirOpt();

@@ -45,7 +45,7 @@ public class Mailer {
         this.password = password;
     }
 
-    public void send(String from, String[] to, String subject, String text, File ... attachments) throws MessagingException {
+    public void send(String from, String[] to, String subject, String text, File... attachments) throws MessagingException {
         Properties props;
         MimeMessage msg;
         Session session;

@@ -103,6 +103,10 @@ public class Expire {
         return false;
     }
 
+    public int hashCode() {
+        return date == null ? 0 : date.hashCode();
+    }
+
     //--
 
     private static final DateTimeFormatter FORMAT =  DateTimeFormatter.ofPattern("yyyy-MM-dd");

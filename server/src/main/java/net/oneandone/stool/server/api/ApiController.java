@@ -155,7 +155,7 @@ public class ApiController {
         war.copyFileFrom(body);
         try (Engine engine = Engine.create()) {
             result = server.load(stage).build(engine, war, comment, origin, createdBy, createdOn, noCache, keep, arguments);
-            return buildResult(result.app, result.tag,null, result.output).toString();
+            return buildResult(result.app, result.tag, null, result.output).toString();
         } catch (BuildError e) {
             return buildResult(Image.app(e.repositoryTag), Image.version(e.repositoryTag), e.error, e.output).toString();
         } finally {
@@ -435,7 +435,7 @@ public class ApiController {
 
         file = request.getRequestURI();
         file = Strings.removeLeft(file, request.getContextPath());
-        file = Strings.removeLeft(file,"/api/stages/" + stageName + "/logs/");
+        file = Strings.removeLeft(file, "/api/stages/" + stageName + "/logs/");
         stage = server.load(stageName);
         resource = new FileSystemResource(stage.logs().join(file).toPath());
         return new ResponseEntity<>(resource, HttpStatus.OK);
