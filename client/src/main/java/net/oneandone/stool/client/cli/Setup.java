@@ -102,7 +102,8 @@ public class Setup {
         console.info.println("  Don't forget to restart your terminal.");
         if (server) {
             console.info.println();
-            console.info.println("A local Stool server has been setup - try ");
+            console.info.println("A local Stool server has been configured - use it like this:");
+            console.info.println("    docker network create stool");
             console.info.println("    alias sserver=\"docker-compose -f " +  home.join("server.yml").getAbsolute() + "\"");
             console.info.println("    sserver up -d");
             console.info.println("    sserver logs");
@@ -258,6 +259,10 @@ public class Setup {
         if (cisotools != null) {
             builder.append("      - " + cisotools.join("stool/templates-5").checkDirectory().getAbsolute() + ":/var/lib/stool/templates:ro\n");
         }
+        builder.append("networks:\n");
+        builder.append("  default:\n");
+        builder.append("    external:\n");
+        builder.append("      name: stool");
         return builder.toString();
     }
 
