@@ -21,9 +21,9 @@ import net.oneandone.sushi.fs.file.FileNode;
 public abstract class ProjectCommand extends ClientCommand {
     private final FileNode project;
 
-    public ProjectCommand(Globals globals, FileNode project) {
+    public ProjectCommand(Globals globals, FileNode explicitProject) {
         super(globals);
-        this.project = project == null ? world.getWorking() : project;
+        this.project = explicitProject == null ? world.getWorking() : explicitProject;
     }
 
     @Override

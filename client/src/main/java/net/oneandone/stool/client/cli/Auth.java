@@ -28,12 +28,12 @@ import java.util.List;
 public class Auth {
     private final Globals globals;
     private final Console console;
-    private final String server;
+    private final String explicitServer;
 
     public Auth(Globals globals, String server) {
         this.globals = globals;
         this.console = globals.getConsole();
-        this.server = server;
+        this.explicitServer = server;
     }
 
 
@@ -45,8 +45,8 @@ public class Auth {
 
         manager = globals.servers();
         dests = new ArrayList<>();
-        if (server != null) {
-            dests.add(manager.get(server));
+        if (explicitServer != null) {
+            dests.add(manager.get(explicitServer));
         } else {
             for (Server server : manager) {
                 if (server.hasToken()) {

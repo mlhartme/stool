@@ -50,13 +50,15 @@ public class Status extends InfoCommand {
             value = entry.getValue();
             if (value.isEmpty()) {
                 console.info.println();
-            } else for (String str : TAB.split(value)) {
-                if (first) {
-                    first = false;
-                } else {
-                    console.info.print(Strings.times(' ', width + 3));
+            } else {
+                for (String str : TAB.split(value)) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        console.info.print(Strings.times(' ', width + 3));
+                    }
+                    console.info.println(str);
                 }
-                console.info.println(str);
             }
         }
     }
