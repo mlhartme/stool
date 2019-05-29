@@ -31,5 +31,5 @@ public abstract class ProjectCommand extends ClientCommand {
         doRun(project);
     }
 
-    public abstract void doRun(FileNode project) throws Exception;
+    public abstract void doRun(FileNode currentProject) throws Exception;
 }

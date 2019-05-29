@@ -38,8 +38,8 @@ public abstract class StageCommand extends ClientCommand {
         super(globals);
     }
 
-    public void setStage(String stageClause) {
-        this.stageClause = stageClause;
+    public void setStage(String clause) {
+        this.stageClause = clause;
     }
 
     public void setAll(boolean all) {
@@ -75,8 +75,10 @@ public abstract class StageCommand extends ClientCommand {
         }
         if (this instanceof Remove) {
             // TODO - skip
-        } else for (Reference reference : lst) {
-            worker.finish(reference);
+        } else {
+            for (Reference reference : lst) {
+                worker.finish(reference);
+            }
         }
         doAfter();
         failureMessage = failures.getMessage();
