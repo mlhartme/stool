@@ -211,7 +211,7 @@ rest client for Stool server, and Stool server wraps a Docker Engine.
 `stool` *global-option*... `detach`
 
 
-`stool` *global-option*... `build` *project-option*... [`-nocache`][`-keep` *keep*][`-restart`] [*war* ...] [*key*`=`*value*]
+`stool` *global-option*... `build` *project-option*... [`-nocache`][`-keep` *keep*][`-restart`] [*war*...] [*key*`=`*value*...]
 
 
 
@@ -222,7 +222,7 @@ rest client for Stool server, and Stool server wraps a Docker Engine.
 `stool` *global-option*... `remove` *stage-option*... [`-stop`] [`-batch`]
 
 
-`stool` *global-option*... `start` *stage-option*... [*key*`=`*value*...][*app*`[`:`*tag*] ...]
+`stool` *global-option*... `start` *stage-option*... [*key*`=`*value*...][*app*[`:`*tag*] ...]
 
 
 `stool` *global-option*... `stop` *stage-option*... [*app*...]
