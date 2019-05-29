@@ -107,7 +107,7 @@ public class Setup {
             console.info.println("    alias sserver=\"docker-compose -f " +  home.join("server.yml").getAbsolute() + "\"");
             console.info.println("    sserver up -d");
             console.info.println("    sserver logs");
-            console.info.println("    sserver stop");
+            console.info.println("    sserver down");
         }
     }
 
