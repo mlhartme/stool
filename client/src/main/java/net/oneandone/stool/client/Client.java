@@ -121,10 +121,10 @@ public class Client {
 
     //-- create, build, start, stop, remove
 
-    public void create(String name, Map<String, String> config) throws IOException {
+    public void create(String stage, Map<String, String> config) throws IOException {
         HttpNode node;
 
-        node = node("stages/" + name);
+        node = node("stages/" + stage);
         node = node.withParameters(config);
         postEmpty(node, "");
     }
@@ -228,8 +228,8 @@ public class Client {
         node = node.withParameter("select", Separator.COMMA.join(select));
         status = getJson(node).getAsJsonObject();
         result = new LinkedHashMap<>();
-        for (String name : status.keySet()) {
-            result.put(name, status.get(name).getAsString());
+        for (String field : status.keySet()) {
+            result.put(field, status.get(field).getAsString());
         }
         if (result.containsKey("name")) {
             result.replace("name", new Reference(this, stage).toString());
@@ -242,7 +242,7 @@ public class Client {
         JsonArray references;
         List<String> result;
 
-        node = node(stage,"history");
+        node = node(stage, "history");
         node = node.withParameter("details", details);
         node = node.withParameter("max", max);
         references = getJson(node).getAsJsonArray();
@@ -265,10 +265,10 @@ public class Client {
     public List<String> validate(String stage, boolean email, boolean repair) throws IOException {
         HttpNode node;
 
-        node = node(stage,"validate");
+        node = node(stage, "validate");
         node = node.withParameter("email", email);
         node = node.withParameter("repair", repair);
-        return array(postJson(node,"").getAsJsonArray());
+        return array(postJson(node, "").getAsJsonArray());
     }
 
     //-- config command
@@ -279,8 +279,8 @@ public class Client {
 
         properties = getJson(node(stage, "properties")).getAsJsonObject();
         result = new LinkedHashMap<>();
-        for (String name : properties.keySet()) {
-            result.put(name, properties.get(name).getAsString());
+        for (String property : properties.keySet()) {
+            result.put(property, properties.get(property).getAsString());
         }
         return result;
     }
@@ -329,7 +329,7 @@ public class Client {
         byte[] bytes;
 
         bytes = node.getWorld().getSettings().bytes(body);
-        return postJson(node, new Body(null, null, (long)bytes.length, new ByteArrayInputStream(bytes), false));
+        return postJson(node, new Body(null, null, (long) bytes.length, new ByteArrayInputStream(bytes), false));
     }
 
     private JsonElement postJson(HttpNode node, Body body) throws IOException {
