@@ -87,6 +87,6 @@ public class Create extends ProjectCommand {
             }
             project.setAttached(reference);
         }
-        console.info.println("stage create: " + reference);
+        console.info.println("stage created: " + reference);
     }
 }

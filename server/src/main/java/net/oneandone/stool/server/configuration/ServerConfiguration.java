@@ -121,7 +121,7 @@ public class ServerConfiguration {
         diskQuota = 0;
         appPropertiesFile = "WEB-INF/classes/META-INF/stool.properties";
         appPropertiesPrefix = "";
-        jmxUsage = "jconsole %s";
+        jmxUsage = "jconsole localhost:%i";
         environment = new HashMap<>();
     }
 

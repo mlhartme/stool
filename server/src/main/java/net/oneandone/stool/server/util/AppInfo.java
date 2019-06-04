@@ -100,7 +100,7 @@ public class AppInfo {
             }
             if (ports.jmxmp != -1) {
                 result.add("jmx port:  " + ports.jmxmp);
-                result.add("                 " + String.format(stage.server.configuration.jmxUsage, stage.server.configuration.dockerHost + ":" + ports.jmxmp));
+                result.add("                 " + String.format(stage.server.configuration.jmxUsage, ports.jmxmp));
             }
         }
         return result;
