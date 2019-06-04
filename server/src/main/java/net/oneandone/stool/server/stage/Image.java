@@ -42,7 +42,7 @@ public class Image implements Comparable<Image> {
         return new Image(repositoryTag, version(repositoryTag), Ports.fromDeclaredLabels(labels), p12(labels.get(Stage.IMAGE_LABEL_P12)), app,
                 disk(labels.get(Stage.IMAGE_LABEL_DISK)), memory(labels.get(Stage.IMAGE_LABEL_MEMORY)), context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(Stage.IMAGE_LABEL_URL_SUFFIXES)), labels.get(Stage.IMAGE_LABEL_COMMENT).getAsString(),
-                labels.get(Stage.IMAGE_LABEL_ORIGIN_SCM).getAsString(), labels.get(Stage.IMAGE_LABEL_CREATED_ON).getAsString(),
+                labels.get(Stage.IMAGE_LABEL_ORIGIN_SCM).getAsString(), labels.get(Stage.IMAGE_LABEL_ORIGIN_USER).getAsString(),
                 created, labels.get(Stage.IMAGE_LABEL_CREATED_BY).getAsString(),
                 args(labels),
                 fault(labels.get(Stage.IMAGE_LABEL_FAULT)));
