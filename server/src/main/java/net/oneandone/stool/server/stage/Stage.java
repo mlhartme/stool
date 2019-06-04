@@ -1152,9 +1152,12 @@ public class Stage {
     public void cleanupContext(String app, String tag, int keep) throws IOException {
         FileNode dir;
         List<FileNode> lst;
+        FileNode dest;
 
         dir = directory.join("context");
-        dir.join(app).move(dir.join(app + ":" + tag));
+        dest = dir.join(app + ":" + tag);
+        moveAway(dest);
+        dir.join(app).move(dest);
         lst = dir.list();
         Collections.sort(lst, new Comparator<FileNode>() {
             @Override
@@ -1168,6 +1171,21 @@ public class Stage {
         });
         while (lst.size() > keep) {
             lst.remove(0).deleteTree();
+        }
+    }
+
+    private void moveAway(FileNode file) throws IOException {
+        int no;
+        FileNode away;
+
+        if (file.exists()) {
+            for (no = 1; true; no++) {
+                away = file.getParent().join(file.getName() + "_" + no);
+                if (!away.exists()) {
+                    file.move(away);
+                    return;
+                }
+            }
         }
     }
 }
