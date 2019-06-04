@@ -219,20 +219,20 @@ public class Stage {
             @Override
             public Object get(Engine engine) throws IOException {
                 // TODO: getCreated: https://unix.stackexchange.com/questions/7562/what-file-systems-on-linux-store-the-creation-time
-                return oldest(accessLog(-1)).dateTime;
+                return oldest(accessLog(-1, true)).dateTime;
             }
 
         });
         fields.add(new Field("last-modified-by") {
             @Override
             public Object get(Engine engine) throws IOException {
-                return server.userManager.checkedByLogin(youngest(accessLog(-1)).user);
+                return server.userManager.checkedByLogin(youngest(accessLog(-1, true)).user);
             }
         });
         fields.add(new Field("last-modified-at") {
             @Override
             public Object get(Engine engine) throws IOException {
-                return timespan(youngest(accessLog(-1)).dateTime);
+                return timespan(youngest(accessLog(-1, true)).dateTime);
             }
         });
         fields.add(new Field("urls") {
@@ -807,7 +807,7 @@ public class Stage {
 
     /** @return login name */
     public String createdBy() throws IOException {
-        return oldest(accessLog(-1)).user;
+        return oldest(accessLog(-1, true)).user;
     }
 
     //--
@@ -947,11 +947,11 @@ public class Stage {
     }
 
     public String lastModifiedBy() throws IOException {
-        return youngest(accessLog(-1)).user;
+        return youngest(accessLog(-1, true)).user;
     }
 
     /** @return last entry first */
-    public List<AccessLogEntry> accessLog(int max) throws IOException {
+    public List<AccessLogEntry> accessLog(int max, boolean modificationsOnly) throws IOException {
         AccessLogEntry entry;
         List<AccessLogEntry> entries;
         LogReader<AccessLogEntry> reader;
@@ -967,12 +967,14 @@ public class Stage {
                 break;
             }
             if (stage.equals(entry.stageName)) {
-                previousInvocation = entries.isEmpty() ? "" : entries.get(entries.size() - 1).clientInvocation;
-                if (!entry.clientInvocation.equals(previousInvocation)) {
-                    entries.add(entry);
-                }
-                if (entries.size() == max) {
-                    break;
+                if (!modificationsOnly || (modificationsOnly && entry.request.startsWith("POST "))) {
+                    previousInvocation = entries.isEmpty() ? "" : entries.get(entries.size() - 1).clientInvocation;
+                    if (!entry.clientInvocation.equals(previousInvocation)) {
+                        entries.add(entry);
+                    }
+                    if (entries.size() == max) {
+                        break;
+                    }
                 }
             }
         }

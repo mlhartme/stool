@@ -391,7 +391,7 @@ public class ApiController {
         JsonArray result;
 
         result = new JsonArray();
-        entries = server.load(stage).accessLog(max);
+        entries = server.load(stage).accessLog(max, false);
         for (AccessLogEntry entry : entries) {
             result.add("[" + AccessLogEntry.DATE_FMT.format(entry.dateTime) + " " + entry.user + "] " + entry.clientCommand);
             if (details) {
