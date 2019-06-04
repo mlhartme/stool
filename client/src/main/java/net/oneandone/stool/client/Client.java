@@ -129,8 +129,7 @@ public class Client {
         postEmpty(node, "");
     }
 
-    public BuildResult build(String stage, FileNode war, String comment,
-                             String origin, String createdBy, String createdOn, boolean noCache, int keep,
+    public BuildResult build(String stage, FileNode war, String comment, String origin, String createdOn, boolean noCache, int keep,
                              Map<String, String> arguments) throws Exception {
         HttpNode node;
         JsonObject obj;
@@ -140,7 +139,6 @@ public class Client {
         node = node.withParameter("war", war.getAbsolute());
         node = node.withParameter("comment", comment);
         node = node.withParameter("origin", origin);
-        node = node.withParameter("created-by", createdBy);
         node = node.withParameter("created-on", createdOn);
         node = node.withParameter("no-cache", noCache);
         node = node.withParameter("keep", keep);

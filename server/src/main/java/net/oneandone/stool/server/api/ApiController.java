@@ -142,7 +142,7 @@ public class ApiController {
     @PostMapping("/stages/{stage}/build")
     public String build(@PathVariable("stage") String stage,
                         @RequestParam("comment") String comment,
-                        @RequestParam("origin") String origin, @RequestParam("created-by") String createdBy,
+                        @RequestParam("origin") String origin,
                         @RequestParam("created-on") String createdOn, @RequestParam("no-cache") boolean noCache,
                         @RequestParam("keep") int keep, InputStream body, HttpServletRequest request) throws Exception {
         Stage.BuildResult result;
@@ -154,7 +154,7 @@ public class ApiController {
         war = server.world.getTemp().createTempFile();
         war.copyFileFrom(body);
         try (Engine engine = Engine.create()) {
-            result = server.load(stage).build(engine, war, comment, origin, createdBy, createdOn, noCache, keep, arguments);
+            result = server.load(stage).build(engine, war, comment, origin, User.authenticatedOrAnonymous().login, createdOn, noCache, keep, arguments);
             return buildResult(result.app, result.tag, null, result.output).toString();
         } catch (BuildError e) {
             return buildResult(Image.app(e.repositoryTag), Image.version(e.repositoryTag), e.error, e.output).toString();

@@ -105,8 +105,7 @@ public class Build extends ProjectCommand {
         for (FileNode war : wars) {
             started = System.currentTimeMillis();
             console.info.println("building image for " + war + " (" + (war.size() / (1024 * 1024)) + " mb)");
-            result = reference.client.build(reference.stage, war, comment, project.getOrigin(),
-                    createdBy(), createdOn(), noCache, keep, arguments);
+            result = reference.client.build(reference.stage, war, comment, project.getOrigin(), createdOn(), noCache, keep, arguments);
             if (result.error != null) {
                 console.info.println("build failed: " + result.error);
                 console.info.println("build output");
@@ -122,13 +121,9 @@ public class Build extends ProjectCommand {
         }
     }
 
-    private String createdBy() {
-        return System.getProperty("user.name");
-    }
-
-    private String createdOn() {
+    private static String createdOn() {
         try {
-            return InetAddress.getLocalHost().getCanonicalHostName();
+            return System.getProperty("user.name") + '@' + InetAddress.getLocalHost().getCanonicalHostName();
         } catch (UnknownHostException e) {
             return "unknown host: " + e.getMessage();
         }
