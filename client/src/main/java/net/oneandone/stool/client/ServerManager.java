@@ -140,6 +140,15 @@ public class ServerManager implements Iterable<Server> {
         }
     }
 
+    public boolean needAuthentication() {
+        for (Server server : servers.values()) {
+            if (server.hasToken()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public Iterator<Server> iterator() {
         return Collections.unmodifiableCollection(servers.values()).iterator();

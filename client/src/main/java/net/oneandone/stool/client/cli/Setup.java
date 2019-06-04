@@ -109,6 +109,11 @@ public class Setup {
             console.info.println("    sserver logs");
             console.info.println("    sserver down");
         }
+        if (environment.needAuthentication()) {
+            console.info.println("At least one of the servers you're using need authentication. Please run");
+            console.info.println("    stool auth");
+            console.info.println("once to do so.");
+        }
     }
 
     private boolean askServer() {
