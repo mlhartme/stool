@@ -107,7 +107,7 @@ public class ServerManager implements Iterable<Server> {
         }
         result = new ArrayList<>();
         for (Server server : servers.values()) {
-            if (server.name.toLowerCase().contains(serverFilter.toLowerCase())) {
+            if (server.name.toLowerCase().equals(serverFilter.toLowerCase())) {
                 client = server.connect(file.getWorld());
                 result.addAll(Reference.list(client, client.list(clientFilter)));
             }

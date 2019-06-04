@@ -105,7 +105,7 @@ public class PredicateParser {
             return new Predicate() {
                 @Override
                 public boolean matches(Stage stage) {
-                    return stage.getName().toLowerCase().contains(string.toLowerCase());
+                    return stage.getName().toLowerCase().equals(string.toLowerCase());
                 }
             };
         }
