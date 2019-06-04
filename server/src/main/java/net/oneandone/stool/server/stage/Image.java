@@ -154,7 +154,7 @@ public class Image implements Comparable<Image> {
     public final String tag;
     /** parsed version, null if version is not a number */
     public final Integer tagNumber;
-    public final LocalDateTime created;
+    public final LocalDateTime createdAt;
 
     //-- meta data
 
@@ -184,7 +184,7 @@ public class Image implements Comparable<Image> {
     public final List<String> faultProjects;
 
     @SuppressWarnings("checkstyle:ParameterNumber")
-    public Image(String repositoryTag, String tag, LocalDateTime created, Ports ports, String p12, String app, int disk, int memory, String urlContext, List<String> urlSuffixes,
+    public Image(String repositoryTag, String tag, LocalDateTime createdAt, Ports ports, String p12, String app, int disk, int memory, String urlContext, List<String> urlSuffixes,
                  String comment, String originScm, String createdBy, String createdOn, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
@@ -194,7 +194,7 @@ public class Image implements Comparable<Image> {
         this.repositoryTag = repositoryTag;
         this.tag = tag;
         this.tagNumber = parseOpt(tag);
-        this.created = created;
+        this.createdAt = createdAt;
 
         this.ports = ports;
         this.p12 = p12;
@@ -231,7 +231,7 @@ public class Image implements Comparable<Image> {
     }
 
     public String toString() {
-        return created.toString();
+        return repositoryTag + " " + createdAt.toString();
     }
 
     //--
@@ -247,6 +247,4 @@ public class Image implements Comparable<Image> {
         }
         return 1;
     }
-
-
 }

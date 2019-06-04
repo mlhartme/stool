@@ -72,7 +72,7 @@ public class AppInfo {
             result.add(app + ":" + image.tag + "  " + marker);
             result.add("   comment:    " + image.comment);
             result.add("   origin-scm: " + image.originScm);
-            result.add("   created-at: " + image.created);
+            result.add("   created-at: " + image.createdAt);
             result.add("   created-by: " + image.createdBy);
             result.add("   created-on: " + image.createdOn);
             result.add("   memory:     " + image.memory);
