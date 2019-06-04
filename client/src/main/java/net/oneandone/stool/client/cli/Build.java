@@ -88,6 +88,7 @@ public class Build extends ProjectCommand {
         Reference reference;
         List<FileNode> wars;
         BuildResult result;
+        long started;
 
         project = Project.lookup(projectDirectory);
         if (project == null) {
@@ -102,7 +103,8 @@ public class Build extends ProjectCommand {
             throw new IOException("no stage attached to " + projectDirectory);
         }
         for (FileNode war : wars) {
-            console.info.println("building image for " + war);
+            started = System.currentTimeMillis();
+            console.info.println("building image for " + war + " (" + (war.size() / (1024 * 1024)) + " mb)");
             result = reference.client.build(reference.stage, war, comment, project.getOrigin(),
                     createdBy(), createdOn(), noCache, keep, arguments);
             if (result.error != null) {
@@ -113,7 +115,7 @@ public class Build extends ProjectCommand {
             } else {
                 console.verbose.println(result.output);
             }
-            console.info.println("done: " + result.app + ":" + result.tag);
+            console.info.println("done: " + result.app + ":" + result.tag + " (" + (System.currentTimeMillis() - started) / 1000 + " seconds)");
             if (restart) {
                 new Restart(globals, new ArrayList<>()).doRun(reference);
             }

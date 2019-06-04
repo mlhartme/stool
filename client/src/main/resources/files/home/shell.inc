@@ -81,7 +81,7 @@ if [ "x$BASH" != "x" ] ; then
           COMPREPLY=()
           cur="${COMP_WORDS[COMP_CWORD]}"
           prev="${COMP_WORDS[COMP_CWORD-1]}"
-          cmd="stop remove build setup validate version help config restart status list create history start"
+          cmd="attach build config create detach help history list remove restart setup start status stop tunnel validate version"
           general_opts="-v -e"
           select_opts="-stage -all"
           fail_opts="before after never"
@@ -97,6 +97,21 @@ if [ "x$BASH" != "x" ] ; then
                 return 0
                 ;;
             status)
+                local stages=$(_stool_stageList)
+                COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
+                return 0
+                ;;
+            tunnel)
+                local stages=$(_stool_stageList)
+                COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
+                return 0
+                ;;
+            attach)
+                local stages=$(_stool_stageList)
+                COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
+                return 0
+                ;;
+            detach)
                 local stages=$(_stool_stageList)
                 COMPREPLY=( $(compgen -W "${stages}" -- ${cur}) )
                 return 0
