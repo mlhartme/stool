@@ -81,7 +81,7 @@ public class Stage {
     public static final String IMAGE_LABEL_URL_SUFFIXES = IMAGE_PREFIX + "url.suffixes";
     public static final String IMAGE_LABEL_FAULT = IMAGE_PREFIX + "fault";
     public static final String IMAGE_LABEL_COMMENT = IMAGE_PREFIX + "comment";
-    public static final String IMAGE_LABEL_ORIGIN = IMAGE_PREFIX + "origin";
+    public static final String IMAGE_LABEL_ORIGIN_SCM = IMAGE_PREFIX + "origin-scm";
     public static final String IMAGE_LABEL_CREATED_BY = IMAGE_PREFIX + "created-by";
     public static final String IMAGE_LABEL_CREATED_ON = IMAGE_PREFIX + "created-on";
     public static final String IMAGE_LABEL_ARG_PREFIX = IMAGE_PREFIX + "arg.";
@@ -418,7 +418,7 @@ public class Stage {
     }
 
     /** @param keep 0 to keep all */
-    public BuildResult build(Engine engine, FileNode war, String comment, String origin,
+    public BuildResult build(Engine engine, FileNode war, String comment, String originScm,
                         String createdBy, String createdOn, boolean noCache, int keep,
                         Map<String, String> explicitArguments) throws Exception {
         int tag;
@@ -446,7 +446,7 @@ public class Stage {
             context = populateContext(context, app, war, template);
             labels = new HashMap<>();
             labels.put(IMAGE_LABEL_COMMENT, comment);
-            labels.put(IMAGE_LABEL_ORIGIN, origin);
+            labels.put(IMAGE_LABEL_ORIGIN_SCM, originScm);
             labels.put(IMAGE_LABEL_CREATED_BY, createdBy);
             labels.put(IMAGE_LABEL_CREATED_ON, createdOn);
             for (Map.Entry<String, String> arg : buildArgs.entrySet()) {

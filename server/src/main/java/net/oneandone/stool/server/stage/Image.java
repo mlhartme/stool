@@ -47,7 +47,7 @@ public class Image implements Comparable<Image> {
                 context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(Stage.IMAGE_LABEL_URL_SUFFIXES)),
                 labels.get(Stage.IMAGE_LABEL_COMMENT).getAsString(),
-                labels.get(Stage.IMAGE_LABEL_ORIGIN).getAsString(),
+                labels.get(Stage.IMAGE_LABEL_ORIGIN_SCM).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_CREATED_BY).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_CREATED_ON).getAsString(),
                 args(labels),
@@ -175,7 +175,7 @@ public class Image implements Comparable<Image> {
 
     /** docker api returns a comment field, but i didn't find documentation how to set it */
     public final String comment;
-    public final String origin;
+    public final String originScm;
     public final String createdBy;
     public final String createdOn;
     public final Map<String, String> args;
@@ -185,7 +185,7 @@ public class Image implements Comparable<Image> {
 
     @SuppressWarnings("checkstyle:ParameterNumber")
     public Image(String repositoryTag, String tag, LocalDateTime created, Ports ports, String p12, String app, int disk, int memory, String urlContext, List<String> urlSuffixes,
-                 String comment, String origin, String createdBy, String createdOn, Map<String, String> args, List<String> faultProjects) {
+                 String comment, String originScm, String createdBy, String createdOn, Map<String, String> args, List<String> faultProjects) {
         if (!urlContext.isEmpty()) {
             if (urlContext.startsWith("/") || urlContext.endsWith("/")) {
                 throw new IllegalArgumentException(urlContext);
@@ -204,7 +204,7 @@ public class Image implements Comparable<Image> {
         this.urlContext = urlContext;
         this.urlSuffixes = urlSuffixes;
         this.comment = comment;
-        this.origin = origin;
+        this.originScm = originScm;
         this.createdBy = createdBy;
         this.createdOn = createdOn;
         this.args = args;

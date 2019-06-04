@@ -71,7 +71,7 @@ public class AppInfo {
             marker = image.repositoryTag.equals(current.image.repositoryTag) ? "<==" : "";
             result.add(app + ":" + image.tag + "  " + marker);
             result.add("   comment:    " + image.comment);
-            result.add("   origin:     " + image.origin);
+            result.add("   origin-scm: " + image.originScm);
             result.add("   created-at: " + image.created);
             result.add("   created-by: " + image.createdBy);
             result.add("   created-on: " + image.createdOn);
@@ -92,7 +92,7 @@ public class AppInfo {
         result.add("mem:       " + mem(current.container));
         result.add("heap:      " + heap(stage, app, current));
         addEnv(current.container, result);
-        result.add("origin:    " + current.image.origin);
+        result.add("origin-scm:" + current.image.originScm);
         ports = stage.loadPorts(engine).get(app);
         if (ports != null) {
             if (ports.debug != -1) {
