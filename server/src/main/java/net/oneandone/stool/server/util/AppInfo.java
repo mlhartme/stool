@@ -85,21 +85,21 @@ public class AppInfo {
             }
             result.add("   secrets:    " + Separator.COMMA.join(image.faultProjects));
         }
-        result.add("container: " + (current.container == null ? "" : current.container.id));
-        result.add("uptime:    " + uptime(current.container));
-        result.add("disk-used: " + diskUsed(engine, current.container));
-        result.add("cpu:       " + cpu(current.container));
-        result.add("mem:       " + mem(current.container));
-        result.add("heap:      " + heap(stage, app, current));
+        result.add("container:  " + (current.container == null ? "" : current.container.id));
+        result.add("uptime:     " + uptime(current.container));
+        result.add("disk-used:  " + diskUsed(engine, current.container));
+        result.add("cpu:        " + cpu(current.container));
+        result.add("mem:        " + mem(current.container));
+        result.add("heap:       " + heap(stage, app, current));
         addEnv(current.container, result);
-        result.add("origin-scm:" + current.image.originScm);
+        result.add("origin-scm: " + current.image.originScm);
         ports = stage.loadPorts(engine).get(app);
         if (ports != null) {
             if (ports.debug != -1) {
-                result.add("debug port " + ports.debug);
+                result.add("debug port: " + ports.debug);
             }
             if (ports.jmxmp != -1) {
-                result.add("jmx port:  " + ports.jmxmp);
+                result.add("jmx port:   " + ports.jmxmp);
                 result.add("                 " + String.format(stage.server.configuration.jmxUsage, ports.jmxmp));
             }
         }
