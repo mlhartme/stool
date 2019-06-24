@@ -286,8 +286,7 @@ public class ApiController {
             if (global != 0) {
                 reserved = server.diskQuotaReserved(engine);
                 if (reserved > global) {
-                    throw new IOException("Sum of all stage disk quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n"
-                            + "Use 'stool list name disk quota' to see actual disk usage vs configured quota.");
+                    throw new IOException("Sum of all stage disk quotas exceeds global limit: " + reserved + " mb > " + global + " mb.\n");
                 }
             }
 

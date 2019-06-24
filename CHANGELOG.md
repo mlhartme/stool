@@ -2,11 +2,12 @@
 
 ### 5.0.0 (pending)
 
-#### Introducation
+#### Architecture
 
 Stool 5 separates building from running stages: you build on your local workstation, but run on a server. 
 To implement this, Stool was split into a client and a server part: the client runs on your local machine, and the server
-runs as a daemon on the server. Example: to create a new stage for a project on your local workstation, run:
+runs as a daemon on the server. Both communicate via rest (and you can run them both on the same machine).
+Example: to create a new stage for a project on your local workstation, run:
 
     cd your/project                       # enter the project directory on your local workstation
     mvn clean install                     # or whatever you need to build your project from sources
@@ -17,24 +18,19 @@ runs as a daemon on the server. Example: to create a new stage for a project on 
 
 #### Checkout and build changes
  
-Stool is no longer responsible to manage projects (i.e. checkouts) and build wars. Instead, it now expects existing projects with 
-readily built wars. Use your standard tools like `git` and `mvn` to setup projects. 
+Stool is no longer responsible to checkout projects or build wars. Instead, it now expects existing projects with readily built wars. 
 
 As a consequence, all features to manage projects were removed from Stool:
 * dumped the distinction between source and artifact stages; Stool now simply looks for `**/target/*.war` files 
 * the former `build` command to build a war for a source stage has been replaced by a new `build` command to build an image
-* the former `start` command no longer builds an image - it now expects a readily built image.
+* the former `start` command no longer builds an image - it now expects a readily built image
 * the `create` command now expects an existing project
-* the `remove` command now just removes the stage, the project is not removed
+* the `remove` command now just removes the stage - the project is *not* removed
 * dumped the `refresh` command
   * dumped `refresh` stage config
   * dumped `autoRefresh` stage config
-* stool is no longer responsible for building wars - use your standard build tools and configuration instead
-  * dumped `build` command
-  * dumped `build` configuration
-  * dumped `pom` configuration
-  * dumped `maven.home` and `maven.opts` configration - it's picked from the environment when used for War/Pom loading now
-  * dumped `prepare` configuration; `create` for workspaces is no longer supported
+* dumped `build` command and the respective configuration
+  * `build`, `pom`, `maven.home`, `maven.opts`, `prepare`
   * dumped stage directory lock - Stool now assumes that the project is used exclusively by the current user
   * dumped Maven Embedded dependency
 * dumped `committed` configuration - start no longer checks for local modifications
@@ -42,21 +38,15 @@ As a consequence, all features to manage projects were removed from Stool:
 * dumped svn credentials handling
 * dumped macros
 * Stool no longer adjusts the current working directory
-  * dumped cd (TODO: add this functionality to pommes)
-  * dumped select (use `pg`)
+  * dumped `cd` 
+  * dumped `select` (use `pommes goto` instead)
 
-#### Client Server separation
+#### Improved Docker integration
 
-TODO 
-
-
-#### Other changes
-
-* improved Docker integration
-  * dumped all bind mounts except for the log file directory and the https certificates;
-    (instead of the vhosts bind mount the war file is copied into the image now)
-  * replaced Stool config template arguments by Docker build arguments and Docker environment arguments:
-    TODO: all details
+* dumped all bind mounts except for the log file directory and the https certificates;
+  (instead of the vhosts bind mount the war file is copied into the image now)
+* replaced Stool config template arguments by Docker build arguments and Docker environment arguments:
+  TODO: all details
     * replaced stage property `memory` by an build argument
     * replaced stage property `url` by `server` and `suffixes` build arguments
   * Stool now creates one image per war file (the previous version created one image per Stage)
@@ -70,6 +60,10 @@ TODO
     * changed server.xml: set `deployXML` to false 
       (since we now have exactly one web application per Tomcat, crossContext has no meaning; 
       and I checked controlpanel trunk - is doesn't contain any symlink, so we can live without `allowLinking`)
+
+#### Other changes
+
+* split the `main` module into a `client` and a `server` module, the communicate via rest; merged the dashboard into the server modules
   
 * dashboard
   * dumped auto-reload of the ui
