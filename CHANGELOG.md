@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 5.0.0 (pending)
+### 5.0.0 (2019-06-24)
 
 #### Architecture
 
