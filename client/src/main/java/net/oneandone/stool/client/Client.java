@@ -27,6 +27,7 @@ import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.HttpNode;
 import net.oneandone.sushi.fs.http.model.Body;
+import net.oneandone.sushi.fs.http.model.ProtocolException;
 import net.oneandone.sushi.fs.http.model.Request;
 import net.oneandone.sushi.util.Separator;
 
@@ -354,6 +355,8 @@ public class Client {
                     }
                     throw new IOException(node.getUri() + " returned http response code " + src.getStatusLine().code + "\n" + string(src));
             }
+        } catch (ProtocolException e) {
+            throw new IOException(root.toString() + ": " + e.getMessage());
         } catch (ConnectException e) {
             if (e.getMessage().toLowerCase().contains("connection refuse")) {
                 throw new IOException(node.getRoot() + ": " + e.getMessage(), e);

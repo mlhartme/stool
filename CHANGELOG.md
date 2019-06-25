@@ -1,5 +1,10 @@
 ## Changelog 
 
+### 5.0.1 (pending)
+
+* properly report server name if it returns eof
+
+
 ### 5.0.0 (2019-06-24)
 
 #### Architecture

@@ -75,7 +75,7 @@ public class Engine implements AutoCloseable {
     }
 
     public static Engine create() throws IOException {
-        return create(null);
+        return create();
     }
 
     public static Engine create(String wirelog) throws IOException {
