@@ -66,17 +66,23 @@ import java.util.Map;
 @RequestMapping("/api")
 public class ApiController {
     private final Server server;
+    private final String engineLogFile;
 
     @Autowired
     public ApiController(Server server) {
         this.server = server;
+        this.engineLogFile = server.configuration.engineLogFile();
+    }
+
+    private Engine engine() throws IOException {
+        return Engine.create(engineLogFile);
     }
 
     @GetMapping("/info")
     public String info() throws IOException {
         JsonObject result;
 
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = engine()) {
             result = new JsonObject();
             result.addProperty("version", Main.versionString(server.world));
             result.addProperty("memory-quota", server.configuration.memoryQuota == 0 ? "" : server.memoryReservedContainers(engine) + "/" + server.configuration.memoryQuota);
@@ -110,7 +116,7 @@ public class ApiController {
 
         result = new JsonArray();
         problems = new HashMap<>();
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = engine()) {
             for (Stage stage : server.list(new PredicateParser(engine).parse(filter), problems)) {
                 result.add(new JsonPrimitive(stage.getName()));
             }
@@ -153,7 +159,7 @@ public class ApiController {
 
         war = server.world.getTemp().createTempFile();
         war.copyFileFrom(body);
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = engine()) {
             result = server.load(stage).build(engine, war, comment, originScm, originUser, User.authenticatedOrAnonymous().login, noCache, keep, arguments);
             return buildResult(result.app, result.tag, null, result.output).toString();
         } catch (BuildError e) {
@@ -181,7 +187,7 @@ public class ApiController {
         JsonObject result;
 
         result = new JsonObject();
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = engine()) {
             for (Property property : server.load(stage).properties()) {
                 result.add(property.name(), new JsonPrimitive(property.get(engine)));
             }
@@ -200,7 +206,7 @@ public class ApiController {
         stage = server.load(stageName);
         arguments = map(request, "");
         result = new JsonObject();
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = engine()) {
             for (Map.Entry<String, String> entry : arguments.entrySet()) {
                 prop = stage.propertyOpt(entry.getKey());
                 if (prop == null) {
@@ -232,7 +238,7 @@ public class ApiController {
             selection = Separator.COMMA.split(select);
         }
         result = new JsonObject();
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = engine()) {
             for (Info info : server.load(stage).fields()) {
                 if (selection == null || selection.remove(info.name())) {
                     result.add(info.name(), new JsonPrimitive(info.getAsString(engine)));
@@ -249,7 +255,7 @@ public class ApiController {
     public String validate(@PathVariable(value = "stage") String stage, @RequestParam("email") boolean email, @RequestParam("repair") boolean repair) throws IOException {
         List<String> output;
 
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = engine()) {
             output = new Validation(server, engine).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
@@ -261,7 +267,7 @@ public class ApiController {
 
     @GetMapping("/stages/{stage}/appInfo")
     public String appInfo(@PathVariable("stage") String stage, @RequestParam("app") String app) throws Exception {
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = engine()) {
             return array(new AppInfo(server, engine).run(stage, app)).toString();
         }
     }
@@ -282,7 +288,7 @@ public class ApiController {
         environment = new HashMap<>(server.configuration.environment);
         environment.putAll(map(request, "env."));
         global = server.configuration.diskQuota;
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = engine()) {
             if (global != 0) {
                 reserved = server.diskQuotaReserved(engine);
                 if (reserved > global) {
@@ -302,7 +308,7 @@ public class ApiController {
         Stage stage;
         JsonObject result;
 
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = engine()) {
             stage = server.load(stageName);
             stage.awaitStartup(engine);
 
@@ -328,7 +334,7 @@ public class ApiController {
     public ResponseEntity<?> stop(@PathVariable(value = "stage") String stage, @RequestParam(value = "apps", required = false, defaultValue = "") String apps) throws IOException {
         List<String> result;
 
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = engine()) {
             result = server.load(stage).stop(engine, Separator.COMMA.split(apps));
             return new ResponseEntity<>(array(result).toString(), HttpStatus.OK);
         }
@@ -342,7 +348,7 @@ public class ApiController {
         JsonObject result;
         String privateKey;
 
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = engine()) {
             stage = server.load(stageName);
             ports = stage.loadPorts(engine).get(app);
             if (ports == null) {
@@ -404,7 +410,7 @@ public class ApiController {
 
     @PostMapping("/stages/{stage}/remove")
     public void remove(@PathVariable(value = "stage") String stage) throws IOException {
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = engine()) {
             server.load(stage).remove(engine);
         }
     }

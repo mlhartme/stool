@@ -279,6 +279,9 @@ The following environment variables can be used to configure Stool server in `$S
   cannot exceed this number. 0 disables this feature. Type number, default 0.
 * **DOCKER_HOST**
   Fully qualified hostname of this machine. Used in application urls and emails. Type string.
+* **ENGINE_LOG**
+  to log all traffic between server and docker daemon. CAUTION: enabling writes huge amounts of data if you have large war files.
+  Type boolean, default value is false.
 * **ENVIRONMENT** 
   Default environment variables set automatically when starting apps, can be overwritten by the `start` command. Type map, default empty.
 * **JMX_USAGE**
@@ -313,7 +316,7 @@ The following environment variables can be used to configure Stool server in `$S
   `true` to create urls with subdomains for app and stage name.
   `false` to create urls without subdomains. (Note that urls always contain the port to distinguish between stages). Type boolean. 
   If you want to enable vhosts you need the respective DNS * entries for your machine.
-
+  
 
 #### Ports
 

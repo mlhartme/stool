@@ -97,6 +97,8 @@ public class ServerConfiguration {
 
     public String jmxUsage;
 
+    public boolean engineLog;
+
     // default environment for every container
     public Map<String, String> environment;
 
@@ -122,6 +124,7 @@ public class ServerConfiguration {
         appPropertiesFile = "WEB-INF/classes/META-INF/stool.properties";
         appPropertiesPrefix = "";
         jmxUsage = "jconsole localhost:%i";
+        engineLog = false;
         environment = new HashMap<>();
     }
 
@@ -172,5 +175,9 @@ public class ServerConfiguration {
 
     public boolean auth() {
         return !ldapUrl.isEmpty();
+    }
+
+    public String engineLogFile() {
+        return engineLog ? "/var/lib/stool/logs/engine.log" : null;
     }
 }

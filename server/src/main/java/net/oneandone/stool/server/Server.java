@@ -78,7 +78,7 @@ public class Server {
 
         config = ServerConfiguration.load();
         LOGGER.info("server configuration: " + config);
-        try (Engine engine = Engine.create()) {
+        try (Engine engine = Engine.create(config.engineLogFile())) {
             inspected = inspectSelf(engine);
             binds = binds(inspected);
             serverHome = toHostFile(binds, world.file("/var/lib/stool"));
