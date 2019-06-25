@@ -73,7 +73,7 @@ public class ApiController {
     }
 
     @GetMapping("/info")
-    public String version() throws IOException {
+    public String info() throws IOException {
         JsonObject result;
 
         try (Engine engine = Engine.create()) {
