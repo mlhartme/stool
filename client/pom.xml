@@ -80,8 +80,9 @@
               <extensions>
                 <extension>if [ -z $JAVA_MODULES ] ; then</extension>
                 <!-- auto-detect; see https://www.oracle.com/technetwork/java/javase/versioning-naming-139433.html -->
-                <!-- takes less than 1/10 of a second: -->
-                <extension>  export JAVA_VERSION=$(java -version 2&gt;&amp;1 | head -n 1 | cut -f 3 -d ' ' | cut -f 2 -d '"')</extension>
+                <!-- * filter out JAVA_TOOL_OPTIONS in case they are set -->
+                <!-- * takes less than 1/10 of a second: -->
+                <extension>  export JAVA_VERSION=$(java -version 2&gt;&amp;1 | grep -v JAVA_TOOL_OPTIONS | head -n 1 | cut -f 3 -d ' ' | cut -f 2 -d '"')</extension>
                 <extension>  # echo java ${JAVA_VERSION}</extension>
                 <extension>  case "$JAVA_VERSION" in</extension>
                 <extension>    "1."*) export JAVA_MODULES=false ;;</extension>
