@@ -87,14 +87,20 @@ public class Project {
 
     //--
 
-    private static String origin(FileNode dir) throws IOException {
-        if (dir.join(".svn").isDirectory()) {
-            return "svn:" + svnCheckoutUrl(dir);
-        }
-        if (dir.join(".git").isDirectory()) {
-            return "git:" + git(dir, "config", "--get", "remote.origin.url").exec().trim();
-        }
-        throw new IOException("not a checkout: " + dir);
+    private static String origin(FileNode initialDirectory) throws IOException {
+        FileNode dir;
+
+        dir = initialDirectory;
+        do {
+            if (dir.join(".svn").isDirectory()) {
+                return "svn:" + svnCheckoutUrl(dir);
+            }
+            if (dir.join(".git").isDirectory()) {
+                return "git:" + git(dir, "config", "--get", "remote.origin.url").exec().trim();
+            }
+            dir = dir.getParent();
+        } while (dir != null);
+        throw new IOException("not a checkout: " + initialDirectory);
     }
 
     private static String svnCheckoutUrl(FileNode dir) throws Failure {
@@ -118,10 +124,6 @@ public class Project {
     }
 
     //--
-
-    public FileNode getDirectory() {
-        return project;
-    }
 
     public String getOrigin() throws IOException {
         return origin(project);
