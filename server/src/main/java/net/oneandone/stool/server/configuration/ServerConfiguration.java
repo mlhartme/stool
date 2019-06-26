@@ -99,6 +99,8 @@ public class ServerConfiguration {
 
     public boolean engineLog;
 
+    public int defaultExpire;
+
     // default environment for every container
     public Map<String, String> environment;
 
@@ -125,6 +127,7 @@ public class ServerConfiguration {
         appPropertiesPrefix = "";
         jmxUsage = "jconsole localhost:%i";
         engineLog = false;
+        defaultExpire = 0;
         environment = new HashMap<>();
     }
 

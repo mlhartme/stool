@@ -5,6 +5,7 @@
 * create
   * report an error is stage already attached (previous version created the stage *and* reported an error)
   * reject stage names with upper-case characters (thanks to Jan G)
+  * added `DEFAULT_EXPIRE` server configuration to define the initial value for the expire property.
 * build: 
   * fixed origin to also check parent directories; this is needed if a project is just a module in the git or svn checkout
     (thanks to Jan G)

@@ -277,6 +277,8 @@ The following environment variables can be used to configure Stool server in `$S
 * **DISK_QUOTA**
   Mb of disk spaces available for the root file system of all apps in all stages. The sum of all disk space reserved for all apps of all stages
   cannot exceed this number. 0 disables this feature. Type number, default 0.
+* **DEFAULT_EXPIRE**
+  Defines the number of days to expire new stages (0 for never). Type number, default 0.
 * **DOCKER_HOST**
   Fully qualified hostname of this machine. Used in application urls and emails. Type string.
 * **ENGINE_LOG**

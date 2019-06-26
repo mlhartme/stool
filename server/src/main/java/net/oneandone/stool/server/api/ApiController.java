@@ -21,6 +21,7 @@ import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.stool.server.Main;
 import net.oneandone.stool.server.Server;
+import net.oneandone.stool.server.configuration.Expire;
 import net.oneandone.stool.server.docker.BuildError;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.logging.AccessLogEntry;
@@ -135,6 +136,7 @@ public class ApiController {
 
         config = map(request, "");
         stage = server.create(name);
+        stage.configuration.expire = Expire.fromNumber(server.configuration.defaultExpire);
         for (Map.Entry<String, String> entry : config.entrySet()) {
             property = stage.propertyOpt(entry.getKey());
             if (property == null) {

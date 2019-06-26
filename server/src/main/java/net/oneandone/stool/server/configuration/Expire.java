@@ -28,12 +28,12 @@ public class Expire {
         return new Expire(null);
     }
 
-    public static Expire withDefaultOffset() {
-        return withOffset(7);
-    }
-
-    public static Expire withOffset(int days) {
-        return new Expire(LocalDate.now().plusDays(days));
+    public static Expire fromNumber(int n) {
+        if (n == 0) {
+            return Expire.never();
+        } else {
+            return new Expire(parse(Integer.toString(n)));
+        }
     }
 
     public static Expire fromString(String input) {
