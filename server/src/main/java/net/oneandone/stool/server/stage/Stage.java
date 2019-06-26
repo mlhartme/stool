@@ -77,7 +77,7 @@ public class Stage {
     public static final String IMAGE_LABEL_P12 = IMAGE_PREFIX + "certificate.p12";
     public static final String IMAGE_LABEL_DISK = IMAGE_PREFIX + "disk";
     public static final String IMAGE_LABEL_MEMORY = IMAGE_PREFIX + "memory";
-    public static final String IMAGE_LABEL_URL_CONTEXT = IMAGE_PREFIX + "url.server";
+    public static final String IMAGE_LABEL_URL_CONTEXT = IMAGE_PREFIX + "url.context";
     public static final String IMAGE_LABEL_URL_SUFFIXES = IMAGE_PREFIX + "url.suffixes";
     public static final String IMAGE_LABEL_FAULT = IMAGE_PREFIX + "fault";
     public static final String IMAGE_LABEL_COMMENT = IMAGE_PREFIX + "comment";

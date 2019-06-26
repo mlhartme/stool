@@ -10,6 +10,8 @@
   * fixed origin to also check parent directories; this is needed if a project is just a module in the git or svn checkout
     (thanks to Jan G)
   * use origin "unknown" if neither git nor svn checkouts are detected
+* fixed image label name for url context from `url.server` to `url.context`; this fixes the url context not being shown in urls 
+  (thanks to Andreas K)
 * fixed java version detection if JAVA_TOOL_OPTIONS are set (thanks to Radek S)
 * properly report Stool server name if it returns eof
 * added `ENGINE_LOG` server configuration
