@@ -410,10 +410,13 @@ Create a new stage
 #### DESCRIPTION
 
 Creates a new stage with the specified *name* one the specified *server* and attaches it to the project. 
-Reports an error if the server already hosts a stage with this name.
+Reports an error if the server already hosts a stage with this name. 
 
 The new stage is configured with the specified *key*/*value* pairs. Specifying a *key*/*value* pair is equivalent to running 
 [stool config](#stool-config) with these arguments.
+
+The name must contain only lower case ascii characters or digit. Otherwise it's rejected because it would cause problems with
+urls or docker tags that contain the name.
 
 
 #### Examples

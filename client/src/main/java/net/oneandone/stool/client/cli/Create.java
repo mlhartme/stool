@@ -43,7 +43,7 @@ public class Create extends ProjectCommand {
             throw new ArgumentException("expected <name>@<server>, got " + nameAndServer);
         }
         this.name = nameAndServer.substring(0, idx);
-        Project.checkName(name);
+        checkName(name);
         this.server = nameAndServer.substring(idx + 1);
         this.config = new LinkedHashMap<>();
         for (String arg : args) {
@@ -89,4 +89,48 @@ public class Create extends ProjectCommand {
         }
         console.info.println("stage created: " + reference);
     }
+
+    //-- stage name
+
+    /**
+     * The stage name has to be a valid domain name because is used as part of the application url (see http://tools.ietf.org/html/rfc1035
+     * section 2.3.1). And it has to be a valid docker reference, i.e. it must not include upper-case characters.
+     */
+    private static void checkName(String name) {
+        char c;
+
+        if (name.isEmpty()) {
+            throw new ArgumentException("empty stage name is not allowed");
+        }
+        if (name.length() > 30) {
+            //ITCA does not accept too long commonNames
+            throw new ArgumentException("Stage Name is too long. Please take a shorter one.");
+        }
+        if (!isLetter(name.charAt(0))) {
+            throw new ArgumentException("stage name does not start with a letter");
+        }
+        for (int i = 0; i < name.length(); i++) {
+            c = name.charAt(i);
+            if (Character.isUpperCase(c)) {
+                throw new ArgumentException("stage name contains upper case character '" + c + "'. Please use lower case only.");
+            }
+            if (i > 0) {
+                if (!isValidStageNameChar(c)) {
+                    throw new ArgumentException("stage name contains illegal character: " + c);
+                }
+            }
+        }
+    }
+    public static boolean isValidStageNameChar(char c) {
+        return isLetter(c) || isDigit(c) || c == '-' || c == '.';
+    }
+    // cannot use Character.is... because we check ascii only
+    private static boolean isLetter(char c) {
+        return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+    }
+    // cannot use Character.is... because we check ascii only
+    private static boolean isDigit(char c) {
+        return c >= '0' && c <= '9';
+    }
+
 }

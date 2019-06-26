@@ -2,6 +2,7 @@
 
 ### 5.0.1 (pending)
 
+* reject stage names with upper-case characters (thank to Jan G)
 * properly report Stool server name if it returns eof
 * added `ENGINE_LOG` server configuration
 * reject `REGISTRY_PREFIX` server configuration with upper cases characters
