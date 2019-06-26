@@ -5,8 +5,10 @@
 * create
   * report an error is stage already attached (previous version created the stage *and* reported an error)
   * reject stage names with upper-case characters (thanks to Jan G)
-* build: fixed origin to also check parent directories; this is needed if a project is just a module in the git or svn checkout
-  (thanks to Jan G)
+* build: 
+  * fixed origin to also check parent directories; this is needed if a project is just a module in the git or svn checkout
+    (thanks to Jan G)
+  * use origin "unknown" if neither git nor svn checkouts are detected
 * fixed java version detection if JAVA_TOOL_OPTIONS are set (thanks to Radek S)
 * properly report Stool server name if it returns eof
 * added `ENGINE_LOG` server configuration
