@@ -2,7 +2,9 @@
 
 ### 5.0.1 (pending)
 
-* reject stage names with upper-case characters (thank to Jan G)
+* create
+  * report an error is stage already attached (previous version created the stage *and* reported an error)
+  * reject stage names with upper-case characters (thanks to Jan G)
 * fixed java version detection if JAVA_TOOL_OPTIONS are set (thanks to Radek S)
 * properly report Stool server name if it returns eof
 * added `ENGINE_LOG` server configuration
