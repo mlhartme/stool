@@ -543,8 +543,8 @@ public class Server {
 
     //--
 
-
     public void validate(Engine engine) throws IOException {
+        Engine.validateReference(configuration.registryNamespace);
         if (configuration.auth()) {
             if (configuration.ldapSso.isEmpty()) {
                 LOGGER.error("ldapsso cannot be empty because security is enabled");

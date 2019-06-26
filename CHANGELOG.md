@@ -2,8 +2,9 @@
 
 ### 5.0.1 (pending)
 
-* properly report server name if it returns eof
+* properly report Stool server name if it returns eof
 * added `ENGINE_LOG` server configuration
+* reject `REGISTRY_PREFIX` server configuration with upper cases characters
 
 
 ### 5.0.0 (2019-06-24)
