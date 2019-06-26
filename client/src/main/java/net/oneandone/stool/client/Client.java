@@ -358,7 +358,7 @@ public class Client {
         } catch (ProtocolException e) {
             throw new IOException(root.toString() + ": " + e.getMessage());
         } catch (ConnectException e) {
-            if (e.getMessage().toLowerCase().contains("connection refuse")) {
+            if (e.getMessage().toLowerCase().contains("connection refused")) {
                 throw new IOException(node.getRoot() + ": " + e.getMessage(), e);
             } else {
                 throw e;
