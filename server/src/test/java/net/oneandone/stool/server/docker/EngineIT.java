@@ -17,6 +17,7 @@ package net.oneandone.stool.server.docker;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
+import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.sushi.fs.FileNotFoundException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
@@ -60,6 +61,13 @@ public class EngineIT {
             Thread.sleep(1000);
             engine.containerRemove(container);
             engine.imageRemove(image, false);
+        }
+    }
+
+    @Test(expected = ArgumentException.class)
+    public void rejectUppercaseTag() throws IOException {
+        try (Engine engine = create()) {
+            engine.imageBuild("tagWithUpperCase", Collections.emptyMap(), Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD ls -la /\n"), false, null);
         }
     }
 

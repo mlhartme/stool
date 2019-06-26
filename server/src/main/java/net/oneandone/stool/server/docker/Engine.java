@@ -24,6 +24,7 @@ import com.google.gson.JsonPrimitive;
 import jnr.posix.POSIXFactory;
 import jnr.unixsocket.UnixSocketAddress;
 import jnr.unixsocket.UnixSocketChannel;
+import net.oneandone.stool.server.ArgumentException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
 import net.oneandone.sushi.fs.http.HttpFilesystem;
@@ -264,9 +265,9 @@ public class Engine implements AutoCloseable {
     }
 
     /** @return output */
-    public String imageBuildWithOutput(String nameTag, FileNode context) throws IOException {
+    public String imageBuildWithOutput(String repositoryTag, FileNode context) throws IOException {
         try (StringWriter dest = new StringWriter()) {
-            imageBuild(nameTag, Collections.emptyMap(), Collections.emptyMap(), context, false, dest);
+            imageBuild(repositoryTag, Collections.emptyMap(), Collections.emptyMap(), context, false, dest);
             return dest.toString();
         }
     }
@@ -288,6 +289,7 @@ public class Engine implements AutoCloseable {
         String id;
         FileNode tar;
 
+        validateReference(repositoryTag);
         build = root.join("build");
         build = build.withParameter("t", repositoryTag);
         if (!labels.isEmpty()) {
@@ -808,17 +810,6 @@ public class Engine implements AutoCloseable {
         return body;
     }
 
-    private static JsonArray array(JsonElement... elements) {
-        JsonArray result;
-
-        result = new JsonArray();
-        for (JsonElement e : elements) {
-            result.add(e);
-        }
-        return result;
-    }
-
-
     private static String labelsToJsonArray(Map<String, String> map) {
         StringBuilder builder;
 
@@ -856,5 +847,18 @@ public class Engine implements AutoCloseable {
 
     public static int getegid() {
         return POSIX.getegid();
+    }
+
+    //--
+
+    // this is to avoid engine 500 error reporting "invalid reference format: repository name must be lowercase"
+    public static void validateReference(String reference) {
+        char c;
+
+        for (int i = 0, length = reference.length(); i < length; i++) {
+            if (Character.isUpperCase(reference.charAt(i))) {
+                throw new ArgumentException("invalid reference: " + reference);
+            }
+        }
     }
 }
