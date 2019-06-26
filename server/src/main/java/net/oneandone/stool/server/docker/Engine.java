@@ -72,7 +72,7 @@ public class Engine implements AutoCloseable {
         CREATED,
         RUNNING,
         EXITED,
-        REMOVING
+        REMOVING /* not used in my code, by docker engine documentation says it can be returned */
     }
 
     public static Engine create() throws IOException {

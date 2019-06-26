@@ -65,7 +65,7 @@ public class EngineIT {
     }
 
     @Test(expected = ArgumentException.class)
-    public void rejectUppercaseTag() throws IOException {
+    public void rejecBuildWithUppercaseTag() throws IOException {
         try (Engine engine = create()) {
             engine.imageBuild("tagWithUpperCase", Collections.emptyMap(), Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD ls -la /\n"), false, null);
         }
