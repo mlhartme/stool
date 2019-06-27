@@ -194,29 +194,20 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    /**
-     * @param image may be null
-     * @return container ids
-     */
-    public Map<String, ContainerInfo> containerListForImage(String image) throws IOException {
-        return doContainerList("{\"ancestor\" : [\"" + image + "\"] }", true);
-    }
-
     public Map<String, ContainerInfo> containerListRunning(String key, String value) throws IOException {
-        return doContainerList("{\"label\" : [\"" + key + "=" + value + "\"], \"status\" : [\"running\"] }", false);
-    }
-
-    public Map<String, ContainerInfo> containerList(String key, String value) throws IOException {
-        return doContainerList("{\"label\" : [\"" + key + "=" + value + "\"] }", true);
+        return containerList("{\"label\" : [\"" + key + "=" + value + "\"], \"status\" : [\"running\"] }", false);
     }
     public Map<String, ContainerInfo> containerListRunning(String key) throws IOException {
-        return doContainerList("{\"label\" : [\"" + key + "\"], \"status\" : [\"running\"] }", false);
+        return containerList("{\"label\" : [\"" + key + "\"], \"status\" : [\"running\"] }", false);
+    }
+    public Map<String, ContainerInfo> containerList(String key, String value) throws IOException {
+        return containerList("{\"label\" : [\"" + key + "=" + value + "\"] }", true);
     }
     public Map<String, ContainerInfo> containerList(String key) throws IOException {
-        return doContainerList("{\"label\" : [\"" + key + "\"] }", true);
+        return containerList("{\"label\" : [\"" + key + "\"] }", true);
     }
 
-    private Map<String, ContainerInfo> doContainerList(String filters, boolean all) throws IOException {
+    public Map<String, ContainerInfo> containerList(String filters, boolean all) throws IOException {
         HttpNode node;
         JsonArray array;
         Map<String, ContainerInfo> result;

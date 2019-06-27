@@ -99,7 +99,7 @@ public class EngineIT {
             ids = new ArrayList<>(engine.imageList(labels).keySet());
             assertEquals(1, ids.size());
             image = ids.get(0);
-            assertTrue(engine.containerListForImage(image).isEmpty());
+            assertTrue(containerListForImage(engine, image).isEmpty());
             assertTrue(engine.containerListRunning("stooltest").isEmpty());
             ports = new HashMap<>();
             ports.put(1301, "1302");
@@ -113,7 +113,7 @@ public class EngineIT {
             cmp.add("containerLabel", new JsonPrimitive("bla"));
             assertEquals(cmp, obj);
             assertTrue(engine.containerListRunning("stooltest").isEmpty());
-            map = engine.containerListForImage(image);
+            map = containerListForImage(engine, image);
             assertEquals(1, map.size());
             assertTrue(map.containsKey(container));
             assertTrue(map.get(container).ports.isEmpty()); // no ports allocated until the container is actually started
@@ -122,7 +122,7 @@ public class EngineIT {
 
             assertEquals(Engine.Status.RUNNING, engine.containerStatus(container));
             assertEquals(Arrays.asList(container), new ArrayList<>(engine.containerListRunning("stooltest").keySet()));
-            map = engine.containerListForImage(image);
+            map = containerListForImage(engine, image);
             assertEquals(1, map.size());
             assertTrue(map.containsKey(container));
             assertEquals(ports, convert(map.get(container).ports));
@@ -131,17 +131,21 @@ public class EngineIT {
 
             assertEquals(Engine.Status.EXITED, engine.containerStatus(container));
 
-            map = engine.containerListForImage(image);
+            map = containerListForImage(engine, image);
             assertEquals(1, map.size());
             assertTrue(map.containsKey(container));
             assertTrue(map.get(container).ports.isEmpty()); // ports free again
 
-            assertEquals(Arrays.asList(container), new ArrayList<>(engine.containerListForImage(image).keySet()));
+            assertEquals(Arrays.asList(container), new ArrayList<>(containerListForImage(engine, image).keySet()));
             engine.containerRemove(container);
-            assertTrue(engine.containerListForImage(image).isEmpty());
+            assertTrue(containerListForImage(engine, image).isEmpty());
             engine.imageRemove(image, false);
             assertEquals(new HashMap<>(), engine.imageList(labels));
         }
+    }
+
+    private Map<String, ContainerInfo> containerListForImage(Engine engine, String image) throws IOException {
+        return engine.containerList("{\"ancestor\" : [\"" + image + "\"] }", true);
     }
 
     private static Map<Integer, String> convert(Map<Integer, Integer> map) {
