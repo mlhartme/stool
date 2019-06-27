@@ -275,7 +275,7 @@ The following environment variables can be used to configure Stool server in `$S
 * **AUTO_REMOVE**
   Days to wait before removing an expired stage. -1 to disable this feature. Type number, default -1. 
 * **DISK_QUOTA**
-  Mb of disk spaces available for the root file system of all apps in all stages. The sum of all disk space reserved for all apps of all stages
+  Mb of disk spaces available for the read/write layer of all running apps. The sum of all disk space reserved for all apps of all stages
   cannot exceed this number. 0 disables this feature. Type number, default 0.
 * **DEFAULT_EXPIRE**
   Defines the number of days to expire new stages (0 for never). Type number, default 0.
