@@ -529,7 +529,7 @@ public class Engine implements AutoCloseable {
         body.add("ExposedPorts", exposedPorts(ports.keySet()));
 
         response = post(node, body);
-        checWarnings(response);
+        checkWarnings(response);
         return response.get("Id").getAsString();
     }
 
@@ -751,7 +751,7 @@ public class Engine implements AutoCloseable {
 
     //--
 
-    private void checWarnings(JsonObject response) throws IOException {
+    private void checkWarnings(JsonObject response) throws IOException {
         if (!JsonNull.INSTANCE.equals(response.get("Warnings"))) {
             throw new IOException("response warnings: " + response.toString());
         }

@@ -447,20 +447,14 @@ public class Server {
     /** used for running containers */
     public int memoryReservedContainers(Engine engine) throws IOException {
         int reserved;
-        JsonObject json;
         Image image;
 
         reserved = 0;
-        for (String container : engine.containerListRunning(Stage.CONTAINER_LABEL_IMAGE).keySet()) {
-            json = engine.containerInspect(container, false);
-            image = Image.load(engine, containerImageTag(json));
+        for (ContainerInfo info : engine.containerListRunning(Stage.CONTAINER_LABEL_IMAGE).values()) {
+            image = Image.load(engine, info.labels.get(Stage.CONTAINER_LABEL_IMAGE));
             reserved += image.memory;
         }
         return reserved;
-    }
-
-    public static String containerImageTag(JsonObject inspected) {
-        return inspected.get("Config").getAsJsonObject().get("Labels").getAsJsonObject().get(Stage.CONTAINER_LABEL_IMAGE).getAsString();
     }
 
     //-- stool properties

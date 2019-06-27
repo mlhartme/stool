@@ -923,15 +923,13 @@ public class Stage {
 
     public Map<String, Current> currentMap(Engine engine) throws IOException {
         Collection<ContainerInfo> containerList;
-        JsonObject json;
         Map<String, Current> result;
         Image image;
 
         result = new HashMap<>();
         containerList = dockerRunningContainerList(engine).values();
         for (ContainerInfo info : containerList) {
-            json = engine.containerInspect(info.id, false);
-            image = Image.load(engine, Server.containerImageTag(json));
+            image = Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE));
             result.put(image.app, new Current(image, info));
         }
         return result;
