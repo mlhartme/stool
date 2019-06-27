@@ -87,7 +87,7 @@ public class AppInfo {
         }
         result.add("container:  " + (current.container == null ? "" : current.container.id));
         result.add("uptime:     " + uptime(current.container));
-        result.add("disk-used:  " + diskUsed(engine, current.container));
+        result.add("disk-used:  " + sizeRw(engine, current.container));
         result.add("cpu:        " + cpu(current.container));
         result.add("mem:        " + mem(current.container));
         result.add("heap:       " + heap(stage, app, current));
@@ -156,14 +156,14 @@ public class AppInfo {
         return Float.toString(((float) (used * 1000 / max)) / 10);
     }
 
-    public static int diskUsed(Engine engine, ContainerInfo info) throws IOException {
+    /** @return size of the read-write layer, not size of the root file system */
+    public static int sizeRw(Engine engine, ContainerInfo info) throws IOException {
         JsonObject obj;
 
         if (info == null) {
             return 0;
         }
         obj = engine.containerInspect(info.id, true);
-        // not SizeRootFs, that's the image size plus the rw layer
         return (int) (obj.get("SizeRw").getAsLong() / (1024 * 1024));
     }
 

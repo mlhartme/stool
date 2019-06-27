@@ -396,7 +396,7 @@ public class Stage {
         for (Map.Entry<String, Current> entry : map.entrySet()) {
             info = entry.getValue().container;
             if (info != null) {
-                used = AppInfo.diskUsed(engine, info);
+                used = AppInfo.sizeRw(engine, info);
                 quota = entry.getValue().image.disk;
                 if (used > entry.getValue().image.disk) {
                     throw new ArgumentException("Stage disk quota exceeded. Used: " + used + " mb  >  quota: " + quota + " mb.\n");
