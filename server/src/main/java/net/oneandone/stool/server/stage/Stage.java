@@ -475,7 +475,7 @@ public class Stage {
     }
 
     /** @return images actually started */
-    public List<String> start(Engine engine, int http, int https, Map<String, String> environment, Map<String, String> selection) throws IOException {
+    public List<String> start(Engine engine, Pool pool, int http, int https, Map<String, String> environment, Map<String, String> selection) throws IOException {
         String container;
         Engine.Status status;
         Ports hostPorts;
@@ -506,7 +506,7 @@ public class Stage {
             for (Map.Entry<FileNode, String> mount : mounts.entrySet()) {
                 Server.LOGGER.debug("  " + mount.getKey().getAbsolute() + "\t -> " + mount.getValue());
             }
-            hostPorts = server.pool(engine).allocate(this, image.app, http, https);
+            hostPorts = pool.allocate(this, image.app, http, https);
             labels = hostPorts.toUsedLabels();
             labels.put(CONTAINER_LABEL_APP, image.app);
             labels.put(CONTAINER_LABEL_IMAGE, image.repositoryTag);

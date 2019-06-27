@@ -39,11 +39,11 @@ import java.util.List;
 import java.util.Map;
 
 public class AppInfo {
-    private final Server context;
+    private final Server server;
     private final Engine engine;
 
-    public AppInfo(Server context, Engine engine) {
-        this.context = context;
+    public AppInfo(Server server, Engine engine) {
+        this.server = server;
         this.engine = engine;
     }
 
@@ -58,7 +58,7 @@ public class AppInfo {
         List<String> args;
 
         result = new ArrayList<>();
-        stage = context.load(name);
+        stage = server.load(name);
         all = stage.images(engine);
         currentMap = stage.currentMap(engine);
         for (Map.Entry<String, List<Image>> entry : all.entrySet()) {
@@ -93,7 +93,7 @@ public class AppInfo {
         result.add("heap:       " + heap(stage, app, current));
         addEnv(current.container, result);
         result.add("origin-scm: " + current.image.originScm);
-        ports = context.pool(engine).stage(name).get(app);
+        ports = server.pool(engine).stage(name).get(app);
         if (ports != null) {
             if (ports.debug != -1) {
                 result.add("debug port: " + ports.debug);

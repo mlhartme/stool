@@ -299,7 +299,7 @@ public class ApiController {
             stage = server.load(stageName);
             stage.checkExpired();
             stage.checkDiskQuota(engine);
-            return array(stage.start(engine, http, https, environment, apps)).toString();
+            return array(stage.start(engine, server.pool(engine), http, https, environment, apps)).toString();
         }
     }
 
