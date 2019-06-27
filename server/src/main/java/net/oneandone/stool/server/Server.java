@@ -104,7 +104,6 @@ public class Server {
         return container.getWorld().file(hostPath);
     }
 
-    /** @return container- to host path mapping with absolute paths without tailing / */
     private static JsonObject inspectSelf(Engine engine) throws IOException {
         String container;
 

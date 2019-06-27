@@ -15,7 +15,7 @@
  */
 package net.oneandone.stool.server.util;
 
-import com.google.gson.JsonObject;
+import net.oneandone.stool.server.docker.ContainerInfo;
 import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.stage.Stage;
 
@@ -28,16 +28,16 @@ import java.util.Map;
 
 public class Pool {
     public static Pool load(Engine engine, int first, int last) throws IOException {
-        JsonObject labels;
+        Map<String, String> labels;
         Pool result;
         String stage;
         String app;
 
         result = new Pool(first, last);
-        for (String container : engine.containerList(Stage.CONTAINER_LABEL_IMAGE).keySet()) {
-            labels = engine.containerInspect(container, false).get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
-            stage = labels.get(Stage.CONTAINER_LABEL_STAGE).getAsString();
-            app = labels.get(Stage.CONTAINER_LABEL_APP).getAsString();
+        for (ContainerInfo info : engine.containerList(Stage.CONTAINER_LABEL_IMAGE).values()) {
+            labels = info.labels;
+            stage = labels.get(Stage.CONTAINER_LABEL_STAGE);
+            app = labels.get(Stage.CONTAINER_LABEL_APP);
             result.datas.add(new Data(stage, app, Ports.fromUsedLabels(labels)));
         }
         return result;

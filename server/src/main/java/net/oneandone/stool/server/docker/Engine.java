@@ -233,7 +233,7 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    private static Map<String, String> toStringMap(JsonObject obj) {
+    public static Map<String, String> toStringMap(JsonObject obj) {
         Map<String, String> result;
 
         result = new HashMap<>();

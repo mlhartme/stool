@@ -15,8 +15,6 @@
  */
 package net.oneandone.stool.server.util;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import net.oneandone.stool.server.stage.Stage;
 
 import java.util.HashMap;
@@ -27,11 +25,11 @@ public class Ports {
     public enum Port {
         HTTP, HTTPS, JMXMP, DEBUG;
 
-        public int get(JsonObject labels, String prefix) {
-            JsonElement str;
+        public int get(Map<String, String> labels, String prefix) {
+            String str;
 
             str = labels.get(prefix + toString().toLowerCase());
-            return str == null ? -1 : Integer.parseInt(str.getAsString());
+            return str == null ? -1 : Integer.parseInt(str);
         }
 
         public void add(Map<String, String> dest, String prefix, int value) {
@@ -41,15 +39,15 @@ public class Ports {
         }
     }
 
-    public static Ports fromUsedLabels(JsonObject labels) {
+    public static Ports fromUsedLabels(Map<String, String> labels) {
         return fromLabels(labels, Stage.CONTAINER_LABEL_PORT_USED_PREFIX);
     }
 
-    public static Ports fromDeclaredLabels(JsonObject labels) {
+    public static Ports fromDeclaredLabels(Map<String, String> labels) {
         return fromLabels(labels, Stage.IMAGE_LABEL_PORT_DECLARED_PREFIX);
     }
 
-    public static Ports fromLabels(JsonObject labels, String prefix) {
+    private static Ports fromLabels(Map<String, String> labels, String prefix) {
         return new Ports(
                 Port.HTTP.get(labels, prefix),
                 Port.HTTPS.get(labels, prefix),

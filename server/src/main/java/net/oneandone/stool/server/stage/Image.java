@@ -39,7 +39,7 @@ public class Image implements Comparable<Image> {
         created = LocalDateTime.parse(inspect.get("Created").getAsString(), Engine.CREATED_FMT);
         labels = inspect.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
         app = app(repositoryTag);
-        return new Image(repositoryTag, version(repositoryTag), Ports.fromDeclaredLabels(labels), p12(labels.get(Stage.IMAGE_LABEL_P12)), app,
+        return new Image(repositoryTag, version(repositoryTag), Ports.fromDeclaredLabels(Engine.toStringMap(labels)), p12(labels.get(Stage.IMAGE_LABEL_P12)), app,
                 disk(labels.get(Stage.IMAGE_LABEL_DISK)), memory(labels.get(Stage.IMAGE_LABEL_MEMORY)), context(labels.get(Stage.IMAGE_LABEL_URL_CONTEXT)),
                 suffixes(labels.get(Stage.IMAGE_LABEL_URL_SUFFIXES)), labels.get(Stage.IMAGE_LABEL_COMMENT).getAsString(),
                 labels.get(Stage.IMAGE_LABEL_ORIGIN_SCM).getAsString(), labels.get(Stage.IMAGE_LABEL_ORIGIN_USER).getAsString(),
