@@ -30,6 +30,7 @@ import net.oneandone.stool.server.logging.LogReader;
 import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Field;
 import net.oneandone.stool.server.util.Info;
+import net.oneandone.stool.server.util.Pool;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.Property;
 import net.oneandone.sushi.fs.GetLastModifiedException;
@@ -238,7 +239,7 @@ public class Stage {
         fields.add(new Field("urls") {
             @Override
             public Object get(Engine engine) throws IOException {
-                return namedUrls(engine, null);
+                return namedUrls(engine, server.pool(engine), null);
             }
         });
         return fields;
@@ -813,16 +814,11 @@ public class Stage {
 
     //--
 
-    /** maps app to its ports; empty map if not ports allocated yet */
-    public Map<String, Ports> loadPorts(Engine engine) throws IOException {
-        return server.pool(engine).stage(name);
-    }
-
     /**
      * @param oneApp null for all apps
      * @return empty map if no ports are allocated
      */
-    public Map<String, String> urlMap(Engine engine, String oneApp) throws IOException {
+    public Map<String, String> urlMap(Engine engine, Pool pool, String oneApp) throws IOException {
         Map<String, String> result;
         String app;
         Map<String, Image> images;
@@ -834,7 +830,7 @@ public class Stage {
                 images.put(info.labels.get(Stage.CONTAINER_LABEL_APP), Image.load(engine, info.labels.get(CONTAINER_LABEL_IMAGE)));
             }
         }
-        for (Map.Entry<String, Ports> entry : loadPorts(engine).entrySet()) {
+        for (Map.Entry<String, Ports> entry : pool.stage(name).entrySet()) {
             app = entry.getKey();
             if (oneApp == null || oneApp.equals(app)) {
                 addUrlMap(images.get(app), app, entry.getValue(), result);
@@ -890,11 +886,11 @@ public class Stage {
     }
 
     /** @return empty list of no ports are allocated */
-    public List<String> namedUrls(Engine engine, String oneApp) throws IOException {
+    public List<String> namedUrls(Engine engine, Pool pool, String oneApp) throws IOException {
         List<String> result;
 
         result = new ArrayList<>();
-        for (Map.Entry<String, String> entry : urlMap(engine, oneApp).entrySet()) {
+        for (Map.Entry<String, String> entry : urlMap(engine, pool, oneApp).entrySet()) {
             result.add(entry.getKey() + " " + entry.getValue());
         }
         return result;
@@ -935,12 +931,12 @@ public class Stage {
         return result;
     }
 
-    public int contentHash(Engine engine) throws IOException {
+    public int contentHash(Engine engine, Pool pool) throws IOException {
         return ("StageInfo{"
                 + "name='" + name + '\''
                 + ", comment='" + configuration.comment + '\''
                 // TODO: current image, container?
-                + ", urls=" + urlMap(engine, null)
+                + ", urls=" + urlMap(engine, pool, null)
                 + ", running=" + dockerRunningContainerList(engine)
                 + '}').hashCode();
     }
@@ -989,12 +985,12 @@ public class Stage {
 
     //-- for dashboard
 
-    public String sharedText(Engine engine) throws IOException {
+    public String sharedText(Engine engine, Pool pool) throws IOException {
         Map<String, String> urls;
         String content;
         StringBuilder builder;
 
-        urls = urlMap(engine, null);
+        urls = urlMap(engine, pool, null);
         if (urls == null) {
             return "";
         }

@@ -65,9 +65,10 @@ public class StageController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    public ModelAndView stagesAsHtml(ModelAndView modelAndView) throws IOException {
+    public ModelAndView stages(ModelAndView modelAndView) throws IOException {
         modelAndView.setViewName("stages");
         modelAndView.addObject("engine", engine);
+        modelAndView.addObject("pool", server.pool(engine));
         modelAndView.addObject("userManager", server.userManager);
         modelAndView.addObject("stages", list());
 

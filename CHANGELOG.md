@@ -22,6 +22,7 @@ server
   (thanks to Andreas K)
 * added `ENGINE_LOG` server configuration
 * reject `REGISTRY_PREFIX` server configuration with upper cases characters
+* speedup dashboard
 
 
 ### 5.0.0 (2019-06-24)

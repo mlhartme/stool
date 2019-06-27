@@ -31,6 +31,7 @@ import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Info;
+import net.oneandone.stool.server.util.Pool;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
@@ -304,16 +305,18 @@ public class ApiController {
 
     @GetMapping("/stages//{stage}/await-startup")
     public String awaitStartup(@PathVariable(value = "stage") String stageName) throws IOException {
+        Pool pool;
         Stage stage;
         JsonObject result;
 
         try (Engine engine = engine()) {
+            pool = server.pool(engine);
             stage = server.load(stageName);
             stage.awaitStartup(engine);
 
             result = new JsonObject();
             for (String app : stage.currentMap(engine).keySet()) {
-                result.add(app, array(stage.namedUrls(engine, app)));
+                result.add(app, array(stage.namedUrls(engine, pool, app)));
             }
             return result.toString();
         }
@@ -341,15 +344,13 @@ public class ApiController {
 
     @GetMapping("/stages/{stage}/tunnel")
     public String tunnel(@PathVariable(value = "stage") String stageName, @RequestParam("app") String app, @RequestParam("port") String port) throws IOException {
-        Stage stage;
         Ports ports;
         int mappedPort;
         JsonObject result;
         String privateKey;
 
         try (Engine engine = engine()) {
-            stage = server.load(stageName);
-            ports = stage.loadPorts(engine).get(app);
+            ports = server.pool(engine).stage(stageName).get(app);
             if (ports == null) {
                 throw new ArgumentException("app not found or not running: " + app);
             }

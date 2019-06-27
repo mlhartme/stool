@@ -1,7 +1,7 @@
 <th:block xmlns:th="http://www.thymeleaf.org" th:each="stage : ${stages}">
     <th:block th:with="status=${stage.currentMap(engine).isEmpty() ? 'down' : 'up'}, user=${userManager.checkedByLogin(stage.lastModifiedBy())}">
     <tr class="stage" th:data-name="${stage.name}" th:data-user="${user}" th:data-status="${status}"
-        th:data-content-hash="${stage.contentHash(engine)}" th:data-updateAvailable="${stage.updateAvailable()}">
+        th:data-content-hash="${stage.contentHash(engine, pool)}" th:data-updateAvailable="${stage.updateAvailable()}">
 
         <td class="status">
             <div th:class="${'status badge badge-' + stage.displayState(engine)}">
@@ -11,7 +11,7 @@
                                th:data-content="${stage.configuration.comment.isEmpty() ? '(no comment)' : stage.configuration.comment}"
                                data-trigger="hover" th:text="${stage.name}"></span></td>
         <td class="links">
-            <th:block th:each="url : ${stage.urlMap(engine, null)}">
+            <th:block th:each="url : ${stage.urlMap(engine, pool, null)}">
                 <a th:href="${url.value}" target="_blank" th:text="${url.key}"></a><br/>
             </th:block>
         </td>
@@ -30,7 +30,7 @@
                     <a class="dropdown-item" href="#dashboard" data-action="start" th:data-stage="${stage.name}">Start</a>
                     <a class="dropdown-item" href="#dashboard" data-action="stop" th:data-stage="${stage.name}">Stop</a>
                     <a class="dropdown-item" href="#dashboard" data-action="set-properties" data-arguments="expire=%2B7" th:data-stage="${stage.name}">Expire in 1 week</a>
-                    <a class="dropdown-item" th:href="${'mailto:?subject=Stage&body=' + stage.sharedText(engine)}" th:disabled="${stage.urlMap(engine, null) == null}">
+                    <a class="dropdown-item" th:href="${'mailto:?subject=Stage&body=' + stage.sharedText(engine, pool)}" th:disabled="${stage.urlMap(engine, pool, null) == null}">
                         <span style="white-space: nowrap"><i class="fas fa-share"></i> Share</span></a>
                     <a class="dropdown-item" data-toggle="modal" data-target="#logs" th:data-stage="${stage.name}">Log files ...</a>
                 </div>
