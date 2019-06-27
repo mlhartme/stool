@@ -24,7 +24,6 @@ import net.oneandone.stool.server.users.UserNotFound;
 import net.oneandone.sushi.util.Separator;
 
 import javax.mail.MessagingException;
-import javax.naming.NamingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +38,7 @@ public class Validation {
         this.engine = engine;
     }
 
-    public List<String> run(String name, boolean email, boolean repair) throws IOException, MessagingException, NamingException {
+    public List<String> run(String name, boolean email, boolean repair) throws IOException, MessagingException {
         List<String> report;
         Stage stage;
 

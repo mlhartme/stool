@@ -20,10 +20,6 @@ import net.oneandone.stool.client.Reference;
 
 import java.util.List;
 
-/**
- * From a user's perspective, this behaves like a stage command; technocally, it is not because it easier to perfrom all validation
- * in a single server call.
- */
 public class Validate extends StageCommand {
     private final boolean email;
     private final boolean repair;

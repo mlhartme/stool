@@ -52,7 +52,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.mail.MessagingException;
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -261,8 +260,6 @@ public class ApiController {
             output = new Validation(server, engine).run(stage, email, repair);
         } catch (MessagingException e) {
             throw new IOException("email failure: " + e.getMessage(), e);
-        } catch (NamingException e) {
-            throw new IOException("naming exception: " + e.getMessage(), e);
         }
         return array(output).toString();
     }

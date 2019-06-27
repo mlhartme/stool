@@ -21,6 +21,7 @@ import net.oneandone.sushi.fs.http.HttpFilesystem;
 import net.oneandone.sushi.fs.http.Proxy;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -34,6 +35,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @SpringBootApplication
+@EnableScheduling
 @SuppressWarnings("checkstyle:HideUtilityClassConstructor") // instantiated by spring
 public class Main {
     public static void main(String[] args){
