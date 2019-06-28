@@ -41,7 +41,6 @@ import net.oneandone.stool.server.util.SshDirectory;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Diff;
 import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -185,8 +184,9 @@ public class Server {
                 if (!Server.majorMinor(was).equals(Server.majorMinor(version))) {
                     throw new IOException("cannot update - migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
                 }
-                Server.LOGGER.info("Updating server home " + was + " -> " + version + ": " + home);
-                update(version, home);
+                Server.LOGGER.info("minor version change " + was + " -> " + version + ": " + home);
+                homeVersionFile.writeString(version);
+                Server.LOGGER.info("version number updated");
             }
         } else {
             Server.LOGGER.info("initializing server home " + home);
@@ -212,47 +212,6 @@ public class Server {
         }
         home.join("templates").mkdirOpt();
         home.join("version").writeString(Main.versionString(world));
-    }
-
-    private static final List<String> CONFIG = Strings.toList();
-
-    private static void update(String version, FileNode home) throws IOException {
-        String was;
-        FileNode fresh;
-        FileNode dest;
-        String path;
-        String left;
-        String right;
-        int count;
-
-        was = home.join("version").readString().trim();
-        if (!Server.majorMinor(was).equals(Server.majorMinor(version))) {
-            throw new IOException("cannot update - migration needed: " + was + " -> " + version + ": " + home.getAbsolute());
-        }
-        fresh = home.getWorld().getTemp().createTempDirectory();
-        fresh.deleteDirectory();
-        initialize(fresh);
-        count = 0;
-        for (FileNode src : fresh.find("**/*")) {
-            if (!src.isFile()) {
-                continue;
-            }
-            path = src.getRelative(fresh);
-            if (CONFIG.contains(path)) {
-                continue;
-            }
-            dest = home.join(path);
-            left = src.readString();
-            right = dest.readString();
-            if (!left.equals(right)) {
-                Server.LOGGER.info("U " + path);
-                Server.LOGGER.info(Strings.indent(Diff.diff(right, left), "  "));
-                dest.writeString(left);
-                count++;
-            }
-        }
-        fresh.deleteTree();
-        Server.LOGGER.info("Done, " + count  + " file(s) updated.");
     }
 
     //--
@@ -369,18 +328,6 @@ public class Server {
         }, problems);
         for (Map.Entry<String, IOException> entry : problems.entrySet()) {
             reportException("listAll" /* TODO */, entry.getKey() + ": Session.listAll", entry.getValue());
-        }
-        return result;
-    }
-
-    public List<String> stageNames() throws IOException {
-        List<FileNode> directories;
-         List<String> result;
-
-        directories = stages.list();
-        result = new ArrayList<>(directories.size());
-        for (FileNode directory : directories) {
-            result.add(directory.getName());
         }
         return result;
     }
