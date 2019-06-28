@@ -68,7 +68,19 @@ public class Pool {
         this.datas = new ArrayList<>();
     }
 
-    public Ports allocate(Stage stage, String app, int http, int https) throws IOException {
+    public Map<String, Ports> stage(String name) {
+        Map<String, Ports> result;
+
+        result = new HashMap<>();
+        for (Data data : datas) {
+            if (name.equals(data.stage)) {
+                result.put(data.app, data.ports);
+            }
+        }
+        return result;
+    }
+
+    public synchronized Ports allocate(Stage stage, String app, int http, int https) throws IOException {
         String name;
         Ports previous;
 
@@ -87,7 +99,7 @@ public class Pool {
         }
     }
 
-    private Ports lookup(String name, String app) {
+    private synchronized Ports lookup(String name, String app) {
         for (Data data : datas) {
             if (name.equals(data.stage) && app.equals(data.app)) {
                 return data.ports;
@@ -95,6 +107,7 @@ public class Pool {
         }
         return null;
     }
+
     private boolean remove(String name, String app) {
         Data data;
 
@@ -161,17 +174,6 @@ public class Pool {
         throw new IOException("no free port in range " + first + " .. " + last);
     }
 
-    public int temp() throws IOException {
-        int current;
-
-        for (current = first; current <= last; current += 2) {
-            if (!isAllocated(current)) {
-                return current;
-            }
-        }
-        throw new IOException("cannot find free port in range [" + first + ", " + last + "[");
-    }
-
     private boolean isAllocated(int port) {
         for (Data data : datas) {
             if (data.ports.contains(port)) {
@@ -199,7 +201,7 @@ public class Pool {
     /**
      * See http://stackoverflow.com/questions/434718/sockets-discover-port-availability-using-java
      */
-    public static void checkFree(int port) throws IOException {
+    private static void checkFree(int port) throws IOException {
         boolean available;
         ServerSocket socket;
 
@@ -224,17 +226,5 @@ public class Pool {
         if (!available) {
             throw new IOException("port already in use: " + port);
         }
-    }
-
-    public Map<String, Ports> stage(String name) {
-        Map<String, Ports> result;
-
-        result = new HashMap<>();
-        for (Data data : datas) {
-            if (name.equals(data.stage)) {
-                result.put(data.app, data.ports);
-            }
-        }
-        return result;
     }
 }
