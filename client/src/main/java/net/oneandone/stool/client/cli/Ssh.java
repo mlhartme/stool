@@ -44,6 +44,10 @@ public class Ssh extends StageCommand {
         try {
             launcher = world.getWorking().launcher("ssh");
             launcher.arg("stool@" + reference.client.getServer());
+            if (console.getVerbose()) {
+                launcher.arg("-v");
+            }
+            launcher.arg("-i");
             launcher.arg(privateKey.getAbsolute());
 
             launcher.env("SSH_AUTH_SOCK", ""); // make sure not to save keys: disable agent
