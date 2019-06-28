@@ -23,6 +23,8 @@ server
 * fixed image label name for url context from `url.server` to `url.context`; this fixes the url context not being shown in urls 
   (thanks to Andreas K)
 * added `ENGINE_LOG` server configuration
+* fixed container prune before startup: the previous version only purged containers if the images didn't change
+  (also fixes images not being removed by new builds)
 * start api command: fixed rare https argument problem
 * reject `REGISTRY_PREFIX` server configuration with upper cases characters
 * speedup dashboard by optimizing docker communication

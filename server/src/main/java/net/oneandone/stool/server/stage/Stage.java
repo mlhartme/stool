@@ -497,9 +497,13 @@ public class Stage {
                         + "Consider stopping stages.");
             }
             memoryReserved += image.memory;
-            for (String old : engine.containerList(Stage.CONTAINER_LABEL_IMAGE, image.repositoryTag).keySet()) {
-                engine.containerRemove(old);
+            for (ContainerInfo info : engine.containerList(CONTAINER_LABEL_STAGE, name).values()) {
+                if (info.labels.get(CONTAINER_LABEL_APP).equals(image.app)) {
+                    Server.LOGGER.debug("wipe old image: " + info.id);
+                    engine.containerRemove(info.id);
+                }
             }
+            // TODO: ensure there was at most one container removed -- after all existing systems have been updated
             Server.LOGGER.debug("environment: " + environment);
             Server.LOGGER.info(image.app + ": starting container ... ");
             mounts = bindMounts(image);
