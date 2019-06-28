@@ -68,7 +68,7 @@ public class StageController {
     public ModelAndView stages(ModelAndView modelAndView) throws IOException {
         modelAndView.setViewName("stages");
         modelAndView.addObject("engine", engine);
-        modelAndView.addObject("pool", server.pool(engine));
+        modelAndView.addObject("pool", server.pool);
         modelAndView.addObject("userManager", server.userManager);
         modelAndView.addObject("stages", list());
 

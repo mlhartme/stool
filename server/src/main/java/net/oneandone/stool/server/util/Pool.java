@@ -68,7 +68,7 @@ public class Pool {
         this.datas = new ArrayList<>();
     }
 
-    public Map<String, Ports> stage(String name) {
+    public synchronized Map<String, Ports> stage(String name) {
         Map<String, Ports> result;
 
         result = new HashMap<>();
@@ -99,7 +99,7 @@ public class Pool {
         }
     }
 
-    private synchronized Ports lookup(String name, String app) {
+    private Ports lookup(String name, String app) {
         for (Data data : datas) {
             if (name.equals(data.stage) && app.equals(data.app)) {
                 return data.ports;

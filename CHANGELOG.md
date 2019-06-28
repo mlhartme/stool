@@ -22,7 +22,9 @@ server
   (thanks to Andreas K)
 * added `ENGINE_LOG` server configuration
 * reject `REGISTRY_PREFIX` server configuration with upper cases characters
-* speedup dashboard
+* speedup dashboard by optimizing docker communication
+  * in memory pool
+  * save some inspect calls by using the labels returned by list
 
 
 ### 5.0.0 (2019-06-24)

@@ -65,6 +65,7 @@ public class Server {
     public static Server create(World world) throws IOException {
         FileNode home;
         ServerConfiguration config;
+        Pool pool;
         Server server;
         FileNode serverHome;
         FileNode secrets;
@@ -81,13 +82,15 @@ public class Server {
         try (Engine engine = Engine.create(config.engineLogFile())) {
             inspected = inspectSelf(engine);
             binds = binds(inspected);
+            pool = Pool.load(engine,
+                    config.portFirst + 4 /* 4 ports reserved for the server (http(s), debug, jmx, unused) */, config.portLast);
             serverHome = toHostFile(binds, world.file("/var/lib/stool"));
             secrets = toHostFile(binds, world.file("/etc/fault/workspace"));
             networkMode = networkMode(inspected);
             LOGGER.info("network mode: " + networkMode);
             localhostIp = InetAddress.getByName("localhost").getHostAddress();
             LOGGER.info("localhostIp: " + localhostIp);
-            server = new Server(gson(world), home, serverHome, networkMode, localhostIp, secrets, config);
+            server = new Server(gson(world), home, serverHome, networkMode, localhostIp, secrets, config, pool);
             server.validate(engine);
             server.checkVersion();
             return server;
@@ -270,6 +273,8 @@ public class Server {
     /** used read-only */
     public final ServerConfiguration configuration;
 
+    public final Pool pool;
+
     private final FileNode stages;
 
     public final UserManager userManager;
@@ -279,7 +284,7 @@ public class Server {
     public final SshDirectory sshDirectory;
 
     public Server(Gson gson, FileNode home, FileNode serverHome, String networkMode, String localhostIp,
-                  FileNode secrets, ServerConfiguration configuration) throws IOException {
+                  FileNode secrets, ServerConfiguration configuration, Pool pool) throws IOException {
         this.gson = gson;
         this.home = home;
         this.logRoot = home.join("logs");
@@ -289,6 +294,7 @@ public class Server {
         this.localhostIp = localhostIp;
         this.secrets = secrets;
         this.configuration = configuration;
+        this.pool = pool;
         this.stages = home.join("stages");
         this.userManager = UserManager.loadOpt(home.join("users.json"));
         this.accessors = StageConfiguration.accessors();
@@ -457,11 +463,6 @@ public class Server {
     }
 
     //-- stool properties
-
-    public Pool pool(Engine engine) throws IOException {
-        return Pool.load(engine, configuration.portFirst + 4 /* 4 ports reserved for the server (http(s), debug, jmx, unused) */,
-                configuration.portLast);
-    }
 
     public static Gson gson(World world) {
         return new GsonBuilder()

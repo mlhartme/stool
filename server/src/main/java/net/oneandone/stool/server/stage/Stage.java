@@ -239,7 +239,7 @@ public class Stage {
         fields.add(new Field("urls") {
             @Override
             public Object get(Engine engine) throws IOException {
-                return namedUrls(engine, server.pool(engine), null);
+                return namedUrls(engine, server.pool, null);
             }
         });
         return fields;

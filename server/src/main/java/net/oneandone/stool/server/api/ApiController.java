@@ -31,7 +31,6 @@ import net.oneandone.stool.server.stage.Stage;
 import net.oneandone.stool.server.users.User;
 import net.oneandone.stool.server.util.AppInfo;
 import net.oneandone.stool.server.util.Info;
-import net.oneandone.stool.server.util.Pool;
 import net.oneandone.stool.server.util.Ports;
 import net.oneandone.stool.server.util.PredicateParser;
 import net.oneandone.stool.server.util.Property;
@@ -299,24 +298,22 @@ public class ApiController {
             stage = server.load(stageName);
             stage.checkExpired();
             stage.checkDiskQuota(engine);
-            return array(stage.start(engine, server.pool(engine), http, https, environment, apps)).toString();
+            return array(stage.start(engine, server.pool, http, https, environment, apps)).toString();
         }
     }
 
     @GetMapping("/stages//{stage}/await-startup")
     public String awaitStartup(@PathVariable(value = "stage") String stageName) throws IOException {
-        Pool pool;
         Stage stage;
         JsonObject result;
 
         try (Engine engine = engine()) {
-            pool = server.pool(engine);
             stage = server.load(stageName);
             stage.awaitStartup(engine);
 
             result = new JsonObject();
             for (String app : stage.currentMap(engine).keySet()) {
-                result.add(app, array(stage.namedUrls(engine, pool, app)));
+                result.add(app, array(stage.namedUrls(engine, server.pool, app)));
             }
             return result.toString();
         }
@@ -349,23 +346,21 @@ public class ApiController {
         JsonObject result;
         String privateKey;
 
-        try (Engine engine = engine()) {
-            ports = server.pool(engine).stage(stageName).get(app);
-            if (ports == null) {
-                throw new ArgumentException("app not found or not running: " + app);
-            }
-            switch (port) {
-                case "jmx":
-                    mappedPort = ports.jmxmp;
-                    break;
-                case "debug":
-                    mappedPort = ports.debug;
-                    break;
-                default:
-                    throw new ArgumentException("unknown port: " + port);
-            }
-            privateKey = server.sshDirectory.add(mappedPort);
+        ports = server.pool.stage(stageName).get(app);
+        if (ports == null) {
+            throw new ArgumentException("app not found or not running: " + app);
         }
+        switch (port) {
+            case "jmx":
+                mappedPort = ports.jmxmp;
+                break;
+            case "debug":
+                mappedPort = ports.debug;
+                break;
+            default:
+                throw new ArgumentException("unknown port: " + port);
+        }
+        privateKey = server.sshDirectory.add(mappedPort);
         result = new JsonObject();
         result.add("port", new JsonPrimitive(mappedPort));
         result.add("privateKey", new JsonPrimitive(privateKey));
