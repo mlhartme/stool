@@ -82,8 +82,7 @@ public class Server {
         try (Engine engine = Engine.create(config.engineLogFile())) {
             inspected = inspectSelf(engine);
             binds = binds(inspected);
-            pool = Pool.load(engine,
-                    config.portFirst + 4 /* 4 ports reserved for the server (http(s), debug, jmx, unused) */, config.portLast);
+            pool = config.loadPool(engine);
             serverHome = toHostFile(binds, world.file("/var/lib/stool"));
             secrets = toHostFile(binds, world.file("/etc/fault/workspace"));
             networkMode = networkMode(inspected);

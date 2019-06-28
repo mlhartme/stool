@@ -27,6 +27,7 @@ import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class Validation {
@@ -44,19 +45,20 @@ public class Validation {
 
         stage = server.load(name);
         report = new ArrayList<>();
-        validateStage(stage, report, repair);
+        doRun(stage, report, repair);
         if (email) {
             email(stage.notifyLogins(), report);
         }
         return report;
     }
 
-    private void validateStage(Stage stage, List<String> report, boolean repair) throws IOException {
+    private void doRun(Stage stage, List<String> report, boolean repair) throws IOException {
         String message;
 
         try {
             stage.checkExpired();
             stage.checkDiskQuota(engine);
+            checkPorts(stage);
             return;
         } catch (ArgumentException e) {
             message = e.getMessage();
@@ -86,6 +88,17 @@ public class Validation {
                             + (server.configuration.autoRemove - stage.configuration.expire.expiredDays()) + " day(s)");
                 }
             }
+        }
+    }
+
+    private void checkPorts(Stage stage) throws IOException {
+        Map<String, Ports> internal;
+        Map<String, Ports> external;
+
+        internal = server.pool.stage(stage.getName());
+        external = server.configuration.loadPool(engine).stage(stage.getName());
+        if (!internal.equals(external)) {
+            throw new ArgumentException("ports mismatch:\n  internal: " + internal + "\n  external: " + external);
         }
     }
 

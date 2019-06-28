@@ -94,6 +94,24 @@ public class Ports {
         return http == port || https == port || jmxmp == port || debug == port;
     }
 
+    public String toString() {
+        return "Ports(http=" + http + ", https=" + https + ", jmxmp=" + jmxmp + ", debug=" + debug + ")";
+    }
+
+    public int hashCode() {
+        return http ^ https ^ jmxmp ^ debug;
+    }
+
+    public boolean equals(Object obj) {
+        Ports ports;
+
+        if (obj instanceof Ports) {
+            ports = (Ports) obj;
+            return http == ports.http && https == ports.https && jmxmp == ports.jmxmp && debug == ports.debug;
+        }
+        return false;
+    }
+
     public Map<String, String> toUsedLabels() {
         return toLabels(Stage.CONTAINER_LABEL_PORT_USED_PREFIX);
     }

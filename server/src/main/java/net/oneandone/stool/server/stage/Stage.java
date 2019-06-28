@@ -898,6 +898,7 @@ public class Stage {
 
     public void remove(Engine engine) throws IOException {
         wipeDocker(engine);
+        server.pool.remove(name);
         getDirectory().deleteTree();
     }
 

@@ -80,6 +80,21 @@ public class Pool {
         return result;
     }
 
+    public synchronized int remove(String name) {
+        Data data;
+        int count;
+
+        count = 0;
+        for (int i = 0; i < datas.size(); i++) {
+            data = datas.get(i);
+            if (name.equals(data.stage)) {
+                datas.remove(i);
+                count++;
+            }
+        }
+        return count;
+    }
+
     public synchronized Ports allocate(Stage stage, String app, int http, int https) throws IOException {
         String name;
         Ports previous;
@@ -87,7 +102,7 @@ public class Pool {
         name = stage.getName();
         previous = lookup(name, app);
         if (previous != null) {
-            if ((http != -1 && http != previous.http) || (https != -1 && https != previous.http)) {
+            if ((http != -1 && http != previous.http) || (https != -1 && https != previous.https)) {
                 previous = null;
                 remove(name, app);
             }

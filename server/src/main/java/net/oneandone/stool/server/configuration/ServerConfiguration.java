@@ -15,8 +15,11 @@
  */
 package net.oneandone.stool.server.configuration;
 
+import net.oneandone.stool.server.docker.Engine;
 import net.oneandone.stool.server.util.Mailer;
+import net.oneandone.stool.server.util.Pool;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -131,7 +134,11 @@ public class ServerConfiguration {
         environment = new HashMap<>();
     }
 
-    public void loadEnv() {
+    public Pool loadPool(Engine engine) throws IOException {
+        return Pool.load(engine, portFirst + 4 /* 4 ports reserved for the server (http(s), debug, jmx, unused) */, portLast);
+    }
+
+    private void loadEnv() {
         String name;
         String str;
 
