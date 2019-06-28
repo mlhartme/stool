@@ -252,6 +252,9 @@ rest client for Stool server, and Stool server wraps a Docker Engine.
 `stool` *global-option*... `tunnel` *stage-option*... *app* *port* [*local*]
 
 
+`stool` *global-option*... `ssh` *stage-option*... *app*
+
+
 `stool` *global-option*... `validate` *stage-option*... [`-email`] [`-repair`]
 
 [//]: # (-)
@@ -875,6 +878,19 @@ Starts an ssh tunnel to the specified *port* of the specified *app*. *port* can 
 permission to access this port. TODO: currently, only the user who built the app is permitted. Press Ctrl-C to forcibly close the tunnel.
 
 Use *local* to specify the port to bind locally (defaults to the remote port).
+
+
+### stool-ssh
+
+Ssh into the running app
+
+#### SYNOPSIS
+
+`stool` *global-option*... `ssh` *stage-option*... *app*
+
+#### DESCRIPTION
+
+Starts an ssh shell in the specified app. Reports an error if the app is not running.
 
 
 ### stool-validate

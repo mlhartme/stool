@@ -57,13 +57,24 @@ public class SshDirectory {
         count = 0;
     }
 
-    public synchronized String add(int mappedPort) throws IOException {
+    public synchronized String addPort(int mappedPort) throws IOException {
         RsaKeyPair pair;
 
         pair = RsaKeyPair.generate();
         count++;
         directory.join(count + PUB_SUFFIX).writeString(
                 "command=\"sleep 60; echo closing\",permitopen=\"localhost:" + mappedPort + "\" " + pair.publicKey("stool-" + count));
+        update();
+        return pair.privateKey();
+    }
+
+    public synchronized String addExec(String container) throws IOException {
+        RsaKeyPair pair;
+
+        pair = RsaKeyPair.generate();
+        count++;
+        directory.join(count + PUB_SUFFIX).writeString(
+                "command=\"docker exec -it " + container + " /bin/bash\" " + pair.publicKey("stool-" + count));
         update();
         return pair.privateKey();
     }

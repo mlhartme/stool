@@ -88,6 +88,7 @@ public class Main {
                       cli.add(Status.class, "status info* { select*(info) }");
                       cli.add(Stop.class, "stop app*");
                       cli.add(Tunnel.class, "tunnel app port local?");
+                      cli.add(Ssh.class, "ssh app");
                       cli.add(Validate.class, "validate -email -repair");
 
         return cli.run(args);

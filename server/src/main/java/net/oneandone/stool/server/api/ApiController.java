@@ -360,11 +360,28 @@ public class ApiController {
             default:
                 throw new ArgumentException("unknown port: " + port);
         }
-        privateKey = server.sshDirectory.add(mappedPort);
+        privateKey = server.sshDirectory.addPort(mappedPort);
         result = new JsonObject();
         result.add("port", new JsonPrimitive(mappedPort));
         result.add("privateKey", new JsonPrimitive(privateKey));
         return result.toString();
+    }
+
+    @GetMapping("/stages/{stage}/ssh")
+    public String ssh(@PathVariable(value = "stage") String stageName, @RequestParam("app") String app) throws IOException {
+        Stage stage;
+        Stage.Current current;
+        String privateKey;
+
+        stage = server.load(stageName);
+        try (Engine engine = engine()) {
+            current = stage.currentMap(engine).get(app);
+        }
+        if (current == null || current.container == null) {
+            throw new ArgumentException("app not found or not running: " + app);
+        }
+        privateKey = server.sshDirectory.addExec(current.container.id);
+        return new JsonPrimitive(privateKey).toString();
     }
 
     @ExceptionHandler({ ArgumentException.class })

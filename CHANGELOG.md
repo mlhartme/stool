@@ -15,8 +15,10 @@ client
 * properly report Stool server name if it returns eof
 * setup no longer configures a mail host (because mri.server.lan need authentication)
 * update application plugin 1.6.2 to 1.6.3
+* added `ssh` client command
 
 server
+* added `ssh` api command
 * added scheduled task to automatically validate stages every night
 * fixed image label name for url context from `url.server` to `url.context`; this fixes the url context not being shown in urls 
   (thanks to Andreas K)

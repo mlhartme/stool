@@ -212,6 +212,15 @@ public class Client {
         return getJson(node).getAsJsonObject();
     }
 
+    /** remote port or permission denied */
+    public String ssh(String stage, String app) throws IOException {
+        HttpNode node;
+
+        node = node(stage, "ssh");
+        node = node.withParameter("app", app);
+        return getJson(node).getAsString();
+    }
+
     public void remove(String stage) throws IOException {
         postEmpty(node(stage, "remove"), "");
     }
