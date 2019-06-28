@@ -506,10 +506,10 @@ public class Server {
         reserved = 0;
         for (FileNode directory : stages.list()) {
             stage = load(directory);
-            for (Map.Entry<String, Stage.Current> entry : stage.currentMap(engine).entrySet()) {
-                info = entry.getValue().container;
+            for (Stage.Current current : stage.currentMap(engine).values()) {
+                info = current.container;
                 if (info != null) {
-                    reserved += entry.getValue().image.disk;
+                    reserved += current.image.disk;
                 }
             }
         }
