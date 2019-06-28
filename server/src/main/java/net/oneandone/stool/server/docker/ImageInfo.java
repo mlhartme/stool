@@ -16,13 +16,16 @@
 package net.oneandone.stool.server.docker;
 
 import java.util.List;
+import java.util.Map;
 
 public class ImageInfo {
     public final String id;
     public final List<String> repositoryTags;
+    public final Map<String, String> labels;
 
-    public ImageInfo(String id, List<String> repositoryTags) {
+    public ImageInfo(String id, List<String> repositoryTags, Map<String, String> labels) {
         this.id = id;
         this.repositoryTags = repositoryTags;
+        this.labels = labels;
     }
 }

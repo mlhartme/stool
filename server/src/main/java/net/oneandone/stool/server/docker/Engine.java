@@ -166,6 +166,8 @@ public class Engine implements AutoCloseable {
         String id;
         JsonElement repoTags;
         List<String> repositoryTags;
+        JsonObject object;
+        JsonElement l;
 
         node = root.join("images/json");
         node = node.withParameter("all", "true");
@@ -175,11 +177,13 @@ public class Engine implements AutoCloseable {
         array = parser.parse(node.readString()).getAsJsonArray();
         result = new HashMap<>(array.size());
         for (JsonElement element : array) {
-            id = element.getAsJsonObject().get("Id").getAsString();
+            object = element.getAsJsonObject();
+            id = object.get("Id").getAsString();
             id = Strings.removeLeft(id, "sha256:");
-            repoTags = element.getAsJsonObject().get("RepoTags");
+            repoTags = object.get("RepoTags");
             repositoryTags = repoTags.isJsonNull() ? new ArrayList<>() : stringList(repoTags.getAsJsonArray());
-            result.put(id, new ImageInfo(id, repositoryTags));
+            l = object.get("Labels");
+            result.put(id, new ImageInfo(id, repositoryTags, l.isJsonNull() ? new HashMap<>() : toStringMap(l.getAsJsonObject())));
         }
         return result;
     }

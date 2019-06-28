@@ -15,7 +15,6 @@
  */
 package net.oneandone.stool.server.docker;
 
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.server.ArgumentException;
@@ -56,7 +55,7 @@ public class EngineIT {
         String container;
 
         try (Engine engine = create()) {
-            image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD ls -la /dev/fuse\n"), false, null);
+            image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD ls -la /dev/fuse\n"), false, null);
             container = engine.containerCreate(image, "somehost");
             engine.containerStart(container);
             Thread.sleep(1000);
@@ -68,14 +67,14 @@ public class EngineIT {
     @Test(expected = ArgumentException.class)
     public void rejectBuildWithUppercaseTag() throws IOException {
         try (Engine engine = create()) {
-            engine.imageBuild("tagWithUpperCase", Collections.emptyMap(), Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD ls -la /\n"), false, null);
+            engine.imageBuild("tagWithUpperCase", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD ls -la /\n"), false, null);
         }
     }
 
     @Test
     public void invalidDockerfile() throws IOException {
         try (Engine engine = create()) {
-            engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), df("FROM debian:stretch-slim\nls -la /dev/fuse\n"), false, null);
+            engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nls -la /dev/fuse\n"), false, null);
             fail();
         } catch (StatusException e) {
             assertEquals(400, e.getStatusLine().code);
@@ -96,7 +95,7 @@ public class EngineIT {
         labels = Strings.toMap("stooltest", UUID.randomUUID().toString());
         try (Engine engine = create()) {
             assertTrue(engine.imageList(labels).isEmpty());
-            engine.imageBuild("sometag", Collections.emptyMap(), labels, df("FROM debian:stretch-slim\nRUN touch abc\nCMD sleep 2\n"), false, null);
+            engine.imageBuild("sometag", Collections.emptyMap(), labels, dockerfile("FROM debian:stretch-slim\nRUN touch abc\nCMD sleep 2\n"), false, null);
             ids = new ArrayList<>(engine.imageList(labels).keySet());
             assertEquals(1, ids.size());
             image = ids.get(0);
@@ -171,7 +170,7 @@ public class EngineIT {
         message = UUID.randomUUID().toString();
 
         try (Engine engine = create()) {
-            image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
+            image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
             assertNotNull(image);
 
             container = engine.containerCreate(null, image, "foo", null, false,
@@ -226,7 +225,7 @@ public class EngineIT {
         message = UUID.randomUUID().toString();
 
         try (Engine engine = create()) {
-            image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
+            image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
             container = engine.containerCreate(null, image, "foo", null, false,
                     limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
             engine.containerStart(container);
@@ -238,7 +237,7 @@ public class EngineIT {
             engine.imageRemove(image, false);
         }
         try (Engine engine = create()) {
-            image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), df("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
+            image = engine.imageBuild("sometag", Collections.emptyMap(), Collections.emptyMap(), dockerfile("FROM debian:stretch-slim\nCMD echo " + message + ";sleep 5\n"), false, null);
             container = engine.containerCreate(null, image, "foo", null, false,
                     limit, null, null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
             engine.containerStart(container);
@@ -259,7 +258,7 @@ public class EngineIT {
         long duration;
 
         try (Engine engine = create()) {
-            output = engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\nCMD [\"/bin/sleep\", \"30\"]\n"));
+            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD [\"/bin/sleep\", \"30\"]\n"));
             assertNotNull(output);
 
             container = engine.containerCreate(null, image, "foo", null, false, null, /*"SIGQUIT"*/ null, 3,
@@ -284,7 +283,7 @@ public class EngineIT {
         String container;
 
         try (Engine engine = create()) {
-            output = engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\nCMD echo $foo $notfound $xxx\n"));
+            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD echo $foo $notfound $xxx\n"));
             assertNotNull(output);
             container = engine.containerCreate(null, image, "foo", null, false, null, /*"SIGQUIT"*/ null, 3,
                     Collections.emptyMap(), Strings.toMap("foo", "bar", "xxx", "after"), Collections.emptyMap(), Collections.emptyMap());
@@ -309,7 +308,7 @@ public class EngineIT {
         home = WORLD.getHome();
         file = home.createTempFile();
         try (Engine engine = create()) {
-            output = engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "\n"));
+            output = engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD ls " + file.getAbsolute() + "\n"));
             assertNotNull(output);
 
             container = engine.containerCreate(null, image, "foo", null, false, null, null, null,
@@ -331,7 +330,7 @@ public class EngineIT {
         String image = "stooltest";
 
         try (Engine engine = create()) {
-            engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\nRUN /bin/nosuchcmd\nCMD [\"echo\", \"hi\", \"/\"]\n"));
+            engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nRUN /bin/nosuchcmd\nCMD [\"echo\", \"hi\", \"/\"]\n"));
             fail();
         } catch (BuildError e) {
             // ok
@@ -347,7 +346,7 @@ public class EngineIT {
         String container;
 
         try (Engine engine = create()) {
-            engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\nCMD [\"/nosuchcmd\"]\n"));
+            engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\nCMD [\"/nosuchcmd\"]\n"));
             container = engine.containerCreate(image, "foo");
             assertNotNull(container);
             assertEquals(Engine.Status.CREATED, engine.containerStatus(container));
@@ -375,7 +374,7 @@ public class EngineIT {
         String image = "stooltest";
 
         try (Engine engine = create()) {
-            engine.imageBuildWithOutput(image, df("FROM debian:stretch-slim\ncopy nosuchfile /nosuchfile\nCMD [\"echo\", \"hi\", \"/\"]\n"));
+            engine.imageBuildWithOutput(image, dockerfile("FROM debian:stretch-slim\ncopy nosuchfile /nosuchfile\nCMD [\"echo\", \"hi\", \"/\"]\n"));
             fail();
         } catch (BuildError e) {
             // ok
@@ -389,33 +388,20 @@ public class EngineIT {
         Map<String, String> labels = Strings.toMap("a", "b", "1", "234");
         StringWriter output;
         String image;
+        ImageInfo info;
 
         try (Engine engine = create()) {
             output = new StringWriter();
-            image = engine.imageBuild("labeltest", Collections.emptyMap(), labels, df("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
+            image = engine.imageBuild("labeltest", Collections.emptyMap(), labels, dockerfile("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
                     false, output);
-            assertEquals(labels, imageLabels(engine, image));
+            info = engine.imageList().get(image);
+            assertEquals(labels, info.labels);
         }
     }
-
-    private Map<String, String> imageLabels(Engine engine, String id) throws IOException {
-        JsonObject response;
-        JsonObject labels;
-        Map<String, String> result;
-
-        result = new HashMap<>();
-        response = engine.imageInspect(id);
-        labels = response.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
-        for (Map.Entry<String, JsonElement> entry : labels.entrySet()) {
-            result.put(entry.getKey(), entry.getValue().getAsString());
-        }
-        return result;
-    }
-
 
     //--
 
-    private FileNode df(String dockerfile, FileNode ... extras) throws IOException {
+    private FileNode dockerfile(String dockerfile, FileNode ... extras) throws IOException {
         FileNode dir;
 
         dir = WORLD.getTemp().createTempDirectory();
