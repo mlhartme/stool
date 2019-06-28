@@ -15,6 +15,7 @@
  */
 package net.oneandone.stool.server.docker;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import net.oneandone.stool.server.ArgumentException;
@@ -393,9 +394,24 @@ public class EngineIT {
             output = new StringWriter();
             image = engine.imageBuild("labeltest", Collections.emptyMap(), labels, df("FROM debian:stretch-slim\nCMD [\"echo\", \"hi\", \"/\"]\n"),
                     false, output);
-            assertEquals(labels, engine.imageLabels(image));
+            assertEquals(labels, imageLabels(engine, image));
         }
     }
+
+    private Map<String, String> imageLabels(Engine engine, String id) throws IOException {
+        JsonObject response;
+        JsonObject labels;
+        Map<String, String> result;
+
+        result = new HashMap<>();
+        response = engine.imageInspect(id);
+        labels = response.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
+        for (Map.Entry<String, JsonElement> entry : labels.entrySet()) {
+            result.put(entry.getKey(), entry.getValue().getAsString());
+        }
+        return result;
+    }
+
 
     //--
 

@@ -728,20 +728,6 @@ public class Engine implements AutoCloseable {
         return parser.parse(node.readString()).getAsJsonObject();
     }
 
-    public Map<String, String> imageLabels(String id) throws IOException {
-        JsonObject response;
-        JsonObject labels;
-        Map<String, String> result;
-
-        result = new HashMap<>();
-        response = imageInspect(id);
-        labels = response.get("Config").getAsJsonObject().get("Labels").getAsJsonObject();
-        for (Map.Entry<String, JsonElement> entry : labels.entrySet()) {
-            result.put(entry.getKey(), entry.getValue().getAsString());
-        }
-        return result;
-    }
-
     public JsonObject imageInspect(String id) throws IOException {
         HttpNode node;
 
