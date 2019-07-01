@@ -46,24 +46,21 @@ public class Validation {
         stage = server.load(name);
         report = new ArrayList<>();
         doRun(stage, report, repair);
-        if (email) {
+        if (email && !report.isEmpty()) {
             email(stage.notifyLogins(), report);
         }
         return report;
     }
 
     private void doRun(Stage stage, List<String> report, boolean repair) throws IOException {
-        String message;
-
         try {
             stage.checkExpired();
             stage.checkDiskQuota(engine);
             checkPorts(stage);
             return;
         } catch (ArgumentException e) {
-            message = e.getMessage();
+            report.add(e.getMessage());
         }
-        report.add(message);
         if (repair) {
             if (!stage.dockerRunningContainerList(engine).isEmpty()) {
                 try {
@@ -103,7 +100,7 @@ public class Validation {
     }
 
 
-    private void email(Set<String> users, List<String> report) throws MessagingException {
+    private void email(String name, Set<String> users, List<String> report) throws MessagingException {
         String hostname;
         Mailer mailer;
         String email;
@@ -118,7 +115,8 @@ public class Validation {
                 Server.LOGGER.error("cannot send email, there's nobody to send it to.");
             } else {
                 Server.LOGGER.info("sending email to " + email);
-                mailer.send("stool@" + hostname, new String[] { email }, "Validation of your stage(s) on " + hostname + " failed", body);
+                mailer.send("stool@" + hostname, new String[] { email },
+                        "stage validation failed: " + name + "@" + hostname + " failed", body);
             }
         }
     }
