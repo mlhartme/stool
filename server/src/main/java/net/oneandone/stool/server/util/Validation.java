@@ -47,7 +47,7 @@ public class Validation {
         report = new ArrayList<>();
         doRun(stage, report, repair);
         if (email && !report.isEmpty()) {
-            email(stage.notifyLogins(), report);
+            email(name, stage.notifyLogins(), report);
         }
         return report;
     }
