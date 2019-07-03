@@ -116,7 +116,7 @@ public class Validation {
             } else {
                 Server.LOGGER.info("sending email to " + email);
                 mailer.send("stool@" + hostname, new String[] { email },
-                        "stage validation failed: " + name + "@" + hostname + " failed", body);
+                        "stage validation failed: " + name + "@" + hostname, body);
             }
         }
     }
