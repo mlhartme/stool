@@ -915,61 +915,28 @@ Note: This is a stage command, use `stool help stage-options` to see available [
 
 ## Setup
 
+Stool is split into a client and a server part; `dashboard` as is part of the server. 
+The server part is optional, it's fine to just install the client on your machine and configure it to talk to remote servers.
+
+### Client setup
+
 Prerequisites:
 * Linux or Mac
 * Java 8 or higher. This is prerequisite because Stool is implemented in Java 8, you need it to run Stool itself. 
   However, you can build and run your stages with any Java version you choose.
-* Docker 18.03 or newer
 
-Stool is split into `stool` itself and the `dashboard`. The dashboard is optional, it makes some of Stool's functionality available in a browser.
-
-### Install Stool
-
-You can install Stool on your machine either as a Debian package or from an application download:
-
-Debian package:
-* Download the latest `deb` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22)
-  (I'd like to have a public Debian repository instead, by I don't know who would host this for free).
-* install it with `dpkg -i`
-
-Application download: 
+Install steps
 * Download the latest `application.sh` file from [Maven Central](http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22net.oneandone.stool%22%20AND%20a%3A%22main%22)
 * Make it executable, rename it to `stool` and add it to your $PATH.
-
-Now check your installation: get `stool` - you should get a usage message.
-
-
-### User configuration
-
-Every user has it's own set of Stages.
-
-For every user that wants to use Stool:
-* Optional: define an environment variable `STOOL_HOME` in your shell initialization (e.g. `~/.bash_profile`)
-* Run `stool setup` to create Stool's home directory (default is `~/.stool`, override by defining `STOOL_HOME`).
-* Adjust `~/.stool/server.yml` to your needs: see [server configuration](#stool-server-configuration)
-* If you did not install the Debian package: source `~/.stool/shell.rc` in your shell initialization file (e.g. `~/.bash_profile`).
-* run `stool validate` to check you setup
+* run `stool setup`
 
 
-### Cron job
+### Server setup
 
-You should setup a cronjob that runs
+Prerequisites:
+* Docker 18.03 or newer
 
-    stool validate -all -email -repair
-    
-every night. That will check for expired stages. And also rotate log files.
-
-
-### Dashboard setup
-
-* cd into Stool's home directory
-* `stool create gav:net.oneandone.stool:dashboard:`*version* `.stool/system/dashboard`
-* `nano ~/.stool/dashboard.properties` to specify 
-  * `sso`: single sign on url to access the dashboard; missing or empty means: no authentication
-  * `svnuser`: specifices value for `-svnuser` when invoking Stool
-  * `svnpassword`: specifies value for `-svnpassword` when invoking Stool
-* `stool port dashboard=8000`
-* `stool start`
+TODO
 
 
 ### Upgrading 
