@@ -1,6 +1,6 @@
 ## Changelog 
 
-### 5.0.1 (pending)
+### 5.0.1 (2019-07-11)
 
 client
 * fixed java version detection if JAVA_TOOL_OPTIONS are set (thanks to Radek S)
