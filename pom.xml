@@ -29,7 +29,7 @@
 
   <groupId>net.oneandone.stool</groupId>
   <artifactId>stool</artifactId>
-  <version>5.0.2-SNAPSHOT</version>
+  <version>5.0.1-SNAPSHOT</version>
 
   <packaging>pom</packaging>
 

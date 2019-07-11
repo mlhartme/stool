@@ -5,13 +5,13 @@
   <parent>
     <groupId>net.oneandone.stool</groupId>
     <artifactId>stool</artifactId>
-    <version>5.0.2-SNAPSHOT</version>
+    <version>5.0.1-SNAPSHOT</version>
   </parent>
 
   <name>Stool Server</name>
   <groupId>net.oneandone.stool</groupId>
   <artifactId>server</artifactId>
-  <version>5.0.2-SNAPSHOT</version>
+  <version>5.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
   <description>Stool's server component.</description>
 
