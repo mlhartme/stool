@@ -520,7 +520,7 @@ public class Server {
                 throw new ArgumentException("fault project unknown or not accessible on this host: " + project);
             }
             if (!Separator.COMMA.split(lst).contains(user)) {
-                throw new ArgumentException(project + ": permission denied for user " + user);
+                throw new ArgumentException("fault project " + project + ": permission denied for user " + user);
             }
         }
     }
