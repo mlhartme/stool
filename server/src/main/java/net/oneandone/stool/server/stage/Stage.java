@@ -37,7 +37,6 @@ import net.oneandone.sushi.fs.GetLastModifiedException;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.Node;
 import net.oneandone.sushi.fs.file.FileNode;
-import net.oneandone.sushi.util.Separator;
 
 import javax.management.AttributeNotFoundException;
 import javax.management.InstanceNotFoundException;
@@ -660,7 +659,7 @@ public class Stage {
         }
         missing = new ArrayList<>();
         if (server.configuration.auth()) {
-            checkPermissions(image.createdBy, image.faultProjects);
+            server.checkFaultPermissions(image.createdBy, image.faultProjects);
         }
         for (String project : image.faultProjects) {
             innerFile = server.world.file("/etc/fault/workspace").join(project);
@@ -676,25 +675,6 @@ public class Stage {
         }
         return result;
 
-    }
-
-    private void checkPermissions(String user, List<String> projects) throws IOException {
-        Properties permissions;
-        String lst;
-
-        if (projects.isEmpty()) {
-            return;
-        }
-        permissions = server.world.file("/etc/fault/workspace.permissions").readProperties();
-        for (String project : projects) {
-            lst = permissions.getProperty(project);
-            if (lst == null) {
-                throw new ArgumentException("fault project unknown or not accessible on this host: " + project);
-            }
-            if (!Separator.COMMA.split(lst).contains(user)) {
-                throw new ArgumentException(project + ": permission denied for user " + user);
-            }
-        }
     }
 
     private FileNode populateContext(FileNode context, String app, FileNode war, FileNode src) throws IOException {

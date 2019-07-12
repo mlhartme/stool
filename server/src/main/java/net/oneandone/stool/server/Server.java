@@ -41,6 +41,7 @@ import net.oneandone.stool.server.util.SshDirectory;
 import net.oneandone.sushi.fs.MkdirException;
 import net.oneandone.sushi.fs.World;
 import net.oneandone.sushi.fs.file.FileNode;
+import net.oneandone.sushi.util.Separator;
 import net.oneandone.sushi.util.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /** Immutable. */
 public class Server {
@@ -503,4 +505,24 @@ public class Server {
         }
         LOGGER.info("server validation ok");
     }
+
+    public void checkFaultPermissions(String user, List<String> projects) throws IOException {
+        Properties permissions;
+        String lst;
+
+        if (projects.isEmpty()) {
+            return;
+        }
+        permissions = world.file("/etc/fault/workspace.permissions").readProperties();
+        for (String project : projects) {
+            lst = permissions.getProperty(project);
+            if (lst == null) {
+                throw new ArgumentException("fault project unknown or not accessible on this host: " + project);
+            }
+            if (!Separator.COMMA.split(lst).contains(user)) {
+                throw new ArgumentException(project + ": permission denied for user " + user);
+            }
+        }
+    }
+
 }

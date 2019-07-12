@@ -346,6 +346,7 @@ public class ApiController {
         JsonObject result;
         String privateKey;
 
+        currentWithPermissions(stageName, app);
         ports = server.pool.stage(stageName).get(app);
         if (ports == null) {
             throw new ArgumentException("app not found or not running: " + app);
@@ -369,9 +370,17 @@ public class ApiController {
 
     @GetMapping("/stages/{stage}/ssh")
     public String ssh(@PathVariable(value = "stage") String stageName, @RequestParam("app") String app) throws IOException {
-        Stage stage;
         Stage.Current current;
         String privateKey;
+
+        current = currentWithPermissions(stageName, app);
+        privateKey = server.sshDirectory.addExec(current.container.id);
+        return new JsonPrimitive(privateKey).toString();
+    }
+
+    private Stage.Current currentWithPermissions(String stageName, String app) throws IOException {
+        Stage stage;
+        Stage.Current current;
 
         stage = server.load(stageName);
         try (Engine engine = engine()) {
@@ -380,8 +389,8 @@ public class ApiController {
         if (current == null || current.container == null) {
             throw new ArgumentException("app not found or not running: " + app);
         }
-        privateKey = server.sshDirectory.addExec(current.container.id);
-        return new JsonPrimitive(privateKey).toString();
+        server.checkFaultPermissions(User.authenticatedOrAnonymous().login, current.image.faultProjects);
+        return current;
     }
 
     @ExceptionHandler({ ArgumentException.class })

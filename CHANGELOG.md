@@ -1,5 +1,10 @@
 ## Changelog 
 
+### 5.0.2 (pending)
+
+server
+* fixed permission check in ssh and tunnel api calls
+
 ### 5.0.1 (2019-07-11)
 
 client

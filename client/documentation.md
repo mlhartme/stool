@@ -605,6 +605,8 @@ tag is used. Use `stool app` to see available images.
 
 Before starting an app, Stool checks if it has previously been started. If so, the respective container is removed.
 
+Startup is refused if the user who built the image does not have access to all fault projects of the image.
+
 Startup is refused if your stage has expired. In this case, use `stool config expire=`*newdate* to configure a new `expire` date.
 
 Startup is also refused if the disk or memory quota exceeded. In this case, stop some other stages.
@@ -877,6 +879,8 @@ Start an ssh tunnel
 Starts an ssh tunnel to the specified *port* of the specified *app*. *port* can be `debug` or `jmx`. Reports an error if you have no
 permission to access this port. TODO: currently, only the user who built the app is permitted. Press Ctrl-C to forcibly close the tunnel.
 
+The tunnel is refused if the current user does not have access to all fault projects of the image.
+
 Use *local* to specify the port to bind locally (defaults to the remote port).
 
 
@@ -892,6 +896,7 @@ Ssh into the running app
 
 Starts an ssh shell in the specified app. Reports an error if the app is not running.
 
+The shell is refused if the current user does not have access to all fault projects of the image.
 
 ### stool-validate
 
