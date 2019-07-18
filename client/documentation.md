@@ -595,13 +595,15 @@ Start a stage
 
 #### SYNOPSIS
 
-`stool` *global-option*... `start` *stage-option*... [*key*`=`*value*...][*app*[`:`*tag*] ...]
+`stool` *global-option*... `start` *stage-option*... [-http *port*] [-https *port*] [*key*`=`*value*...][*app*[`:`*tag*] ...]
 
 #### Description
 
 Starts the specified *app*s (if not specified: all that are not running yet) with the environment arguments specified
 by *key*=*value* arguments. *app* can be specified with a tag to determin the actual image to be started; if not specified, the latest
 tag is used. Use `stool app` to see available images.
+
+If you specify http or https options, the respective port will be used for the application. Otherwise, those ports are chosen automatically.
 
 Before starting an app, Stool checks if it has previously been started. If so, the respective container is removed.
 
