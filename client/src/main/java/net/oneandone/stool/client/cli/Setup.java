@@ -67,12 +67,13 @@ public class Setup {
     }
 
     public void run() throws IOException {
-        console.info.println("Stool " + version + " setup");
-        console.info.println();
-
         if (home.isDirectory()) {
-            throw new IOException("TODO: upgrade");
+            // TODO check for upgrade
+            console.info.println("Nothing to do. Stool is set up in " + home.getAbsolute());
         } else {
+            console.info.println("Stool " + version + " setup");
+            console.info.println();
+
             create();
         }
     }

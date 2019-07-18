@@ -2,6 +2,10 @@
 
 ### 5.0.2 (pending)
 
+client
+* improved error message if setup is called twice (thanks to Helena R)
+
+
 server
 * fixed permission check in ssh and tunnel api calls
 
