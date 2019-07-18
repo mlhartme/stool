@@ -222,7 +222,7 @@ rest client for Stool server, and Stool server wraps a Docker Engine.
 `stool` *global-option*... `remove` *stage-option*... [`-stop`] [`-batch`]
 
 
-`stool` *global-option*... `start` *stage-option*... [*key*`=`*value*...][*app*[`:`*tag*] ...]
+`stool` *global-option*... `start` *stage-option*... [-http *port*] [-https *port*] [*key*`=`*value*...][*app*[`:`*tag*] ...]
 
 
 `stool` *global-option*... `stop` *stage-option*... [*app*...]
