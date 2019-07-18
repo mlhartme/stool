@@ -477,7 +477,7 @@ public class Server {
             throw new IOException("don't know how to generate certificate: " + script);
         }
         file = home.join("certs", certname);
-        tmp = world.getTemp().createTempDirectory();
+        tmp = world.getTemp().createTempDirectory();  // fresh tmp directory to use the script for different stages concurrently
         LOGGER.debug(tmp.exec(script.getAbsolute(), certname, file.getAbsolute()));
         tmp.deleteTree();
         return serverHome.join(file.getRelative(home));
