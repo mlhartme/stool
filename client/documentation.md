@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Stool is a tool to manage stages: create, build, start, stop, remove. A stage is a set of Web applications
+Stool is a tool to manage stages: create, build, start, stop, remove. A stage is a set of Web applications (aka apps).
 
 ### Quick Tour
 
@@ -10,15 +10,20 @@ For setup instructions, please read the respective section below. The following 
 
 Here's an example, what you can do with Stool. 
 
-Enter a project directory with a Web application of your - or get a sample application with
+Enter a project directory with a readily built Web application of yours - or get a sample application with
 
     git clone ssh://git@github.com/mlhartme/hellowar.git hellowar
     cd hellowar
-        
-Create a new stage by checking out application sources:
+    mvn clean package
+    
+Create a new stage with
 
     stool create hello@localhost
 
+and build and image with
+
+    stool build
+    
 Start it:
 
     stool start
@@ -35,7 +40,7 @@ To remove the stage, stop the application with
 
     stool stop
 
-and wipe it from your disk with
+and wipe the stage with
 
     stool remove
 
@@ -64,7 +69,7 @@ prints help about `create`.
 
 ### Conventions
 
-* Stool is written with a capital S)
+* Stool is written with a capital S
 * `type writer font` marks things to type or technical terms from Stool.
 * italics mark *text* to be replaced by the user
 * bold face highlights term in definition lists
@@ -74,45 +79,47 @@ prints help about `create`.
 
 ## Concepts
 
-### Stage
-
-A stage is a set of apps, where each app is typically a Tomcat servlet container (http://tomcat.apache.org) with a Java web application 
-(https://en.wikipedia.org/wiki/Java_Servlet). Apps are stored as images, and you can have different images for different versions of the 
-app. Technially, any image is a Docker image, and if you start an app, the respective Docker container is created.
-
-* **name**
-  Unique identifier and user readable identification for a stage. The name of the attached stage is shown in your shell prompt, and it's 
-  usually part of the application url(s). The name is defined when you create a stage, and you cannot change it later.
-* **running**
-  true if at least on app of the stage is running; otherwise false. Running means the container is up and you can access the stage in
-  your browser. You can check the state with `stool status` or `stool list`.
-* **last-modified-by**
-  The user that last changed this stage.
-
-
 ### Project
 
-The current project is a the base directory user for various Stool command, in particular for building. In most cases, the current project
-has a stage attached. 
+A project is a directory (tree) holding source code you can build. The current working directory implies a current project. Various Stool
+commands - in particular: `build` - use the current project (e.g. to locate war files).
+
+In most cases, the current project has a stage attached. 
 
 You can specify the current project with the `-project` command line option; if not specified the current directory and its parent 
 directories are searched for a `.backstage` directory. If successful, that's the project; otherwise, the current directory is the project 
 (without stage attached).
 
+Projects can optionally have a `.backstage` file. If this file exists, it defines the attached stage; otherwise, the 
+project has no attached stage. The backstage file is created when you create a stage, it's created or modified by the `attach` command,
+and it's removed by `detach`. 
+
+### Stage
+
+A stage is a set of apps, where each app is Web Application, something you can point your browser to. Typically, that's a Tomcat servlet 
+container (http://tomcat.apache.org) with a Java web application (https://en.wikipedia.org/wiki/Java_Servlet). Apps are stored as images, 
+and you can have different images for different versions of the app. Technically, any image is a Docker image, and starting an app creates 
+the respective Docker container.
+
+A stage is hosted on a server. Every stage name unique on that machine. A stage is referenced by *name*`@`*server*. The attached stage is 
+shown in your shell prompt, and it's part of the application url(s). Stage name and server are defined when you create a stage, you cannot 
+change it later.
+
 
 ### App
 
-A set of docker images with the same name.
+A set of docker images with the same name but different tags. If you use Stool to build stages, the tag is simply a number, that's incremented
+with every build.
 
 ### Image
 
+A Docker image with various label. TODO
+
 * **origin**
-  Specifies where the image came from: A Subversion URL, a git url, Maven coordinates, or
-  a file url pointing to a war file. Examples:
-  
+  Specifies where the image came from, e.g. a Subversion URL or a git url, Maven like
       git:ssh://git@github.com/mlhartme/hellowar.git
       svn:https://github.com/mlhartme/hellowar/trunk
-      gav:net.oneandone:hellowar:1.0.2
+
 
 ### Attached stage and stage indicator
 
@@ -141,12 +148,6 @@ Besides properties, stages have build options and environment variables for ever
 values.
  
 
-### Backstage
-
-Projects can optionally have a `.backstage` file. If this file exists, it defines the attached stage; otherwise, the 
-project has no attached stage. The backstage file is created when you create a stage, it's created or modified by the `attach` command,
-and it's removed by `detach`. 
-
 ### Stage Expiring
 
 Every stage has an `expire` property that specifies how long the stage is needed. You can see the expire date with `stool config expire`. 
@@ -163,7 +164,6 @@ Otherwise, remove the stage.
 
 The dashboard is the UI for Stool server. 
 
-
 ## Commands
 
 ### stool
@@ -176,8 +176,8 @@ Stage tool
 
 #### DESCRIPTION
 
-`stool` is a command line tool to manage stages. After creating a stage, you can build, start and apps for it.
-*command* defaults to `help`. Stages can be managed on any machine that runs a Stool server daemon. Technically, `stool` is a 
+`stool` is a command line tool to manage stages. After creating a stage, you can manage apps in it.
+*command* defaults to `help`. Stages can be hosted on any machine that runs a Stool server daemon. Technically, `stool` is a 
 rest client for Stool server, and Stool server wraps a Docker Engine.
 
 
@@ -269,12 +269,11 @@ rest client for Stool server, and Stool server wraps a Docker Engine.
 
 The following environment variables can be used to configure Stool server in `$STOOL_HOME/server/server.yml`. 
 
-
 * **ADMIN** 
   Email of the person to receive validation failures and exception mails. Empty to disable these emails.
   Type string, default empty. Example: `Max Mustermann <max@mustermann.org>`.
 * **APP_PROPERTIES_FILE** and **APP_PROPERTIES_PREFIX** 
-  Where in a war file to locate the properties file to configure build arguments.
+  Where in a war file to locate the properties file that defines build arguments.
 * **AUTO_REMOVE**
   Days to wait before removing an expired stage. -1 to disable this feature. Type number, default -1. 
 * **DISK_QUOTA**
@@ -290,7 +289,7 @@ The following environment variables can be used to configure Stool server in `$S
 * **ENVIRONMENT** 
   Default environment variables set automatically when starting apps, can be overwritten by the `start` command. Type map, default empty.
 * **JMX_USAGE**
-  How to invoke a jmx client in your environment. Type string, default "jconsole %s".  
+  How to invoke a jmx client in your environment. Type string, default "jconsole localhost:%i".  
 * **LDAP_CREDENTIALS**
   Password for Ldap authentication. Ignored if ldap is disabled. Type string, default empty.
 * **LDAP_PRINCIPAL**
@@ -310,9 +309,12 @@ The following environment variables can be used to configure Stool server in `$S
 * **MAIL_PASSWORD**
   Password for mailHost. Type string, default empty.
 * **MEMORY_QUOTA**
-  Max memory that all apps may allocate. 0 to disable. Type number, default 0.
+  Max memory that all apps may reserve. 0 to disable. Type number, default 0.
 * **PORT_FIRST**
-  First port available for stages. Type number, default 9000.
+  First port available for stages. Note that the first 4 values are reserved for the dashboard and will not be used for stages.
+  Stool allocates stage ports from the range $PORT_FIRST ... $POST_LAST. To choose a port for a given Stage, Stool computes a hash of stage
+  and app name in this range. If this port if already allocated, the next higher port is checked (with roll-over to portFirst if necessary).
+  Type number, default 9000.
 * **PORT_LAST**
   Last port available for stages. Type number, default 9999.
 * **REGISTRY_NAMESPACE**
@@ -321,12 +323,6 @@ The following environment variables can be used to configure Stool server in `$S
   `true` to create urls with subdomains for app and stage name.
   `false` to create urls without subdomains. (Note that urls always contain the port to distinguish between stages). Type boolean. 
   If you want to enable vhosts you need the respective DNS * entries for your machine.
-  
-
-#### Ports
-
-Stool allocates ports from the range $PORT_FIRST ... $POST_LAST. To choose a port for a given Stage, Stool computes a hash in this range.
-If this port if already allocated, the next higher port is checked (with roll-over to portFirst if necessary).
 
 
 #### Environment
@@ -795,7 +791,7 @@ Display app status
 
 #### SYNOPSIS
 
-`stool` *global-option*... `app *stage-option*...
+`stool` *global-option*... `app` *stage-option*...
 
 
 #### DESCRIPTION
