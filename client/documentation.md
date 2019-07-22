@@ -600,7 +600,7 @@ Start a stage
 #### Description
 
 Starts the specified *app*s (if not specified: all that are not running yet) with the environment arguments specified
-by *key*=*value* arguments. *app* can be specified with a tag to determin the actual image to be started; if not specified, the latest
+by *key*=*value* arguments. *app* can be specified with a tag to determine the actual image to be started; if not specified, the latest
 tag is used. Use `stool app` to see available images.
 
 If you specify http or https options, the respective port will be used for the application. Otherwise, those ports are chosen automatically.
@@ -612,8 +612,6 @@ Startup is refused if the user who built the image does not have access to all f
 Startup is refused if your stage has expired. In this case, use `stool config expire=`*newdate* to configure a new `expire` date.
 
 Startup is also refused if the disk or memory quota exceeded. In this case, stop some other stages.
-
-und 
 
 [//]: # (include stageOptions.md)
 
@@ -770,7 +768,7 @@ Available fields:
 * **running**
   Currently running images of this stage.
 * **urls**
-  Urls for all apps of this stage. Point your browser to one fo them access your app(s).
+  Urls for all apps of this stage. Point your browser to one of them to access your app(s).
 * **created-by**
   User who created this stage.
 * **created-at**
@@ -779,8 +777,6 @@ Available fields:
   User who last modified this stage.
 * **last-modified-at**
   Last modified date of this stage.
-
-TODO: what else?
 
 
 [//]: # (include stageOptions.md)
@@ -795,52 +791,55 @@ Display app status
 
 #### SYNOPSIS
 
-`stool` *global-option*... `app` *stage-option*...
+`stool` *global-option*... `app` *stage-option*... *app*...
 
 
 #### DESCRIPTION
 
-Available fields: TODO
+Display status info about the specified app(s), default is all apps.
 
-* **apps**
-  Application urls of this stage. Point your browser to one fo them access your application(s).
-* **backstage**
-  Absolute path of the backstage directory. Type string.
-* **buildtime**
-  Last modified date of the war files for this stage.
+Per-app fields:
 * **container**
   container id if the stage is running.
-* **cpu**
-  Cpu usage reported by Docker: percentage of this container's cpu utilisation relative to total system utilisation.
-* **created-at**
-  When the stage was created.
-* **created-by**
-  User who created this stage. Type string.
-* **directory**
-  Absolute path of the stage directory. Type string.
-* **disk**
-  Disk space used for by stage directory mb. Does not include disk space used for Docker image and container. Type number.
-* **container-disk**
-  Disk space used for by running container in mb. This does not include the size of the underlying image, it's just the size of the RW layer. Type number.
-* **id**
-  Unique identifier for this stage. Type string.
-* **last-modified-at**
-  When this stage was last changed.
-* **last-modified-by**
-  The user that last maintained this stage, i.e. executed a Stool command like start, or stop.
-* **mem**
-  Memory usage reported by Docker: percentage of memory limit actually used. Note that this memory also includes 
-  disk caches, so a high value does not necessarily indicate a problem. Type number.
-* **selected**
-  `true` if this is the selected stage. Type boolean.
-* **state**
-  `down` or `up`. Type string.
 * **uptime**
   How long this stage is in state `up`. Empty if stage is not up. Type string.
-* **type**
-  `source` or `artifact`. Type string.
-* **origin**
-  Origin of this stage. Type string.
+* **disk-used**
+  Disk space used for by running container in mb. This does not include the size of the underlying image, it's just the size of the RW layer. Type number.
+* **cpu**
+  Cpu usage reported by Docker: percentage of this container's cpu utilisation relative to total system utilisation.#
+* **mem**
+  Memory usage reported by Docker
+* **heap**
+  Java Heap usage reported by Jmx.
+* **debug port**
+  Port for debugging.
+* **jmx port **
+  Port for jmx.
+
+
+Per-image fields:
+
+* **disk**
+  Read/write disk space that has to be reserved for this image. Type number (mb).
+* **memory**
+  Memory that has to be reserved for this image. Type number (mb).
+* **build args*
+  Docker build arguments actually used to build this image.
+* **secrets*
+  Fault projects needed to run this image. Type String.
+* **comment**
+  comment attached to the image
+* **created-at**
+  When this image was added to the stage.
+* **created-by**
+  The user who added this image to the stage.
+* **origin-scm**
+  Source scm this image was built from. Type string.
+* **origin-user**
+  Who build this image. Type string.
+
+
+
   
 
 [//]: # (include stageOptions.md)
