@@ -5,9 +5,9 @@
 client
 * improved error message if setup is called twice (thanks to Helena R)
 
-
 server
 * fixed permission check in ssh and tunnel api calls
+
 
 ### 5.0.1 (2019-07-11)
 
@@ -48,14 +48,14 @@ server
 
 Stool 5 separates building from running stages: you build on your local workstation, but run on a server. 
 To implement this, Stool was split into a client and a server part: the client runs on your local machine, and the server
-runs as a daemon on the server. Both communicate via rest (and you can run them both on the same machine).
+runs as a daemon on the server. Both communicate via rest. (Note: if you want, you can run them both on the same machine).
 Example: to create a new stage for a project on your local workstation, run:
 
     cd your/project                       # enter the project directory on your local workstation
     mvn clean install                     # or whatever you need to build your project from sources
     stool create teststage@someserver     # create a new stage on the server
     stool build                           # takes the war from your workstation to build a so-called image on the server
-    stool start                           # start you app on the server
+    stool start                           # start your app on the server
     
 
 #### Checkout and build changes
@@ -66,78 +66,86 @@ As a consequence, all features to manage projects were removed from Stool:
 * dumped the distinction between source and artifact stages; Stool now simply looks for `**/target/*.war` files 
 * the former `build` command to build a war for a source stage has been replaced by a new `build` command to build an image
 * the former `start` command no longer builds an image - it now expects a readily built image
-* the `create` command now expects an existing project
+* the `create` command now expects an existing project - scm checkouts have been removed from Stool
 * the `remove` command now just removes the stage - the project is *not* removed
-* dumped the `refresh` command
-  * dumped `refresh` stage config
-  * dumped `autoRefresh` stage config
 * dumped `build` command and the respective configuration
   * `build`, `pom`, `maven.home`, `maven.opts`, `prepare`
-  * dumped stage directory lock - Stool now assumes that the project is used exclusively by the current user
+  * dumped stage directory lock - Stool now assumes existing war files, so there's no need for locking
   * dumped Maven Embedded dependency
+* dumped the `refresh` command because Stool can no longer rebuild a project
+  * dumped `refresh` stage config
+  * dumped `autoRefresh` stage config
 * dumped `committed` configuration - start no longer checks for local modifications
 * dumped the `move` command
+* dumped the `rename` command; if you need to rename a stage, you now have to remove and re-create it now
 * dumped svn credentials handling
 * dumped macros
 * Stool no longer adjusts the current working directory
   * dumped `cd` 
   * dumped `select` (use `pommes goto` instead)
+  * dumped setenv dependency
+  
 
 #### Improved Docker integration
 
+* Stool now creates one image per war file (the previous version created one image per Stage)
+* replaced Stool config template arguments by Docker build arguments and Docker environment arguments:
+  * replaced `mode` by environment argument `mode`
+  * replaced `suspend` and `debug` ny environment arguments `suspend` and `debug`
+  * replaced `memory` by build argument `memory`
+  * replaced `url` by build arguments `server` and `suffixes`
+  * replaced `opts` by build argument `opts`
+  * replaced `version` by build argument `tomcat`
+  * replaced `cookies` by build argument `cookies`
+  * added build argument `java`
+  * dumped tomcat.certificate (this is part of the server configuration now)
+* downloading Tomcat was moved into the standard Dockerfile; removed Tomcat download functionality from Stool
+* removed Freemarker templates - a Stool template is a plain Dockerfile now
+* images now declare exposed ports via labels; when starting a stage, Stool sets up the respective mapping
+* dumped `port` command; instead, `start` has `-http` and `-https` options now
+* switched keystore format from JKS to PKCS12
+* changes in the standard Dockerfile
+  * renamed to `war`
+  * no longer set `-Xmx` (let the jvm figure out this)
+  * changed server.xml: set `deployXML` to false 
+    (since we now have exactly one web application per Tomcat, crossContext has no meaning; 
+    and I checked controlpanel trunk - is doesn't contain any symlink, so we can live without `allowLinking`)
 * dumped all bind mounts except for the log file directory and the https certificates;
   (instead of the vhosts bind mount the war file is copied into the image now)
-* replaced Stool config template arguments by Docker build arguments and Docker environment arguments:
-  TODO: all details
-    * replaced stage property `memory` by an build argument
-    * replaced stage property `url` by `server` and `suffixes` build arguments
-  * Stool now creates one image per war file (the previous version created one image per Stage)
-  * downloading Tomcat was moved into a Tomcat base image; Tomcat download functionality was removed from Stool
-  * removed Freemarker templates, a Stool template is a plain Dockerfile now
-  * images now declare exposed ports via labels; when starting a stage, Stool sets up the respective mapping
-  * dumped `port` command, instead, start has http and https options now
-  * switch keystore format from JKS to PKCS12
-  * changes in the standard Dockerfile
-    * no longer set `-Xmx` (let the jvm figure out this)
-    * changed server.xml: set `deployXML` to false 
-      (since we now have exactly one web application per Tomcat, crossContext has no meaning; 
-      and I checked controlpanel trunk - is doesn't contain any symlink, so we can live without `allowLinking`)
+
 
 #### Other changes
 
-* split the `main` module into a `client` and a `server` module, the communicate via rest; merged the dashboard into the server modules
-  
 * dashboard
+  * is now part of the server - it's the name over the overview page
   * dumped auto-reload of the ui
   * build and refresh are gone - use restart instead
-  * is now part of the server - it's the name over the overview page
   * added link to logs
   * updated bootstrap to 4.3.1
   
 * internal changes
   * dumped Debian packages: use application files from Maven Central instead; they work for Mac OS as well
 
-
 * stool home layout changes
-  * system directory is gone - there are no system stages any more
-  * run directory is gone - ports and locks are implemented by asking docker and storing them in memory
-  * downloads is gone - Stool no longer performs downloads, place them in your (base) Docker file instead
+  * `system` directory is gone - there are no system stages any more
+  * `run` directory is gone - ports and locks are implemented by asking docker and storing them in memory
+  * `downloads` is gone - Stool no longer performs downloads, place them in your (base) Docker file instead
   
-* replaced the `.backstage` directory tree by a single `.backstage` file; 
+* replaced the `.backstage` directory tree by a single `.backstage` file (containing the attached stage); 
   what happened to former files in this directory:
   * config.json was moved to the server;
-  * docker context directory and `image.log` was moved to the server (use the history command to see the image.log)
+  * Docker context directory and `image.log` were moved to the server (use the history command to see the image.log)
   * `container.id` is gone (instead, Stool queries the docker daemon to get running containers)  
 
-
 * dumped stage id, always use the name now
-* dumped the `rename` command; if you need to rename a stage, you now have to remove and re-create it now
 
 * removed client-side locking, logging and exception emails
 * removed `working` state
-
-* added `running` field
-
+* added `running` field that lists the actually running apps
+* removed `sleep` state and the corresponding `stop -sleep` flag, it was never used
+* dumped isSelected field
+* dumped `system` field for stages
+* dumped `type` field for stages
 * added `remove -stop` option
 * added `attach` and `detatch` commands to manage project - stage association
 * removed stageName column from server logs
@@ -150,37 +158,30 @@ As a consequence, all features to manage projects were removed from Stool:
 * use jmxmp
   - https://stackoverflow.com/questions/11412560/where-to-download-jmxmp
   - https://stackoverflow.com/questions/11413178/how-to-enable-jmxmp-in-tomcat
-  
-  
+
 * dumped user defaults -- only Max had used them
-* stage filter with substring, and case-insensitive
-
 * dumped "Manager" tag from server
-
-* validate now sends emails per stage
-  
-* dumped isSelected field
-* dumped cleanup command: there's no m2 repository to cleanup, and log file rotation has to be part of the server configuration
+* `validate` now sends emails per stage
+* dumped `cleanup` command: there's no m2 repository to wipe, and log file rotation has to be part of the server configuration
 * adjust help column width to terminal size
-* removed `sleep` state and the corresponding `stop -sleep` flag, it was never used
 * removed `shared` switch - local maven repository is now always the user's Maven repository
-* removed `system` marker for stages
-* quota now checks the container disk size; dumped the original disk size field and replaced it by the former container-disk field
+* quota now checks the container disk size (more precisely: the writable layer); dumped the original disk size field and replaced it by the 
+  former container-disk field
+
+* use Docker api 1.38+, that's the version available on Alex' Ubuntu 14.4 setup
+* dumped various 'auto' options
+* start now supports an image index argument
+* added `app` command to list images of an app
+* separate Start and Build commands; as a consequence, the restart command no longer has a nocache option; `build` is a project command
+
 * implementation changes
   * split Stage Class into a Project- and a new Stage class: project is everything around the former stage directory (which is 
     typically the checkout); the new Stage roughly represents the backstage directory
   * tomcatOpts no longer support macros
   * source bind mounts (used for fitnesse) are gone
   * remove Project.updatesAvailable
+  * updated inline 1.1.1 to 1.2.0
   
-* use docker api 1.38, that's the version available on Alex' old Ubuntu setup
-* dumped various 'auto' options - they were disabled for all remaining commands exception `remove`
-* start now takes an image index argument
-* added "app" command
-* dumped `type` field
-* updated inline 1.1.1 to 1.2.0
-* separate Start and Build commands; as a consequence, the restart command no longer has a nocache option; `build` is a project command
-
 
 ### 4.0.3 (2019-02-13)
 
