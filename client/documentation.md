@@ -327,7 +327,7 @@ The following environment variables can be used to configure Stool server in `$S
 
 #### Environment
 
-`STOOL_OPTS` to configure the underlying JVM.
+`STOOL_OPTS` to configure arguments passed to the underlying JVM.
  
 
 #### See Also
@@ -377,12 +377,12 @@ Authenticate to server(s)
 #### DESCRIPTION
 
 Asks for username/password to authenticate against ldap. If authentication succeeds, the respective *server* (if not specified: all servers
-that need authentication) is asked for an api token that will be stored and used for future access to this server.
+that need authentication) is asked for an api token that will be stored in `~/.stool/servers.yml` and used for future access to this server.
 
 
 ## Project commands
 
-Stage commands operate on a project, which is usually a checkout of the application you're working on. 
+Project commands operate on a project, which is usually a checkout of the application you're working on. 
 
 
 ### stool-project-options
@@ -413,11 +413,12 @@ Create a new stage
 Creates a new stage with the specified *name* one the specified *server* and attaches it to the project. 
 Reports an error if the server already hosts a stage with this name. 
 
+The name must contain only lower case ascii characters or digit. Otherwise it's rejected because it would cause problems with
+urls or docker tags that contain the name.
+
 The new stage is configured with the specified *key*/*value* pairs. Specifying a *key*/*value* pair is equivalent to running 
 [stool config](#stool-config) with these arguments.
 
-The name must contain only lower case ascii characters or digit. Otherwise it's rejected because it would cause problems with
-urls or docker tags that contain the name.
 
 
 #### Examples
@@ -431,7 +432,8 @@ Note: This is a project command, use `stool help project-options` to see availab
 
 ### stool-attach
 
-Attach a project to stage
+Attach stage to a project
+
 
 #### SYNOPSIS
 
@@ -479,13 +481,15 @@ Build a project
 
 #### DESCRIPTION
 
-Builds the specified wars (if not specified: all wars of the project) on the attached stage. The war is uploaded to the respective server 
-and a Docker build is run with the build arguments (specified by *key*`=`*value* arguments). Available build argument depend on the template 
-being used, you can see them in the error message if you specify an unknown build argument. Default build arguments are loaded from a 
-properties file in the war. You can see the build argument actually used for an image with `stool app`.
+Builds the specified war (if not specified: all wars of the project) on the attached stage. The war is uploaded to the respective server 
+and a Docker build is run with appropriate build arguments. Available build argument depend on the template being used, you can see them 
+in the error message if you specify an unknown build argument. Build arguments are loaded from a properties file in the war. 
+You can add additional argument or overwrite values by passing *key*`=`*value* arguments to the command.
+
+You can see the build argument actually used for an image with `stool app`.
 
 You can build a stage while it's running. In this case, specify `-restart` to stop the currently running image and that the newly build one.
-Or use `stool restart`. 
+Or use `stool restart` after the build.  
 
 *keep* specifies the number of images that will not be exceeded for this application, default is 3. I.e. if you already have 3 images 
 and run `build`, the oldest unreferenced image the will be removed. Unreferenced means it's not currently running in a container.
