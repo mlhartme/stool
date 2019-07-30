@@ -1,4 +1,4 @@
-FROM contargo.server.lan/cisoops-public/java-8
+FROM contargo.server.lan/cisoops-public/java-8:1.0.0
 
 ENV LOGLEVEL=INFO
 ENV REGISTRY_NAMESPACE=main

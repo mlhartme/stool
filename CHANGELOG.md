@@ -7,6 +7,7 @@ client
 
 server
 * fixed permission check in ssh and tunnel api calls
+* properly tagged base image (java:1.0.0)
 
 
 ### 5.0.1 (2019-07-11)
